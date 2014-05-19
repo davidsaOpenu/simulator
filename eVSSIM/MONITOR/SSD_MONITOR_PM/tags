@@ -1,0 +1,227 @@
+$(MOC	Makefile	/^$(MOC): $/
+$(TARGET	Makefile	/^$(TARGET):  $(UICDECLS) $(OBJECTS) $(OBJMOC)  $/
+.C.o	Makefile	/^.C.o:$/
+.SUFFIXES	Makefile	/^.SUFFIXES: .c .o .cpp .cc .cxx .C$/
+.c.o	Makefile	/^.c.o:$/
+.cc.o	Makefile	/^.cc.o:$/
+.cpp.o	Makefile	/^.cpp.o:$/
+.cxx.o	Makefile	/^.cxx.o:$/
+AR	Makefile	/^AR       = ar cqs$/
+CC	Makefile	/^CC       = gcc$/
+CFLAGS	Makefile	/^CFLAGS   = -pipe -g -Wall -W -O2 -D_REENTRANT  -DQ/
+CHK_DIR_EXISTS	Makefile	/^CHK_DIR_EXISTS= test -d$/
+COPY	Makefile	/^COPY     = cp -f$/
+COPY_DIR	Makefile	/^COPY_DIR = $(COPY) -r$/
+COPY_FILE	Makefile	/^COPY_FILE= $(COPY)$/
+CXX	Makefile	/^CXX      = g++$/
+CXXFLAGS	Makefile	/^CXXFLAGS = -pipe -g -Wall -W -O2 -D_REENTRANT  -DQ/
+DEL_DIR	Makefile	/^DEL_DIR  = rmdir$/
+DEL_FILE	Makefile	/^DEL_FILE = rm -f$/
+DESTDIR	Makefile	/^DESTDIR  = $/
+DIST	Makefile	/^DIST	   = ssd_monitor_p.pro$/
+FLASH_NB	form1.ui.h	22
+FORCE	Makefile	/^FORCE:$/
+FORM1_H	form1.h	10
+FORMS	Makefile	/^FORMS = form1.ui$/
+Form1	form1.h	29
+Form1::CELL_PROGRAM_DELAY	form1.h	107
+Form1::ExchangeCount	form1.h	127
+Form1::Form1	form1.cpp	/^Form1::Form1( QWidget* parent, const char* name, b/
+Form1::GCStarted	form1.h	114
+Form1::GC_NB	form1.h	113
+Form1::OverwriteCount	form1.h	128
+Form1::PowCount	form1.h	122
+Form1::RandMergeCount	form1.h	125
+Form1::ReadCount	form1.h	124
+Form1::ReadSecCount	form1.h	134
+Form1::ReadSectorCount	form1.h	115
+Form1::ReadTime	form1.h	132
+Form1::SeqMergeCount	form1.h	126
+Form1::TimeProg	form1.h	130
+Form1::TrimCount	form1.h	120
+Form1::TrimEffect	form1.h	119
+Form1::WriteAmpCount	form1.h	116
+Form1::WriteCount	form1.h	121
+Form1::WriteSecCount	form1.h	133
+Form1::WriteSectorCount	form1.h	118
+Form1::WriteTime	form1.h	131
+Form1::WrittenCorrectCount	form1.h	117
+Form1::access_time_reg_mon	form1.h	105
+Form1::access_type_reg_mon	form1.h	106
+Form1::btnConnect_clicked	form1.ui.h	/^void Form1::btnConnect_clicked()$/
+Form1::btnInit	form1.h	37
+Form1::btnInit_clicked	form1.ui.h	/^void Form1::btnInit_clicked()$/
+Form1::btnSave	form1.h	79
+Form1::btnSave_clicked	form1.ui.h	/^void Form1::btnSave_clicked()$/
+Form1::btnStop	form1.h	80
+Form1::btnStop_clicked	form1.ui.h	/^void Form1::btnStop_clicked()$/
+Form1::btnTrace	form1.h	81
+Form1::btnTrace_clicked	form1.ui.h	/^void Form1::btnTrace_clicked()$/
+Form1::chkTraceRead	form1.h	83
+Form1::chkTraceRead_toggled	form1.ui.h	/^void Form1::chkTraceRead_toggled( bool )$/
+Form1::chkTraceWrite	form1.h	84
+Form1::chkTraceWrite_toggled	form1.ui.h	/^void Form1::chkTraceWrite_toggled( bool )$/
+Form1::groupBox1	form1.h	38
+Form1::groupBox2	form1.h	50
+Form1::groupBox3	form1.h	60
+Form1::groupBox4	form1.h	58
+Form1::init	form1.ui.h	/^void Form1::init()$/
+Form1::init_var	form1.ui.h	/^void Form1::init_var()$/
+Form1::languageChange	form1.cpp	/^void Form1::languageChange()$/
+Form1::onReceive	form1.ui.h	/^void Form1::onReceive()$/
+Form1::onTimer	form1.ui.h	/^void Form1::onTimer()$/
+Form1::sock	form1.h	123
+Form1::textLabel1	form1.h	39
+Form1::textLabel1_2	form1.h	48
+Form1::textLabel1_2_2	form1.h	51
+Form1::textLabel1_2_2_3_2	form1.h	61
+Form1::textLabel1_2_2_3_2_2_2_2_2	form1.h	72
+Form1::textLabel1_2_2_3_2_2_2_2_2_2	form1.h	66
+Form1::textLabel1_2_2_3_2_2_2_2_2_2_2	form1.h	70
+Form1::textLabel1_2_2_3_2_2_2_2_2_2_2_2	form1.h	77
+Form1::textLabel1_2_2_3_2_2_2_2_2_2_2_2_2	form1.h	78
+Form1::textLabel1_2_3	form1.h	69
+Form1::textLabel1_3	form1.h	47
+Form1::textLabel1_3_3	form1.h	42
+Form1::textLabel1_3_3_2	form1.h	41
+Form1::textLabel1_4	form1.h	55
+Form1::textLabel1_5	form1.h	75
+Form1::textLabel2	form1.h	56
+Form1::textLabel3	form1.h	57
+Form1::textLabel4	form1.h	62
+Form1::textLabel5	form1.h	65
+Form1::timer	form1.h	129
+Form1::traceFile	form1.h	111
+Form1::traceFlag	form1.h	112
+Form1::traceRead	form1.h	109
+Form1::traceStream	form1.h	110
+Form1::traceWrite	form1.h	108
+Form1::txtDebug	form1.h	74
+Form1::txtGCStart	form1.h	54
+Form1::txtGarbageCollection	form1.h	53
+Form1::txtGarbageCollectionNB	form1.h	52
+Form1::txtReadCount	form1.h	49
+Form1::txtReadSectorCount	form1.h	46
+Form1::txtReadSpeed	form1.h	44
+Form1::txtSsdUtil	form1.h	68
+Form1::txtStopCount	form1.h	59
+Form1::txtTimeProg	form1.h	76
+Form1::txtTraceFile	form1.h	82
+Form1::txtTrimCount	form1.h	63
+Form1::txtTrimEffect	form1.h	64
+Form1::txtWriteAmpCount	form1.h	67
+Form1::txtWriteCount	form1.h	40
+Form1::txtWriteSectorCount	form1.h	45
+Form1::txtWriteSpeed	form1.h	43
+Form1::txtWrittenBlockCount	form1.h	71
+Form1::txtWrittenBlockCount_2	form1.h	73
+Form1::~Form1	form1.cpp	/^Form1::~Form1()$/
+GZIP	Makefile	/^GZIP     = gzip -9f$/
+HEADERS	Makefile	/^HEADERS = form1.ui.h$/
+INCPATH	Makefile	/^INCPATH  = -I\/usr\/share\/qt3\/mkspecs\/default -I. -I/
+INSTALL_DIR	Makefile	/^INSTALL_DIR = $(COPY_DIR)$/
+INSTALL_FILE	Makefile	/^INSTALL_FILE= $(COPY_FILE)$/
+LEX	Makefile	/^LEX      = flex$/
+LEXFLAGS	Makefile	/^LEXFLAGS = $/
+LFLAGS	Makefile	/^LFLAGS   = $/
+LIBS	Makefile	/^LIBS     = $(SUBLIBS) -L\/usr\/share\/qt3\/lib -L\/usr\//
+LINK	Makefile	/^LINK     = g++$/
+MKDIR	Makefile	/^MKDIR    = mkdir -p$/
+MOC	Makefile	/^MOC      = \/usr\/share\/qt3\/bin\/moc$/
+MOVE	Makefile	/^MOVE     = mv -f$/
+Makefile	Makefile	/^Makefile: ssd_monitor_p.pro  \/usr\/share\/qt3\/mkspec/
+Mmain.cpp	main.cpp	/^int main( int argc, char ** argv )$/
+OBJECTS	Makefile	/^OBJECTS = main.o \\$/
+OBJECTS_DIR	Makefile	/^OBJECTS_DIR = .\/$/
+OBJMOC	Makefile	/^OBJMOC = moc_form1.o$/
+PLANES_PER_FLASH	form1.ui.h	23
+QMAKE	Makefile	/^QMAKE    = qmake$/
+QMAKE_TARGET	Makefile	/^QMAKE_TARGET = ssd_monitor_p$/
+R	ssd_monitor_p	2314
+R	ssd_monitor_p	2316
+R	ssd_monitor_p	2318
+R	ssd_monitor_p	2320
+R	ssd_monitor_p	2322
+R	ssd_monitor_p	2323
+R	ssd_monitor_p	2324
+R	ssd_monitor_p	2325
+R	ssd_monitor_p	2348
+R	ssd_monitor_p	2352
+R	ssd_monitor_p	2354
+R	ssd_monitor_p	2356
+R	ssd_monitor_p	2357
+R	ssd_monitor_p	2358
+R	ssd_monitor_p	2359
+R	ssd_monitor_p	2362
+R	ssd_monitor_p	2365
+R	ssd_monitor_p	2366
+R	ssd_monitor_p	2368
+RANLIB	Makefile	/^RANLIB   = $/
+REG_IS_WRITE	form1.ui.h	20
+SOURCES	Makefile	/^SOURCES = main.cpp$/
+SRCMOC	Makefile	/^SRCMOC   = moc_form1.cpp$/
+SYMLINK	Makefile	/^SYMLINK  = ln -sf$/
+TAR	Makefile	/^TAR      = tar -cf$/
+TARGET	Makefile	/^TARGET   = ssd_monitor_p$/
+TEMPLATE	ssd_monitor_p.pro	5
+UIC	Makefile	/^UIC      = \/usr\/share\/qt3\/bin\/uic$/
+UICDECLS	Makefile	/^UICDECLS = form1.h$/
+UICIMPLS	Makefile	/^UICIMPLS = form1.cpp$/
+YACC	Makefile	/^YACC     = yacc$/
+YACCFLAGS	Makefile	/^YACCFLAGS= -d$/
+access	form1.ui	896
+access	form1.ui	897
+access	form1.ui	898
+access	form1.ui	899
+access	form1.ui	900
+access	form1.ui	901
+access	form1.ui	902
+access	form1.ui	903
+access	form1.ui	904
+access	form1.ui	905
+access	form1.ui	906
+access	form1.ui	907
+access	form1.ui	908
+access	form1.ui	909
+access	form1.ui	910
+access	form1.ui	911
+access	form1.ui	912
+access	form1.ui	913
+access	form1.ui	914
+access	form1.ui	915
+access	form1.ui	916
+access	form1.ui	917
+access	form1.ui	918
+access	form1.ui	919
+access	form1.ui	920
+access	form1.ui	921
+all	Makefile	/^all: Makefile $(TARGET)$/
+clean	Makefile	/^clean: mocclean uiclean$/
+dist	Makefile	/^dist: $/
+distclean	Makefile	/^distclean: clean$/
+f	ssd_monitor_p	/^f(‘$/
+first	Makefile	/^first: all$/
+form1.cpp	Makefile	/^form1.cpp: form1.h form1.ui form1.ui.h $/
+form1.h	Makefile	/^form1.h: form1.ui $/
+form1.o	Makefile	/^form1.o: form1.cpp form1.ui.h \\$/
+get_usec	form1.ui.h	/^long long int get_usec(void){$/
+install	Makefile	/^install:  $/
+lexclean	Makefile	/^lexclean:$/
+main.o	Makefile	/^main.o: main.cpp form1.h$/
+moc_form1.cpp	Makefile	/^moc_form1.cpp: $(MOC) form1.h$/
+moc_form1.o	Makefile	/^moc_form1.o: moc_form1.cpp  form1.h $/
+mocables	Makefile	/^mocables: $(SRCMOC)$/
+mocclean	Makefile	/^mocclean:$/
+n	ssd_monitor_p	2142
+qmake	Makefile	/^qmake: $/
+t	ssd_monitor_p	2153
+t	ssd_monitor_p	2175
+t	ssd_monitor_p	2182
+t	ssd_monitor_p	2187
+t	ssd_monitor_p	2190
+t	ssd_monitor_p	2193
+uicables	Makefile	/^uicables: $(UICDECLS) $(UICIMPLS)$/
+uiclean	Makefile	/^uiclean:$/
+uninstall	Makefile	/^uninstall:  $/
+version	form1.ui	1
+yaccclean	Makefile	/^yaccclean:$/
