@@ -89,7 +89,6 @@ void SEND_TO_PERF_CHECKER(int op_type, int64_t op_delay, int type){
 	char szTemp[1024];
 	char szUtil[1024];
 #endif
-
 	if(type == CH_OP){
 		switch(op_type){
 			case READ:
@@ -112,7 +111,8 @@ void SEND_TO_PERF_CHECKER(int op_type, int64_t op_delay, int type){
 			case GC_WRITE:
 				total_gc_write_delay += delay;
 				break;
-
+			case COPYBACK:
+				break;
 			default:
 				break;
 		}
@@ -154,7 +154,8 @@ void SEND_TO_PERF_CHECKER(int op_type, int64_t op_delay, int type){
 				/* Calc SSD Util */
 				written_page_nb++;
 				break;
-
+			case COPYBACK:
+				break;
 			default:
 				break;
 		}
@@ -178,7 +179,6 @@ void SEND_TO_PERF_CHECKER(int op_type, int64_t op_delay, int type){
 #ifdef MONITOR_ON
 				sprintf(szTemp, "WRITE BW %lf ", GET_IO_BANDWIDTH(avg_write_delay));
 				WRITE_LOG(szTemp);
-
 				sprintf(szUtil, "UTIL %lf ", ssd_util);
 				WRITE_LOG(szUtil);
 #endif

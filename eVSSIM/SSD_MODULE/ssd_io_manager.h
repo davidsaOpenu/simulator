@@ -22,6 +22,7 @@ int SSD_IO_INIT(void);
 int SSD_PAGE_READ(unsigned int flash_nb, unsigned int block_nb, unsigned int page_nb, int offset, int type, int io_page_nb);
 int SSD_PAGE_WRITE(unsigned int flash_nb, unsigned int block_nb, unsigned int page_nb, int offset, int type, int io_page_nb);
 int SSD_BLOCK_ERASE(unsigned int flash_nb, unsigned int block_nb);
+int SSD_PAGE_COPYBACK(int32_t source, int32_t destination, int type);
 
 /* Channel Access Delay */
 int SSD_CH_ENABLE(int channel);

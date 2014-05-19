@@ -57,6 +57,10 @@ extern int GC_THRESHOLD_BLOCK_NB_EACH;
 extern int GC_VICTIM_NB;
 #endif
 
+/*Statistics*/
+extern int STAT_TYPE;
+extern int STAT_SCOPE;
+extern char STAT_PATH[1024];
 void INIT_SSD_CONFIG(void);
 char* GET_FILE_NAME(void);
 

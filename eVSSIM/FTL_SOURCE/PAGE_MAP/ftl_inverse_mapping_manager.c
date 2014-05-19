@@ -479,6 +479,7 @@ empty_block_entry* GET_EMPTY_BLOCK(int mode, int mapping_index)
 		}
 
 		else if(mode == VICTIM_NOPARAL){
+			//Seems to have a bug here, not used somewhere in the project at the moment.
 			curr_root_entry = (empty_block_root*)empty_block_table_start + mapping_index;
 			if(curr_root_entry->empty_block_nb == 0){
 

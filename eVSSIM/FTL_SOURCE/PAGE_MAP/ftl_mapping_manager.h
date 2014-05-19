@@ -25,5 +25,8 @@ int UPDATE_NEW_PAGE_MAPPING(int32_t lpn, int32_t ppn);
 unsigned int CALC_FLASH(int32_t ppn);
 unsigned int CALC_BLOCK(int32_t ppn);
 unsigned int CALC_PAGE(int32_t ppn);
+unsigned int CALC_PLANE(int32_t ppn);
+unsigned int CALC_CHANNEL(int32_t ppn);
+unsigned int CALC_SCOPE_FIRST_PAGE(int32_t address, int scope);
 
 #endif

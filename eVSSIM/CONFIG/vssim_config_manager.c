@@ -46,6 +46,9 @@ int CHANNEL_SWITCH_DELAY_R;
 int DSM_TRIM_ENABLE;
 int IO_PARALLELISM;
 
+int STAT_SCOPE;
+int STAT_TYPE;
+
 /* Garbage Collection */
 #ifdef PAGE_MAP
 double GC_THRESHOLD;			// added by js
@@ -55,6 +58,7 @@ int GC_VICTIM_NB;
 #endif
 
 char gFile_Name[1024] = {0,};
+char STAT_PATH[1024] = {0,};
 
 void INIT_SSD_CONFIG(void)
 {
@@ -136,6 +140,18 @@ void INIT_SSD_CONFIG(void)
 			else if(strcmp(szCommand, "CHANNEL_NB") == 0)
 			{
 				fscanf(pfData, "%d", &CHANNEL_NB);
+			}
+			else if(strcmp(szCommand, "STAT_TYPE") == 0)
+			{
+				fscanf(pfData, "%d", &STAT_TYPE);
+			}
+			else if(strcmp(szCommand, "STAT_SCOPE") == 0)
+			{
+				fscanf(pfData, "%d", &STAT_SCOPE);
+			}
+			else if(strcmp(szCommand, "STAT_PATH") == 0)
+			{
+				fscanf(pfData, "%s", &STAT_PATH);
 			}
 #if defined FTL_MAP_CACHE 
 			else if(strcmp(szCommand, "CACHE_IDX_SIZE") == 0)

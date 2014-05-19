@@ -61,15 +61,15 @@ int GARBAGE_COLLECTION(int mapping_index)
 				printf("ERROR[%s] Get new page fail\n",__FUNCTION__);
 				return FAIL;
 			}
-			SSD_PAGE_READ(victim_phy_flash_nb, victim_phy_block_nb, i, i, GC_READ, -1);
-			SSD_PAGE_WRITE(CALC_FLASH(new_ppn), CALC_BLOCK(new_ppn), CALC_PAGE(new_ppn), i, GC_WRITE, -1);
 
-			old_ppn = victim_phy_flash_nb*PAGES_PER_FLASH + victim_phy_block_nb*PAGE_NB + i;
+			ret = _FTL_COPYBACK(victim_phy_flash_nb*PAGES_PER_FLASH + victim_phy_block_nb*PAGE_NB + i , new_ppn);
 
-			lpn = GET_INVERSE_MAPPING_INFO(old_ppn);
-			UPDATE_NEW_PAGE_MAPPING(lpn, new_ppn);
-
-			copy_page_nb++;
+			if(ret == SUCCESS)
+				copy_page_nb++;
+			else{
+				printf("ERROR[%s] Copyback page\n",__FUNCTION__);
+				return FAIL;
+			}
 		}
 	}
 

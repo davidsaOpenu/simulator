@@ -17,6 +17,7 @@
 
 int servSock;
 int clientSock;
+int clientSock2;
 
 pthread_t thread_ID;
 
@@ -36,6 +37,7 @@ void TERM_LOG_MANAGER(void)
 {
 	close(servSock);
 	close(clientSock);
+	close(clientSock2);
 }
 
 void WRITE_LOG(char* szLog)
@@ -51,12 +53,16 @@ void WRITE_LOG(char* szLog)
 
 void THREAD_SERVER(void* arg)
 {
+	int n;
+	char buffer[256];
 #ifdef MNT_DEBUG
 	printf("[%s] SERVER THREAD CREATED!!!\n",__FUNCTION__);
-#endif	
+#endif
 	unsigned int len;
+	unsigned int len2;
 	struct sockaddr_in serverAddr;
 	struct sockaddr_in clientAddr;
+	struct sockaddr_in clientAddr2;
 
 	if((servSock = socket(AF_INET, SOCK_STREAM, IPPROTO_TCP)) < 0){
 #ifdef MNT_DEBUG
@@ -96,6 +102,7 @@ void THREAD_SERVER(void* arg)
 	printf("[%s] Connected![%d]\n",__FUNCTION__, clientSock);
 	printf("[%s] Error No. [%d]\n",__FUNCTION__, errno);
 #endif	
+
 	g_server_create = 1;
 }
 

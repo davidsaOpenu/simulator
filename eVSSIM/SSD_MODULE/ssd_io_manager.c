@@ -229,6 +229,10 @@ int SSD_REG_ACCESS(int reg)
 	else if( reg_cmd == ERASE ){
 		ret = SSD_BLOCK_ERASE_DELAY(reg);
 	}
+	else if( reg_cmd == COPYBACK){
+		ret = SSD_CELL_READ_DELAY(reg);
+		ret = SSD_CELL_WRITE_DELAY(reg);
+	}
 	else{
 		printf("ERROR[%s] Command Error! %d\n", __FUNCTION__, reg_io_cmd[reg]);
 	}
@@ -308,7 +312,13 @@ int SSD_REG_RECORD(int reg, int cmd, int type, int offset, int channel)
 		/* Update SATA request Info */
 		access_nb[reg][0] = -1;
 		access_nb[reg][1] = -1;
-	}	
+	}else if (cmd == COPYBACK){
+		reg_io_time[reg] = cell_io_time[reg] + CELL_READ_DELAY;
+		access_nb[reg][0] = io_request_seq_nb;
+		access_nb[reg][1] = offset;
+		io_update_overhead = UPDATE_IO_REQUEST(io_request_seq_nb, offset, old_channel_time, UPDATE_START_TIME);
+		SSD_UPDATE_IO_OVERHEAD(reg, io_update_overhead);
+	}
 
 	return SUCCESS;
 }
@@ -321,7 +331,7 @@ int SSD_CELL_RECORD(int reg, int cmd)
 	else if(cmd == READ){
 		cell_io_time[reg] = old_channel_time + CHANNEL_SWITCH_DELAY_R;
 	}
-	else if(cmd == ERASE){
+	else if((cmd == ERASE) || (cmd == COPYBACK)){
 		cell_io_time[reg] = get_usec();
 	}
 
@@ -690,4 +700,41 @@ void SSD_UPDATE_QEMU_OVERHEAD(int64_t delay)
 		reg_io_time[i] -= diff;
 	}
 	qemu_overhead -= diff;
+}
+
+int SSD_PAGE_COPYBACK(int32_t source, int32_t destination, int type){
+
+	int flash_nb;
+	int source_plane, destination_plane;
+	int reg , channel , delay_ret;
+
+	//Check source and destination pages are at the same plane.
+	source_plane = CALC_FLASH(source)*PLANES_PER_FLASH + CALC_BLOCK(source)%PLANES_PER_FLASH;
+	destination_plane = CALC_FLASH(destination)*PLANES_PER_FLASH + CALC_BLOCK(destination)%PLANES_PER_FLASH;
+	if (source_plane != destination_plane){
+		//copyback from different planes is not supported
+		return FAIL;
+	}else{
+		reg = destination_plane;
+		flash_nb = CALC_FLASH(source);
+	}
+
+	channel = flash_nb % CHANNEL_NB;
+
+	/* Delay Operation */
+	//SSD_CH_ENABLE(channel);	// channel enable
+
+	/* Access Register */
+	if( IO_PARALLELISM == 0 ){
+		delay_ret = SSD_FLASH_ACCESS(flash_nb, reg);
+	}
+	else{
+		delay_ret = SSD_REG_ACCESS(reg);
+	}
+
+	SSD_CH_RECORD(channel, COPYBACK, 0, delay_ret);
+	SSD_CELL_RECORD(reg, COPYBACK);
+	SSD_REG_RECORD(reg, COPYBACK, type, 0, channel);
+
+	return SUCCESS;
 }

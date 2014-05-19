@@ -133,3 +133,53 @@ unsigned int CALC_PAGE(int32_t ppn)
 
 	return page_nb;
 }
+
+unsigned int CALC_PLANE(int32_t ppn)
+{
+	int flash_nb = CALC_FLASH(ppn);
+	int block_nb = CALC_BLOCK(ppn);
+	int plane;
+
+	plane = flash_nb*PLANES_PER_FLASH + block_nb%PLANES_PER_FLASH;
+
+	return plane;
+}
+
+unsigned int CALC_CHANNEL(int32_t ppn)
+{
+	int flash_nb = CALC_FLASH(ppn);
+	int channel;
+
+	channel = flash_nb % CHANNEL_NB;
+
+	return channel;
+}
+
+unsigned int CALC_SCOPE_FIRST_PAGE(int32_t address, int scope)
+{
+	int planeNumber;
+	switch (scope)
+	{
+		case PAGE:
+			return address;
+		case BLOCK:
+			return  address * PAGE_NB;
+		case PLANE:
+			//If only there is only 1 plane per flash, then continue to flash case which will produce the right result in that case.
+			if (PLANES_PER_FLASH > 1){
+				//Only block that i % PLANES_PER_FLASH = planeNumber are in that plane
+				planeNumber = address % PLANES_PER_FLASH;
+				return (((address / PLANES_PER_FLASH) * PAGES_PER_FLASH) + (PAGE_NB * planeNumber));
+			}else{
+				return address * PAGES_PER_FLASH;
+			}
+		case FLASH:
+			return address * PAGES_PER_FLASH;
+		case CHANNEL:
+			return PAGES_PER_FLASH * address;
+		case SSD:
+			return 0;
+		default:
+			return -1;
+	}
+}

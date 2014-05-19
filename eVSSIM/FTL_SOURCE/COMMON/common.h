@@ -98,11 +98,37 @@
 #define RAN_HOT_MERGE_WRITE	817
 #define MAP_READ		818
 #define MAP_WRITE		819
+#define COPYBACK		820
 
 #define UPDATE_START_TIME	900
 #define UPDATE_END_TIME		901
 #define UPDATE_GC_START_TIME	902
 #define UPDATE_GC_END_TIME	903
+
+#define SUPPORTED_OPERATION 4
+#define LOGICAL_READ	0
+#define	LOGICAL_WRITE	1
+#define PHYSICAL_READ	2
+#define PHYSICAL_WRITE	3
+
+#define COLLECT_LOGICAL_READ	1
+#define COLLECT_LOGICAL_WRITE	2
+#define COLLECT_PHYSICAL_READ	4
+#define COLLECT_PHYSICAL_WRITE	8
+
+#define PAGE			1100
+#define BLOCK 			1101
+#define PLANE			1102
+#define FLASH			1103
+#define CHANNEL			1104
+#define SSD				1105
+
+#define COLLECT_PAGE	1
+#define	COLLECT_BLOCK	2
+#define COLLECT_PLANE	4
+#define COLLECT_FLASH	8
+#define COLLECT_CHANNEL	16
+#define COLLECT_SSD		32
 
 /* VSSIM Function Debug */
 #define MNT_DEBUG			// MONITOR Debugging
