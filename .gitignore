@@ -1,21 +1,22 @@
-eVSSIM/MONITOR/SSD_MONITOR_PM/Makefile.new
-# Build and Release Folders
+#general
+*~
+
+# eclipse stuff 
 bin/
 bin-debug/
 bin-release/
-
-# Other files and folders
 .settings/
 
-# Project files, i.e. `.project`, `.actionScriptProperties` and `.flexProperties`
-# should NOT be excluded as they contain compiler settings and other important
-# information for Eclipse / Flash Builder.
+# SSD MONITOR - qt stuff 
+eVSSIM/MONITOR/SSD_MONITOR_PM/Makefile.new
 eVSSIM/MONITOR/SSD_MONITOR_PM/form1.cpp
 eVSSIM/MONITOR/SSD_MONITOR_PM/form1.h
 eVSSIM/MONITOR/SSD_MONITOR_PM/form1.o
 eVSSIM/MONITOR/SSD_MONITOR_PM/main.o
 eVSSIM/MONITOR/SSD_MONITOR_PM/moc_form1.cpp
 eVSSIM/MONITOR/SSD_MONITOR_PM/moc_form1.o
+
+# QEMU specific
 eVSSIM/QEMU/acl.d
 eVSSIM/QEMU/acl.o
 eVSSIM/QEMU/ads7846.d
