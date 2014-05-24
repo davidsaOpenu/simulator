@@ -13,10 +13,10 @@ rd_path="$path/rd"
 sudo chmod 0777 $rd_path
 
 ram_image=$rd_path'/ssd.img'
-if [ -f $ram_image ]; then
-	#echo "ram image $ram_image already exist"
-else
+if [ ! -f $ram_image ]; then
 	echo "creating ram image $ram_image"
 	../QEMU/qemu-img create -f qcow $ram_image 16G
 	echo "DONE"
+#else
+	#echo "ram image $ram_image already exist"
 fi
