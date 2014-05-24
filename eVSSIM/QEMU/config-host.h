@@ -15,7 +15,6 @@
 #define QEMU_VERSION "0.11.0"
 #define QEMU_PKGVERSION " (qemu-kvm-0.11.0)"
 #define CONFIG_SDL 1
-#define CONFIG_CURSES 1
 #define CONFIG_ATFILE 1
 #define CONFIG_UTIMENSAT 1
 #define CONFIG_PIPE2 1
