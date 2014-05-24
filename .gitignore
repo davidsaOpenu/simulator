@@ -452,3 +452,4 @@ eVSSIM/QEMU/x86_64-softmmu/wdt_ib700.o
 eVSSIM/QEMU/x_keymap.d
 eVSSIM/QEMU/x_keymap.o
 eVSSIM/RAMDISK/rd/
+eVSSIM/QEMU/x86_64-softmmu/os_img_path.conf
