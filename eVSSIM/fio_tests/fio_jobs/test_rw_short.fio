@@ -1,6 +1,6 @@
 [test_rw_short]
 group_reporting
-filename=/dev/sdb
+#filename=/dev/sdb
 direct=1
 randrepeat=1	 
 ioengine=libaio

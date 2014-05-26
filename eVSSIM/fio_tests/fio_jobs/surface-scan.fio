@@ -11,7 +11,7 @@ verify_interval=512
 #size=500m
 
 [write-phase]
-filename=/dev/sdb
+#filename=/dev/sdb
 rw=write
 fill_device=1
 do_verify=0
@@ -19,6 +19,6 @@ do_verify=0
 [verify-phase]
 stonewall
 create_serialize=0
-filename=/dev/sdb
+#filename=/dev/sdb
 rw=read
 do_verify=1
