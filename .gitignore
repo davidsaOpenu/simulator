@@ -453,3 +453,9 @@ eVSSIM/QEMU/x_keymap.d
 eVSSIM/QEMU/x_keymap.o
 eVSSIM/RAMDISK/rd/
 eVSSIM/QEMU/x86_64-softmmu/os_img_path.conf
+eVSSIM/QEMU/x86_64-softmmu/data/empty_block_list.dat
+eVSSIM/QEMU/x86_64-softmmu/data/inverse_block_mapping.dat
+eVSSIM/QEMU/x86_64-softmmu/data/inverse_page_mapping.dat
+eVSSIM/QEMU/x86_64-softmmu/data/mapping_table.dat
+eVSSIM/QEMU/x86_64-softmmu/data/valid_array.dat
+eVSSIM/QEMU/x86_64-softmmu/data/victim_block_list.dat
