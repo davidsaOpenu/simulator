@@ -31,6 +31,21 @@ if [ $reference_result -eq -1 ]; then
 	continue
 fi
 
+#zero the device
+if [ 1 -eq `grep -v '#filename' $curr_fio_test_filename | grep -c filename=/dev/sdb` ]; 
+then
+	# find test size and device
+	test_size=`grep size= $curr_fio_test_filename`
+	test_size=${test_size//[!0-9]/} #remove non digits
+
+	device=/dev/sdb #todo parse from file
+	echo "zeroing "$test_size"m on $device "
+	echo time dd if=/dev/zero of=$device bs=1M count=$test_size
+else
+	echo "no active filename line in $curr_fio_test_filename"
+	exit -1
+fi
+
 #run test
 fio $curr_fio_test_filename > $curr_res_filename
 
