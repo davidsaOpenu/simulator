@@ -23,8 +23,8 @@ to simulate fail, run `surface-scan-fail.fio` (which write different bits) while
 ### Performance tests
 idea is to run a test, store its result and re-run it.
 
- 1 running and recording a referebce result is done using `perf_test_rec.sh foo`. it uses a `corresping fio_jobs/test_foo.fio` job.
- 1 re-running the test and validating results against the pre-made is done with `perf_test.sh foo`
- 1 there are 3 jobs - read, write, and rw (half read half write). for each there two versions - the full one (e.g. `fio_jobs/test_read.fio`) and a short one for sanity (e.g. `fio_jobs/test_read_short.fio`). 
- 1 there are helper scripts which simply uses the above jobs sequentially (`perf_test_rec_short.sh`, `perf_test_run_short.sh`, `perf_test_rec.sh`, `perf_test_run.sh`)
+ 1. running and recording a referebce result is done using `perf_test_rec.sh foo`. it uses a `corresping fio_jobs/test_foo.fio` job.
+ 1. re-running the test and validating results against the pre-made is done with `perf_test.sh foo`
+ 1. there are 3 jobs - read, write, and rw (half read half write). for each there two versions - the full one (e.g. `fio_jobs/test_read.fio`) and a short one for sanity (e.g. `fio_jobs/test_read_short.fio`). 
+ 1. there are helper scripts which simply uses the above jobs sequentially (`perf_test_rec_short.sh`, `perf_test_run_short.sh`, `perf_test_rec.sh`, `perf_test_run.sh`)
 
