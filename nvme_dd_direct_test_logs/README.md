@@ -24,6 +24,7 @@ Experiment findings:
   * on 4k block size writes only PRP1 is used
   * on 8k block size writes PRP1 and PRP2 is used
   * on 16k block size writes PRP1 and prp_list is used
- * for block size of 16k, starting the size of 128k, non single submission queue is used (still not known why, as we had expected a single sq to be used). for block sizes of 4 & 8, non single submission queue is used starting on TBD & TBD, respectively.
+ * for block size of 16k, starting the size of 128k, non single submission queue is used (still not known why, as we had expected a single sq to be used). for block sizes of 4 & 8, non single submission queue is used starting on block count 33 & 19, respectively.
+ * the submission queue write command distribution is not fully consistent, as can be seen in tests #19 and #20 
 
 
