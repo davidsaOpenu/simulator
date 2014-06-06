@@ -22,14 +22,12 @@ function report(){
 	done
 }
 
-#for bs in 4k_16 8k_8 16k_4 ; do
-#	for direct in direct no_direct ; do 
-#		fn="dd_"$bs"c_"$direct
-#		report $fn
-#	done
-#done
+if [ $# -gt 0 ]; then
+	report $1
+else
+	for fn in `ls dd_*_direct `; do
+		report $fn
+	done
+fi
 
-for fn in `ls dd_*_direct `; do
-	report $fn
-done
 

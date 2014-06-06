@@ -265,21 +265,40 @@ dd_016_block_4k_count_128_direct
   * PRP2 0
   * prp_list 0
 
-dd_017_block_8k_count_31_direct
+dd_017_block_8k_count_18_direct
 ----------------------------------
  * Read 83
-  * sqid 1 19
-  * sqid 2 58
-  * sqid 3 5
+  * sqid 1 17
+  * sqid 2 49
+  * sqid 3 17
   * sqid 4 0
   * PRP1 83
   * PRP2 0
   * prp_list 0
- * Write 62
-  * sqid 1 14
+ * Write 36
+  * sqid 1 18
   * sqid 2 0
-  * sqid 3 10
-  * sqid 4 7
-  * PRP1 31
-  * PRP2 31
+  * sqid 3 0
+  * sqid 4 0
+  * PRP1 18
+  * PRP2 18
+  * prp_list 0
+
+dd_018_block_8k_count_19_direct
+----------------------------------
+ * Read 83
+  * sqid 1 17
+  * sqid 2 18
+  * sqid 3 35
+  * sqid 4 13
+  * PRP1 83
+  * PRP2 0
+  * prp_list 0
+ * Write 38
+  * sqid 1 15
+  * sqid 2 0
+  * sqid 3 0
+  * sqid 4 4
+  * PRP1 19
+  * PRP2 19
   * prp_list 0
