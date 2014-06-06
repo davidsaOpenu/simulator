@@ -1,0 +1,35 @@
+#/bin/bash
+
+function report(){
+	fn=$1
+	echo -e '\n'$fn'\n----------------------------------'
+	for readwrite in 'Read' 'Write'; do
+		cmd="grep "$readwrite"\scmd\scalled $fn"
+		count=`$cmd -c`	
+		echo $readwrite" "$count
+		for sqid in 1 2 3 4; do
+			cmd2="grep '"$readwrite"\scmd\scalled' "$fn" -A 4 -B 10 | grep '220:\ssq_id\s"$sqid"' -c"
+			#echo $cmd2
+			eval dastring=\`${cmd2}\`
+			echo -e '\t'"sqid $sqid $dastring"
+		done
+		for prp in PRP1 PRP2 prp_list; do
+			cmd2="grep '"$readwrite"\scmd\scalled' "$fn" -A 4 -B 10 | grep '$prp' -c"
+			#echo $cmd2
+			eval dastring=\`${cmd2}\`
+			echo -e '\t'"$prp $dastring"
+		done
+	done
+}
+
+#for bs in 4k_16 8k_8 16k_4 ; do
+#	for direct in direct no_direct ; do 
+#		fn="dd_"$bs"c_"$direct
+#		report $fn
+#	done
+#done
+
+for fn in `ls dd_*_direct `; do
+	report $fn
+done
+
