@@ -27,8 +27,9 @@ void INIT_INVERSE_PAGE_MAPPING(void)
 
 	/* Initialization Inverse Page Mapping Table */
 	FILE* fp = fopen("./data/inverse_page_mapping.dat","r");
+	ssize_t dummy;
 	if(fp != NULL){
-		fread(inverse_page_mapping_table, sizeof(int32_t), PAGE_MAPPING_ENTRY_NB, fp);
+		dummy = fread(inverse_page_mapping_table, sizeof(int32_t), PAGE_MAPPING_ENTRY_NB, fp);
 	}
 	else{
 		int i;
@@ -49,8 +50,9 @@ void INIT_INVERSE_BLOCK_MAPPING(void)
 
 	/* Initialization Inverse Block Mapping Table */
 	FILE* fp = fopen("./data/inverse_block_mapping.dat","r");
+	ssize_t dummy;
 	if(fp != NULL){
-		fread(inverse_block_mapping_table_start, sizeof(inverse_block_mapping_entry), BLOCK_MAPPING_ENTRY_NB, fp);
+		dummy = fread(inverse_block_mapping_table_start, sizeof(inverse_block_mapping_entry), BLOCK_MAPPING_ENTRY_NB, fp);
 	}
 	else{
 		int i;
@@ -72,10 +74,11 @@ void INIT_VALID_ARRAY(void)
 	char* valid_array;
 
 	FILE* fp = fopen("./data/valid_array.dat","r");
+	ssize_t dummy;
 	if(fp != NULL){
 		for(i=0;i<BLOCK_MAPPING_ENTRY_NB;i++){
 			valid_array = (char*)calloc(PAGE_NB, sizeof(char));
-			fread(valid_array, sizeof(char), PAGE_NB, fp);
+			dummy = fread(valid_array, sizeof(char), PAGE_NB, fp);
 			curr_mapping_entry->valid_array = valid_array;
 
 			curr_mapping_entry += 1;
@@ -106,9 +109,10 @@ void INIT_EMPTY_BLOCK_LIST(void)
 	}
 
 	FILE* fp = fopen("./data/empty_block_list.dat","r");
+	ssize_t dummy;
 	if(fp != NULL){
 		total_empty_block_nb = 0;
-		fread(empty_block_table_start,sizeof(empty_block_root),PLANES_PER_FLASH*FLASH_NB, fp);
+		dummy = fread(empty_block_table_start,sizeof(empty_block_root),PLANES_PER_FLASH*FLASH_NB, fp);
 		curr_root = (empty_block_root*)empty_block_table_start;
 
 		for(i=0;i<PLANES_PER_FLASH;i++){
@@ -124,7 +128,7 @@ void INIT_EMPTY_BLOCK_LIST(void)
 						break;
 					}
 
-					fread(curr_entry, sizeof(empty_block_entry), 1, fp);
+					dummy = fread(curr_entry, sizeof(empty_block_entry), 1, fp);
 					curr_entry->next = NULL;
 
 					if(k == curr_root->empty_block_nb){
@@ -198,9 +202,10 @@ void INIT_VICTIM_BLOCK_LIST(void)
 	}
 
 	FILE* fp = fopen("./data/victim_block_list.dat","r");
+	ssize_t dummy;
 	if(fp != NULL){
 		total_victim_block_nb = 0;
-		fread(victim_block_table_start, sizeof(victim_block_root), PLANES_PER_FLASH*FLASH_NB, fp);
+		dummy = fread(victim_block_table_start, sizeof(victim_block_root), PLANES_PER_FLASH*FLASH_NB, fp);
 		curr_root = (victim_block_root*)victim_block_table_start;
 
 		for(i=0;i<PLANES_PER_FLASH;i++){
@@ -216,7 +221,7 @@ void INIT_VICTIM_BLOCK_LIST(void)
 						break;
 					}
 
-					fread(curr_entry, sizeof(victim_block_entry), 1, fp);
+					dummy = fread(curr_entry, sizeof(victim_block_entry), 1, fp);
 					curr_entry->next = NULL;
 					curr_entry->prev = NULL;
 
@@ -262,7 +267,8 @@ void TERM_INVERSE_PAGE_MAPPING(void)
 	}
 
 	/* Write The inverse page table to file */
-	fwrite(inverse_page_mapping_table, sizeof(int32_t), PAGE_MAPPING_ENTRY_NB, fp);
+	ssize_t dummy = fwrite(inverse_page_mapping_table, sizeof(int32_t), PAGE_MAPPING_ENTRY_NB, fp);
+	dummy++;
 
 	/* Free the inverse page table memory */
 	free(inverse_page_mapping_table);
@@ -277,7 +283,8 @@ void TERM_INVERSE_BLOCK_MAPPING(void)
 	}
 
 	/* Write The inverse block table to file */
-	fwrite(inverse_block_mapping_table_start, sizeof(inverse_block_mapping_entry), BLOCK_MAPPING_ENTRY_NB, fp);
+	ssize_t dummy = fwrite(inverse_block_mapping_table_start, sizeof(inverse_block_mapping_entry), BLOCK_MAPPING_ENTRY_NB, fp);
+	dummy++;
 
 	/* Free The inverse block table memory */
 	free(inverse_block_mapping_table_start);
@@ -297,7 +304,8 @@ void TERM_VALID_ARRAY(void)
  
 	for(i=0;i<BLOCK_MAPPING_ENTRY_NB;i++){
 		valid_array = curr_mapping_entry->valid_array;
-		fwrite(valid_array, sizeof(char), PAGE_NB, fp);
+		ssize_t dummy = fwrite(valid_array, sizeof(char), PAGE_NB, fp);
+		dummy++;
 		curr_mapping_entry += 1;
 	}
 }
@@ -314,7 +322,7 @@ void TERM_EMPTY_BLOCK_LIST(void)
 		printf("ERROR[%s] File open fail\n",__FUNCTION__);
 	}
 
-	fwrite(empty_block_table_start,sizeof(empty_block_root),PLANES_PER_FLASH*FLASH_NB, fp);
+	ssize_t dummy = fwrite(empty_block_table_start,sizeof(empty_block_root),PLANES_PER_FLASH*FLASH_NB, fp);
 
 	curr_root = (empty_block_root*)empty_block_table_start;
 	for(i=0;i<PLANES_PER_FLASH;i++){
@@ -327,7 +335,7 @@ void TERM_EMPTY_BLOCK_LIST(void)
 			}
 			while(k > 0){
 
-				fwrite(curr_entry, sizeof(empty_block_entry), 1, fp);
+				dummy = fwrite(curr_entry, sizeof(empty_block_entry), 1, fp);
 
 				if(k != 1){
 					curr_entry = curr_entry->next;
@@ -351,7 +359,7 @@ void TERM_VICTIM_BLOCK_LIST(void)
 		printf("ERROR[%s] File open fail\n",__FUNCTION__);
 	}
 
-	fwrite(victim_block_table_start, sizeof(victim_block_root), PLANES_PER_FLASH*FLASH_NB, fp);
+	ssize_t dummy = fwrite(victim_block_table_start, sizeof(victim_block_root), PLANES_PER_FLASH*FLASH_NB, fp);
 
 	curr_root = (victim_block_root*)victim_block_table_start;
 	for(i=0;i<PLANES_PER_FLASH;i++){
@@ -364,7 +372,7 @@ void TERM_VICTIM_BLOCK_LIST(void)
 			}
 			while(k > 0){
 
-				fwrite(curr_entry, sizeof(victim_block_entry), 1, fp);
+				dummy = fwrite(curr_entry, sizeof(victim_block_entry), 1, fp);
 
 				if(k != 1){
 					curr_entry = curr_entry->next;
