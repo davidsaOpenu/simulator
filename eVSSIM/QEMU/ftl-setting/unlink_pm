@@ -1,0 +1,39 @@
+#!/bin/bash
+# This file used for unlinking : QEMU <-- // --> SSD FTL SOURCE
+# For "SSD PAGE MAPPING FTL"
+# Usage : Just typing your shell -> " $./unlink_pm "
+
+# Erase Makefile.target for page mapping.
+unlink ../Makefile.target
+
+# ----- Unlinking -----
+# SSD operation control header file "common.h"
+unlink ../hw/common.h
+
+# HEADER FILE
+unlink ../hw/ssd_util.h
+unlink ../hw/ftl_type.h
+unlink ../hw/ftl.h
+unlink ../hw/ftl_mapping_manager.h
+unlink ../hw/ftl_inverse_mapping_manager.h
+unlink ../hw/ftl_gc_manager.h
+unlink ../hw/ftl_perf_manager.h
+unlink ../hw/ssd_io_manager.h
+unlink ../hw/ssd_log_manager.h
+
+# SOURCE FILLE
+unlink ../hw/ftl.c
+unlink ../hw/ftl_mapping_manager.c
+unlink ../hw/ftl_inverse_mapping_manager.c
+unlink ../hw/ftl_gc_manager.c
+unlink ../hw/ftl_perf_manager.c
+unlink ../hw/ssd_io_manager.c
+unlink ../hw/ssd_log_manager.c
+
+# Remove monitor 
+unlink ../x86_64-softmmu/ssd_monitor
+
+# Delete config file
+unlink ../x86_64-softmmu/data/ssd.conf
+unlink ../hw/vssim_config_manager.h
+unlink ../hw/vssim_config_manager.c
