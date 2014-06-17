@@ -24,7 +24,6 @@
 #include "hw.h"
 #include "ppc.h"
 #include "ppc4xx.h"
-#include "sysemu.h"
 #include "qemu-log.h"
 
 //#define DEBUG_MMIO
@@ -39,7 +38,7 @@
 #endif
 
 /*****************************************************************************/
-/* Generic PowerPC 4xx processor instanciation */
+/* Generic PowerPC 4xx processor instantiation */
 CPUState *ppc4xx_init (const char *cpu_model,
                        clk_setup_t *cpu_clk, clk_setup_t *tb_clk,
                        uint32_t sysclk)
@@ -56,208 +55,13 @@ CPUState *ppc4xx_init (const char *cpu_model,
     cpu_clk->cb = NULL; /* We don't care about CPU clock frequency changes */
     cpu_clk->opaque = env;
     /* Set time-base frequency to sysclk */
-    tb_clk->cb = ppc_emb_timers_init(env, sysclk);
+    tb_clk->cb = ppc_emb_timers_init(env, sysclk, PPC_INTERRUPT_PIT);
     tb_clk->opaque = env;
     ppc_dcr_init(env, NULL, NULL);
     /* Register qemu callbacks */
-    qemu_register_reset(&cpu_ppc_reset, env);
+    qemu_register_reset((QEMUResetHandler*)&cpu_reset, env);
 
     return env;
-}
-
-/*****************************************************************************/
-/* Fake device used to map multiple devices in a single memory page */
-#define MMIO_AREA_BITS 8
-#define MMIO_AREA_LEN (1 << MMIO_AREA_BITS)
-#define MMIO_AREA_NB (1 << (TARGET_PAGE_BITS - MMIO_AREA_BITS))
-#define MMIO_IDX(addr) (((addr) >> MMIO_AREA_BITS) & (MMIO_AREA_NB - 1))
-struct ppc4xx_mmio_t {
-    target_phys_addr_t base;
-    CPUReadMemoryFunc **mem_read[MMIO_AREA_NB];
-    CPUWriteMemoryFunc **mem_write[MMIO_AREA_NB];
-    void *opaque[MMIO_AREA_NB];
-};
-
-static uint32_t unassigned_mmio_readb (void *opaque, target_phys_addr_t addr)
-{
-#ifdef DEBUG_UNASSIGNED
-    ppc4xx_mmio_t *mmio;
-
-    mmio = opaque;
-    printf("Unassigned mmio read 0x" PADDRX " base " PADDRX "\n",
-           addr, mmio->base);
-#endif
-
-    return 0;
-}
-
-static void unassigned_mmio_writeb (void *opaque,
-                                    target_phys_addr_t addr, uint32_t val)
-{
-#ifdef DEBUG_UNASSIGNED
-    ppc4xx_mmio_t *mmio;
-
-    mmio = opaque;
-    printf("Unassigned mmio write 0x" PADDRX " = 0x%x base " PADDRX "\n",
-           addr, val, mmio->base);
-#endif
-}
-
-static CPUReadMemoryFunc *unassigned_mmio_read[3] = {
-    unassigned_mmio_readb,
-    unassigned_mmio_readb,
-    unassigned_mmio_readb,
-};
-
-static CPUWriteMemoryFunc *unassigned_mmio_write[3] = {
-    unassigned_mmio_writeb,
-    unassigned_mmio_writeb,
-    unassigned_mmio_writeb,
-};
-
-static uint32_t mmio_readlen (ppc4xx_mmio_t *mmio,
-                              target_phys_addr_t addr, int len)
-{
-    CPUReadMemoryFunc **mem_read;
-    uint32_t ret;
-    int idx;
-
-    idx = MMIO_IDX(addr);
-#if defined(DEBUG_MMIO)
-    printf("%s: mmio %p len %d addr " PADDRX " idx %d\n", __func__,
-           mmio, len, addr, idx);
-#endif
-    mem_read = mmio->mem_read[idx];
-    ret = (*mem_read[len])(mmio->opaque[idx], addr);
-
-    return ret;
-}
-
-static void mmio_writelen (ppc4xx_mmio_t *mmio,
-                           target_phys_addr_t addr, uint32_t value, int len)
-{
-    CPUWriteMemoryFunc **mem_write;
-    int idx;
-
-    idx = MMIO_IDX(addr);
-#if defined(DEBUG_MMIO)
-    printf("%s: mmio %p len %d addr " PADDRX " idx %d value %08" PRIx32 "\n",
-           __func__, mmio, len, addr, idx, value);
-#endif
-    mem_write = mmio->mem_write[idx];
-    (*mem_write[len])(mmio->opaque[idx], addr, value);
-}
-
-static uint32_t mmio_readb (void *opaque, target_phys_addr_t addr)
-{
-#if defined(DEBUG_MMIO)
-    printf("%s: addr " PADDRX "\n", __func__, addr);
-#endif
-
-    return mmio_readlen(opaque, addr, 0);
-}
-
-static void mmio_writeb (void *opaque,
-                         target_phys_addr_t addr, uint32_t value)
-{
-#if defined(DEBUG_MMIO)
-    printf("%s: addr " PADDRX " val %08" PRIx32 "\n", __func__, addr, value);
-#endif
-    mmio_writelen(opaque, addr, value, 0);
-}
-
-static uint32_t mmio_readw (void *opaque, target_phys_addr_t addr)
-{
-#if defined(DEBUG_MMIO)
-    printf("%s: addr " PADDRX "\n", __func__, addr);
-#endif
-
-    return mmio_readlen(opaque, addr, 1);
-}
-
-static void mmio_writew (void *opaque,
-                         target_phys_addr_t addr, uint32_t value)
-{
-#if defined(DEBUG_MMIO)
-    printf("%s: addr " PADDRX " val %08" PRIx32 "\n", __func__, addr, value);
-#endif
-    mmio_writelen(opaque, addr, value, 1);
-}
-
-static uint32_t mmio_readl (void *opaque, target_phys_addr_t addr)
-{
-#if defined(DEBUG_MMIO)
-    printf("%s: addr " PADDRX "\n", __func__, addr);
-#endif
-
-    return mmio_readlen(opaque, addr, 2);
-}
-
-static void mmio_writel (void *opaque,
-                         target_phys_addr_t addr, uint32_t value)
-{
-#if defined(DEBUG_MMIO)
-    printf("%s: addr " PADDRX " val %08" PRIx32 "\n", __func__, addr, value);
-#endif
-    mmio_writelen(opaque, addr, value, 2);
-}
-
-static CPUReadMemoryFunc *mmio_read[] = {
-    &mmio_readb,
-    &mmio_readw,
-    &mmio_readl,
-};
-
-static CPUWriteMemoryFunc *mmio_write[] = {
-    &mmio_writeb,
-    &mmio_writew,
-    &mmio_writel,
-};
-
-int ppc4xx_mmio_register (CPUState *env, ppc4xx_mmio_t *mmio,
-                          target_phys_addr_t offset, uint32_t len,
-                          CPUReadMemoryFunc **mem_read,
-                          CPUWriteMemoryFunc **mem_write, void *opaque)
-{
-    target_phys_addr_t end;
-    int idx, eidx;
-
-    if ((offset + len) > TARGET_PAGE_SIZE)
-        return -1;
-    idx = MMIO_IDX(offset);
-    end = offset + len - 1;
-    eidx = MMIO_IDX(end);
-#if defined(DEBUG_MMIO)
-    printf("%s: offset " PADDRX " len %08" PRIx32 " " PADDRX " %d %d\n",
-           __func__, offset, len, end, idx, eidx);
-#endif
-    for (; idx <= eidx; idx++) {
-        mmio->mem_read[idx] = mem_read;
-        mmio->mem_write[idx] = mem_write;
-        mmio->opaque[idx] = opaque;
-    }
-
-    return 0;
-}
-
-ppc4xx_mmio_t *ppc4xx_mmio_init (CPUState *env, target_phys_addr_t base)
-{
-    ppc4xx_mmio_t *mmio;
-    int mmio_memory;
-
-    mmio = qemu_mallocz(sizeof(ppc4xx_mmio_t));
-    mmio->base = base;
-    mmio_memory = cpu_register_io_memory(mmio_read, mmio_write, mmio);
-#if defined(DEBUG_MMIO)
-    printf("%s: base " PADDRX " len %08x %d\n", __func__,
-           base, TARGET_PAGE_SIZE, mmio_memory);
-#endif
-    cpu_register_physical_memory(base, TARGET_PAGE_SIZE, mmio_memory);
-    ppc4xx_mmio_register(env, mmio, 0, TARGET_PAGE_SIZE,
-                         unassigned_mmio_read, unassigned_mmio_write,
-                         mmio);
-
-    return mmio;
 }
 
 /*****************************************************************************/
@@ -378,10 +182,10 @@ static void ppcuic_set_irq (void *opaque, int irq_num, int level)
         ppcuic_trigger_irq(uic);
 }
 
-static target_ulong dcr_read_uic (void *opaque, int dcrn)
+static uint32_t dcr_read_uic (void *opaque, int dcrn)
 {
     ppcuic_t *uic;
-    target_ulong ret;
+    uint32_t ret;
 
     uic = opaque;
     dcrn -= uic->dcr_base;
@@ -424,13 +228,13 @@ static target_ulong dcr_read_uic (void *opaque, int dcrn)
     return ret;
 }
 
-static void dcr_write_uic (void *opaque, int dcrn, target_ulong val)
+static void dcr_write_uic (void *opaque, int dcrn, uint32_t val)
 {
     ppcuic_t *uic;
 
     uic = opaque;
     dcrn -= uic->dcr_base;
-    LOG_UIC("%s: dcr %d val " ADDRX "\n", __func__, dcrn, val);
+    LOG_UIC("%s: dcr %d val 0x%x\n", __func__, dcrn, val);
     switch (dcrn) {
     case DCR_UICSR:
         uic->uicsr &= ~val;
@@ -499,7 +303,6 @@ qemu_irq *ppcuic_init (CPUState *env, qemu_irq *irqs,
                          &dcr_read_uic, &dcr_write_uic);
     }
     qemu_register_reset(ppcuic_reset, uic);
-    ppcuic_reset(uic);
 
     return qemu_allocate_irqs(&ppcuic_set_irq, uic, UIC_MAX_IRQ);
 }
@@ -563,7 +366,8 @@ static uint32_t sdram_bcr (target_phys_addr_t ram_base,
         bcr = 0x000C0000;
         break;
     default:
-        printf("%s: invalid RAM size " PADDRX "\n", __func__, ram_size);
+        printf("%s: invalid RAM size " TARGET_FMT_plx "\n", __func__,
+               ram_size);
         return 0x00000000;
     }
     bcr |= ram_base & 0xFF800000;
@@ -572,7 +376,7 @@ static uint32_t sdram_bcr (target_phys_addr_t ram_base,
     return bcr;
 }
 
-static always_inline target_phys_addr_t sdram_base (uint32_t bcr)
+static inline target_phys_addr_t sdram_base(uint32_t bcr)
 {
     return bcr & 0xFF800000;
 }
@@ -596,7 +400,7 @@ static void sdram_set_bcr (uint32_t *bcrp, uint32_t bcr, int enabled)
     if (*bcrp & 0x00000001) {
         /* Unmap RAM */
 #ifdef DEBUG_SDRAM
-        printf("%s: unmap RAM area " PADDRX " " ADDRX "\n",
+        printf("%s: unmap RAM area " TARGET_FMT_plx " " TARGET_FMT_lx "\n",
                __func__, sdram_base(*bcrp), sdram_size(*bcrp));
 #endif
         cpu_register_physical_memory(sdram_base(*bcrp), sdram_size(*bcrp),
@@ -605,7 +409,7 @@ static void sdram_set_bcr (uint32_t *bcrp, uint32_t bcr, int enabled)
     *bcrp = bcr & 0xFFDEE001;
     if (enabled && (bcr & 0x00000001)) {
 #ifdef DEBUG_SDRAM
-        printf("%s: Map RAM area " PADDRX " " ADDRX "\n",
+        printf("%s: Map RAM area " TARGET_FMT_plx " " TARGET_FMT_lx "\n",
                __func__, sdram_base(bcr), sdram_size(bcr));
 #endif
         cpu_register_physical_memory(sdram_base(bcr), sdram_size(bcr),
@@ -634,7 +438,7 @@ static void sdram_unmap_bcr (ppc4xx_sdram_t *sdram)
 
     for (i = 0; i < sdram->nbanks; i++) {
 #ifdef DEBUG_SDRAM
-        printf("%s: Unmap RAM area " PADDRX " " ADDRX "\n",
+        printf("%s: Unmap RAM area " TARGET_FMT_plx " " TARGET_FMT_lx "\n",
                __func__, sdram_base(sdram->bcr[i]), sdram_size(sdram->bcr[i]));
 #endif
         cpu_register_physical_memory(sdram_base(sdram->bcr[i]),
@@ -643,10 +447,10 @@ static void sdram_unmap_bcr (ppc4xx_sdram_t *sdram)
     }
 }
 
-static target_ulong dcr_read_sdram (void *opaque, int dcrn)
+static uint32_t dcr_read_sdram (void *opaque, int dcrn)
 {
     ppc4xx_sdram_t *sdram;
-    target_ulong ret;
+    uint32_t ret;
 
     sdram = opaque;
     switch (dcrn) {
@@ -711,7 +515,7 @@ static target_ulong dcr_read_sdram (void *opaque, int dcrn)
     return ret;
 }
 
-static void dcr_write_sdram (void *opaque, int dcrn, target_ulong val)
+static void dcr_write_sdram (void *opaque, int dcrn, uint32_t val)
 {
     ppc4xx_sdram_t *sdram;
 
@@ -814,7 +618,6 @@ static void sdram_reset (void *opaque)
     /* We pre-initialize RAM banks */
     sdram->status = 0x00000000;
     sdram->cfg = 0x00800000;
-    sdram_unmap_bcr(sdram);
 }
 
 void ppc4xx_sdram_init (CPUState *env, qemu_irq irq, int nbanks,
@@ -833,7 +636,6 @@ void ppc4xx_sdram_init (CPUState *env, qemu_irq irq, int nbanks,
     memset(sdram->ram_sizes, 0, 4 * sizeof(target_phys_addr_t));
     memcpy(sdram->ram_sizes, ram_sizes,
            nbanks * sizeof(target_phys_addr_t));
-    sdram_reset(sdram);
     qemu_register_reset(&sdram_reset, sdram);
     ppc_dcr_register(env, SDRAM0_CFGADDR,
                      sdram, &dcr_read_sdram, &dcr_write_sdram);
@@ -864,7 +666,9 @@ ram_addr_t ppc4xx_sdram_adjust(ram_addr_t ram_size, int nr_banks,
             unsigned int bank_size = sdram_bank_sizes[j];
 
             if (bank_size <= size_left) {
-                ram_bases[i] = qemu_ram_alloc(bank_size);
+                char name[32];
+                snprintf(name, sizeof(name), "ppc4xx.sdram%d", i);
+                ram_bases[i] = qemu_ram_alloc(NULL, name, bank_size);
                 ram_sizes[i] = bank_size;
                 size_left -= bank_size;
                 break;
@@ -878,7 +682,7 @@ ram_addr_t ppc4xx_sdram_adjust(ram_addr_t ram_size, int nr_banks,
     }
 
     ram_size -= size_left;
-    if (ram_size)
+    if (size_left)
         printf("Truncating memory to %d MiB to fit SDRAM controller limits.\n",
                (int)(ram_size >> 20));
 

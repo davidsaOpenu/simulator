@@ -93,7 +93,7 @@ static int ssd0303_send(i2c_slave *i2c, uint8_t data)
             DPRINTF("cmd 0x%02x\n", data);
             s->mode = SSD0303_IDLE;
             switch (data) {
-            case 0x00 ... 0x0f: /* Set lower colum address.  */
+            case 0x00 ... 0x0f: /* Set lower column address.  */
                 s->col = (s->col & 0xf0) | (data & 0xf);
                 break;
             case 0x10 ... 0x20: /* Set higher column address.  */
@@ -261,50 +261,29 @@ static void ssd0303_invalidate_display(void * opaque)
     s->redraw = 1;
 }
 
-static void ssd0303_save(QEMUFile *f, void *opaque)
-{
-    ssd0303_state *s = (ssd0303_state *)opaque;
+static const VMStateDescription vmstate_ssd0303 = {
+    .name = "ssd0303_oled",
+    .version_id = 1,
+    .minimum_version_id = 1,
+    .minimum_version_id_old = 1,
+    .fields      = (VMStateField []) {
+        VMSTATE_INT32(row, ssd0303_state),
+        VMSTATE_INT32(col, ssd0303_state),
+        VMSTATE_INT32(start_line, ssd0303_state),
+        VMSTATE_INT32(mirror, ssd0303_state),
+        VMSTATE_INT32(flash, ssd0303_state),
+        VMSTATE_INT32(enabled, ssd0303_state),
+        VMSTATE_INT32(inverse, ssd0303_state),
+        VMSTATE_INT32(redraw, ssd0303_state),
+        VMSTATE_UINT32(mode, ssd0303_state),
+        VMSTATE_UINT32(cmd_state, ssd0303_state),
+        VMSTATE_BUFFER(framebuffer, ssd0303_state),
+        VMSTATE_I2C_SLAVE(i2c, ssd0303_state),
+        VMSTATE_END_OF_LIST()
+    }
+};
 
-    qemu_put_be32(f, s->row);
-    qemu_put_be32(f, s->col);
-    qemu_put_be32(f, s->start_line);
-    qemu_put_be32(f, s->mirror);
-    qemu_put_be32(f, s->flash);
-    qemu_put_be32(f, s->enabled);
-    qemu_put_be32(f, s->inverse);
-    qemu_put_be32(f, s->redraw);
-    qemu_put_be32(f, s->mode);
-    qemu_put_be32(f, s->cmd_state);
-    qemu_put_buffer(f, s->framebuffer, sizeof(s->framebuffer));
-
-    i2c_slave_save(f, &s->i2c);
-}
-
-static int ssd0303_load(QEMUFile *f, void *opaque, int version_id)
-{
-    ssd0303_state *s = (ssd0303_state *)opaque;
-
-    if (version_id != 1)
-        return -EINVAL;
-
-    s->row = qemu_get_be32(f);
-    s->col = qemu_get_be32(f);
-    s->start_line = qemu_get_be32(f);
-    s->mirror = qemu_get_be32(f);
-    s->flash = qemu_get_be32(f);
-    s->enabled = qemu_get_be32(f);
-    s->inverse = qemu_get_be32(f);
-    s->redraw = qemu_get_be32(f);
-    s->mode = qemu_get_be32(f);
-    s->cmd_state = qemu_get_be32(f);
-    qemu_get_buffer(f, s->framebuffer, sizeof(s->framebuffer));
-
-    i2c_slave_load(f, &s->i2c);
-
-    return 0;
-}
-
-static void ssd0303_init(i2c_slave *i2c)
+static int ssd0303_init(i2c_slave *i2c)
 {
     ssd0303_state *s = FROM_I2C_SLAVE(ssd0303_state, i2c);
 
@@ -312,12 +291,13 @@ static void ssd0303_init(i2c_slave *i2c)
                                  ssd0303_invalidate_display,
                                  NULL, NULL, s);
     qemu_console_resize(s->ds, 96 * MAGNIFY, 16 * MAGNIFY);
-    register_savevm("ssd0303_oled", -1, 1, ssd0303_save, ssd0303_load, s);
+    return 0;
 }
 
 static I2CSlaveInfo ssd0303_info = {
     .qdev.name = "ssd0303",
     .qdev.size = sizeof(ssd0303_state),
+    .qdev.vmsd = &vmstate_ssd0303,
     .init = ssd0303_init,
     .event = ssd0303_event,
     .recv = ssd0303_recv,

@@ -21,8 +21,9 @@ void INIT_MAPPING_TABLE(void)
 	
 	/* If mapping_table.dat file exists */
 	FILE* fp = fopen("./data/mapping_table.dat","r");
+	ssize_t dummy;
 	if(fp != NULL){
-		fread(mapping_table, sizeof(int32_t), PAGE_MAPPING_ENTRY_NB, fp);
+		dummy = fread(mapping_table, sizeof(int32_t), PAGE_MAPPING_ENTRY_NB, fp);
 	}
 	else{	
 		int i;	
@@ -41,7 +42,8 @@ void TERM_MAPPING_TABLE(void)
 	}
 
 	/* Write the mapping table to file */
-	fwrite(mapping_table, sizeof(int32_t),PAGE_MAPPING_ENTRY_NB,fp);
+	ssize_t dummy = fwrite(mapping_table, sizeof(int32_t),PAGE_MAPPING_ENTRY_NB,fp);
+	dummy++;
 
 	/* Free memory for mapping table */
 	free(mapping_table);

@@ -28,13 +28,17 @@
 #include "kvm_ppc.h"
 #include "device_tree.h"
 #include "openpic.h"
-#include "ppce500.h"
-#include "qemu-kvm.h"
+#include "ppc.h"
+#include "loader.h"
+#include "elf.h"
+#include "sysbus.h"
 
 #define BINARY_DEVICE_TREE_FILE    "mpc8544ds.dtb"
 #define UIMAGE_LOAD_BASE           0
-#define DTB_LOAD_BASE              0x600000
-#define INITRD_LOAD_BASE           0x2000000
+#define DTC_LOAD_PAD               0x500000
+#define DTC_PAD_MASK               0xFFFFF
+#define INITRD_LOAD_PAD            0x2000000
+#define INITRD_PAD_MASK            0xFFFFFF
 
 #define RAM_SIZES_ALIGN            (64UL << 20)
 
@@ -47,7 +51,13 @@
 #define MPC8544_PCI_IO             0xE1000000
 #define MPC8544_PCI_IOLEN          0x10000
 
-#ifdef HAVE_FDT
+struct boot_info
+{
+    uint32_t dt_base;
+    uint32_t entry;
+};
+
+#ifdef CONFIG_FDT
 static int mpc8544_copy_soc_cell(void *fdt, const char *node, const char *prop)
 {
     uint32_t cell;
@@ -71,18 +81,18 @@ out:
 }
 #endif
 
-static void *mpc8544_load_device_tree(target_phys_addr_t addr,
+static int mpc8544_load_device_tree(target_phys_addr_t addr,
                                      uint32_t ramsize,
                                      target_phys_addr_t initrd_base,
                                      target_phys_addr_t initrd_size,
                                      const char *kernel_cmdline)
 {
-    void *fdt = NULL;
-#ifdef HAVE_FDT
-    uint32_t mem_reg_property[] = {0, ramsize};
+    int ret = -1;
+#ifdef CONFIG_FDT
+    uint32_t mem_reg_property[] = {0, cpu_to_be32(ramsize)};
     char *filename;
     int fdt_size;
-    int ret;
+    void *fdt;
 
     filename = qemu_find_file(QEMU_FILE_TYPE_BIOS, BINARY_DEVICE_TREE_FILE);
     if (!filename) {
@@ -100,15 +110,19 @@ static void *mpc8544_load_device_tree(target_phys_addr_t addr,
     if (ret < 0)
         fprintf(stderr, "couldn't set /memory/reg\n");
 
-    ret = qemu_devtree_setprop_cell(fdt, "/chosen", "linux,initrd-start",
-                                    initrd_base);
-    if (ret < 0)
-        fprintf(stderr, "couldn't set /chosen/linux,initrd-start\n");
+    if (initrd_size) {
+        ret = qemu_devtree_setprop_cell(fdt, "/chosen", "linux,initrd-start",
+                                        initrd_base);
+        if (ret < 0) {
+            fprintf(stderr, "couldn't set /chosen/linux,initrd-start\n");
+        }
 
-    ret = qemu_devtree_setprop_cell(fdt, "/chosen", "linux,initrd-end",
-                                    (initrd_base + initrd_size));
-    if (ret < 0)
-        fprintf(stderr, "couldn't set /chosen/linux,initrd-end\n");
+        ret = qemu_devtree_setprop_cell(fdt, "/chosen", "linux,initrd-end",
+                                        (initrd_base + initrd_size));
+        if (ret < 0) {
+            fprintf(stderr, "couldn't set /chosen/linux,initrd-end\n");
+        }
+    }
 
     ret = qemu_devtree_setprop_string(fdt, "/chosen", "bootargs",
                                       kernel_cmdline);
@@ -122,6 +136,7 @@ static void *mpc8544_load_device_tree(target_phys_addr_t addr,
 
         if ((dp = opendir("/proc/device-tree/cpus/")) == NULL) {
             printf("Can't open directory /proc/device-tree/cpus/\n");
+            ret = -1;
             goto out;
         }
 
@@ -135,19 +150,57 @@ static void *mpc8544_load_device_tree(target_phys_addr_t addr,
         closedir(dp);
         if (buf[0] == '\0') {
             printf("Unknow host!\n");
+            ret = -1;
             goto out;
         }
 
         mpc8544_copy_soc_cell(fdt, buf, "clock-frequency");
         mpc8544_copy_soc_cell(fdt, buf, "timebase-frequency");
+    } else {
+        const uint32_t freq = 400000000;
+
+        qemu_devtree_setprop_cell(fdt, "/cpus/PowerPC,8544@0",
+                                  "clock-frequency", freq);
+        qemu_devtree_setprop_cell(fdt, "/cpus/PowerPC,8544@0",
+                                  "timebase-frequency", freq);
     }
 
-    cpu_physical_memory_write (addr, (void *)fdt, fdt_size);
+    ret = rom_add_blob_fixed(BINARY_DEVICE_TREE_FILE, fdt, fdt_size, addr);
+    qemu_free(fdt);
 
 out:
 #endif
 
-    return fdt;
+    return ret;
+}
+
+/* Create -kernel TLB entries for BookE, linearly spanning 256MB.  */
+static void mmubooke_create_initial_mapping(CPUState *env,
+                                     target_ulong va,
+                                     target_phys_addr_t pa)
+{
+    ppcemb_tlb_t *tlb = booke206_get_tlbe(env, 1, 0, 0);
+
+    tlb->attr = 0;
+    tlb->prot = PAGE_VALID | ((PAGE_READ | PAGE_WRITE | PAGE_EXEC) << 4);
+    tlb->size = 256 * 1024 * 1024;
+    tlb->EPN = va & TARGET_PAGE_MASK;
+    tlb->RPN = pa & TARGET_PAGE_MASK;
+    tlb->PID = 0;
+}
+
+static void mpc8544ds_cpu_reset(void *opaque)
+{
+    CPUState *env = opaque;
+    struct boot_info *bi = env->load_info;
+
+    cpu_reset(env);
+
+    /* Set initial guest state. */
+    env->gpr[1] = (16<<20) - 8;
+    env->gpr[3] = bi->dt_base;
+    env->nip = bi->entry;
+    mmubooke_create_initial_mapping(env, 0, 0);
 }
 
 static void mpc8544ds_init(ram_addr_t ram_size,
@@ -158,34 +211,45 @@ static void mpc8544ds_init(ram_addr_t ram_size,
                          const char *cpu_model)
 {
     PCIBus *pci_bus;
-    PCIDevice *pci_dev;
     CPUState *env;
     uint64_t elf_entry;
     uint64_t elf_lowaddr;
-    target_ulong entry=0;
-    target_ulong loadaddr=UIMAGE_LOAD_BASE;
+    target_phys_addr_t entry=0;
+    target_phys_addr_t loadaddr=UIMAGE_LOAD_BASE;
     target_long kernel_size=0;
-    target_ulong dt_base=DTB_LOAD_BASE;
-    target_ulong initrd_base=INITRD_LOAD_BASE;
+    target_ulong dt_base = 0;
+    target_ulong initrd_base = 0;
     target_long initrd_size=0;
-    void *fdt;
     int i=0;
     unsigned int pci_irq_nrs[4] = {1, 2, 3, 4};
-    qemu_irq *irqs, *mpic, *pci_irqs;
-    SerialState * serial[2];
+    qemu_irq *irqs, *mpic;
+    DeviceState *dev;
+    struct boot_info *boot_info;
 
     /* Setup CPU */
-    env = cpu_ppc_init("e500v2_v30");
+    if (cpu_model == NULL) {
+        cpu_model = "e500v2_v30";
+    }
+
+    env = cpu_ppc_init(cpu_model);
     if (!env) {
         fprintf(stderr, "Unable to initialize CPU!\n");
         exit(1);
     }
 
+    /* XXX register timer? */
+    ppc_emb_timers_init(env, 400000000, PPC_INTERRUPT_DECR);
+    ppc_dcr_init(env, NULL, NULL);
+
+    /* Register reset handler */
+    qemu_register_reset(mpc8544ds_cpu_reset, env);
+
     /* Fixup Memory size on a alignment boundary */
     ram_size &= ~(RAM_SIZES_ALIGN - 1);
 
     /* Register Memory */
-    cpu_register_physical_memory(0, ram_size, qemu_ram_alloc(ram_size));
+    cpu_register_physical_memory(0, ram_size, qemu_ram_alloc(NULL,
+                                 "mpc8544ds.ram", ram_size));
 
     /* MPIC */
     irqs = qemu_mallocz(sizeof(qemu_irq) * OPENPIC_OUTPUT_NB);
@@ -194,41 +258,33 @@ static void mpc8544ds_init(ram_addr_t ram_size,
     mpic = mpic_init(MPC8544_MPIC_REGS_BASE, 1, &irqs, NULL);
 
     /* Serial */
-    if (serial_hds[0])
-        serial[0] = serial_mm_init(MPC8544_SERIAL0_REGS_BASE,
-                               0, mpic[12+26], 399193,
-                        serial_hds[0], 1);
+    if (serial_hds[0]) {
+        serial_mm_init(MPC8544_SERIAL0_REGS_BASE,
+                       0, mpic[12+26], 399193,
+                       serial_hds[0], 1, 1);
+    }
 
-    if (serial_hds[1])
-        serial[0] = serial_mm_init(MPC8544_SERIAL1_REGS_BASE,
-                        0, mpic[12+26], 399193,
-                        serial_hds[0], 1);
+    if (serial_hds[1]) {
+        serial_mm_init(MPC8544_SERIAL1_REGS_BASE,
+                       0, mpic[12+26], 399193,
+                       serial_hds[0], 1, 1);
+    }
 
     /* PCI */
-    pci_irqs = qemu_malloc(sizeof(qemu_irq) * 4);
-    pci_irqs[0] = mpic[pci_irq_nrs[0]];
-    pci_irqs[1] = mpic[pci_irq_nrs[1]];
-    pci_irqs[2] = mpic[pci_irq_nrs[2]];
-    pci_irqs[3] = mpic[pci_irq_nrs[3]];
-    pci_bus = ppce500_pci_init(pci_irqs, MPC8544_PCI_REGS_BASE);
+    dev = sysbus_create_varargs("e500-pcihost", MPC8544_PCI_REGS_BASE,
+                                mpic[pci_irq_nrs[0]], mpic[pci_irq_nrs[1]],
+                                mpic[pci_irq_nrs[2]], mpic[pci_irq_nrs[3]],
+                                NULL);
+    pci_bus = (PCIBus *)qdev_get_child_bus(dev, "pci.0");
     if (!pci_bus)
         printf("couldn't create PCI controller!\n");
 
     isa_mmio_init(MPC8544_PCI_IO, MPC8544_PCI_IOLEN);
 
     if (pci_bus) {
-        int unit_id = 0;
-
-        /* Add virtio block devices. */
-        while ((i = drive_get_index(IF_VIRTIO, 0, unit_id)) != -1) {
-            pci_dev = pci_create("virtio-blk-pci", drives_table[i].devaddr);
-            qdev_init(&pci_dev->qdev);
-            unit_id++;
-        }
-
         /* Register network interfaces. */
         for (i = 0; i < nb_nics; i++) {
-            pci_nic_init(&nd_table[i], "virtio", NULL);
+            pci_nic_init_nofail(&nd_table[i], "virtio", NULL);
         }
     }
 
@@ -236,8 +292,8 @@ static void mpc8544ds_init(ram_addr_t ram_size,
     if (kernel_filename) {
         kernel_size = load_uimage(kernel_filename, &entry, &loadaddr, NULL);
         if (kernel_size < 0) {
-            kernel_size = load_elf(kernel_filename, 0, &elf_entry, &elf_lowaddr,
-                                   NULL);
+            kernel_size = load_elf(kernel_filename, NULL, NULL, &elf_entry,
+                                   &elf_lowaddr, NULL, 1, ELF_MACHINE, 0);
             entry = elf_entry;
             loadaddr = elf_lowaddr;
         }
@@ -251,6 +307,7 @@ static void mpc8544ds_init(ram_addr_t ram_size,
 
     /* Load initrd. */
     if (initrd_filename) {
+        initrd_base = (kernel_size + INITRD_LOAD_PAD) & ~INITRD_PAD_MASK;
         initrd_size = load_image_targphys(initrd_filename, initrd_base,
                                           ram_size - initrd_base);
 
@@ -261,26 +318,28 @@ static void mpc8544ds_init(ram_addr_t ram_size,
         }
     }
 
+    boot_info = qemu_mallocz(sizeof(struct boot_info));
+
     /* If we're loading a kernel directly, we must load the device tree too. */
     if (kernel_filename) {
-        fdt = mpc8544_load_device_tree(dt_base, ram_size,
-                                      initrd_base, initrd_size, kernel_cmdline);
-        if (fdt == NULL) {
+#ifndef CONFIG_FDT
+        cpu_abort(env, "Compiled without FDT support - can't load kernel\n");
+#endif
+        dt_base = (kernel_size + DTC_LOAD_PAD) & ~DTC_PAD_MASK;
+        if (mpc8544_load_device_tree(dt_base, ram_size,
+                    initrd_base, initrd_size, kernel_cmdline) < 0) {
             fprintf(stderr, "couldn't load device tree\n");
             exit(1);
         }
 
-        /* Set initial guest state. */
-        env->gpr[1] = (16<<20) - 8;
-        env->gpr[3] = dt_base;
-        env->nip = entry;
-        /* XXX we currently depend on KVM to create some initial TLB entries. */
+        boot_info->entry = entry;
+        boot_info->dt_base = dt_base;
     }
+    env->load_info = boot_info;
 
-    if (kvm_enabled())
+    if (kvm_enabled()) {
         kvmppc_init();
-
-    return;
+    }
 }
 
 static QEMUMachine mpc8544ds_machine = {

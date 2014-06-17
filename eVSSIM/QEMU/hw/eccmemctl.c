@@ -22,22 +22,17 @@
  * THE SOFTWARE.
  */
 
-#include "sun4m.h"
 #include "sysbus.h"
-
-//#define DEBUG_ECC
-
-#ifdef DEBUG_ECC
-#define DPRINTF(fmt, ...)                                       \
-    do { printf("ECC: " fmt , ## __VA_ARGS__); } while (0)
-#else
-#define DPRINTF(fmt, ...)
-#endif
+#include "trace.h"
 
 /* There are 3 versions of this chip used in SMP sun4m systems:
  * MCC (version 0, implementation 0) SS-600MP
  * EMC (version 0, implementation 1) SS-10
  * SMC (version 0, implementation 2) SS-10SX and SS-20
+ *
+ * Chipset docs:
+ * "Sun-4M System Architecture (revision 2.0) by Chuck Narad", 950-1373-01,
+ * http://mediacast.sun.com/users/Barton808/media/Sun4M_SystemArchitecture_edited2.pdf
  */
 
 #define ECC_MCC        0x00000000
@@ -145,32 +140,32 @@ static void ecc_mem_writel(void *opaque, target_phys_addr_t addr, uint32_t val)
             s->regs[ECC_MER] = s->version | (val & ECC_MER_MASK_1);
         else if (s->version == ECC_SMC)
             s->regs[ECC_MER] = s->version | (val & ECC_MER_MASK_2);
-        DPRINTF("Write memory enable %08x\n", val);
+        trace_ecc_mem_writel_mer(val);
         break;
     case ECC_MDR:
         s->regs[ECC_MDR] =  val & ECC_MDR_MASK;
-        DPRINTF("Write memory delay %08x\n", val);
+        trace_ecc_mem_writel_mdr(val);
         break;
     case ECC_MFSR:
         s->regs[ECC_MFSR] =  val;
         qemu_irq_lower(s->irq);
-        DPRINTF("Write memory fault status %08x\n", val);
+        trace_ecc_mem_writel_mfsr(val);
         break;
     case ECC_VCR:
         s->regs[ECC_VCR] =  val;
-        DPRINTF("Write slot configuration %08x\n", val);
+        trace_ecc_mem_writel_vcr(val);
         break;
     case ECC_DR:
         s->regs[ECC_DR] =  val;
-        DPRINTF("Write diagnostic %08x\n", val);
+        trace_ecc_mem_writel_dr(val);
         break;
     case ECC_ECR0:
         s->regs[ECC_ECR0] =  val;
-        DPRINTF("Write event count 1 %08x\n", val);
+        trace_ecc_mem_writel_ecr0(val);
         break;
     case ECC_ECR1:
         s->regs[ECC_ECR0] =  val;
-        DPRINTF("Write event count 2 %08x\n", val);
+        trace_ecc_mem_writel_ecr1(val);
         break;
     }
 }
@@ -183,51 +178,51 @@ static uint32_t ecc_mem_readl(void *opaque, target_phys_addr_t addr)
     switch (addr >> 2) {
     case ECC_MER:
         ret = s->regs[ECC_MER];
-        DPRINTF("Read memory enable %08x\n", ret);
+        trace_ecc_mem_readl_mer(ret);
         break;
     case ECC_MDR:
         ret = s->regs[ECC_MDR];
-        DPRINTF("Read memory delay %08x\n", ret);
+        trace_ecc_mem_readl_mdr(ret);
         break;
     case ECC_MFSR:
         ret = s->regs[ECC_MFSR];
-        DPRINTF("Read memory fault status %08x\n", ret);
+        trace_ecc_mem_readl_mfsr(ret);
         break;
     case ECC_VCR:
         ret = s->regs[ECC_VCR];
-        DPRINTF("Read slot configuration %08x\n", ret);
+        trace_ecc_mem_readl_vcr(ret);
         break;
     case ECC_MFAR0:
         ret = s->regs[ECC_MFAR0];
-        DPRINTF("Read memory fault address 0 %08x\n", ret);
+        trace_ecc_mem_readl_mfar0(ret);
         break;
     case ECC_MFAR1:
         ret = s->regs[ECC_MFAR1];
-        DPRINTF("Read memory fault address 1 %08x\n", ret);
+        trace_ecc_mem_readl_mfar1(ret);
         break;
     case ECC_DR:
         ret = s->regs[ECC_DR];
-        DPRINTF("Read diagnostic %08x\n", ret);
+        trace_ecc_mem_readl_dr(ret);
         break;
     case ECC_ECR0:
         ret = s->regs[ECC_ECR0];
-        DPRINTF("Read event count 1 %08x\n", ret);
+        trace_ecc_mem_readl_ecr0(ret);
         break;
     case ECC_ECR1:
         ret = s->regs[ECC_ECR0];
-        DPRINTF("Read event count 2 %08x\n", ret);
+        trace_ecc_mem_readl_ecr1(ret);
         break;
     }
     return ret;
 }
 
-static CPUReadMemoryFunc *ecc_mem_read[3] = {
+static CPUReadMemoryFunc * const ecc_mem_read[3] = {
     NULL,
     NULL,
     ecc_mem_readl,
 };
 
-static CPUWriteMemoryFunc *ecc_mem_write[3] = {
+static CPUWriteMemoryFunc * const ecc_mem_write[3] = {
     NULL,
     NULL,
     ecc_mem_writel,
@@ -238,7 +233,7 @@ static void ecc_diag_mem_writeb(void *opaque, target_phys_addr_t addr,
 {
     ECCState *s = opaque;
 
-    DPRINTF("Write diagnostic[%d] = %02x\n", (int)addr, val);
+    trace_ecc_diag_mem_writeb(addr, val);
     s->diag[addr & ECC_DIAG_MASK] = val;
 }
 
@@ -247,58 +242,38 @@ static uint32_t ecc_diag_mem_readb(void *opaque, target_phys_addr_t addr)
     ECCState *s = opaque;
     uint32_t ret = s->diag[(int)addr];
 
-    DPRINTF("Read diagnostic[%d] = %02x\n", (int)addr, ret);
+    trace_ecc_diag_mem_readb(addr, ret);
     return ret;
 }
 
-static CPUReadMemoryFunc *ecc_diag_mem_read[3] = {
+static CPUReadMemoryFunc * const ecc_diag_mem_read[3] = {
     ecc_diag_mem_readb,
     NULL,
     NULL,
 };
 
-static CPUWriteMemoryFunc *ecc_diag_mem_write[3] = {
+static CPUWriteMemoryFunc * const ecc_diag_mem_write[3] = {
     ecc_diag_mem_writeb,
     NULL,
     NULL,
 };
 
-static int ecc_load(QEMUFile *f, void *opaque, int version_id)
+static const VMStateDescription vmstate_ecc = {
+    .name ="ECC",
+    .version_id = 3,
+    .minimum_version_id = 3,
+    .minimum_version_id_old = 3,
+    .fields      = (VMStateField []) {
+        VMSTATE_UINT32_ARRAY(regs, ECCState, ECC_NREGS),
+        VMSTATE_BUFFER(diag, ECCState),
+        VMSTATE_UINT32(version, ECCState),
+        VMSTATE_END_OF_LIST()
+    }
+};
+
+static void ecc_reset(DeviceState *d)
 {
-    ECCState *s = opaque;
-    int i;
-
-    if (version_id != 3)
-        return -EINVAL;
-
-    for (i = 0; i < ECC_NREGS; i++)
-        qemu_get_be32s(f, &s->regs[i]);
-
-    for (i = 0; i < ECC_DIAG_SIZE; i++)
-        qemu_get_8s(f, &s->diag[i]);
-
-    qemu_get_be32s(f, &s->version);
-
-    return 0;
-}
-
-static void ecc_save(QEMUFile *f, void *opaque)
-{
-    ECCState *s = opaque;
-    int i;
-
-    for (i = 0; i < ECC_NREGS; i++)
-        qemu_put_be32s(f, &s->regs[i]);
-
-    for (i = 0; i < ECC_DIAG_SIZE; i++)
-        qemu_put_8s(f, &s->diag[i]);
-
-    qemu_put_be32s(f, &s->version);
-}
-
-static void ecc_reset(void *opaque)
-{
-    ECCState *s = opaque;
+    ECCState *s = container_of(d, ECCState, busdev.qdev);
 
     if (s->version == ECC_MCC)
         s->regs[ECC_MER] &= ECC_MER_REU;
@@ -315,54 +290,36 @@ static void ecc_reset(void *opaque)
     s->regs[ECC_ECR1] = 0;
 }
 
-static void ecc_init1(SysBusDevice *dev)
+static int ecc_init1(SysBusDevice *dev)
 {
     int ecc_io_memory;
     ECCState *s = FROM_SYSBUS(ECCState, dev);
 
     sysbus_init_irq(dev, &s->irq);
     s->regs[0] = s->version;
-    ecc_io_memory = cpu_register_io_memory(ecc_mem_read, ecc_mem_write, s);
+    ecc_io_memory = cpu_register_io_memory(ecc_mem_read, ecc_mem_write, s,
+                                           DEVICE_NATIVE_ENDIAN);
     sysbus_init_mmio(dev, ECC_SIZE, ecc_io_memory);
 
     if (s->version == ECC_MCC) { // SS-600MP only
         ecc_io_memory = cpu_register_io_memory(ecc_diag_mem_read,
-                                               ecc_diag_mem_write, s);
+                                               ecc_diag_mem_write, s,
+                                               DEVICE_NATIVE_ENDIAN);
         sysbus_init_mmio(dev, ECC_DIAG_SIZE, ecc_io_memory);
     }
-    register_savevm("ECC", -1, 3, ecc_save, ecc_load, s);
-    qemu_register_reset(ecc_reset, s);
-    ecc_reset(s);
-}
 
-void ecc_init(target_phys_addr_t base, qemu_irq irq, uint32_t version)
-{
-    DeviceState *dev;
-    SysBusDevice *s;
-
-    dev = qdev_create(NULL, "eccmemctl");
-    qdev_prop_set_uint32(dev, "version", version);
-    qdev_init(dev);
-    s = sysbus_from_qdev(dev);
-    sysbus_connect_irq(s, 0, irq);
-    sysbus_mmio_map(s, 0, base);
-    if (version == ECC_MCC) { // SS-600MP only
-        sysbus_mmio_map(s, 1, base + 0x1000);
-    }
+    return 0;
 }
 
 static SysBusDeviceInfo ecc_info = {
     .init = ecc_init1,
     .qdev.name  = "eccmemctl",
     .qdev.size  = sizeof(ECCState),
+    .qdev.vmsd  = &vmstate_ecc,
+    .qdev.reset = ecc_reset,
     .qdev.props = (Property[]) {
-        {
-            .name   = "version",
-            .info   = &qdev_prop_hex32,
-            .offset = offsetof(ECCState, version),
-            .defval = (uint32_t[]) { -1 },
-        },
-        {/* end of list */}
+        DEFINE_PROP_HEX32("version", ECCState, version, -1),
+        DEFINE_PROP_END_OF_LIST(),
     }
 };
 

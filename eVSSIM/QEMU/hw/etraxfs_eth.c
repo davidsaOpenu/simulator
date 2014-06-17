@@ -319,7 +319,8 @@ static void mdio_cycle(struct qemu_mdio *bus)
 
 struct fs_eth
 {
-	VLANClientState *vc;
+	NICState *nic;
+	NICConf conf;
 	int ethregs;
 
 	/* Two addrs in the filter.  */
@@ -400,7 +401,7 @@ static void eth_update_ma(struct fs_eth *eth, int ma)
 	eth->macaddr[ma][i++] = eth->regs[reg] >> 16;
 	eth->macaddr[ma][i++] = eth->regs[reg] >> 24;
 	eth->macaddr[ma][i++] = eth->regs[reg + 1];
-	eth->macaddr[ma][i++] = eth->regs[reg + 1] >> 8;
+	eth->macaddr[ma][i] = eth->regs[reg + 1] >> 8;
 
 	D(printf("set mac%d=%x.%x.%x.%x.%x.%x\n", ma,
 		 eth->macaddr[ma][0], eth->macaddr[ma][1],
@@ -436,6 +437,7 @@ eth_writel (void *opaque, target_phys_addr_t addr, uint32_t value)
 				eth_validate_duplex(eth);
 			}
 			eth->mdio_bus.mdc = !!(value & 4);
+			eth->regs[addr] = value;
 			break;
 
 		case RW_REC_CTRL:
@@ -462,7 +464,7 @@ static int eth_match_groupaddr(struct fs_eth *eth, const unsigned char *sa)
 
 	/* First bit on the wire of a MAC address signals multicast or
 	   physical address.  */
-	if (!m_individual && !sa[0] & 1)
+	if (!m_individual && !(sa[0] & 1))
 		return 0;
 
 	/* Calculate the hash index for the GA registers. */
@@ -495,15 +497,15 @@ static int eth_match_groupaddr(struct fs_eth *eth, const unsigned char *sa)
 	return match;
 }
 
-static int eth_can_receive(VLANClientState *vc)
+static int eth_can_receive(VLANClientState *nc)
 {
 	return 1;
 }
 
-static ssize_t eth_receive(VLANClientState *vc, const uint8_t *buf, size_t size)
+static ssize_t eth_receive(VLANClientState *nc, const uint8_t *buf, size_t size)
 {
 	unsigned char sa_bcast[6] = {0xff, 0xff, 0xff, 0xff, 0xff, 0xff };
-	struct fs_eth *eth = vc->opaque;
+	struct fs_eth *eth = DO_UPCAST(NICState, nc, nc)->opaque;
 	int use_ma0 = eth->regs[RW_REC_CTRL] & 1;
 	int use_ma1 = eth->regs[RW_REC_CTRL] & 2;
 	int r_bcast = eth->regs[RW_REC_CTRL] & 8;
@@ -533,36 +535,45 @@ static int eth_tx_push(void *opaque, unsigned char *buf, int len)
 	struct fs_eth *eth = opaque;
 
 	D(printf("%s buf=%p len=%d\n", __func__, buf, len));
-	qemu_send_packet(eth->vc, buf, len);
+	qemu_send_packet(&eth->nic->nc, buf, len);
 	return len;
 }
 
-static void eth_set_link(VLANClientState *vc)
+static void eth_set_link(VLANClientState *nc)
 {
-	struct fs_eth *eth = vc->opaque;
-	D(printf("%s %d\n", __func__, vc->link_down));
-	eth->phy.link = !vc->link_down;
+	struct fs_eth *eth = DO_UPCAST(NICState, nc, nc)->opaque;
+	D(printf("%s %d\n", __func__, nc->link_down));
+	eth->phy.link = !nc->link_down;
 }
 
-static CPUReadMemoryFunc *eth_read[] = {
+static CPUReadMemoryFunc * const eth_read[] = {
 	NULL, NULL,
 	&eth_readl,
 };
 
-static CPUWriteMemoryFunc *eth_write[] = {
+static CPUWriteMemoryFunc * const eth_write[] = {
 	NULL, NULL,
 	&eth_writel,
 };
 
-static void eth_cleanup(VLANClientState *vc)
+static void eth_cleanup(VLANClientState *nc)
 {
-        struct fs_eth *eth = vc->opaque;
+	struct fs_eth *eth = DO_UPCAST(NICState, nc, nc)->opaque;
 
         cpu_unregister_io_memory(eth->ethregs);
 
         qemu_free(eth->dma_out);
         qemu_free(eth);
 }
+
+static NetClientInfo net_etraxfs_info = {
+	.type = NET_CLIENT_TYPE_NIC,
+	.size = sizeof(NICState),
+	.can_receive = eth_can_receive,
+	.receive = eth_receive,
+	.cleanup = eth_cleanup,
+	.link_status_changed = eth_set_link,
+};
 
 void *etraxfs_eth_init(NICInfo *nd, target_phys_addr_t base, int phyaddr)
 {
@@ -587,14 +598,16 @@ void *etraxfs_eth_init(NICInfo *nd, target_phys_addr_t base, int phyaddr)
 	tdk_init(&eth->phy);
 	mdio_attach(&eth->mdio_bus, &eth->phy, eth->phyaddr);
 
-	eth->ethregs = cpu_register_io_memory(eth_read, eth_write, eth);
+	eth->ethregs = cpu_register_io_memory(eth_read, eth_write, eth,
+                                              DEVICE_NATIVE_ENDIAN);
 	cpu_register_physical_memory (base, 0x5c, eth->ethregs);
 
-	eth->vc = nd->vc = qemu_new_vlan_client(nd->vlan, nd->model, nd->name,
-                                                eth_can_receive, eth_receive,
-                                                NULL, eth_cleanup, eth);
-	eth->vc->opaque = eth;
-	eth->vc->link_status_changed = eth_set_link;
+	memcpy(eth->conf.macaddr.a, nd->macaddr, sizeof(nd->macaddr));
+	eth->conf.vlan = nd->vlan;
+	eth->conf.peer = nd->netdev;
+
+	eth->nic = qemu_new_nic(&net_etraxfs_info, &eth->conf,
+				nd->model, nd->name, eth);
 
 	return dma;
 }

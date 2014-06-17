@@ -73,106 +73,107 @@ void INIT_SSD_CONFIG(void)
 	{
 		while(fscanf(pfData, "%s", szCommand)!=EOF)
 		{
+			int dummy = 0;
 			if(strcmp(szCommand, "FILE_NAME") == 0)
 			{
-				fscanf(pfData, "%s", gFile_Name);
+				dummy = fscanf(pfData, "%s", gFile_Name);
 			}
 			else if(strcmp(szCommand, "PAGE_SIZE") == 0)
 			{
-				fscanf(pfData, "%d", &PAGE_SIZE);
+				dummy = fscanf(pfData, "%d", &PAGE_SIZE);
 			}
 			else if(strcmp(szCommand, "PAGE_NB") == 0)
 			{
-				fscanf(pfData, "%d", &PAGE_NB);
+				dummy = fscanf(pfData, "%d", &PAGE_NB);
 			}
 			else if(strcmp(szCommand, "SECTOR_SIZE") == 0)
 			{
-				fscanf(pfData, "%d", &SECTOR_SIZE);
+				dummy = fscanf(pfData, "%d", &SECTOR_SIZE);
 			}	
 			else if(strcmp(szCommand, "FLASH_NB") == 0)
 			{
-				fscanf(pfData, "%d", &FLASH_NB);
+				dummy = fscanf(pfData, "%d", &FLASH_NB);
 			}	
 			else if(strcmp(szCommand, "BLOCK_NB") == 0)
 			{
-				fscanf(pfData, "%d", &BLOCK_NB);
+				dummy = fscanf(pfData, "%d", &BLOCK_NB);
 			}					
 			else if(strcmp(szCommand, "PLANES_PER_FLASH") == 0)
 			{
-				fscanf(pfData, "%d", &PLANES_PER_FLASH);
+				dummy = fscanf(pfData, "%d", &PLANES_PER_FLASH);
 			}
 			else if(strcmp(szCommand, "REG_WRITE_DELAY") == 0)
 			{
-				fscanf(pfData, "%d", &REG_WRITE_DELAY);
+				dummy = fscanf(pfData, "%d", &REG_WRITE_DELAY);
 			}	
 			else if(strcmp(szCommand, "CELL_PROGRAM_DELAY") == 0)
 			{
-				fscanf(pfData, "%d", &CELL_PROGRAM_DELAY);
+				dummy = fscanf(pfData, "%d", &CELL_PROGRAM_DELAY);
 			}
 			else if(strcmp(szCommand, "REG_READ_DELAY") == 0)
 			{
-				fscanf(pfData, "%d", &REG_READ_DELAY);
+				dummy = fscanf(pfData, "%d", &REG_READ_DELAY);
 			}
 			else if(strcmp(szCommand, "CELL_READ_DELAY") == 0)
 			{
-				fscanf(pfData, "%d", &CELL_READ_DELAY);
+				dummy = fscanf(pfData, "%d", &CELL_READ_DELAY);
 			}
 			else if(strcmp(szCommand, "BLOCK_ERASE_DELAY") == 0)
 			{
-				fscanf(pfData, "%d", &BLOCK_ERASE_DELAY);
+				dummy = fscanf(pfData, "%d", &BLOCK_ERASE_DELAY);
 			}
 			else if(strcmp(szCommand, "CHANNEL_SWITCH_DELAY_R") == 0)
 			{
-				fscanf(pfData, "%d", &CHANNEL_SWITCH_DELAY_R);
+				dummy = fscanf(pfData, "%d", &CHANNEL_SWITCH_DELAY_R);
 			}
 			else if(strcmp(szCommand, "CHANNEL_SWITCH_DELAY_W") == 0)
 			{
-				fscanf(pfData, "%d", &CHANNEL_SWITCH_DELAY_W);
+				dummy = fscanf(pfData, "%d", &CHANNEL_SWITCH_DELAY_W);
 			}
 			else if(strcmp(szCommand, "DSM_TRIM_ENABLE") == 0)
 			{
-				fscanf(pfData, "%d", &DSM_TRIM_ENABLE);
+				dummy = fscanf(pfData, "%d", &DSM_TRIM_ENABLE);
 			}
 			else if(strcmp(szCommand, "IO_PARALLELISM") == 0)
 			{
-				fscanf(pfData, "%d", &IO_PARALLELISM);
+				dummy = fscanf(pfData, "%d", &IO_PARALLELISM);
 			}
 			else if(strcmp(szCommand, "CHANNEL_NB") == 0)
 			{
-				fscanf(pfData, "%d", &CHANNEL_NB);
+				dummy = fscanf(pfData, "%d", &CHANNEL_NB);
 			}
 			else if(strcmp(szCommand, "STAT_TYPE") == 0)
 			{
-				fscanf(pfData, "%d", &STAT_TYPE);
+				dummy = fscanf(pfData, "%d", &STAT_TYPE);
 			}
 			else if(strcmp(szCommand, "STAT_SCOPE") == 0)
 			{
-				fscanf(pfData, "%d", &STAT_SCOPE);
+				dummy = fscanf(pfData, "%d", &STAT_SCOPE);
 			}
 			else if(strcmp(szCommand, "STAT_PATH") == 0)
 			{
-				fscanf(pfData, "%s", &STAT_PATH);
+				dummy = fscanf(pfData, "%s", (char*)&STAT_PATH);
 			}
 #if defined FTL_MAP_CACHE 
 			else if(strcmp(szCommand, "CACHE_IDX_SIZE") == 0)
 			{
-				fscanf(pfData, "%d", &CACHE_IDX_SIZE);
+				dummy = fscanf(pfData, "%d", &CACHE_IDX_SIZE);
 			}
 #endif
 #ifdef SSD_WRITE_BUFFER
 			else if(strcmp(szCommand, "WRITE_BUFFER_SIZE") == 0)
 			{
-				fscanf(pfData, "%u", &WRITE_BUFFER_SIZE);
+				dummy = fscanf(pfData, "%u", &WRITE_BUFFER_SIZE);
 			}
 #endif
 #if defined FAST_FTL || defined LAST_FTL
 			else if(strcmp(szCommand, "LOG_RAND_BLOCK_NB") == 0)
 			{
-				fscanf(pfData, "%d", &LOG_RAND_BLOCK_NB);
+				dummy = fscanf(pfData, "%d", &LOG_RAND_BLOCK_NB);
 			}	
 			else if(strcmp(szCommand, "LOG_SEQ_BLOCK_NB") == 0)
 			{
-				fscanf(pfData, "%d", &LOG_SEQ_BLOCK_NB);
+				dummy = fscanf(pfData, "%d", &LOG_SEQ_BLOCK_NB);
 			}	
 #endif
 			memset(szCommand, 0x00, 1024);

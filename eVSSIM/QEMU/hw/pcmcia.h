@@ -48,4 +48,4 @@ struct PCMCIACardState {
 #define CISTPL_ENDMARK		0xff
 
 /* dscm1xxxx.c */
-PCMCIACardState *dscm1xxxx_init(BlockDriverState *bdrv);
+PCMCIACardState *dscm1xxxx_init(DriveInfo *bdrv);

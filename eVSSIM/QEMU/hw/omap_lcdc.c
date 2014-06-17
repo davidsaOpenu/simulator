@@ -80,31 +80,31 @@ static void omap_lcd_interrupts(struct omap_lcd_panel_s *s)
 #include "omap_lcd_template.h"
 
 static draw_line_func draw_line_table2[33] = {
-    [0 ... 32]	= 0,
+    [0 ... 32]	= NULL,
     [8]		= draw_line2_8,
     [15]	= draw_line2_15,
     [16]	= draw_line2_16,
     [32]	= draw_line2_32,
 }, draw_line_table4[33] = {
-    [0 ... 32]	= 0,
+    [0 ... 32]	= NULL,
     [8]		= draw_line4_8,
     [15]	= draw_line4_15,
     [16]	= draw_line4_16,
     [32]	= draw_line4_32,
 }, draw_line_table8[33] = {
-    [0 ... 32]	= 0,
+    [0 ... 32]	= NULL,
     [8]		= draw_line8_8,
     [15]	= draw_line8_15,
     [16]	= draw_line8_16,
     [32]	= draw_line8_32,
 }, draw_line_table12[33] = {
-    [0 ... 32]	= 0,
+    [0 ... 32]	= NULL,
     [8]		= draw_line12_8,
     [15]	= draw_line12_15,
     [16]	= draw_line12_16,
     [32]	= draw_line12_32,
 }, draw_line_table16[33] = {
-    [0 ... 32]	= 0,
+    [0 ... 32]	= NULL,
     [8]		= draw_line16_8,
     [15]	= draw_line16_15,
     [16]	= draw_line16_16,
@@ -401,13 +401,13 @@ static void omap_lcdc_write(void *opaque, target_phys_addr_t addr,
     }
 }
 
-static CPUReadMemoryFunc *omap_lcdc_readfn[] = {
+static CPUReadMemoryFunc * const omap_lcdc_readfn[] = {
     omap_lcdc_read,
     omap_lcdc_read,
     omap_lcdc_read,
 };
 
-static CPUWriteMemoryFunc *omap_lcdc_writefn[] = {
+static CPUWriteMemoryFunc * const omap_lcdc_writefn[] = {
     omap_lcdc_write,
     omap_lcdc_write,
     omap_lcdc_write,
@@ -450,7 +450,7 @@ struct omap_lcd_panel_s *omap_lcdc_init(target_phys_addr_t base, qemu_irq irq,
     omap_lcdc_reset(s);
 
     iomemtype = cpu_register_io_memory(omap_lcdc_readfn,
-                    omap_lcdc_writefn, s);
+                    omap_lcdc_writefn, s, DEVICE_NATIVE_ENDIAN);
     cpu_register_physical_memory(base, 0x100, iomemtype);
 
     s->state = graphic_console_init(omap_update_display,

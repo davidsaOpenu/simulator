@@ -21,12 +21,11 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  * THE SOFTWARE.
  */
-
 #include "hw.h"
 #include "isa.h"
 #include "pc.h"
-#include "sysemu.h"
-#include "qemu-kvm.h"
+#include "kvm.h"
+#include "qdev.h"
 
 //#define VMPORT_DEBUG
 
@@ -34,23 +33,30 @@
 #define VMPORT_CMD_GETRAMSIZE 0x14
 
 #define VMPORT_ENTRIES 0x2c
-#define VMPORT_MAGIC   0x564D5868
+/* The following define's a magic value such that a knowing OS
+   can determine if it is running in a virtual environment or not.
+   VMware's ESXi breaks if it knows it is in a virtual environment
+   so just changing the magic value to something else so it is not
+   aware. */
+/* #define VMPORT_MAGIC   0x564D5868 */
+#define VMPORT_MAGIC   0x564D5860
 
 typedef struct _VMPortState
 {
+    ISADevice dev;
     IOPortReadFunc *func[VMPORT_ENTRIES];
     void *opaque[VMPORT_ENTRIES];
 } VMPortState;
 
-static VMPortState port_state;
+static VMPortState *port_state;
 
 void vmport_register(unsigned char command, IOPortReadFunc *func, void *opaque)
 {
     if (command >= VMPORT_ENTRIES)
         return;
 
-    port_state.func[command] = func;
-    port_state.opaque[command] = opaque;
+    port_state->func[command] = func;
+    port_state->opaque[command] = opaque;
 }
 
 static uint32_t vmport_ioport_read(void *opaque, uint32_t addr)
@@ -59,10 +65,8 @@ static uint32_t vmport_ioport_read(void *opaque, uint32_t addr)
     CPUState *env = cpu_single_env;
     unsigned char command;
     uint32_t eax;
-    uint32_t ret;
 
-    if (kvm_enabled())
-	kvm_save_registers(env);
+    cpu_synchronize_state(env);
 
     eax = env->regs[R_EAX];
     if (eax != VMPORT_MAGIC)
@@ -79,12 +83,7 @@ static uint32_t vmport_ioport_read(void *opaque, uint32_t addr)
         return eax;
     }
 
-    ret = s->func[command](s->opaque[command], addr);
-
-    if (kvm_enabled())
-	kvm_load_registers(env);
-
-    return ret;
+    return s->func[command](s->opaque[command], addr);
 }
 
 static void vmport_ioport_write(void *opaque, uint32_t addr, uint32_t val)
@@ -108,12 +107,48 @@ static uint32_t vmport_cmd_ram_size(void *opaque, uint32_t addr)
     return ram_size;
 }
 
-void vmport_init(void)
+/* vmmouse helpers */
+void vmmouse_get_data(uint32_t *data)
 {
-    register_ioport_read(0x5658, 1, 4, vmport_ioport_read, &port_state);
-    register_ioport_write(0x5658, 1, 4, vmport_ioport_write, &port_state);
+    CPUState *env = cpu_single_env;
 
+    data[0] = env->regs[R_EAX]; data[1] = env->regs[R_EBX];
+    data[2] = env->regs[R_ECX]; data[3] = env->regs[R_EDX];
+    data[4] = env->regs[R_ESI]; data[5] = env->regs[R_EDI];
+}
+
+void vmmouse_set_data(const uint32_t *data)
+{
+    CPUState *env = cpu_single_env;
+
+    env->regs[R_EAX] = data[0]; env->regs[R_EBX] = data[1];
+    env->regs[R_ECX] = data[2]; env->regs[R_EDX] = data[3];
+    env->regs[R_ESI] = data[4]; env->regs[R_EDI] = data[5];
+}
+
+static int vmport_initfn(ISADevice *dev)
+{
+    VMPortState *s = DO_UPCAST(VMPortState, dev, dev);
+
+    register_ioport_read(0x5658, 1, 4, vmport_ioport_read, s);
+    register_ioport_write(0x5658, 1, 4, vmport_ioport_write, s);
+    isa_init_ioport(dev, 0x5658);
+    port_state = s;
     /* Register some generic port commands */
     vmport_register(VMPORT_CMD_GETVERSION, vmport_cmd_get_version, NULL);
     vmport_register(VMPORT_CMD_GETRAMSIZE, vmport_cmd_ram_size, NULL);
+    return 0;
 }
+
+static ISADeviceInfo vmport_info = {
+    .qdev.name     = "vmport",
+    .qdev.size     = sizeof(VMPortState),
+    .qdev.no_user  = 1,
+    .init          = vmport_initfn,
+};
+
+static void vmport_dev_register(void)
+{
+    isa_qdev_register(&vmport_info);
+}
+device_init(vmport_dev_register)

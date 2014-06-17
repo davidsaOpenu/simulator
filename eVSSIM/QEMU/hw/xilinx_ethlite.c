@@ -51,14 +51,14 @@ struct xlx_ethlite
 {
     SysBusDevice busdev;
     qemu_irq irq;
-    VLANClientState *vc;
+    NICState *nic;
+    NICConf conf;
 
     uint32_t c_tx_pingpong;
     uint32_t c_rx_pingpong;
     unsigned int txbuf;
     unsigned int rxbuf;
 
-    uint8_t macaddr[6];
     uint32_t regs[R_MAX];
 };
 
@@ -90,13 +90,8 @@ static uint32_t eth_readl (void *opaque, target_phys_addr_t addr)
             D(qemu_log("%s %x=%x\n", __func__, addr * 4, r));
             break;
 
-        /* Rx packet data is endian fixed at the way into the rx rams. This
-         * speeds things up because the ethlite MAC does not have a len
-         * register. That means the CPU will issue MMIO reads for the entire
-         * 2k rx buffer even for small packets.
-         */
         default:
-            r = s->regs[addr];
+            r = tswap32(s->regs[addr]);
             break;
     }
     return r;
@@ -118,14 +113,14 @@ eth_writel (void *opaque, target_phys_addr_t addr, uint32_t value)
 
             D(qemu_log("%s addr=%x val=%x\n", __func__, addr * 4, value));
             if ((value & (CTRL_P | CTRL_S)) == CTRL_S) {
-                qemu_send_packet(s->vc,
+                qemu_send_packet(&s->nic->nc,
                                  (void *) &s->regs[base],
                                  s->regs[base + R_TX_LEN0]);
                 D(qemu_log("eth_tx %d\n", s->regs[base + R_TX_LEN0]));
                 if (s->regs[base + R_TX_CTRL0] & CTRL_I)
                     eth_pulse_irq(s);
             } else if ((value & (CTRL_P | CTRL_S)) == (CTRL_P | CTRL_S)) {
-                memcpy(&s->macaddr[0], &s->regs[base], 6);
+                memcpy(&s->conf.macaddr.a[0], &s->regs[base], 6);
                 if (s->regs[base + R_TX_CTRL0] & CTRL_I)
                     eth_pulse_irq(s);
             }
@@ -145,37 +140,35 @@ eth_writel (void *opaque, target_phys_addr_t addr, uint32_t value)
             s->regs[addr] = value;
             break;
 
-        /* Packet data, make sure it stays BE.  */
         default:
-            s->regs[addr] = cpu_to_be32(value);
+            s->regs[addr] = tswap32(value);
             break;
     }
 }
 
-static CPUReadMemoryFunc *eth_read[] = {
+static CPUReadMemoryFunc * const eth_read[] = {
     NULL, NULL, &eth_readl,
 };
 
-static CPUWriteMemoryFunc *eth_write[] = {
+static CPUWriteMemoryFunc * const eth_write[] = {
     NULL, NULL, &eth_writel,
 };
 
-static int eth_can_rx(VLANClientState *vc)
+static int eth_can_rx(VLANClientState *nc)
 {
-    struct xlx_ethlite *s = vc->opaque;
+    struct xlx_ethlite *s = DO_UPCAST(NICState, nc, nc)->opaque;
     int r;
     r = !(s->regs[R_RX_CTRL0] & CTRL_S);
     return r;
 }
 
-static ssize_t eth_rx(VLANClientState *vc, const uint8_t *buf, size_t size)
+static ssize_t eth_rx(VLANClientState *nc, const uint8_t *buf, size_t size)
 {
-    struct xlx_ethlite *s = vc->opaque;
+    struct xlx_ethlite *s = DO_UPCAST(NICState, nc, nc)->opaque;
     unsigned int rxbase = s->rxbuf * (0x800 / 4);
-    int i;
 
     /* DA filter.  */
-    if (!(buf[0] & 0x80) && memcmp(&s->macaddr[0], buf, 6))
+    if (!(buf[0] & 0x80) && memcmp(&s->conf.macaddr.a[0], buf, 6))
         return size;
 
     if (s->regs[rxbase + R_RX_CTRL0] & CTRL_S) {
@@ -186,12 +179,6 @@ static ssize_t eth_rx(VLANClientState *vc, const uint8_t *buf, size_t size)
     D(qemu_log("%s %d rxbase=%x\n", __func__, size, rxbase));
     memcpy(&s->regs[rxbase + R_RX_BUF0], buf, size);
 
-    /* Bring it into host endianess.  */
-    for (i = 0; i < ((size + 3) / 4); i++) {
-       uint32_t d = s->regs[rxbase + R_RX_BUF0 + i];
-       s->regs[rxbase + R_RX_BUF0 + i] = be32_to_cpu(d);
-    }
-
     s->regs[rxbase + R_RX_CTRL0] |= CTRL_S;
     if (s->regs[rxbase + R_RX_CTRL0] & CTRL_I)
         eth_pulse_irq(s);
@@ -201,13 +188,22 @@ static ssize_t eth_rx(VLANClientState *vc, const uint8_t *buf, size_t size)
     return size;
 }
 
-static void eth_cleanup(VLANClientState *vc)
+static void eth_cleanup(VLANClientState *nc)
 {
-    struct xlx_ethlite *s = vc->opaque;
-    qemu_free(s);
+    struct xlx_ethlite *s = DO_UPCAST(NICState, nc, nc)->opaque;
+
+    s->nic = NULL;
 }
 
-static void xilinx_ethlite_init(SysBusDevice *dev)
+static NetClientInfo net_xilinx_ethlite_info = {
+    .type = NET_CLIENT_TYPE_NIC,
+    .size = sizeof(NICState),
+    .can_receive = eth_can_rx,
+    .receive = eth_rx,
+    .cleanup = eth_cleanup,
+};
+
+static int xilinx_ethlite_init(SysBusDevice *dev)
 {
     struct xlx_ethlite *s = FROM_SYSBUS(typeof (*s), dev);
     int regs;
@@ -215,12 +211,14 @@ static void xilinx_ethlite_init(SysBusDevice *dev)
     sysbus_init_irq(dev, &s->irq);
     s->rxbuf = 0;
 
-    regs = cpu_register_io_memory(eth_read, eth_write, s);
+    regs = cpu_register_io_memory(eth_read, eth_write, s, DEVICE_NATIVE_ENDIAN);
     sysbus_init_mmio(dev, R_MAX * 4, regs);
 
-    qdev_get_macaddr(&dev->qdev, s->macaddr);
-    s->vc = qdev_get_vlan_client(&dev->qdev,
-                                 eth_can_rx, eth_rx, NULL, eth_cleanup, s);
+    qemu_macaddr_default_if_unset(&s->conf.macaddr);
+    s->nic = qemu_new_nic(&net_xilinx_ethlite_info, &s->conf,
+                          dev->qdev.info->name, dev->qdev.id, s);
+    qemu_format_nic_info_str(&s->nic->nc, s->conf.macaddr.a);
+    return 0;
 }
 
 static SysBusDeviceInfo xilinx_ethlite_info = {
@@ -228,18 +226,10 @@ static SysBusDeviceInfo xilinx_ethlite_info = {
     .qdev.name  = "xilinx,ethlite",
     .qdev.size  = sizeof(struct xlx_ethlite),
     .qdev.props = (Property[]) {
-        {
-            .name   = "txpingpong",
-            .info   = &qdev_prop_uint32,
-            .offset = offsetof(struct xlx_ethlite, c_tx_pingpong),
-            .defval = (uint32_t[]) { 1 },
-        },{
-            .name   = "rxpingpong",
-            .info   = &qdev_prop_uint32,
-            .offset = offsetof(struct xlx_ethlite, c_rx_pingpong),
-            .defval = (uint32_t[]) { 1 },
-        },
-        {/* end of list */}
+        DEFINE_PROP_UINT32("txpingpong", struct xlx_ethlite, c_tx_pingpong, 1),
+        DEFINE_PROP_UINT32("rxpingpong", struct xlx_ethlite, c_rx_pingpong, 1),
+        DEFINE_NIC_PROPERTIES(struct xlx_ethlite, conf),
+        DEFINE_PROP_END_OF_LIST(),
     }
 };
 

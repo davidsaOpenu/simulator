@@ -33,16 +33,11 @@ typedef struct {
 
 static struct {
     int samples;
-    int divisor;
     char *server;
     char *sink;
     char *source;
 } conf = {
-    1024,
-    2,
-    NULL,
-    NULL,
-    NULL
+    .samples = 4096,
 };
 
 static void GCC_FMT_ATTR (2, 3) qpa_logerr (int err, const char *fmt, ...)
@@ -60,9 +55,6 @@ static void *qpa_thread_out (void *arg)
 {
     PAVoiceOut *pa = arg;
     HWVoiceOut *hw = &pa->hw;
-    int threshold;
-
-    threshold = conf.divisor ? hw->samples / conf.divisor : 0;
 
     if (audio_pt_lock (&pa->pt, AUDIO_FUNC)) {
         return NULL;
@@ -76,7 +68,7 @@ static void *qpa_thread_out (void *arg)
                 goto exit;
             }
 
-            if (pa->live > threshold) {
+            if (pa->live > 0) {
                 break;
             }
 
@@ -85,8 +77,8 @@ static void *qpa_thread_out (void *arg)
             }
         }
 
-        decr = to_mix = pa->live;
-        rpos = hw->rpos;
+        decr = to_mix = audio_MIN (pa->live, conf.samples >> 2);
+        rpos = pa->rpos;
 
         if (audio_pt_unlock (&pa->pt, AUDIO_FUNC)) {
             return NULL;
@@ -123,16 +115,15 @@ static void *qpa_thread_out (void *arg)
     return NULL;
 }
 
-static int qpa_run_out (HWVoiceOut *hw)
+static int qpa_run_out (HWVoiceOut *hw, int live)
 {
-    int live, decr;
+    int decr;
     PAVoiceOut *pa = (PAVoiceOut *) hw;
 
     if (audio_pt_lock (&pa->pt, AUDIO_FUNC)) {
         return 0;
     }
 
-    live = audio_pcm_hw_get_live_out (hw);
     decr = audio_MIN (live, pa->decr);
     pa->decr -= decr;
     pa->live = live - decr;
@@ -156,9 +147,6 @@ static void *qpa_thread_in (void *arg)
 {
     PAVoiceIn *pa = arg;
     HWVoiceIn *hw = &pa->hw;
-    int threshold;
-
-    threshold = conf.divisor ? hw->samples / conf.divisor : 0;
 
     if (audio_pt_lock (&pa->pt, AUDIO_FUNC)) {
         return NULL;
@@ -172,7 +160,7 @@ static void *qpa_thread_in (void *arg)
                 goto exit;
             }
 
-            if (pa->dead > threshold) {
+            if (pa->dead > 0) {
                 break;
             }
 
@@ -181,8 +169,8 @@ static void *qpa_thread_in (void *arg)
             }
         }
 
-        incr = to_grab = pa->dead;
-        wpos = hw->wpos;
+        incr = to_grab = audio_MIN (pa->dead, conf.samples >> 2);
+        wpos = pa->wpos;
 
         if (audio_pt_unlock (&pa->pt, AUDIO_FUNC)) {
             return NULL;
@@ -199,7 +187,7 @@ static void *qpa_thread_in (void *arg)
                 return NULL;
             }
 
-            hw->conv (hw->conv_buf + wpos, buf, chunk, &nominal_volume);
+            hw->conv (hw->conv_buf + wpos, buf, chunk);
             wpos = (wpos + chunk) % hw->samples;
             to_grab -= chunk;
         }
@@ -299,12 +287,22 @@ static int qpa_init_out (HWVoiceOut *hw, struct audsettings *as)
 {
     int error;
     static pa_sample_spec ss;
+    static pa_buffer_attr ba;
     struct audsettings obt_as = *as;
     PAVoiceOut *pa = (PAVoiceOut *) hw;
 
     ss.format = audfmt_to_pa (as->fmt, as->endianness);
     ss.channels = as->nchannels;
     ss.rate = as->freq;
+
+    /*
+     * qemu audio tick runs at 250 Hz (by default), so processing
+     * data chunks worth 4 ms of sound should be a good fit.
+     */
+    ba.tlength = pa_usec_to_bytes (4 * 1000, &ss);
+    ba.minreq = pa_usec_to_bytes (2 * 1000, &ss);
+    ba.maxlength = -1;
+    ba.prebuf = -1;
 
     obt_as.fmt = pa_to_audfmt (ss.format, &obt_as.endianness);
 
@@ -316,7 +314,7 @@ static int qpa_init_out (HWVoiceOut *hw, struct audsettings *as)
         "pcm.playback",
         &ss,
         NULL,                   /* channel map */
-        NULL,                   /* buffering attributes */
+        &ba,                    /* buffering attributes */
         &error
         );
     if (!pa->s) {
@@ -327,6 +325,7 @@ static int qpa_init_out (HWVoiceOut *hw, struct audsettings *as)
     audio_pcm_init_info (&hw->info, &obt_as);
     hw->samples = conf.samples;
     pa->pcm_buf = audio_calloc (AUDIO_FUNC, hw->samples, 1 << hw->info.shift);
+    pa->rpos = hw->rpos;
     if (!pa->pcm_buf) {
         dolog ("Could not allocate buffer (%d bytes)\n",
                hw->samples << hw->info.shift);
@@ -381,6 +380,7 @@ static int qpa_init_in (HWVoiceIn *hw, struct audsettings *as)
     audio_pcm_init_info (&hw->info, &obt_as);
     hw->samples = conf.samples;
     pa->pcm_buf = audio_calloc (AUDIO_FUNC, hw->samples, 1 << hw->info.shift);
+    pa->wpos = hw->wpos;
     if (!pa->pcm_buf) {
         dolog ("Could not allocate buffer (%d bytes)\n",
                hw->samples << hw->info.shift);
@@ -469,47 +469,57 @@ static void qpa_audio_fini (void *opaque)
 }
 
 struct audio_option qpa_options[] = {
-    {"SAMPLES", AUD_OPT_INT, &conf.samples,
-     "buffer size in samples", NULL, 0},
-
-    {"DIVISOR", AUD_OPT_INT, &conf.divisor,
-     "threshold divisor", NULL, 0},
-
-    {"SERVER", AUD_OPT_STR, &conf.server,
-     "server address", NULL, 0},
-
-    {"SINK", AUD_OPT_STR, &conf.sink,
-     "sink device name", NULL, 0},
-
-    {"SOURCE", AUD_OPT_STR, &conf.source,
-     "source device name", NULL, 0},
-
-    {NULL, 0, NULL, NULL, NULL, 0}
+    {
+        .name  = "SAMPLES",
+        .tag   = AUD_OPT_INT,
+        .valp  = &conf.samples,
+        .descr = "buffer size in samples"
+    },
+    {
+        .name  = "SERVER",
+        .tag   = AUD_OPT_STR,
+        .valp  = &conf.server,
+        .descr = "server address"
+    },
+    {
+        .name  = "SINK",
+        .tag   = AUD_OPT_STR,
+        .valp  = &conf.sink,
+        .descr = "sink device name"
+    },
+    {
+        .name  = "SOURCE",
+        .tag   = AUD_OPT_STR,
+        .valp  = &conf.source,
+        .descr = "source device name"
+    },
+    { /* End of list */ }
 };
 
 static struct audio_pcm_ops qpa_pcm_ops = {
-    qpa_init_out,
-    qpa_fini_out,
-    qpa_run_out,
-    qpa_write,
-    qpa_ctl_out,
-    qpa_init_in,
-    qpa_fini_in,
-    qpa_run_in,
-    qpa_read,
-    qpa_ctl_in
+    .init_out = qpa_init_out,
+    .fini_out = qpa_fini_out,
+    .run_out  = qpa_run_out,
+    .write    = qpa_write,
+    .ctl_out  = qpa_ctl_out,
+
+    .init_in  = qpa_init_in,
+    .fini_in  = qpa_fini_in,
+    .run_in   = qpa_run_in,
+    .read     = qpa_read,
+    .ctl_in   = qpa_ctl_in
 };
 
 struct audio_driver pa_audio_driver = {
-    INIT_FIELD (name           = ) "pa",
-    INIT_FIELD (descr          = ) "http://www.pulseaudio.org/",
-    INIT_FIELD (options        = ) qpa_options,
-    INIT_FIELD (init           = ) qpa_audio_init,
-    INIT_FIELD (fini           = ) qpa_audio_fini,
-    INIT_FIELD (pcm_ops        = ) &qpa_pcm_ops,
-    INIT_FIELD (can_be_default = ) 0,
-    INIT_FIELD (max_voices_out = ) INT_MAX,
-    INIT_FIELD (max_voices_in  = ) INT_MAX,
-    INIT_FIELD (voice_size_out = ) sizeof (PAVoiceOut),
-    INIT_FIELD (voice_size_in  = ) sizeof (PAVoiceIn)
+    .name           = "pa",
+    .descr          = "http://www.pulseaudio.org/",
+    .options        = qpa_options,
+    .init           = qpa_audio_init,
+    .fini           = qpa_audio_fini,
+    .pcm_ops        = &qpa_pcm_ops,
+    .can_be_default = 1,
+    .max_voices_out = INT_MAX,
+    .max_voices_in  = INT_MAX,
+    .voice_size_out = sizeof (PAVoiceOut),
+    .voice_size_in  = sizeof (PAVoiceIn)
 };

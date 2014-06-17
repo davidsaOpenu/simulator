@@ -2,6 +2,10 @@
 #define HW_PC_H
 
 #include "qemu-common.h"
+#include "ioport.h"
+#include "isa.h"
+#include "fdc.h"
+#include "net.h"
 
 /* PC-style peripherals (also used by other machines).  */
 
@@ -11,19 +15,45 @@ SerialState *serial_init(int base, qemu_irq irq, int baudbase,
                          CharDriverState *chr);
 SerialState *serial_mm_init (target_phys_addr_t base, int it_shift,
                              qemu_irq irq, int baudbase,
-                             CharDriverState *chr, int ioregister);
-uint32_t serial_mm_readb (void *opaque, target_phys_addr_t addr);
-void serial_mm_writeb (void *opaque, target_phys_addr_t addr, uint32_t value);
-uint32_t serial_mm_readw (void *opaque, target_phys_addr_t addr);
-void serial_mm_writew (void *opaque, target_phys_addr_t addr, uint32_t value);
-uint32_t serial_mm_readl (void *opaque, target_phys_addr_t addr);
-void serial_mm_writel (void *opaque, target_phys_addr_t addr, uint32_t value);
+                             CharDriverState *chr, int ioregister,
+                             int be);
+static inline bool serial_isa_init(int index, CharDriverState *chr)
+{
+    ISADevice *dev;
+
+    dev = isa_try_create("isa-serial");
+    if (!dev) {
+        return false;
+    }
+    qdev_prop_set_uint32(&dev->qdev, "index", index);
+    qdev_prop_set_chr(&dev->qdev, "chardev", chr);
+    if (qdev_init(&dev->qdev) < 0) {
+        return false;
+    }
+    return true;
+}
+
+void serial_set_frequency(SerialState *s, uint32_t frequency);
 
 /* parallel.c */
+static inline bool parallel_init(int index, CharDriverState *chr)
+{
+    ISADevice *dev;
 
-typedef struct ParallelState ParallelState;
-ParallelState *parallel_init(int base, qemu_irq irq, CharDriverState *chr);
-ParallelState *parallel_mm_init(target_phys_addr_t base, int it_shift, qemu_irq irq, CharDriverState *chr);
+    dev = isa_try_create("isa-parallel");
+    if (!dev) {
+        return false;
+    }
+    qdev_prop_set_uint32(&dev->qdev, "index", index);
+    qdev_prop_set_chr(&dev->qdev, "chardev", chr);
+    if (qdev_init(&dev->qdev) < 0) {
+        return false;
+    }
+    return true;
+}
+
+bool parallel_mm_init(target_phys_addr_t base, int it_shift, qemu_irq irq,
+                      CharDriverState *chr);
 
 /* i8259.c */
 
@@ -32,57 +62,55 @@ extern PicState2 *isa_pic;
 void pic_set_irq(int irq, int level);
 void pic_set_irq_new(void *opaque, int irq, int level);
 qemu_irq *i8259_init(qemu_irq parent_irq);
-qemu_irq *kvm_i8259_init(qemu_irq parent_irq);
-void pic_set_alt_irq_func(PicState2 *s, SetIRQFunc *alt_irq_func,
-                          void *alt_irq_opaque);
 int pic_read_irq(PicState2 *s);
 void pic_update_irq(PicState2 *s);
 uint32_t pic_intack_read(PicState2 *s);
 void pic_info(Monitor *mon);
 void irq_info(Monitor *mon);
 
-/* APIC */
-typedef struct IOAPICState IOAPICState;
-void apic_deliver_irq(uint8_t dest, uint8_t dest_mode,
-                             uint8_t delivery_mode,
-                             uint8_t vector_num, uint8_t polarity,
-                             uint8_t trigger_mode);
-int apic_init(CPUState *env);
-int apic_accept_pic_intr(CPUState *env);
-void apic_deliver_pic_intr(CPUState *env, int level);
-int apic_get_interrupt(CPUState *env);
-IOAPICState *ioapic_init(void);
-void ioapic_set_irq(void *opaque, int vector, int level);
-void apic_reset_irq_delivered(void);
-int apic_get_irq_delivered(void);
-void apic_set_irq_delivered(void);
+/* ISA */
+#define IOAPIC_NUM_PINS 0x18
+
+typedef struct isa_irq_state {
+    qemu_irq *i8259;
+    qemu_irq ioapic[IOAPIC_NUM_PINS];
+} IsaIrqState;
+
+void isa_irq_handler(void *opaque, int n, int level);
 
 /* i8254.c */
 
 #define PIT_FREQ 1193182
 
-typedef struct PITState PITState;
+static inline ISADevice *pit_init(int base, int irq)
+{
+    ISADevice *dev;
 
-PITState *pit_init(int base, qemu_irq irq);
-void pit_set_gate(PITState *pit, int channel, int val);
-int pit_get_gate(PITState *pit, int channel);
-int pit_get_initial_count(PITState *pit, int channel);
-int pit_get_mode(PITState *pit, int channel);
-int pit_get_out(PITState *pit, int channel, int64_t current_time);
+    dev = isa_create("isa-pit");
+    qdev_prop_set_uint32(&dev->qdev, "iobase", base);
+    qdev_prop_set_uint32(&dev->qdev, "irq", irq);
+    qdev_init_nofail(&dev->qdev);
 
-/* i8254-kvm.c */
+    return dev;
+}
 
-PITState *kvm_pit_init(int base, qemu_irq irq);
+void pit_set_gate(ISADevice *dev, int channel, int val);
+int pit_get_gate(ISADevice *dev, int channel);
+int pit_get_initial_count(ISADevice *dev, int channel);
+int pit_get_mode(ISADevice *dev, int channel);
+int pit_get_out(ISADevice *dev, int channel, int64_t current_time);
 
-void hpet_disable_pit(void);
-void hpet_enable_pit(void);
+void hpet_pit_disable(void);
+void hpet_pit_enable(void);
 
 /* vmport.c */
-void vmport_init(void);
+static inline void vmport_init(void)
+{
+    isa_create_simple("vmport");
+}
 void vmport_register(unsigned char command, IOPortReadFunc *func, void *opaque);
-
-/* vmmouse.c */
-void *vmmouse_init(void *m);
+void vmmouse_get_data(uint32_t *data);
+void vmmouse_set_data(const uint32_t *data);
 
 /* pckbd.c */
 
@@ -90,25 +118,36 @@ void i8042_init(qemu_irq kbd_irq, qemu_irq mouse_irq, uint32_t io_base);
 void i8042_mm_init(qemu_irq kbd_irq, qemu_irq mouse_irq,
                    target_phys_addr_t base, ram_addr_t size,
                    target_phys_addr_t mask);
-
-/* mc146818rtc.c */
-
-typedef struct RTCState RTCState;
-
-RTCState *rtc_init(int base, qemu_irq irq, int base_year);
-RTCState *rtc_init_sqw(int base, qemu_irq irq, qemu_irq sqw_irq, int base_year);
-RTCState *rtc_mm_init(target_phys_addr_t base, int it_shift, qemu_irq irq,
-                      int base_year);
-void rtc_set_memory(RTCState *s, int addr, int val);
-void rtc_set_date(RTCState *s, const struct tm *tm);
-void cmos_set_s3_resume(void);
+void i8042_isa_mouse_fake_event(void *opaque);
+void i8042_setup_a20_line(ISADevice *dev, qemu_irq *a20_out);
 
 /* pc.c */
 extern int fd_bootchk;
 
-void ioport_set_a20(int enable);
-int ioport_get_a20(void);
-CPUState *pc_new_cpu(const char *cpu_model);
+void pc_register_ferr_irq(qemu_irq irq);
+void pc_cmos_set_s3_resume(void *opaque, int irq, int level);
+void pc_acpi_smi_interrupt(void *opaque, int irq, int level);
+
+void pc_cpus_init(const char *cpu_model);
+void pc_memory_init(const char *kernel_filename,
+                    const char *kernel_cmdline,
+                    const char *initrd_filename,
+                    ram_addr_t below_4g_mem_size,
+                    ram_addr_t above_4g_mem_size);
+qemu_irq *pc_allocate_cpu_irq(void);
+void pc_vga_init(PCIBus *pci_bus);
+void pc_basic_device_init(qemu_irq *isa_irq,
+                          ISADevice **rtc_state,
+                          bool no_vmport);
+void pc_init_ne2k_isa(NICInfo *nd);
+void pc_cmos_init(ram_addr_t ram_size, ram_addr_t above_4g_mem_size,
+                  const char *boot_device,
+                  BusState *ide0, BusState *ide1,
+                  ISADevice *s);
+void pc_pci_device_init(PCIBus *pci_bus);
+
+typedef void (*cpu_set_smm_t)(int smm, void *arg);
+void cpu_smm_register(cpu_set_smm_t callback, void *arg);
 
 /* acpi.c */
 extern int acpi_enabled;
@@ -119,33 +158,29 @@ void acpi_bios_init(void);
 int acpi_table_add(const char *table_desc);
 
 /* acpi_piix.c */
+
 i2c_bus *piix4_pm_init(PCIBus *bus, int devfn, uint32_t smb_io_base,
-                       qemu_irq sci_irq);
+                       qemu_irq sci_irq, qemu_irq cmos_s3, qemu_irq smi_irq,
+                       int kvm_enabled);
 void piix4_smbus_register_device(SMBusDevice *dev, uint8_t addr);
-void piix4_acpi_system_hot_add_init(const char *model);
 
 /* hpet.c */
 extern int no_hpet;
 
 /* pcspk.c */
-void pcspk_init(PITState *);
+void pcspk_init(ISADevice *pit);
 int pcspk_audio_init(qemu_irq *pic);
 
 /* piix_pci.c */
-/* config space register for IRQ routing */
-#define PIIX_CONFIG_IRQ_ROUTE 0x60
+struct PCII440FXState;
+typedef struct PCII440FXState PCII440FXState;
 
-PCIBus *i440fx_init(PCIDevice **pi440fx_state, qemu_irq *pic);
-void i440fx_set_smm(PCIDevice *d, int val);
-int piix3_init(PCIBus *bus, int devfn);
-void i440fx_init_memory_mappings(PCIDevice *d);
+PCIBus *i440fx_init(PCII440FXState **pi440fx_state, int *piix_devfn, qemu_irq *pic, ram_addr_t ram_size);
+void i440fx_init_memory_mappings(PCII440FXState *d);
 
+/* piix4.c */
 extern PCIDevice *piix4_dev;
 int piix4_init(PCIBus *bus, int devfn);
-
-int piix_get_irq(int pin);
-
-int ipf_map_irq(PCIDevice *pci_dev, int irq_num);
 
 /* vga.c */
 enum vga_retrace_method {
@@ -155,9 +190,20 @@ enum vga_retrace_method {
 
 extern enum vga_retrace_method vga_retrace_method;
 
-int isa_vga_init(void);
-int pci_vga_init(PCIBus *bus,
-                 unsigned long vga_bios_offset, int vga_bios_size);
+static inline int isa_vga_init(void)
+{
+    ISADevice *dev;
+
+    dev = isa_try_create("isa-vga");
+    if (!dev) {
+        fprintf(stderr, "Warning: isa-vga not available\n");
+        return 0;
+    }
+    qdev_init_nofail(&dev->qdev);
+    return 1;
+}
+
+int pci_vga_init(PCIBus *bus);
 int isa_vga_mm_init(target_phys_addr_t vram_base,
                     target_phys_addr_t ctrl_base, int it_shift);
 
@@ -165,24 +211,31 @@ int isa_vga_mm_init(target_phys_addr_t vram_base,
 void pci_cirrus_vga_init(PCIBus *bus);
 void isa_cirrus_vga_init(void);
 
-/* ide.c */
-void isa_ide_init(int iobase, int iobase2, qemu_irq irq,
-                  BlockDriverState *hd0, BlockDriverState *hd1);
-void pci_cmd646_ide_init(PCIBus *bus, BlockDriverState **hd_table,
-                         int secondary_ide_enabled);
-void pci_piix3_ide_init(PCIBus *bus, BlockDriverState **hd_table, int devfn,
-                        qemu_irq *pic);
-void pci_piix4_ide_init(PCIBus *bus, BlockDriverState **hd_table, int devfn,
-                        qemu_irq *pic);
-
 /* ne2000.c */
+static inline bool isa_ne2000_init(int base, int irq, NICInfo *nd)
+{
+    ISADevice *dev;
 
-void isa_ne2000_init(int base, qemu_irq irq, NICInfo *nd);
+    qemu_check_nic_model(nd, "ne2k_isa");
 
-/* extboot.c */
+    dev = isa_try_create("ne2k_isa");
+    if (!dev) {
+        return false;
+    }
+    qdev_prop_set_uint32(&dev->qdev, "iobase", base);
+    qdev_prop_set_uint32(&dev->qdev, "irq",    irq);
+    qdev_set_nic_properties(&dev->qdev, nd);
+    qdev_init_nofail(&dev->qdev);
+    return true;
+}
 
-void extboot_init(BlockDriverState *bs, int cmd);
+/* e820 types */
+#define E820_RAM        1
+#define E820_RESERVED   2
+#define E820_ACPI       3
+#define E820_NVS        4
+#define E820_UNUSABLE   5
 
-int cpu_is_bsp(CPUState *env);
+int e820_add_entry(uint64_t, uint64_t, uint32_t);
 
 #endif

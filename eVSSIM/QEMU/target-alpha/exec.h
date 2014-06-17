@@ -28,8 +28,6 @@
 
 register struct CPUAlphaState *env asm(AREG0);
 
-#define PARAM(n) ((uint64_t)PARAM##n)
-#define SPARAM(n) ((int32_t)PARAM##n)
 #define FP_STATUS (env->fp_status)
 
 #include "cpu.h"
@@ -39,27 +37,24 @@ register struct CPUAlphaState *env asm(AREG0);
 #include "softmmu_exec.h"
 #endif /* !defined(CONFIG_USER_ONLY) */
 
-static always_inline void env_to_regs(void)
+static inline int cpu_has_work(CPUState *env)
 {
+    /* Here we are checking to see if the CPU should wake up from HALT.
+       We will have gotten into this state only for WTINT from PALmode.  */
+    /* ??? I'm not sure how the IPL state works with WTINT to keep a CPU
+       asleep even if (some) interrupts have been asserted.  For now, 
+       assume that if a CPU really wants to stay asleep, it will mask
+       interrupts at the chipset level, which will prevent these bits
+       from being set in the first place.  */
+    return env->interrupt_request & (CPU_INTERRUPT_HARD
+                                     | CPU_INTERRUPT_TIMER
+                                     | CPU_INTERRUPT_SMP
+                                     | CPU_INTERRUPT_MCHK);
 }
 
-static always_inline void regs_to_env(void)
+static inline void cpu_pc_from_tb(CPUState *env, TranslationBlock *tb)
 {
-}
-
-static always_inline int cpu_has_work(CPUState *env)
-{
-    return (env->interrupt_request & CPU_INTERRUPT_HARD);
-}
-
-static always_inline int cpu_halted(CPUState *env) {
-    if (!env->halted)
-        return 0;
-    if (cpu_has_work(env)) {
-        env->halted = 0;
-        return 0;
-    }
-    return EXCP_HALTED;
+    env->pc = tb->pc;
 }
 
 #endif /* !defined (__ALPHA_EXEC_H__) */

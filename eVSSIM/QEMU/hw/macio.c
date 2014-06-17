@@ -40,7 +40,7 @@ struct macio_state_t {
 };
 
 static void macio_map (PCIDevice *pci_dev, int region_num,
-                       uint32_t addr, uint32_t size, int type)
+                       pcibus_t addr, pcibus_t size, int type)
 {
     macio_state_t *macio_state;
     int i;
@@ -110,10 +110,9 @@ void macio_init (PCIBus *bus, int device_id, int is_oldworld, int pic_mem_index,
     pci_config_set_vendor_id(d->config, PCI_VENDOR_ID_APPLE);
     pci_config_set_device_id(d->config, device_id);
     pci_config_set_class(d->config, PCI_CLASS_OTHERS << 8);
-    d->config[PCI_HEADER_TYPE] = PCI_HEADER_TYPE_NORMAL; // header_type
 
     d->config[0x3d] = 0x01; // interrupt on pin 1
 
     pci_register_bar(d, 0, 0x80000,
-                           PCI_ADDRESS_SPACE_MEM, macio_map);
+                           PCI_BASE_ADDRESS_SPACE_MEMORY, macio_map);
 }

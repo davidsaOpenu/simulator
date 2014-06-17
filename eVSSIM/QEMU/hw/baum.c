@@ -335,7 +335,8 @@ static int baum_eat_packet(BaumDriverState *baum, const uint8_t *buf, int len)
         int i;
 
         /* Allow 100ms to complete the DisplayData packet */
-        qemu_mod_timer(baum->cellCount_timer, qemu_get_clock(vm_clock) + ticks_per_sec / 10);
+        qemu_mod_timer(baum->cellCount_timer, qemu_get_clock_ns(vm_clock) +
+                       get_ticks_per_sec() / 10);
         for (i = 0; i < baum->x * baum->y ; i++) {
             EAT(c);
             cells[i] = c;
@@ -474,7 +475,7 @@ static void baum_send_event(CharDriverState *chr, int event)
     switch (event) {
     case CHR_EVENT_BREAK:
         break;
-    case CHR_EVENT_RESET:
+    case CHR_EVENT_OPENED:
         /* Reset state */
         baum->in_buf_used = 0;
         break;
@@ -558,12 +559,24 @@ static void baum_chr_read(void *opaque)
     if (ret == -1 && (brlapi_errno != BRLAPI_ERROR_LIBCERR || errno != EINTR)) {
         brlapi_perror("baum: brlapi_readKey");
         brlapi__closeConnection(baum->brlapi);
-        free(baum->brlapi);
+        qemu_free(baum->brlapi);
         baum->brlapi = NULL;
     }
 }
 
-CharDriverState *chr_baum_init(void)
+static void baum_close(struct CharDriverState *chr)
+{
+    BaumDriverState *baum = chr->opaque;
+
+    qemu_free_timer(baum->cellCount_timer);
+    if (baum->brlapi) {
+        brlapi__closeConnection(baum->brlapi);
+        qemu_free(baum->brlapi);
+    }
+    qemu_free(baum);
+}
+
+CharDriverState *chr_baum_init(QemuOpts *opts)
 {
     BaumDriverState *baum;
     CharDriverState *chr;
@@ -580,6 +593,7 @@ CharDriverState *chr_baum_init(void)
     chr->chr_write = baum_write;
     chr->chr_send_event = baum_send_event;
     chr->chr_accept_input = baum_accept_input;
+    chr->chr_close = baum_close;
 
     handle = qemu_mallocz(brlapi_getHandleSize());
     baum->brlapi = handle;
@@ -590,7 +604,7 @@ CharDriverState *chr_baum_init(void)
         goto fail_handle;
     }
 
-    baum->cellCount_timer = qemu_new_timer(vm_clock, baum_cellCount_timer_cb, baum);
+    baum->cellCount_timer = qemu_new_timer_ns(vm_clock, baum_cellCount_timer_cb, baum);
 
     if (brlapi__getDisplaySize(handle, &baum->x, &baum->y) == -1) {
         brlapi_perror("baum_init: brlapi_getDisplaySize");
@@ -613,7 +627,7 @@ CharDriverState *chr_baum_init(void)
 
     qemu_set_fd_handler(baum->brlapi_fd, baum_chr_read, NULL, baum);
 
-    qemu_chr_reset(chr);
+    qemu_chr_generic_open(chr);
 
     return chr;
 
@@ -621,14 +635,8 @@ fail:
     qemu_free_timer(baum->cellCount_timer);
     brlapi__closeConnection(handle);
 fail_handle:
-    free(handle);
-    free(chr);
-    free(baum);
+    qemu_free(handle);
+    qemu_free(chr);
+    qemu_free(baum);
     return NULL;
-}
-
-USBDevice *usb_baum_init(void)
-{
-    /* USB Product ID of Super Vario 40 */
-    return usb_serial_init("productid=FE72:braille");
 }

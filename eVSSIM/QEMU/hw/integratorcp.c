@@ -10,7 +10,6 @@
 #include "sysbus.h"
 #include "primecell.h"
 #include "devices.h"
-#include "sysemu.h"
 #include "boards.h"
 #include "arm-misc.h"
 #include "net.h"
@@ -215,19 +214,19 @@ static void integratorcm_write(void *opaque, target_phys_addr_t offset,
 
 /* Integrator/CM control registers.  */
 
-static CPUReadMemoryFunc *integratorcm_readfn[] = {
+static CPUReadMemoryFunc * const integratorcm_readfn[] = {
    integratorcm_read,
    integratorcm_read,
    integratorcm_read
 };
 
-static CPUWriteMemoryFunc *integratorcm_writefn[] = {
+static CPUWriteMemoryFunc * const integratorcm_writefn[] = {
    integratorcm_write,
    integratorcm_write,
    integratorcm_write
 };
 
-static void integratorcm_init(SysBusDevice *dev)
+static int integratorcm_init(SysBusDevice *dev)
 {
     int iomemtype;
     integratorcm_state *s = FROM_SYSBUS(integratorcm_state, dev);
@@ -253,13 +252,15 @@ static void integratorcm_init(SysBusDevice *dev)
     }
     memcpy(integrator_spd + 73, "QEMU-MEMORY", 11);
     s->cm_init = 0x00000112;
-    s->flash_offset = qemu_ram_alloc(0x100000);
+    s->flash_offset = qemu_ram_alloc(NULL, "integrator.flash", 0x100000);
 
     iomemtype = cpu_register_io_memory(integratorcm_readfn,
-                                       integratorcm_writefn, s);
+                                       integratorcm_writefn, s,
+                                       DEVICE_NATIVE_ENDIAN);
     sysbus_init_mmio(dev, 0x00800000, iomemtype);
     integratorcm_do_remap(s, 1);
     /* ??? Save/restore.  */
+    return 0;
 }
 
 /* Integrator/CP hardware emulation.  */
@@ -360,19 +361,19 @@ static void icp_pic_write(void *opaque, target_phys_addr_t offset,
     icp_pic_update(s);
 }
 
-static CPUReadMemoryFunc *icp_pic_readfn[] = {
+static CPUReadMemoryFunc * const icp_pic_readfn[] = {
    icp_pic_read,
    icp_pic_read,
    icp_pic_read
 };
 
-static CPUWriteMemoryFunc *icp_pic_writefn[] = {
+static CPUWriteMemoryFunc * const icp_pic_writefn[] = {
    icp_pic_write,
    icp_pic_write,
    icp_pic_write
 };
 
-static void icp_pic_init(SysBusDevice *dev)
+static int icp_pic_init(SysBusDevice *dev)
 {
     icp_pic_state *s = FROM_SYSBUS(icp_pic_state, dev);
     int iomemtype;
@@ -381,8 +382,10 @@ static void icp_pic_init(SysBusDevice *dev)
     sysbus_init_irq(dev, &s->parent_irq);
     sysbus_init_irq(dev, &s->parent_fiq);
     iomemtype = cpu_register_io_memory(icp_pic_readfn,
-                                       icp_pic_writefn, s);
+                                       icp_pic_writefn, s,
+                                       DEVICE_NATIVE_ENDIAN);
     sysbus_init_mmio(dev, 0x00800000, iomemtype);
+    return 0;
 }
 
 /* CP control registers.  */
@@ -416,13 +419,13 @@ static void icp_control_write(void *opaque, target_phys_addr_t offset,
         hw_error("icp_control_write: Bad offset %x\n", (int)offset);
     }
 }
-static CPUReadMemoryFunc *icp_control_readfn[] = {
+static CPUReadMemoryFunc * const icp_control_readfn[] = {
    icp_control_read,
    icp_control_read,
    icp_control_read
 };
 
-static CPUWriteMemoryFunc *icp_control_writefn[] = {
+static CPUWriteMemoryFunc * const icp_control_writefn[] = {
    icp_control_write,
    icp_control_write,
    icp_control_write
@@ -433,7 +436,8 @@ static void icp_control_init(uint32_t base)
     int iomemtype;
 
     iomemtype = cpu_register_io_memory(icp_control_readfn,
-                                       icp_control_writefn, NULL);
+                                       icp_control_writefn, NULL,
+                                       DEVICE_NATIVE_ENDIAN);
     cpu_register_physical_memory(base, 0x00800000, iomemtype);
     /* ??? Save/restore.  */
 }
@@ -465,7 +469,7 @@ static void integratorcp_init(ram_addr_t ram_size,
         fprintf(stderr, "Unable to find CPU definition\n");
         exit(1);
     }
-    ram_offset = qemu_ram_alloc(ram_size);
+    ram_offset = qemu_ram_alloc(NULL, "integrator.ram", ram_size);
     /* ??? On a real system the first 1Mb is mapped as SSRAM or boot flash.  */
     /* ??? RAM should repeat to fill physical memory space.  */
     /* SDRAM at address zero*/
@@ -475,7 +479,7 @@ static void integratorcp_init(ram_addr_t ram_size,
 
     dev = qdev_create(NULL, "integrator_core");
     qdev_prop_set_uint32(dev, "memsz", ram_size >> 20);
-    qdev_init(dev);
+    qdev_init_nofail(dev);
     sysbus_mmio_map((SysBusDevice *)dev, 0, 0x10000000);
 
     cpu_pic = arm_pic_init_cpu(env);
@@ -526,12 +530,8 @@ static SysBusDeviceInfo core_info = {
     .qdev.name  = "integrator_core",
     .qdev.size  = sizeof(integratorcm_state),
     .qdev.props = (Property[]) {
-        {
-            .name   = "memsz",
-            .info   = &qdev_prop_uint32,
-            .offset = offsetof(integratorcm_state, memsz),
-        },
-        {/* end of list */}
+        DEFINE_PROP_UINT32("memsz", integratorcm_state, memsz, 0),
+        DEFINE_PROP_END_OF_LIST(),
     }
 };
 

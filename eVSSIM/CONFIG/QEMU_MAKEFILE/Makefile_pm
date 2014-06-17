@@ -1,16 +1,24 @@
-CFLAGS= -lpthread
-LDFLAGS=
+# -*- Mode: makefile -*-
 
-include config.mak
+#CFLAGS= -lpthread #???
+
+GENERATED_HEADERS = config-target.h
+CONFIG_NO_PCI = $(if $(subst n,,$(CONFIG_PCI)),n,y)
+CONFIG_NO_KVM = $(if $(subst n,,$(CONFIG_KVM)),n,y)
+
+include ../config-host.mak
+include config-devices.mak
+include config-target.mak
 include $(SRC_PATH)/rules.mak
-
-LDFLAGS_BASE:=$(LDFLAGS)
+ifneq ($(HWDIR),)
+include $(HWDIR)/config.mak
+endif
 
 TARGET_PATH=$(SRC_PATH)/target-$(TARGET_BASE_ARCH)
-VPATH=$(SRC_PATH):$(TARGET_PATH):$(SRC_PATH)/hw
-CPPFLAGS=-I. -I.. -I$(TARGET_PATH) -I$(SRC_PATH) -MMD -MT $@ -MP -DNEED_CPU_H
-#CFLAGS+=-Werror
-LIBS=
+$(call set-vpath, $(SRC_PATH):$(TARGET_PATH):$(SRC_PATH)/hw)
+QEMU_CFLAGS+= -I.. -I../linux-headers -I$(TARGET_PATH) -DNEED_CPU_H
+
+include $(SRC_PATH)/Makefile.objs
 
 ifdef CONFIG_USER_ONLY
 # user emulator name
@@ -25,169 +33,57 @@ endif
 endif
 
 PROGS=$(QEMU_PROG)
+STPFILES=
 
-# cc-option
-# Usage: CFLAGS+=$(call cc-option, $(CFLAGS), -falign-functions=0, -malign-functions=0)
-
-cc-option = $(shell if $(CC) $(1) $(2) -S -o /dev/null -xc /dev/null \
-              > /dev/null 2>&1; then echo "$(2)"; else echo "$(3)"; fi ;)
-
-HELPER_CFLAGS=
-
-ifeq ($(ARCH),i386)
-HELPER_CFLAGS+=-fomit-frame-pointer
-endif
-
-ifeq ($(subst ppc64,ppc,$(ARCH))$(TARGET_BASE_ARCH),ppcppc)
-translate.o: CFLAGS := $(CFLAGS) $(call cc-option, $(CFLAGS), -fno-unit-at-a-time,)
-endif
-
-ifeq ($(ARCH),sparc)
-  ifneq ($(CONFIG_SOLARIS),y)
-    HELPER_CFLAGS+=-ffixed-i0
-  endif
-endif
-
-ifeq ($(ARCH),alpha)
-# Ensure there's only a single GP
-CFLAGS+=-msmall-data
-endif
-
-ifeq ($(ARCH),ia64)
-CFLAGS+=-mno-sdata
-endif
-
-CPPFLAGS+=-D_GNU_SOURCE -D_FILE_OFFSET_BITS=64 -D_LARGEFILE_SOURCE
-CPPFLAGS+=-U_FORTIFY_SOURCE
-CPPFLAGS+=-D__user=
+ifndef CONFIG_HAIKU
 LIBS+=-lm
-ifdef CONFIG_WIN32
-LIBS+=-lwinmm -lws2_32 -liphlpapi
-endif
-ifdef CONFIG_SOLARIS
-LIBS+=-lsocket -lnsl -lresolv
-ifdef NEEDS_LIBSUNMATH
-LIBS+=-lsunmath
-LDFLAGS+=-L/opt/SUNWspro/prod/lib -R/opt/SUNWspro/prod/lib
-CFLAGS+=-I/opt/SUNWspro/prod/include/cc
-endif
 endif
 
-kvm.o: CFLAGS+=$(KVM_CFLAGS)
-kvm-all.o: CFLAGS+=$(KVM_CFLAGS)
+config-target.h: config-target.h-timestamp
+config-target.h-timestamp: config-target.mak
 
-CFLAGS += $(KVM_CFLAGS)
+ifdef CONFIG_SYSTEMTAP_TRACE
+stap: $(QEMU_PROG).stp
 
-all: $(PROGS)
+ifdef CONFIG_USER_ONLY
+TARGET_TYPE=user
+else
+TARGET_TYPE=system
+endif
+
+$(QEMU_PROG).stp:
+	$(call quiet-command,sh $(SRC_PATH)/scripts/tracetool \
+		--$(TRACE_BACKEND) \
+		--binary $(bindir)/$(QEMU_PROG) \
+		--target-arch $(TARGET_ARCH) \
+		--target-type $(TARGET_TYPE) \
+		--stap < $(SRC_PATH)/trace-events > $(QEMU_PROG).stp,"  GEN   $(QEMU_PROG).stp")
+else
+stap:
+endif
+
+all: $(PROGS) stap
+
 # Dummy command so that make thinks it has done something
 	@true
 
 #########################################################
 # cpu emulator library
-libobj-y = exec.o cpu-exec.o host-utils.o
-ifeq ($(NO_CPU_EMULATION), 1)
-libobj-y += fack-exec.o
-else
-libobj-y += translate-all.o translate.o 
-endif
-libobj-$(CONFIG_KQEMU) += kqemu.o
-# TCG code generator
-ifneq ($(NO_CPU_EMULATION), 1)
-libobj-y += tcg/tcg.o tcg/tcg-runtime.o
-CPPFLAGS+=-I$(SRC_PATH)/tcg -I$(SRC_PATH)/tcg/$(ARCH)
-endif
-ifeq ($(ARCH),sparc64)
-CPPFLAGS+=-I$(SRC_PATH)/tcg/sparc
-endif
-
-ifdef CONFIG_SOFTFLOAT
+libobj-y = exec.o translate-all.o cpu-exec.o translate.o
+libobj-y += tcg/tcg.o
 libobj-y += fpu/softfloat.o
-else
-libobj-y += fpu/softfloat-native.o
-endif
-CPPFLAGS+=-I$(SRC_PATH)/fpu
 libobj-y += op_helper.o helper.o
-
 ifeq ($(TARGET_BASE_ARCH), i386)
-libobj-y += helper.o
-libobj-$(CONFIG_KVM) += kvm-tpr-opt.o
-libobj-$(CONFIG_KVM) += qemu-kvm-helper.o
+libobj-y += cpuid.o
 endif
+libobj-$(CONFIG_NEED_MMU) += mmu.o
+libobj-$(TARGET_ARM) += neon_helper.o iwmmxt_helper.o
 
-libobj-y += op_helper.o
-
-ifneq ($(TARGET_ARCH), ia64)
-libobj-y += helper.o
-endif
-
-ifeq ($(TARGET_BASE_ARCH), arm)
-libobj-y += neon_helper.o iwmmxt_helper.o
-endif
-
-ifeq ($(TARGET_BASE_ARCH), alpha)
-libobj-y += alpha_palcode.o
-endif
-
-ifeq ($(TARGET_BASE_ARCH), ia64)
-libobj-y += op_helper.o firmware.o
-libobj-$(CONFIG_KVM) += qemu-kvm-ia64.o
-endif
-
-ifeq ($(TARGET_BASE_ARCH), cris)
-libobj-y += cris-dis.o
-
-ifndef CONFIG_USER_ONLY
-libobj-y += mmu.o
-endif
-endif
-
-
-# NOTE: the disassembler code is only needed for debugging
 libobj-y += disas.o
-ifeq ($(findstring i386, $(TARGET_ARCH) $(ARCH)),i386)
-USE_I386_DIS=y
-endif
-ifeq ($(findstring x86_64, $(TARGET_ARCH) $(ARCH)),x86_64)
-USE_I386_DIS=y
-endif
-libobj-$(USE_I386_DIS) += i386-dis.o
-ifeq ($(findstring alpha, $(TARGET_ARCH) $(ARCH)),alpha)
-libobj-y += alpha-dis.o
-endif
-ifeq ($(findstring ppc, $(TARGET_BASE_ARCH) $(ARCH)),ppc)
-libobj-y += ppc-dis.o
-endif
-ifeq ($(findstring microblaze, $(TARGET_BASE_ARCH) $(ARCH)),microblaze)
-libobj-y += microblaze-dis.o
-ifndef CONFIG_USER_ONLY
-libobj-y += mmu.o
-endif
-endif
-ifeq ($(findstring mips, $(TARGET_BASE_ARCH) $(ARCH)),mips)
-libobj-y += mips-dis.o
-endif
-ifeq ($(findstring sparc, $(TARGET_BASE_ARCH) $(ARCH)),sparc)
-libobj-y += sparc-dis.o
-endif
-ifeq ($(findstring arm, $(TARGET_ARCH) $(ARCH)),arm)
-libobj-y += arm-dis.o
-endif
-ifeq ($(findstring m68k, $(TARGET_ARCH) $(ARCH)),m68k)
-libobj-y += m68k-dis.o
-endif
-ifeq ($(findstring sh4, $(TARGET_ARCH) $(ARCH)),sh4)
-libobj-y += sh4-dis.o
-endif
-ifeq ($(findstring hppa, $(TARGET_BASE_ARCH) $(ARCH)),hppa)
-libobj-y += hppa-dis.o
-endif
-ifeq ($(findstring s390, $(TARGET_ARCH) $(ARCH)),s390)
-libobj-y += s390-dis.o
-endif
+
+$(libobj-y): $(GENERATED_HEADERS)
 
 # libqemu
-
-libqemu.a: $(libobj-y)
 
 translate.o: translate.c cpu.h
 
@@ -197,143 +93,53 @@ tcg/tcg.o: cpu.h
 
 # HELPER_CFLAGS is used for all the code compiled with static register
 # variables
-op_helper.o: CFLAGS += $(HELPER_CFLAGS)
+%_helper.o cpu-exec.o user-exec.o: QEMU_CFLAGS += $(HELPER_CFLAGS)
 
-cpu-exec.o: CFLAGS += $(HELPER_CFLAGS)
-
-qemu-kvm-helper.o: qemu-kvm-helper.c
-	$(CC) $(HELPER_CFLAGS) $(CPPFLAGS) $(CFLAGS) -c -o $@ $<
+# Note: this is a workaround. The real fix is to avoid compiling
+# cpu_signal_handler() in user-exec.c.
+signal.o: QEMU_CFLAGS += $(HELPER_CFLAGS)
 
 #########################################################
 # Linux user emulator target
 
 ifdef CONFIG_LINUX_USER
 
-VPATH+=:$(SRC_PATH)/linux-user:$(SRC_PATH)/linux-user/$(TARGET_ABI_DIR)
-CPPFLAGS+=-I$(SRC_PATH)/linux-user -I$(SRC_PATH)/linux-user/$(TARGET_ABI_DIR)
+$(call set-vpath, $(SRC_PATH)/linux-user:$(SRC_PATH)/linux-user/$(TARGET_ABI_DIR))
 
-ifdef CONFIG_STATIC
-LDFLAGS+=-static
-endif
+QEMU_CFLAGS+=-I$(SRC_PATH)/linux-user/$(TARGET_ABI_DIR) -I$(SRC_PATH)/linux-user
+obj-y = main.o syscall.o strace.o mmap.o signal.o thunk.o \
+      elfload.o linuxload.o uaccess.o gdbstub.o cpu-uname.o \
+      qemu-malloc.o user-exec.o $(oslib-obj-y)
 
-ifeq ($(ARCH),i386)
-ifdef TARGET_GPROF
-USE_I386_LD=y
-endif
-ifdef CONFIG_STATIC
-USE_I386_LD=y
-endif
-ifdef USE_I386_LD
-LDFLAGS+=-Wl,-T,$(SRC_PATH)/$(ARCH).ld
-else
-# WARNING: this LDFLAGS is _very_ tricky : qemu is an ELF shared object
-# that the kernel ELF loader considers as an executable. I think this
-# is the simplest way to make it self virtualizable!
-LDFLAGS+=-Wl,-shared
-endif
-endif
-
-ifeq ($(ARCH),x86_64)
-LDFLAGS+=-Wl,-T,$(SRC_PATH)/$(ARCH).ld
-endif
-
-ifeq ($(ARCH),ppc)
-LDFLAGS+=-Wl,-T,$(SRC_PATH)/$(ARCH).ld
-endif
-
-ifeq ($(ARCH),ppc64)
-LDFLAGS+=-Wl,-T,$(SRC_PATH)/$(ARCH).ld
-endif
-
-ifeq ($(ARCH),s390)
-LDFLAGS+=-Wl,-T,$(SRC_PATH)/$(ARCH).ld
-endif
-
-ifeq ($(ARCH),sparc)
-# -static is used to avoid g1/g3 usage by the dynamic linker	
-LDFLAGS+=-Wl,-T,$(SRC_PATH)/$(ARCH).ld -static
-endif
-
-ifeq ($(ARCH),sparc64)
-LDFLAGS+=-Wl,-T,$(SRC_PATH)/$(ARCH).ld
-endif
-
-ifeq ($(ARCH),alpha)
-LDFLAGS+=-Wl,-T,$(SRC_PATH)/$(ARCH).ld
-endif
-
-ifeq ($(ARCH),ia64)
-LDFLAGS+=-Wl,-G0 -Wl,-T,$(SRC_PATH)/$(ARCH).ld
-endif
-
-ifeq ($(ARCH),arm)
-LDFLAGS+=-Wl,-T,$(SRC_PATH)/$(ARCH).ld
-endif
-
-ifeq ($(ARCH),m68k)
-LDFLAGS+=-Wl,-T,$(SRC_PATH)/$(ARCH).ld
-endif
-
-ifeq ($(ARCH),mips)
-ifeq ($(WORDS_BIGENDIAN),yes)
-LDFLAGS+=-Wl,-T,$(SRC_PATH)/$(ARCH).ld
-else
-LDFLAGS+=-Wl,-T,$(SRC_PATH)/$(ARCH)el.ld
-endif
-endif
-
-ifeq ($(ARCH),mips64)
-ifeq ($(WORDS_BIGENDIAN),yes)
-LDFLAGS+=-Wl,-T,$(SRC_PATH)/$(ARCH).ld
-else
-LDFLAGS+=-Wl,-T,$(SRC_PATH)/$(ARCH)el.ld
-endif
-endif
-
-# profiling code
-ifdef TARGET_GPROF
-LDFLAGS+=-p
-CFLAGS+=-p
-endif
-
-obj-y = main.o syscall.o strace.o mmap.o signal.o path.o thunk.o \
-      elfload.o linuxload.o uaccess.o envlist.o gdbstub.o gdbstub-xml.o \
-      ioport-user.o
 obj-$(TARGET_HAS_BFLT) += flatload.o
 
-ifdef TARGET_HAS_ELFLOAD32
-elfload32.o: elfload.c
-endif
-obj-$(TARGET_HAS_ELFLOAD32) += elfload32.o
+obj-$(TARGET_I386) += vm86.o
 
-ifeq ($(TARGET_ARCH), i386)
-obj-y += vm86.o
-endif
+obj-i386-y += ioport-user.o
 
-nwfpe-obj-y := fpa11.o fpa11_cpdo.o fpa11_cpdt.o fpa11_cprt.o fpopcode.o
+nwfpe-obj-y = fpa11.o fpa11_cpdo.o fpa11_cpdt.o fpa11_cprt.o fpopcode.o
 nwfpe-obj-y += single_cpdo.o double_cpdo.o extended_cpdo.o
 obj-arm-y +=  $(addprefix nwfpe/, $(nwfpe-obj-y))
 obj-arm-y += arm-semi.o
 
 obj-m68k-y += m68k-sim.o m68k-semi.o
 
-# Note: this is a workaround. The real fix is to avoid compiling
-# cpu_signal_handler() in cpu-exec.c.
-signal.o: CFLAGS += $(HELPER_CFLAGS)
+$(obj-y) $(obj-$(TARGET_BASE_ARCH)-y): $(GENERATED_HEADERS)
 
-ARLIBS=../libqemu_user.a libqemu.a
+obj-y += $(addprefix ../libuser/, $(user-obj-y))
+obj-y += $(addprefix ../libdis-user/, $(libdis-y))
+obj-y += $(libobj-y)
+
 endif #CONFIG_LINUX_USER
-
-LIBS+= $(PTHREADLIBS)
-LIBS+= $(CLOCKLIBS)
 
 #########################################################
 # Darwin user emulator target
 
 ifdef CONFIG_DARWIN_USER
 
-VPATH+=:$(SRC_PATH)/darwin-user
-CPPFLAGS+=-I$(SRC_PATH)/darwin-user -I$(SRC_PATH)/darwin-user/$(TARGET_ARCH)
+$(call set-vpath, $(SRC_PATH)/darwin-user)
+
+QEMU_CFLAGS+=-I$(SRC_PATH)/darwin-user -I$(SRC_PATH)/darwin-user/$(TARGET_ARCH)
 
 # Leave some space for the regular program loading zone
 LDFLAGS+=-Wl,-segaddr,__STD_PROG_ZONE,0x1000 -image_base 0x0e000000
@@ -341,13 +147,15 @@ LDFLAGS+=-Wl,-segaddr,__STD_PROG_ZONE,0x1000 -image_base 0x0e000000
 LIBS+=-lmx
 
 obj-y = main.o commpage.o machload.o mmap.o signal.o syscall.o thunk.o \
-        gdbstub.o gdbstub-xml.o ioport-user.o
+        gdbstub.o user-exec.o
 
-# Note: this is a workaround. The real fix is to avoid compiling
-# cpu_signal_handler() in cpu-exec.c.
-signal.o: CFLAGS += $(HELPER_CFLAGS)
+obj-i386-y += ioport-user.o
 
-ARLIBS=libqemu.a
+$(obj-y) $(obj-$(TARGET_BASE_ARCH)-y): $(GENERATED_HEADERS)
+
+obj-y += $(addprefix ../libuser/, $(user-obj-y))
+obj-y += $(addprefix ../libdis-user/, $(libdis-y))
+obj-y += $(libobj-y)
 
 endif #CONFIG_DARWIN_USER
 
@@ -356,174 +164,70 @@ endif #CONFIG_DARWIN_USER
 
 ifdef CONFIG_BSD_USER
 
-VPATH+=:$(SRC_PATH)/bsd-user
-CPPFLAGS+=-I$(SRC_PATH)/bsd-user -I$(SRC_PATH)/bsd-user/$(TARGET_ARCH)
+$(call set-vpath, $(SRC_PATH)/bsd-user)
 
-ifdef CONFIG_STATIC
-LDFLAGS+=-static
-endif
+QEMU_CFLAGS+=-I$(SRC_PATH)/bsd-user -I$(SRC_PATH)/bsd-user/$(TARGET_ARCH)
 
-ifeq ($(ARCH),i386)
-ifdef TARGET_GPROF
-USE_I386_LD=y
-endif
-ifdef CONFIG_STATIC
-USE_I386_LD=y
-endif
-ifdef USE_I386_LD
-LDFLAGS+=-Wl,-T,$(SRC_PATH)/$(ARCH).ld
-else
-# WARNING: this LDFLAGS is _very_ tricky : qemu is an ELF shared object
-# that the kernel ELF loader considers as an executable. I think this
-# is the simplest way to make it self virtualizable!
-LDFLAGS+=-Wl,-shared
-endif
-endif
+obj-y = main.o bsdload.o elfload.o mmap.o signal.o strace.o syscall.o \
+        gdbstub.o uaccess.o user-exec.o
 
-ifeq ($(ARCH),x86_64)
-LDFLAGS+=-Wl,-T,$(SRC_PATH)/$(ARCH).ld
-endif
+obj-i386-y += ioport-user.o
 
-ifeq ($(ARCH),ppc)
-LDFLAGS+=-Wl,-T,$(SRC_PATH)/$(ARCH).ld
-endif
+$(obj-y) $(obj-$(TARGET_BASE_ARCH)-y): $(GENERATED_HEADERS)
 
-ifeq ($(ARCH),ppc64)
-LDFLAGS+=-Wl,-T,$(SRC_PATH)/$(ARCH).ld
-endif
-
-ifeq ($(ARCH),s390)
-LDFLAGS+=-Wl,-T,$(SRC_PATH)/$(ARCH).ld
-endif
-
-ifeq ($(ARCH),sparc)
-# -static is used to avoid g1/g3 usage by the dynamic linker
-LDFLAGS+=-Wl,-T,$(SRC_PATH)/$(ARCH).ld -static
-endif
-
-ifeq ($(ARCH),sparc64)
-LDFLAGS+=-Wl,-T,$(SRC_PATH)/$(ARCH).ld
-endif
-
-ifeq ($(ARCH),alpha)
-LDFLAGS+=-Wl,-T,$(SRC_PATH)/$(ARCH).ld
-endif
-
-ifeq ($(ARCH),ia64)
-LDFLAGS+=-Wl,-G0 -Wl,-T,$(SRC_PATH)/$(ARCH).ld
-endif
-
-ifeq ($(ARCH),arm)
-LDFLAGS+=-Wl,-T,$(SRC_PATH)/$(ARCH).ld
-endif
-
-ifeq ($(ARCH),m68k)
-LDFLAGS+=-Wl,-T,$(SRC_PATH)/$(ARCH).ld
-endif
-
-ifeq ($(ARCH),mips)
-ifeq ($(WORDS_BIGENDIAN),yes)
-LDFLAGS+=-Wl,-T,$(SRC_PATH)/$(ARCH).ld
-else
-LDFLAGS+=-Wl,-T,$(SRC_PATH)/$(ARCH)el.ld
-endif
-endif
-
-ifeq ($(ARCH),mips64)
-ifeq ($(WORDS_BIGENDIAN),yes)
-LDFLAGS+=-Wl,-T,$(SRC_PATH)/$(ARCH).ld
-else
-LDFLAGS+=-Wl,-T,$(SRC_PATH)/$(ARCH)el.ld
-endif
-endif
-
-obj-y = main.o bsdload.o elfload.o mmap.o path.o signal.o strace.o syscall.o \
-        gdbstub.o gdbstub-xml.o ioport-user.o
-obj-y += uaccess.o
-
-# Note: this is a workaround. The real fix is to avoid compiling
-# cpu_signal_handler() in cpu-exec.c.
-signal.o: CFLAGS += $(HELPER_CFLAGS)
-
-ARLIBS=libqemu.a ../libqemu_user.a
+obj-y += $(addprefix ../libuser/, $(user-obj-y))
+obj-y += $(addprefix ../libdis-user/, $(libdis-y))
+obj-y += $(libobj-y)
 
 endif #CONFIG_BSD_USER
 
 #########################################################
 # System emulator target
-ifndef CONFIG_USER_ONLY
+ifdef CONFIG_SOFTMMU
 
-obj-y = vl.o osdep.o monitor.o pci.o loader.o isa_mmio.o machine.o \
-        gdbstub.o gdbstub-xml.o msix.o ioport.o
+obj-y = arch_init.o cpus.o monitor.o machine.o gdbstub.o balloon.o
 # virtio has to be here due to weird dependency between PCI and virtio-net.
 # need to fix this properly
-obj-y += virtio-blk.o virtio-balloon.o virtio-net.o virtio-console.o
+obj-$(CONFIG_NO_PCI) += pci-stub.o
+obj-$(CONFIG_VIRTIO) += virtio-blk.o virtio-balloon.o virtio-net.o virtio-serial-bus.o
+obj-y += vhost_net.o
+obj-$(CONFIG_VHOST_NET) += vhost.o
+obj-$(CONFIG_REALLY_VIRTFS) += 9pfs/virtio-9p-device.o
+obj-y += rwhandler.o
 obj-$(CONFIG_KVM) += kvm.o kvm-all.o
-
+obj-$(CONFIG_NO_KVM) += kvm-stub.o
 LIBS+=-lz
-ifdef CONFIG_ALSA
-LIBS += -lasound
-endif
-ifdef CONFIG_ESD
-LIBS += -lesd
-endif
-ifdef CONFIG_PA
-LIBS += -lpulse-simple
-endif
-ifdef CONFIG_DSOUND
-LIBS += -lole32 -ldxguid
-endif
-ifdef CONFIG_FMOD
-LIBS += $(CONFIG_FMOD_LIB)
-endif
-ifdef CONFIG_OSS
-LIBS += $(CONFIG_OSS_LIB)
-endif
 
-sound-obj-y =
-sound-obj-$(CONFIG_SB16) += sb16.o
-sound-obj-$(CONFIG_ES1370) += es1370.o
-sound-obj-$(CONFIG_AC97) += ac97.o
-sound-obj-$(CONFIG_ADLIB) += fmopl.o adlib.o
-sound-obj-$(CONFIG_GUS) += gus.o gusemu_hal.o gusemu_mixer.o
-sound-obj-$(CONFIG_CS4231A) += cs4231a.o
-
-ifdef CONFIG_ADLIB
-adlib.o fmopl.o: CFLAGS := ${CFLAGS} -DBUILD_Y8950=0
-endif
-
-ifdef CONFIG_VNC_TLS
-CPPFLAGS += $(CONFIG_VNC_TLS_CFLAGS)
-LIBS += $(CONFIG_VNC_TLS_LIBS)
-endif
-
-ifdef CONFIG_VNC_SASL
-CPPFLAGS += $(CONFIG_VNC_SASL_CFLAGS)
-LIBS += $(CONFIG_VNC_SASL_LIBS)
-endif
-
-ifdef CONFIG_BLUEZ
-LIBS += $(CONFIG_BLUEZ_LIBS)
-endif
+QEMU_CFLAGS += $(VNC_TLS_CFLAGS)
+QEMU_CFLAGS += $(VNC_SASL_CFLAGS)
+QEMU_CFLAGS += $(VNC_JPEG_CFLAGS)
+QEMU_CFLAGS += $(VNC_PNG_CFLAGS)
 
 # xen backend driver support
-obj-$(CONFIG_XEN) += xen_machine_pv.o xen_domainbuild.o
-ifeq ($(CONFIG_XEN), y)
-  LIBS += $(XEN_LIBS)
+obj-i386-$(CONFIG_XEN) += xen_machine_pv.o xen_domainbuild.o
+
+ifeq ($(TARGET_BASE_ARCH), i386)
+  CONFIG_NO_XEN = $(if $(subst n,,$(CONFIG_XEN)),n,y)
+else
+  CONFIG_NO_XEN = y
 endif
+# xen support
+CONFIG_NO_XEN_MAPCACHE = $(if $(subst n,,$(CONFIG_XEN_MAPCACHE)),n,y)
+obj-i386-$(CONFIG_XEN) += xen-all.o
+obj-$(CONFIG_NO_XEN) += xen-stub.o
+obj-i386-$(CONFIG_XEN_MAPCACHE) += xen-mapcache.o
+obj-$(CONFIG_NO_XEN_MAPCACHE) += xen-mapcache-stub.o
 
-# USB layer
-obj-y += usb-ohci.o
+obj-i386-$(CONFIG_XEN) += xen_platform.o
 
-# PCI network cards
-obj-y += eepro100.o
-obj-y += ne2000.o
-obj-y += pcnet.o
-obj-y += rtl8139.o
-obj-y += e1000.o
-
-# Generic watchdog support and some watchdog devices
-obj-y += wdt_ib700.o wdt_i6300esb.o
+# Inter-VM PCI shared memory
+CONFIG_IVSHMEM =
+ifeq ($(CONFIG_KVM), y)
+  ifeq ($(CONFIG_PCI), y)
+    CONFIG_IVSHMEM = y
+  endif
+endif
+obj-$(CONFIG_IVSHMEM) += ivshmem.o
 
 # Hardware support
 
@@ -535,93 +239,95 @@ obj-i386-y += ftl_gc_manager.o ftl_perf_manager.o
 obj-i386-y += ssd.o ssd_log_manager.o ssd_io_manager.o 
 
 # others
-obj-i386-y += ide.o pckbd.o vga.o $(sound-obj-y) dma.o
-obj-i386-y += fdc.o mc146818rtc.o serial.o i8259.o i8254.o pcspk.o pc.o
-obj-i386-y += cirrus_vga.o apic.o ioapic.o parallel.o acpi.o piix_pci.o
-obj-i386-y += usb-uhci.o vmmouse.o vmport.o vmware_vga.o hpet.o
-obj-i386-y += device-hotplug.o pci-hotplug.o smbios.o
-obj-i386-y += extboot.o
-ifeq ($(USE_KVM_PIT), 1)
-obj-i386-y += i8254-kvm.o
-endif
-ifeq ($(USE_KVM_DEVICE_ASSIGNMENT), 1)
-obj-i386-y += device-assignment.o
-LIBS+=-lpci
-endif
 
-ifeq ($(TARGET_BASE_ARCH), i386)
-CPPFLAGS += -DHAS_AUDIO -DHAS_AUDIO_CHOICE
-endif
-
-# Hardware support
-obj-ia64-y += ide.o pckbd.o vga.o $(SOUND_HW) dma.o $(AUDIODRV)
-obj-ia64-y += fdc.o mc146818rtc.o serial.o i8259.o ipf.o
-obj-ia64-y += cirrus_vga.o parallel.o acpi.o piix_pci.o
-obj-ia64-y += usb-uhci.o
-
-ifeq ($(USE_KVM_DEVICE_ASSIGNMENT), 1)
-obj-ia64-y += device-assignment.o
-LIBS+=-lpci
-endif
+obj-i386-y += vga.o
+obj-i386-y += mc146818rtc.o i8259.o pc.o
+obj-i386-y += cirrus_vga.o sga.o apic.o ioapic.o piix_pci.o
+obj-i386-y += vmport.o
+obj-i386-y += device-hotplug.o pci-hotplug.o smbios.o wdt_ib700.o
+obj-i386-y += debugcon.o multiboot.o
+obj-i386-y += pc_piix.o kvmclock.o
+obj-i386-$(CONFIG_SPICE) += qxl.o qxl-logger.o qxl-render.o
 
 # shared objects
-obj-ppc-y = ppc.o ide.o vga.o $(sound-obj-y) dma.o openpic.o
-obj-ppc-y += cirrus_vga.o
+obj-ppc-y = ppc.o
+obj-ppc-y += vga.o
 # PREP target
-obj-ppc-y += pckbd.o serial.o i8259.o i8254.o fdc.o mc146818rtc.o
-obj-ppc-y += prep_pci.o ppc_prep.o
-# Mac shared devices
-obj-ppc-y += macio.o cuda.o adb.o mac_nvram.o mac_dbdma.o
+obj-ppc-y += i8259.o mc146818rtc.o
+obj-ppc-y += ppc_prep.o
 # OldWorld PowerMac
-obj-ppc-y += heathrow_pic.o grackle_pci.o ppc_oldworld.o
+obj-ppc-y += ppc_oldworld.o
 # NewWorld PowerMac
-obj-ppc-y += unin_pci.o ppc_newworld.o
+obj-ppc-y += ppc_newworld.o
+# IBM pSeries (sPAPR)
+ifeq ($(CONFIG_FDT)$(TARGET_PPC64),yy)
+obj-ppc-y += spapr.o spapr_hcall.o spapr_rtas.o spapr_vio.o
+obj-ppc-y += xics.o spapr_vty.o spapr_llan.o spapr_vscsi.o
+endif
 # PowerPC 4xx boards
-obj-ppc-y += pflash_cfi02.o ppc4xx_devs.o ppc4xx_pci.o ppc405_uc.o ppc405_boards.o
+obj-ppc-y += ppc4xx_devs.o ppc4xx_pci.o ppc405_uc.o ppc405_boards.o
 obj-ppc-y += ppc440.o ppc440_bamboo.o
 # PowerPC E500 boards
-obj-ppc-y += ppce500_pci.o ppce500_mpc8544ds.o
+obj-ppc-y += ppce500_mpc8544ds.o
+# PowerPC 440 Xilinx ML507 reference board.
+obj-ppc-y += virtex_ml507.o
 obj-ppc-$(CONFIG_KVM) += kvm_ppc.o
+obj-ppc-$(CONFIG_FDT) += device_tree.o
 
-ifeq ($(TARGET_BASE_ARCH), ppc)
-CPPFLAGS += -DHAS_AUDIO -DHAS_AUDIO_CHOICE
-endif
+# Xilinx PPC peripherals
+obj-ppc-y += xilinx_intc.o
+obj-ppc-y += xilinx_timer.o
+obj-ppc-y += xilinx_uartlite.o
+obj-ppc-y += xilinx_ethlite.o
 
-ifdef FDT_LIBS
-obj-ppc-y += device_tree.o
-LIBS+= $(FDT_LIBS)
-endif
+# LM32 boards
+obj-lm32-y += lm32_boards.o
+obj-lm32-y += milkymist.o
+
+# LM32 peripherals
+obj-lm32-y += lm32_pic.o
+obj-lm32-y += lm32_juart.o
+obj-lm32-y += lm32_timer.o
+obj-lm32-y += lm32_uart.o
+obj-lm32-y += lm32_sys.o
+obj-lm32-y += milkymist-ac97.o
+obj-lm32-y += milkymist-hpdmc.o
+obj-lm32-y += milkymist-memcard.o
+obj-lm32-y += milkymist-minimac2.o
+obj-lm32-y += milkymist-pfpu.o
+obj-lm32-y += milkymist-softusb.o
+obj-lm32-y += milkymist-sysctl.o
+obj-lm32-$(CONFIG_OPENGL) += milkymist-tmu2.o
+obj-lm32-y += milkymist-uart.o
+obj-lm32-y += milkymist-vgafb.o
+obj-lm32-y += framebuffer.o
 
 obj-mips-y = mips_r4k.o mips_jazz.o mips_malta.o mips_mipssim.o
-obj-mips-y += mips_timer.o mips_int.o dma.o vga.o serial.o i8254.o i8259.o rc4030.o
-obj-mips-y += g364fb.o jazz_led.o dp8393x.o
-obj-mips-y += ide.o gt64xxx.o pckbd.o fdc.o mc146818rtc.o usb-uhci.o acpi.o ds1225y.o
-obj-mips-y += piix_pci.o parallel.o cirrus_vga.o pcspk.o $(sound-obj-y)
-obj-mips-y += mipsnet.o
-obj-mips-y += pflash_cfi01.o
-obj-mips-y += vmware_vga.o
-
-ifeq ($(TARGET_BASE_ARCH), mips)
-CPPFLAGS += -DHAS_AUDIO -DHAS_AUDIO_CHOICE
-endif
+obj-mips-y += mips_addr.o mips_timer.o mips_int.o
+obj-mips-y += vga.o i8259.o
+obj-mips-y += g364fb.o jazz_led.o
+obj-mips-y += gt64xxx.o mc146818rtc.o
+obj-mips-y += cirrus_vga.o
+obj-mips-$(CONFIG_FULONG) += bonito.o vt82c686.o mips_fulong2e.o
 
 obj-microblaze-y = petalogix_s3adsp1800_mmu.o
+obj-microblaze-y += petalogix_ml605_mmu.o
 
 obj-microblaze-y += microblaze_pic_cpu.o
 obj-microblaze-y += xilinx_intc.o
 obj-microblaze-y += xilinx_timer.o
 obj-microblaze-y += xilinx_uartlite.o
 obj-microblaze-y += xilinx_ethlite.o
+obj-microblaze-y += xilinx_axidma.o
+obj-microblaze-y += xilinx_axienet.o
 
-obj-microblaze-y += pflash_cfi02.o
-
-ifdef FDT_LIBS
-obj-microblaze-y += device_tree.o
-LIBS+= $(FDT_LIBS)
-endif
+obj-microblaze-$(CONFIG_FDT) += device_tree.o
 
 # Boards
-obj-cris-y = cris_pic_cpu.o etraxfs.o axis_dev88.o
+obj-cris-y = cris_pic_cpu.o
+obj-cris-y += cris-boot.o
+obj-cris-y += etraxfs.o axis_dev88.o
+obj-cris-y += axis_dev88.o
 
 # IO blocks
 obj-cris-y += etraxfs_dma.o
@@ -630,136 +336,112 @@ obj-cris-y += etraxfs_eth.o
 obj-cris-y += etraxfs_timer.o
 obj-cris-y += etraxfs_ser.o
 
-obj-cris-y += pflash_cfi02.o
-
 ifeq ($(TARGET_ARCH), sparc64)
-obj-sparc-y = sun4u.o ide.o pckbd.o vga.o apb_pci.o
-obj-sparc-y += fdc.o mc146818rtc.o serial.o
-obj-sparc-y += cirrus_vga.o parallel.o
+obj-sparc-y = sun4u.o apb_pci.o
+obj-sparc-y += vga.o
+obj-sparc-y += mc146818rtc.o
+obj-sparc-y += cirrus_vga.o
 else
-obj-sparc-y = sun4m.o tcx.o iommu.o slavio_intctl.o
-obj-sparc-y += slavio_timer.o slavio_misc.o fdc.o sparc32_dma.o
-obj-sparc-y += cs4231.o eccmemctl.o sbi.o sun4c_intctl.o
+obj-sparc-y = sun4m.o lance.o tcx.o sun4m_iommu.o slavio_intctl.o
+obj-sparc-y += slavio_timer.o slavio_misc.o sparc32_dma.o
+obj-sparc-y += cs4231.o eccmemctl.o sbi.o sun4c_intctl.o leon3.o
+
+# GRLIB
+obj-sparc-y += grlib_gptimer.o grlib_irqmp.o grlib_apbuart.o
 endif
 
-obj-arm-y = integratorcp.o versatilepb.o smc91c111.o arm_pic.o arm_timer.o
+obj-arm-y = integratorcp.o versatilepb.o arm_pic.o arm_timer.o
 obj-arm-y += arm_boot.o pl011.o pl031.o pl050.o pl080.o pl110.o pl181.o pl190.o
 obj-arm-y += versatile_pci.o
-obj-arm-y += realview_gic.o realview.o arm_sysctl.o mpcore.o
+obj-arm-y += realview_gic.o realview.o arm_sysctl.o arm11mpcore.o a9mpcore.o
 obj-arm-y += armv7m.o armv7m_nvic.o stellaris.o pl022.o stellaris_enet.o
 obj-arm-y += pl061.o
 obj-arm-y += arm-semi.o
 obj-arm-y += pxa2xx.o pxa2xx_pic.o pxa2xx_gpio.o pxa2xx_timer.o pxa2xx_dma.o
 obj-arm-y += pxa2xx_lcd.o pxa2xx_mmci.o pxa2xx_pcmcia.o pxa2xx_keypad.o
-obj-arm-y += pflash_cfi01.o gumstix.o
-obj-arm-y += zaurus.o ide.o serial.o spitz.o tosa.o tc6393xb.o
-obj-arm-y += omap1.o omap_lcdc.o omap_dma.o omap_clk.o omap_mmc.o omap_i2c.o
-obj-arm-y += omap2.o omap_dss.o soc_dma.o
+obj-arm-y += gumstix.o
+obj-arm-y += zaurus.o ide/microdrive.o spitz.o tosa.o tc6393xb.o
+obj-arm-y += omap1.o omap_lcdc.o omap_dma.o omap_clk.o omap_mmc.o omap_i2c.o \
+		omap_gpio.o omap_intc.o omap_uart.o
+obj-arm-y += omap2.o omap_dss.o soc_dma.o omap_gptimer.o omap_synctimer.o \
+		omap_gpmc.o omap_sdrc.o omap_spi.o omap_tap.o omap_l4.o
 obj-arm-y += omap_sx1.o palm.o tsc210x.o
 obj-arm-y += nseries.o blizzard.o onenand.o vga.o cbus.o tusb6010.o usb-musb.o
 obj-arm-y += mst_fpga.o mainstone.o
-obj-arm-y += musicpal.o pflash_cfi02.o
+obj-arm-y += musicpal.o bitbang_i2c.o marvell_88w8618_audio.o
 obj-arm-y += framebuffer.o
 obj-arm-y += syborg.o syborg_fb.o syborg_interrupt.o syborg_keyboard.o
 obj-arm-y += syborg_serial.o syborg_timer.o syborg_pointer.o syborg_rtc.o
 obj-arm-y += syborg_virtio.o
-
-ifeq ($(TARGET_BASE_ARCH), arm)
-CPPFLAGS += -DHAS_AUDIO
-endif
+obj-arm-y += vexpress.o
+obj-arm-y += strongarm.o
+obj-arm-y += collie.o
 
 obj-sh4-y = shix.o r2d.o sh7750.o sh7750_regnames.o tc58128.o
-obj-sh4-y += sh_timer.o sh_serial.o sh_intc.o sh_pci.o sm501.o serial.o
-obj-sh4-y += ide.o
+obj-sh4-y += sh_timer.o sh_serial.o sh_intc.o sh_pci.o sm501.o
+obj-sh4-y += ide/mmio.o
 
 obj-m68k-y = an5206.o mcf5206.o mcf_uart.o mcf_intc.o mcf5208.o mcf_fec.o
 obj-m68k-y += m68k-semi.o dummy_m68k.o
 
-ifdef CONFIG_COCOA
-COCOA_LIBS=-F/System/Library/Frameworks -framework Cocoa -framework IOKit
-ifdef CONFIG_COREAUDIO
-COCOA_LIBS+=-framework CoreAudio
-endif
-endif
-ifdef CONFIG_SLIRP
-CPPFLAGS+=-I$(SRC_PATH)/slirp
-endif
+obj-s390x-y = s390-virtio-bus.o s390-virtio.o
 
-# specific flags are needed for non soft mmu emulator
-ifdef CONFIG_STATIC
-LDFLAGS+=-static
-endif
-ifndef CONFIG_DARWIN
-ifndef CONFIG_WIN32
-ifndef CONFIG_SOLARIS
-ifndef CONFIG_AIX
-LIBS+=-lutil
-endif
-endif
-endif
-endif
-ifdef TARGET_GPROF
-vl.o: CFLAGS+=-p
-LDFLAGS+=-p
-endif
+obj-alpha-y = i8259.o mc146818rtc.o
+obj-alpha-y += vga.o cirrus_vga.o
 
-ifeq ($(ARCH),ia64)
-LDFLAGS+=-Wl,-G0 -Wl,-T,$(SRC_PATH)/ia64.ld
-endif
+main.o: QEMU_CFLAGS+=$(GPROF_CFLAGS)
 
-ifdef CONFIG_WIN32
-SDL_LIBS := $(filter-out -mwindows, $(SDL_LIBS)) -mconsole
-endif
+monitor.o: hmp-commands.h qmp-commands.h
 
-# profiling code
-ifdef TARGET_GPROF
-LDFLAGS+=-p
-main.o: CFLAGS+=-p
-endif
-ifeq ($(TARGET_ARCH), ia64)
-firmware.o: firmware.c
-	$(CC) $(HELPER_CFLAGS) $(CPPFLAGS) $(BASE_CFLAGS) -c -o $@ $<
-endif
+$(obj-y) $(obj-$(TARGET_BASE_ARCH)-y): $(GENERATED_HEADERS)
 
-vl.o: CFLAGS+=$(SDL_CFLAGS)
+obj-y += $(addprefix ../, $(common-obj-y))
+obj-y += $(addprefix ../libdis/, $(libdis-y))
+obj-y += $(libobj-y)
+obj-y += $(addprefix $(HWDIR)/, $(hw-obj-y))
 
-vl.o: qemu-options.h
+endif # CONFIG_SOFTMMU
 
-monitor.o: qemu-monitor.h
+ifndef CONFIG_LINUX_USER
+# libcacard needs qemu-thread support, and besides is only needed by devices
+# so not requires with linux-user targets
+obj-$(CONFIG_SMARTCARD_NSS) += $(addprefix ../libcacard/, $(libcacard-y))
+endif # CONFIG_LINUX_USER
 
-LIBS += $(SDL_LIBS) $(COCOA_LIBS) $(CURSES_LIBS) $(BRLAPI_LIBS) $(VDE_LIBS) $(CURL_LIBS)
-ARLIBS=../libqemu_common.a libqemu.a $(HWLIB)
+obj-y += $(addprefix ../, $(trace-obj-y))
+obj-$(CONFIG_GDBSTUB_XML) += gdbstub-xml.o
 
-$(QEMU_PROG): ARLIBS += $(DEPLIBS)
-$(QEMU_PROG): $(DEPLIBS)
-
-endif # !CONFIG_USER_ONLY
-
-$(QEMU_PROG): $(obj-y) $(obj-$(TARGET_BASE_ARCH)-y) $(ARLIBS)
+$(QEMU_PROG): $(obj-y) $(obj-$(TARGET_BASE_ARCH)-y)
 	$(call LINK,$(obj-y) $(obj-$(TARGET_BASE_ARCH)-y))
 
 
-gdbstub-xml.c: $(TARGET_XML_FILES) feature_to_c.sh
-ifeq ($(TARGET_XML_FILES),)
-	$(call quiet-command,rm -f $@ && echo > $@,"  GEN   $(TARGET_DIR)$@")
-else
-	$(call quiet-command,rm -f $@ && $(SHELL) $(SRC_PATH)/feature_to_c.sh $@ $(TARGET_XML_FILES),"  GEN   $(TARGET_DIR)$@")
-endif
+gdbstub-xml.c: $(TARGET_XML_FILES) $(SRC_PATH)/scripts/feature_to_c.sh
+	$(call quiet-command,rm -f $@ && $(SHELL) $(SRC_PATH)/scripts/feature_to_c.sh $@ $(TARGET_XML_FILES),"  GEN   $(TARGET_DIR)$@")
 
-qemu-options.h: $(SRC_PATH)/qemu-options.hx
-	$(call quiet-command,sh $(SRC_PATH)/hxtool -h < $< > $@,"  GEN   $(TARGET_DIR)$@")
+hmp-commands.h: $(SRC_PATH)/hmp-commands.hx
+	$(call quiet-command,sh $(SRC_PATH)/scripts/hxtool -h < $< > $@,"  GEN   $(TARGET_DIR)$@")
 
-qemu-monitor.h: $(SRC_PATH)/qemu-monitor.hx
-	$(call quiet-command,sh $(SRC_PATH)/hxtool -h < $< > $@,"  GEN   $(TARGET_DIR)$@")
+qmp-commands.h: $(SRC_PATH)/qmp-commands.hx
+	$(call quiet-command,sh $(SRC_PATH)/scripts/hxtool -h < $< > $@,"  GEN   $(TARGET_DIR)$@")
 
 clean:
 	rm -f *.o *.a *~ $(PROGS) nwfpe/*.o fpu/*.o
-	rm -f *.d */*.d tcg/*.o
-	rm -f qemu-options.h qemu-monitor.h gdbstub-xml.c
+	rm -f *.d */*.d tcg/*.o ide/*.o 9pfs/*.o
+	rm -f hmp-commands.h qmp-commands.h gdbstub-xml.c
+ifdef CONFIG_SYSTEMTAP_TRACE
+	rm -f *.stp
+endif
 
 install: all
 ifneq ($(PROGS),)
-	$(INSTALL) -m 755 $(STRIP_OPT) $(PROGS) "$(DESTDIR)$(bindir)"
+	$(INSTALL) -m 755 $(PROGS) "$(DESTDIR)$(bindir)"
+ifneq ($(STRIP),)
+	$(STRIP) $(patsubst %,"$(DESTDIR)$(bindir)/%",$(PROGS))
+endif
+endif
+ifdef CONFIG_SYSTEMTAP_TRACE
+	$(INSTALL_DIR) "$(DESTDIR)$(datadir)/../systemtap/tapset"
+	$(INSTALL_DATA) $(QEMU_PROG).stp "$(DESTDIR)$(datadir)/../systemtap/tapset"
 endif
 
 # Include automatically generated dependency files

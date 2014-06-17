@@ -15,8 +15,7 @@
     GNU General Public License for more details.
 
     You should have received a copy of the GNU General Public License
-    along with this program; if not, write to the Free Software
-    Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
+    along with this program; if not, see <http://www.gnu.org/licenses/>.
 */
 
 #include "fpa11.h"
@@ -30,7 +29,7 @@
 
 #include <stdio.h>
 
-FPA11* qemufpa=0;
+FPA11* qemufpa = NULL;
 CPUARMState* user_registers;
 
 /* Reset the FPA11 chip.  Called to initialize and reset the emulator. */
@@ -145,7 +144,7 @@ unsigned int EmulateAll(unsigned int opcode, FPA11* qfpa, CPUARMState* qregs)
 
 #if 0
   fprintf(stderr,"emulating FP insn 0x%08x, PC=0x%08x\n",
-          opcode, qregs[REG_PC]);
+          opcode, qregs[ARM_REG_PC]);
 #endif
   fpa11 = GET_FPA11();
 
@@ -191,7 +190,7 @@ unsigned int EmulateAll(unsigned int opcode, FPA11* qfpa, CPUARMState* qregs)
   if(nRc == 1 && get_float_exception_flags(&fpa11->fp_status))
   {
     //printf("fef 0x%x\n",float_exception_flags);
-    nRc=-get_float_exception_flags(&fpa11->fp_status);
+    nRc = -get_float_exception_flags(&fpa11->fp_status);
   }
 
   //printf("returning %d\n",nRc);

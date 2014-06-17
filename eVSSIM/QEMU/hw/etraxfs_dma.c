@@ -668,13 +668,13 @@ dma_writel (void *opaque, target_phys_addr_t addr, uint32_t value)
         }
 }
 
-static CPUReadMemoryFunc *dma_read[] = {
+static CPUReadMemoryFunc * const dma_read[] = {
 	&dma_rinvalid,
 	&dma_rinvalid,
 	&dma_readl,
 };
 
-static CPUWriteMemoryFunc *dma_write[] = {
+static CPUWriteMemoryFunc * const dma_write[] = {
 	&dma_winvalid,
 	&dma_winvalid,
 	&dma_writel,
@@ -750,7 +750,7 @@ void *etraxfs_dmac_init(target_phys_addr_t base, int nr_channels)
 	ctrl->nr_channels = nr_channels;
 	ctrl->channels = qemu_mallocz(sizeof ctrl->channels[0] * nr_channels);
 
-	ctrl->map = cpu_register_io_memory(dma_read, dma_write, ctrl);
+	ctrl->map = cpu_register_io_memory(dma_read, dma_write, ctrl, DEVICE_NATIVE_ENDIAN);
 	cpu_register_physical_memory(base, nr_channels * 0x2000, ctrl->map);
 	return ctrl;
 }

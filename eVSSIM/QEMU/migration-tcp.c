@@ -15,17 +15,16 @@
 #include "qemu_socket.h"
 #include "migration.h"
 #include "qemu-char.h"
-#include "sysemu.h"
 #include "buffered_file.h"
 #include "block.h"
 
 //#define DEBUG_MIGRATION_TCP
 
 #ifdef DEBUG_MIGRATION_TCP
-#define dprintf(fmt, ...) \
+#define DPRINTF(fmt, ...) \
     do { printf("migration-tcp: " fmt, ## __VA_ARGS__); } while (0)
 #else
-#define dprintf(fmt, ...) \
+#define DPRINTF(fmt, ...) \
     do { } while (0)
 #endif
 
@@ -41,7 +40,7 @@ static int socket_write(FdMigrationState *s, const void * buf, size_t size)
 
 static int tcp_close(FdMigrationState *s)
 {
-    dprintf("tcp_close\n");
+    DPRINTF("tcp_close\n");
     if (s->fd != -1) {
         close(s->fd);
         s->fd = -1;
@@ -56,7 +55,7 @@ static void tcp_wait_for_connect(void *opaque)
     int val, ret;
     socklen_t valsize = sizeof(val);
 
-    dprintf("connect completed\n");
+    DPRINTF("connect completed\n");
     do {
         ret = getsockopt(s->fd, SOL_SOCKET, SO_ERROR, (void *) &val, &valsize);
     } while (ret == -1 && (s->get_error(s)) == EINTR);
@@ -71,14 +70,17 @@ static void tcp_wait_for_connect(void *opaque)
     if (val == 0)
         migrate_fd_connect(s);
     else {
-        dprintf("error connecting %d\n", val);
+        DPRINTF("error connecting %d\n", val);
         migrate_fd_error(s);
     }
 }
 
-MigrationState *tcp_start_outgoing_migration(const char *host_port,
+MigrationState *tcp_start_outgoing_migration(Monitor *mon,
+                                             const char *host_port,
                                              int64_t bandwidth_limit,
-                                             int detach)
+                                             int detach,
+					     int blk,
+					     int inc)
 {
     struct sockaddr_in addr;
     FdMigrationState *s;
@@ -96,10 +98,13 @@ MigrationState *tcp_start_outgoing_migration(const char *host_port,
     s->mig_state.get_status = migrate_fd_get_status;
     s->mig_state.release = migrate_fd_release;
 
+    s->mig_state.blk = blk;
+    s->mig_state.shared = inc;
+
     s->state = MIG_STATE_ACTIVE;
-    s->mon_resume = NULL;
+    s->mon = NULL;
     s->bandwidth_limit = bandwidth_limit;
-    s->fd = socket(PF_INET, SOCK_STREAM, 0);
+    s->fd = qemu_socket(PF_INET, SOCK_STREAM, 0);
     if (s->fd == -1) {
         qemu_free(s);
         return NULL;
@@ -107,8 +112,9 @@ MigrationState *tcp_start_outgoing_migration(const char *host_port,
 
     socket_set_nonblock(s->fd);
 
-    if (!detach)
-        migrate_fd_monitor_suspend(s);
+    if (!detach) {
+        migrate_fd_monitor_suspend(s, mon);
+    }
 
     do {
         ret = connect(s->fd, (struct sockaddr *)&addr, sizeof(addr));
@@ -120,10 +126,8 @@ MigrationState *tcp_start_outgoing_migration(const char *host_port,
     } while (ret == -EINTR);
 
     if (ret < 0 && ret != -EINPROGRESS && ret != -EWOULDBLOCK) {
-        dprintf("connect failed\n");
-        close(s->fd);
-        qemu_free(s);
-        return NULL;
+        DPRINTF("connect failed\n");
+        migrate_fd_error(s);
     } else if (ret >= 0)
         migrate_fd_connect(s);
 
@@ -134,19 +138,19 @@ static void tcp_accept_incoming_migration(void *opaque)
 {
     struct sockaddr_in addr;
     socklen_t addrlen = sizeof(addr);
-    int s = (unsigned long)opaque;
+    int s = (intptr_t)opaque;
     QEMUFile *f;
-    int c, ret;
+    int c;
 
     do {
-        c = accept(s, (struct sockaddr *)&addr, &addrlen);
+        c = qemu_accept(s, (struct sockaddr *)&addr, &addrlen);
     } while (c == -1 && socket_error() == EINTR);
 
-    dprintf("accepted migration\n");
+    DPRINTF("accepted migration\n");
 
     if (c == -1) {
         fprintf(stderr, "could not accept migration connection\n");
-        return;
+        goto out2;
     }
 
     f = qemu_fopen_socket(c);
@@ -155,24 +159,13 @@ static void tcp_accept_incoming_migration(void *opaque)
         goto out;
     }
 
-    ret = qemu_loadvm_state(f);
-    if (ret < 0) {
-        fprintf(stderr, "load of migration failed\n");
-        goto out_fopen;
-    }
-    qemu_announce_self();
-    dprintf("successfully loaded vm state\n");
-
-    /* we've successfully migrated, close the server socket */
-    qemu_set_fd_handler2(s, NULL, NULL, NULL, NULL);
-    close(s);
-    if (autostart)
-        vm_start();
-
-out_fopen:
+    process_incoming_migration(f);
     qemu_fclose(f);
 out:
     close(c);
+out2:
+    qemu_set_fd_handler2(s, NULL, NULL, NULL, NULL);
+    close(s);
 }
 
 int tcp_start_incoming_migration(const char *host_port)
@@ -186,7 +179,7 @@ int tcp_start_incoming_migration(const char *host_port)
         return -EINVAL;
     }
 
-    s = socket(PF_INET, SOCK_STREAM, 0);
+    s = qemu_socket(PF_INET, SOCK_STREAM, 0);
     if (s == -1)
         return -socket_error();
 
@@ -200,7 +193,7 @@ int tcp_start_incoming_migration(const char *host_port)
         goto err;
 
     qemu_set_fd_handler2(s, NULL, tcp_accept_incoming_migration, NULL,
-                         (void *)(unsigned long)s);
+                         (void *)(intptr_t)s);
 
     return 0;
 

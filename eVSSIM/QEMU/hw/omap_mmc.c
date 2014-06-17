@@ -540,13 +540,13 @@ static void omap_mmc_write(void *opaque, target_phys_addr_t offset,
     }
 }
 
-static CPUReadMemoryFunc *omap_mmc_readfn[] = {
+static CPUReadMemoryFunc * const omap_mmc_readfn[] = {
     omap_badwidth_read16,
     omap_mmc_read,
     omap_badwidth_read16,
 };
 
-static CPUWriteMemoryFunc *omap_mmc_writefn[] = {
+static CPUWriteMemoryFunc * const omap_mmc_writefn[] = {
     omap_badwidth_write16,
     omap_mmc_write,
     omap_badwidth_write16,
@@ -559,8 +559,9 @@ static void omap_mmc_cover_cb(void *opaque, int line, int level)
     if (!host->cdet_state && level) {
         host->status |= 0x0002;
         omap_mmc_interrupts_update(host);
-        if (host->cdet_wakeup)
-            /* TODO: Assert wake-up */;
+        if (host->cdet_wakeup) {
+            /* TODO: Assert wake-up */
+        }
     }
 
     if (host->cdet_state != level) {
@@ -586,7 +587,7 @@ struct omap_mmc_s *omap_mmc_init(target_phys_addr_t base,
     omap_mmc_reset(s);
 
     iomemtype = cpu_register_io_memory(omap_mmc_readfn,
-                    omap_mmc_writefn, s);
+                    omap_mmc_writefn, s, DEVICE_NATIVE_ENDIAN);
     cpu_register_physical_memory(base, 0x800, iomemtype);
 
     /* Instantiate the storage */
@@ -619,7 +620,7 @@ struct omap_mmc_s *omap2_mmc_init(struct omap_target_agent_s *ta,
     s->card = sd_init(bd, 0);
 
     s->cdet = qemu_allocate_irqs(omap_mmc_cover_cb, s, 1)[0];
-    sd_set_cb(s->card, 0, s->cdet);
+    sd_set_cb(s->card, NULL, s->cdet);
 
     return s;
 }
