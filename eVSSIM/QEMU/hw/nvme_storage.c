@@ -24,6 +24,10 @@
 
 #include "nvme.h"
 #include "nvme_debug.h"
+
+#include "ssd.h"
+extern char* GET_FILE_NAME(void);
+
 #include <sys/mman.h>
 #include <assert.h>
 
