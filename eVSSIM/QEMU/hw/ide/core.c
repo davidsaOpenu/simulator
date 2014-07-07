@@ -33,12 +33,15 @@
 
 #include <hw/ide/internal.h>
 
+#ifdef IDE_SSD
 
 #include "../common.h"
 
 #define TARGET_I386_VSSIM
 #ifdef TARGET_I386_VSSIM
 	#include "../ssd.h"  //Include SSD Features
+#endif
+
 #endif
 
 /* These values were based on a Seagate ST3500418AS but have been modified
@@ -105,10 +108,10 @@ static void ide_identify(IDEState *s)
     put_le16(p + 20, 3); /* XXX: retired, remove ? */
     put_le16(p + 21, 512); /* cache size in sectors */
 
-
+#ifdef IDE_SSD
     //modified by createmain for SSD Trim function
     put_le16(p + 21, 0x0400); //support for the DSM is changeable.
-
+#endif
 
 
     put_le16(p + 22, 4); /* ecc bytes */
@@ -492,9 +495,11 @@ void ide_sector_read(IDEState *s)
         if (n > s->req_nb_sectors)
             n = s->req_nb_sectors;
         ret = bdrv_read(s->bs, sector_num, s->io_buffer, n);
+#ifdef IDE_SSD
 #ifdef TARGET_I386_VSSIM
 	if(strcmp(s->bs->filename, GET_FILE_NAME())==0)
 		SSD_READ(n,sector_num); //SSD READ function call
+#endif
 #endif
         if (ret != 0) {
             if (ide_handle_rw_error(s, -ret,
@@ -614,22 +619,24 @@ handle_rw_error:
     case IDE_DMA_READ:
         s->bus->dma->aiocb = dma_bdrv_read(s->bs, &s->sg, sector_num,
                                            ide_dma_cb, s);
+#ifdef IDE_SSD
 #ifdef TARGET_I386_VSSIM
 		if(strcmp(s->bs->filename, GET_FILE_NAME())==0)
 			SSD_READ(n, sector_num);
+#endif
 #endif
         break;
     case IDE_DMA_WRITE:
         s->bus->dma->aiocb = dma_bdrv_write(s->bs, &s->sg, sector_num,
                                             ide_dma_cb, s);
-
+#ifdef IDE_SSD
 #ifdef TARGET_I386_VSSIM
 		if(strcmp(s->bs->filename, GET_FILE_NAME())==0)
 		{
 			SSD_WRITE(n, sector_num);
 		}
 #endif
-
+#endif
         break;
     case IDE_DMA_TRIM:
         s->bus->dma->aiocb = dma_bdrv_io(s->bs, &s->sg, sector_num,
@@ -681,12 +688,13 @@ void ide_sector_write(IDEState *s)
         if (ide_handle_rw_error(s, -ret, BM_STATUS_PIO_RETRY))
             return;
     }
-
+#ifdef IDE_SSD
 #ifdef TARGET_I386_VSSIM
 	if(strcmp(s->bs->filename, GET_FILE_NAME())==0)
 	{
 		SSD_WRITE(n, sector_num);
 	}
+#endif
 #endif
 
     s->nsector -= n;
@@ -1022,12 +1030,12 @@ void ide_exec_cmd(IDEBus *bus, uint32_t val)
         ide_transfer_start(s, s->io_buffer, 512, ide_sector_write);
         s->media_changed = 1;
         break;
-
+#ifdef IDE_SSD
         /* modified by createmain for TRIM */
 case DSM_TRIM:
     ide_set_irq(s->bus);
     break;
-
+#endif
 	case WIN_MULTREAD_EXT:
 	lba48 = 1;
     case WIN_MULTREAD:
@@ -1862,9 +1870,10 @@ void ide_init2(IDEBus *bus, qemu_irq irq)
     }
     bus->irq = irq;
     bus->dma = &ide_dma_nop;
-
+#ifdef IDE_SSD
 #ifdef TARGET_I386_VSSIM
     SSD_INIT();
+#endif
 #endif
 }
 

@@ -18,6 +18,7 @@ unlink ../hw/ftl_mapping_manager.h
 unlink ../hw/ftl_inverse_mapping_manager.h
 unlink ../hw/ftl_gc_manager.h
 unlink ../hw/ftl_perf_manager.h
+unlink ../hw/ssd.h
 unlink ../hw/ssd_io_manager.h
 unlink ../hw/ssd_log_manager.h
 
@@ -27,6 +28,8 @@ unlink ../hw/ftl_mapping_manager.c
 unlink ../hw/ftl_inverse_mapping_manager.c
 unlink ../hw/ftl_gc_manager.c
 unlink ../hw/ftl_perf_manager.c
+
+unlink ../hw/ssd.c
 unlink ../hw/ssd_io_manager.c
 unlink ../hw/ssd_log_manager.c
 
@@ -35,5 +38,6 @@ unlink ../x86_64-softmmu/ssd_monitor
 
 # Delete config file
 unlink ../x86_64-softmmu/data/ssd.conf
+
 unlink ../hw/vssim_config_manager.h
 unlink ../hw/vssim_config_manager.c

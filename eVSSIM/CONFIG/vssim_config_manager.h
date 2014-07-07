@@ -7,6 +7,7 @@
 #define _CONFIG_MANAGER_H_
 
 #include "common.h"
+#include <limits.h>
 
 /* SSD Configuration */
 extern int SECTOR_SIZE;
@@ -60,7 +61,7 @@ extern int GC_VICTIM_NB;
 /*Statistics*/
 extern int STAT_TYPE;
 extern int STAT_SCOPE;
-extern char STAT_PATH[1024];
+extern char STAT_PATH[PATH_MAX];
 void INIT_SSD_CONFIG(void);
 char* GET_FILE_NAME(void);
 

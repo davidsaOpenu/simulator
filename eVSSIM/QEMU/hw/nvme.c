@@ -1105,6 +1105,8 @@ static int pci_nvme_uninit(PCIDevice *pci_dev)
 {
     NVMEState *n = DO_UPCAST(NVMEState, dev, pci_dev);
 
+    printf("XXX\n");fflush(stdout);
+
     /* Freeing space allocated for NVME regspace masks except the doorbells */
     qemu_free(n->cntrl_reg);
     qemu_free(n->rw_mask);

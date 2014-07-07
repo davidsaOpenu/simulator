@@ -4,7 +4,6 @@
 // Embedded Software Systems Lab. All right reserved
 
 #include "common.h"
-//#include "qemu-kvm.h"
 
 int* reg_io_cmd;	// READ, WRITE, ERASE
 int* reg_io_type;	// SEQ, RAN, MERGE, GC, etc..
@@ -679,8 +678,11 @@ void SSD_REMAIN_IO_DELAY(int reg)
 	SSD_REG_ACCESS(reg);
 }
 
+//MIX
+int64_t qemu_overhead;
+
 void SSD_UPDATE_QEMU_OVERHEAD(int64_t delay)
-{/*
+{
 	int i;
 	int p_num = FLASH_NB * PLANES_PER_FLASH;
 	int64_t diff = delay;
@@ -699,7 +701,7 @@ void SSD_UPDATE_QEMU_OVERHEAD(int64_t delay)
 		cell_io_time[i] -= diff;
 		reg_io_time[i] -= diff;
 	}
-	qemu_overhead -= diff;//*/
+	qemu_overhead -= diff;
 }
 
 int SSD_PAGE_COPYBACK(int32_t source, int32_t destination, int type){

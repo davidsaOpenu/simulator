@@ -30,8 +30,8 @@ int GARBAGE_COLLECTION(int mapping_index)
 {
 	int i;
 	int ret;
-//	int32_t lpn;
-//	int32_t old_ppn;
+	//int32_t lpn;
+	//int32_t old_ppn;
 	int32_t new_ppn;
 
 	unsigned int victim_phy_flash_nb = FLASH_NB;

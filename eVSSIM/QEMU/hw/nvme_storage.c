@@ -44,7 +44,32 @@ void nvme_dma_mem_read(target_phys_addr_t addr, uint8_t *buf, int len)
 
 void nvme_dma_mem_write(target_phys_addr_t addr, uint8_t *buf, int len)
 {
-//	printf("buf write 0x%016lX\n", (uint64_t)buf);
+    cpu_physical_memory_rw(addr, buf, len, 1);
+}
+
+static void nvme_dma_mem_read2(target_phys_addr_t addr, uint8_t *buf, int len, uint8_t *mapping_addr)
+{
+	//MIX: TODO: remove hardcoded stack size of ssd.conf: 512
+	if((len % 512) != 0){
+		LOG_DBG("MI: len (=%d) %% 512 == %d", len, (len % 512));
+	}
+	if((buf - mapping_addr) % 512 != 0){
+		LOG_DBG("MI: (buf - mapping_addr) (=%ld) %% 512 == %ld", buf - mapping_addr, (buf - mapping_addr) % 512);
+	}
+	SSD_WRITE(len / 512, (buf - mapping_addr) / 512);
+    cpu_physical_memory_rw(addr, buf, len, 0);
+}
+
+static void nvme_dma_mem_write2(target_phys_addr_t addr, uint8_t *buf, int len, uint8_t *mapping_addr)
+{
+	if((len % 512) != 0){
+		LOG_DBG("MI: len (=%d) %% 512 == %d", len, (len % 512));
+	}
+	if((buf - mapping_addr) % 512 != 0){
+		LOG_DBG("MI: (buf - mapping_addr) (=%ld) %% 512 == %ld", buf - mapping_addr, (buf - mapping_addr) % 512);
+	}
+	SSD_READ(len / 512, (buf - mapping_addr) / 512);
+
     cpu_physical_memory_rw(addr, buf, len, 1);
 }
 
@@ -70,17 +95,17 @@ static uint8_t do_rw_prp(NVMEState *n, uint64_t mem_addr, uint64_t *data_size_p,
     switch (rw) {
     case NVME_CMD_READ:
         LOG_DBG("Read cmd called");
-        nvme_dma_mem_write(mem_addr, (mapping_addr + *file_offset_p), data_len);
+        nvme_dma_mem_write2(mem_addr, (mapping_addr + *file_offset_p), data_len, mapping_addr);
         break;
     case NVME_CMD_WRITE:
         LOG_DBG("Write cmd called");
-        nvme_dma_mem_read(mem_addr, (mapping_addr + *file_offset_p), data_len);
+        nvme_dma_mem_read2(mem_addr, (mapping_addr + *file_offset_p), data_len, mapping_addr);
         break;
     default:
         LOG_ERR("Error- wrong opcode: %d", rw);
         return FAIL;
     }
-    { // DEBUG CODE DUMP
+    /*{ // DEBUG CODE DUMP
     	unsigned int* start_p = (unsigned int*)(mapping_addr + *file_offset_p);
     	unsigned int* end_p = (unsigned int*)(mapping_addr + *file_offset_p) + data_len / sizeof(unsigned int);
     	int i =0,iall = 0;
@@ -115,7 +140,7 @@ static uint8_t do_rw_prp(NVMEState *n, uint64_t mem_addr, uint64_t *data_size_p,
 
     	}
     	printf("---------------------------------------\nDUMP MEMORY END\n---------------------------------------\n");
-    }
+    }//*/
 
     *file_offset_p = *file_offset_p + data_len;
     *data_size_p = *data_size_p - data_len;
@@ -134,8 +159,8 @@ static uint8_t do_rw_prp_list(NVMEState *n, NVMECmd *command,
 
     /* Logic to find the number of PRP Entries */
     prp_entries = (uint64_t) ((*data_size_p + PAGE_SIZE - 1) / PAGE_SIZE);
-    nvme_dma_mem_read(cmd->prp2, (uint8_t *)prp_list,
-        min(sizeof(prp_list), prp_entries * sizeof(uint64_t)));
+    nvme_dma_mem_read2(cmd->prp2, (uint8_t *)prp_list,
+        min(sizeof(prp_list), prp_entries * sizeof(uint64_t)), mapping_addr);
 
     /* Read/Write on PRPList */
     while (*data_size_p != 0) {
@@ -143,8 +168,8 @@ static uint8_t do_rw_prp_list(NVMEState *n, NVMECmd *command,
             /* Calculate the actual number of remaining entries */
             prp_entries = (uint64_t) ((*data_size_p + PAGE_SIZE - 1) /
                 PAGE_SIZE);
-            nvme_dma_mem_read(prp_list[511], (uint8_t *)prp_list,
-                min(sizeof(prp_list), prp_entries * sizeof(uint64_t)));
+            nvme_dma_mem_read2(prp_list[511], (uint8_t *)prp_list,
+                min(sizeof(prp_list), prp_entries * sizeof(uint64_t)), mapping_addr);
             i = 0;
         }
 
@@ -563,14 +588,15 @@ int nvme_create_storage_disk(uint32_t instance, uint32_t nsid, DiskInfo *disk,
 {
     uint32_t blksize, lba_idx;
     uint64_t size, blks;
-    char str[64];
+    //MIX char str[64];
 
-    snprintf(str, sizeof(str), "nvme_disk%d_n%d.img", instance, nsid);
+    //MIX snprintf(str, sizeof(str), "nvme_disk%d_n%d.img", instance, nsid);
     disk->nsid = nsid;
 
-    disk->fd = open(str, O_RDWR | O_CREAT | O_TRUNC, S_IRUSR | S_IWUSR);
+    //MIX disk->fd = open(str, O_RDWR | O_CREAT | O_TRUNC, S_IRUSR | S_IWUSR);
+    disk->fd = open(GET_FILE_NAME(), O_RDWR | O_CREAT | O_TRUNC, S_IRUSR | S_IWUSR);
     if (disk->fd < 0) {
-        LOG_ERR("Error while creating the storage");
+        LOG_ERR("Error while creating the storage %s", GET_FILE_NAME());
         return FAIL;
     }
 
@@ -629,6 +655,9 @@ int nvme_create_storage_disks(NVMEState *n)
 {
     uint32_t i;
     int ret = SUCCESS;
+
+    //MI
+    SSD_INIT();
 
     for (i = 0; i < n->num_namespaces; i++) {
         ret = nvme_create_storage_disk(n->instance, i + 1, &n->disk[i], n);
@@ -713,6 +742,9 @@ int nvme_close_storage_disks(NVMEState *n)
     for (i = 0; i < n->num_namespaces; i++) {
         ret = nvme_close_storage_disk(&n->disk[i]);
     }
+    
+    //MI: WTF? - this function is not called SSD_TERM();
+
     return ret;
 }
 
