@@ -1,14 +1,14 @@
-sudo mkdir rd -p
 path=`dirname $0`
 path=`readlink -e $path`
-if [ 0 -eq `mount | grep "$path/rd" -c` ]; then 
-	echo "mounting $path"
-	sudo mount -t tmpfs -o size=16g tmpfs ./rd
+rd_path="$path/rd"
+sudo mkdir $rd_path -p
+if [ 0 -eq `mount | grep "$rd_path" -c` ]; then 
+	echo "mounting $rd_path"
+	sudo mount -t tmpfs -o size=16g tmpfs $rd_path
 #else
 	#echo "$path already mounted"
 fi
 
-rd_path="$path/rd"
 
 sudo chmod 0777 $rd_path
 
