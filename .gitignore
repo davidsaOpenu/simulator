@@ -41,3 +41,10 @@ eVSSIM/QEMU/x86_64-softmmu/data/victim_block_list.dat
 eVSSIM/MONITOR/SSD_MONITOR_PM/form1.o
 eVSSIM/MONITOR/SSD_MONITOR_PM/main.o
 eVSSIM/MONITOR/SSD_MONITOR_PM/moc_form1.o
+eVSSIM/MONITOR/SSD_MONITOR_PM/Makefile.local
+eVSSIM/QEMU/hw/data/empty_block_list.dat
+eVSSIM/QEMU/hw/data/inverse_block_mapping.dat
+eVSSIM/QEMU/hw/data/inverse_page_mapping.dat
+eVSSIM/QEMU/hw/data/mapping_table.dat
+eVSSIM/QEMU/hw/data/valid_array.dat
+eVSSIM/QEMU/hw/data/victim_block_list.dat
