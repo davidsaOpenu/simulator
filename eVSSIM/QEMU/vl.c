@@ -3320,9 +3320,8 @@ int main(int argc, char **argv, char **envp)
     quit_timers();
     net_cleanup();
 
-#define TARGET_I386_VSSIM
-#ifdef TARGET_I386_VSSIM
-    SSD_TERM();
+#ifdef CONFIG_VSSIM
+    SSD_TERM(); //TODO: this should be called from nvme_close_storage_disks()
 #endif
 
     return 0;

@@ -1,1 +1,1 @@
-../../FTL_SOURCE/PAGE_MAP/ftl.c
+/home/boaz/simulator/eVSSIM/QEMU/../FTL_SOURCE/PAGE_MAP/ftl.c

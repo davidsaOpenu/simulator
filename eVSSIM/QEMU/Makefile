@@ -183,6 +183,19 @@ clean:
         done
 
 distclean: clean
+	rm -f hw/ssd.{h,c}
+	rm -f hw/ssd_io_manager.{h,c}
+	rm -f hw/ssd_log_manager.{h,c}
+	rm -f hw/ssd_util.h
+	rm -f hw/common.h
+	rm -f hw/ftl.{h,c}
+	rm -f hw/ftl_type.h
+	rm -f hw/ftl_gc_manager.{h,c}
+	rm -f hw/ftl_inverse_mapping_manager.{h,c}
+	rm -f hw/ftl_mapping_manager.{h,c}
+	rm -f hw/ftl_perf_manager.{h,c}
+	rm -f hw/vssim_config_manager.{h,c}
+	rm -f hw/ssd_monitor
 	rm -f config-host.mak config-host.h* config-host.ld $(DOCS) qemu-options.texi qemu-img-cmds.texi qemu-monitor.texi
 	rm -f config-all-devices.mak
 	rm -f roms/seabios/config.mak roms/vgabios/config.mak

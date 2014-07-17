@@ -178,6 +178,7 @@ rbd=""
 smartcard=""
 smartcard_nss=""
 opengl=""
+vssim="no"
 
 # parse CC options first
 for opt do
@@ -741,6 +742,10 @@ for opt do
   ;;
   --enable-smartcard-nss) smartcard_nss="yes"
   ;;
+  --disable-vssim) vssim="no"
+  ;;
+  --enable-vssim) vssim="yes"
+  ;;
   *) echo "ERROR: unknown option $opt"; show_help="yes"
   ;;
   esac
@@ -1016,6 +1021,8 @@ echo "  --disable-smartcard      disable smartcard support"
 echo "  --enable-smartcard       enable smartcard support"
 echo "  --disable-smartcard-nss  disable smartcard nss support"
 echo "  --enable-smartcard-nss   enable smartcard nss support"
+echo "  --disable-vssim          disable vssim support"
+echo "  --enable-vssim           enable vssim support"
 echo ""
 echo "NOTE: The object files are built at the place where configure is launched"
 exit 1
@@ -2616,6 +2623,7 @@ echo "rbd support       $rbd"
 echo "xfsctl support    $xfs"
 echo "nss used          $smartcard_nss"
 echo "OpenGL support    $opengl"
+echo "VSSIM used        $vssim"
 
 if test $sdl_too_old = "yes"; then
 echo "-> Your SDL version is too old - please upgrade to have SDL support"
@@ -2910,6 +2918,10 @@ fi
 
 if test "$opengl" = "yes" ; then
   echo "CONFIG_OPENGL=y" >> $config_host_mak
+fi
+
+if test "$vssim" = "yes" ; then
+  echo "CONFIG_VSSIM=y" >> $config_host_mak
 fi
 
 # XXX: suppress that
@@ -3509,6 +3521,31 @@ if [ "$source_path" != `pwd` ]; then
     mkdir -p libcacard
     rm -f libcacard/Makefile
     symlink "$source_path/libcacard/Makefile" libcacard/Makefile
+fi
+
+if test "$vssim" = "yes" ; then
+    symlink "$source_path/../SSD_MODULE/ssd.h" "$source_path/hw/ssd.h"
+    symlink "$source_path/../SSD_MODULE/ssd.c" "$source_path/hw/ssd.c"
+    symlink "$source_path/../SSD_MODULE/ssd_io_manager.h" "$source_path/hw/ssd_io_manager.h"
+    symlink "$source_path/../SSD_MODULE/ssd_io_manager.c" "$source_path/hw/ssd_io_manager.c"
+    symlink "$source_path/../SSD_MODULE/ssd_log_manager.h" "$source_path/hw/ssd_log_manager.h"
+    symlink "$source_path/../SSD_MODULE/ssd_log_manager.c" "$source_path/hw/ssd_log_manager.c"
+    symlink "$source_path/../SSD_MODULE/ssd_util.h" "$source_path/hw/ssd_util.h"
+    symlink "$source_path/../FTL_SOURCE/COMMON/common.h" "$source_path/hw/common.h"
+    symlink "$source_path/../FTL_SOURCE/PAGE_MAP/ftl.h" "$source_path/hw/ftl.h"
+    symlink "$source_path/../FTL_SOURCE/PAGE_MAP/ftl.c" "$source_path/hw/ftl.c"
+    symlink "$source_path/../FTL_SOURCE/PAGE_MAP/ftl_type.h" "$source_path/hw/ftl_type.h"
+    symlink "$source_path/../FTL_SOURCE/PAGE_MAP/ftl_gc_manager.h" "$source_path/hw/ftl_gc_manager.h"
+    symlink "$source_path/../FTL_SOURCE/PAGE_MAP/ftl_gc_manager.c" "$source_path/hw/ftl_gc_manager.c"
+    symlink "$source_path/../FTL_SOURCE/PAGE_MAP/ftl_inverse_mapping_manager.h" "$source_path/hw/ftl_inverse_mapping_manager.h"
+    symlink "$source_path/../FTL_SOURCE/PAGE_MAP/ftl_inverse_mapping_manager.c" "$source_path/hw/ftl_inverse_mapping_manager.c"
+    symlink "$source_path/../FTL_SOURCE/PAGE_MAP/ftl_mapping_manager.h" "$source_path/hw/ftl_mapping_manager.h"
+    symlink "$source_path/../FTL_SOURCE/PAGE_MAP/ftl_mapping_manager.c" "$source_path/hw/ftl_mapping_manager.c"
+    symlink "$source_path/../FTL_SOURCE/PERF_MODULE/ftl_perf_manager.h" "$source_path/hw/ftl_perf_manager.h"
+    symlink "$source_path/../FTL_SOURCE/PERF_MODULE/ftl_perf_manager.c" "$source_path/hw/ftl_perf_manager.c"
+    symlink "$source_path/../CONFIG/vssim_config_manager.c" "$source_path/hw/vssim_config_manager.c"
+    symlink "$source_path/../CONFIG/vssim_config_manager.h" "$source_path/hw/vssim_config_manager.h"
+    symlink "$source_path/../MONITOR/SSD_MONITOR_PM/ssd_monitor_p" "$source_path/hw/ssd_monitor"
 fi
 
 d=libuser

@@ -276,7 +276,7 @@ int _FTL_COPYBACK(int32_t source, int32_t destination)
 void FTL_INIT_STATS(void){
 
 #if 0
-MIX
+TODO: review statistics implementation
 	int i,j, thRes;
 	struct sockaddr_in serverAddr;
 	pthread_t statThread;

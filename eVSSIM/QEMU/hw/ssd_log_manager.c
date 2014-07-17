@@ -1,1 +1,1 @@
-../../SSD_MODULE/ssd_log_manager.c
+/home/boaz/simulator/eVSSIM/QEMU/../SSD_MODULE/ssd_log_manager.c

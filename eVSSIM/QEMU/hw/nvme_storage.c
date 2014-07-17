@@ -25,8 +25,13 @@
 #include "nvme.h"
 #include "nvme_debug.h"
 
+
+#ifdef CONFIG_VSSIM
 #include "ssd.h"
 extern char* GET_FILE_NAME(void);
+//TODO: review SECTOR_SIZE vs. page_size of the NVME
+extern int SECTOR_SIZE; // SSD configuration. See CONFIG/vssim_config_manager
+#endif /* CONFIG_VSSIM */
 
 #include <sys/mman.h>
 #include <assert.h>
@@ -51,31 +56,41 @@ void nvme_dma_mem_write(target_phys_addr_t addr, uint8_t *buf, int len)
     cpu_physical_memory_rw(addr, buf, len, 1);
 }
 
-static void nvme_dma_mem_read2(target_phys_addr_t addr, uint8_t *buf, int len, uint8_t *mapping_addr)
+#ifdef CONFIG_VSSIM
+static void nvme_dma_mem_read2(target_phys_addr_t addr, uint8_t *buf, int len,
+        uint8_t *mapping_addr)
 {
-	//MIX: TODO: remove hardcoded stack size of ssd.conf: 512
-	if((len % 512) != 0){
-		LOG_DBG("MI: len (=%d) %% 512 == %d", len, (len % 512));
-	}
-	if((buf - mapping_addr) % 512 != 0){
-		LOG_DBG("MI: (buf - mapping_addr) (=%ld) %% 512 == %ld", buf - mapping_addr, (buf - mapping_addr) % 512);
-	}
-	SSD_WRITE(len / 512, (buf - mapping_addr) / 512);
+    if((len % SECTOR_SIZE) != 0){
+        LOG_ERR("nvme_dma_mem_read2: len (=%d) %% %d == %d (should be 0)",
+                len, SECTOR_SIZE, (len % SECTOR_SIZE));
+    }
+    if((buf - mapping_addr) % SECTOR_SIZE != 0){
+        LOG_ERR("nvme_dma_mem_read2: (buf - mapping_addr) (=%ld) %% %d == %ld "
+                "(should be 0)",
+                buf - mapping_addr, SECTOR_SIZE,
+                (buf - mapping_addr) % SECTOR_SIZE);
+    }
+    SSD_WRITE(len / SECTOR_SIZE, (buf - mapping_addr) / SECTOR_SIZE);
     cpu_physical_memory_rw(addr, buf, len, 0);
 }
 
-static void nvme_dma_mem_write2(target_phys_addr_t addr, uint8_t *buf, int len, uint8_t *mapping_addr)
+static void nvme_dma_mem_write2(target_phys_addr_t addr, uint8_t *buf, int len,
+        uint8_t *mapping_addr)
 {
-	if((len % 512) != 0){
-		LOG_DBG("MI: len (=%d) %% 512 == %d", len, (len % 512));
-	}
-	if((buf - mapping_addr) % 512 != 0){
-		LOG_DBG("MI: (buf - mapping_addr) (=%ld) %% 512 == %ld", buf - mapping_addr, (buf - mapping_addr) % 512);
-	}
-	SSD_READ(len / 512, (buf - mapping_addr) / 512);
-
+    if((len % SECTOR_SIZE) != 0){
+        LOG_ERR("nvme_dma_mem_write2: len (=%d) %% %d == %d (should be 0)",
+                len, SECTOR_SIZE, (len % SECTOR_SIZE));
+    }
+    if((buf - mapping_addr) % SECTOR_SIZE != 0){
+        LOG_ERR("nvme_dma_mem_write2: (buf - mapping_addr) (=%ld) %% %d == %ld "
+                "(should be 0)",
+                buf - mapping_addr, SECTOR_SIZE,
+                (buf - mapping_addr) % SECTOR_SIZE);
+    }
+    SSD_READ(len / SECTOR_SIZE, (buf - mapping_addr) / SECTOR_SIZE);
     cpu_physical_memory_rw(addr, buf, len, 1);
 }
+#endif /* CONFIG_VSSIM */
 
 static uint8_t do_rw_prp(NVMEState *n, uint64_t mem_addr, uint64_t *data_size_p,
     uint64_t *file_offset_p, uint8_t *mapping_addr, uint8_t rw)
@@ -99,11 +114,19 @@ static uint8_t do_rw_prp(NVMEState *n, uint64_t mem_addr, uint64_t *data_size_p,
     switch (rw) {
     case NVME_CMD_READ:
         LOG_DBG("Read cmd called");
+#ifdef CONFIG_VSSIM
         nvme_dma_mem_write2(mem_addr, (mapping_addr + *file_offset_p), data_len, mapping_addr);
+#else
+        nvme_dma_mem_write(mem_addr, (mapping_addr + *file_offset_p), data_len);
+#endif
         break;
     case NVME_CMD_WRITE:
         LOG_DBG("Write cmd called");
+#ifdef CONFIG_VSSIM
         nvme_dma_mem_read2(mem_addr, (mapping_addr + *file_offset_p), data_len, mapping_addr);
+#else
+        nvme_dma_mem_read(mem_addr, (mapping_addr + *file_offset_p), data_len);
+#endif
         break;
     default:
         LOG_ERR("Error- wrong opcode: %d", rw);
@@ -163,8 +186,13 @@ static uint8_t do_rw_prp_list(NVMEState *n, NVMECmd *command,
 
     /* Logic to find the number of PRP Entries */
     prp_entries = (uint64_t) ((*data_size_p + PAGE_SIZE - 1) / PAGE_SIZE);
+#ifdef CONFIG_VSSIM
     nvme_dma_mem_read2(cmd->prp2, (uint8_t *)prp_list,
         min(sizeof(prp_list), prp_entries * sizeof(uint64_t)), mapping_addr);
+#else
+    nvme_dma_mem_read(cmd->prp2, (uint8_t *)prp_list,
+        min(sizeof(prp_list), prp_entries * sizeof(uint64_t)));
+#endif
 
     /* Read/Write on PRPList */
     while (*data_size_p != 0) {
@@ -172,8 +200,13 @@ static uint8_t do_rw_prp_list(NVMEState *n, NVMECmd *command,
             /* Calculate the actual number of remaining entries */
             prp_entries = (uint64_t) ((*data_size_p + PAGE_SIZE - 1) /
                 PAGE_SIZE);
+#ifdef CONFIG_VSSIM
             nvme_dma_mem_read2(prp_list[511], (uint8_t *)prp_list,
                 min(sizeof(prp_list), prp_entries * sizeof(uint64_t)), mapping_addr);
+#else
+            nvme_dma_mem_read(prp_list[511], (uint8_t *)prp_list,
+                min(sizeof(prp_list), prp_entries * sizeof(uint64_t)));
+#endif
             i = 0;
         }
 
@@ -592,15 +625,18 @@ int nvme_create_storage_disk(uint32_t instance, uint32_t nsid, DiskInfo *disk,
 {
     uint32_t blksize, lba_idx;
     uint64_t size, blks;
-    //MIX char str[64];
-
-    //MIX snprintf(str, sizeof(str), "nvme_disk%d_n%d.img", instance, nsid);
+    char str[PATH_MAX];
+#ifdef CONFIG_VSSIM
+    strncpy(str, GET_FILE_NAME(), PATH_MAX-1);
+    str[PATH_MAX-1] = '\0';
+#else
+    snprintf(str, sizeof(str), "nvme_disk%d_n%d.img", instance, nsid);
+#endif
     disk->nsid = nsid;
 
-    //MIX disk->fd = open(str, O_RDWR | O_CREAT | O_TRUNC, S_IRUSR | S_IWUSR);
-    disk->fd = open(GET_FILE_NAME(), O_RDWR | O_CREAT | O_TRUNC, S_IRUSR | S_IWUSR);
+    disk->fd = open(str, O_RDWR | O_CREAT | O_TRUNC, S_IRUSR | S_IWUSR);
     if (disk->fd < 0) {
-        LOG_ERR("Error while creating the storage %s", GET_FILE_NAME());
+        LOG_ERR("Error while creating the storage %s", str);
         return FAIL;
     }
 
@@ -660,8 +696,9 @@ int nvme_create_storage_disks(NVMEState *n)
     uint32_t i;
     int ret = SUCCESS;
 
-    //MI
+#ifdef CONFIG_VSSIM
     SSD_INIT();
+#endif
 
     for (i = 0; i < n->num_namespaces; i++) {
         ret = nvme_create_storage_disk(n->instance, i + 1, &n->disk[i], n);
@@ -747,7 +784,11 @@ int nvme_close_storage_disks(NVMEState *n)
         ret = nvme_close_storage_disk(&n->disk[i]);
     }
     
-    //MI: WTF? - this function is not called SSD_TERM();
+#ifdef CONFIG_VSSIM
+    //TODO: nvme_close_storage_disks() function is not called
+    //see vl.c for SSD_TERM();
+    //SSD_TERM();
+#endif
 
     return ret;
 }

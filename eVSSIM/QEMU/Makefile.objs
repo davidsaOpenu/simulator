@@ -299,6 +299,12 @@ hw-obj-$(CONFIG_REALLY_VIRTFS) += $(addprefix 9pfs/, $(9pfs-nested-y))
 #NVMe
 hw-obj-$(CONFIG_NVME) += nvme.o nvme_adm.o nvme_storage.o nvme_io.o nvme_config_read.o
 
+#VSSIM
+hw-obj-$(CONFIG_VSSIM) += vssim_config_manager.o
+hw-obj-$(CONFIG_VSSIM) += ftl.o ftl_mapping_manager.o ftl_inverse_mapping_manager.o
+hw-obj-$(CONFIG_VSSIM) += ftl_gc_manager.o ftl_perf_manager.o
+hw-obj-$(CONFIG_VSSIM) += ssd.o ssd_log_manager.o ssd_io_manager.o
+
 ######################################################################
 # libdis
 # NOTE: the disassembler code is only needed for debugging

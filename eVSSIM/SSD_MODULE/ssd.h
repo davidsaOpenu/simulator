@@ -12,7 +12,6 @@
 
 #include "hw.h"
 
-
 //FILE *fp;
 void SSD_INIT(void);
 void SSD_TERM(void);
