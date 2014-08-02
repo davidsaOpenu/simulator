@@ -5,6 +5,19 @@
 # vssim data files
 *.dat
 
+# ramdisk
+eVSSIM/RAMDISK/rd
+
+# monitr executable and files
+eVSSIM/MONITOR/SSD_MONITOR_PM/ssd_monitor_p
+eVSSIM/MONITOR/SSD_MONITOR_PM/form1.cpp
+eVSSIM/MONITOR/SSD_MONITOR_PM/form1.h
+eVSSIM/MONITOR/SSD_MONITOR_PM/moc_form1.cpp
+
+# qemu configure-created files
+eVSSIM/QEMU/config-host.mak
+eVSSIM/QEMU/config-host.h
+
 # symlinks
 eVSSIM/QEMU/Makefile.target
 eVSSIM/QEMU/hw/common.h
