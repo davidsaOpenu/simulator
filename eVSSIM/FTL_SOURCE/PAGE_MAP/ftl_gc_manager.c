@@ -62,7 +62,7 @@ int GARBAGE_COLLECTION(int mapping_index)
 				return FAIL;
 			}
 
-			ret = _FTL_COPYBACK(victim_phy_flash_nb*PAGES_PER_FLASH + victim_phy_block_nb*PAGE_NB + i , new_ppn);
+			ret = FTL_COPYBACK(victim_phy_flash_nb*PAGES_PER_FLASH + victim_phy_block_nb*PAGE_NB + i , new_ppn);
 
 			if(ret == SUCCESS)
 				copy_page_nb++;

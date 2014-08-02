@@ -460,7 +460,7 @@ obj-y = vl.o osdep.o monitor.o pci.o loader.o isa_mmio.o machine.o \
 obj-y += virtio-blk.o virtio-balloon.o virtio-net.o virtio-console.o
 obj-$(CONFIG_KVM) += kvm.o kvm-all.o
 
-LIBS+=-lz
+LIBS+=-lz -lrt
 ifdef CONFIG_ALSA
 LIBS += -lasound
 endif
@@ -531,6 +531,7 @@ obj-y += wdt_ib700.o wdt_i6300esb.o
 # ex). obj-i386-y = ftl.o
 obj-i386-y += vssim_config_manager.o 
 obj-i386-y += ftl.o ftl_mapping_manager.o ftl_inverse_mapping_manager.o
+obj-i386-y += ftl_adr_strategy.o ftl_obj_strategy.o
 obj-i386-y += ftl_gc_manager.o ftl_perf_manager.o 
 obj-i386-y += ssd.o ssd_log_manager.o ssd_io_manager.o 
 

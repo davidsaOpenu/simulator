@@ -22,6 +22,8 @@ ln -s ../../FTL_SOURCE/PAGE_MAP/ftl.h					../hw/ftl.h
 ln -s ../../FTL_SOURCE/PAGE_MAP/ftl_mapping_manager.h			../hw/ftl_mapping_manager.h
 ln -s ../../FTL_SOURCE/PAGE_MAP/ftl_inverse_mapping_manager.h		../hw/ftl_inverse_mapping_manager.h
 ln -s ../../FTL_SOURCE/PAGE_MAP/ftl_gc_manager.h			../hw/ftl_gc_manager.h
+ln -s ../../FTL_SOURCE/PAGE_MAP/ftl_adr_strategy.h          ../hw/ftl_adr_strategy.h
+ln -s ../../FTL_SOURCE/PAGE_MAP/ftl_obj_strategy.h          ../hw/ftl_obj_strategy.h
 ln -s ../../FTL_SOURCE/PERF_MODULE/ftl_perf_manager.h			../hw/ftl_perf_manager.h
 
 ln -s ../../SSD_MODULE/ssd_io_manager.h					../hw/ssd_io_manager.h
@@ -32,6 +34,8 @@ ln -s ../../FTL_SOURCE/PAGE_MAP/ftl.c					../hw/ftl.c
 ln -s ../../FTL_SOURCE/PAGE_MAP/ftl_mapping_manager.c			../hw/ftl_mapping_manager.c
 ln -s ../../FTL_SOURCE/PAGE_MAP/ftl_inverse_mapping_manager.c		../hw/ftl_inverse_mapping_manager.c
 ln -s ../../FTL_SOURCE/PAGE_MAP/ftl_gc_manager.c			../hw/ftl_gc_manager.c
+ln -s ../../FTL_SOURCE/PAGE_MAP/ftl_adr_strategy.c          ../hw/ftl_adr_strategy.c
+ln -s ../../FTL_SOURCE/PAGE_MAP/ftl_obj_strategy.c          ../hw/ftl_obj_strategy.c
 ln -s ../../FTL_SOURCE/PERF_MODULE/ftl_perf_manager.c			../hw/ftl_perf_manager.c
 
 ln -s ../../SSD_MODULE/ssd_io_manager.c					../hw/ssd_io_manager.c

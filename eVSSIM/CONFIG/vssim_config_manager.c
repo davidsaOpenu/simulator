@@ -57,6 +57,9 @@ int GC_THRESHOLD_BLOCK_NB_EACH;		// added by js
 int GC_VICTIM_NB;
 #endif
 
+/* Storage strategy (1 = address-based, 2 = object-based */
+int STORAGE_STRATEGY;
+
 char gFile_Name[1024] = {0,};
 char STAT_PATH[1024] = {0,};
 
@@ -175,6 +178,10 @@ void INIT_SSD_CONFIG(void)
 				fscanf(pfData, "%d", &LOG_SEQ_BLOCK_NB);
 			}	
 #endif
+            else if(strcmp(szCommand, "STORAGE_STRATEGY") == 0)
+			{
+				fscanf(pfData, "%d", &STORAGE_STRATEGY);
+			}
 			memset(szCommand, 0x00, 1024);
 		}	
 		fclose(pfData);

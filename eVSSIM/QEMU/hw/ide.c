@@ -886,7 +886,7 @@ static void ide_sector_read(IDEState *s)
         ret = bdrv_read(s->bs, sector_num, s->io_buffer, n);
 #ifdef TARGET_I386
 	if(strcmp(s->bs->filename, GET_FILE_NAME())==0)
-		SSD_READ(n,sector_num); //SSD READ function call
+		SSD_READ(sector_num, 0, n); //SSD READ function call
 #endif     
         if (ret != 0) {
             ide_rw_error(s);
@@ -1072,7 +1072,7 @@ static void ide_read_dma_cb(void *opaque, int ret)
 
 #ifdef TARGET_I386
 	if(strcmp(s->bs->filename, GET_FILE_NAME())==0)
-		SSD_READ(n, sector_num);
+		SSD_READ(sector_num, 0, n);
 #endif
 
     bm->aiocb = dma_bdrv_read(s->bs, &s->sg, sector_num, ide_read_dma_cb, bm);
@@ -1117,7 +1117,7 @@ static void ide_sector_write(IDEState *s)
 #ifdef TARGET_I386
 	if(strcmp(s->bs->filename, GET_FILE_NAME())==0)
 	{
-		SSD_WRITE(n, sector_num); 
+		SSD_WRITE(sector_num, 0, n); 
 	}
 #endif
 
@@ -1225,7 +1225,7 @@ static void ide_write_dma_cb(void *opaque, int ret)
 #ifdef TARGET_I386
     if(strcmp(s->bs->filename, GET_FILE_NAME())==0)
     {
-        SSD_WRITE(n, sector_num); 
+        SSD_WRITE(sector_num, 0, n); 
     }
 #endif
 

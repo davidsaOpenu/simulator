@@ -17,7 +17,7 @@
 void SSD_INIT(void);
 void SSD_TERM(void);
 
-void SSD_WRITE(unsigned int length, int32_t sector_nb);
-void SSD_READ(unsigned int length, int32_t sector_nb);
+void SSD_WRITE(int32_t id, unsigned int offset, unsigned int length);
+void SSD_READ(int32_t id, unsigned int offset, unsigned int length);
 
 #endif

@@ -1,0 +1,34 @@
+*.o
+*.d
+*.a
+
+# vssim data files
+*.dat
+
+# symlinks
+eVSSIM/QEMU/Makefile.target
+eVSSIM/QEMU/hw/common.h
+eVSSIM/QEMU/hw/ssd_util.h
+eVSSIM/QEMU/hw/ftl_type.h
+eVSSIM/QEMU/hw/ftl.h
+eVSSIM/QEMU/hw/ftl_mapping_manager.h
+eVSSIM/QEMU/hw/ftl_inverse_mapping_manager.h
+eVSSIM/QEMU/hw/ftl_gc_manager.h
+eVSSIM/QEMU/hw/ftl_adr_strategy.h
+eVSSIM/QEMU/hw/ftl_obj_strategy.h
+eVSSIM/QEMU/hw/ftl_perf_manager.h
+eVSSIM/QEMU/hw/ssd_io_manager.h
+eVSSIM/QEMU/hw/ssd_log_manager.h
+eVSSIM/QEMU/hw/ftl.c
+eVSSIM/QEMU/hw/ftl_mapping_manager.c
+eVSSIM/QEMU/hw/ftl_inverse_mapping_manager.c
+eVSSIM/QEMU/hw/ftl_gc_manager.c
+eVSSIM/QEMU/hw/ftl_adr_strategy.c
+eVSSIM/QEMU/hw/ftl_obj_strategy.c
+eVSSIM/QEMU/hw/ftl_perf_manager.c
+eVSSIM/QEMU/hw/ssd_io_manager.c
+eVSSIM/QEMU/hw/ssd_log_manager.c
+eVSSIM/QEMU/x86_64-softmmu/ssd_monitor
+eVSSIM/QEMU/x86_64-softmmu/data/ssd.conf
+eVSSIM/QEMU/hw/vssim_config_manager.h
+eVSSIM/QEMU/hw/vssim_config_manager.c

@@ -64,4 +64,7 @@ extern char STAT_PATH[1024];
 void INIT_SSD_CONFIG(void);
 char* GET_FILE_NAME(void);
 
+/* Storage strategy (1 = address-based, 2 = object-based */
+extern int STORAGE_STRATEGY;
+
 #endif

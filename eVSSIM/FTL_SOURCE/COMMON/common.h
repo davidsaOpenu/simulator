@@ -29,6 +29,9 @@
 #include "ftl_inverse_mapping_manager.h"
 #include "ftl_perf_manager.h"
 
+#include "ftl_adr_strategy.h"
+#include "ftl_obj_strategy.h"
+
 #include "ssd_util.h"
 #include "ssd_io_manager.h"
 #include "ssd_log_manager.h"
