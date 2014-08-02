@@ -1,6 +1,7 @@
 *.o
 *.d
 *.a
+*.bin
 
 # vssim data files
 *.dat
@@ -17,6 +18,20 @@ eVSSIM/MONITOR/SSD_MONITOR_PM/moc_form1.cpp
 # qemu configure-created files
 eVSSIM/QEMU/config-host.mak
 eVSSIM/QEMU/config-host.h
+eVSSIM/QEMU/libhw32/Makefile
+eVSSIM/QEMU/libhw64/Makefile
+eVSSIM/QEMU/x86_64-softmmu/Makefile
+eVSSIM/QEMU/x86_64-softmmu/config.mak
+
+# qemu executables and files
+eVSSIM/QEMU/qemu-img
+eVSSIM/QEMU/qemu-img-cmds.h
+eVSSIM/QEMU/qemu-io
+eVSSIM/QEMU/qemu-nbd
+eVSSIM/QEMU/x86_64-softmmu/gdbstub-xml.c
+eVSSIM/QEMU/x86_64-softmmu/qemu-monitor.h
+eVSSIM/QEMU/x86_64-softmmu/qemu-options.h
+eVSSIM/QEMU/x86_64-softmmu/qemu-system-x86_64
 
 # symlinks
 eVSSIM/QEMU/Makefile.target
