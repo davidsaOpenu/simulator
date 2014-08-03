@@ -63,6 +63,9 @@ stored_object* create_object(size_t size)
             return NULL;
         add_page(obj,page_id);
     }
+    
+    //TODO: add obj to hashtable
+
     return obj;
 }
 
@@ -73,18 +76,32 @@ void remove_object(object_id_t object_id)
 
 page_node* add_page(stored_object *object, int32_t page_id)
 {
-    // STUB
-    return;
+    page_node page,curr,prev;
+
+    page = malloc(sizeof(struct page_node));
+    page->page_id=page_id;
+    
+    if(!object->pages) {
+        return object->pages=page;
+    }
+
+    for(curr=object->pages; curr; prev=curr,curr=curr->next)
+        ;
+    return prev->next=page;
 }
 
 page_node* page_by_offset(stored_object *object, unsigned int offset)
 {
-    // STUB
-    return;
+    page_node *page = object->pages;
+    if(offset > object->size)
+        return NULL; // out of bounds - report error?
+    for(;page && offset>0; offset-=PAGE_SIZE, page=page->next)
+        ;
+    // if page==NULL then page collection < size - report error? or assume it's valid?
+    return page;
 }
 
 page_node* next_page(stored_object *object,page_node *current)
 {
-    // STUB
-    return;
+    return current->next;
 }
