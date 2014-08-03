@@ -63,7 +63,7 @@ void remove_object(object_id_t object_id)
     // STUB
 }
 
-page_node* add_page(stored_object *object, int page_id)
+page_node* add_page(stored_object *object, int32_t page_id)
 {
     // STUB
     return;
