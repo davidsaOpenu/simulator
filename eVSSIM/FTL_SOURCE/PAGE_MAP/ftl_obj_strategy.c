@@ -53,8 +53,16 @@ stored_object* create_object(size_t size)
 {
     object_id_t id = current_id++;
     stored_object *obj = malloc(sizeof(stored_object));
+    int32_t page_id;
+    int i,ret;
+
     obj->size=size;
-    //TODO: allocate pages
+    for(;size>0;size-=PAGE_SIZE) {
+        ret = GET_NEW_PAGE(VICTIM_OVERALL, EMPTY_TABLE_ENTRY_NB,&page_id); // BEN: not sure about these flags
+        if(ret==FAIL)
+            return NULL;
+        add_page(obj,page_id);
+    }
     return obj;
 }
 
