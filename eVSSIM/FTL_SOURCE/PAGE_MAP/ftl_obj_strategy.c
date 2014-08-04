@@ -74,23 +74,23 @@ void remove_object(object_id_t object_id)
     // STUB
 }
 
-page_node* add_page(stored_object *object, int32_t page_id)
-{
-    page_node page,curr,prev;
-
-    page = malloc(sizeof(struct page_node));
-    page->page_id=page_id;
-    
-    if(!object->pages) {
-        return object->pages=page;
+page_node *add_page_list(page_node *p, int32_t page_id) {
+    if(!p) {
+        p = malloc(sizeof(struct page_node));
+        p->page_id=page_id;
+        p->next=NULL;
+    } else if(p->page_id!=page_id) {
+        p->next=add_page_list(p->next,page_id);
     }
-
-    for(curr=object->pages; curr; prev=curr,curr=curr->next)
-        ;
-    return prev->next=page;
+    return p;
 }
 
-page_node* page_by_offset(stored_object *object, unsigned int offset)
+page_node *add_page(stored_object *object, int32_t page_id)
+{
+    object->pages=add_page_list(object->pages,page_id);
+}
+
+page_node *page_by_offset(stored_object *object, unsigned int offset)
 {
     page_node *page = object->pages;
     if(offset > object->size)
@@ -101,7 +101,7 @@ page_node* page_by_offset(stored_object *object, unsigned int offset)
     return page;
 }
 
-page_node* next_page(stored_object *object,page_node *current)
+page_node *next_page(stored_object *object,page_node *current)
 {
     return current->next;
 }
