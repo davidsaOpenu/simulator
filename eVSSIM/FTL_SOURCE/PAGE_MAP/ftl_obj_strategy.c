@@ -1,6 +1,7 @@
 #include "ftl_obj_strategy.h"
 
 #define HASHTABLE_SIZE 100
+#define WRAP_SUCCESS_FAIL(x) return (x) ? SUCCESS : FAIL;
 
 struct hsearch_data *object_table;
 object_id_t current_id;
@@ -27,29 +28,31 @@ int _FTL_OBJ_WRITE(int32_t object_id, unsigned int offset, unsigned int length)
 
 int _FTL_OBJ_COPYBACK(int32_t source, int32_t destination)
 {
-    // STUB
+    page_node *source_p=lookup_page(source);
+    if(source_p) { // can source_p be NULL if we use obj storage exclusively?
+        source_p->page_id=destination;
+    }
+    // call original code
     return FAIL;
 }
 
 int _FTL_OBJ_CREATE(size_t size)
 {
-    // STUB
-    return FAIL;
+    WRAP_SUCCESS_FAIL(create_object(size));
 }
 
 int _FTL_OBJ_DELETE(int32_t object_id)
 {
-    // STUB
-    return FAIL;
+    return remove_object(object_id);
 }
 
-stored_object* lookup_object(object_id_t object_id)
+stored_object *lookup_object(object_id_t object_id)
 {
     // STUB
     return;
 }
 
-stored_object* create_object(size_t size)
+stored_object *create_object(size_t size)
 {
     object_id_t id = current_id++;
     stored_object *obj = malloc(sizeof(stored_object));
@@ -69,9 +72,10 @@ stored_object* create_object(size_t size)
     return obj;
 }
 
-void remove_object(object_id_t object_id)
+int remove_object(object_id_t object_id)
 {
     // STUB
+    return FAIL;
 }
 
 page_node *add_page_list(page_node *p, int32_t page_id) {
@@ -82,6 +86,7 @@ page_node *add_page_list(page_node *p, int32_t page_id) {
     } else if(p->page_id!=page_id) {
         p->next=add_page_list(p->next,page_id);
     }
+    //what should we do if p->page_id==page_id?
     return p;
 }
 
@@ -99,6 +104,12 @@ page_node *page_by_offset(stored_object *object, unsigned int offset)
         ;
     // if page==NULL then page collection < size - report error? or assume it's valid?
     return page;
+}
+
+page_node *lookup_page(int32_t page_id)
+{
+    // STUB
+    return FAIL;
 }
 
 page_node *next_page(stored_object *object,page_node *current)
