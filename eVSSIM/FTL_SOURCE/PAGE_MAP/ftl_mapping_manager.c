@@ -94,6 +94,15 @@ int UPDATE_OLD_PAGE_MAPPING(int32_t lpn)
 	return SUCCESS;
 }
 
+/* same as UPDATE_OLD_PAGE_MAPPING, only it handles a pyhsical page instead of a logical one */
+int UPDATE_OLD_PHYSICAL_PAGE_MAPPING(int32_t ppn)
+{
+    UPDATE_INVERSE_BLOCK_VALIDITY(CALC_FLASH(ppn), CALC_BLOCK(ppn), CALC_PAGE(ppn), INVALID);
+    UPDATE_INVERSE_PAGE_MAPPING(ppn, -1);
+
+	return SUCCESS;
+}
+
 int UPDATE_NEW_PAGE_MAPPING(int32_t lpn, int32_t ppn)
 {
 	/* Update Page Mapping Table */

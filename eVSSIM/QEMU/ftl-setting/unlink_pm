@@ -20,6 +20,7 @@ unlink ../hw/ftl_gc_manager.h
 unlink ../hw/ftl_adr_strategy.h
 unlink ../hw/ftl_obj_strategy.h
 unlink ../hw/ftl_perf_manager.h
+unlink ../hw/uthash.h
 unlink ../hw/ssd_io_manager.h
 unlink ../hw/ssd_log_manager.h
 

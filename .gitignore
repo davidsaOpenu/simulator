@@ -60,3 +60,4 @@ eVSSIM/QEMU/x86_64-softmmu/ssd_monitor
 eVSSIM/QEMU/x86_64-softmmu/data/ssd.conf
 eVSSIM/QEMU/hw/vssim_config_manager.h
 eVSSIM/QEMU/hw/vssim_config_manager.c
+eVSSIM/QEMU/hw/uthash.h

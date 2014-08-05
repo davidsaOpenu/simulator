@@ -20,6 +20,7 @@ int32_t GET_MAPPING_INFO(int32_t lpn);
 int GET_NEW_PAGE(int mode, int mapping_index, int32_t* ppn);
 
 int UPDATE_OLD_PAGE_MAPPING(int32_t lpn);
+int UPDATE_OLD_PHYSICAL_PAGE_MAPPING(int32_t ppn);
 int UPDATE_NEW_PAGE_MAPPING(int32_t lpn, int32_t ppn);
 
 unsigned int CALC_FLASH(int32_t ppn);
