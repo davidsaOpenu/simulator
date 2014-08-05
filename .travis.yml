@@ -6,4 +6,4 @@ compiler:
 before_script:
    - cd eVSSIM/QEMU/ftl-setting; ./link_pm
 
-script: cd eVSSIM/QEMU; ./configure && make && make test
+script: cd ../; ./configure && make && make test
