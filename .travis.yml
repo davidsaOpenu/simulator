@@ -1,0 +1,10 @@
+language: c
+
+compiler:
+   - gcc
+
+before_install:
+   - cd eVSSIM/QEMU/ftl-setting; ./unlink_pm
+   - cd eVSSIM/QEMU/ftl-setting; ./link_pm
+
+script: cd eVSSIM/QEMU; ./configure && make && make test
