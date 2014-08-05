@@ -116,9 +116,8 @@ int remove_object(stored_object *object)
     page_node *current_page;
     page_node *invalidated_page;
     
-    // remove obj from hashtable only if it exists there because it could just be cleanup in case create_object failed
-    if (lookup_object(object->id) != NULL)
-        HASH_DEL(objects_table, object);
+    // obj could not exist yet in the hashtable because it could just be cleanup in case create_object failed, but nothing would happen
+    HASH_DEL(objects_table, object);
     
     current_page = object->pages;
     while (current_page != NULL)
@@ -133,7 +132,7 @@ int remove_object(stored_object *object)
 
         // get next page and free the current one
         invalidated_page = current_page;
-        current_page = current_page->next;
+        current_page = next_page(object, current_page);
         free(invalidated_page);
     }
     
@@ -166,13 +165,14 @@ page_node *add_page(stored_object *object, int32_t page_id)
 
 page_node *page_by_offset(stored_object *object, unsigned int offset)
 {
-    if(offset > object->size)
-        return NULL; // out of bounds - report error? - returning NULL should count as error, no?
+    page_node *page;
     
-    struct page_node *page = object->pages;
+    // check if out of bounds
+    if(offset > object->size)
+        return NULL;
     
     // skim through pages until offset is less than a page's size
-    for(;page && offset>=PAGE_SIZE; offset-=PAGE_SIZE, page=page->next)
+    for(page = object->pages; page && offset >= PAGE_SIZE; offset -= PAGE_SIZE, page = next_page(object, page))
         ;
     
     // if page==NULL then page collection < size - report error? or assume it's valid? - this technically shouldn't happen after the if at the beginning. just return NULL if it does
@@ -186,7 +186,7 @@ page_node *lookup_page(int32_t page_id)
 
     for (obj = objects_table; obj != NULL; obj = obj->hh.next)
     {
-        for (page = obj->pages; page != NULL; page = page->next)
+        for (page = obj->pages; page != NULL; page = next_page(obj, page))
         {
             if (page->page_id == page_id)
                 return page;
@@ -197,7 +197,7 @@ page_node *lookup_page(int32_t page_id)
     return NULL;
 }
 
-page_node *next_page(stored_object *object,page_node *current)
+page_node *next_page(stored_object *object, page_node *current)
 {
     return current->next;
 }
