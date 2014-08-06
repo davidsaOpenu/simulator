@@ -116,8 +116,10 @@ int remove_object(stored_object *object)
     page_node *current_page;
     page_node *invalidated_page;
     
-    // obj could not exist yet in the hashtable because it could just be cleanup in case create_object failed, but nothing would happen
-    HASH_DEL(objects_table, object);
+    // object could not exist in the hashtable yet because it could just be cleanup in case create_object failed
+    // if we do perform HASH_DEL on an object that is not in the hashtable, the whole hashtable will be deleted
+    if (object->hh.tbl != NULL)
+        HASH_DEL(objects_table, object);
     
     current_page = object->pages;
     while (current_page != NULL)
