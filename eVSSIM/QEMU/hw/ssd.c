@@ -23,13 +23,13 @@ void SSD_TERM(void)
 #endif
 }
 
-void SSD_WRITE(int32_t id, unsigned int offset, unsigned int length)
+void SSD_WRITE(unsigned int length, int32_t sector_nb)
 {
-	FTL_WRITE(id, offset, length);
+	FTL_WRITE((unsigned long)sector_nb, 0, length);
 }
 
-void SSD_READ(int32_t id, unsigned int offset, unsigned int length)
+void SSD_READ(unsigned int length, int32_t sector_nb)
 {
-	FTL_READ(id, offset, length);
+	FTL_READ((unsigned long)sector_nb, 0, length);
 }
 
