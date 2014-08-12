@@ -182,7 +182,7 @@ int _FTL_WRITE_ADR(int32_t sector_nb, unsigned int length)
 	INCREASE_IO_REQUEST_SEQ_NB();
 
 #ifdef GC_ON
-	GC_CHECK(CALC_FLASH(new_ppn), CALC_BLOCK(new_ppn));
+	GC_CHECK(CALC_FLASH(new_ppn), CALC_BLOCK(new_ppn)); // is this a bug? gc will only happen on the last page's flash and block
 #endif
 
 #ifdef MONITOR_ON
