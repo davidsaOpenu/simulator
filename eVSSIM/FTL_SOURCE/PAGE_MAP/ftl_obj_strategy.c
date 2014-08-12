@@ -129,6 +129,12 @@ int _FTL_OBJ_WRITE(int32_t object_id, unsigned int offset, unsigned int length)
 			FTL_STATISTICS_GATHERING(page_id , PHYSICAL_WRITE);
 		}
         
+#ifdef GC_ON
+        // must improve this because it is very possible that we will do multiple GCs on the same flash chip and block
+        // probably gonna add an array to hold the unique ones and in the end GC all of them
+        GC_CHECK(CALC_FLASH(page_id), CALC_BLOCK(page_id));
+#endif
+        
 #ifdef FTL_DEBUG
         if (ret == FAIL)
         {
@@ -138,10 +144,6 @@ int _FTL_OBJ_WRITE(int32_t object_id, unsigned int offset, unsigned int length)
     }
 
     INCREASE_IO_REQUEST_SEQ_NB();
-
-#ifdef GC_ON
-	GC_CHECK(CALC_FLASH(page_id), CALC_BLOCK(page_id));
-#endif
 
 #ifdef MONITOR_ON
 	char szTemp[1024];
