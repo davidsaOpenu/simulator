@@ -34,6 +34,7 @@ stored_object *lookup_object(object_id_t object_id);
 stored_object *create_object(size_t size);
 int remove_object(stored_object *object);
 
+page_node *add_page_list(page_node *p, int32_t page_id);
 page_node *add_page(stored_object *object, int32_t page_id);
 page_node *page_by_offset(stored_object *object, unsigned int offset);
 page_node *lookup_page(int32_t page_id);
