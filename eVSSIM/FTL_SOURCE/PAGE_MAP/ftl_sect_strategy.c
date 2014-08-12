@@ -1,11 +1,11 @@
-#include "ftl_adr_strategy.h"
+#include "ftl_sect_strategy.h"
 
 int _FTL_READ(uint64_t sector_nb, unsigned int offset, unsigned int length)
 {
-    return _FTL_READ_ADR(sector_nb, length);
+    return _FTL_READ_SECT(sector_nb, length);
 }
 
-int _FTL_READ_ADR(uint64_t sector_nb, unsigned int length)
+int _FTL_READ_SECT(uint64_t sector_nb, unsigned int length)
 {
 #ifdef FTL_DEBUG
 	printf("[%s] Start: sector_nb %ld length %u\n",__FUNCTION__, sector_nb, length);
@@ -99,10 +99,10 @@ int _FTL_READ_ADR(uint64_t sector_nb, unsigned int length)
 
 int _FTL_WRITE(int32_t sector_nb, unsigned int offset, unsigned int length)
 {
-    return _FTL_WRITE_ADR(sector_nb, length);
+    return _FTL_WRITE_SECT(sector_nb, length);
 }
 
-int _FTL_WRITE_ADR(int32_t sector_nb, unsigned int length)
+int _FTL_WRITE_SECT(int32_t sector_nb, unsigned int length)
 {
 #ifdef FTL_DEBUG
 	printf("[%s] Start: sector_nb %d length %u\n",__FUNCTION__, sector_nb, length);

@@ -38,7 +38,7 @@ typedef struct {
         int (* FTL_DELETE)(uint64_t);
 } storage_strategy_functions;
 
-#define STORAGE_STRATEGY_ADDRESS    1
-#define STORAGE_STRATEGY_OBJECT     2
+#define STORAGE_STRATEGY_SECTOR    1
+#define STORAGE_STRATEGY_OBJECT    2
 
 #endif
