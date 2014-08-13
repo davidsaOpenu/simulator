@@ -89,14 +89,14 @@ void FTL_TERM_STRATEGY(void)
 	free(storage_strategy);
 }
 
-void FTL_READ(int32_t id, unsigned int offset, unsigned int length)
+void FTL_READ(uint64_t id, unsigned int offset, unsigned int length)
 {
 	int ret;
 
 	ret = storage_strategy->FTL_READ(id, offset, length);
 }
 
-void FTL_WRITE(int32_t id, unsigned int offset, unsigned int length)
+void FTL_WRITE(uint64_t id, unsigned int offset, unsigned int length)
 {
 	int ret;
 
@@ -115,7 +115,7 @@ void FTL_CREATE(size_t size)
 	ret = storage_strategy->FTL_CREATE(size);
 }
 
-void FTL_DELETE(int32_t id)
+void FTL_DELETE(uint64_t id)
 {
 	int ret;
 	

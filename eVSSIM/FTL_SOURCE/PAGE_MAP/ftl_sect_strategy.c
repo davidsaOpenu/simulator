@@ -97,12 +97,12 @@ int _FTL_READ_SECT(uint64_t sector_nb, unsigned int length)
 	return ret;
 }
 
-int _FTL_WRITE(int32_t sector_nb, unsigned int offset, unsigned int length)
+int _FTL_WRITE(uint64_t sector_nb, unsigned int offset, unsigned int length)
 {
     return _FTL_WRITE_SECT(sector_nb, length);
 }
 
-int _FTL_WRITE_SECT(int32_t sector_nb, unsigned int length)
+int _FTL_WRITE_SECT(uint64_t sector_nb, unsigned int length)
 {
 #ifdef FTL_DEBUG
 	printf("[%s] Start: sector_nb %d length %u\n",__FUNCTION__, sector_nb, length);
@@ -233,7 +233,7 @@ int _FTL_CREATE(size_t size)
     return SUCCESS;
 }
 
-int _FTL_DELETE(int32_t id)
+int _FTL_DELETE(uint64_t id)
 {
     // no "deletion" in address-based storage
     return SUCCESS;
