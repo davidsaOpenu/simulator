@@ -1,14 +1,14 @@
-#include "ftl_adr_strategy.h"
+#include "ftl_sect_strategy.h"
 
-int _FTL_READ(int32_t sector_nb, unsigned int offset, unsigned int length)
+int _FTL_READ(uint64_t sector_nb, unsigned int offset, unsigned int length)
 {
-    return _FTL_READ_ADR(sector_nb, length);
+    return _FTL_READ_SECT(sector_nb, length);
 }
 
-int _FTL_READ_ADR(int32_t sector_nb, unsigned int length)
+int _FTL_READ_SECT(uint64_t sector_nb, unsigned int length)
 {
 #ifdef FTL_DEBUG
-	printf("[%s] Start: sector_nb %d length %u\n",__FUNCTION__, sector_nb, length);
+	printf("[%s] Start: sector_nb %ld length %u\n",__FUNCTION__, sector_nb, length);
 #endif
 
 	if (sector_nb + length > SECTOR_NB)
@@ -19,10 +19,10 @@ int _FTL_READ_ADR(int32_t sector_nb, unsigned int length)
 
 	int32_t lpn;
 	int32_t ppn;
-	int32_t lba = sector_nb;
+	uint64_t lba = sector_nb;
 	unsigned int remain = length;
-	unsigned int left_skip = sector_nb % SECTORS_PER_PAGE;
-	unsigned int right_skip;
+	unsigned long left_skip = sector_nb % SECTORS_PER_PAGE;
+	unsigned long right_skip;
 	unsigned int read_sects;
 
 	unsigned int ret = FAIL;
@@ -97,12 +97,12 @@ int _FTL_READ_ADR(int32_t sector_nb, unsigned int length)
 	return ret;
 }
 
-int _FTL_WRITE(int32_t sector_nb, unsigned int offset, unsigned int length)
+int _FTL_WRITE(uint64_t sector_nb, unsigned int offset, unsigned int length)
 {
-    return _FTL_WRITE_ADR(sector_nb, length);
+    return _FTL_WRITE_SECT(sector_nb, length);
 }
 
-int _FTL_WRITE_ADR(int32_t sector_nb, unsigned int length)
+int _FTL_WRITE_SECT(uint64_t sector_nb, unsigned int length)
 {
 #ifdef FTL_DEBUG
 	printf("[%s] Start: sector_nb %d length %u\n",__FUNCTION__, sector_nb, length);
@@ -233,7 +233,7 @@ int _FTL_CREATE(size_t size)
     return SUCCESS;
 }
 
-int _FTL_DELETE(int32_t id)
+int _FTL_DELETE(uint64_t id)
 {
     // no "deletion" in address-based storage
     return SUCCESS;

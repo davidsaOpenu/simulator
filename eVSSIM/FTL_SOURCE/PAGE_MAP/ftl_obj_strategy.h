@@ -5,7 +5,7 @@
 #include "common.h"
 #include "uthash.h"
 
-typedef int32_t object_id_t;
+typedef uint64_t object_id_t;
 
 /* A page node in the linked list of object-mapped pages */
 typedef struct page_node {
@@ -23,11 +23,11 @@ typedef struct stored_object {
 } stored_object;
 
 /* FTL functions */
-int _FTL_OBJ_READ(int32_t object_id, unsigned int offset, unsigned int length);
-int _FTL_OBJ_WRITE(int32_t object_id, unsigned int offset, unsigned int length);
+int _FTL_OBJ_READ(object_id_t object_id, unsigned int offset, unsigned int length);
+int _FTL_OBJ_WRITE(object_id_t object_id, unsigned int offset, unsigned int length);
 int _FTL_OBJ_COPYBACK(int32_t source, int32_t destination);
 int _FTL_OBJ_CREATE(size_t size);
-int _FTL_OBJ_DELETE(int32_t object_id);
+int _FTL_OBJ_DELETE(object_id_t object_id);
 
 /* Helper functions */
 stored_object *lookup_object(object_id_t object_id);

@@ -29,7 +29,7 @@
 #include "ftl_inverse_mapping_manager.h"
 #include "ftl_perf_manager.h"
 
-#include "ftl_adr_strategy.h"
+#include "ftl_sect_strategy.h"
 #include "ftl_obj_strategy.h"
 
 #include "ssd_util.h"

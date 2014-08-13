@@ -5,7 +5,7 @@
 stored_object *objects_table = NULL;
 object_id_t current_id;
 
-int _FTL_OBJ_READ(int32_t object_id, unsigned int offset, unsigned int length)
+int _FTL_OBJ_READ(object_id_t object_id, unsigned int offset, unsigned int length)
 {
     stored_object *object;
     page_node *current_page;
@@ -64,7 +64,7 @@ int _FTL_OBJ_READ(int32_t object_id, unsigned int offset, unsigned int length)
 	return ret;
 }
 
-int _FTL_OBJ_WRITE(int32_t object_id, unsigned int offset, unsigned int length)
+int _FTL_OBJ_WRITE(object_id_t object_id, unsigned int offset, unsigned int length)
 {
     stored_object *object;
     page_node *current_page = NULL;
@@ -198,7 +198,7 @@ int _FTL_OBJ_CREATE(size_t size)
     return new_object->id;
 }
 
-int _FTL_OBJ_DELETE(int32_t object_id)
+int _FTL_OBJ_DELETE(object_id_t object_id)
 {
     stored_object *object;
     
