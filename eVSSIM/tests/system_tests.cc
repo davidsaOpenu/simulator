@@ -1,8 +1,9 @@
 
 extern "C" {
-#include "src/ftl.h"
-#include "src/ftl_obj_strategy.h"
-#include "src/ftl_sect_strategy.h"
+#include "ssd.h"
+#include "ftl.h"
+#include "ftl_obj_strategy.h"
+#include "ftl_sect_strategy.h"
 }
 extern "C" int g_init;
 extern "C" int g_server_create;
@@ -70,7 +71,7 @@ namespace {
     TEST_P(OccupySpaceStressTest, SequentialOnePageAtTimeWrite) {
         for(int x=0; x<8; x++){
             for(size_t p=0; p < pages_; p++){
-                ASSERT_EQ(SUCCESS, _FTL_SECT_WRITE(p * 4096, 0, 1));
+                ASSERT_EQ(SUCCESS, _FTL_WRITE(p * 4096, 0, 1));
             }
         }
     }
@@ -78,7 +79,7 @@ namespace {
     TEST_P(OccupySpaceStressTest, RandomOnePageAtTimeWrite) {
         for(int x=0; x<8; x++){
             for(size_t p=0; p < pages_; p++){
-                ASSERT_EQ(SUCCESS, _FTL_SECT_WRITE((rand() % pages_) * 4096, 0, 1));
+                ASSERT_EQ(SUCCESS, _FTL_WRITE((rand() % pages_) * 4096, 0, 1));
             }
         }
     }
@@ -86,10 +87,10 @@ namespace {
     TEST_P(OccupySpaceStressTest, MixSequentialAndRandomOnePageAtTimeWrite) {
         for(int x=0; x<2; x++){
             for(size_t p=0; p < pages_; p++){
-                ASSERT_EQ(SUCCESS, _FTL_SECT_WRITE((rand() % pages_) * 4096, 0, 1));
+                ASSERT_EQ(SUCCESS, _FTL_WRITE((rand() % pages_) * 4096, 0, 1));
             }
             for(size_t p=0; p < pages_; p++){
-                ASSERT_EQ(SUCCESS, _FTL_SECT_WRITE(p * 4096, 0, 1));
+                ASSERT_EQ(SUCCESS, _FTL_WRITE(p * 4096, 0, 1));
             }
         }
     }

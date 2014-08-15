@@ -4,7 +4,11 @@
 // Embedded Software Systems Lab. All right reserved
 
 #include "common.h"
+
+#ifndef GTEST
 #include "qemu-kvm.h"
+#endif
+
 #include <arpa/inet.h>
 #include <sys/socket.h>
 #include <sys/types.h>

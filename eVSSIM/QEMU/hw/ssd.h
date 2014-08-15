@@ -10,7 +10,11 @@
 #ifndef _SSD_H_
 #define _SSD_H_
 
+#ifndef GTEST
 #include "hw.h"
+#else
+#include <stdint.h>
+#endif
 
 
 //FILE *fp;

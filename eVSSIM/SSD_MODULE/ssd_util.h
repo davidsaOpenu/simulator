@@ -6,7 +6,8 @@
 #ifndef _SSD_UTIL_H_
 #define _SSD_UTIL_H_
 
-#ifndef _UTEST_
+#ifndef GTEST
+#ifndef _UTEST_ 
 	#include "hw.h"
 #else
 
@@ -15,6 +16,7 @@
 	#include <malloc.h>
 	#include <memory.h>
 
+#endif
 #endif
 
 #endif

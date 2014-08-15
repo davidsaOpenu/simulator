@@ -4,7 +4,14 @@
 // Embedded Software Systems Lab. All right reserved
 
 #include "common.h"
+
+#ifndef GTEST
 #include "qemu-kvm.h"
+#else
+// using a local variable and not the extern one from qemu means our times will not be right and should
+// not be a measure for anything. we can only test the logic and not the speed
+int64_t qemu_overhead;
+#endif
 
 int* reg_io_cmd;	// READ, WRITE, ERASE
 int* reg_io_type;	// SEQ, RAN, MERGE, GC, etc..
