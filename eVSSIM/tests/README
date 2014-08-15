@@ -1,0 +1,37 @@
+1. Prerequisites
+2. Build
+3. Setup VSSIM unit tests runtime
+4. Run unit tests
+5. Unit tests distclean
+6. Known issues
+
+
+VSSIM unit tests
+
+1. Prerequisites
+    a. Install google-test framework
+    b. Modify Makefile CFLAGS include directive to point to gtest
+    c. Ensure LIBRARY_PATH and LD_LIBRARY_PATH are set properly
+
+2. Build
+    a. Make links
+        make mklink
+
+    b. Build unit_tests
+        make
+
+3. Setup VSSIM unit tests runtime
+    a. Setup data directory
+        mkdir data
+    
+4. Run unit tests
+    ./unit_tests #this will take about a hour to complete
+
+5. Unit tests distclean
+    make distclean #will remove all generated VSSIM links
+
+6. Known issues
+    a. SequentialOnePageAtTimeWrite test will crash when loop counter
+        is set to value bigger than 8
+    b. MixSequentialAndRandomOnePageAtTimeWrite test will crash when
+        loop counter is set to value bigger or equal to 4
