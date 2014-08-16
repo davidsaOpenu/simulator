@@ -41,7 +41,7 @@ int _FTL_OBJ_READ(object_id_t object_id, unsigned int offset, unsigned int lengt
 #ifdef FTL_DEBUG
 		if (ret == FAIL)
 		{
-			printf("Error[%s] %u page read fail \n", __FUNCTION__, ppn);
+			printf("Error[%s] %u page read fail \n", __FUNCTION__, current_page->page_id);
 		}
 #endif
         

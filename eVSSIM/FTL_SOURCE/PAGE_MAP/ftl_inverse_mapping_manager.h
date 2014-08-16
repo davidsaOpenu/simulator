@@ -52,7 +52,7 @@ typedef struct victim_block_entry
 {
 	unsigned int phy_flash_nb;
 	unsigned int phy_block_nb;
-	int valid_page_nb;
+	int *valid_page_nb;
 	struct victim_block_entry* prev;
 	struct victim_block_entry* next;
 }victim_block_entry;

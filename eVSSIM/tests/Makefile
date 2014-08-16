@@ -6,6 +6,7 @@ VSSIM_OBJ = vssim_config_manager.o \
 			ssd.o ssd_log_manager.o ssd_io_manager.o \
 			ftl_sect_strategy.o ftl_obj_strategy.o
 
+#CFLAGS = -I/opt/gtest/include -g -DGTEST -DFTL_DEBUG
 CFLAGS = -I/opt/gtest/include -g -DGTEST
 
 all: unit_tests

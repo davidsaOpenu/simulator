@@ -15,7 +15,7 @@
 #include "ftl_type.h"
 
 /* FTL */
-
+#define GC_ON 1
 /* VSSIM Function */
 #define MONITOR_ON
 #ifdef PAGE_MAP

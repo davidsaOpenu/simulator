@@ -207,6 +207,21 @@ int _FTL_COPYBACK(int32_t source, int32_t destination)
 
 	//Handle copyback delays
 	ret = SSD_PAGE_COPYBACK(source, destination, COPYBACK);
+    
+    // actual page swap, go korea
+    /*SSD_PAGE_READ(CALC_FLASH(source), CALC_BLOCK(source), CALC_PAGE(source), 0, GC_READ, -1);
+    SSD_PAGE_WRITE(CALC_FLASH(destination), CALC_BLOCK(destination), CALC_PAGE(destination), 0, GC_WRITE, -1);
+    lpn = GET_INVERSE_MAPPING_INFO(source);
+    UPDATE_NEW_PAGE_MAPPING(lpn, destination);*/
+
+	if (ret == FAIL)
+	{
+#ifdef FTL_DEBUG
+		printf("Error[%s] %u page copyback fail \n", __FUNCTION__, source);
+#endif
+
+        return FAIL;
+	}
 
 	//Handle page map
 	lpn = GET_INVERSE_MAPPING_INFO(source);
@@ -216,13 +231,6 @@ int _FTL_COPYBACK(int32_t source, int32_t destination)
 		UPDATE_OLD_PAGE_MAPPING(lpn); //as far as i can tell when being called under the gc manage all the actions are being done, but what if will be called from another place?
 		UPDATE_NEW_PAGE_MAPPING(lpn, destination);
 	}
-
-#ifdef FTL_DEBUG
-	if (ret == FAIL)
-	{
-		printf("Error[%s] %u page copyback fail \n", __FUNCTION__, ppn);
-	}
-#endif
 
 	return ret;
 }
