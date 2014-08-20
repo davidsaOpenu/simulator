@@ -15,11 +15,12 @@
 #include "ftl_type.h"
 
 /* FTL */
-#define GC_ON 1
+//#define FTL_DEBUG 1
+
 /* VSSIM Function */
 #define MONITOR_ON
 #ifdef PAGE_MAP
-	//#define GC_ON			/* Garbage Collection for PAGE MAP */
+#define GC_ON 1			/* Garbage Collection for PAGE MAP */
 #endif
 #define DEL_QEMU_OVERHEAD
 //#define O_DIRECT_VSSIM			/* O_DIRECT IO mode */

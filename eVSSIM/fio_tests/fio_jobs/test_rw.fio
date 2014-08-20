@@ -1,0 +1,13 @@
+[test_rw]
+group_reporting
+#filename=/dev/sdb
+direct=1
+randrepeat=1 
+ioengine=libaio
+bs=8k
+rw=randrw
+iodepth=8
+numjobs=8
+runtime=180
+group_reporting
+size=500m

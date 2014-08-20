@@ -1,0 +1,37 @@
+1. Build
+2. Setup VSSIM runtime
+3. Run QEMU with VSSIM talking NVMe
+4. QEMU distclean
+
+
+VSSIM talking NVMe
+
+1. Build
+    a. Build ssd_monitor
+        cd MONITOR/SSD_MONITOR_PM
+        qmake -o Makefile ssd_monitor_p.pro
+        make
+
+    b. Build qemu
+        cd QEMU
+        ./configure --enable-io-thread --enable-linux-aio --target-list=x86_64-softmmu --enable-sdl --enable-vssim
+        make
+
+2. Setup VSSIM runtime
+    a. Setup data directory
+        cd QEMU/hw
+        mkdir data
+        mount -t tmpfs -o size=16g tmpfs ./data 
+    b. SSD configuration
+        cd QEMU/hw/data
+        ln -s ../../../CONFIG/ssd.conf
+    c. Set configuration parameters in ssd.conf file.
+        Note: NVMe disk size set during start of qemu must consider provisioning used in configuration in ssd.conf 
+
+3. Run QEMU with VSSIM talking NVMe
+    cd QEMU/hw #qemu must be run from QEMU/hw directory
+    ../x86_64-softmmu/qemu-system-x86_64 -m 2048 -smp 4 -hda HDA_IMAGE.img -device nvme -enable-kvm -redir tcp:2222::22
+
+4. QEMU distclean
+    cd QEMU
+    make distclean #will remove all generated VSSIM links, but will not remove hw/data directory

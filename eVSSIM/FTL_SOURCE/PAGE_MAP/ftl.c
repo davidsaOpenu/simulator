@@ -13,21 +13,21 @@
 #include <sys/socket.h>
 #include <sys/types.h>
 #include <pthread.h>
+#include <unistd.h>
 
 int g_init = 0;
 extern double ssd_util;
 int gatherStats = 0;
 //Hold statistics information
-int32_t** mapping_stats_table;
+uint32_t** mapping_stats_table;
 storage_strategy_functions* storage_strategy;
 
 void FTL_INIT(void)
 {
 	if(g_init == 0){
-		printf("[%s] start\n",__FUNCTION__);
+        	printf("[%s] start\n",__FUNCTION__);
 
 		INIT_SSD_CONFIG();
-
 		INIT_MAPPING_TABLE();
 		INIT_INVERSE_PAGE_MAPPING();
 		INIT_INVERSE_BLOCK_MAPPING();
@@ -104,7 +104,7 @@ void FTL_WRITE(uint64_t id, unsigned int offset, unsigned int length)
 	ret = storage_strategy->FTL_WRITE(id, offset, length);
 }
 
-int FTL_COPYBACK(int32_t source, int32_t destination)
+int FTL_COPYBACK(uint32_t source, uint32_t destination)
 {
 	return storage_strategy->FTL_COPYBACK(source, destination);
 }
@@ -127,7 +127,7 @@ void FTL_INIT_STATS(){
 
 	int i,j, thRes;
 	struct sockaddr_in serverAddr;
-	pthread_t *statThread;
+	pthread_t statThread;
 
 	int *clientSock = malloc (sizeof(int));
 	/*Creating client socket, in order to receive statistics collection commands from the server*/
@@ -148,16 +148,16 @@ void FTL_INIT_STATS(){
 	}
 
 	/*Creating and starting a thread for communication with the statistic controller*/
-	thRes = pthread_create( &statThread, NULL, STAT_LISTEN, (void *) clientSock);
+	thRes = pthread_create(&statThread, NULL, STAT_LISTEN, (void *) clientSock);
 
 	/* Allocation Memory for Mapping Stats Table */
-	mapping_stats_table = (int32_t*)calloc(SUPPORTED_OPERATION, sizeof(int32_t*));
+	mapping_stats_table = (uint32_t**)calloc(SUPPORTED_OPERATION, sizeof(uint32_t*));
 	if(mapping_stats_table == NULL){
 		printf("ERROR[%s] Calloc mapping stats table fail\n",__FUNCTION__);
 		return;
 	}
 	for (i=0; i < SUPPORTED_OPERATION; i++){
-		mapping_stats_table[i] = (int32_t*)calloc(PAGE_MAPPING_ENTRY_NB, sizeof(int32_t));
+		mapping_stats_table[i] = (uint32_t*)calloc(PAGE_MAPPING_ENTRY_NB, sizeof(uint32_t));
 		if(mapping_stats_table[i] == NULL){
 			printf("ERROR[%s] Calloc mapping stats table fail\n",__FUNCTION__);
 			return;
@@ -172,7 +172,7 @@ void FTL_INIT_STATS(){
 	}
 }
 
-void FTL_RESET_STATS(){
+void FTL_RESET_STATS(void){
 	int i,j;
 
 	for(i=0; i < SUPPORTED_OPERATION; i++){
@@ -182,16 +182,18 @@ void FTL_RESET_STATS(){
 	}
 }
 
-void FTL_TERM_STATS(){
+void FTL_TERM_STATS(void){
+#if 0
 	int i;
 
 	for (i=0; i < SUPPORTED_OPERATION; i++){
 		free(mapping_stats_table[i]);
 	}
 	free(mapping_stats_table);
+#endif
 }
 
-int FTL_STATISTICS_GATHERING(int32_t address , int type){
+int FTL_STATISTICS_GATHERING(uint32_t address , int type){
 
 	if (gatherStats == 0)
 	{
@@ -208,12 +210,13 @@ int FTL_STATISTICS_GATHERING(int32_t address , int type){
 	return SUCCESS;
 }
 
-int32_t FTL_STATISTICS_QUERY(int32_t address, int scope , int type){
+uint32_t FTL_STATISTICS_QUERY	(uint32_t address, int scope , int type){
 	//PAGE_NB = is the number of pages in a block, BLOCK_NB is the number of blocks in a flash.
 	//The first address in the scope start at address 0.
 
-	int i , j , scopeFirstPage , planeNumber;
-	int32_t actionSum;
+	//int i , j , scopeFirstPage , planeNumber;
+	int i, j, scopeFirstPage;
+	uint32_t actionSum;
 	actionSum = 0;
 
 	scopeFirstPage = CALC_SCOPE_FIRST_PAGE(address, scope);
@@ -267,7 +270,7 @@ int32_t FTL_STATISTICS_QUERY(int32_t address, int scope , int type){
 }
 
 
-void FTL_RECORD_STATISTICS(){
+void FTL_RECORD_STATISTICS(void){
 	int scopeRange , i , queryResult , scope , address;
 
 	FILE* fp = fopen(STAT_PATH,"w");
@@ -369,7 +372,9 @@ void *STAT_LISTEN(void *socket){
 	while(stopListen){
 		memset(buffer,0,256);
 		while (buffer[0] == 0){
-			read(sock,buffer,255);
+			if(read(sock,buffer,255) <= 0){
+				perror("read");
+			}
 		}
 		printf("buffer %s\n",buffer);
 		if (strcmp(buffer, "start") == 0)

@@ -5,7 +5,7 @@
 
 #include "common.h"
 
-int32_t* inverse_page_mapping_table;
+uint32_t* inverse_page_mapping_table;
 void* inverse_block_mapping_table_start;
 
 void* empty_block_table_start;
@@ -19,7 +19,7 @@ unsigned int empty_block_table_index;
 void INIT_INVERSE_PAGE_MAPPING(void)
 {
 	/* Allocation Memory for Inverse Page Mapping Table */
-	inverse_page_mapping_table = (void*)calloc(PAGE_MAPPING_ENTRY_NB, sizeof(int32_t));
+	inverse_page_mapping_table = (void*)calloc(PAGE_MAPPING_ENTRY_NB, sizeof(uint32_t));
 	if(inverse_page_mapping_table == NULL){
 		printf("ERROR[%s] Calloc mapping table fail\n",__FUNCTION__);
 		return;
@@ -28,7 +28,7 @@ void INIT_INVERSE_PAGE_MAPPING(void)
 	/* Initialization Inverse Page Mapping Table */
 	FILE* fp = fopen("./data/inverse_page_mapping.dat","r");
 	if(fp != NULL){
-		if(fread(inverse_page_mapping_table, sizeof(int32_t), PAGE_MAPPING_ENTRY_NB, fp) <= 0)
+		if(fread(inverse_page_mapping_table, sizeof(uint32_t), PAGE_MAPPING_ENTRY_NB, fp) <= 0)
 			printf("ERROR[%s] fread\n",__FUNCTION__);
 		fclose(fp);
 	}
@@ -274,7 +274,7 @@ void TERM_INVERSE_PAGE_MAPPING(void)
 	}
 
 	/* Write The inverse page table to file */
-	if(fwrite(inverse_page_mapping_table, sizeof(int32_t), PAGE_MAPPING_ENTRY_NB, fp) <= 0)
+	if(fwrite(inverse_page_mapping_table, sizeof(uint32_t), PAGE_MAPPING_ENTRY_NB, fp) <= 0)
 		printf("ERROR[%s] fwrite\n",__FUNCTION__);
 	fclose(fp);
 
@@ -691,14 +691,14 @@ inverse_block_mapping_entry* GET_INVERSE_BLOCK_MAPPING_ENTRY(unsigned int phy_fl
 	return mapping_entry;
 }
 
-int32_t GET_INVERSE_MAPPING_INFO(int32_t ppn)
+uint32_t GET_INVERSE_MAPPING_INFO(uint32_t ppn)
 {
-	int32_t lpn = inverse_page_mapping_table[ppn];
+	uint32_t lpn = inverse_page_mapping_table[ppn];
 
 	return lpn;
 }
 
-int UPDATE_INVERSE_PAGE_MAPPING(int32_t ppn,  int32_t lpn)
+int UPDATE_INVERSE_PAGE_MAPPING(uint32_t ppn,  uint32_t lpn)
 {
 	inverse_page_mapping_table[ppn] = lpn;
 

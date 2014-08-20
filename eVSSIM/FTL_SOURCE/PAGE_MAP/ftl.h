@@ -7,7 +7,7 @@
 #define _FTL_H_
 
 #include "common.h"
-extern int32_t** mapping_stats_table;
+extern uint32_t** mapping_stats_table;
 void FTL_INIT(void);
 void FTL_TERM(void);
 
@@ -16,13 +16,13 @@ void FTL_TERM_STRATEGY(void);
 
 void FTL_READ(uint64_t id, unsigned int offset, unsigned int length);
 void FTL_WRITE(uint64_t id, unsigned int offset, unsigned int length);
-int FTL_COPYBACK(int32_t source, int32_t destination);
+int FTL_COPYBACK(uint32_t source, uint32_t destination);
 void FTL_CREATE(size_t size);
 void FTL_DELETE(uint64_t id);
 
 void FTL_INIT_STATS(void);
-int FTL_STATISTICS_GATHERING(int32_t page_nb , int type);
-int32_t FTL_STATISTICS_QUERY(int32_t address, int scope , int type);
+int FTL_STATISTICS_GATHERING(uint32_t page_nb , int type);
+uint32_t FTL_STATISTICS_QUERY(uint32_t address, int scope , int type);
 void FTL_RECORD_STATISTICS(void);
 void FTL_RESET_STATS(void);
 void FTL_TERM_STATS(void);

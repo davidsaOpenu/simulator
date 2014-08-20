@@ -32,8 +32,8 @@ distclean: clean
 		ssd_monitor uthash.h
 
 mklink:
-	ln -s ../QEMU/hw/ssd.h
-	ln -s ../QEMU/hw/ssd.c
+	ln -s ../SSD_MODULE/ssd.h
+	ln -s ../SSD_MODULE/ssd.c
 	ln -s ../SSD_MODULE/ssd_io_manager.h
 	ln -s ../SSD_MODULE/ssd_io_manager.c
 	ln -s ../SSD_MODULE/ssd_log_manager.h

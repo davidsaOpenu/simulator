@@ -10,7 +10,7 @@ extern unsigned int gc_count;
 
 void GC_CHECK(unsigned int phy_flash_nb, unsigned int phy_block_nb);
 
-int GARBAGE_COLLECTION(int mapping_index);
+int GARBAGE_COLLECTION(int mapping_index, int l2);
 int SELECT_VICTIM_BLOCK(unsigned int* phy_flash_nb, unsigned int* phy_block_nb);
 
 #endif

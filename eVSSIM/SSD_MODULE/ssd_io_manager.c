@@ -686,6 +686,9 @@ void SSD_REMAIN_IO_DELAY(int reg)
 	SSD_REG_ACCESS(reg);
 }
 
+//MIX
+int64_t qemu_overhead;
+
 void SSD_UPDATE_QEMU_OVERHEAD(int64_t delay)
 {
 	int i;
@@ -709,7 +712,7 @@ void SSD_UPDATE_QEMU_OVERHEAD(int64_t delay)
 	qemu_overhead -= diff;
 }
 
-int SSD_PAGE_COPYBACK(int32_t source, int32_t destination, int type){
+int SSD_PAGE_COPYBACK(uint32_t source, uint32_t destination, int type){
 
 	int flash_nb;
 	int source_plane, destination_plane;

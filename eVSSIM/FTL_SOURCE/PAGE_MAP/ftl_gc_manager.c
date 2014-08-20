@@ -17,26 +17,23 @@ void GC_CHECK(unsigned int phy_flash_nb, unsigned int phy_block_nb)
 	int mapping_index = plane_nb * FLASH_NB + phy_flash_nb;
 	
 	if(total_empty_block_nb < GC_THRESHOLD_BLOCK_NB){
+        int l2 = total_empty_block_nb < GC_L2_THRESHOLD_BLOCK_NB;
 		for(i=0; i<GC_VICTIM_NB; i++){
-			ret = GARBAGE_COLLECTION(mapping_index);
+			ret = GARBAGE_COLLECTION(mapping_index, l2);
 			if(ret == FAIL){
-                //printf("Garbage collection FAILED\n");
 				break;
 			}
-            else {
-                //printf("Garbage collection WORKED\n");
-            }
 		}
 	}
 }
 
-int GARBAGE_COLLECTION(int mapping_index)
+int GARBAGE_COLLECTION(int mapping_index, int l2)
 {
 	int i;
 	int ret;
-    int32_t lpn;
-	int32_t old_ppn;
-	int32_t new_ppn;
+	uint32_t lpn;
+	uint32_t old_ppn;
+	uint32_t new_ppn;
 
 	unsigned int victim_phy_flash_nb = FLASH_NB;
 	unsigned int victim_phy_block_nb = 0;
@@ -51,7 +48,7 @@ int GARBAGE_COLLECTION(int mapping_index)
 	if(ret == FAIL){
 #ifdef FTL_DEBUG
 		printf("[%s] There is no available victim block\n",__FUNCTION__);
-#endif
+#endif //FTL_DEBUG
 		return FAIL;
 	}
 
@@ -62,35 +59,27 @@ int GARBAGE_COLLECTION(int mapping_index)
 	for(i=0;i<PAGE_NB;i++){
 		if(valid_array[i]=='V'){
 
-			ret = GET_NEW_PAGE(VICTIM_INCHIP, mapping_index, &new_ppn);
-			if(ret == FAIL){
-				ret = GET_NEW_PAGE(VICTIM_OVERALL, EMPTY_TABLE_ENTRY_NB, &new_ppn);
-                if(ret == FAIL){
-				    printf("ERROR[%s]: GET_NEW_PAGE(VICTIM_OVERALL, EMPTY_TABLE_ENTRY_NB): failed\n",__FUNCTION__);
-                    return FAIL;
-                }
-                SSD_PAGE_READ(victim_phy_flash_nb, victim_phy_block_nb, i, i, GC_READ, -1);
-                SSD_PAGE_WRITE(CALC_FLASH(new_ppn), CALC_BLOCK(new_ppn), CALC_PAGE(new_ppn), i, GC_WRITE, -1);
-                old_ppn = victim_phy_flash_nb*PAGES_PER_FLASH + victim_phy_block_nb*PAGE_NB + i;
-                lpn = GET_INVERSE_MAPPING_INFO(old_ppn);
-                UPDATE_NEW_PAGE_MAPPING(lpn, new_ppn);
-			}
-            else {
-                ret = FTL_COPYBACK(victim_phy_flash_nb*PAGES_PER_FLASH + victim_phy_block_nb*PAGE_NB + i , new_ppn);
-                if (ret == FAIL) {
-                    printf("ERROR[%s] Copyback page\n",__FUNCTION__);
-                    return FAIL;
-                }
-            }
 
-            copy_page_nb++;
-            
-            
-            
-            
-            /*ret = GET_NEW_PAGE(VICTIM_INCHIP, mapping_index, &new_ppn);
+// This is original vssim code without copyback            
+//            ret = GET_NEW_PAGE(VICTIM_OVERALL, mapping_index, &new_ppn);
+//            if(ret == FAIL){
+//                printf("ERROR[%s] Get new page fail\n",__FUNCTION__);
+//                return FAIL;
+//            }
+//            SSD_PAGE_READ(victim_phy_flash_nb, victim_phy_block_nb, i, i, GC_READ, -1);
+//            SSD_PAGE_WRITE(CALC_FLASH(new_ppn), CALC_BLOCK(new_ppn), CALC_PAGE(new_ppn), i, GC_WRITE, -1);
+//
+//            old_ppn = victim_phy_flash_nb*PAGES_PER_FLASH + victim_phy_block_nb*PAGE_NB + i;
+//
+//            lpn = GET_INVERSE_MAPPING_INFO(old_ppn);
+//            UPDATE_NEW_PAGE_MAPPING(lpn, new_ppn);
+// End of original vssim code without copyback            
+
+
+
+			ret = GET_NEW_PAGE(VICTIM_INCHIP, mapping_index, &new_ppn);
             if(ret == FAIL){
-                if(0){
+                if(! l2){
 				    printf("ERROR[%s]: GET_NEW_PAGE(VICTIM_INCHIP, %d): failed\n",__FUNCTION__, mapping_index);
                     return FAIL;
                 }
@@ -120,8 +109,7 @@ int GARBAGE_COLLECTION(int mapping_index)
                 }
             }
 
-			copy_page_nb++;*/
-            
+			copy_page_nb++;
 		}
 	}
 

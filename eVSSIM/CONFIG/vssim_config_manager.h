@@ -7,6 +7,7 @@
 #define _CONFIG_MANAGER_H_
 
 #include "common.h"
+#include <limits.h>
 
 /* SSD Configuration */
 extern int SECTOR_SIZE;
@@ -55,12 +56,13 @@ extern double GC_THRESHOLD;			// added by js
 extern int GC_THRESHOLD_BLOCK_NB;		// added by js
 extern int GC_THRESHOLD_BLOCK_NB_EACH;
 extern int GC_VICTIM_NB;
+extern int GC_L2_THRESHOLD_BLOCK_NB;
 #endif
 
 /*Statistics*/
 extern int STAT_TYPE;
 extern int STAT_SCOPE;
-extern char STAT_PATH[1024];
+extern char STAT_PATH[PATH_MAX];
 void INIT_SSD_CONFIG(void);
 char* GET_FILE_NAME(void);
 
