@@ -69,29 +69,47 @@ namespace {
     INSTANTIATE_TEST_CASE_P(DiskSize, OccupySpaceStressTest, ::testing::Values(512 /*MB*/, 1024 /*1G*/, 4096 /*4G*/)); //Values are in MB
 
     TEST_P(OccupySpaceStressTest, SequentialOnePageAtTimeWrite) {
+        printf("SequentialOnePageAtTimeWrite test started\n");
+        
         for(int x=0; x<8; x++){
+            printf("Test x=%d started\n", x);
             for(size_t p=0; p < pages_; p++){
                 ASSERT_EQ(SUCCESS, _FTL_WRITE(p * 4096, 0, 1));
             }
+            printf("Test x=%d ended\n", x);
         }
+        
+        printf("SequentialOnePageAtTimeWrite test ended\n");
     }
 
     TEST_P(OccupySpaceStressTest, RandomOnePageAtTimeWrite) {
+        printf("RandomOnePageAtTimeWrite test started\n");
+        
         for(int x=0; x<8; x++){
+            printf("Test x=%d started\n", x);
             for(size_t p=0; p < pages_; p++){
                 ASSERT_EQ(SUCCESS, _FTL_WRITE((rand() % pages_) * 4096, 0, 1));
             }
+            printf("Test x=%d ended\n", x);
         }
+        
+        printf("RandomOnePageAtTimeWrite test ended\n");
     }
 
     TEST_P(OccupySpaceStressTest, MixSequentialAndRandomOnePageAtTimeWrite) {
+        printf("MixSequentialAndRandomOnePageAtTimeWrite test started\n");
+        
         for(int x=0; x<2; x++){
+            printf("Test x=%d started\n", x);
             for(size_t p=0; p < pages_; p++){
                 ASSERT_EQ(SUCCESS, _FTL_WRITE((rand() % pages_) * 4096, 0, 1));
             }
             for(size_t p=0; p < pages_; p++){
                 ASSERT_EQ(SUCCESS, _FTL_WRITE(p * 4096, 0, 1));
             }
+            printf("Test x=%d ended\n", x);
         }
+        
+        printf("MixSequentialAndRandomOnePageAtTimeWrite test ended\n");
     }
 } //namespace
