@@ -96,7 +96,7 @@ int GARBAGE_COLLECTION(int mapping_index, int l2)
                 UPDATE_NEW_PAGE_MAPPING(lpn, new_ppn);
             }else{
                 // Got new page on-chip, can do copy back
-			    ret = _FTL_COPYBACK(victim_phy_flash_nb*PAGES_PER_FLASH + victim_phy_block_nb*PAGE_NB + i , new_ppn);
+			    ret = FTL_COPYBACK(victim_phy_flash_nb*PAGES_PER_FLASH + victim_phy_block_nb*PAGE_NB + i , new_ppn);
                 if(ret == FAIL){
 #ifdef FTL_DEBUG
                     printf("ERROR[%s]: failed to copyback\n",__FUNCTION__);

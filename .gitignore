@@ -22,6 +22,8 @@ eVSSIM/QEMU/libhw32/Makefile
 eVSSIM/QEMU/libhw64/Makefile
 eVSSIM/QEMU/x86_64-softmmu/Makefile
 eVSSIM/QEMU/x86_64-softmmu/config.mak
+eVSSIM/QEMU/roms/seabios/config.mak
+eVSSIM/QEMU/roms/vgabios/config.mak
 
 # qemu executables and files
 eVSSIM/QEMU/qemu-img
@@ -32,6 +34,7 @@ eVSSIM/QEMU/x86_64-softmmu/gdbstub-xml.c
 eVSSIM/QEMU/x86_64-softmmu/qemu-monitor.h
 eVSSIM/QEMU/x86_64-softmmu/qemu-options.h
 eVSSIM/QEMU/x86_64-softmmu/qemu-system-x86_64
+eVSSIM/QEMU/libcacard/vscclient
 
 # symlinks
 eVSSIM/QEMU/Makefile.target
@@ -61,6 +64,8 @@ eVSSIM/QEMU/x86_64-softmmu/data/ssd.conf
 eVSSIM/QEMU/hw/vssim_config_manager.h
 eVSSIM/QEMU/hw/vssim_config_manager.c
 eVSSIM/QEMU/hw/uthash.h
+eVSSIM/QEMU/hw/ssd.c
+eVSSIM/QEMU/hw/ssd.h
 
 # unit test files
 eVSSIM/tests/test_*.txt
