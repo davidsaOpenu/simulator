@@ -229,8 +229,9 @@ stored_object *create_object(size_t size)
     // initialize to stored_object struct with size and initial pages
     obj->id = current_id++;
     obj->size = 0;
+    obj->pages = NULL;
 
-    for(; size > 0; size -= PAGE_SIZE)
+    while(size > obj->size)
     {
         if (GET_NEW_PAGE(VICTIM_OVERALL, EMPTY_TABLE_ENTRY_NB, &page_id) == FAIL)
         {
