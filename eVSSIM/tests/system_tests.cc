@@ -48,6 +48,7 @@ namespace {
                     "STAT_PATH /tmp/stat.csv\n";
                 ssd_conf.close();
                 SSD_INIT();
+                INIT_OBJ_STRATEGY();
             }
             virtual void TearDown() {
                 SSD_TERM();
@@ -66,25 +67,18 @@ namespace {
             size_t pages_;
     }; // OccupySpaceStressTest
 
-    INSTANTIATE_TEST_CASE_P(DiskSize, OccupySpaceStressTest, ::testing::Values(512 /*MB*/ , 1024 /*1G*/, 4096 /*4G*/)
-); //Values are in MB
+    INSTANTIATE_TEST_CASE_P(DiskSize, OccupySpaceStressTest, ::testing::Values(512 /*MB*/ ,1024 /*1G*/, 4096 /*4GB*/)); //Values are in MB
 
     TEST_P(OccupySpaceStressTest, SimpleObjectCreation) {
         printf("SimpleObjectCreation test started\n");
-        
-        for(int x=0; x<8; x++){
-            printf("Page no.:%ld\nPage size:%d\n",PAGES_IN_SSD,PAGE_SIZE);
-            printf("Test x=%d started\n", x);
-            // Fill the disk with 1/2-page objects
-            for(size_t p=0; p < PAGES_IN_SSD; p++){
-                //printf("%ld/%ld\n",(long)p,PAGES_IN_SSD);
-                ASSERT_LT(0, _FTL_OBJ_CREATE(PAGE_SIZE / 2));
-            }
-            // At this step there shouldn't be any free page
-            ASSERT_EQ(0, _FTL_OBJ_CREATE(PAGE_SIZE / 2));
-            printf("Test x=%d ended\n", x);
+        printf("Page no.:%ld\nPage size:%d\n",PAGES_IN_SSD,PAGE_SIZE);
+        // Fill the disk with 1/2-page objects
+        for(size_t p=0; p < PAGES_IN_SSD; p++){
+            //printf("%ld/%ld\n",(long)p,PAGES_IN_SSD);
+            ASSERT_LT(0, _FTL_OBJ_CREATE(PAGE_SIZE / 2));
         }
-        
+        // At this step there shouldn't be any free page
+        ASSERT_EQ(0, _FTL_OBJ_CREATE(PAGE_SIZE / 2));      
         printf("SequentialOnePageAtTimeWrite test ended\n");
     }
 

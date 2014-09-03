@@ -5,6 +5,11 @@
 stored_object *objects_table = NULL;
 object_id_t current_id;
 
+void INIT_OBJ_STRATEGY()
+{
+    current_id = 1; //0 marks failure...
+}
+
 int _FTL_OBJ_READ(object_id_t object_id, unsigned int offset, unsigned int length)
 {
     stored_object *object;
@@ -191,8 +196,10 @@ int _FTL_OBJ_CREATE(size_t size)
     
     new_object = create_object(size);
     
-    if (new_object == NULL)
+    if (new_object == NULL) {
+        printf("_FTL_OBJ_CREATE\n");
         return FAIL;
+    }
     
     // need to return the new id so the os will know how to talk to us about it
     return new_object->id;
@@ -235,6 +242,7 @@ stored_object *create_object(size_t size)
     {
         if (GET_NEW_PAGE(VICTIM_OVERALL, EMPTY_TABLE_ENTRY_NB, &page_id) == FAIL)
         {
+            printf("create_object");
             // cleanup just in case we managed to do anything up until now
             remove_object(obj);
             return NULL;
