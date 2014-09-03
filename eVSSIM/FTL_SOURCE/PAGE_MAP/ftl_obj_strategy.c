@@ -24,13 +24,17 @@ int _FTL_OBJ_READ(object_id_t object_id, unsigned int offset, unsigned int lengt
     if (object == NULL)
         return FAIL;
     // object not big enough
-    if (object->size < (offset *  + length))
+    if (object->size < (offset + length))
         return FAIL;
     
-    current_page = page_by_offset(object, offset);
+    if(!(current_page = page_by_offset(object, offset)))
+    {
+        printf("Error[%s] %u lookup page by offset failed \n", __FUNCTION__, current_page->page_id);
+        return FAIL;
+    }
     
     // just calculate the overhead of allocating the request. io_page_nb will be the total number of pages we're gonna read
-	io_alloc_overhead = ALLOC_IO_REQUEST(current_page->page_id, length, READ, &io_page_nb);
+	io_alloc_overhead = ALLOC_IO_REQUEST(current_page->page_id * SECTORS_PER_PAGE, length, READ, &io_page_nb);
     
     for (curr_io_page_nb = 0; curr_io_page_nb < io_page_nb; curr_io_page_nb++)
     {
