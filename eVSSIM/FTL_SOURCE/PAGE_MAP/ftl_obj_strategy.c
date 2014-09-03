@@ -88,7 +88,7 @@ int _FTL_OBJ_WRITE(object_id_t object_id, unsigned int offset, unsigned int leng
     io_alloc_overhead = ALLOC_IO_REQUEST(offset, length, WRITE, &io_page_nb);
     
     // if the offset is past the current size of the stored_object we need to append new pages until we can start writing
-    while ((offset - PAGE_SIZE) > object->size)
+    while (offset + length > object->size + PAGE_SIZE)
     {
         if (GET_NEW_PAGE(VICTIM_OVERALL, EMPTY_TABLE_ENTRY_NB, &page_id) == FAIL)
         {
@@ -197,7 +197,6 @@ int _FTL_OBJ_CREATE(size_t size)
     new_object = create_object(size);
     
     if (new_object == NULL) {
-        printf("_FTL_OBJ_CREATE\n");
         return FAIL;
     }
     
@@ -242,7 +241,6 @@ stored_object *create_object(size_t size)
     {
         if (GET_NEW_PAGE(VICTIM_OVERALL, EMPTY_TABLE_ENTRY_NB, &page_id) == FAIL)
         {
-            printf("create_object");
             // cleanup just in case we managed to do anything up until now
             remove_object(obj);
             return NULL;

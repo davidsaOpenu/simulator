@@ -69,8 +69,9 @@ namespace {
 
     INSTANTIATE_TEST_CASE_P(DiskSize, OccupySpaceStressTest, ::testing::Values(512 /*MB*/ ,1024 /*1G*/, 4096 /*4GB*/)); //Values are in MB
 
-    TEST_P(OccupySpaceStressTest, SimpleObjectCreation) {
-        printf("SimpleObjectCreation test started\n");
+    
+    TEST_P(OccupySpaceStressTest, SimpleObjectCreate) {
+        printf("SimpleObjectCreate test started\n");
         printf("Page no.:%ld\nPage size:%d\n",PAGES_IN_SSD,PAGE_SIZE);
         // Fill the disk with 1/2-page objects
         for(size_t p=0; p < PAGES_IN_SSD; p++){
@@ -79,8 +80,42 @@ namespace {
         }
         // At this step there shouldn't be any free page
         ASSERT_EQ(0, _FTL_OBJ_CREATE(PAGE_SIZE / 2));      
-        printf("SequentialOnePageAtTimeWrite test ended\n");
+        printf("SimpleObjectCreate test ended\n");
     }
+
+    TEST_P(OccupySpaceStressTest, SimpleObjectCreateWrite) {
+        printf("SimpleObjectCreateWriteRead test started\n");
+        printf("Page no.:%ld\nPage size:%d\n",PAGES_IN_SSD,PAGE_SIZE);
+        // Fill 50% of the disk with 1/2-page objects
+        for(size_t p=0; p < PAGES_IN_SSD/2; p++){
+            ASSERT_LT(0, _FTL_OBJ_CREATE(PAGE_SIZE / 2));
+        }
+        // Write PAGE_SIZE data to each one
+        for(size_t p=0; p < PAGES_IN_SSD/2; p++){
+            ASSERT_EQ(SUCCESS, _FTL_OBJ_WRITE(p+1,0,PAGE_SIZE));
+        }
+        printf("SimpleObjectCreateWrite test ended\n");
+    }
+
+    TEST_P(OccupySpaceStressTest, SimpleObjectCreateWriteRead) {
+        printf("SimpleObjectCreateWriteRead test started\n");
+        printf("Page no.:%ld\nPage size:%d\n",PAGES_IN_SSD,PAGE_SIZE);
+        // Fill 50% of the disk with 1/2-page objects
+        for(size_t p=0; p < PAGES_IN_SSD/2; p++){
+            ASSERT_LT(0, _FTL_OBJ_CREATE(PAGE_SIZE / 2));
+        }
+        // Write PAGE_SIZE data to each one
+        for(size_t p=0; p < PAGES_IN_SSD/2; p++){
+            ASSERT_EQ(SUCCESS, _FTL_OBJ_WRITE(p+1,0,PAGE_SIZE));
+        }
+        // Read PAGE_SIZE data from each one
+        for(size_t p=0; p < PAGES_IN_SSD/2; p++){
+            ASSERT_EQ(SUCCESS, _FTL_OBJ_READ(p+1,0,PAGE_SIZE));
+        }
+        printf("SimpleObjectCreateWriteRead test ended\n");
+    }
+
+
 
 
     /*
