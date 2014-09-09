@@ -369,7 +369,9 @@ void *STAT_LISTEN(void *socket){
 		memset(buffer,0,256);
 		while (buffer[0] == 0){
 			if(read(sock,buffer,255) <= 0){
+#ifndef GTEST
 				perror("read");
+#endif
 			}
 		}
 		printf("buffer %s\n",buffer);
