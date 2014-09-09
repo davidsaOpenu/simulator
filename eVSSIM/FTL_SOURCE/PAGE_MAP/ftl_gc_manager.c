@@ -10,13 +10,13 @@ unsigned int gc_count = 0;
 int fail_cnt = 0;
 extern double ssd_util;
 
-void GC_CHECK(unsigned int phy_flash_nb, unsigned int phy_block_nb)
+void GC_CHECK(unsigned int phy_flash_nb, unsigned int phy_block_nb, bool force)
 {
 	int i, ret;
 	int plane_nb = phy_block_nb % PLANES_PER_FLASH;
 	int mapping_index = plane_nb * FLASH_NB + phy_flash_nb;
 	
-	if(total_empty_block_nb < GC_THRESHOLD_BLOCK_NB){
+	if(force || total_empty_block_nb < GC_THRESHOLD_BLOCK_NB){
         int l2 = total_empty_block_nb < GC_L2_THRESHOLD_BLOCK_NB;
 		for(i=0; i<GC_VICTIM_NB; i++){
 			ret = GARBAGE_COLLECTION(mapping_index, l2);
@@ -146,7 +146,9 @@ int SELECT_VICTIM_BLOCK(unsigned int* phy_flash_nb, unsigned int* phy_block_nb)
 	victim_block_entry* victim_block = NULL;
 
 	if(total_victim_block_nb == 0){
+#ifdef FTL_DEBUG
 		printf("ERROR[SELECT_VICTIM_BLOCK] There is no victim block\n");
+#endif //FTL_DEBUG
 		return FAIL;
 	}
 

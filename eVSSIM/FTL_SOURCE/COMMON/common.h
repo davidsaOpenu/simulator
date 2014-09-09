@@ -12,6 +12,7 @@
 #include <malloc.h>
 #include <stdint.h>
 #include <sys/time.h>
+#include <stdbool.h>
 #include "ftl_type.h"
 
 /* FTL */

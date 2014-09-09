@@ -4,6 +4,7 @@ extern "C" {
 #include "ftl.h"
 #include "ftl_obj_strategy.h"
 #include "ftl_sect_strategy.h"
+#include "uthash.h"
 }
 extern "C" int g_init;
 extern "C" int g_server_create;
@@ -79,12 +80,12 @@ namespace {
             ASSERT_LT(0, _FTL_OBJ_CREATE(PAGE_SIZE / 2));
         }
         // At this step there shouldn't be any free page
-        ASSERT_EQ(0, _FTL_OBJ_CREATE(PAGE_SIZE / 2));      
+        ASSERT_EQ(FAIL, _FTL_OBJ_CREATE(PAGE_SIZE / 2));      
         printf("SimpleObjectCreate test ended\n");
     }
 
     TEST_P(OccupySpaceStressTest, SimpleObjectCreateWrite) {
-        printf("SimpleObjectCreateWriteRead test started\n");
+        printf("SimpleObjectCreateWrite test started\n");
         printf("Page no.:%ld\nPage size:%d\n",PAGES_IN_SSD,PAGE_SIZE);
         // Fill 50% of the disk with 1/2-page objects
         for(size_t p=0; p < PAGES_IN_SSD/2; p++){
@@ -98,7 +99,7 @@ namespace {
     }
 
     TEST_P(OccupySpaceStressTest, SimpleObjectCreateRead) {
-        printf("SimpleObjectCreateWriteRead test started\n");
+        printf("SimpleObjectCreateRead test started\n");
         printf("Page no.:%ld\nPage size:%d\n",PAGES_IN_SSD,PAGE_SIZE);
         // Fill 50% of the disk with 1/2-page objects
         for(size_t p=0; p < PAGES_IN_SSD/2; p++){
@@ -110,10 +111,41 @@ namespace {
         }
         printf("SimpleObjectCreateRead test ended\n");
     }
+    
+    TEST_P(OccupySpaceStressTest, SimpleObjectCreateDelete) {
+        printf("SimpleObjectCreateDelete test started\n");
+        printf("Page no,:%ld\nPage size:%d\n",PAGES_IN_SSD, PAGE_SIZE);
+        
+        // used to keep all the assigned ids
+        int objects[PAGES_IN_SSD];
+        
+        // Fill the disk with 1/2-page objects
+        for(int p=0; p < PAGES_IN_SSD; p++){
+            int new_obj = _FTL_OBJ_CREATE(PAGE_SIZE / 2);
+            ASSERT_LT(0, new_obj);
+            objects[p] = new_obj;
+        }
+        
+        // Now make sure we can't create a new object, aka the disk is full
+        ASSERT_EQ(FAIL, _FTL_OBJ_CREATE(PAGE_SIZE / 2)); 
+        
+        // Delete all objects
+        for (int p=0; p < PAGES_IN_SSD; p++) {
+            ASSERT_EQ(SUCCESS, _FTL_OBJ_DELETE(objects[p]));
+        }
+        
+        // And try to fill the disk again with the same number of 1/2-page sized objects
+        for(int p=0; p < PAGES_IN_SSD; p++){
+            ASSERT_LT(0, _FTL_OBJ_CREATE(PAGE_SIZE / 2));
+        }
+        
+        printf("SimpleObjectCreateDelete test ended\n");
+    }
 
 
 
 
+    // ORIGINAL SECTOR-BASED TESTS
     /*
     TEST_P(OccupySpaceStressTest, SequentialOnePageAtTimeWrite) {
         printf("SequentialOnePageAtTimeWrite test started\n");

@@ -141,7 +141,7 @@ int _FTL_OBJ_WRITE(object_id_t object_id, unsigned int offset, unsigned int leng
 #ifdef GC_ON
         // must improve this because it is very possible that we will do multiple GCs on the same flash chip and block
         // probably gonna add an array to hold the unique ones and in the end GC all of them
-        GC_CHECK(CALC_FLASH(page_id), CALC_BLOCK(page_id));
+        GC_CHECK(CALC_FLASH(page_id), CALC_BLOCK(page_id), false);
 #endif
         
 #ifdef FTL_DEBUG
@@ -277,7 +277,7 @@ int remove_object(stored_object *object)
         
 #ifdef GC_ON
         // should we really perform GC for every page? we know we are invalidating a lot of them now...
-        GC_CHECK(CALC_FLASH(current_page->page_id), CALC_BLOCK(current_page->page_id));
+        GC_CHECK(CALC_FLASH(current_page->page_id), CALC_BLOCK(current_page->page_id), true);
 #endif
 
         // get next page and free the current one
