@@ -70,6 +70,9 @@ void FTL_INIT_STRATEGY(void)
 		storage_strategy->FTL_COPYBACK = _FTL_OBJ_COPYBACK;
 		storage_strategy->FTL_CREATE = _FTL_OBJ_CREATE;
 		storage_strategy->FTL_DELETE = _FTL_OBJ_DELETE;
+        
+        // object strategy needs initializing, unlike current other strategies
+        INIT_OBJ_STRATEGY();
 	}
 	else // default behaviour, if strategy was not defined or is invalid or whatever
 	{

@@ -46,10 +46,10 @@ namespace {
                     "CHANNEL_NB 4\n"
                     "STAT_TYPE 15\n"
                     "STAT_SCOPE 62\n"
-                    "STAT_PATH /tmp/stat.csv\n";
+                    "STAT_PATH /tmp/stat.csv\n"
+                    "STORAGE_STRATEGY 2\n"; // object strategy
                 ssd_conf.close();
                 SSD_INIT();
-                INIT_OBJ_STRATEGY();
                 object_size_ = GetParam();
                 object_size_bytes_ = object_size_ * 1024 * 1024;
                 int object_pages = (int)ceil(1.0 * object_size_bytes_ / PAGE_SIZE);
