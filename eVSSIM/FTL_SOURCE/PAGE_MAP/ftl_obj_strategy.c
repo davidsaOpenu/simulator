@@ -92,7 +92,7 @@ int _FTL_OBJ_WRITE(object_id_t object_id, unsigned int offset, unsigned int leng
     io_alloc_overhead = ALLOC_IO_REQUEST(offset, length, WRITE, &io_page_nb);
     
     // if the offset is past the current size of the stored_object we need to append new pages until we can start writing
-    while (offset + length > object->size + PAGE_SIZE)
+    while (offset > object->size)
     {
         if (GET_NEW_PAGE(VICTIM_OVERALL, EMPTY_TABLE_ENTRY_NB, &page_id) == FAIL)
         {
@@ -127,6 +127,13 @@ int _FTL_OBJ_WRITE(object_id_t object_id, unsigned int offset, unsigned int leng
         {
             // invalidate the old physical page and replace the page_node's page
             UPDATE_INVERSE_BLOCK_VALIDITY(CALC_FLASH(current_page->page_id), CALC_BLOCK(current_page->page_id), CALC_PAGE(current_page->page_id), INVALID);
+            
+#ifdef GC_ON
+            // must improve this because it is very possible that we will do multiple GCs on the same flash chip and block
+            // probably gonna add an array to hold the unique ones and in the end GC all of them
+            GC_CHECK(CALC_FLASH(current_page->page_id), CALC_BLOCK(current_page->page_id), false);
+#endif
+            
             current_page->page_id = page_id;
         }
         
@@ -137,12 +144,6 @@ int _FTL_OBJ_WRITE(object_id_t object_id, unsigned int offset, unsigned int leng
 		{
 			FTL_STATISTICS_GATHERING(page_id , PHYSICAL_WRITE);
 		}
-        
-#ifdef GC_ON
-        // must improve this because it is very possible that we will do multiple GCs on the same flash chip and block
-        // probably gonna add an array to hold the unique ones and in the end GC all of them
-        GC_CHECK(CALC_FLASH(page_id), CALC_BLOCK(page_id), false);
-#endif
         
 #ifdef FTL_DEBUG
         if (ret == FAIL)
@@ -311,7 +312,12 @@ page_node *add_page_list(page_node *p, int32_t page_id) {
 page_node *add_page(stored_object *object, int32_t page_id)
 {
     object->size += PAGE_SIZE;
-    return object->pages = add_page_list(object->pages,page_id);
+    object->pages = add_page_list(object->pages,page_id);
+    
+    page_node *p = object->pages;
+    while (p != NULL && p->next != NULL)
+        p = p->next;
+    return p;
 }
 
 page_node *page_by_offset(stored_object *object, unsigned int offset)
