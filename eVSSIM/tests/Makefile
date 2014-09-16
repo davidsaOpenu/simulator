@@ -1,4 +1,4 @@
-OBJ = system_tests.o
+OBJ = system_tests.o object_tests.o sector_tests.o
 
 VSSIM_OBJ = vssim_config_manager.o \
 			ftl.o ftl_mapping_manager.o ftl_inverse_mapping_manager.o \
@@ -9,10 +9,13 @@ VSSIM_OBJ = vssim_config_manager.o \
 #CFLAGS = -I/opt/gtest/include -g -DGTEST -DFTL_DEBUG
 CFLAGS = -I/opt/gtest/include -g -DGTEST
 
-all: unit_tests
+all: sector_tests object_tests
 
-unit_tests: $(OBJ) $(VSSIM_OBJ)
-	g++ -Wall -o unit_tests $(OBJ) $(VSSIM_OBJ) -lpthread -lgtest -lgtest_main
+sector_tests: sector_tests.o $(VSSIM_OBJ)
+	g++ -Wall -o sector_tests sector_tests.o $(VSSIM_OBJ) -lpthread -lgtest -lgtest_main
+
+object_tests: object_tests.o $(VSSIM_OBJ)
+	g++ -Wall -o object_tests object_tests.o $(VSSIM_OBJ) -lpthread -lgtest -lgtest_main
 
 %.o: %.cc
 	g++ -Wall $(CFLAGS) -c $<
@@ -23,7 +26,7 @@ unit_tests: $(OBJ) $(VSSIM_OBJ)
 .PHONY: clean distclean mklink
 
 clean:
-	-rm unit_tests $(OBJ) $(VSSIM_OBJ) data/*
+	-rm unit_tests object_tests sector_tests system_tests.o object_tests.o sector_tests.o $(VSSIM_OBJ) data/*
 
 distclean: clean
 	rm ssd.{h,c} ssd_io_manager.{h,c} ssd_log_manager.{h,c} ssd_util.h common.h \

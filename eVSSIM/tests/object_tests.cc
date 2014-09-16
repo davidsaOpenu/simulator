@@ -21,8 +21,7 @@ extern "C" int g_init_log_server;
 using namespace std;
 
 namespace {
-
-    class OccupySpaceStressTest : public ::testing::TestWithParam<size_t> {
+    class ObjectUnitTest : public ::testing::TestWithParam<size_t> {
         public:
             virtual void SetUp() {
                 size_t mb = 512;//GetParam();
@@ -76,9 +75,9 @@ namespace {
             int objects_in_ssd_;
     }; // OccupySpaceStressTest
 
-    INSTANTIATE_TEST_CASE_P(DiskSize, OccupySpaceStressTest, ::testing::Values(1 ,2 ,4 ,6)); //Values are in MB !!
+    INSTANTIATE_TEST_CASE_P(DiskSize, ObjectUnitTest, ::testing::Values(1 ,2 ,4 ,6)); //Values are in MB !!
     
-    TEST_P(OccupySpaceStressTest, SimpleObjectCreate) {
+    TEST_P(ObjectUnitTest, SimpleObjectCreate) {
         printf("SimpleObjectCreate test started\n");
         printf("Page no.:%ld\nPage size:%d\n",PAGES_IN_SSD,PAGE_SIZE);
         printf("Object size: %d MB\n",object_size_);
@@ -92,7 +91,7 @@ namespace {
         printf("SimpleObjectCreate test ended\n");
     }
 
-    TEST_P(OccupySpaceStressTest, SimpleObjectCreateWrite) {
+    TEST_P(ObjectUnitTest, SimpleObjectCreateWrite) {
         printf("SimpleObjectCreateWrite test started\n");
         printf("Page no.:%ld\nPage size:%d\n",PAGES_IN_SSD,PAGE_SIZE);
         printf("Object size: %d MB\n",object_size_);
@@ -113,7 +112,7 @@ namespace {
         printf("SimpleObjectCreateWrite test ended\n");
     }
 
-    TEST_P(OccupySpaceStressTest, SimpleObjectCreateRead) {
+    TEST_P(ObjectUnitTest, SimpleObjectCreateRead) {
         printf("SimpleObjectCreateRead test started\n");
         printf("Page no.:%ld\nPage size:%d\n",PAGES_IN_SSD,PAGE_SIZE);
         printf("Object size: %d MB\n",object_size_);
@@ -134,7 +133,7 @@ namespace {
         printf("SimpleObjectCreateRead test ended\n");
     }
     
-    TEST_P(OccupySpaceStressTest, SimpleObjectCreateDelete) {
+    TEST_P(ObjectUnitTest, SimpleObjectCreateDelete) {
         printf("SimpleObjectCreateDelete test started\n");
         printf("Page no.:%ld\nPage size:%d\n",PAGES_IN_SSD,PAGE_SIZE);
         printf("Object size: %d MB\n",object_size_);
@@ -165,7 +164,7 @@ namespace {
         printf("SimpleObjectCreateDelete test ended\n");
     }
 
-    TEST_P(OccupySpaceStressTest, ObjectGrowthTest) {
+    TEST_P(ObjectUnitTest, ObjectGrowthTest) {
         printf("ObjectGrowth test started\n");
         printf("Page no.:%ld\nPage size:%d\n",PAGES_IN_SSD,PAGE_SIZE);
         printf("Object size: %d MB\n",object_size_);
@@ -184,55 +183,4 @@ namespace {
         
         printf("ObjectGrowth test ended\n");
     }
-
-
-
-
-    // ORIGINAL SECTOR-BASED TESTS
-    /*
-    TEST_P(OccupySpaceStressTest, SequentialOnePageAtTimeWrite) {
-        printf("SequentialOnePageAtTimeWrite test started\n");
-        
-        for(int x=0; x<8; x++){
-            printf("Test x=%d started\n", x);
-            for(size_t p=0; p < pages_; p++){
-                ASSERT_EQ(SUCCESS, _FTL_WRITE(p * 4096, 0, 1));
-            }
-            printf("Test x=%d ended\n", x);
-        }
-        
-        printf("SequentialOnePageAtTimeWrite test ended\n");
-    }
-
-    TEST_P(OccupySpaceStressTest, RandomOnePageAtTimeWrite) {
-        printf("RandomOnePageAtTimeWrite test started\n");
-        
-        for(int x=0; x<8; x++){
-            printf("Test x=%d started\n", x);
-            for(size_t p=0; p < pages_; p++){
-                ASSERT_EQ(SUCCESS, _FTL_WRITE((rand() % pages_) * 4096, 0, 1));
-            }
-            printf("Test x=%d ended\n", x);
-        }
-        
-        printf("RandomOnePageAtTimeWrite test ended\n");
-    }
-
-    TEST_P(OccupySpaceStressTest, MixSequentialAndRandomOnePageAtTimeWrite) {
-        printf("MixSequentialAndRandomOnePageAtTimeWrite test started\n");
-        
-        for(int x=0; x<2; x++){
-            printf("Test x=%d started\n", x);
-            for(size_t p=0; p < pages_; p++){
-                ASSERT_EQ(SUCCESS, _FTL_WRITE((rand() % pages_) * 4096, 0, 1));
-            }
-            for(size_t p=0; p < pages_; p++){
-                ASSERT_EQ(SUCCESS, _FTL_WRITE(p * 4096, 0, 1));
-            }
-            printf("Test x=%d ended\n", x);
-        }
-        
-        printf("MixSequentialAndRandomOnePageAtTimeWrite test ended\n");
-    }
-    */
 } //namespace
