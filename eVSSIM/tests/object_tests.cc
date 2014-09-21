@@ -51,8 +51,7 @@ namespace {
                 ssd_conf.close();
                 SSD_INIT();
                 object_size_ = GetParam();
-                object_size_bytes_ = object_size_ * 1024 * 1024;
-                int object_pages = (int)ceil(1.0 * object_size_bytes_ / PAGE_SIZE);
+                int object_pages = (int)ceil(1.0 * object_size_ / PAGE_SIZE);
                 objects_in_ssd_ = (int)(PAGES_IN_SSD / object_pages);
             }
             virtual void TearDown() {
@@ -71,37 +70,39 @@ namespace {
         protected:
             size_t pages_;
             int object_size_;
-            unsigned int object_size_bytes_;
             int objects_in_ssd_;
     }; // OccupySpaceStressTest
 
-    INSTANTIATE_TEST_CASE_P(DiskSize, ObjectUnitTest, ::testing::Values(1 ,2 ,4 ,6)); //Values are in MB !!
+    INSTANTIATE_TEST_CASE_P(DiskSize, ObjectUnitTest, ::testing::Values(2048, // 1/2 page
+                                                                        6144, // 1 1/2 pages
+                                                                        2 * 1024 * 1024, // 2 MB
+                                                                        6 * 1024 * 1024)); // 6 MB
     
     TEST_P(ObjectUnitTest, SimpleObjectCreate) {
         printf("SimpleObjectCreate test started\n");
         printf("Page no.:%ld\nPage size:%d\n",PAGES_IN_SSD,PAGE_SIZE);
-        printf("Object size: %d MB\n",object_size_);
+        printf("Object size: %d bytes\n",object_size_);
         // Fill the disk with objects
         for(size_t p=0; p < objects_in_ssd_; p++){
             //printf("%ld/%ld\n",(long)p,PAGES_IN_SSD);
-            ASSERT_LT(0, _FTL_OBJ_CREATE(object_size_bytes_));
+            ASSERT_LT(0, _FTL_OBJ_CREATE(object_size_));
         }
         // At this step there shouldn't be any free page
-        ASSERT_EQ(FAIL, _FTL_OBJ_CREATE(object_size_bytes_));      
+        ASSERT_EQ(FAIL, _FTL_OBJ_CREATE(object_size_));      
         printf("SimpleObjectCreate test ended\n");
     }
 
     TEST_P(ObjectUnitTest, SimpleObjectCreateWrite) {
         printf("SimpleObjectCreateWrite test started\n");
         printf("Page no.:%ld\nPage size:%d\n",PAGES_IN_SSD,PAGE_SIZE);
-        printf("Object size: %d MB\n",object_size_);
+        printf("Object size: %d bytes\n",object_size_);
 
         // used to keep all the assigned ids
         int objects[objects_in_ssd_];
 
         // Fill 50% of the disk with objects
         for(int p=0; p < objects_in_ssd_ / 2; p++){
-            int new_obj = _FTL_OBJ_CREATE(object_size_bytes_);
+            int new_obj = _FTL_OBJ_CREATE(object_size_);
             ASSERT_LT(0, new_obj);
             objects[p] = new_obj;
         }
@@ -115,14 +116,14 @@ namespace {
     TEST_P(ObjectUnitTest, SimpleObjectCreateRead) {
         printf("SimpleObjectCreateRead test started\n");
         printf("Page no.:%ld\nPage size:%d\n",PAGES_IN_SSD,PAGE_SIZE);
-        printf("Object size: %d MB\n",object_size_);
+        printf("Object size: %d bytes\n",object_size_);
 
         // used to keep all the assigned ids
         int objects[objects_in_ssd_];
 
         // Fill 50% of the disk with objects
         for(int p=0; p < objects_in_ssd_/2; p++){
-            int new_obj = _FTL_OBJ_CREATE(object_size_bytes_);
+            int new_obj = _FTL_OBJ_CREATE(object_size_);
             ASSERT_LT(0, new_obj);
             objects[p] = new_obj;
         }
@@ -136,20 +137,20 @@ namespace {
     TEST_P(ObjectUnitTest, SimpleObjectCreateDelete) {
         printf("SimpleObjectCreateDelete test started\n");
         printf("Page no.:%ld\nPage size:%d\n",PAGES_IN_SSD,PAGE_SIZE);
-        printf("Object size: %d MB\n",object_size_);
+        printf("Object size: %d bytes\n",object_size_);
         
         // used to keep all the assigned ids
         int objects[objects_in_ssd_];
         
         // Fill the disk with objects
         for(int p=0; p < objects_in_ssd_; p++){
-            int new_obj = _FTL_OBJ_CREATE(object_size_bytes_);
+            int new_obj = _FTL_OBJ_CREATE(object_size_);
             ASSERT_LT(0, new_obj);
             objects[p] = new_obj;
         }
         
         // Now make sure we can't create a new object, aka the disk is full
-        ASSERT_EQ(FAIL, _FTL_OBJ_CREATE(object_size_bytes_)); 
+        ASSERT_EQ(FAIL, _FTL_OBJ_CREATE(object_size_)); 
         
         // Delete all objects
         for (int p=0; p < objects_in_ssd_; p++) {
@@ -158,7 +159,7 @@ namespace {
         
         // And try to fill the disk again with the same number of sized objects
         for(int p=0; p < objects_in_ssd_; p++){
-            ASSERT_LT(0, _FTL_OBJ_CREATE(object_size_bytes_));
+            ASSERT_LT(0, _FTL_OBJ_CREATE(object_size_));
         }
         
         printf("SimpleObjectCreateDelete test ended\n");
@@ -167,19 +168,19 @@ namespace {
     TEST_P(ObjectUnitTest, ObjectGrowthTest) {
         printf("ObjectGrowth test started\n");
         printf("Page no.:%ld\nPage size:%d\n",PAGES_IN_SSD,PAGE_SIZE);
-        printf("Object size: %d MB\n",object_size_);
+        printf("Object size: %d bytes\n",object_size_);
         
         // create an object_size_bytes_ - sized object
-        int obj_id = _FTL_OBJ_CREATE(object_size_bytes_);
+        int obj_id = _FTL_OBJ_CREATE(object_size_);
         ASSERT_LT(0, obj_id);
 
         // continuously extend it with object_size_bytes_ chunks
         for(int p=1; p < objects_in_ssd_; p++) {
-            ASSERT_EQ(SUCCESS, _FTL_OBJ_WRITE(obj_id, p*object_size_bytes_, object_size_bytes_));
+            ASSERT_EQ(SUCCESS, _FTL_OBJ_WRITE(obj_id, p*object_size_, object_size_));
         }
 
         // we should've covered the whole disk by now, so another write should fail
-        ASSERT_EQ(FAIL, _FTL_OBJ_WRITE(obj_id, objects_in_ssd_*object_size_bytes_, object_size_bytes_)); 
+        ASSERT_EQ(FAIL, _FTL_OBJ_WRITE(obj_id, objects_in_ssd_*object_size_, object_size_)); 
         
         printf("ObjectGrowth test ended\n");
     }
