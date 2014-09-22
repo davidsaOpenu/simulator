@@ -51,8 +51,8 @@ namespace {
                 ssd_conf.close();
                 SSD_INIT();
                 object_size_ = GetParam();
-                int object_pages = (int)ceil(1.0 * object_size_ / PAGE_SIZE);
-                objects_in_ssd_ = (int)(PAGES_IN_SSD / object_pages);
+                int object_pages = (int)ceil(1.0 * object_size_ / PAGE_SIZE); // ceil because we can't have a page belong to 2 objects
+                objects_in_ssd_ = (unsigned int)(PAGES_IN_SSD / object_pages);
             }
             virtual void TearDown() {
                 SSD_TERM();
@@ -70,7 +70,7 @@ namespace {
         protected:
             size_t pages_;
             int object_size_;
-            int objects_in_ssd_;
+            unsigned int objects_in_ssd_;
     }; // OccupySpaceStressTest
 
     INSTANTIATE_TEST_CASE_P(DiskSize, ObjectUnitTest, ::testing::Values(2048, // 1/2 page
@@ -83,7 +83,7 @@ namespace {
         printf("Page no.:%ld\nPage size:%d\n",PAGES_IN_SSD,PAGE_SIZE);
         printf("Object size: %d bytes\n",object_size_);
         // Fill the disk with objects
-        for(size_t p=0; p < objects_in_ssd_; p++){
+        for(unsigned int p=0; p < objects_in_ssd_; p++){
             //printf("%ld/%ld\n",(long)p,PAGES_IN_SSD);
             ASSERT_LT(0, _FTL_OBJ_CREATE(object_size_));
         }
@@ -101,13 +101,13 @@ namespace {
         int objects[objects_in_ssd_];
 
         // Fill 50% of the disk with objects
-        for(int p=0; p < objects_in_ssd_ / 2; p++){
+        for(unsigned int p=0; p < objects_in_ssd_ / 2; p++){
             int new_obj = _FTL_OBJ_CREATE(object_size_);
             ASSERT_LT(0, new_obj);
             objects[p] = new_obj;
         }
         // Write PAGE_SIZE data to each one
-        for(size_t p=0; p < objects_in_ssd_/2; p++){
+        for(unsigned int p=0; p < objects_in_ssd_/2; p++){
             ASSERT_EQ(SUCCESS, _FTL_OBJ_WRITE(objects[p],0,PAGE_SIZE));
         }
         printf("SimpleObjectCreateWrite test ended\n");
@@ -122,13 +122,13 @@ namespace {
         int objects[objects_in_ssd_];
 
         // Fill 50% of the disk with objects
-        for(int p=0; p < objects_in_ssd_/2; p++){
+        for(unsigned int p=0; p < objects_in_ssd_/2; p++){
             int new_obj = _FTL_OBJ_CREATE(object_size_);
             ASSERT_LT(0, new_obj);
             objects[p] = new_obj;
         }
         // Read PAGE_SIZE data from each one
-        for(size_t p=0; p < objects_in_ssd_/2; p++){
+        for(unsigned int p=0; p < objects_in_ssd_/2; p++){
             ASSERT_EQ(SUCCESS, _FTL_OBJ_READ(objects[p],0,PAGE_SIZE));
         }
         printf("SimpleObjectCreateRead test ended\n");
@@ -143,7 +143,7 @@ namespace {
         int objects[objects_in_ssd_];
         
         // Fill the disk with objects
-        for(int p=0; p < objects_in_ssd_; p++){
+        for(unsigned int p=0; p < objects_in_ssd_; p++){
             int new_obj = _FTL_OBJ_CREATE(object_size_);
             ASSERT_LT(0, new_obj);
             objects[p] = new_obj;
@@ -153,12 +153,12 @@ namespace {
         ASSERT_EQ(FAIL, _FTL_OBJ_CREATE(object_size_)); 
         
         // Delete all objects
-        for (int p=0; p < objects_in_ssd_; p++) {
+        for (unsigned int p=0; p < objects_in_ssd_; p++) {
             ASSERT_EQ(SUCCESS, _FTL_OBJ_DELETE(objects[p]));
         }
         
         // And try to fill the disk again with the same number of sized objects
-        for(int p=0; p < objects_in_ssd_; p++){
+        for(unsigned int p=0; p < objects_in_ssd_; p++){
             ASSERT_LT(0, _FTL_OBJ_CREATE(object_size_));
         }
         
@@ -173,14 +173,17 @@ namespace {
         // create an object_size_bytes_ - sized object
         int obj_id = _FTL_OBJ_CREATE(object_size_);
         ASSERT_LT(0, obj_id);
+        
+        unsigned int size = 0;
 
         // continuously extend it with object_size_bytes_ chunks
-        for(int p=1; p < objects_in_ssd_; p++) {
-            ASSERT_EQ(SUCCESS, _FTL_OBJ_WRITE(obj_id, p*object_size_, object_size_));
+        while (size / PAGE_SIZE < pages_) {
+            ASSERT_EQ(SUCCESS, _FTL_OBJ_WRITE(obj_id, size, object_size_));
+            size += object_size_;
         }
 
         // we should've covered the whole disk by now, so another write should fail
-        ASSERT_EQ(FAIL, _FTL_OBJ_WRITE(obj_id, objects_in_ssd_*object_size_, object_size_)); 
+        ASSERT_EQ(FAIL, _FTL_OBJ_WRITE(obj_id, size, object_size_)); 
         
         printf("ObjectGrowth test ended\n");
     }

@@ -127,6 +127,7 @@ int _FTL_OBJ_WRITE(object_id_t object_id, unsigned int offset, unsigned int leng
         {
             // invalidate the old physical page and replace the page_node's page
             UPDATE_INVERSE_BLOCK_VALIDITY(CALC_FLASH(current_page->page_id), CALC_BLOCK(current_page->page_id), CALC_PAGE(current_page->page_id), INVALID);
+            UPDATE_INVERSE_PAGE_MAPPING(current_page->page_id, -1);
             
 #ifdef GC_ON
             // must improve this because it is very possible that we will do multiple GCs on the same flash chip and block
@@ -315,8 +316,8 @@ page_node *add_page(stored_object *object, int32_t page_id)
     object->pages = add_page_list(object->pages,page_id);
     
     page_node *p = object->pages;
-    while (p != NULL && p->next != NULL)
-        p = p->next;
+    while (p != NULL && next_page(object, p) != NULL)
+        p = next_page(object, p);
     return p;
 }
 
