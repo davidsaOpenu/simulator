@@ -77,7 +77,7 @@ namespace {
                                                                         6144, // 1 1/2 pages
                                                                         2 * 1024 * 1024, // 2 MB
                                                                         6 * 1024 * 1024)); // 6 MB
-    
+
     TEST_P(ObjectUnitTest, SimpleObjectCreate) {
         printf("SimpleObjectCreate test started\n");
         printf("Page no.:%ld\nPage size:%d\n",PAGES_IN_SSD,PAGE_SIZE);
@@ -177,7 +177,7 @@ namespace {
         unsigned int size = 0;
 
         // continuously extend it with object_size_bytes_ chunks
-        while (size / PAGE_SIZE < pages_) {
+        while (size / PAGE_SIZE < PAGES_IN_SSD) {
             ASSERT_EQ(SUCCESS, _FTL_OBJ_WRITE(obj_id, size, object_size_));
             size += object_size_;
         }
