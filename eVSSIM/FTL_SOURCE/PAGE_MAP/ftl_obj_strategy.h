@@ -9,7 +9,7 @@ typedef uint64_t object_id_t;
 
 /* A page node in the linked list of object-mapped pages */
 typedef struct page_node {
-    int32_t page_id;
+    uint32_t page_id;
     object_id_t object_id;
     struct page_node *next;
 } page_node;
@@ -36,10 +36,10 @@ stored_object *lookup_object(object_id_t object_id);
 stored_object *create_object(size_t size);
 int remove_object(stored_object *object);
 
-page_node *add_page_list(page_node *p, int32_t page_id);
-page_node *add_page(stored_object *object, int32_t page_id);
+page_node *allocate_new_page(uint32_t page_id);
+page_node *add_page(stored_object *object, uint32_t page_id);
 page_node *page_by_offset(stored_object *object, unsigned int offset);
-page_node *lookup_page(int32_t page_id);
+page_node *lookup_page(uint32_t page_id);
 page_node *next_page(stored_object *object,page_node *current);
 
 #endif

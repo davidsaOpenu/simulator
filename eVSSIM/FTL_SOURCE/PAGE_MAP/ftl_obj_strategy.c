@@ -77,7 +77,7 @@ int _FTL_OBJ_WRITE(object_id_t object_id, unsigned int offset, unsigned int leng
 {
     stored_object *object;
     page_node *current_page = NULL;
-    int32_t page_id;
+    uint32_t page_id;
     int io_page_nb;
     int curr_io_page_nb;
     unsigned int ret = FAIL;
@@ -101,7 +101,8 @@ int _FTL_OBJ_WRITE(object_id_t object_id, unsigned int offset, unsigned int leng
             return FAIL;
         }
         
-        add_page(object, page_id);
+        if(!add_page(object, page_id))
+            return FAIL;
     }
 
     for (curr_io_page_nb = 0; curr_io_page_nb < io_page_nb; curr_io_page_nb++)
@@ -122,6 +123,8 @@ int _FTL_OBJ_WRITE(object_id_t object_id, unsigned int offset, unsigned int leng
         if (current_page == NULL) // writing at the end of the object and need to allocate more space for it
         {
             current_page = add_page(object, page_id);
+            if(!current_page)
+                return FAIL;
         }
         else // writing over parts of the object
         {
@@ -252,7 +255,8 @@ stored_object *create_object(size_t size)
             return NULL;
         }
         
-        add_page(obj, page_id);
+        if(!add_page(obj, page_id))
+            return NULL;
     }
     
     // add the new object to the objects' hashtable
@@ -294,31 +298,35 @@ int remove_object(stored_object *object)
     return SUCCESS;
 }
 
-page_node *add_page_list(page_node *p, int32_t page_id) {
-    if(!p)
-    {
-        p = malloc(sizeof(struct page_node));
-        p->page_id = page_id;
-        p->next = NULL;
-    }
-    else if (p->page_id != page_id)
-    {
-        p->next = add_page_list(p->next, page_id);
-    }
-    
-    //what should we do if p->page_id==page_id?
-    return p;
+page_node *allocate_new_page(uint32_t page_id)
+{
+    page_node *page = malloc(sizeof(struct page_node));
+    page->page_id = page_id;
+    page->next = NULL;
+    return page;
 }
 
-page_node *add_page(stored_object *object, int32_t page_id)
+page_node *add_page(stored_object *object, uint32_t page_id)
 {
+    page_node *page;
     object->size += PAGE_SIZE;
-    object->pages = add_page_list(object->pages,page_id);
+
+    if(object->pages == NULL)
+    {
+        object->pages = allocate_new_page(page_id);
+        return object->pages;
+    }
+
+    for(page=object->pages; page->next && page->next->page_id != page_id; page=page->next)
+        ;
+    if(page->next)
+    {
+        printf("ERROR[add_page] Object already contains page\n");
+        return NULL;
+    }
     
-    page_node *p = object->pages;
-    while (p != NULL && next_page(object, p) != NULL)
-        p = next_page(object, p);
-    return p;
+    page->next = allocate_new_page(page_id);  
+    return page->next;
 }
 
 page_node *page_by_offset(stored_object *object, unsigned int offset)
@@ -337,7 +345,7 @@ page_node *page_by_offset(stored_object *object, unsigned int offset)
     return page;
 }
 
-page_node *lookup_page(int32_t page_id)
+page_node *lookup_page(uint32_t page_id)
 {
     stored_object *obj;
     page_node *page;
