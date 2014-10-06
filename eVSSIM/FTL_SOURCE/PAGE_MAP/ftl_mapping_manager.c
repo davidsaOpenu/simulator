@@ -109,6 +109,15 @@ int UPDATE_NEW_PAGE_MAPPING(uint32_t lpn, uint32_t ppn)
 	return SUCCESS;
 }
 
+int UPDATE_NEW_PAGE_MAPPING_NO_LOGICAL(uint32_t ppn)
+{
+	/* Update Inverse Page Mapping Table */
+	UPDATE_INVERSE_BLOCK_VALIDITY(CALC_FLASH(ppn), CALC_BLOCK(ppn), CALC_PAGE(ppn), VALID);
+	UPDATE_INVERSE_BLOCK_MAPPING(CALC_FLASH(ppn), CALC_BLOCK(ppn), DATA_BLOCK);
+
+	return SUCCESS;
+}
+
 unsigned int CALC_FLASH(uint32_t ppn)
 {
 	unsigned int flash_nb = (ppn/PAGE_NB)/BLOCK_NB;

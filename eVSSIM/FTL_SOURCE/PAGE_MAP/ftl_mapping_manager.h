@@ -21,6 +21,7 @@ int GET_NEW_PAGE(int mode, int mapping_index, uint32_t* ppn);
 
 int UPDATE_OLD_PAGE_MAPPING(uint32_t lpn);
 int UPDATE_NEW_PAGE_MAPPING(uint32_t lpn, uint32_t ppn);
+int UPDATE_NEW_PAGE_MAPPING_NO_LOGICAL(uint32_t ppn);
 
 unsigned int CALC_FLASH(uint32_t ppn);
 unsigned int CALC_BLOCK(uint32_t ppn);
