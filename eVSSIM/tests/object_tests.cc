@@ -166,7 +166,7 @@ namespace {
     }
 
     TEST_P(ObjectUnitTest, ObjectGrowthTest) {
-        unsigned int final_size = (PAGES_IN_SSD - PAGE_NB) * PAGE_SIZE;
+        unsigned int final_size = (PAGES_IN_SSD - PAGE_NB) * PAGE_SIZE; // save one block for over-provisioning
         printf("ObjectGrowth test started\n");
         printf("Page no.:%ld\nPage size:%d\n",PAGES_IN_SSD,PAGE_SIZE);
         printf("Initial object size: %d bytes\n",object_size_);
