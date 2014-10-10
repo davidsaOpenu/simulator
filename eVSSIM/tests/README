@@ -25,7 +25,8 @@ VSSIM unit tests
         mkdir data
     
 4. Run unit tests
-    ./unit_tests #this will take about a hour to complete
+    Sector-based: ./sector_tests
+    Object-based: ./object_tests
 
 5. Unit tests distclean
     make distclean #will remove all generated VSSIM links
