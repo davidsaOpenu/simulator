@@ -120,9 +120,9 @@ int _FTL_WRITE_SECT(uint64_t sector_nb, unsigned int length)
 		io_alloc_overhead = ALLOC_IO_REQUEST(sector_nb, length, WRITE, &io_page_nb);
 	}
 
-	int32_t lba = sector_nb;
-	int32_t lpn;
-	int32_t new_ppn;
+	uint32_t lba = sector_nb;
+	uint32_t lpn;
+	uint32_t new_ppn;
 
 	unsigned int remain = length;
 	unsigned int left_skip = sector_nb % SECTORS_PER_PAGE;

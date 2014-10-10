@@ -122,7 +122,8 @@ void FTL_DELETE(uint64_t id)
 	ret = storage_strategy->FTL_DELETE(id);
 }
 
-void FTL_INIT_STATS(){
+void FTL_INIT_STATS(void)
+{
 
 	int i,j, thRes;
 	struct sockaddr_in serverAddr;

@@ -22,7 +22,7 @@ typedef struct stored_object {
     UT_hash_handle hh; /* makes this structure hashable */
 } stored_object;
 
-void INIT_OBJ_STRATEGY();
+void INIT_OBJ_STRATEGY(void);
 
 /* FTL functions */
 int _FTL_OBJ_READ(object_id_t object_id, unsigned int offset, unsigned int length);
