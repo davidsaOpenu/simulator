@@ -24,16 +24,12 @@ namespace {
     class ObjectUnitTest : public ::testing::TestWithParam<size_t> {
         public:
             virtual void SetUp() {
-                size_t mb = 512;//GetParam();
-                pages_= mb * (1048576 / 4096); // number_of_pages = disk_size (in MB) * 1048576 / page_size
-                size_t block_x_flash = pages_ / 8; // all_blocks_on_all_flashes = number_of_pages / pages_in_block
-                size_t flash = block_x_flash / 4096; // number_of_flashes = all_blocks_on_all_flashes / number_of_blocks_in_flash
                 ofstream ssd_conf("data/ssd.conf", ios_base::out | ios_base::trunc);
                 ssd_conf << "FILE_NAME ./data/ssd.img\n"
                     "PAGE_SIZE 4096\n"
-                    "PAGE_NB 10\n" // 8 pages per block +2 pages over-provision = 125% of disk size
+                    "PAGE_NB 10\n"
                     "SECTOR_SIZE 1\n"
-                    "FLASH_NB " << flash << "\n" // see calculations above
+                    "FLASH_NB 5\n"
                     "BLOCK_NB 4096\n"
                     "PLANES_PER_FLASH 1\n"
                     "REG_WRITE_DELAY 82\n"
@@ -68,7 +64,6 @@ namespace {
                 g_init_log_server = 0;
             }
         protected:
-            size_t pages_;
             int object_size_;
             unsigned int objects_in_ssd_;
     }; // OccupySpaceStressTest
@@ -163,7 +158,7 @@ namespace {
         }
         
         printf("SimpleObjectCreateDelete test ended\n");
-    }
+    } 
 
     TEST_P(ObjectUnitTest, ObjectGrowthTest) {
         unsigned int final_size = (PAGES_IN_SSD - PAGE_NB) * PAGE_SIZE; // save one block for over-provisioning
