@@ -5,7 +5,7 @@
 stored_object *objects_table = NULL;
 object_id_t current_id;
 
-void INIT_OBJ_STRATEGY()
+void INIT_OBJ_STRATEGY(void)
 {
     current_id = 1; //0 marks failure...
 }
@@ -239,7 +239,7 @@ stored_object *lookup_object(object_id_t object_id)
 stored_object *create_object(size_t size)
 {
     stored_object *obj = malloc(sizeof(stored_object));
-    int32_t page_id;
+    uint32_t page_id;
 
     // initialize to stored_object struct with size and initial pages
     obj->id = current_id++;
