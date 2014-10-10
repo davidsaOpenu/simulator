@@ -1,7 +1,5 @@
 #include "ftl_obj_strategy.h"
 
-#define WRAP_SUCCESS_FAIL(x) return (x != NULL) ? SUCCESS : FAIL;
-
 stored_object *objects_table = NULL;
 object_id_t current_id;
 
@@ -76,7 +74,7 @@ int _FTL_OBJ_READ(object_id_t object_id, unsigned int offset, unsigned int lengt
 int _FTL_OBJ_WRITE(object_id_t object_id, unsigned int offset, unsigned int length)
 {
     stored_object *object;
-    page_node *current_page = NULL;
+    page_node *current_page = NULL,*temp_page;
     uint32_t page_id;
     int io_page_nb;
     int curr_io_page_nb;
@@ -100,7 +98,12 @@ int _FTL_OBJ_WRITE(object_id_t object_id, unsigned int offset, unsigned int leng
             printf("ERROR[FTL_WRITE] Get new page fail \n");
             return FAIL;
         }
-        
+        if((temp_page=lookup_page(page_id)))
+        {
+            printf("ERROR[FTL_WRITE] Object %lu already contains page %d\n",temp_page->object_id,page_id);
+            return FAIL;
+        }
+
         if(!add_page(object, page_id))
             return FAIL;
     }
@@ -117,6 +120,11 @@ int _FTL_OBJ_WRITE(object_id_t object_id, unsigned int offset, unsigned int leng
         if (GET_NEW_PAGE(VICTIM_OVERALL, EMPTY_TABLE_ENTRY_NB, &page_id) == FAIL)
         {
             printf("ERROR[FTL_WRITE] Get new page fail \n");
+            return FAIL;
+        }
+        if((temp_page=lookup_page(page_id)))
+        {
+            printf("ERROR[FTL_WRITE] Object %lu already contains page %d\n",temp_page->object_id,page_id);
             return FAIL;
         }
         
@@ -239,6 +247,7 @@ stored_object *lookup_object(object_id_t object_id)
 stored_object *create_object(size_t size)
 {
     stored_object *obj = malloc(sizeof(stored_object));
+    page_node *temp_page;
     uint32_t page_id;
 
     // initialize to stored_object struct with size and initial pages
@@ -254,7 +263,12 @@ stored_object *create_object(size_t size)
             remove_object(obj);
             return NULL;
         }
-        
+        if((temp_page=lookup_page(page_id)))
+        {
+            printf("ERROR[create_object] Object %lu already contains page %d\n",temp_page->object_id,page_id);
+            return NULL;
+        }
+
         if(!add_page(obj, page_id))
             return NULL;
     }
@@ -308,7 +322,7 @@ page_node *allocate_new_page(uint32_t page_id)
 
 page_node *add_page(stored_object *object, uint32_t page_id)
 {
-    page_node *page;
+    page_node *curr,*page;
     object->size += PAGE_SIZE;
 
     if(object->pages == NULL)
@@ -316,17 +330,17 @@ page_node *add_page(stored_object *object, uint32_t page_id)
         object->pages = allocate_new_page(page_id);
         return object->pages;
     }
-
-    for(page=object->pages; page->next && page->next->page_id != page_id; page=page->next)
+    for(curr=page=object->pages; page && page->page_id != page_id; curr=page,page=page->next)
         ;
+
     if(page->next)
     {
         printf("ERROR[add_page] Object already contains page\n");
         return NULL;
     }
     
-    page->next = allocate_new_page(page_id);  
-    return page->next;
+    curr->next = allocate_new_page(page_id);  
+    return curr->next;
 }
 
 page_node *page_by_offset(stored_object *object, unsigned int offset)
