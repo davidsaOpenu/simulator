@@ -12,6 +12,7 @@ typedef struct page_node {
     uint32_t page_id;
     object_id_t object_id;
     struct page_node *next;
+    UT_hash_handle hh; /* makes this structure hashable */
 } page_node;
 
 /* The object struct. Metadata will be added as a pointer to another struct or as more fields */

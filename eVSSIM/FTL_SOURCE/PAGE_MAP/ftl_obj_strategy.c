@@ -1,37 +1,43 @@
 #include "ftl_obj_strategy.h"
 
 stored_object *objects_table;
+page_node *global_page_table;
 object_id_t current_id;
 
 void INIT_OBJ_STRATEGY()
 {
     current_id = 1;
     objects_table = NULL;
+    global_page_table = NULL;
 }
 
 void free_object(stored_object *obj)
 {
-    page_node *curr,*next;
-    for (curr = obj->pages; curr; curr=next) {
-        next=curr->next;
-        free(curr);
-    }
-    free(obj);
+
 }
 
 void free_obj_table()
 {
-    //TODO: free uthash?
     stored_object *curr,*next;
     for (curr = objects_table; curr; curr=next) {
         next=curr->hh.next;
-        free_object(curr);
+        free(curr);
+    }
+}
+
+void free_page_table()
+{
+    page_node *curr,*next;
+    for (curr = global_page_table; curr; curr=next) {
+        next=curr->next;
+        free(curr);
     }
 }
 
 void TERM_OBJ_STRATEGY()
 {
     free_obj_table();
+    free_page_table();
 }
 
 int _FTL_OBJ_READ(object_id_t object_id, unsigned int offset, unsigned int length)
@@ -79,7 +85,7 @@ int _FTL_OBJ_READ(object_id_t object_id, unsigned int offset, unsigned int lengt
 #endif
         
         // get the next page
-        current_page = next_page(object, current_page);
+        current_page = current_page->next;
     }
     
     INCREASE_IO_REQUEST_SEQ_NB();
@@ -137,7 +143,7 @@ int _FTL_OBJ_WRITE(object_id_t object_id, unsigned int offset, unsigned int leng
         if (current_page == NULL)
             current_page = page_by_offset(object, offset);
         else
-            current_page = next_page(object, current_page);
+            current_page = current_page->next;
         
         // get the pge we'll be writing to
         if (GET_NEW_PAGE(VICTIM_OVERALL, EMPTY_TABLE_ENTRY_NB, &page_id) == FAIL)
@@ -327,7 +333,11 @@ int remove_object(stored_object *object)
 
         // get next page and free the current one
         invalidated_page = current_page;
-        current_page = next_page(object, current_page);
+        current_page = current_page->next;
+
+        if (invalidated_page->hh.tbl != NULL)
+            HASH_DEL(global_page_table, invalidated_page);
+
         free(invalidated_page);
     }
     
@@ -363,8 +373,9 @@ page_node *add_page(stored_object *object, uint32_t page_id)
         printf("ERROR[add_page] Object already contains page\n");
         return NULL;
     }
-    
-    curr->next = allocate_new_page(page_id);  
+    page = allocate_new_page(page_id);
+    HASH_ADD_INT(global_page_table, page_id, page); 
+    curr->next = page;
     return curr->next;
 }
 
@@ -377,7 +388,7 @@ page_node *page_by_offset(stored_object *object, unsigned int offset)
         return NULL;
     
     // skim through pages until offset is less than a page's size
-    for(page = object->pages; page && offset >= PAGE_SIZE; offset -= PAGE_SIZE, page = next_page(object, page))
+    for(page = object->pages; page && offset >= PAGE_SIZE; offset -= PAGE_SIZE, page = page->next)
         ;
     
     // if page==NULL then page collection < size - report error? or assume it's valid? - this technically shouldn't happen after the if at the beginning. just return NULL if it does
@@ -386,23 +397,7 @@ page_node *page_by_offset(stored_object *object, unsigned int offset)
 
 page_node *lookup_page(uint32_t page_id)
 {
-    stored_object *obj;
     page_node *page;
-
-    for (obj = objects_table; obj != NULL; obj = obj->hh.next)
-    {
-        for (page = obj->pages; page != NULL; page = next_page(obj, page))
-        {
-            if (page->page_id == page_id)
-                return page;
-        }
-    }
-    
-    // failed to find the page in any of our objects
-    return NULL;
-}
-
-page_node *next_page(stored_object *object, page_node *current)
-{
-    return current->next;
+    HASH_FIND_INT(global_page_table, &page_id, page);
+    return page;
 }
