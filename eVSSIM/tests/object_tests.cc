@@ -138,8 +138,6 @@ namespace {
         
         // used to keep all the assigned ids
         int objects[objects_in_ssd_];
-
-        printf("Create objects\n");
         
         // Fill the disk with objects
         for(unsigned int p=0; p < objects_in_ssd_; p++){
@@ -148,20 +146,14 @@ namespace {
             objects[p] = new_obj;
         }
 
-        printf("Create another object - should fail\n");
-        
         // Now make sure we can't create a new object, aka the disk is full
         // ASSERT_EQ(FAIL, _FTL_OBJ_CREATE(object_size_)); 
 
-        printf("Delete objects\n");
-        
         // Delete all objects
         for (unsigned int p=0; p < objects_in_ssd_; p++) {
             ASSERT_EQ(SUCCESS, _FTL_OBJ_DELETE(objects[p]));
         }
 
-        printf("Create objects again\n");
-        
         // And try to fill the disk again with the same number of sized objects
         for(unsigned int p=0; p < objects_in_ssd_; p++){
             printf("p=%d/%d\n",p,objects_in_ssd_);
