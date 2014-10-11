@@ -11,6 +11,7 @@ extern "C" int g_server_create;
 extern "C" int g_init_log_server;
 
 #define GTEST_DONT_DEFINE_FAIL 1
+
 #include <gtest/gtest.h>
 
 #include <fstream>
@@ -29,8 +30,8 @@ namespace {
                     "PAGE_SIZE 4096\n"
                     "PAGE_NB 10\n"
                     "SECTOR_SIZE 1\n"
-                    "FLASH_NB 5\n"
-                    "BLOCK_NB 4096\n"
+                    "FLASH_NB 4\n"
+                    "BLOCK_NB 100\n"
                     "PLANES_PER_FLASH 1\n"
                     "REG_WRITE_DELAY 82\n"
                     "CELL_PROGRAM_DELAY 900\n"
@@ -39,7 +40,7 @@ namespace {
                     "BLOCK_ERASE_DELAY 2000\n"
                     "CHANNEL_SWITCH_DELAY_R 16\n"
                     "CHANNEL_SWITCH_DELAY_W 33\n"
-                    "CHANNEL_NB 4\n"
+                    "CHANNEL_NB 1\n"
                     "STAT_TYPE 15\n"
                     "STAT_SCOPE 62\n"
                     "STAT_PATH /tmp/stat.csv\n"
@@ -128,7 +129,7 @@ namespace {
         }
         printf("SimpleObjectCreateRead test ended\n");
     }
-    
+  
     TEST_P(ObjectUnitTest, SimpleObjectCreateDelete) {
         printf("SimpleObjectCreateDelete test started\n");
         printf("Page no.:%ld\nPage size:%d\n",PAGES_IN_SSD,PAGE_SIZE);
@@ -158,21 +159,24 @@ namespace {
         }
         
         printf("SimpleObjectCreateDelete test ended\n");
-    } 
+    }
 
     TEST_P(ObjectUnitTest, ObjectGrowthTest) {
-        unsigned int final_size = (PAGES_IN_SSD - PAGE_NB) * PAGE_SIZE; // save one block for over-provisioning
+        unsigned int logical_disk_size = (PAGES_IN_SSD - PAGE_NB) * PAGE_SIZE; // save one block for over-provisioning
+        unsigned int final_object_size = (logical_disk_size / object_size_) * object_size_;
         printf("ObjectGrowth test started\n");
         printf("Page no.:%ld\nPage size:%d\n",PAGES_IN_SSD,PAGE_SIZE);
         printf("Initial object size: %d bytes\n",object_size_);
-        printf("Final object size: %d bytes\n",final_size);
+        printf("Final object size: %d bytes\n",final_object_size);
+
         // create an object_size_bytes_ - sized object
         int obj_id = _FTL_OBJ_CREATE(object_size_);
         ASSERT_LT(0, obj_id);
+
         
         unsigned int size = object_size_;
         // continuously extend it with object_size_bytes_ chunks
-        while (size < final_size) {
+        while (size < final_object_size) {
             ASSERT_EQ(SUCCESS, _FTL_OBJ_WRITE(obj_id, size, object_size_));
             size += object_size_;
         }
