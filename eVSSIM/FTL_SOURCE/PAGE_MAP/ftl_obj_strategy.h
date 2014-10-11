@@ -23,6 +23,7 @@ typedef struct stored_object {
 } stored_object;
 
 void INIT_OBJ_STRATEGY(void);
+void TERM_OBJ_STRATEGY(void);
 
 /* FTL functions */
 int _FTL_OBJ_READ(object_id_t object_id, unsigned int offset, unsigned int length);

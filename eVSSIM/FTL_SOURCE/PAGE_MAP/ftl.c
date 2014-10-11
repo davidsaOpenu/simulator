@@ -86,6 +86,8 @@ void FTL_INIT_STRATEGY(void)
 
 void FTL_TERM_STRATEGY(void)
 {
+        if(STORAGE_STRATEGY == STORAGE_STRATEGY_OBJECT)
+            TERM_OBJ_STRATEGY();
 	free(storage_strategy);
 }
 

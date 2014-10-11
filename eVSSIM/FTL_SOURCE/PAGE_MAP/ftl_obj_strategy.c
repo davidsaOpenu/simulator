@@ -1,11 +1,37 @@
 #include "ftl_obj_strategy.h"
 
-stored_object *objects_table = NULL;
+stored_object *objects_table;
 object_id_t current_id;
 
-void INIT_OBJ_STRATEGY(void)
+void INIT_OBJ_STRATEGY()
 {
-    current_id = 1; //0 marks failure...
+    current_id = 1;
+    objects_table = NULL;
+}
+
+void free_object(stored_object *obj)
+{
+    page_node *curr,*next;
+    for (curr = obj->pages; curr; curr=next) {
+        next=curr->next;
+        free(curr);
+    }
+    free(obj);
+}
+
+void free_obj_table()
+{
+    //TODO: free uthash?
+    stored_object *curr,*next;
+    for (curr = objects_table; curr; curr=next) {
+        next=curr->hh.next;
+        free_object(curr);
+    }
+}
+
+void TERM_OBJ_STRATEGY()
+{
+    free_obj_table();
 }
 
 int _FTL_OBJ_READ(object_id_t object_id, unsigned int offset, unsigned int length)
@@ -98,12 +124,6 @@ int _FTL_OBJ_WRITE(object_id_t object_id, unsigned int offset, unsigned int leng
             printf("ERROR[FTL_WRITE] Get new page fail \n");
             return FAIL;
         }
-        if((temp_page=lookup_page(page_id)))
-        {
-            printf("ERROR[FTL_WRITE] Object %lu already contains page %d\n",temp_page->object_id,page_id);
-            return FAIL;
-        }
-
         if(!add_page(object, page_id))
             return FAIL;
         
@@ -144,16 +164,15 @@ int _FTL_OBJ_WRITE(object_id_t object_id, unsigned int offset, unsigned int leng
         {
             // invalidate the old physical page and replace the page_node's page
             UPDATE_INVERSE_BLOCK_VALIDITY(CALC_FLASH(current_page->page_id), CALC_BLOCK(current_page->page_id), CALC_PAGE(current_page->page_id), INVALID);
-            UPDATE_INVERSE_PAGE_MAPPING(current_page->page_id, -1);
-            
+            UPDATE_INVERSE_PAGE_MAPPING(current_page->page_id, -1);            
+
+            current_page->page_id = page_id;
+        }
 #ifdef GC_ON
             // must improve this because it is very possible that we will do multiple GCs on the same flash chip and block
             // probably gonna add an array to hold the unique ones and in the end GC all of them
             GC_CHECK(CALC_FLASH(current_page->page_id), CALC_BLOCK(current_page->page_id), false);
 #endif
-            
-            current_page->page_id = page_id;
-        }
         
         ret = SSD_PAGE_WRITE(CALC_FLASH(page_id), CALC_BLOCK(page_id), CALC_PAGE(page_id), curr_io_page_nb, WRITE, io_page_nb);
         
@@ -256,7 +275,6 @@ stored_object *lookup_object(object_id_t object_id)
 stored_object *create_object(size_t size)
 {
     stored_object *obj = malloc(sizeof(stored_object));
-    page_node *temp_page;
     uint32_t page_id;
 
     // initialize to stored_object struct with size and initial pages
@@ -270,11 +288,6 @@ stored_object *create_object(size_t size)
         {
             // cleanup just in case we managed to do anything up until now
             remove_object(obj);
-            return NULL;
-        }
-        if((temp_page=lookup_page(page_id)))
-        {
-            printf("ERROR[create_object] Object %lu already contains page %d\n",temp_page->object_id,page_id);
             return NULL;
         }
 
@@ -345,7 +358,7 @@ page_node *add_page(stored_object *object, uint32_t page_id)
     for(curr=page=object->pages; page && page->page_id != page_id; curr=page,page=page->next)
         ;
 
-    if(page->next)
+    if(page)
     {
         printf("ERROR[add_page] Object already contains page\n");
         return NULL;
