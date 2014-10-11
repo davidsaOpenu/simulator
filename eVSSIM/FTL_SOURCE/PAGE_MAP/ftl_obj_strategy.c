@@ -196,6 +196,13 @@ int _FTL_OBJ_WRITE(object_id_t object_id, unsigned int offset, unsigned int leng
             printf("Error[FTL_WRITE] %d page write fail \n", page_id);
         }
 #endif
+
+//        page_node *page;
+//        printf("Object page map:{");
+//        for(page=object->pages; page; page=page->next)
+//            printf("%d->",page->page_id);
+//        printf("}\n");
+
     }
 
     INCREASE_IO_REQUEST_SEQ_NB();
@@ -231,7 +238,9 @@ int _FTL_OBJ_COPYBACK(int32_t source, int32_t destination)
         UPDATE_NEW_PAGE_MAPPING_NO_LOGICAL(destination);
         
         // change the object's page mapping to the new page
+        HASH_DEL(global_page_table, source_p); 
         source_p->page_id = destination;
+        HASH_ADD_INT(global_page_table, page_id, source_p); 
     }
 #ifdef FTL_DEBUG
     else
@@ -349,10 +358,11 @@ int remove_object(stored_object *object)
     return SUCCESS;
 }
 
-page_node *allocate_new_page(uint32_t page_id)
+page_node *allocate_new_page(object_id_t object_id, uint32_t page_id)
 {
     page_node *page = malloc(sizeof(struct page_node));
     page->page_id = page_id;
+    page->object_id = object_id;
     page->next = NULL;
     return page;
 }
@@ -360,24 +370,31 @@ page_node *allocate_new_page(uint32_t page_id)
 page_node *add_page(stored_object *object, uint32_t page_id)
 {
     page_node *curr,*page;
-    object->size += PAGE_SIZE;
 
+    HASH_FIND_INT(global_page_table,&page_id,page);
+    if(page)
+    {
+        printf("ERROR[add_page] Object %lu already contains page %d\n",page->object_id,page_id);
+        return NULL;
+    }
+
+    object->size += PAGE_SIZE;
     if(object->pages == NULL)
     {
-        page = allocate_new_page(page_id);
+        page = allocate_new_page(object->id,page_id);
         HASH_ADD_INT(global_page_table, page_id, page); 
         object->pages = page;
         return object->pages;
     }
     for(curr=page=object->pages; page && page->page_id != page_id; curr=page,page=page->next)
         ;
-
     if(page)
     {
-        printf("ERROR[add_page] Object already contains page\n");
+        printf("ERROR[add_page] Object %lu already contains page %d\n",page->object_id,page_id);
         return NULL;
     }
-    page = allocate_new_page(page_id);
+
+    page = allocate_new_page(object->id,page_id);
     HASH_ADD_INT(global_page_table, page_id, page); 
     curr->next = page;
     return curr->next;
