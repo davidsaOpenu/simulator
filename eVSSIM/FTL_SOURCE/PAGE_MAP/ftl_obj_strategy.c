@@ -172,7 +172,9 @@ int _FTL_OBJ_WRITE(object_id_t object_id, unsigned int offset, unsigned int leng
             UPDATE_INVERSE_BLOCK_VALIDITY(CALC_FLASH(current_page->page_id), CALC_BLOCK(current_page->page_id), CALC_PAGE(current_page->page_id), INVALID);
             UPDATE_INVERSE_PAGE_MAPPING(current_page->page_id, -1);            
 
+            HASH_DEL(global_page_table, current_page); 
             current_page->page_id = page_id;
+            HASH_ADD_INT(global_page_table, page_id, current_page); 
         }
 #ifdef GC_ON
             // must improve this because it is very possible that we will do multiple GCs on the same flash chip and block
@@ -288,6 +290,9 @@ stored_object *create_object(size_t size)
     obj->size = 0;
     obj->pages = NULL;
 
+    // add the new object to the objects' hashtable
+    HASH_ADD_INT(objects_table, id, obj); 
+
     while(size > obj->size)
     {
         if (GET_NEW_PAGE(VICTIM_OVERALL, EMPTY_TABLE_ENTRY_NB, &page_id) == FAIL)
@@ -303,9 +308,6 @@ stored_object *create_object(size_t size)
         // mark new page as valid and used
         UPDATE_NEW_PAGE_MAPPING_NO_LOGICAL(page_id);
     }
-    
-    // add the new object to the objects' hashtable
-    HASH_ADD_INT(objects_table, id, obj); 
 
     return obj;
 }
@@ -323,6 +325,9 @@ int remove_object(stored_object *object)
     current_page = object->pages;
     while (current_page != NULL)
     {
+        if (current_page->hh.tbl != NULL)
+            HASH_DEL(global_page_table, current_page);
+
         // invalidate the physical page and update its mapping
         UPDATE_INVERSE_BLOCK_VALIDITY(CALC_FLASH(current_page->page_id), CALC_BLOCK(current_page->page_id), CALC_PAGE(current_page->page_id), INVALID);
         
@@ -334,9 +339,6 @@ int remove_object(stored_object *object)
         // get next page and free the current one
         invalidated_page = current_page;
         current_page = current_page->next;
-
-        if (invalidated_page->hh.tbl != NULL)
-            HASH_DEL(global_page_table, invalidated_page);
 
         free(invalidated_page);
     }
@@ -362,7 +364,9 @@ page_node *add_page(stored_object *object, uint32_t page_id)
 
     if(object->pages == NULL)
     {
-        object->pages = allocate_new_page(page_id);
+        page = allocate_new_page(page_id);
+        HASH_ADD_INT(global_page_table, page_id, page); 
+        object->pages = page;
         return object->pages;
     }
     for(curr=page=object->pages; page && page->page_id != page_id; curr=page,page=page->next)
