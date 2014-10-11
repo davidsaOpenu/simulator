@@ -334,9 +334,6 @@ int remove_object(stored_object *object)
     current_page = object->pages;
     while (current_page != NULL)
     {
-        if (current_page->hh.tbl != NULL)
-            HASH_DEL(global_page_table, current_page);
-
         // invalidate the physical page and update its mapping
         UPDATE_INVERSE_BLOCK_VALIDITY(CALC_FLASH(current_page->page_id), CALC_BLOCK(current_page->page_id), CALC_PAGE(current_page->page_id), INVALID);
         
@@ -348,6 +345,9 @@ int remove_object(stored_object *object)
         // get next page and free the current one
         invalidated_page = current_page;
         current_page = current_page->next;
+
+        if (invalidated_page->hh.tbl != NULL)
+            HASH_DEL(global_page_table, invalidated_page);
 
         free(invalidated_page);
     }
