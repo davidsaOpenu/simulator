@@ -4,19 +4,14 @@ stored_object *objects_table;
 page_node *global_page_table;
 object_id_t current_id;
 
-void INIT_OBJ_STRATEGY()
+void INIT_OBJ_STRATEGY(void)
 {
     current_id = 1;
     objects_table = NULL;
     global_page_table = NULL;
 }
 
-void free_object(stored_object *obj)
-{
-
-}
-
-void free_obj_table()
+void free_obj_table(void)
 {
     stored_object *curr,*next;
     for (curr = objects_table; curr; curr=next) {
@@ -25,7 +20,7 @@ void free_obj_table()
     }
 }
 
-void free_page_table()
+void free_page_table(void)
 {
     page_node *curr,*next;
     for (curr = global_page_table; curr; curr=next) {
@@ -34,7 +29,7 @@ void free_page_table()
     }
 }
 
-void TERM_OBJ_STRATEGY()
+void TERM_OBJ_STRATEGY(void)
 {
     free_obj_table();
     free_page_table();

@@ -43,5 +43,6 @@ page_node *add_page(stored_object *object, uint32_t page_id);
 page_node *page_by_offset(stored_object *object, unsigned int offset);
 page_node *lookup_page(uint32_t page_id);
 page_node *next_page(stored_object *object,page_node *current);
-
+void free_obj_table(void);
+void free_page_table(void);
 #endif
