@@ -55,12 +55,12 @@ int _FTL_READ_SECT(uint64_t sector_nb, unsigned int length)
 
 		ppn = GET_MAPPING_INFO(lpn);
 
+		if(ppn == -1){
 #ifdef FTL_DEBUG
-		if (ppn == -1)
-		{
 			printf("Error[%s] No Mapping info\n",__FUNCTION__);
-		}
 #endif
+            return FAIL;
+		}
 
 		ret = SSD_PAGE_READ(CALC_FLASH(ppn), CALC_BLOCK(ppn), CALC_PAGE(ppn), read_page_nb, READ, io_page_nb);
 		//Send a physical read action being done to the statistics gathering

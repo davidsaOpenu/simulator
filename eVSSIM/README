@@ -2,6 +2,7 @@
 2. Setup VSSIM runtime
 3. Run QEMU with VSSIM talking NVMe
 4. QEMU distclean
+5. Ubuntu installation (14.04.1-server-amd64)
 
 
 VSSIM talking NVMe
@@ -35,3 +36,23 @@ VSSIM talking NVMe
 4. QEMU distclean
     cd QEMU
     make distclean #will remove all generated VSSIM links, but will not remove hw/data directory
+
+5. Ubuntu installation (14.04.1-server-amd64)
+    a. Follow section 2 to setup runtime environment
+    b. Create boot image. QEMU cannot boot from NVMe.
+        qemu-img create -f raw boot_1024M.img 1024M
+    c. Start installation
+        cd QEMU/hw #qemu must be run from QEMU/hw directory
+        ../x86_64-softmmu/qemu-system-x86_64 -m 2048 -smp 4 -hda path_to_boot_img/boot_1024M.img -cdrom path_to_installation_iso/ubuntu-14.04.1-server-amd64.iso -device nvme,size=4096 -enable-kvm -redir tcp:2222::22
+    d. Setup partitions:
+        Set mount point for /dev/sda1 to be /boot
+        Mark /dev/sda1 is bootable partition
+        GRUB is installed to /dev/sda
+    e. Complete the installation by rebooting the system
+    NOTE:
+        1. if the machine is powered off, partions table on /dev/nvme0n1 will not be visible.
+            See:
+            http://www.spinics.net/lists/kernel/msg1811135.html
+            http://www.spinics.net/lists/kernel/msg1759647.html
+            https://bugs.debian.org/cgi-bin/bugreport.cgi?bug=746396
+        2. If CentOS is installed, the system will not boot after restart with kernel panic
