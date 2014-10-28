@@ -302,6 +302,7 @@ hw-obj-$(CONFIG_NVME) += nvme.o nvme_adm.o nvme_storage.o nvme_io.o nvme_config_
 #VSSIM
 hw-obj-$(CONFIG_VSSIM) += vssim_config_manager.o
 hw-obj-$(CONFIG_VSSIM) += ftl.o ftl_mapping_manager.o ftl_inverse_mapping_manager.o
+hw-obj-$(CONFIG_VSSIM) += ftl_obj_strategy.o ftl_sect_strategy.o
 hw-obj-$(CONFIG_VSSIM) += ftl_gc_manager.o ftl_perf_manager.o
 hw-obj-$(CONFIG_VSSIM) += ssd.o ssd_log_manager.o ssd_io_manager.o
 

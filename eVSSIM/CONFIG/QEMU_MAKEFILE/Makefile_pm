@@ -238,11 +238,11 @@ obj-i386-y += pc_piix.o kvmclock.o
 obj-i386-$(CONFIG_SPICE) += qxl.o qxl-logger.o qxl-render.o
 
 #MI: VSSIM
-obj-i386-y += vssim_config_manager.o 
-obj-i386-y += ftl.o ftl_mapping_manager.o ftl_inverse_mapping_manager.o
-obj-i386-y += ftl_obj_strategy.o ftl_sect_strategy.o
-obj-i386-y += ftl_gc_manager.o ftl_perf_manager.o 
-obj-i386-y += ssd.o ssd_log_manager.o ssd_io_manager.o
+#obj-i386-y += vssim_config_manager.o 
+#obj-i386-y += ftl.o ftl_mapping_manager.o ftl_inverse_mapping_manager.o
+#obj-i386-y += ftl_obj_strategy.o ftl_sect_strategy.o
+#obj-i386-y += ftl_gc_manager.o ftl_perf_manager.o 
+#obj-i386-y += ssd.o ssd_log_manager.o ssd_io_manager.o
 
 
 
