@@ -156,7 +156,6 @@ namespace {
 
         // And try to fill the disk again with the same number of sized objects
         for(unsigned int p=0; p < objects_in_ssd_; p++){
-            printf("p=%d/%d\n",p,objects_in_ssd_);
             ASSERT_LT(0, _FTL_OBJ_CREATE(object_size_));
         }
         
