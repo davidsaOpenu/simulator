@@ -6,9 +6,8 @@
 #ifndef _SSD_UTIL_H_
 #define _SSD_UTIL_H_
 
-#ifndef GTEST
-#ifndef _UTEST_ 
-	#include "hw.h"
+#ifndef _UTEST_
+	//#include "hw.h"
 #else
 
 	typedef signed long long int64_t;
@@ -16,7 +15,6 @@
 	#include <malloc.h>
 	#include <memory.h>
 
-#endif
 #endif
 
 #endif

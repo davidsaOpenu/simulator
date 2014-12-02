@@ -5,10 +5,6 @@
 
 #include "common.h"
 
-// using a local variable and not the extern one from qemu means our times will not be right and should
-// not be a measure for anything. we can only test the logic and not the speed
-int64_t qemu_overhead;
-
 int* reg_io_cmd;	// READ, WRITE, ERASE
 int* reg_io_type;	// SEQ, RAN, MERGE, GC, etc..
 
@@ -681,6 +677,9 @@ void SSD_REMAIN_IO_DELAY(int reg)
 {
 	SSD_REG_ACCESS(reg);
 }
+
+//MIX
+int64_t qemu_overhead;
 
 void SSD_UPDATE_QEMU_OVERHEAD(int64_t delay)
 {

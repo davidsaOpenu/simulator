@@ -202,14 +202,14 @@ double GET_IO_BANDWIDTH(double delay)
 
 }
 
-int64_t ALLOC_IO_REQUEST(uint64_t sector_nb, unsigned int length, int io_type, int* page_nb)
+int64_t ALLOC_IO_REQUEST(uint32_t sector_nb, unsigned int length, int io_type, int* page_nb)
 {
 	int64_t start = get_usec();
 	int io_page_nb = 0;
 	unsigned int remain = length;
-	unsigned long left_skip = sector_nb % SECTORS_PER_PAGE;
-	unsigned long right_skip;
-	unsigned long sects;
+	unsigned int left_skip = sector_nb % SECTORS_PER_PAGE;
+	unsigned int right_skip;
+	unsigned int sects;
 
 	io_request* curr_io_request = (io_request*)calloc(1, sizeof(io_request));
 	if(curr_io_request == NULL){
