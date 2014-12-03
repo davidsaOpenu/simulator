@@ -126,7 +126,8 @@ void FTL_DELETE(uint64_t id)
 
 void FTL_INIT_STATS(void)
 {
-
+#if 0
+TODO: review statistics implementation
 	int i,j, thRes;
 	struct sockaddr_in serverAddr;
 	pthread_t statThread;
@@ -172,6 +173,7 @@ void FTL_INIT_STATS(void)
 			mapping_stats_table[i][j] = 0;
 		}
 	}
+#endif
 }
 
 void FTL_RESET_STATS(void){
