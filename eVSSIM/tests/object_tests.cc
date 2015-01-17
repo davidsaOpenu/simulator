@@ -5,6 +5,9 @@ extern "C" {
 #include "ftl_obj_strategy.h"
 #include "ftl_sect_strategy.h"
 #include "uthash.h"
+
+#include "osd.h"
+#include "osd-util/osd-util.h"
 }
 extern "C" int g_init;
 extern "C" int g_server_create;
@@ -19,10 +22,6 @@ extern "C" int g_init_log_server;
 #include <cstdlib>
 #include <math.h>
 #include <assert.h>
-
-#include "osd.h"
-#include "osd-util/osd-util.h"
-#include "osd-util/osd-defs.h"
 
 using namespace std;
 

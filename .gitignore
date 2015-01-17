@@ -100,3 +100,9 @@ eVSSIM/tests/ssd_util.h
 eVSSIM/tests/uthash.h
 eVSSIM/tests/vssim_config_manager.c
 eVSSIM/tests/vssim_config_manager.h
+
+# osd-osd files
+eVSSIM/osc-osd/osd-util/.depend
+eVSSIM/osc-osd/osd-target/.depend
+eVSSIM/osc-osd/osd-target/tests
+eVSSIM/osc-osd/osd-target/osd-schema.c
