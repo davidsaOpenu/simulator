@@ -18,6 +18,11 @@ extern "C" int g_init_log_server;
 #include <cstdio>
 #include <cstdlib>
 #include <math.h>
+#include <assert.h>
+
+#include "osd.h"
+#include "osd-util/osd-util.h"
+#include "osd-util/osd-defs.h"
 
 using namespace std;
 
@@ -64,12 +69,28 @@ namespace {
                 g_server_create = 0;
                 g_init_log_server = 0;
             }
+            virtual void osd_init() {
+                const char *root = "/tmp/osd/";
+                system("rm -rf /tmp/osd");
+                assert(!osd_open(root, &osd));
+                osd_sense = (uint8_t*)Calloc(1, 1024);
+                uint32_t cdb_cont_len = 0;
+                assert(!osd_create_partition(&osd, PARTITION_PID_LB, cdb_cont_len, osd_sense));
+            }
+
+            virtual void osd_term() {
+                free(osd_sense);
+                osd_close(&osd);
+            }
         protected:
             int object_size_;
             unsigned int objects_in_ssd_;
+            uint8_t *osd_sense;
+            struct osd_device osd;
     }; // OccupySpaceStressTest
 
     INSTANTIATE_TEST_CASE_P(DiskSize, ObjectUnitTest, ::testing::Values(2048, // 1/2 page
+
                                                                         6144, // 1 1/2 pages
                                                                         2 * 1024 * 1024, // 2 MB
                                                                         6 * 1024 * 1024)); // 6 MB

@@ -15,7 +15,7 @@ sector_tests: sector_tests.o $(VSSIM_OBJ)
 	g++ -Wall -o sector_tests sector_tests.o $(VSSIM_OBJ) -lpthread -lgtest -lgtest_main
 
 object_tests: object_tests.o $(VSSIM_OBJ)
-	g++ -Wall -o object_tests object_tests.o $(VSSIM_OBJ) -lpthread -lgtest -lgtest_main
+	g++ -Wall -o object_tests object_tests.o $(VSSIM_OBJ) libosdutil.a libosdtgt.a -lsqlite3 -lm -lpthread -lgtest -lgtest_main
 
 %.o: %.cc
 	g++ -Wall $(CFLAGS) -c $<
@@ -32,7 +32,7 @@ distclean: clean
 	rm ssd.{h,c} ssd_io_manager.{h,c} ssd_log_manager.{h,c} ssd_util.h common.h \
 		ftl.{h,c} ftl_sect_strategy.{h,c} ftl_obj_strategy.{h,c} ftl_type.h ftl_gc_manager.{h,c} ftl_inverse_mapping_manager.{h,c} \
 		ftl_mapping_manager.{h,c} ftl_perf_manager.{h,c} vssim_config_manager.{h,c} \
-		ssd_monitor uthash.h
+		ssd_monitor uthash.h osd.h osd-util/*.h libosd*
 
 mklink:
 	ln -s ../SSD_MODULE/ssd.h
@@ -62,3 +62,9 @@ mklink:
 	ln -s ../CONFIG/vssim_config_manager.h
 	ln -s ../CONFIG/vssim_config_manager.c
 	ln -s ../MONITOR/SSD_MONITOR_PM/ssd_monitor_p ssd_monitor
+	ln -s ../osc-osd/osd-target/osd.h
+	mkdir -p osd-util
+	ln -s ../osc-osd/osd-util/osd-defs.h osd-util/osd-defs.h
+	ln -s ../osc-osd/osd-util/osd-util.h osd-util/osd-util.h
+	ln -s ../osc-osd/osd-target/libosdtgt.a
+	ln -s ../osc-osd/osd-util/libosdutil.a
