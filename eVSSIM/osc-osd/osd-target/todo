@@ -1,0 +1,105 @@
+# vim: set ft=conf
+
+Optimizations:
++   prepare frequently used statements and store them. 
+
+Potential Bugs:
++   put sqlite_step statemnts in infinite loop.
++   inconsistent return codes in osd.c
++   loosing return value due to finalize
+   		sqlite3_finalize grabs error code in case of failure
+
+Misc todos:
++   magic constants for return values in db.c, attr.c, obj.c
+    
+
+# Thu May 10 21:25:53 EDT 2007
+Optimization:
+-   combine tests for presence and type into one.
+-   make common case fast, assume correct, recover from error. for eg. assume
+    attr and object exist, if not recover from error.
++   optimize sql query setup
+-   multithreading sqlite: 
+        fine grain locking. transactions
+-   optimize setattr: parse input attributes in one go and call setattr
+    function only once
+-   implement cache near the table, for eg. id cache in obj.c
+        table manipulators need local cache. for eg. attr needs cache for
+        blob, obj needs cache for id & storing results of list command. These
+        need to be incorporated in the db_context
+
+Maintainence:
++   configure separate placement of db and storage components
++   after opening db, check if all tables exist
+-   implement null attributes page, decide on definition of "defined"
+    attribute and attribute length
+-   Implement following commands:
+    +   append command
+    -   complete list impl
+    -   complete sma impl
+    -   implement list collection
+    -   ispresent_attr, ispresent_attrpage functions
++   struct for each table (attr, oc, obj):
+       functions to create and destroy them
++   refactor attr.c 
+        clean sqlite api
+        fix fret/ret bugs
+        remove global variables in attr.c
+-   Every create and create_collection, create partition sets default attr
+-   stale values of CCAP are returned
+        since every command sets CCAP chance of stale values is reduced
+-   design attr_list_oids_attr with proper loop invariant and clean code
+-   use stranded files to mv existing dfiles when creating dfiles
+-   reduce number of arguments for : getattr, setattr
++   function to run different tests
+        currently run test does that
+-   ntoh* functions need to be properly aligned
++   db, obj and attr specific return codes
+		all table new return standardized err like OSD_ERROR
++   separate return values for sqlite calls in attr_get_attr
++   use flexible array at end of struct for le mle
+        might not be necessary considering new design and helper funcs
+
+Research:
+-   iSER/SRP target
+-   flexible handle allocation in PVFS
+-   efficient way of generating next id
+        a table to store ranges, to plug the holes in handles
+		currently there is a bug in insert, it generates id by incrementing
+		the oid. But that may not work when dealing with large no. of objects
+-   A tech paper about all the complex attribute operations and their
+    translations into efficient SQL statements.
+
+Long term:
+-   rewrite makefiles like pvfs, look at the paper
+-   collection ids grow from botton, user ids grow from top.
+-   implement sense to report the stage where command failed.
+-   profiling infrastructure for target
+-   if setattr with length zero, don't delete it, since that attr still has
+    definition. this situation is different from where attr has no definition
+    XXX:SD modifiy query.  test attr when BLOB == NULL, does it remove the
+    attr. change the semantics to set attr of zero length rather than
+    removing the attr. change the semantic decision (XXX:SD) made of leaving
+    no side-effects in case of create and other commands
+-   use triggers for time attrs, might slow things down
+        use datatime functions to set timestamps. use
+        CURRENT_TIMESTAMP/CURRENT_TIME to encode creation time of object
+-   speeding up file create operations with OSDs. i.e. PVFS using our
+    optimized create ops
+-   copy sqlite source into the project directory, compile with Multithreaded
+    and other options.
+-   handle access to directory page offset
+-   test different format scenarios ??
+-   implement, quota, security
+-   a new db backend?
+
+Misc:
++   change return values of db.c and attr.c from SQLITE return to OSD return
+    codes
+-   composing multiple objects into a file
+
+# Thu May 29 23:12:13 EDT 2008
+- change the getattr and setattr to do bulk attr setting/getting
+- implement clear, punch and other new commands.
+- check whether the implementation matches the old spec.
+- update the comments with names of new sections

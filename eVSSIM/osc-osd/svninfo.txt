@@ -1,0 +1,21 @@
+svninfo: START of svn-import branch
+
+This git Repository is an svn checkout of three sub-projects
+from the OSC's OSD project:
+
+https://svn.osc.edu/repos/pw/osd/osd-util	at osd-util/
+https://svn.osc.edu/repos/pw/osd/osd-target	at osd-target/
+https://svn.osc.edu/repos/pw/osd/osd-initiator	at osd-initiator/
+
+This git branch is a machine made Mirror of these svn branches
+without any added/removed or edited files. It will start with svn
+checkout of revision r695, useing the svn_fetch3.sh script to
+git-commit each svn revision, one by one.
+
+The svn_fetch3.sh script used to create this tree is available
+in the first commit of this tree.
+
+It is assumed that the proper .gitignore file is manually placed at
+the git-root for proper operation of this import
+
+Signed-off-by: Boaz Harrosh <bharrosh@panasas.com>

@@ -1,0 +1,146 @@
+OSC's OSD project hosted on open-osd.org
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+I am happy to announce the availability of OSC's OSD project
+in a git Mirror of the internal svn repository. As expected
+it only contains the GPL parts of OSC's OSD project.
+
+Thanks to Ananth Devulapalli, the maintainer of the project
+at OSC, for letting us do this.
+
+I have also tied the project with TOMO's tgt git-tree as
+a submodule, so a user that needs an OSD2 target need only
+clone one head and everything will sync automatically.
+
+The git tree is here:
+  git-clone --recursive git://git.open-osd.org/osc-osd/.git
+  or viewed
+  http://git.open-osd.org/gitweb.cgi?p=osc-osd/.git;a=summary
+
+The tgt submodule can also be accessed at:
+  git://git.open-osd.org/osc-osd/tgt
+  or viewed
+  http://git.open-osd.org/gitweb.cgi?p=osc-osd/tgt/.git;a=summary
+
+  But please don't clone directly. Use the git-submodule command
+  from osc-osd project to sync everything automatically. (See below)
+
+GIT Structure
+~~~~~~~~~~~~~~
+
+For most users the osc-osd/master branch is all they need and
+with a small help from git-submodule update they should get
+a compilable/working OSD2 target/Initiator.
+
+However the git structure is as follows:
+
+osc-old-git - branch: Historic git-tree
+  This is the dead git tree that is still available at:
+  web - http://git.osc.edu/?p=osd.git
+  or git://git.osc.edu/osd.git
+  It is no longer updated and won't even compile at current state.
+  But it has the longest history of the project.
+
+osc - branch: OSC's svn Mirror
+  Is a branch I manually rebase-merged between the osc-old-git
+  And a git-branch I made with the help of the svn_fetch3.sh
+  script. OSC would let me have a read-only access to their GPL
+  parts of the SVN repository, with the help of a script I import
+  this tree into git. The script is incremental and is run from
+  time-to-time to update on OSC's progress. From today on all commits
+  to this branch will be made only by the svn_fetch3.sh script.
+
+SVN_FETCH - tag
+  This tags the patch that adds the first version of svn_fetch3.sh
+  script and friends, from here on the tree branches from the original
+  git tree and starts the SVN import.
+
+master - branch
+  At this branch I keep open-osd patches to the OSC project, as well
+  as the integration with the tgt submodule. Checking out this branch
+  should give a user working results. Other branches might not compile
+  and/or need farther manual configuration. Here I will try to keep a
+  working version.
+
+Currently "master" is a superset of "osc". But in the future the "osc"
+branch might advance faster then master. I will try to only cut master
+at points that compile and pass my tests, so users have a good chance
+of a working set. Needless to say that osc-old-git is frozen.
+
+"osc" will never rebase, and will only advance forward. Other then
+exact commits from svn it will contain updates to the svn_fetch*
+script if needed.
+
+"master" will rebase, with open-osd pending patches floating above
+"osc" branch. When/if some of the patches get accepted by Ananth
+or are fixed in some other way, they will get dropped. So for
+users, they should "git-remote update" plus "git-checkout -b ..."
+and not just "git-pull" from "master"
+
+update: 2009/11/18:
+It looks like the OSC project is by now dead. All above branches
+are now frozen. Development will only continue on the *master*
+branch.
+
+[README]
+~~~~~~~~~
+
+prerequisites:
+needed is the sqlite-devel package. For example:
+[]$ yum install sqlite-devel
+
+all a user need is to follow these steps:
+- at some parent folder do
+[]$ git clone --recursive git://git.open-osd.org/osc-osd/.git
+
+If behind a firewall and in need of "http:" access do:
+[]$ git clone --recursive http://git.open-osd.org/trees/osc-osd/.git
+
+    (Please use relatively new git version)
+[]$ cd osc-osd/
+
+- The above "--recursive" switch cloned everything for us. If you forgot
+  You'll need one additional step
+[]$ git submodule init
+[]$ git submodule update
+  These last commands will auto clone the tgt git tree.
+
+- That's it we are ready and should now do:
+[]$ make
+  And it should all compile. See the osd-target/README for
+  additional information.
+
+- For running the target also read osd-target/README and
+  tgt/doc/. But basically you should run ./up for a debug
+  load of an OSD2 target. Edit the ./up script to specify
+  the backing store of the target, default is at /var/osd-tgt/...
+
+From time to time if you want to update on osc-osd progress
+you might do:
+
+- Save a working merge point:
+[]$ git tag WORKS_FOR_ME
+  This can later be removed if you're happy with the new stuff. I might keep
+  these tagged as well.
+
+- Update with new version
+[]$ git remote update
+
+[]$ git checkout -b my-osd origin/master
+  Where my-osd is the name of the new branch you want to call it.
+
+  Alternatively you might just do:
+[]$ git checkout origin/master
+
+  And one more important step:
+[]$ git submodule update
+  This will sync tgt to the proper point
+
+  That's it make and test
+
+I want to thank Pete Wyckoff Ananth Devulapalli FUJITA Tomonori and their
+teems for the help and hard work put in these projects, and their advise.
+We hope to stay true to these projects and provide users a good public
+place to come collect these things needed for a workable OSD setup.
+
+The open-osd teem

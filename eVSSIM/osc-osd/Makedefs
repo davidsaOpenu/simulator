@@ -1,0 +1,25 @@
+#
+# Common defines for all projects.  This is the place to turn on or off
+# debugging and optimization for everything.
+#
+# OPT := -g
+OPT := -O3 -DNDEBUG
+# OPT := -O3
+
+# Backend configuration flags
+# PANASAS_OSD=1
+# PANASAS_OSDSIM=1 # (ignored if PANASAS_OSD=0)
+
+# Define this to build a pvfs2-server executable with an embedded OSD target
+# inside it.
+#PVFS_OSD_INTEGRATED := 1
+
+# vim: ft=make
+
+UNAME= $(shell uname)
+ifeq (FreeBSD,$(UNAME))
+FreeBSD_Make=1
+endif
+ifeq (Darwin,$(UNAME))
+FreeBSD_Make=1
+endif

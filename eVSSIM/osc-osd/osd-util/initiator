@@ -1,0 +1,145 @@
+#!/bin/bash
+#
+# Start/stop iSCSI connection to a set of targets.  Like an init script.
+#
+# Proper use of /dev/bsg by users relies on existence of special udev rule.
+# See /etc/udev/rules.d/20-bsg.rules
+#    # put all devices in single directory and let anyone access
+#    ACTION=="add", SUBSYSTEM=="bsg", NAME="bsg/%k", MODE="0666", OPTIONS="last_rule"
+#
+# Copyright (C) 2007 Pete Wyckoff <pw@osc.edu>
+#
+# This program is free software: you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation, version 2 of the License.
+# 
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+# 
+# You should have received a copy of the GNU General Public License
+# along with this program.  If not, see <http://www.gnu.org/licenses/>.
+
+# must be root to talk to iscsid over the unix domain socket
+if (( $(id -u) != 0 )) ; then
+    # ignore complaints about "audit_log_user_command()".  Stupid redhat.
+    exec sudo $0 "$@"
+    exit 1
+fi
+
+# root via sudo does not have this in its path
+export PATH=$PATH:/usr/sbin:/sbin
+
+usage() {
+    (
+    echo "Usage: ${0##*/} {start|restart} [--rdma] target [target...]"
+    echo "       ${0##*/} stop"
+    echo "       ${0##*/} status"
+    echo "If you choose --rdma, be sure to supply an IPoIB address."
+    ) >&2
+    exit 1
+}
+
+start() {
+    local transport_type=tcp
+    if (( $# < 1 )) ; then usage ; fi
+    if [[ $1 = --rdma ]] ; then
+	transport_type=iser
+	# XXX: debugging
+	#modprobe ib_iser debug_level=1
+	modprobe ib_iser
+	shift
+	if (( $# < 1 )) ; then usage ; fi
+    fi
+
+    # connect to each of the list of target hosts given
+    while (( $# >= 1 )) ; do
+	targethost=$1
+	shift
+	# When this fails, exitval is still 0.
+	# And when it does succeed, it shows the entire database, even
+	# old nodes.  Just pick out ours to make sure it worked, and
+	# grab the IP to pass to the login, which will not resolve a
+	# hostname.
+	if hash nodequery 2>/dev/null ; then
+	    targetip=$(nodequery --ip $targethost)
+	    targetname=$(iscsiadm -m discovery -t st -p $targethost |\
+			 egrep ^$targetip: | sed -n 1p | cut -d\  -f2)
+	else
+	    # hope it is the first/only IP we get back
+	    targetname=$(iscsiadm -m discovery -t st -p $targethost |\
+			 sed -n 1p | cut -d\  -f2)
+	    if [[ -n $targetname ]] ; then
+		    targetip=$(iscsiadm -m discovery -t st -p $targethost |\
+				 sed -n 1p | cut -d\  -f1)
+	    fi
+	fi
+	if [[ -z $targetname ]] ; then
+	    echo "Could not connect to SCSI target on $targethost." >&2
+	    continue
+	fi
+	# set transport type; must provide targetname here
+	iscsiadm -m node -p $targetip -T $targetname --op update \
+	    -n node.transport_name -v $transport_type
+	# login
+	iscsiadm -m node -p $targetip -T $targetname -l
+    done
+}
+
+stop() {
+    iscsiadm -m session 2>&1 | while read tcp num addr targetname ; do
+	if [[ "$tcp $num $addr $targetname" =\
+	      "iscsiadm: no active sessions" ]] ; then
+	    break
+	fi
+	iscsiadm -m node -p $addr -T $targetname -u
+	if (( $? != 0 )) ; then
+	    echo "Could not logout from SCSI target on $targetname." >&2
+	fi
+    done
+}
+
+status() {
+    iscsiadm -m session
+}
+
+# on ornl,opt machines, bring up iscsid
+if ! pgrep iscsid > /dev/null ; then
+    echo starting iscsid
+    if [[ -L /etc/iscsi/initiatorname.iscsi ]] ; then
+	# automake initiator file
+	f=$(readlink /etc/iscsi/initiatorname.iscsi)
+	if [[ ! -f $f ]] ; then
+	    d=$(dirname $f)
+	    if [[ ! -d $d ]] ; then
+		mkdir -p $d || exit 1
+	    fi
+	    n=$(hostname -s)
+	    ( echo InitiatorName=$n ; echo InitiatorAlias=$n ) > $f || exit 1
+	fi
+    fi
+    service iscsid start
+fi
+
+command=$1
+shift
+case $command in
+    start)
+	start $*
+	;;
+    stop)
+	stop
+	;;
+    restart)
+	stop
+	start $*
+	;;
+    status)
+	status
+	;;
+    *)
+	usage
+esac
+exit 0
+

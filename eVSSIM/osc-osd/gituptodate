@@ -1,0 +1,38 @@
+#!/bin/bash
+#
+
+#del all tags
+git tag -d `git tag -l` 	>/dev/null 2>&1
+# update
+git remote update		>/dev/null 2>&1
+git remote prune origin
+
+git checkout  origin/master	>/dev/null 2>&1
+git submodule update
+
+git branch -f osc               origin/osc
+git branch -f master            origin/master
+git checkout  master
+git update-server-info
+echo ===========================================================================
+git branch -a -v
+echo ===========================================================================
+
+cd tgt
+
+#del all tags
+git tag -d `git tag -l` 	>/dev/null 2>&1
+#Update
+git remote update		>/dev/null 2>&1
+git remote prune origin
+
+git branch -f osd-old           origin/osd-old
+git branch -f from-tomo         origin/from-tomo
+git branch -f osd               origin/osd
+git branch -f osd-next          origin/osd-next
+git update-server-info
+echo ===========================================================================
+git branch -a -v
+echo ===========================================================================
+
+cd ..
