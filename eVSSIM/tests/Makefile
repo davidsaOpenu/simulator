@@ -6,7 +6,7 @@ VSSIM_OBJ = vssim_config_manager.o \
 			ssd.o ssd_log_manager.o ssd_io_manager.o \
 			ftl_sect_strategy.o ftl_obj_strategy.o
 
-#CFLAGS = -I/opt/gtest/include -g -DGTEST -DFTL_DEBUG
+#CFLAGS = -I/opt/gtest/include -I../osc-osd -I../osc-osd/osd-target -g -DGTEST -DFTL_DEBUG -DNO_OSD
 CFLAGS = -I/opt/gtest/include -I../osc-osd -I../osc-osd/osd-target -g -DGTEST
 
 all: sector_tests object_tests
@@ -26,7 +26,7 @@ object_tests: object_tests.o $(VSSIM_OBJ)
 .PHONY: clean distclean mklink
 
 clean:
-	-rm unit_tests object_tests sector_tests system_tests.o object_tests.o sector_tests.o $(VSSIM_OBJ) data/*
+	-rm object_tests sector_tests object_tests.o sector_tests.o $(VSSIM_OBJ) data/*
 
 distclean: clean
 	rm ssd.{h,c} ssd_io_manager.{h,c} ssd_log_manager.{h,c} ssd_util.h common.h \

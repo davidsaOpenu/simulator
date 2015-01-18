@@ -8,6 +8,7 @@ extern "C" {
 
 #include "osd.h"
 #include "osd-util/osd-util.h"
+#include "osd-util/osd-defs.h"
 }
 extern "C" int g_init;
 extern "C" int g_server_create;
@@ -54,7 +55,9 @@ namespace {
                 object_size_ = GetParam();
                 int object_pages = (int)ceil(1.0 * object_size_ / PAGE_SIZE); // ceil because we can't have a page belong to 2 objects
                 objects_in_ssd_ = (unsigned int)((PAGES_IN_SSD - BLOCK_NB)/ object_pages); //over-provisioning of exactly one block
+#ifndef NO_OSD
                 osd_init();
+#endif
             }
             virtual void TearDown() {
                 SSD_TERM();
@@ -68,7 +71,9 @@ namespace {
                 g_init = 0;
                 g_server_create = 0;
                 g_init_log_server = 0;
+#ifndef NO_OSD
                 osd_term();
+#endif
             }
             virtual void osd_init() {
                 const char *root = "/tmp/osd/";
@@ -100,15 +105,25 @@ namespace {
         printf("SimpleObjectCreate test started\n");
         printf("Page no.:%ld\nPage size:%d\n",PAGES_IN_SSD,PAGE_SIZE);
         printf("Object size: %d bytes\n",object_size_);
-        // Fill the disk with objects
+        
+#ifndef NO_OSD
         char *wrbuf = (char *)Calloc(1, object_size_);
+#endif
+        
+        // Fill the disk with objects
         for(unsigned int p=0; p < objects_in_ssd_; p++){
-            //printf("%ld/%ld\n",(long)p,PAGES_IN_SSD);
-            ASSERT_EQ(0,osd_create_and_write(&osd, USEROBJECT_PID_LB, USEROBJECT_OID_LB + p, object_size_,0,
-                                             (uint8_t *)wrbuf,cdb_cont_len, 0, osd_sense, DDT_CONTIG));
-            ASSERT_LT(0, _FTL_OBJ_CREATE(object_size_));
+            int new_obj = _FTL_OBJ_CREATE(object_size_);
+            ASSERT_LT(0, new_obj);
+#ifndef NO_OSD
+            ASSERT_EQ(0, osd_create_and_write(&osd, USEROBJECT_PID_LB, USEROBJECT_OID_LB + new_obj, object_size_, 0,
+                (uint8_t *)wrbuf, cdb_cont_len, 0, osd_sense, DDT_CONTIG));
+#endif
         }
+        
+#ifndef NO_OSD
         free(wrbuf);
+#endif
+        
         // At this step there shouldn't be any free page
         //ASSERT_EQ(FAIL, _FTL_OBJ_CREATE(object_size_));      
         printf("SimpleObjectCreate test ended\n");
@@ -120,26 +135,42 @@ namespace {
         printf("Page no.:%ld\nPage size:%d\n",PAGES_IN_SSD,PAGE_SIZE);
         printf("Object size: %d bytes\n",object_size_);
 
-        char *wrbuf = (char *)Calloc(1, object_size_);
         // used to keep all the assigned ids
         int objects[objects_in_ssd_];
+        
+#ifndef NO_OSD
+        char *wrbuf = (char *)Calloc(1, object_size_);
+#endif
+        
         // Fill 50% of the disk with objects
         for(unsigned int p=0; p < objects_in_ssd_ / 2; p++){
-            ASSERT_EQ(0,osd_create_and_write(&osd, USEROBJECT_PID_LB, USEROBJECT_OID_LB + p, object_size_,0,
-                                             (uint8_t *)wrbuf,cdb_cont_len, 0, osd_sense, DDT_CONTIG));
             int new_obj = _FTL_OBJ_CREATE(object_size_);
             ASSERT_LT(0, new_obj);
             objects[p] = new_obj;
+#ifndef NO_OSD
+            ASSERT_EQ(0, osd_create_and_write(&osd, USEROBJECT_PID_LB, USEROBJECT_OID_LB + new_obj, object_size_, 0,
+                (uint8_t *)wrbuf, cdb_cont_len, 0, osd_sense, DDT_CONTIG));
+#endif
         }
+        
+#ifndef NO_OSD
         free(wrbuf);
         wrbuf = (char *)Calloc(1, PAGE_SIZE);
+#endif
+        
         // Write PAGE_SIZE data to each one
         for(unsigned int p=0; p < objects_in_ssd_/2; p++){
-	    ASSERT_EQ(0,osd_write(&osd, USEROBJECT_PID_LB, USEROBJECT_OID_LB + p,
-                                  PAGE_SIZE, 0, (uint8_t *)wrbuf, 0, osd_sense, DDT_CONTIG));
             ASSERT_EQ(SUCCESS, _FTL_OBJ_WRITE(objects[p],0,PAGE_SIZE));
+#ifndef NO_OSD
+            ASSERT_EQ(0, osd_write(&osd, USEROBJECT_PID_LB, USEROBJECT_OID_LB + objects[p],
+                PAGE_SIZE, 0, (uint8_t *)wrbuf, 0, osd_sense, DDT_CONTIG));
+#endif
         }
+        
+#ifndef NO_OSD
         free(wrbuf);
+#endif
+        
         printf("SimpleObjectCreateWrite test ended\n");
     }
 
@@ -150,28 +181,47 @@ namespace {
 
         // used to keep all the assigned ids
         int objects[objects_in_ssd_];
+        
+#ifndef NO_OSD
         char *wrbuf = (char *)Calloc(1, object_size_);
+#endif
+        
         // Fill 50% of the disk with objects
         for(unsigned int p=0; p < objects_in_ssd_/2; p++){
-            sprintf(wrbuf,"%u",p); // insert unique data to the object
-            ASSERT_EQ(0,osd_create_and_write(&osd, USEROBJECT_PID_LB, USEROBJECT_OID_LB + p, object_size_,0,
-                                             (uint8_t *)wrbuf,cdb_cont_len, 0, osd_sense, DDT_CONTIG));
             int new_obj = _FTL_OBJ_CREATE(object_size_);
             ASSERT_LT(0, new_obj);
             objects[p] = new_obj;
+#ifndef NO_OSD
+            // insert unique data to the object
+            sprintf(wrbuf,"%u", new_obj);
+            ASSERT_EQ(0 ,osd_create_and_write(&osd, USEROBJECT_PID_LB, USEROBJECT_OID_LB + new_obj, object_size_, 0,
+                (uint8_t *)wrbuf,cdb_cont_len, 0, osd_sense, DDT_CONTIG));
+#endif
         }
+        
+#ifndef NO_OSD
+        // length and read buffer
         uint64_t len;
         char *rdbuf = (char *)Calloc(1, PAGE_SIZE/2);
+#endif
+        
         // Read PAGE_SIZE/2 data from each one
         for(unsigned int p=0; p < objects_in_ssd_/2; p++){
-            ASSERT_EQ(0,osd_read(&osd, USEROBJECT_PID_LB, USEROBJECT_OID_LB + p,
-		                 PAGE_SIZE/2, 0, NULL, (uint8_t *)rdbuf, &len, 0, osd_sense, DDT_CONTIG));
-            sprintf(wrbuf,"%u",p); //compare with the expected unique data
-            ASSERT_EQ(0, strcmp(rdbuf,wrbuf));
             ASSERT_EQ(SUCCESS, _FTL_OBJ_READ(objects[p],0,PAGE_SIZE));
+#ifndef NO_OSD
+            // read and compare with the expected unique data
+            ASSERT_EQ(0, osd_read(&osd, USEROBJECT_PID_LB, USEROBJECT_OID_LB + objects[p],
+                PAGE_SIZE/2, 0, NULL, (uint8_t *)rdbuf, &len, 0, osd_sense, DDT_CONTIG));
+            sprintf(wrbuf, "%u", objects[p]);
+            ASSERT_EQ(0, strcmp(rdbuf, wrbuf));
+#endif
         }
+        
+#ifndef NO_OSD
         free(rdbuf);
         free(wrbuf);
+#endif
+        
         printf("SimpleObjectCreateRead test ended\n");
     }
 
@@ -179,36 +229,48 @@ namespace {
         printf("SimpleObjectCreateDelete test started\n");
         printf("Page no.:%ld\nPage size:%d\n",PAGES_IN_SSD,PAGE_SIZE);
         printf("Object size: %d bytes\n",object_size_);
-
         
         // used to keep all the assigned ids
         int objects[objects_in_ssd_];
         
+#ifndef NO_OSD
         char *wrbuf = (char *)Calloc(1, object_size_);
+#endif
+        
         // Fill the disk with objects
         for(unsigned int p=0; p < objects_in_ssd_; p++){
-            ASSERT_EQ(0,osd_create_and_write(&osd, USEROBJECT_PID_LB, USEROBJECT_OID_LB + p, object_size_,0,
-                                             (uint8_t *)wrbuf,cdb_cont_len, 0, osd_sense, DDT_CONTIG));
             int new_obj = _FTL_OBJ_CREATE(object_size_);
             ASSERT_LT(0, new_obj);
             objects[p] = new_obj;
+#ifndef NO_OSD
+            ASSERT_EQ(0, osd_create_and_write(&osd, USEROBJECT_PID_LB, USEROBJECT_OID_LB + new_obj, object_size_, 0,
+                (uint8_t *)wrbuf, cdb_cont_len, 0, osd_sense, DDT_CONTIG));
+#endif
         }
         // Now make sure we can't create a new object, aka the disk is full
         // ASSERT_EQ(FAIL, _FTL_OBJ_CREATE(object_size_)); 
 
         // Delete all objects
         for (unsigned int p=0; p < objects_in_ssd_; p++) {
-            ASSERT_EQ(0,osd_remove(&osd, USEROBJECT_PID_LB, USEROBJECT_OID_LB + p, cdb_cont_len, osd_sense));
             ASSERT_EQ(SUCCESS, _FTL_OBJ_DELETE(objects[p]));
+#ifndef NO_OSD
+            ASSERT_EQ(0, osd_remove(&osd, USEROBJECT_PID_LB, USEROBJECT_OID_LB + objects[p], cdb_cont_len, osd_sense));
+#endif
         }
 
         // And try to fill the disk again with the same number of sized objects
         for(unsigned int p=0; p < objects_in_ssd_; p++){
-            ASSERT_EQ(0,osd_create_and_write(&osd, USEROBJECT_PID_LB, USEROBJECT_OID_LB + p, object_size_,0,
-                                             (uint8_t *)wrbuf,cdb_cont_len, 0, osd_sense, DDT_CONTIG));
-            ASSERT_LT(0, _FTL_OBJ_CREATE(object_size_));
+            int new_obj = _FTL_OBJ_CREATE(object_size_);
+            ASSERT_LT(0, new_obj);
+#ifndef NO_OSD
+            ASSERT_EQ(0, osd_create_and_write(&osd, USEROBJECT_PID_LB, USEROBJECT_OID_LB + new_obj, object_size_, 0,
+                (uint8_t *)wrbuf, cdb_cont_len, 0, osd_sense, DDT_CONTIG));
+#endif
         }
+        
+#ifndef NO_OSD
         free(wrbuf);
+#endif
         
         printf("SimpleObjectCreateDelete test ended\n");
     }
@@ -220,25 +282,34 @@ namespace {
         printf("Initial object size: %d bytes\n",object_size_);
         printf("Final object size: %d bytes\n",final_object_size);
 
-        char *wrbuf = (char *)Calloc(1, object_size_);
         // create an object_size_bytes_ - sized object
-        ASSERT_EQ(0,osd_create_and_write(&osd, USEROBJECT_PID_LB, USEROBJECT_OID_LB, object_size_,0,
-                                         (uint8_t *)wrbuf,cdb_cont_len, 0, osd_sense, DDT_CONTIG));
         int obj_id = _FTL_OBJ_CREATE(object_size_);
         ASSERT_LT(0, obj_id);
+
+#ifndef NO_OSD
+        char *wrbuf = (char *)Calloc(1, object_size_);
+        ASSERT_EQ(0, osd_create_and_write(&osd, USEROBJECT_PID_LB, USEROBJECT_OID_LB + obj_id, object_size_, 0,
+            (uint8_t *)wrbuf, cdb_cont_len, 0, osd_sense, DDT_CONTIG));
+#endif
         
         unsigned int size = object_size_;
         // continuously extend it with object_size_bytes_ chunks
         while (size < final_object_size) {
-            ASSERT_EQ(0,osd_write(&osd, USEROBJECT_PID_LB, USEROBJECT_OID_LB,
-			object_size_, size, (uint8_t *)wrbuf, 0, osd_sense, DDT_CONTIG));
             ASSERT_EQ(SUCCESS, _FTL_OBJ_WRITE(obj_id, size, object_size_));
             size += object_size_;
+#ifndef NO_OSD
+            ASSERT_EQ(0, osd_write(&osd, USEROBJECT_PID_LB, USEROBJECT_OID_LB + obj_id,
+                object_size_, size, (uint8_t *)wrbuf, 0, osd_sense, DDT_CONTIG));
+#endif
         }
 
         // we should've covered the whole disk by now, so another write should fail
         //ASSERT_EQ(FAIL, _FTL_OBJ_WRITE(obj_id, size, object_size_)); 
+        
+#ifndef NO_OSD
         free(wrbuf);
+#endif
+        
         printf("ObjectGrowth test ended\n");
     }
 
