@@ -26,10 +26,10 @@ object_tests: object_tests.o $(VSSIM_OBJ)
 .PHONY: clean distclean mklink
 
 clean:
-	-rm object_tests sector_tests object_tests.o sector_tests.o $(VSSIM_OBJ) data/*
+	rm -f object_tests sector_tests object_tests.o sector_tests.o $(VSSIM_OBJ) data/*
 
 distclean: clean
-	rm ssd.{h,c} ssd_io_manager.{h,c} ssd_log_manager.{h,c} ssd_util.h common.h \
+	rm -f ssd.{h,c} ssd_io_manager.{h,c} ssd_log_manager.{h,c} ssd_util.h common.h \
 		ftl.{h,c} ftl_sect_strategy.{h,c} ftl_obj_strategy.{h,c} ftl_type.h ftl_gc_manager.{h,c} ftl_inverse_mapping_manager.{h,c} \
 		ftl_mapping_manager.{h,c} ftl_perf_manager.{h,c} vssim_config_manager.{h,c} \
 		ssd_monitor uthash.h
