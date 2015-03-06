@@ -1,12 +1,14 @@
 #include "xen_backend.h"
+#include "blockdev.h"
+#include "block_int.h" /* XXX */
 
 /* ------------------------------------------------------------- */
 
 struct xs_dirs {
     char *xs_dir;
-    TAILQ_ENTRY(xs_dirs) list;
+    QTAILQ_ENTRY(xs_dirs) list;
 };
-static TAILQ_HEAD(xs_dirs_head, xs_dirs) xs_cleanup = TAILQ_HEAD_INITIALIZER(xs_cleanup);
+static QTAILQ_HEAD(xs_dirs_head, xs_dirs) xs_cleanup = QTAILQ_HEAD_INITIALIZER(xs_cleanup);
 
 static void xen_config_cleanup_dir(char *dir)
 {
@@ -14,14 +16,14 @@ static void xen_config_cleanup_dir(char *dir)
 
     d = qemu_malloc(sizeof(*d));
     d->xs_dir = dir;
-    TAILQ_INSERT_TAIL(&xs_cleanup, d, list);
+    QTAILQ_INSERT_TAIL(&xs_cleanup, d, list);
 }
 
 void xen_config_cleanup(void)
 {
     struct xs_dirs *d;
 
-    TAILQ_FOREACH(d, &xs_cleanup, list) {
+    QTAILQ_FOREACH(d, &xs_cleanup, list) {
 	xs_rm(xenstore, 0, d->xs_dir);
     }
 }
@@ -94,7 +96,7 @@ int xen_config_dev_blk(DriveInfo *disk)
 {
     char fe[256], be[256];
     int vdev = 202 * 256 + 16 * disk->unit;
-    int cdrom = disk->bdrv->type == BDRV_TYPE_CDROM;
+    int cdrom = disk->media_cd;
     const char *devtype = cdrom ? "cdrom" : "disk";
     const char *mode    = cdrom ? "r"     : "w";
 

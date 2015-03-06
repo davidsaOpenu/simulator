@@ -80,6 +80,7 @@ DEF_HELPER_1(cmpxchg16b, void, tl)
 DEF_HELPER_0(single_step, void)
 DEF_HELPER_0(cpuid, void)
 DEF_HELPER_0(rdtsc, void)
+DEF_HELPER_0(rdtscp, void)
 DEF_HELPER_0(rdpmc, void)
 DEF_HELPER_0(rdmsr, void)
 DEF_HELPER_0(wrmsr, void)
@@ -192,6 +193,7 @@ DEF_HELPER_2(fxsave, void, tl, int)
 DEF_HELPER_2(fxrstor, void, tl, int)
 DEF_HELPER_1(bsf, tl, tl)
 DEF_HELPER_1(bsr, tl, tl)
+DEF_HELPER_2(lzcnt, tl, tl, int)
 
 /* MMX/SSE */
 

@@ -28,9 +28,14 @@ struct arm_boot_info {
     const char *initrd_filename;
     target_phys_addr_t loader_start;
     target_phys_addr_t smp_loader_start;
+    target_phys_addr_t smp_priv_base;
     int nb_cpus;
     int board_id;
     int (*atag_board)(struct arm_boot_info *info, void *p);
+    /* Used internally by arm_boot.c */
+    int is_linux;
+    target_phys_addr_t initrd_size;
+    target_phys_addr_t entry;
 };
 void arm_load_kernel(CPUState *env, struct arm_boot_info *info);
 

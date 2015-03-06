@@ -116,12 +116,12 @@ pic_writel (void *opaque, target_phys_addr_t addr, uint32_t value)
     update_irq(p);
 }
 
-static CPUReadMemoryFunc *pic_read[] = {
+static CPUReadMemoryFunc * const pic_read[] = {
     NULL, NULL,
     &pic_readl,
 };
 
-static CPUWriteMemoryFunc *pic_write[] = {
+static CPUWriteMemoryFunc * const pic_write[] = {
     NULL, NULL,
     &pic_writel,
 };
@@ -145,7 +145,7 @@ static void irq_handler(void *opaque, int irq, int level)
     update_irq(p);
 }
 
-static void xilinx_intc_init(SysBusDevice *dev)
+static int xilinx_intc_init(SysBusDevice *dev)
 {
     struct xlx_pic *p = FROM_SYSBUS(typeof (*p), dev);
     int pic_regs;
@@ -153,8 +153,9 @@ static void xilinx_intc_init(SysBusDevice *dev)
     qdev_init_gpio_in(&dev->qdev, irq_handler, 32);
     sysbus_init_irq(dev, &p->parent_irq);
 
-    pic_regs = cpu_register_io_memory(pic_read, pic_write, p);
+    pic_regs = cpu_register_io_memory(pic_read, pic_write, p, DEVICE_NATIVE_ENDIAN);
     sysbus_init_mmio(dev, R_MAX * 4, pic_regs);
+    return 0;
 }
 
 static SysBusDeviceInfo xilinx_intc_info = {
@@ -162,12 +163,8 @@ static SysBusDeviceInfo xilinx_intc_info = {
     .qdev.name  = "xilinx,intc",
     .qdev.size  = sizeof(struct xlx_pic),
     .qdev.props = (Property[]) {
-        {
-            .name   = "kind-of-intr",
-            .info   = &qdev_prop_uint32,
-            .offset = offsetof(struct xlx_pic, c_kind_of_intr),
-        },
-        {/* end of list */}
+        DEFINE_PROP_UINT32("kind-of-intr", struct xlx_pic, c_kind_of_intr, 0),
+        DEFINE_PROP_END_OF_LIST(),
     }
 };
 

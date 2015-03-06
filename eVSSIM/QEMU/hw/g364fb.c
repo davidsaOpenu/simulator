@@ -268,7 +268,7 @@ static void g364fb_update_display(void *opaque)
     qemu_irq_raise(s->irq);
 }
 
-static void inline g364fb_invalidate_display(void *opaque)
+static inline void g364fb_invalidate_display(void *opaque)
 {
     G364State *s = opaque;
     int i;
@@ -396,7 +396,7 @@ static uint32_t g364fb_ctrl_readb(void *opaque, target_phys_addr_t addr)
 
 static void g364fb_update_depth(G364State *s)
 {
-    const static int depths[8] = { 1, 2, 4, 8, 15, 16, 0 };
+    static const int depths[8] = { 1, 2, 4, 8, 15, 16, 0 };
     s->depth = depths[(s->ctla & 0x00700000) >> 20];
 }
 
@@ -522,13 +522,13 @@ static void g364fb_ctrl_writeb(void *opaque, target_phys_addr_t addr, uint32_t v
     g364fb_ctrl_writel(opaque, addr & ~0x3, val);
 }
 
-static CPUReadMemoryFunc *g364fb_ctrl_read[3] = {
+static CPUReadMemoryFunc * const g364fb_ctrl_read[3] = {
     g364fb_ctrl_readb,
     g364fb_ctrl_readw,
     g364fb_ctrl_readl,
 };
 
-static CPUWriteMemoryFunc *g364fb_ctrl_write[3] = {
+static CPUWriteMemoryFunc * const g364fb_ctrl_write[3] = {
     g364fb_ctrl_writeb,
     g364fb_ctrl_writew,
     g364fb_ctrl_writel,
@@ -593,12 +593,12 @@ int g364fb_mm_init(target_phys_addr_t vram_base,
     s = qemu_mallocz(sizeof(G364State));
 
     s->vram_size = 8 * 1024 * 1024;
-    s->vram_offset = qemu_ram_alloc(s->vram_size);
+    s->vram_offset = qemu_ram_alloc(NULL, "g364fb.vram", s->vram_size);
     s->vram = qemu_get_ram_ptr(s->vram_offset);
     s->irq = irq;
 
     qemu_register_reset(g364fb_reset, s);
-    register_savevm("g364fb", 0, 1, g364fb_save, g364fb_load, s);
+    register_savevm(NULL, "g364fb", 0, 1, g364fb_save, g364fb_load, s);
     g364fb_reset(s);
 
     s->ds = graphic_console_init(g364fb_update_display,
@@ -607,7 +607,8 @@ int g364fb_mm_init(target_phys_addr_t vram_base,
 
     cpu_register_physical_memory(vram_base, s->vram_size, s->vram_offset);
 
-    io_ctrl = cpu_register_io_memory(g364fb_ctrl_read, g364fb_ctrl_write, s);
+    io_ctrl = cpu_register_io_memory(g364fb_ctrl_read, g364fb_ctrl_write, s,
+                                     DEVICE_NATIVE_ENDIAN);
     cpu_register_physical_memory(ctrl_base, 0x200000, io_ctrl);
 
     return 0;

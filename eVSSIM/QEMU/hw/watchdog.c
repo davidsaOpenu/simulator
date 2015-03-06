@@ -20,15 +20,28 @@
  */
 
 #include "qemu-common.h"
-#include "sys-queue.h"
+#include "qemu-option.h"
+#include "qemu-config.h"
+#include "qemu-queue.h"
+#include "qemu-objects.h"
+#include "monitor.h"
 #include "sysemu.h"
 #include "hw/watchdog.h"
 
-static LIST_HEAD(watchdog_list, WatchdogTimerModel) watchdog_list;
+/* Possible values for action parameter. */
+#define WDT_RESET        1	/* Hard reset. */
+#define WDT_SHUTDOWN     2	/* Shutdown. */
+#define WDT_POWEROFF     3	/* Quit. */
+#define WDT_PAUSE        4	/* Pause. */
+#define WDT_DEBUG        5	/* Prints a message and continues running. */
+#define WDT_NONE         6	/* Do nothing. */
+
+static int watchdog_action = WDT_RESET;
+static QLIST_HEAD(watchdog_list, WatchdogTimerModel) watchdog_list;
 
 void watchdog_add_model(WatchdogTimerModel *model)
 {
-    LIST_INSERT_HEAD(&watchdog_list, model, entry);
+    QLIST_INSERT_HEAD(&watchdog_list, model, entry);
 }
 
 /* Returns:
@@ -39,31 +52,28 @@ void watchdog_add_model(WatchdogTimerModel *model)
 int select_watchdog(const char *p)
 {
     WatchdogTimerModel *model;
-
-    if (watchdog) {
-        fprintf(stderr,
-                 "qemu: only one watchdog option may be given\n");
-        return 1;
-    }
+    QemuOpts *opts;
 
     /* -watchdog ? lists available devices and exits cleanly. */
     if (strcmp(p, "?") == 0) {
-        LIST_FOREACH(model, &watchdog_list, entry) {
+        QLIST_FOREACH(model, &watchdog_list, entry) {
             fprintf(stderr, "\t%s\t%s\n",
                      model->wdt_name, model->wdt_description);
         }
         return 2;
     }
 
-    LIST_FOREACH(model, &watchdog_list, entry) {
+    QLIST_FOREACH(model, &watchdog_list, entry) {
         if (strcasecmp(model->wdt_name, p) == 0) {
-            watchdog = model;
+            /* add the device */
+            opts = qemu_opts_create(qemu_find_opts("device"), NULL, 0);
+            qemu_opt_set(opts, "driver", p);
             return 0;
         }
     }
 
     fprintf(stderr, "Unknown -watchdog device. Supported devices are:\n");
-    LIST_FOREACH(model, &watchdog_list, entry) {
+    QLIST_FOREACH(model, &watchdog_list, entry) {
         fprintf(stderr, "\t%s\t%s\n",
                  model->wdt_name, model->wdt_description);
     }
@@ -90,6 +100,15 @@ int select_watchdog_action(const char *p)
     return 0;
 }
 
+static void watchdog_mon_event(const char *action)
+{
+    QObject *data;
+
+    data = qobject_from_jsonf("{ 'action': %s }", action);
+    monitor_protocol_event(QEVENT_WATCHDOG, data);
+    qobject_decref(data);
+}
+
 /* This actually performs the "action" once a watchdog has expired,
  * ie. reboot, shutdown, exit, etc.
  */
@@ -97,38 +116,32 @@ void watchdog_perform_action(void)
 {
     switch(watchdog_action) {
     case WDT_RESET:             /* same as 'system_reset' in monitor */
+        watchdog_mon_event("reset");
         qemu_system_reset_request();
         break;
 
     case WDT_SHUTDOWN:          /* same as 'system_powerdown' in monitor */
+        watchdog_mon_event("shutdown");
         qemu_system_powerdown_request();
         break;
 
     case WDT_POWEROFF:          /* same as 'quit' command in monitor */
+        watchdog_mon_event("poweroff");
         exit(0);
         break;
 
     case WDT_PAUSE:             /* same as 'stop' command in monitor */
-        vm_stop(0);
+        watchdog_mon_event("pause");
+        vm_stop(VMSTOP_WATCHDOG);
         break;
 
     case WDT_DEBUG:
+        watchdog_mon_event("debug");
         fprintf(stderr, "watchdog: timer fired\n");
         break;
 
     case WDT_NONE:
+        watchdog_mon_event("none");
         break;
     }
-}
-
-void watchdog_pc_init(PCIBus *pci_bus)
-{
-    if (watchdog)
-        watchdog->wdt_pc_init(pci_bus);
-}
-
-void register_watchdogs(void)
-{
-    wdt_ib700_init();
-    wdt_i6300esb_init();
 }

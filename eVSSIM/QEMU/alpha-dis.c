@@ -22,6 +22,9 @@ along with this file; see the file COPYING.  If not, see
 #include <stdio.h>
 #include "dis-asm.h"
 
+/* MAX is redefined below, so remove any previous definition. */
+#undef MAX
+
 /* The opcode table is an array of struct alpha_opcode.  */
 
 struct alpha_opcode
@@ -108,8 +111,8 @@ struct alpha_operand
      string (the operand will be inserted in any case).  If the
      operand value is legal, *ERRMSG will be unchanged (most operands
      can accept any value).  */
-  unsigned (*insert) PARAMS ((unsigned instruction, int op,
-			      const char **errmsg));
+  unsigned (*insert) (unsigned instruction, int op,
+                      const char **errmsg);
 
   /* Extraction function.  This is used by the disassembler.  To
      extract this operand type from an instruction, check this field.
@@ -128,7 +131,7 @@ struct alpha_operand
      non-zero if this operand type can not actually be extracted from
      this operand (i.e., the instruction does not match).  If the
      operand is valid, *INVALID will not be changed.  */
-  int (*extract) PARAMS ((unsigned instruction, int *invalid));
+  int (*extract) (unsigned instruction, int *invalid);
 };
 
 /* Elements in the table are retrieved by indexing with values from
@@ -158,7 +161,7 @@ extern const unsigned alpha_num_operands;
    instructions which want their operands to look like "Ra,disp(Rb)".  */
 #define AXP_OPERAND_PARENS	02
 
-/* Used in combination with PARENS, this supresses the supression of
+/* Used in combination with PARENS, this suppresses the suppression of
    the comma.  This is used for "jmp Ra,(Rb),hint".  */
 #define AXP_OPERAND_COMMA	04
 
@@ -179,7 +182,7 @@ extern const unsigned alpha_num_operands;
    a flags value of 0 can be treated as end-of-arguments.  */
 #define AXP_OPERAND_UNSIGNED	0200
 
-/* Supress overflow detection on this field.  This is used for hints. */
+/* Suppress overflow detection on this field.  This is used for hints. */
 #define AXP_OPERAND_NOOVERFLOW	0400
 
 /* Mask for optional argument default value.  */
@@ -235,10 +238,6 @@ extern const unsigned alpha_num_operands;
 #define AXP_REG_SP	30
 #define AXP_REG_ZERO	31
 
-#define bfd_mach_alpha_ev4  0x10
-#define bfd_mach_alpha_ev5  0x20
-#define bfd_mach_alpha_ev6  0x30
-
 enum bfd_reloc_code_real {
     BFD_RELOC_23_PCREL_S2,
     BFD_RELOC_ALPHA_HINT
@@ -273,23 +272,23 @@ enum bfd_reloc_code_real {
 
 /* Local insertion and extraction functions */
 
-static unsigned insert_rba PARAMS((unsigned, int, const char **));
-static unsigned insert_rca PARAMS((unsigned, int, const char **));
-static unsigned insert_za PARAMS((unsigned, int, const char **));
-static unsigned insert_zb PARAMS((unsigned, int, const char **));
-static unsigned insert_zc PARAMS((unsigned, int, const char **));
-static unsigned insert_bdisp PARAMS((unsigned, int, const char **));
-static unsigned insert_jhint PARAMS((unsigned, int, const char **));
-static unsigned insert_ev6hwjhint PARAMS((unsigned, int, const char **));
+static unsigned insert_rba (unsigned, int, const char **);
+static unsigned insert_rca (unsigned, int, const char **);
+static unsigned insert_za (unsigned, int, const char **);
+static unsigned insert_zb (unsigned, int, const char **);
+static unsigned insert_zc (unsigned, int, const char **);
+static unsigned insert_bdisp (unsigned, int, const char **);
+static unsigned insert_jhint (unsigned, int, const char **);
+static unsigned insert_ev6hwjhint (unsigned, int, const char **);
 
-static int extract_rba PARAMS((unsigned, int *));
-static int extract_rca PARAMS((unsigned, int *));
-static int extract_za PARAMS((unsigned, int *));
-static int extract_zb PARAMS((unsigned, int *));
-static int extract_zc PARAMS((unsigned, int *));
-static int extract_bdisp PARAMS((unsigned, int *));
-static int extract_jhint PARAMS((unsigned, int *));
-static int extract_ev6hwjhint PARAMS((unsigned, int *));
+static int extract_rba (unsigned, int *);
+static int extract_rca (unsigned, int *);
+static int extract_za (unsigned, int *);
+static int extract_zb (unsigned, int *);
+static int extract_zc (unsigned, int *);
+static int extract_bdisp (unsigned, int *);
+static int extract_jhint (unsigned, int *);
+static int extract_ev6hwjhint (unsigned, int *);
 
 
 /* The operands table  */
@@ -434,18 +433,13 @@ const unsigned alpha_num_operands = sizeof(alpha_operands)/sizeof(*alpha_operand
 
 /*ARGSUSED*/
 static unsigned
-insert_rba(insn, value, errmsg)
-     unsigned insn;
-     int value ATTRIBUTE_UNUSED;
-     const char **errmsg ATTRIBUTE_UNUSED;
+insert_rba(unsigned insn, int value ATTRIBUTE_UNUSED, const char **errmsg ATTRIBUTE_UNUSED)
 {
   return insn | (((insn >> 21) & 0x1f) << 16);
 }
 
 static int
-extract_rba(insn, invalid)
-     unsigned insn;
-     int *invalid;
+extract_rba(unsigned insn, int *invalid)
 {
   if (invalid != (int *) NULL
       && ((insn >> 21) & 0x1f) != ((insn >> 16) & 0x1f))
@@ -458,18 +452,13 @@ extract_rba(insn, invalid)
 
 /*ARGSUSED*/
 static unsigned
-insert_rca(insn, value, errmsg)
-     unsigned insn;
-     int value ATTRIBUTE_UNUSED;
-     const char **errmsg ATTRIBUTE_UNUSED;
+insert_rca(unsigned insn, int value ATTRIBUTE_UNUSED, const char **errmsg ATTRIBUTE_UNUSED)
 {
   return insn | ((insn >> 21) & 0x1f);
 }
 
 static int
-extract_rca(insn, invalid)
-     unsigned insn;
-     int *invalid;
+extract_rca(unsigned insn, int *invalid)
 {
   if (invalid != (int *) NULL
       && ((insn >> 21) & 0x1f) != (insn & 0x1f))
@@ -482,18 +471,13 @@ extract_rca(insn, invalid)
 
 /*ARGSUSED*/
 static unsigned
-insert_za(insn, value, errmsg)
-     unsigned insn;
-     int value ATTRIBUTE_UNUSED;
-     const char **errmsg ATTRIBUTE_UNUSED;
+insert_za(unsigned insn, int value ATTRIBUTE_UNUSED, const char **errmsg ATTRIBUTE_UNUSED)
 {
   return insn | (31 << 21);
 }
 
 static int
-extract_za(insn, invalid)
-     unsigned insn;
-     int *invalid;
+extract_za(unsigned insn, int *invalid)
 {
   if (invalid != (int *) NULL && ((insn >> 21) & 0x1f) != 31)
     *invalid = 1;
@@ -502,18 +486,13 @@ extract_za(insn, invalid)
 
 /*ARGSUSED*/
 static unsigned
-insert_zb(insn, value, errmsg)
-     unsigned insn;
-     int value ATTRIBUTE_UNUSED;
-     const char **errmsg ATTRIBUTE_UNUSED;
+insert_zb(unsigned insn, int value ATTRIBUTE_UNUSED, const char **errmsg ATTRIBUTE_UNUSED)
 {
   return insn | (31 << 16);
 }
 
 static int
-extract_zb(insn, invalid)
-     unsigned insn;
-     int *invalid;
+extract_zb(unsigned insn, int *invalid)
 {
   if (invalid != (int *) NULL && ((insn >> 16) & 0x1f) != 31)
     *invalid = 1;
@@ -522,18 +501,13 @@ extract_zb(insn, invalid)
 
 /*ARGSUSED*/
 static unsigned
-insert_zc(insn, value, errmsg)
-     unsigned insn;
-     int value ATTRIBUTE_UNUSED;
-     const char **errmsg ATTRIBUTE_UNUSED;
+insert_zc(unsigned insn, int value ATTRIBUTE_UNUSED, const char **errmsg ATTRIBUTE_UNUSED)
 {
   return insn | 31;
 }
 
 static int
-extract_zc(insn, invalid)
-     unsigned insn;
-     int *invalid;
+extract_zc(unsigned insn, int *invalid)
 {
   if (invalid != (int *) NULL && (insn & 0x1f) != 31)
     *invalid = 1;
@@ -544,10 +518,7 @@ extract_zc(insn, invalid)
 /* The displacement field of a Branch format insn.  */
 
 static unsigned
-insert_bdisp(insn, value, errmsg)
-     unsigned insn;
-     int value;
-     const char **errmsg;
+insert_bdisp(unsigned insn, int value, const char **errmsg)
 {
   if (errmsg != (const char **)NULL && (value & 3))
     *errmsg = _("branch operand unaligned");
@@ -556,9 +527,7 @@ insert_bdisp(insn, value, errmsg)
 
 /*ARGSUSED*/
 static int
-extract_bdisp(insn, invalid)
-     unsigned insn;
-     int *invalid ATTRIBUTE_UNUSED;
+extract_bdisp(unsigned insn, int *invalid ATTRIBUTE_UNUSED)
 {
   return 4 * (((insn & 0x1FFFFF) ^ 0x100000) - 0x100000);
 }
@@ -567,10 +536,7 @@ extract_bdisp(insn, invalid)
 /* The hint field of a JMP/JSR insn.  */
 
 static unsigned
-insert_jhint(insn, value, errmsg)
-     unsigned insn;
-     int value;
-     const char **errmsg;
+insert_jhint(unsigned insn, int value, const char **errmsg)
 {
   if (errmsg != (const char **)NULL && (value & 3))
     *errmsg = _("jump hint unaligned");
@@ -579,9 +545,7 @@ insert_jhint(insn, value, errmsg)
 
 /*ARGSUSED*/
 static int
-extract_jhint(insn, invalid)
-     unsigned insn;
-     int *invalid ATTRIBUTE_UNUSED;
+extract_jhint(unsigned insn, int *invalid ATTRIBUTE_UNUSED)
 {
   return 4 * (((insn & 0x3FFF) ^ 0x2000) - 0x2000);
 }
@@ -589,10 +553,7 @@ extract_jhint(insn, invalid)
 /* The hint field of an EV6 HW_JMP/JSR insn.  */
 
 static unsigned
-insert_ev6hwjhint(insn, value, errmsg)
-     unsigned insn;
-     int value;
-     const char **errmsg;
+insert_ev6hwjhint(unsigned insn, int value, const char **errmsg)
 {
   if (errmsg != (const char **)NULL && (value & 3))
     *errmsg = _("jump hint unaligned");
@@ -601,9 +562,7 @@ insert_ev6hwjhint(insn, value, errmsg)
 
 /*ARGSUSED*/
 static int
-extract_ev6hwjhint(insn, invalid)
-     unsigned insn;
-     int *invalid ATTRIBUTE_UNUSED;
+extract_ev6hwjhint(unsigned insn, int *invalid ATTRIBUTE_UNUSED)
 {
   return 4 * (((insn & 0x1FFF) ^ 0x1000) - 0x1000);
 }
@@ -1804,9 +1763,7 @@ static const char * const vms_regnames[64] = {
 /* Disassemble Alpha instructions.  */
 
 int
-print_insn_alpha (memaddr, info)
-     bfd_vma memaddr;
-     struct disassemble_info *info;
+print_insn_alpha (bfd_vma memaddr, struct disassemble_info *info)
 {
   static const struct alpha_opcode *opcode_index[AXP_NOPS+1];
   const char * const * regnames;

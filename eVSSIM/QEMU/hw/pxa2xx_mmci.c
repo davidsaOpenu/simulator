@@ -10,10 +10,12 @@
 #include "hw.h"
 #include "pxa.h"
 #include "sd.h"
+#include "qdev.h"
 
 struct PXA2xxMMCIState {
     qemu_irq irq;
-    void *dma;
+    qemu_irq rx_dma;
+    qemu_irq tx_dma;
 
     SDState *card;
 
@@ -102,10 +104,8 @@ static void pxa2xx_mmci_int_update(PXA2xxMMCIState *s)
     if (s->cmdat & CMDAT_DMA_EN) {
         mask |= INT_RXFIFO_REQ | INT_TXFIFO_REQ;
 
-        pxa2xx_dma_request(s->dma,
-                        PXA2XX_RX_RQ_MMCI, !!(s->intreq & INT_RXFIFO_REQ));
-        pxa2xx_dma_request(s->dma,
-                        PXA2XX_TX_RQ_MMCI, !!(s->intreq & INT_TXFIFO_REQ));
+        qemu_set_irq(s->rx_dma, !!(s->intreq & INT_RXFIFO_REQ));
+        qemu_set_irq(s->tx_dma, !!(s->intreq & INT_TXFIFO_REQ));
     }
 
     qemu_set_irq(s->irq, !!(s->intreq & ~mask));
@@ -403,7 +403,7 @@ static uint32_t pxa2xx_mmci_readw(void *opaque, target_phys_addr_t offset)
     return pxa2xx_mmci_read(opaque, offset);
 }
 
-static CPUReadMemoryFunc *pxa2xx_mmci_readfn[] = {
+static CPUReadMemoryFunc * const pxa2xx_mmci_readfn[] = {
     pxa2xx_mmci_readb,
     pxa2xx_mmci_readh,
     pxa2xx_mmci_readw
@@ -433,7 +433,7 @@ static void pxa2xx_mmci_writew(void *opaque,
     pxa2xx_mmci_write(opaque, offset, value);
 }
 
-static CPUWriteMemoryFunc *pxa2xx_mmci_writefn[] = {
+static CPUWriteMemoryFunc * const pxa2xx_mmci_writefn[] = {
     pxa2xx_mmci_writeb,
     pxa2xx_mmci_writeh,
     pxa2xx_mmci_writew
@@ -518,23 +518,25 @@ static int pxa2xx_mmci_load(QEMUFile *f, void *opaque, int version_id)
 }
 
 PXA2xxMMCIState *pxa2xx_mmci_init(target_phys_addr_t base,
-                BlockDriverState *bd, qemu_irq irq, void *dma)
+                BlockDriverState *bd, qemu_irq irq,
+                qemu_irq rx_dma, qemu_irq tx_dma)
 {
     int iomemtype;
     PXA2xxMMCIState *s;
 
     s = (PXA2xxMMCIState *) qemu_mallocz(sizeof(PXA2xxMMCIState));
     s->irq = irq;
-    s->dma = dma;
+    s->rx_dma = rx_dma;
+    s->tx_dma = tx_dma;
 
     iomemtype = cpu_register_io_memory(pxa2xx_mmci_readfn,
-                    pxa2xx_mmci_writefn, s);
+                    pxa2xx_mmci_writefn, s, DEVICE_NATIVE_ENDIAN);
     cpu_register_physical_memory(base, 0x00100000, iomemtype);
 
     /* Instantiate the actual storage */
     s->card = sd_init(bd, 0);
 
-    register_savevm("pxa2xx_mmci", 0, 0,
+    register_savevm(NULL, "pxa2xx_mmci", 0, 0,
                     pxa2xx_mmci_save, pxa2xx_mmci_load, s);
 
     return s;

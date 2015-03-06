@@ -12,6 +12,7 @@
  */
 
 #include <sys/ioctl.h>
+#include <sys/types.h>
 #include <pthread.h>
 #include <unistd.h>
 #include <errno.h>
@@ -19,10 +20,44 @@
 #include <string.h>
 #include <stdlib.h>
 #include <stdio.h>
-#include "osdep.h"
-#include "qemu-common.h"
 
-#include "posix-aio-compat.h"
+#include "qemu-queue.h"
+#include "osdep.h"
+#include "sysemu.h"
+#include "qemu-common.h"
+#include "trace.h"
+#include "block_int.h"
+
+#include "block/raw-posix-aio.h"
+
+
+struct qemu_paiocb {
+    BlockDriverAIOCB common;
+    int aio_fildes;
+    union {
+        struct iovec *aio_iov;
+        void *aio_ioctl_buf;
+    };
+    int aio_niov;
+    size_t aio_nbytes;
+#define aio_ioctl_cmd   aio_nbytes /* for QEMU_AIO_IOCTL */
+    int ev_signo;
+    off_t aio_offset;
+
+    QTAILQ_ENTRY(qemu_paiocb) node;
+    int aio_type;
+    ssize_t ret;
+    int active;
+    struct qemu_paiocb *next;
+
+    int async_context_id;
+};
+
+typedef struct PosixAioState {
+    int rfd, wfd;
+    struct qemu_paiocb *first_aio;
+} PosixAioState;
+
 
 static pthread_mutex_t lock = PTHREAD_MUTEX_INITIALIZER;
 static pthread_cond_t cond = PTHREAD_COND_INITIALIZER;
@@ -31,9 +66,9 @@ static pthread_attr_t attr;
 static int max_threads = 64;
 static int cur_threads = 0;
 static int idle_threads = 0;
-static TAILQ_HEAD(, qemu_paiocb) request_list;
+static QTAILQ_HEAD(, qemu_paiocb) request_list;
 
-#ifdef HAVE_PREADV
+#ifdef CONFIG_PREADV
 static int preadv_present = 1;
 #else
 static int preadv_present = 0;
@@ -83,26 +118,36 @@ static void thread_create(pthread_t *thread, pthread_attr_t *attr,
     if (ret) die2(ret, "pthread_create");
 }
 
-static size_t handle_aiocb_ioctl(struct qemu_paiocb *aiocb)
+static ssize_t handle_aiocb_ioctl(struct qemu_paiocb *aiocb)
 {
-	int ret;
+    int ret;
 
-	ret = ioctl(aiocb->aio_fildes, aiocb->aio_ioctl_cmd, aiocb->aio_ioctl_buf);
-	if (ret == -1)
-		return -errno;
+    ret = ioctl(aiocb->aio_fildes, aiocb->aio_ioctl_cmd, aiocb->aio_ioctl_buf);
+    if (ret == -1)
+        return -errno;
 
-	/*
-	 * This looks weird, but the aio code only consideres a request
-	 * successfull if it has written the number full number of bytes.
-	 *
-	 * Now we overload aio_nbytes as aio_ioctl_cmd for the ioctl command,
-	 * so in fact we return the ioctl command here to make posix_aio_read()
-	 * happy..
-	 */
-	return aiocb->aio_nbytes;
+    /*
+     * This looks weird, but the aio code only consideres a request
+     * successful if it has written the number full number of bytes.
+     *
+     * Now we overload aio_nbytes as aio_ioctl_cmd for the ioctl command,
+     * so in fact we return the ioctl command here to make posix_aio_read()
+     * happy..
+     */
+    return aiocb->aio_nbytes;
 }
 
-#ifdef HAVE_PREADV
+static ssize_t handle_aiocb_flush(struct qemu_paiocb *aiocb)
+{
+    int ret;
+
+    ret = qemu_fdatasync(aiocb->aio_fildes);
+    if (ret == -1)
+        return -errno;
+    return 0;
+}
+
+#ifdef CONFIG_PREADV
 
 static ssize_t
 qemu_preadv(int fd, const struct iovec *iov, int nr_iov, off_t offset)
@@ -132,30 +177,13 @@ qemu_pwritev(int fd, const struct iovec *iov, int nr_iov, off_t offset)
 
 #endif
 
-/*
- * Check if we need to copy the data in the aiocb into a new
- * properly aligned buffer.
- */
-static int aiocb_needs_copy(struct qemu_paiocb *aiocb)
-{
-    if (aiocb->aio_flags & QEMU_AIO_SECTOR_ALIGNED) {
-        int i;
-
-        for (i = 0; i < aiocb->aio_niov; i++)
-            if ((uintptr_t) aiocb->aio_iov[i].iov_base % 512)
-                return 1;
-    }
-
-    return 0;
-}
-
-static size_t handle_aiocb_rw_vector(struct qemu_paiocb *aiocb)
+static ssize_t handle_aiocb_rw_vector(struct qemu_paiocb *aiocb)
 {
     size_t offset = 0;
     ssize_t len;
 
     do {
-        if (aiocb->aio_type == QEMU_PAIO_WRITE)
+        if (aiocb->aio_type & QEMU_AIO_WRITE)
             len = qemu_pwritev(aiocb->aio_fildes,
                                aiocb->aio_iov,
                                aiocb->aio_niov,
@@ -172,13 +200,13 @@ static size_t handle_aiocb_rw_vector(struct qemu_paiocb *aiocb)
     return len;
 }
 
-static size_t handle_aiocb_rw_linear(struct qemu_paiocb *aiocb, char *buf)
+static ssize_t handle_aiocb_rw_linear(struct qemu_paiocb *aiocb, char *buf)
 {
-    size_t offset = 0;
-    size_t len;
+    ssize_t offset = 0;
+    ssize_t len;
 
     while (offset < aiocb->aio_nbytes) {
-         if (aiocb->aio_type == QEMU_PAIO_WRITE)
+         if (aiocb->aio_type & QEMU_AIO_WRITE)
              len = pwrite(aiocb->aio_fildes,
                           (const char *)buf + offset,
                           aiocb->aio_nbytes - offset,
@@ -203,12 +231,12 @@ static size_t handle_aiocb_rw_linear(struct qemu_paiocb *aiocb, char *buf)
     return offset;
 }
 
-static size_t handle_aiocb_rw(struct qemu_paiocb *aiocb)
+static ssize_t handle_aiocb_rw(struct qemu_paiocb *aiocb)
 {
-    size_t nbytes;
+    ssize_t nbytes;
     char *buf;
 
-    if (!aiocb_needs_copy(aiocb)) {
+    if (!(aiocb->aio_type & QEMU_AIO_MISALIGNED)) {
         /*
          * If there is just a single buffer, and it is properly aligned
          * we can just use plain pread/pwrite without any problems.
@@ -222,10 +250,10 @@ static size_t handle_aiocb_rw(struct qemu_paiocb *aiocb)
          * Try preadv/pwritev first and fall back to linearizing the
          * buffer if it's not supported.
          */
-	if (preadv_present) {
+        if (preadv_present) {
             nbytes = handle_aiocb_rw_vector(aiocb);
             if (nbytes == aiocb->aio_nbytes)
-	        return nbytes;
+                return nbytes;
             if (nbytes < 0 && nbytes != -ENOSYS)
                 return nbytes;
             preadv_present = 0;
@@ -242,8 +270,8 @@ static size_t handle_aiocb_rw(struct qemu_paiocb *aiocb)
      * Ok, we have to do it the hard way, copy all segments into
      * a single aligned buffer.
      */
-    buf = qemu_memalign(512, aiocb->aio_nbytes);
-    if (aiocb->aio_type == QEMU_PAIO_WRITE) {
+    buf = qemu_blockalign(aiocb->common.bs, aiocb->aio_nbytes);
+    if (aiocb->aio_type & QEMU_AIO_WRITE) {
         char *p = buf;
         int i;
 
@@ -254,7 +282,7 @@ static size_t handle_aiocb_rw(struct qemu_paiocb *aiocb)
     }
 
     nbytes = handle_aiocb_rw_linear(aiocb, buf);
-    if (aiocb->aio_type != QEMU_PAIO_WRITE) {
+    if (!(aiocb->aio_type & QEMU_AIO_WRITE)) {
         char *p = buf;
         size_t count = aiocb->aio_nbytes, copy;
         int i;
@@ -276,17 +304,12 @@ static size_t handle_aiocb_rw(struct qemu_paiocb *aiocb)
 static void *aio_thread(void *unused)
 {
     pid_t pid;
-    sigset_t set;
 
     pid = getpid();
 
-    /* block all signals */
-    if (sigfillset(&set)) die("sigfillset");
-    if (sigprocmask(SIG_BLOCK, &set, NULL)) die("sigprocmask");
-
     while (1) {
         struct qemu_paiocb *aiocb;
-        size_t ret = 0;
+        ssize_t ret = 0;
         qemu_timeval tv;
         struct timespec ts;
 
@@ -296,43 +319,45 @@ static void *aio_thread(void *unused)
 
         mutex_lock(&lock);
 
-        while (TAILQ_EMPTY(&request_list) &&
+        while (QTAILQ_EMPTY(&request_list) &&
                !(ret == ETIMEDOUT)) {
+            idle_threads++;
             ret = cond_timedwait(&cond, &lock, &ts);
+            idle_threads--;
         }
 
-        if (TAILQ_EMPTY(&request_list))
+        if (QTAILQ_EMPTY(&request_list))
             break;
 
-        aiocb = TAILQ_FIRST(&request_list);
-        TAILQ_REMOVE(&request_list, aiocb, node);
+        aiocb = QTAILQ_FIRST(&request_list);
+        QTAILQ_REMOVE(&request_list, aiocb, node);
         aiocb->active = 1;
-        idle_threads--;
         mutex_unlock(&lock);
 
-        switch (aiocb->aio_type) {
-        case QEMU_PAIO_READ:
-        case QEMU_PAIO_WRITE:
-		ret = handle_aiocb_rw(aiocb);
-		break;
-        case QEMU_PAIO_IOCTL:
-		ret = handle_aiocb_ioctl(aiocb);
-		break;
-	default:
-		fprintf(stderr, "invalid aio request (0x%x)\n", aiocb->aio_type);
-		ret = -EINVAL;
-		break;
-	}
+        switch (aiocb->aio_type & QEMU_AIO_TYPE_MASK) {
+        case QEMU_AIO_READ:
+        case QEMU_AIO_WRITE:
+            ret = handle_aiocb_rw(aiocb);
+            break;
+        case QEMU_AIO_FLUSH:
+            ret = handle_aiocb_flush(aiocb);
+            break;
+        case QEMU_AIO_IOCTL:
+            ret = handle_aiocb_ioctl(aiocb);
+            break;
+        default:
+            fprintf(stderr, "invalid aio request (0x%x)\n", aiocb->aio_type);
+            ret = -EINVAL;
+            break;
+        }
 
         mutex_lock(&lock);
         aiocb->ret = ret;
-        idle_threads++;
         mutex_unlock(&lock);
 
         if (kill(pid, aiocb->ev_signo)) die("kill failed");
     }
 
-    idle_threads--;
     cur_threads--;
     mutex_unlock(&lock);
 
@@ -341,57 +366,32 @@ static void *aio_thread(void *unused)
 
 static void spawn_thread(void)
 {
+    sigset_t set, oldset;
+
     cur_threads++;
-    idle_threads++;
+
+    /* block all signals */
+    if (sigfillset(&set)) die("sigfillset");
+    if (sigprocmask(SIG_SETMASK, &set, &oldset)) die("sigprocmask");
+
     thread_create(&thread_id, &attr, aio_thread, NULL);
+
+    if (sigprocmask(SIG_SETMASK, &oldset, NULL)) die("sigprocmask restore");
 }
 
-int qemu_paio_init(struct qemu_paioinit *aioinit)
+static void qemu_paio_submit(struct qemu_paiocb *aiocb)
 {
-    int ret;
-
-    ret = pthread_attr_init(&attr);
-    if (ret) die2(ret, "pthread_attr_init");
-
-    ret = pthread_attr_setdetachstate(&attr, PTHREAD_CREATE_DETACHED);
-    if (ret) die2(ret, "pthread_attr_setdetachstate");
-
-    TAILQ_INIT(&request_list);
-
-    return 0;
-}
-
-static int qemu_paio_submit(struct qemu_paiocb *aiocb, int type)
-{
-    aiocb->aio_type = type;
     aiocb->ret = -EINPROGRESS;
     aiocb->active = 0;
     mutex_lock(&lock);
     if (idle_threads == 0 && cur_threads < max_threads)
         spawn_thread();
-    TAILQ_INSERT_TAIL(&request_list, aiocb, node);
+    QTAILQ_INSERT_TAIL(&request_list, aiocb, node);
     mutex_unlock(&lock);
     cond_signal(&cond);
-
-    return 0;
 }
 
-int qemu_paio_read(struct qemu_paiocb *aiocb)
-{
-    return qemu_paio_submit(aiocb, QEMU_PAIO_READ);
-}
-
-int qemu_paio_write(struct qemu_paiocb *aiocb)
-{
-    return qemu_paio_submit(aiocb, QEMU_PAIO_WRITE);
-}
-
-int qemu_paio_ioctl(struct qemu_paiocb *aiocb)
-{
-    return qemu_paio_submit(aiocb, QEMU_PAIO_IOCTL);
-}
-
-ssize_t qemu_paio_return(struct qemu_paiocb *aiocb)
+static ssize_t qemu_paio_return(struct qemu_paiocb *aiocb)
 {
     ssize_t ret;
 
@@ -402,7 +402,7 @@ ssize_t qemu_paio_return(struct qemu_paiocb *aiocb)
     return ret;
 }
 
-int qemu_paio_error(struct qemu_paiocb *aiocb)
+static int qemu_paio_error(struct qemu_paiocb *aiocb)
 {
     ssize_t ret = qemu_paio_return(aiocb);
 
@@ -414,20 +414,250 @@ int qemu_paio_error(struct qemu_paiocb *aiocb)
     return ret;
 }
 
-int qemu_paio_cancel(int fd, struct qemu_paiocb *aiocb)
+static int posix_aio_process_queue(void *opaque)
 {
+    PosixAioState *s = opaque;
+    struct qemu_paiocb *acb, **pacb;
     int ret;
+    int result = 0;
+    int async_context_id = get_async_context_id();
+
+    for(;;) {
+        pacb = &s->first_aio;
+        for(;;) {
+            acb = *pacb;
+            if (!acb)
+                return result;
+
+            /* we're only interested in requests in the right context */
+            if (acb->async_context_id != async_context_id) {
+                pacb = &acb->next;
+                continue;
+            }
+
+            ret = qemu_paio_error(acb);
+            if (ret == ECANCELED) {
+                /* remove the request */
+                *pacb = acb->next;
+                qemu_aio_release(acb);
+                result = 1;
+            } else if (ret != EINPROGRESS) {
+                /* end of aio */
+                if (ret == 0) {
+                    ret = qemu_paio_return(acb);
+                    if (ret == acb->aio_nbytes)
+                        ret = 0;
+                    else
+                        ret = -EINVAL;
+                } else {
+                    ret = -ret;
+                }
+
+                trace_paio_complete(acb, acb->common.opaque, ret);
+
+                /* remove the request */
+                *pacb = acb->next;
+                /* call the callback */
+                acb->common.cb(acb->common.opaque, ret);
+                qemu_aio_release(acb);
+                result = 1;
+                break;
+            } else {
+                pacb = &acb->next;
+            }
+        }
+    }
+
+    return result;
+}
+
+static void posix_aio_read(void *opaque)
+{
+    PosixAioState *s = opaque;
+    ssize_t len;
+
+    /* read all bytes from signal pipe */
+    for (;;) {
+        char bytes[16];
+
+        len = read(s->rfd, bytes, sizeof(bytes));
+        if (len == -1 && errno == EINTR)
+            continue; /* try again */
+        if (len == sizeof(bytes))
+            continue; /* more to read */
+        break;
+    }
+
+    posix_aio_process_queue(s);
+}
+
+static int posix_aio_flush(void *opaque)
+{
+    PosixAioState *s = opaque;
+    return !!s->first_aio;
+}
+
+static PosixAioState *posix_aio_state;
+
+static void aio_signal_handler(int signum)
+{
+    if (posix_aio_state) {
+        char byte = 0;
+        ssize_t ret;
+
+        ret = write(posix_aio_state->wfd, &byte, sizeof(byte));
+        if (ret < 0 && errno != EAGAIN)
+            die("write()");
+    }
+
+    qemu_service_io();
+}
+
+static void paio_remove(struct qemu_paiocb *acb)
+{
+    struct qemu_paiocb **pacb;
+
+    /* remove the callback from the queue */
+    pacb = &posix_aio_state->first_aio;
+    for(;;) {
+        if (*pacb == NULL) {
+            fprintf(stderr, "paio_remove: aio request not found!\n");
+            break;
+        } else if (*pacb == acb) {
+            *pacb = acb->next;
+            qemu_aio_release(acb);
+            break;
+        }
+        pacb = &(*pacb)->next;
+    }
+}
+
+static void paio_cancel(BlockDriverAIOCB *blockacb)
+{
+    struct qemu_paiocb *acb = (struct qemu_paiocb *)blockacb;
+    int active = 0;
+
+    trace_paio_cancel(acb, acb->common.opaque);
 
     mutex_lock(&lock);
-    if (!aiocb->active) {
-        TAILQ_REMOVE(&request_list, aiocb, node);
-        aiocb->ret = -ECANCELED;
-        ret = QEMU_PAIO_CANCELED;
-    } else if (aiocb->ret == -EINPROGRESS)
-        ret = QEMU_PAIO_NOTCANCELED;
-    else
-        ret = QEMU_PAIO_ALLDONE;
+    if (!acb->active) {
+        QTAILQ_REMOVE(&request_list, acb, node);
+        acb->ret = -ECANCELED;
+    } else if (acb->ret == -EINPROGRESS) {
+        active = 1;
+    }
     mutex_unlock(&lock);
 
-    return ret;
+    if (active) {
+        /* fail safe: if the aio could not be canceled, we wait for
+           it */
+        while (qemu_paio_error(acb) == EINPROGRESS)
+            ;
+    }
+
+    paio_remove(acb);
+}
+
+static AIOPool raw_aio_pool = {
+    .aiocb_size         = sizeof(struct qemu_paiocb),
+    .cancel             = paio_cancel,
+};
+
+BlockDriverAIOCB *paio_submit(BlockDriverState *bs, int fd,
+        int64_t sector_num, QEMUIOVector *qiov, int nb_sectors,
+        BlockDriverCompletionFunc *cb, void *opaque, int type)
+{
+    struct qemu_paiocb *acb;
+
+    acb = qemu_aio_get(&raw_aio_pool, bs, cb, opaque);
+    if (!acb)
+        return NULL;
+    acb->aio_type = type;
+    acb->aio_fildes = fd;
+    acb->ev_signo = SIGUSR2;
+    acb->async_context_id = get_async_context_id();
+
+    if (qiov) {
+        acb->aio_iov = qiov->iov;
+        acb->aio_niov = qiov->niov;
+    }
+    acb->aio_nbytes = nb_sectors * 512;
+    acb->aio_offset = sector_num * 512;
+
+    acb->next = posix_aio_state->first_aio;
+    posix_aio_state->first_aio = acb;
+
+    trace_paio_submit(acb, opaque, sector_num, nb_sectors, type);
+    qemu_paio_submit(acb);
+    return &acb->common;
+}
+
+BlockDriverAIOCB *paio_ioctl(BlockDriverState *bs, int fd,
+        unsigned long int req, void *buf,
+        BlockDriverCompletionFunc *cb, void *opaque)
+{
+    struct qemu_paiocb *acb;
+
+    acb = qemu_aio_get(&raw_aio_pool, bs, cb, opaque);
+    if (!acb)
+        return NULL;
+    acb->aio_type = QEMU_AIO_IOCTL;
+    acb->aio_fildes = fd;
+    acb->ev_signo = SIGUSR2;
+    acb->async_context_id = get_async_context_id();
+    acb->aio_offset = 0;
+    acb->aio_ioctl_buf = buf;
+    acb->aio_ioctl_cmd = req;
+
+    acb->next = posix_aio_state->first_aio;
+    posix_aio_state->first_aio = acb;
+
+    qemu_paio_submit(acb);
+    return &acb->common;
+}
+
+int paio_init(void)
+{
+    struct sigaction act;
+    PosixAioState *s;
+    int fds[2];
+    int ret;
+
+    if (posix_aio_state)
+        return 0;
+
+    s = qemu_malloc(sizeof(PosixAioState));
+
+    sigfillset(&act.sa_mask);
+    act.sa_flags = 0; /* do not restart syscalls to interrupt select() */
+    act.sa_handler = aio_signal_handler;
+    sigaction(SIGUSR2, &act, NULL);
+
+    s->first_aio = NULL;
+    if (qemu_pipe(fds) == -1) {
+        fprintf(stderr, "failed to create pipe\n");
+        return -1;
+    }
+
+    s->rfd = fds[0];
+    s->wfd = fds[1];
+
+    fcntl(s->rfd, F_SETFL, O_NONBLOCK);
+    fcntl(s->wfd, F_SETFL, O_NONBLOCK);
+
+    qemu_aio_set_fd_handler(s->rfd, posix_aio_read, NULL, posix_aio_flush,
+        posix_aio_process_queue, s);
+
+    ret = pthread_attr_init(&attr);
+    if (ret)
+        die2(ret, "pthread_attr_init");
+
+    ret = pthread_attr_setdetachstate(&attr, PTHREAD_CREATE_DETACHED);
+    if (ret)
+        die2(ret, "pthread_attr_setdetachstate");
+
+    QTAILQ_INIT(&request_list);
+
+    posix_aio_state = s;
+    return 0;
 }

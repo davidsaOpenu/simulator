@@ -19,10 +19,10 @@
  */
 
 #include "qemu-common.h"
+#include "hw.h"
 #include "flash.h"
 #include "irq.h"
-#include "sysemu.h"
-#include "block.h"
+#include "blockdev.h"
 
 /* 11 for 2kB-page OneNAND ("2nd generation") and 10 for 1kB-page chips */
 #define PAGE_SHIFT	11
@@ -426,7 +426,7 @@ static void onenand_command(OneNANDState *s, int cmd)
 
     case 0x65:	/* OTP Access */
         s->intstatus |= ONEN_INT;
-        s->bdrv_cur = 0;
+        s->bdrv_cur = NULL;
         s->current = s->otp;
         s->secs_cur = 1 << (BLOCK_SHIFT - 9);
         s->addr[ONEN_BUF_BLOCK] = 0;
@@ -603,13 +603,13 @@ static void onenand_write(void *opaque, target_phys_addr_t addr,
     }
 }
 
-static CPUReadMemoryFunc *onenand_readfn[] = {
+static CPUReadMemoryFunc * const onenand_readfn[] = {
     onenand_read,	/* TODO */
     onenand_read,
     onenand_read,
 };
 
-static CPUWriteMemoryFunc *onenand_writefn[] = {
+static CPUWriteMemoryFunc * const onenand_writefn[] = {
     onenand_write,	/* TODO */
     onenand_write,
     onenand_write,
@@ -618,28 +618,28 @@ static CPUWriteMemoryFunc *onenand_writefn[] = {
 void *onenand_init(uint32_t id, int regshift, qemu_irq irq)
 {
     OneNANDState *s = (OneNANDState *) qemu_mallocz(sizeof(*s));
-    int bdrv_index = drive_get_index(IF_MTD, 0, 0);
+    DriveInfo *dinfo = drive_get(IF_MTD, 0, 0);
     uint32_t size = 1 << (24 + ((id >> 12) & 7));
     void *ram;
 
     s->shift = regshift;
     s->intr = irq;
-    s->rdy = 0;
+    s->rdy = NULL;
     s->id = id;
     s->blocks = size >> BLOCK_SHIFT;
     s->secs = size >> 9;
     s->blockwp = qemu_malloc(s->blocks);
     s->density_mask = (id & (1 << 11)) ? (1 << (6 + ((id >> 12) & 7))) : 0;
     s->iomemtype = cpu_register_io_memory(onenand_readfn,
-                    onenand_writefn, s);
-    if (bdrv_index == -1)
+                    onenand_writefn, s, DEVICE_NATIVE_ENDIAN);
+    if (!dinfo)
         s->image = memset(qemu_malloc(size + (size >> 5)),
                         0xff, size + (size >> 5));
     else
-        s->bdrv = drives_table[bdrv_index].bdrv;
+        s->bdrv = dinfo->bdrv;
     s->otp = memset(qemu_malloc((64 + 2) << PAGE_SHIFT),
                     0xff, (64 + 2) << PAGE_SHIFT);
-    s->ram = qemu_ram_alloc(0xc000 << s->shift);
+    s->ram = qemu_ram_alloc(NULL, "onenand.ram", 0xc000 << s->shift);
     ram = qemu_get_ram_ptr(s->ram);
     s->boot[0] = ram + (0x0000 << s->shift);
     s->boot[1] = ram + (0x8000 << s->shift);

@@ -38,6 +38,10 @@
 //#define DEBUG_MOUSE
 
 /*
+ * Chipset docs:
+ * "Z80C30/Z85C30/Z80230/Z85230/Z85233 SCC/ESCC User Manual",
+ * http://www.zilog.com/docs/serial/scc_escc_um.pdf
+ *
  * On Sparc32 this is the serial port, mouse and keyboard part of chip STP2001
  * (Slave I/O), also produced as NCR89C105. See
  * http://www.ibiblio.org/pub/historic-linux/early-ports/Sparc/NCR/NCR89C105.txt
@@ -61,6 +65,8 @@
  *  2006-Aug-10  Igor Kovalenko :   Renamed KBDQueue to SERIOQueue, implemented
  *                                  serial mouse queue.
  *                                  Implemented serial mouse protocol.
+ *
+ *  2010-May-23  Artyom Tarasenko:  Reworked IUS logic
  */
 
 #ifdef DEBUG_SERIAL
@@ -84,13 +90,13 @@
 
 typedef enum {
     chn_a, chn_b,
-} chn_id_t;
+} ChnID;
 
 #define CHN_C(s) ((s)->chn == chn_b? 'b' : 'a')
 
 typedef enum {
     ser, kbd, mouse,
-} chn_type_t;
+} ChnType;
 
 #define SERIO_QUEUE_SIZE 256
 
@@ -104,8 +110,8 @@ typedef struct ChannelState {
     qemu_irq irq;
     uint32_t reg;
     uint32_t rxint, txint, rxint_under_svc, txint_under_svc;
-    chn_id_t chn; // this channel, A (base+4) or B (base+0)
-    chn_type_t type;
+    ChnID chn; // this channel, A (base+4) or B (base+0)
+    ChnType type;
     struct ChannelState *otherchn;
     uint8_t rx, tx, wregs[SERIAL_REGS], rregs[SERIAL_REGS];
     SERIOQueue queue;
@@ -113,12 +119,13 @@ typedef struct ChannelState {
     int e0_mode, led_mode, caps_lock_mode, num_lock_mode;
     int disabled;
     int clock;
+    uint32_t vmstate_dummy;
 } ChannelState;
 
 struct SerialState {
     SysBusDevice busdev;
     struct ChannelState chn[2];
-    int it_shift;
+    uint32_t it_shift;
     int mmio_index;
     uint32_t disabled;
     uint32_t frequency;
@@ -274,7 +281,7 @@ static uint32_t get_queue(void *opaque)
 
 static int escc_update_irq_chn(ChannelState *s)
 {
-    if ((((s->wregs[W_INTR] & INTR_TXINT) && s->txint == 1) ||
+    if ((((s->wregs[W_INTR] & INTR_TXINT) && (s->txint == 1)) ||
          // tx ints enabled, pending
          ((((s->wregs[W_INTR] & INTR_RXMODEMSK) == INTR_RXINT1ST) ||
            ((s->wregs[W_INTR] & INTR_RXMODEMSK) == INTR_RXINTALL)) &&
@@ -326,9 +333,10 @@ static void escc_reset_chn(ChannelState *s)
     clear_queue(s);
 }
 
-static void escc_reset(void *opaque)
+static void escc_reset(DeviceState *d)
 {
-    SerialState *s = opaque;
+    SerialState *s = container_of(d, SerialState, busdev.qdev);
+
     escc_reset_chn(&s->chn[0]);
     escc_reset_chn(&s->chn[1]);
 }
@@ -336,24 +344,22 @@ static void escc_reset(void *opaque)
 static inline void set_rxint(ChannelState *s)
 {
     s->rxint = 1;
-    if (!s->txint_under_svc) {
-        s->rxint_under_svc = 1;
-        if (s->chn == chn_a) {
-            if (s->wregs[W_MINTR] & MINTR_STATUSHI)
-                s->otherchn->rregs[R_IVEC] = IVEC_HIRXINTA;
-            else
-                s->otherchn->rregs[R_IVEC] = IVEC_LORXINTA;
-        } else {
-            if (s->wregs[W_MINTR] & MINTR_STATUSHI)
-                s->rregs[R_IVEC] = IVEC_HIRXINTB;
-            else
-                s->rregs[R_IVEC] = IVEC_LORXINTB;
-        }
-    }
-    if (s->chn == chn_a)
+    /* XXX: missing daisy chainnig: chn_b rx should have a lower priority
+       than chn_a rx/tx/special_condition service*/
+    s->rxint_under_svc = 1;
+    if (s->chn == chn_a) {
         s->rregs[R_INTR] |= INTR_RXINTA;
-    else
+        if (s->wregs[W_MINTR] & MINTR_STATUSHI)
+            s->otherchn->rregs[R_IVEC] = IVEC_HIRXINTA;
+        else
+            s->otherchn->rregs[R_IVEC] = IVEC_LORXINTA;
+    } else {
         s->otherchn->rregs[R_INTR] |= INTR_RXINTB;
+        if (s->wregs[W_MINTR] & MINTR_STATUSHI)
+            s->rregs[R_IVEC] = IVEC_HIRXINTB;
+        else
+            s->rregs[R_IVEC] = IVEC_LORXINTB;
+    }
     escc_update_irq(s);
 }
 
@@ -363,19 +369,21 @@ static inline void set_txint(ChannelState *s)
     if (!s->rxint_under_svc) {
         s->txint_under_svc = 1;
         if (s->chn == chn_a) {
+            if (s->wregs[W_INTR] & INTR_TXINT) {
+                s->rregs[R_INTR] |= INTR_TXINTA;
+            }
             if (s->wregs[W_MINTR] & MINTR_STATUSHI)
                 s->otherchn->rregs[R_IVEC] = IVEC_HITXINTA;
             else
                 s->otherchn->rregs[R_IVEC] = IVEC_LOTXINTA;
         } else {
             s->rregs[R_IVEC] = IVEC_TXINTB;
+            if (s->wregs[W_INTR] & INTR_TXINT) {
+                s->otherchn->rregs[R_INTR] |= INTR_TXINTB;
+            }
         }
-    }
-    if (s->chn == chn_a)
-        s->rregs[R_INTR] |= INTR_TXINTA;
-    else
-        s->otherchn->rregs[R_INTR] |= INTR_TXINTB;
     escc_update_irq(s);
+    }
 }
 
 static inline void clr_rxint(ChannelState *s)
@@ -411,6 +419,7 @@ static inline void clr_txint(ChannelState *s)
             s->otherchn->rregs[R_IVEC] = IVEC_LONOINT;
         s->rregs[R_INTR] &= ~INTR_TXINTA;
     } else {
+        s->otherchn->rregs[R_INTR] &= ~INTR_TXINTB;
         if (s->wregs[W_MINTR] & MINTR_STATUSHI)
             s->rregs[R_IVEC] = IVEC_HINOINT;
         else
@@ -509,10 +518,15 @@ static void escc_mem_writeb(void *opaque, target_phys_addr_t addr, uint32_t val)
                 clr_txint(s);
                 break;
             case CMD_CLR_IUS:
-                if (s->rxint_under_svc)
-                    clr_rxint(s);
-                else if (s->txint_under_svc)
-                    clr_txint(s);
+                if (s->rxint_under_svc) {
+                    s->rxint_under_svc = 0;
+                    if (s->txint) {
+                        set_txint(s);
+                    }
+                } else if (s->txint_under_svc) {
+                    s->txint_under_svc = 0;
+                }
+                escc_update_irq(s);
                 break;
             default:
                 break;
@@ -547,7 +561,7 @@ static void escc_mem_writeb(void *opaque, target_phys_addr_t addr, uint32_t val)
                 escc_reset_chn(&serial->chn[1]);
                 return;
             case MINTR_RST_ALL:
-                escc_reset(serial);
+                escc_reset(&serial->busdev.qdev);
                 return;
             }
             break;
@@ -654,76 +668,49 @@ static void serial_event(void *opaque, int event)
         serial_receive_break(s);
 }
 
-static CPUReadMemoryFunc *escc_mem_read[3] = {
+static CPUReadMemoryFunc * const escc_mem_read[3] = {
     escc_mem_readb,
     NULL,
     NULL,
 };
 
-static CPUWriteMemoryFunc *escc_mem_write[3] = {
+static CPUWriteMemoryFunc * const escc_mem_write[3] = {
     escc_mem_writeb,
     NULL,
     NULL,
 };
 
-static void escc_save_chn(QEMUFile *f, ChannelState *s)
-{
-    uint32_t tmp = 0;
-
-    qemu_put_be32s(f, &tmp); /* unused, was IRQ.  */
-    qemu_put_be32s(f, &s->reg);
-    qemu_put_be32s(f, &s->rxint);
-    qemu_put_be32s(f, &s->txint);
-    qemu_put_be32s(f, &s->rxint_under_svc);
-    qemu_put_be32s(f, &s->txint_under_svc);
-    qemu_put_8s(f, &s->rx);
-    qemu_put_8s(f, &s->tx);
-    qemu_put_buffer(f, s->wregs, SERIAL_REGS);
-    qemu_put_buffer(f, s->rregs, SERIAL_REGS);
-}
-
-static void escc_save(QEMUFile *f, void *opaque)
-{
-    SerialState *s = opaque;
-
-    escc_save_chn(f, &s->chn[0]);
-    escc_save_chn(f, &s->chn[1]);
-}
-
-static int escc_load_chn(QEMUFile *f, ChannelState *s, int version_id)
-{
-    uint32_t tmp;
-
-    if (version_id > 2)
-        return -EINVAL;
-
-    qemu_get_be32s(f, &tmp); /* unused */
-    qemu_get_be32s(f, &s->reg);
-    qemu_get_be32s(f, &s->rxint);
-    qemu_get_be32s(f, &s->txint);
-    if (version_id >= 2) {
-        qemu_get_be32s(f, &s->rxint_under_svc);
-        qemu_get_be32s(f, &s->txint_under_svc);
+static const VMStateDescription vmstate_escc_chn = {
+    .name ="escc_chn",
+    .version_id = 2,
+    .minimum_version_id = 1,
+    .minimum_version_id_old = 1,
+    .fields      = (VMStateField []) {
+        VMSTATE_UINT32(vmstate_dummy, ChannelState),
+        VMSTATE_UINT32(reg, ChannelState),
+        VMSTATE_UINT32(rxint, ChannelState),
+        VMSTATE_UINT32(txint, ChannelState),
+        VMSTATE_UINT32(rxint_under_svc, ChannelState),
+        VMSTATE_UINT32(txint_under_svc, ChannelState),
+        VMSTATE_UINT8(rx, ChannelState),
+        VMSTATE_UINT8(tx, ChannelState),
+        VMSTATE_BUFFER(wregs, ChannelState),
+        VMSTATE_BUFFER(rregs, ChannelState),
+        VMSTATE_END_OF_LIST()
     }
-    qemu_get_8s(f, &s->rx);
-    qemu_get_8s(f, &s->tx);
-    qemu_get_buffer(f, s->wregs, SERIAL_REGS);
-    qemu_get_buffer(f, s->rregs, SERIAL_REGS);
-    return 0;
-}
+};
 
-static int escc_load(QEMUFile *f, void *opaque, int version_id)
-{
-    SerialState *s = opaque;
-    int ret;
-
-    ret = escc_load_chn(f, &s->chn[0], version_id);
-    if (ret != 0)
-        return ret;
-    ret = escc_load_chn(f, &s->chn[1], version_id);
-    return ret;
-
-}
+static const VMStateDescription vmstate_escc = {
+    .name ="escc",
+    .version_id = 2,
+    .minimum_version_id = 1,
+    .minimum_version_id_old = 1,
+    .fields      = (VMStateField []) {
+        VMSTATE_STRUCT_ARRAY(chn, SerialState, 2, 2, vmstate_escc_chn,
+                             ChannelState),
+        VMSTATE_END_OF_LIST()
+    }
+};
 
 int escc_init(target_phys_addr_t base, qemu_irq irqA, qemu_irq irqB,
               CharDriverState *chrA, CharDriverState *chrB,
@@ -737,11 +724,11 @@ int escc_init(target_phys_addr_t base, qemu_irq irqA, qemu_irq irqB,
     qdev_prop_set_uint32(dev, "disabled", 0);
     qdev_prop_set_uint32(dev, "frequency", clock);
     qdev_prop_set_uint32(dev, "it_shift", it_shift);
-    qdev_prop_set_ptr(dev, "chrB", chrB);
-    qdev_prop_set_ptr(dev, "chrA", chrA);
+    qdev_prop_set_chr(dev, "chrB", chrB);
+    qdev_prop_set_chr(dev, "chrA", chrA);
     qdev_prop_set_uint32(dev, "chnBtype", ser);
     qdev_prop_set_uint32(dev, "chnAtype", ser);
-    qdev_init(dev);
+    qdev_init_nofail(dev);
     s = sysbus_from_qdev(dev);
     sysbus_connect_irq(s, 0, irqB);
     sysbus_connect_irq(s, 1, irqA);
@@ -869,18 +856,18 @@ static void sunmouse_event(void *opaque,
     ch = dx;
 
     if (ch > 127)
-        ch=127;
+        ch = 127;
     else if (ch < -127)
-        ch=-127;
+        ch = -127;
 
     put_queue(s, ch & 0xff);
 
     ch = -dy;
 
     if (ch > 127)
-        ch=127;
+        ch = 127;
     else if (ch < -127)
-        ch=-127;
+        ch = -127;
 
     put_queue(s, ch & 0xff);
 
@@ -900,18 +887,18 @@ void slavio_serial_ms_kbd_init(target_phys_addr_t base, qemu_irq irq,
     qdev_prop_set_uint32(dev, "disabled", disabled);
     qdev_prop_set_uint32(dev, "frequency", clock);
     qdev_prop_set_uint32(dev, "it_shift", it_shift);
-    qdev_prop_set_ptr(dev, "chrB", NULL);
-    qdev_prop_set_ptr(dev, "chrA", NULL);
+    qdev_prop_set_chr(dev, "chrB", NULL);
+    qdev_prop_set_chr(dev, "chrA", NULL);
     qdev_prop_set_uint32(dev, "chnBtype", mouse);
     qdev_prop_set_uint32(dev, "chnAtype", kbd);
-    qdev_init(dev);
+    qdev_init_nofail(dev);
     s = sysbus_from_qdev(dev);
     sysbus_connect_irq(s, 0, irq);
     sysbus_connect_irq(s, 1, irq);
     sysbus_mmio_map(s, 0, base);
 }
 
-static void escc_init1(SysBusDevice *dev)
+static int escc_init1(SysBusDevice *dev)
 {
     SerialState *s = FROM_SYSBUS(SerialState, dev);
     int io;
@@ -931,7 +918,8 @@ static void escc_init1(SysBusDevice *dev)
     s->chn[0].otherchn = &s->chn[1];
     s->chn[1].otherchn = &s->chn[0];
 
-    io = cpu_register_io_memory(escc_mem_read, escc_mem_write, s);
+    io = cpu_register_io_memory(escc_mem_read, escc_mem_write, s,
+                                DEVICE_NATIVE_ENDIAN);
     sysbus_init_mmio(dev, ESCC_SIZE << s->it_shift, io);
     s->mmio_index = io;
 
@@ -942,52 +930,26 @@ static void escc_init1(SysBusDevice *dev)
     if (s->chn[1].type == kbd) {
         qemu_add_kbd_event_handler(sunkbd_event, &s->chn[1]);
     }
-    register_savevm("escc", -1, 2, escc_save, escc_load, s);
-    qemu_register_reset(escc_reset, s);
-    escc_reset(s);
+
+    return 0;
 }
 
 static SysBusDeviceInfo escc_info = {
     .init = escc_init1,
     .qdev.name  = "escc",
     .qdev.size  = sizeof(SerialState),
+    .qdev.vmsd  = &vmstate_escc,
+    .qdev.reset = escc_reset,
     .qdev.props = (Property[]) {
-        {
-            .name = "frequency",
-            .info = &qdev_prop_uint32,
-            .offset = offsetof(SerialState, frequency),
-        },
-        {
-            .name = "it_shift",
-            .info = &qdev_prop_uint32,
-            .offset = offsetof(SerialState, it_shift),
-        },
-        {
-            .name = "disabled",
-            .info = &qdev_prop_uint32,
-            .offset = offsetof(SerialState, disabled),
-        },
-        {
-            .name = "chrB",
-            .info = &qdev_prop_ptr,
-            .offset = offsetof(SerialState, chn[0].chr),
-        },
-        {
-            .name = "chrA",
-            .info = &qdev_prop_ptr,
-            .offset = offsetof(SerialState, chn[1].chr),
-        },
-        {
-            .name = "chnBtype",
-            .info = &qdev_prop_uint32,
-            .offset = offsetof(SerialState, chn[0].type),
-        },
-        {
-            .name = "chnAtype",
-            .info = &qdev_prop_uint32,
-            .offset = offsetof(SerialState, chn[1].type),
-        },
-        {/* end of list */}
+        DEFINE_PROP_UINT32("frequency", SerialState, frequency,   0),
+        DEFINE_PROP_UINT32("it_shift",  SerialState, it_shift,    0),
+        DEFINE_PROP_UINT32("disabled",  SerialState, disabled,    0),
+        DEFINE_PROP_UINT32("disabled",  SerialState, disabled,    0),
+        DEFINE_PROP_UINT32("chnBtype",  SerialState, chn[0].type, 0),
+        DEFINE_PROP_UINT32("chnAtype",  SerialState, chn[1].type, 0),
+        DEFINE_PROP_CHR("chrB", SerialState, chn[0].chr),
+        DEFINE_PROP_CHR("chrA", SerialState, chn[1].chr),
+        DEFINE_PROP_END_OF_LIST(),
     }
 };
 

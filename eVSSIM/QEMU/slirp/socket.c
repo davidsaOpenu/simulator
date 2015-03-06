@@ -90,8 +90,6 @@ size_t sopreprbuf(struct socket *so, struct iovec *iov, int *np)
 	DEBUG_CALL("sopreprbuf");
 	DEBUG_ARG("so = %lx", (long )so);
 
-	len = sb->sb_datalen - sb->sb_cc;
-
 	if (len <= 0)
 		return 0;
 
@@ -363,8 +361,6 @@ sowrite(struct socket *so)
 	 * sowrite wouldn't have been called otherwise
 	 */
 
-        len = sb->sb_cc;
-
 	iov[0].iov_base = sb->sb_rptr;
         iov[1].iov_base = NULL;
         iov[1].iov_len = 0;
@@ -552,7 +548,8 @@ sosendto(struct socket *so, struct mbuf *m)
 	    slirp->vnetwork_addr.s_addr) {
 	  /* It's an alias */
 	  if (so->so_faddr.s_addr == slirp->vnameserver_addr.s_addr) {
-	    addr.sin_addr = dns_addr;
+	    if (get_dns_addr(&addr.sin_addr) < 0)
+	      addr.sin_addr = loopback_addr;
 	  } else {
 	    addr.sin_addr = loopback_addr;
 	  }
@@ -583,13 +580,14 @@ sosendto(struct socket *so, struct mbuf *m)
  * Listen for incoming TCP connections
  */
 struct socket *
-tcp_listen(Slirp *slirp, u_int32_t haddr, u_int hport, u_int32_t laddr,
+tcp_listen(Slirp *slirp, uint32_t haddr, u_int hport, uint32_t laddr,
            u_int lport, int flags)
 {
 	struct sockaddr_in addr;
 	struct socket *so;
 	int s, opt = 1;
 	socklen_t addrlen = sizeof(addr);
+	memset(&addr, 0, addrlen);
 
 	DEBUG_CALL("tcp_listen");
 	DEBUG_ARG("haddr = %x", haddr);
@@ -625,7 +623,7 @@ tcp_listen(Slirp *slirp, u_int32_t haddr, u_int hport, u_int32_t laddr,
 	addr.sin_addr.s_addr = haddr;
 	addr.sin_port = hport;
 
-	if (((s = socket(AF_INET,SOCK_STREAM,0)) < 0) ||
+	if (((s = qemu_socket(AF_INET,SOCK_STREAM,0)) < 0) ||
 	    (setsockopt(s,SOL_SOCKET,SO_REUSEADDR,(char *)&opt,sizeof(int)) < 0) ||
 	    (bind(s,(struct sockaddr *)&addr, sizeof(addr)) < 0) ||
 	    (listen(s,1) < 0)) {

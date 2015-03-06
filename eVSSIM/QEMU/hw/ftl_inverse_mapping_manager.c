@@ -1,1 +1,1 @@
-../../FTL_SOURCE/PAGE_MAP/ftl_inverse_mapping_manager.c
+/home/boaz/simulator/eVSSIM/QEMU/../FTL_SOURCE/PAGE_MAP/ftl_inverse_mapping_manager.c

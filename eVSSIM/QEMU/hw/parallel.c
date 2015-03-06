@@ -26,6 +26,7 @@
 #include "qemu-char.h"
 #include "isa.h"
 #include "pc.h"
+#include "sysemu.h"
 
 //#define DEBUG_PARALLEL
 
@@ -63,7 +64,7 @@
 
 #define PARA_CTR_SIGNAL (PARA_CTR_SELECT|PARA_CTR_INIT|PARA_CTR_AUTOLF|PARA_CTR_STROBE)
 
-struct ParallelState {
+typedef struct ParallelState {
     uint8_t dataw;
     uint8_t datar;
     uint8_t status;
@@ -76,7 +77,15 @@ struct ParallelState {
     uint32_t last_read_offset; /* For debugging */
     /* Memory-mapped interface */
     int it_shift;
-};
+} ParallelState;
+
+typedef struct ISAParallelState {
+    ISADevice dev;
+    uint32_t index;
+    uint32_t iobase;
+    uint32_t isairq;
+    ParallelState state;
+} ISAParallelState;
 
 static void parallel_update_irq(ParallelState *s)
 {
@@ -406,15 +415,14 @@ parallel_ioport_eppdata_read_hw4(void *opaque, uint32_t addr)
 
 static void parallel_ioport_ecp_write(void *opaque, uint32_t addr, uint32_t val)
 {
-    addr &= 7;
-    pdebug("wecp%d=%02x\n", addr, val);
+    pdebug("wecp%d=%02x\n", addr & 7, val);
 }
 
 static uint32_t parallel_ioport_ecp_read(void *opaque, uint32_t addr)
 {
     uint8_t ret = 0xff;
-    addr &= 7;
-    pdebug("recp%d:%02x\n", addr, ret);
+
+    pdebug("recp%d:%02x\n", addr & 7, ret);
     return ret;
 }
 
@@ -438,19 +446,34 @@ static void parallel_reset(void *opaque)
     s->last_read_offset = ~0U;
 }
 
-/* If fd is zero, it means that the parallel device uses the console */
-ParallelState *parallel_init(int base, qemu_irq irq, CharDriverState *chr)
+static const int isa_parallel_io[MAX_PARALLEL_PORTS] = { 0x378, 0x278, 0x3bc };
+
+static int parallel_isa_initfn(ISADevice *dev)
 {
-    ParallelState *s;
+    static int index;
+    ISAParallelState *isa = DO_UPCAST(ISAParallelState, dev, dev);
+    ParallelState *s = &isa->state;
+    int base;
     uint8_t dummy;
 
-    s = qemu_mallocz(sizeof(ParallelState));
-    s->irq = irq;
-    s->chr = chr;
-    parallel_reset(s);
+    if (!s->chr) {
+        fprintf(stderr, "Can't create parallel device, empty char device\n");
+        exit(1);
+    }
+
+    if (isa->index == -1)
+        isa->index = index;
+    if (isa->index >= MAX_PARALLEL_PORTS)
+        return -1;
+    if (isa->iobase == -1)
+        isa->iobase = isa_parallel_io[isa->index];
+    index++;
+
+    base = isa->iobase;
+    isa_init_irq(dev, &s->irq, isa->isairq);
     qemu_register_reset(parallel_reset, s);
 
-    if (qemu_chr_ioctl(chr, CHR_IOCTL_PP_READ_STATUS, &dummy) == 0) {
+    if (qemu_chr_ioctl(s->chr, CHR_IOCTL_PP_READ_STATUS, &dummy) == 0) {
         s->hw_driver = 1;
         s->status = dummy;
     }
@@ -458,18 +481,23 @@ ParallelState *parallel_init(int base, qemu_irq irq, CharDriverState *chr)
     if (s->hw_driver) {
         register_ioport_write(base, 8, 1, parallel_ioport_write_hw, s);
         register_ioport_read(base, 8, 1, parallel_ioport_read_hw, s);
+        isa_init_ioport_range(dev, base, 8);
+
         register_ioport_write(base+4, 1, 2, parallel_ioport_eppdata_write_hw2, s);
         register_ioport_read(base+4, 1, 2, parallel_ioport_eppdata_read_hw2, s);
         register_ioport_write(base+4, 1, 4, parallel_ioport_eppdata_write_hw4, s);
         register_ioport_read(base+4, 1, 4, parallel_ioport_eppdata_read_hw4, s);
+        isa_init_ioport(dev, base+4);
         register_ioport_write(base+0x400, 8, 1, parallel_ioport_ecp_write, s);
         register_ioport_read(base+0x400, 8, 1, parallel_ioport_ecp_read, s);
+        isa_init_ioport_range(dev, base+0x400, 8);
     }
     else {
         register_ioport_write(base, 8, 1, parallel_ioport_write_sw, s);
         register_ioport_read(base, 8, 1, parallel_ioport_read_sw, s);
+        isa_init_ioport_range(dev, base, 8);
     }
-    return s;
+    return 0;
 }
 
 /* Memory mapped interface */
@@ -518,20 +546,21 @@ static void parallel_mm_writel (void *opaque,
     parallel_ioport_write_sw(s, addr >> s->it_shift, value);
 }
 
-static CPUReadMemoryFunc *parallel_mm_read_sw[] = {
+static CPUReadMemoryFunc * const parallel_mm_read_sw[] = {
     &parallel_mm_readb,
     &parallel_mm_readw,
     &parallel_mm_readl,
 };
 
-static CPUWriteMemoryFunc *parallel_mm_write_sw[] = {
+static CPUWriteMemoryFunc * const parallel_mm_write_sw[] = {
     &parallel_mm_writeb,
     &parallel_mm_writew,
     &parallel_mm_writel,
 };
 
 /* If fd is zero, it means that the parallel device uses the console */
-ParallelState *parallel_mm_init(target_phys_addr_t base, int it_shift, qemu_irq irq, CharDriverState *chr)
+bool parallel_mm_init(target_phys_addr_t base, int it_shift, qemu_irq irq,
+                      CharDriverState *chr)
 {
     ParallelState *s;
     int io_sw;
@@ -540,10 +569,30 @@ ParallelState *parallel_mm_init(target_phys_addr_t base, int it_shift, qemu_irq 
     s->irq = irq;
     s->chr = chr;
     s->it_shift = it_shift;
-    parallel_reset(s);
     qemu_register_reset(parallel_reset, s);
 
-    io_sw = cpu_register_io_memory(parallel_mm_read_sw, parallel_mm_write_sw, s);
+    io_sw = cpu_register_io_memory(parallel_mm_read_sw, parallel_mm_write_sw,
+                                   s, DEVICE_NATIVE_ENDIAN);
     cpu_register_physical_memory(base, 8 << it_shift, io_sw);
-    return s;
+    return true;
 }
+
+static ISADeviceInfo parallel_isa_info = {
+    .qdev.name  = "isa-parallel",
+    .qdev.size  = sizeof(ISAParallelState),
+    .init       = parallel_isa_initfn,
+    .qdev.props = (Property[]) {
+        DEFINE_PROP_UINT32("index", ISAParallelState, index,   -1),
+        DEFINE_PROP_HEX32("iobase", ISAParallelState, iobase,  -1),
+        DEFINE_PROP_UINT32("irq",   ISAParallelState, isairq,  7),
+        DEFINE_PROP_CHR("chardev",  ISAParallelState, state.chr),
+        DEFINE_PROP_END_OF_LIST(),
+    },
+};
+
+static void parallel_register_devices(void)
+{
+    isa_qdev_register(&parallel_isa_info);
+}
+
+device_init(parallel_register_devices)

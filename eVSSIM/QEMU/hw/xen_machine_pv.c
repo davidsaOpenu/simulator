@@ -24,13 +24,10 @@
 
 #include "hw.h"
 #include "pc.h"
-#include "sysemu.h"
 #include "boards.h"
 #include "xen_backend.h"
 #include "xen_domainbuild.h"
-
-uint32_t xen_domid;
-enum xen_mode xen_mode = XEN_EMULATE;
+#include "blockdev.h"
 
 static void xen_init_pv(ram_addr_t ram_size,
 			const char *boot_device,
@@ -40,7 +37,8 @@ static void xen_init_pv(ram_addr_t ram_size,
 			const char *cpu_model)
 {
     CPUState *env;
-    int i, index;
+    DriveInfo *dinfo;
+    int i;
 
     /* Initialize a dummy CPU */
     if (cpu_model == NULL) {
@@ -90,10 +88,10 @@ static void xen_init_pv(ram_addr_t ram_size,
 
     /* configure disks */
     for (i = 0; i < 16; i++) {
-        index = drive_get_index(IF_XEN, 0, i);
-        if (index == -1)
+        dinfo = drive_get(IF_XEN, 0, i);
+        if (!dinfo)
             continue;
-        xen_config_dev_blk(drives_table + index);
+        xen_config_dev_blk(dinfo);
     }
 
     /* configure nics */
@@ -115,6 +113,7 @@ static QEMUMachine xenpv_machine = {
     .desc = "Xen Para-virtualized PC",
     .init = xen_init_pv,
     .max_cpus = 1,
+    .default_machine_opts = "accel=xen",
 };
 
 static void xenpv_machine_init(void)

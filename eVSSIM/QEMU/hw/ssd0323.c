@@ -322,7 +322,7 @@ static int ssd0323_load(QEMUFile *f, void *opaque, int version_id)
     return 0;
 }
 
-static void ssd0323_init(SSISlave *dev)
+static int ssd0323_init(SSISlave *dev)
 {
     ssd0323_state *s = FROM_SSI_SLAVE(ssd0323_state, dev);
 
@@ -335,7 +335,9 @@ static void ssd0323_init(SSISlave *dev)
 
     qdev_init_gpio_in(&dev->qdev, ssd0323_cd, 1);
 
-    register_savevm("ssd0323_oled", -1, 1, ssd0323_save, ssd0323_load, s);
+    register_savevm(&dev->qdev, "ssd0323_oled", -1, 1,
+                    ssd0323_save, ssd0323_load, s);
+    return 0;
 }
 
 static SSISlaveInfo ssd0323_info = {

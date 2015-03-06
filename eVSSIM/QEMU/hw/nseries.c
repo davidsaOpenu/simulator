@@ -30,6 +30,7 @@
 #include "flash.h"
 #include "hw.h"
 #include "bt.h"
+#include "loader.h"
 
 /* Nokia N8x0 support */
 struct n800_s {
@@ -247,7 +248,7 @@ static void n800_tsc_kbd_setup(struct n800_s *s)
 
     /* XXX: are the three pins inverted inside the chip between the
      * tsc and the cpu (N4111)?  */
-    qemu_irq penirq = 0;	/* NC */
+    qemu_irq penirq = NULL;	/* NC */
     qemu_irq kbirq = omap2_gpio_in_get(s->cpu->gpif, N800_TSC_KP_IRQ_GPIO)[0];
     qemu_irq dav = omap2_gpio_in_get(s->cpu->gpif, N800_TSC_TS_GPIO)[0];
 
@@ -710,12 +711,12 @@ static void n800_dss_init(struct rfbi_chip_s *chip)
     fb_blank = memset(qemu_malloc(800 * 480 * 2), 0xff, 800 * 480 * 2);
     /* Display Memory Data Port */
     chip->block(chip->opaque, 1, fb_blank, 800 * 480 * 2, 800);
-    free(fb_blank);
+    qemu_free(fb_blank);
 }
 
 static void n8x0_dss_setup(struct n800_s *s)
 {
-    s->blizzard.opaque = s1d13745_init(0);
+    s->blizzard.opaque = s1d13745_init(NULL);
     s->blizzard.block = s1d13745_write_block;
     s->blizzard.write = s1d13745_write;
     s->blizzard.read = s1d13745_read;
@@ -768,9 +769,9 @@ static void n8x0_usb_setup(struct n800_s *s)
 
     /* Using the NOR interface */
     omap_gpmc_attach(s->cpu->gpmc, N8X0_USB_ASYNC_CS,
-                    tusb6010_async_io(tusb), 0, 0, tusb);
+                    tusb6010_async_io(tusb), NULL, NULL, tusb);
     omap_gpmc_attach(s->cpu->gpmc, N8X0_USB_SYNC_CS,
-                    tusb6010_sync_io(tusb), 0, 0, tusb);
+                    tusb6010_sync_io(tusb), NULL, NULL, tusb);
 
     s->usb = tusb;
     omap2_gpio_out_set(s->cpu->gpif, N8X0_TUSB_ENABLE_GPIO, tusb_pwr);
@@ -1015,7 +1016,6 @@ static void n8x0_boot_init(void *opaque)
     n800_dss_init(&s->blizzard);
 
     /* CPU setup */
-    s->cpu->env->regs[15] = s->cpu->env->boot_info->loader_start;
     s->cpu->env->GE = 0x5;
 
     /* If the machine has a slided keyboard, open it */
@@ -1046,7 +1046,7 @@ static struct omap_gpiosw_info_s {
         "headphone", N8X0_HEADPHONE_GPIO,
         OMAP_GPIOSW_TYPE_CONNECTION | OMAP_GPIOSW_INVERTED,
     },
-    { 0 }
+    { NULL }
 }, n810_gpiosw_info[] = {
     {
         "gps_reset", N810_GPS_RESET_GPIO,
@@ -1067,7 +1067,7 @@ static struct omap_gpiosw_info_s {
         "slide", N810_SLIDE_GPIO,
         OMAP_GPIOSW_TYPE_COVER | OMAP_GPIOSW_INVERTED,
     },
-    { 0 }
+    { NULL }
 };
 
 static struct omap_partition_info_s {
@@ -1082,7 +1082,7 @@ static struct omap_partition_info_s {
     { 0x00280000, 0x00200000, 0x3, "initfs" },
     { 0x00480000, 0x0fb80000, 0x3, "rootfs" },
 
-    { 0, 0, 0, 0 }
+    { 0, 0, 0, NULL }
 }, n810_part_info[] = {
     { 0x00000000, 0x00020000, 0x3, "bootloader" },
     { 0x00020000, 0x00060000, 0x0, "config" },
@@ -1090,7 +1090,7 @@ static struct omap_partition_info_s {
     { 0x002a0000, 0x00400000, 0x0, "initfs" },
     { 0x006a0000, 0x0f960000, 0x0, "rootfs" },
 
-    { 0, 0, 0, 0 }
+    { 0, 0, 0, NULL }
 };
 
 static bdaddr_t n8x0_bd_addr = {{ N8X0_BD_ADDR }};
@@ -1316,11 +1316,6 @@ static void n8x0_init(ram_addr_t ram_size, const char *boot_device,
     if (usb_enabled)
         n8x0_usb_setup(s);
 
-    /* Setup initial (reset) machine state */
-
-    /* Start at the OneNAND bootloader.  */
-    s->cpu->env->regs[15] = 0;
-
     if (kernel_filename) {
         /* Or at the linux loader.  */
         binfo->kernel_filename = kernel_filename;
@@ -1329,10 +1324,9 @@ static void n8x0_init(ram_addr_t ram_size, const char *boot_device,
         arm_load_kernel(s->cpu->env, binfo);
 
         qemu_register_reset(n8x0_boot_init, s);
-        n8x0_boot_init(s);
     }
 
-    if (option_rom[0] && (boot_device[0] == 'n' || !kernel_filename)) {
+    if (option_rom[0].name && (boot_device[0] == 'n' || !kernel_filename)) {
         int rom_size;
         uint8_t nolo_tags[0x10000];
         /* No, wait, better start at the ROM.  */
@@ -1347,7 +1341,7 @@ static void n8x0_init(ram_addr_t ram_size, const char *boot_device,
          *
          * The code above is for loading the `zImage' file from Nokia
          * images.  */
-        rom_size = load_image_targphys(option_rom[0],
+        rom_size = load_image_targphys(option_rom[0].name,
                                        OMAP2_Q2_BASE + 0x400000,
                                        sdram_size - 0x400000);
         printf("%i bytes of image loaded\n", rom_size);

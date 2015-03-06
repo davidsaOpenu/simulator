@@ -4,7 +4,6 @@
 // Embedded Software Systems Lab. All right reserved
 
 #include "common.h"
-#include "qemu-kvm.h"
 #include <arpa/inet.h>
 #include <sys/socket.h>
 #include <sys/types.h>
@@ -22,7 +21,6 @@ void FTL_INIT(void)
         	printf("[%s] start\n",__FUNCTION__);
 
 		INIT_SSD_CONFIG();
-
 		INIT_MAPPING_TABLE();
 		INIT_INVERSE_PAGE_MAPPING();
 		INIT_INVERSE_BLOCK_MAPPING();
@@ -268,18 +266,20 @@ int _FTL_COPYBACK(int32_t source, int32_t destination)
 
 #ifdef FTL_DEBUG
 	if(ret == FAIL){
-		printf("Error[%s] %u page copyback fail \n", __FUNCTION__, ppn);
+		printf("Error[%s] %u page copyback fail \n", __FUNCTION__, lpn);
 	}
 #endif
 
 	return ret;
 }
 
-void FTL_INIT_STATS(){
+void FTL_INIT_STATS(void){
 
+#if 0
+TODO: review statistics implementation
 	int i,j, thRes;
 	struct sockaddr_in serverAddr;
-	pthread_t *statThread;
+	pthread_t statThread;
 
 	int *clientSock = malloc (sizeof(int));
 	/*Creating client socket, in order to receive statistics collection commands from the server*/
@@ -300,10 +300,10 @@ void FTL_INIT_STATS(){
 	}
 
 	/*Creating and starting a thread for communication with the statistic controller*/
-	thRes = pthread_create( &statThread, NULL, STAT_LISTEN, (void *) clientSock);
+	thRes = pthread_create(&statThread, NULL, STAT_LISTEN, (void *) clientSock);
 
 	/* Allocation Memory for Mapping Stats Table */
-	mapping_stats_table = (int32_t*)calloc(SUPPORTED_OPERATION, sizeof(int32_t*));
+	mapping_stats_table = (int32_t**)calloc(SUPPORTED_OPERATION, sizeof(int32_t*));
 	if(mapping_stats_table == NULL){
 		printf("ERROR[%s] Calloc mapping stats table fail\n",__FUNCTION__);
 		return;
@@ -322,9 +322,10 @@ void FTL_INIT_STATS(){
 			mapping_stats_table[i][j] = 0;
 		}
 	}
+#endif
 }
 
-void FTL_RESET_STATS(){
+void FTL_RESET_STATS(void){
 	int i,j;
 
 	for(i=0; i < SUPPORTED_OPERATION; i++){
@@ -334,7 +335,7 @@ void FTL_RESET_STATS(){
 	}
 }
 
-void FTL_TERM_STATS(){
+void FTL_TERM_STATS(void){
 	int i;
 
 	for (i=0; i < SUPPORTED_OPERATION; i++){
@@ -364,7 +365,8 @@ int32_t FTL_STATISTICS_QUERY	(int32_t address, int scope , int type){
 	//PAGE_NB = is the number of pages in a block, BLOCK_NB is the number of blocks in a flash.
 	//The first address in the scope start at address 0.
 
-	int i , j , scopeFirstPage , planeNumber;
+	//int i , j , scopeFirstPage , planeNumber;
+	int i, j, scopeFirstPage;
 	int32_t actionSum;
 	actionSum = 0;
 
@@ -419,7 +421,7 @@ int32_t FTL_STATISTICS_QUERY	(int32_t address, int scope , int type){
 }
 
 
-void FTL_RECORD_STATISTICS(){
+void FTL_RECORD_STATISTICS(void){
 	int scopeRange , i , queryResult , scope , address;
 
 	FILE* fp = fopen(STAT_PATH,"w");
@@ -521,7 +523,9 @@ void *STAT_LISTEN(void *socket){
 	while(stopListen){
 		memset(buffer,0,256);
 		while (buffer[0] == 0){
-			read(sock,buffer,255);
+			if(read(sock,buffer,255) <= 0){
+				perror("read");
+			}
 		}
 		printf("buffer %s\n",buffer);
 		if (strcmp(buffer, "start") == 0)

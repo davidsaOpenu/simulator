@@ -22,7 +22,7 @@ typedef int (*i2c_recv_cb)(i2c_slave *s);
 /* Notify the slave of a bus state change.  */
 typedef void (*i2c_event_cb)(i2c_slave *s, enum i2c_event event);
 
-typedef void (*i2c_slave_initfn)(i2c_slave *dev);
+typedef int (*i2c_slave_initfn)(i2c_slave *dev);
 
 typedef struct {
     DeviceInfo qdev;
@@ -40,31 +40,24 @@ struct i2c_slave
     I2CSlaveInfo *info;
 
     /* Remaining fields for internal use by the I2C code.  */
-    uint32_t address;
+    uint8_t address;
 };
 
 i2c_bus *i2c_init_bus(DeviceState *parent, const char *name);
-void i2c_set_slave_address(i2c_slave *dev, int address);
+void i2c_set_slave_address(i2c_slave *dev, uint8_t address);
 int i2c_bus_busy(i2c_bus *bus);
-int i2c_start_transfer(i2c_bus *bus, int address, int recv);
+int i2c_start_transfer(i2c_bus *bus, uint8_t address, int recv);
 void i2c_end_transfer(i2c_bus *bus);
 void i2c_nack(i2c_bus *bus);
 int i2c_send(i2c_bus *bus, uint8_t data);
 int i2c_recv(i2c_bus *bus);
-void i2c_slave_save(QEMUFile *f, i2c_slave *dev);
-void i2c_slave_load(QEMUFile *f, i2c_slave *dev);
 
 #define I2C_SLAVE_FROM_QDEV(dev) DO_UPCAST(i2c_slave, qdev, dev)
 #define FROM_I2C_SLAVE(type, dev) DO_UPCAST(type, i2c, dev)
 
 void i2c_register_slave(I2CSlaveInfo *type);
 
-DeviceState *i2c_create_slave(i2c_bus *bus, const char *name, int addr);
-
-/* max7310.c */
-void max7310_reset(i2c_slave *i2c);
-qemu_irq *max7310_gpio_in_get(i2c_slave *i2c);
-void max7310_gpio_out_set(i2c_slave *i2c, int line, qemu_irq handler);
+DeviceState *i2c_create_slave(i2c_bus *bus, const char *name, uint8_t addr);
 
 /* wm8750.c */
 void wm8750_data_req_set(DeviceState *dev,
