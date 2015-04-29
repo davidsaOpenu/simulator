@@ -108,11 +108,7 @@ static int glue (audio_pcm_sw_alloc_resources_, TYPE) (SW *sw)
 {
     int samples;
 
-#ifdef DAC
-    samples = sw->hw->samples;
-#else
     samples = ((int64_t) sw->hw->samples << 32) / sw->ratio;
-#endif
 
     sw->buf = audio_calloc (AUDIO_FUNC, samples, sizeof (struct st_sample));
     if (!sw->buf) {
@@ -184,12 +180,12 @@ static void glue (audio_pcm_sw_fini_, TYPE) (SW *sw)
 
 static void glue (audio_pcm_hw_add_sw_, TYPE) (HW *hw, SW *sw)
 {
-    LIST_INSERT_HEAD (&hw->sw_head, sw, entries);
+    QLIST_INSERT_HEAD (&hw->sw_head, sw, entries);
 }
 
 static void glue (audio_pcm_hw_del_sw_, TYPE) (SW *sw)
 {
-    LIST_REMOVE (sw, entries);
+    QLIST_REMOVE (sw, entries);
 }
 
 static void glue (audio_pcm_hw_gc_, TYPE) (HW **hwp)
@@ -201,7 +197,7 @@ static void glue (audio_pcm_hw_gc_, TYPE) (HW **hwp)
 #ifdef DAC
         audio_detach_capture (hw);
 #endif
-        LIST_REMOVE (hw, entries);
+        QLIST_REMOVE (hw, entries);
         glue (s->nb_hw_voices_, TYPE) += 1;
         glue (audio_pcm_hw_free_resources_ ,TYPE) (hw);
         glue (hw->pcm_ops->fini_, TYPE) (hw);
@@ -267,9 +263,9 @@ static HW *glue (audio_pcm_hw_add_new_, TYPE) (struct audsettings *as)
     }
 
     hw->pcm_ops = drv->pcm_ops;
-    LIST_INIT (&hw->sw_head);
+    QLIST_INIT (&hw->sw_head);
 #ifdef DAC
-    LIST_INIT (&hw->cap_head);
+    QLIST_INIT (&hw->cap_head);
 #endif
     if (glue (hw->pcm_ops->init_, TYPE) (hw, as)) {
         goto err0;
@@ -294,7 +290,7 @@ static HW *glue (audio_pcm_hw_add_new_, TYPE) (struct audsettings *as)
         goto err1;
     }
 
-    LIST_INSERT_HEAD (&s->glue (hw_head_, TYPE), hw, entries);
+    QLIST_INSERT_HEAD (&s->glue (hw_head_, TYPE), hw, entries);
     glue (s->nb_hw_voices_, TYPE) -= 1;
 #ifdef DAC
     audio_attach_capture (hw);
@@ -402,7 +398,7 @@ SW *glue (AUD_open_, TYPE) (
     SW *sw,
     const char *name,
     void *callback_opaque ,
-    audio_callback_fn_t callback_fn,
+    audio_callback_fn callback_fn,
     struct audsettings *as
     )
 {
@@ -445,9 +441,9 @@ SW *glue (AUD_open_, TYPE) (
                SW_NAME (sw), sw->info.freq, sw->info.bits, sw->info.nchannels);
         dolog ("New %s freq %d, bits %d, channels %d\n",
                name,
-               freq,
-               (fmt == AUD_FMT_S16 || fmt == AUD_FMT_U16) ? 16 : 8,
-               nchannels);
+               as->freq,
+               (as->fmt == AUD_FMT_S16 || as->fmt == AUD_FMT_U16) ? 16 : 8,
+               as->nchannels);
 #endif
 
         if (live) {
@@ -485,32 +481,30 @@ SW *glue (AUD_open_, TYPE) (
         }
     }
 
-    if (sw) {
-        sw->card = card;
-        sw->vol = nominal_volume;
-        sw->callback.fn = callback_fn;
-        sw->callback.opaque = callback_opaque;
+    sw->card = card;
+    sw->vol = nominal_volume;
+    sw->callback.fn = callback_fn;
+    sw->callback.opaque = callback_opaque;
 
 #ifdef DAC
-        if (live) {
-            int mixed =
-                (live << old_sw->info.shift)
-                * old_sw->info.bytes_per_second
-                / sw->info.bytes_per_second;
+    if (live) {
+        int mixed =
+            (live << old_sw->info.shift)
+            * old_sw->info.bytes_per_second
+            / sw->info.bytes_per_second;
 
 #ifdef DEBUG_PLIVE
-            dolog ("Silence will be mixed %d\n", mixed);
+        dolog ("Silence will be mixed %d\n", mixed);
 #endif
-            sw->total_hw_samples_mixed += mixed;
-        }
+        sw->total_hw_samples_mixed += mixed;
+    }
 #endif
 
 #ifdef DEBUG_AUDIO
-        dolog ("%s\n", name);
-        audio_pcm_print_info ("hw", &sw->hw->info);
-        audio_pcm_print_info ("sw", &sw->info);
+    dolog ("%s\n", name);
+    audio_pcm_print_info ("hw", &sw->hw->info);
+    audio_pcm_print_info ("sw", &sw->info);
 #endif
-    }
 
     return sw;
 
@@ -543,7 +537,7 @@ uint64_t glue (AUD_get_elapsed_usec_, TYPE) (SW *sw, QEMUAudioTimeStamp *ts)
 
     cur_ts = sw->hw->ts_helper;
     old_ts = ts->old_ts;
-    /* dolog ("cur %lld old %lld\n", cur_ts, old_ts); */
+    /* dolog ("cur %" PRId64 " old %" PRId64 "\n", cur_ts, old_ts); */
 
     if (cur_ts >= old_ts) {
         delta = cur_ts - old_ts;
@@ -556,7 +550,7 @@ uint64_t glue (AUD_get_elapsed_usec_, TYPE) (SW *sw, QEMUAudioTimeStamp *ts)
         return 0;
     }
 
-    return (delta * sw->hw->info.freq) / 1000000;
+    return muldiv64 (delta, sw->hw->info.freq, 1000000);
 }
 
 #undef TYPE

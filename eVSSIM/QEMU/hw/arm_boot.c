@@ -10,10 +10,12 @@
 #include "hw.h"
 #include "arm-misc.h"
 #include "sysemu.h"
+#include "loader.h"
+#include "elf.h"
 
 #define KERNEL_ARGS_ADDR 0x100
 #define KERNEL_LOAD_ADDR 0x00010000
-#define INITRD_LOAD_ADDR 0x00800000
+#define INITRD_LOAD_ADDR 0x00d00000
 
 /* The worlds second smallest bootloader.  Set r0-r2, then jump to kernel.  */
 static uint32_t bootloader[] = {
@@ -29,29 +31,18 @@ static uint32_t bootloader[] = {
 /* Entry point for secondary CPUs.  Enable interrupt controller and
    Issue WFI until start address is written to system controller.  */
 static uint32_t smpboot[] = {
-  0xe3a00201, /* mov     r0, #0x10000000 */
-  0xe3800601, /* orr     r0, r0, #0x001000000 */
+  0xe59f0020, /* ldr     r0, privbase */
   0xe3a01001, /* mov     r1, #1 */
   0xe5801100, /* str     r1, [r0, #0x100] */
   0xe3a00201, /* mov     r0, #0x10000000 */
   0xe3800030, /* orr     r0, #0x30 */
   0xe320f003, /* wfi */
   0xe5901000, /* ldr     r1, [r0] */
-  0xe3110003, /* tst     r1, #3 */
-  0x1afffffb, /* bne     <wfi> */
-  0xe12fff11  /* bx      r1 */
+  0xe1110001, /* tst     r1, r1 */
+  0x0afffffb, /* beq     <wfi> */
+  0xe12fff11, /* bx      r1 */
+  0 /* privbase: Private memory region base address.  */
 };
-
-static void main_cpu_reset(void *opaque)
-{
-    CPUState *env = opaque;
-
-    cpu_reset(env);
-    if (env->boot_info)
-        arm_load_kernel(env, env->boot_info);
-
-    /* TODO:  Reset secondary CPUs.  */
-}
 
 #define WRITE_WORD(p, value) do { \
     stl_phys_notdirty(p, value);  \
@@ -184,6 +175,34 @@ static void set_kernel_args_old(struct arm_boot_info *info,
     }
 }
 
+static void do_cpu_reset(void *opaque)
+{
+    CPUState *env = opaque;
+    struct arm_boot_info *info = env->boot_info;
+
+    cpu_reset(env);
+    if (info) {
+        if (!info->is_linux) {
+            /* Jump to the entry point.  */
+            env->regs[15] = info->entry & 0xfffffffe;
+            env->thumb = info->entry & 1;
+        } else {
+            if (env == first_cpu) {
+                env->regs[15] = info->loader_start;
+                if (old_param) {
+                    set_kernel_args_old(info, info->initrd_size,
+                                        info->loader_start);
+                } else {
+                    set_kernel_args(info, info->initrd_size,
+                                    info->loader_start);
+                }
+            } else {
+                env->regs[15] = info->smp_loader_start;
+            }
+        }
+    }
+}
+
 void arm_load_kernel(CPUState *env, struct arm_boot_info *info)
 {
     int kernel_size;
@@ -191,7 +210,8 @@ void arm_load_kernel(CPUState *env, struct arm_boot_info *info)
     int n;
     int is_linux = 0;
     uint64_t elf_entry;
-    target_ulong entry;
+    target_phys_addr_t entry;
+    int big_endian;
 
     /* Load the kernel.  */
     if (!info->kernel_filename) {
@@ -199,15 +219,18 @@ void arm_load_kernel(CPUState *env, struct arm_boot_info *info)
         exit(1);
     }
 
-    if (!env->boot_info) {
-        if (info->nb_cpus == 0)
-            info->nb_cpus = 1;
-        env->boot_info = info;
-        qemu_register_reset(main_cpu_reset, env);
-    }
+    if (info->nb_cpus == 0)
+        info->nb_cpus = 1;
+
+#ifdef TARGET_WORDS_BIGENDIAN
+    big_endian = 1;
+#else
+    big_endian = 0;
+#endif
 
     /* Assume that raw images are linux kernels, and ELF images are not.  */
-    kernel_size = load_elf(info->kernel_filename, 0, &elf_entry, NULL, NULL);
+    kernel_size = load_elf(info->kernel_filename, NULL, NULL, &elf_entry,
+                           NULL, NULL, big_endian, ELF_MACHINE, 1);
     entry = elf_entry;
     if (kernel_size < 0) {
         kernel_size = load_uimage(info->kernel_filename, &entry, NULL,
@@ -224,11 +247,8 @@ void arm_load_kernel(CPUState *env, struct arm_boot_info *info)
                 info->kernel_filename);
         exit(1);
     }
-    if (!is_linux) {
-        /* Jump to the entry point.  */
-        env->regs[15] = entry & 0xfffffffe;
-        env->thumb = entry & 1;
-    } else {
+    info->entry = entry;
+    if (is_linux) {
         if (info->initrd_filename) {
             initrd_size = load_image_targphys(info->initrd_filename,
                                               info->loader_start
@@ -247,16 +267,24 @@ void arm_load_kernel(CPUState *env, struct arm_boot_info *info)
         bootloader[5] = info->loader_start + KERNEL_ARGS_ADDR;
         bootloader[6] = entry;
         for (n = 0; n < sizeof(bootloader) / 4; n++) {
-            stl_phys_notdirty(info->loader_start + (n * 4), bootloader[n]);
+            bootloader[n] = tswap32(bootloader[n]);
         }
+        rom_add_blob_fixed("bootloader", bootloader, sizeof(bootloader),
+                           info->loader_start);
         if (info->nb_cpus > 1) {
+            smpboot[10] = info->smp_priv_base;
             for (n = 0; n < sizeof(smpboot) / 4; n++) {
-                stl_phys_notdirty(info->smp_loader_start + (n * 4), smpboot[n]);
+                smpboot[n] = tswap32(smpboot[n]);
             }
+            rom_add_blob_fixed("smpboot", smpboot, sizeof(smpboot),
+                               info->smp_loader_start);
         }
-        if (old_param)
-            set_kernel_args_old(info, initrd_size, info->loader_start);
-        else
-            set_kernel_args(info, initrd_size, info->loader_start);
+        info->initrd_size = initrd_size;
+    }
+    info->is_linux = is_linux;
+
+    for (; env; env = env->next_cpu) {
+        env->boot_info = info;
+        qemu_register_reset(do_cpu_reset, env);
     }
 }

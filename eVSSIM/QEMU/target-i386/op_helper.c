@@ -16,10 +16,12 @@
  * You should have received a copy of the GNU Lesser General Public
  * License along with this library; if not, see <http://www.gnu.org/licenses/>.
  */
-#define CPU_NO_GLOBAL_REGS
+
+#include <math.h>
 #include "exec.h"
 #include "exec-all.h"
 #include "host-utils.h"
+#include "ioport.h"
 
 //#define DEBUG_PCALL
 
@@ -93,16 +95,9 @@ static const uint8_t rclb_table[32] = {
     6, 7, 8, 0, 1, 2, 3, 4,
 };
 
-static const CPU86_LDouble f15rk[7] =
-{
-    0.00000000000000000000L,
-    1.00000000000000000000L,
-    3.14159265358979323851L,  /*pi*/
-    0.30102999566398119523L,  /*lg2*/
-    0.69314718055994530943L,  /*ln2*/
-    1.44269504088896340739L,  /*l2e*/
-    3.32192809488736234781L,  /*l2t*/
-};
+#define floatx80_lg2 make_floatx80( 0x3ffd, 0x9a209a84fbcff799LL )
+#define floatx80_l2e make_floatx80( 0x3fff, 0xb8aa3b295c17f0bcLL )
+#define floatx80_l2t make_floatx80( 0x4000, 0xd49a784bcd1b8afeLL )
 
 /* broken thread support */
 
@@ -348,6 +343,10 @@ static void switch_tss(int tss_selector,
         new_segs[R_GS] = 0;
         new_trap = 0;
     }
+    /* XXX: avoid a compiler warning, see
+     http://support.amd.com/us/Processor_TechDocs/24593.pdf
+     chapters 12.2.5 and 13.2.4 on how to implement TSS Trap bit */
+    (void)new_trap;
 
     /* NOTE: we must avoid memory exceptions during the task switch,
        so we make dummy accesses before */
@@ -558,32 +557,32 @@ void helper_check_iol(uint32_t t0)
 
 void helper_outb(uint32_t port, uint32_t data)
 {
-    cpu_outb(env, port, data & 0xff);
+    cpu_outb(port, data & 0xff);
 }
 
 target_ulong helper_inb(uint32_t port)
 {
-    return cpu_inb(env, port);
+    return cpu_inb(port);
 }
 
 void helper_outw(uint32_t port, uint32_t data)
 {
-    cpu_outw(env, port, data & 0xffff);
+    cpu_outw(port, data & 0xffff);
 }
 
 target_ulong helper_inw(uint32_t port)
 {
-    return cpu_inw(env, port);
+    return cpu_inw(port);
 }
 
 void helper_outl(uint32_t port, uint32_t data)
 {
-    cpu_outl(env, port, data);
+    cpu_outl(port, data);
 }
 
 target_ulong helper_inl(uint32_t port)
 {
-    return cpu_inl(env, port);
+    return cpu_inl(port);
 }
 
 static inline unsigned int get_sp_mask(unsigned int e2)
@@ -1111,14 +1110,6 @@ void helper_sysret(int dflag)
         env->eflags |= IF_MASK;
         cpu_x86_set_cpl(env, 3);
     }
-#ifdef CONFIG_KQEMU
-    if (kqemu_is_ok(env)) {
-        if (env->hflags & HF_LMA_MASK)
-            CC_OP = CC_OP_EFLAGS;
-        env->exception_index = -1;
-        cpu_loop_exit();
-    }
-#endif
 }
 #endif
 
@@ -1238,7 +1229,7 @@ void do_interrupt(int intno, int is_int, int error_code,
 #if 0
             {
                 int i;
-                uint8_t *ptr;
+                target_ulong ptr;
                 qemu_log("       code=");
                 ptr = env->segs[R_CS].base + env->eip;
                 for(i = 0; i < 16; i++) {
@@ -1359,6 +1350,11 @@ void raise_exception(int exception_index)
     raise_interrupt(exception_index, 0, 0, 0);
 }
 
+void raise_exception_env(int exception_index, CPUState *nenv)
+{
+    env = nenv;
+    raise_exception(exception_index);
+}
 /* SMM support */
 
 #if defined(CONFIG_USER_ONLY)
@@ -2506,12 +2502,6 @@ void helper_lcall_protected(int new_cs, target_ulong new_eip,
         SET_ESP(sp, sp_mask);
         EIP = offset;
     }
-#ifdef CONFIG_KQEMU
-    if (kqemu_is_ok(env)) {
-        env->exception_index = -1;
-        cpu_loop_exit();
-    }
-#endif
 }
 
 /* real and vm86 mode iret */
@@ -2792,24 +2782,11 @@ void helper_iret_protected(int shift, int next_eip)
         helper_ret_protected(shift, 1, 0);
     }
     env->hflags2 &= ~HF2_NMI_MASK;
-#ifdef CONFIG_KQEMU
-    if (kqemu_is_ok(env)) {
-        CC_OP = CC_OP_EFLAGS;
-        env->exception_index = -1;
-        cpu_loop_exit();
-    }
-#endif
 }
 
 void helper_lret_protected(int shift, int addend)
 {
     helper_ret_protected(shift, 0, addend);
-#ifdef CONFIG_KQEMU
-    if (kqemu_is_ok(env)) {
-        env->exception_index = -1;
-        cpu_loop_exit();
-    }
-#endif
 }
 
 void helper_sysenter(void)
@@ -2882,12 +2859,6 @@ void helper_sysexit(int dflag)
     }
     ESP = ECX;
     EIP = EDX;
-#ifdef CONFIG_KQEMU
-    if (kqemu_is_ok(env)) {
-        env->exception_index = -1;
-        cpu_loop_exit();
-    }
-#endif
 }
 
 #if defined(CONFIG_USER_ONLY)
@@ -2915,7 +2886,7 @@ target_ulong helper_read_crN(int reg)
         break;
     case 8:
         if (!(env->hflags2 & HF2_VINTR_MASK)) {
-            val = cpu_get_apic_tpr(env);
+            val = cpu_get_apic_tpr(env->apic_state);
         } else {
             val = env->v_tpr;
         }
@@ -2939,7 +2910,7 @@ void helper_write_crN(int reg, target_ulong t0)
         break;
     case 8:
         if (!(env->hflags2 & HF2_VINTR_MASK)) {
-            cpu_set_apic_tpr(env, t0);
+            cpu_set_apic_tpr(env->apic_state, t0);
         }
         env->v_tpr = t0 & 0x0f;
         break;
@@ -3002,6 +2973,12 @@ void helper_rdtsc(void)
     EDX = (uint32_t)(val >> 32);
 }
 
+void helper_rdtscp(void)
+{
+    helper_rdtsc();
+    ECX = (uint32_t)(env->tsc_aux);
+}
+
 void helper_rdpmc(void)
 {
     if ((env->cr[4] & CR4_PCE_MASK) && ((env->hflags & HF_CPL_MASK) != 0)) {
@@ -3041,7 +3018,7 @@ void helper_wrmsr(void)
         env->sysenter_eip = val;
         break;
     case MSR_IA32_APICBASE:
-        cpu_set_apic_base(env, val);
+        cpu_set_apic_base(env->apic_state, val);
         break;
     case MSR_EFER:
         {
@@ -3140,6 +3117,9 @@ void helper_wrmsr(void)
             && (val == 0 || val == ~(uint64_t)0))
             env->mcg_ctl = val;
         break;
+    case MSR_TSC_AUX:
+        env->tsc_aux = val;
+        break;
     default:
         if ((uint32_t)ECX >= MSR_MC0_CTL
             && (uint32_t)ECX < MSR_MC0_CTL + (4 * env->mcg_cap & 0xff)) {
@@ -3171,7 +3151,7 @@ void helper_rdmsr(void)
         val = env->sysenter_eip;
         break;
     case MSR_IA32_APICBASE:
-        val = cpu_get_apic_base(env);
+        val = cpu_get_apic_base(env->apic_state);
         break;
     case MSR_EFER:
         val = env->efer;
@@ -3210,14 +3190,8 @@ void helper_rdmsr(void)
     case MSR_KERNELGSBASE:
         val = env->kernelgsbase;
         break;
-#endif
-#ifdef CONFIG_KQEMU
-    case MSR_QPI_COMMBASE:
-        if (env->kqemu_enabled) {
-            val = kqemu_comm_base;
-        } else {
-            val = 0;
-        }
+    case MSR_TSC_AUX:
+        val = env->tsc_aux;
         break;
 #endif
     case MSR_MTRRphysBase(0):
@@ -3451,6 +3425,28 @@ void helper_verw(target_ulong selector1)
 
 /* x87 FPU helpers */
 
+static inline double floatx80_to_double(floatx80 a)
+{
+    union {
+        float64 f64;
+        double d;
+    } u;
+
+    u.f64 = floatx80_to_float64(a, &env->fp_status);
+    return u.d;
+}
+
+static inline floatx80 double_to_floatx80(double a)
+{
+    union {
+        float64 f64;
+        double d;
+    } u;
+
+    u.d = a;
+    return float64_to_floatx80(u.f64, &env->fp_status);
+}
+
 static void fpu_set_exception(int mask)
 {
     env->fpus |= mask;
@@ -3458,11 +3454,12 @@ static void fpu_set_exception(int mask)
         env->fpus |= FPUS_SE | FPUS_B;
 }
 
-static inline CPU86_LDouble helper_fdiv(CPU86_LDouble a, CPU86_LDouble b)
+static inline floatx80 helper_fdiv(floatx80 a, floatx80 b)
 {
-    if (b == 0.0)
+    if (floatx80_is_zero(b)) {
         fpu_set_exception(FPUS_ZE);
-    return a / b;
+    }
+    return floatx80_div(a, b, &env->fp_status);
 }
 
 static void fpu_raise_exception(void)
@@ -3484,7 +3481,7 @@ void helper_flds_FT0(uint32_t val)
         uint32_t i;
     } u;
     u.i = val;
-    FT0 = float32_to_floatx(u.f, &env->fp_status);
+    FT0 = float32_to_floatx80(u.f, &env->fp_status);
 }
 
 void helper_fldl_FT0(uint64_t val)
@@ -3494,12 +3491,12 @@ void helper_fldl_FT0(uint64_t val)
         uint64_t i;
     } u;
     u.i = val;
-    FT0 = float64_to_floatx(u.f, &env->fp_status);
+    FT0 = float64_to_floatx80(u.f, &env->fp_status);
 }
 
 void helper_fildl_FT0(int32_t val)
 {
-    FT0 = int32_to_floatx(val, &env->fp_status);
+    FT0 = int32_to_floatx80(val, &env->fp_status);
 }
 
 void helper_flds_ST0(uint32_t val)
@@ -3511,7 +3508,7 @@ void helper_flds_ST0(uint32_t val)
     } u;
     new_fpstt = (env->fpstt - 1) & 7;
     u.i = val;
-    env->fpregs[new_fpstt].d = float32_to_floatx(u.f, &env->fp_status);
+    env->fpregs[new_fpstt].d = float32_to_floatx80(u.f, &env->fp_status);
     env->fpstt = new_fpstt;
     env->fptags[new_fpstt] = 0; /* validate stack entry */
 }
@@ -3525,7 +3522,7 @@ void helper_fldl_ST0(uint64_t val)
     } u;
     new_fpstt = (env->fpstt - 1) & 7;
     u.i = val;
-    env->fpregs[new_fpstt].d = float64_to_floatx(u.f, &env->fp_status);
+    env->fpregs[new_fpstt].d = float64_to_floatx80(u.f, &env->fp_status);
     env->fpstt = new_fpstt;
     env->fptags[new_fpstt] = 0; /* validate stack entry */
 }
@@ -3534,7 +3531,7 @@ void helper_fildl_ST0(int32_t val)
 {
     int new_fpstt;
     new_fpstt = (env->fpstt - 1) & 7;
-    env->fpregs[new_fpstt].d = int32_to_floatx(val, &env->fp_status);
+    env->fpregs[new_fpstt].d = int32_to_floatx80(val, &env->fp_status);
     env->fpstt = new_fpstt;
     env->fptags[new_fpstt] = 0; /* validate stack entry */
 }
@@ -3543,7 +3540,7 @@ void helper_fildll_ST0(int64_t val)
 {
     int new_fpstt;
     new_fpstt = (env->fpstt - 1) & 7;
-    env->fpregs[new_fpstt].d = int64_to_floatx(val, &env->fp_status);
+    env->fpregs[new_fpstt].d = int64_to_floatx80(val, &env->fp_status);
     env->fpstt = new_fpstt;
     env->fptags[new_fpstt] = 0; /* validate stack entry */
 }
@@ -3554,7 +3551,7 @@ uint32_t helper_fsts_ST0(void)
         float32 f;
         uint32_t i;
     } u;
-    u.f = floatx_to_float32(ST0, &env->fp_status);
+    u.f = floatx80_to_float32(ST0, &env->fp_status);
     return u.i;
 }
 
@@ -3564,14 +3561,14 @@ uint64_t helper_fstl_ST0(void)
         float64 f;
         uint64_t i;
     } u;
-    u.f = floatx_to_float64(ST0, &env->fp_status);
+    u.f = floatx80_to_float64(ST0, &env->fp_status);
     return u.i;
 }
 
 int32_t helper_fist_ST0(void)
 {
     int32_t val;
-    val = floatx_to_int32(ST0, &env->fp_status);
+    val = floatx80_to_int32(ST0, &env->fp_status);
     if (val != (int16_t)val)
         val = -32768;
     return val;
@@ -3580,21 +3577,21 @@ int32_t helper_fist_ST0(void)
 int32_t helper_fistl_ST0(void)
 {
     int32_t val;
-    val = floatx_to_int32(ST0, &env->fp_status);
+    val = floatx80_to_int32(ST0, &env->fp_status);
     return val;
 }
 
 int64_t helper_fistll_ST0(void)
 {
     int64_t val;
-    val = floatx_to_int64(ST0, &env->fp_status);
+    val = floatx80_to_int64(ST0, &env->fp_status);
     return val;
 }
 
 int32_t helper_fistt_ST0(void)
 {
     int32_t val;
-    val = floatx_to_int32_round_to_zero(ST0, &env->fp_status);
+    val = floatx80_to_int32_round_to_zero(ST0, &env->fp_status);
     if (val != (int16_t)val)
         val = -32768;
     return val;
@@ -3603,14 +3600,14 @@ int32_t helper_fistt_ST0(void)
 int32_t helper_fisttl_ST0(void)
 {
     int32_t val;
-    val = floatx_to_int32_round_to_zero(ST0, &env->fp_status);
+    val = floatx80_to_int32_round_to_zero(ST0, &env->fp_status);
     return val;
 }
 
 int64_t helper_fisttll_ST0(void)
 {
     int64_t val;
-    val = floatx_to_int64_round_to_zero(ST0, &env->fp_status);
+    val = floatx80_to_int64_round_to_zero(ST0, &env->fp_status);
     return val;
 }
 
@@ -3679,7 +3676,7 @@ void helper_fmov_STN_ST0(int st_index)
 
 void helper_fxchg_ST0_STN(int st_index)
 {
-    CPU86_LDouble tmp;
+    floatx80 tmp;
     tmp = ST(st_index);
     ST(st_index) = ST0;
     ST0 = tmp;
@@ -3693,7 +3690,7 @@ void helper_fcom_ST0_FT0(void)
 {
     int ret;
 
-    ret = floatx_compare(ST0, FT0, &env->fp_status);
+    ret = floatx80_compare(ST0, FT0, &env->fp_status);
     env->fpus = (env->fpus & ~0x4500) | fcom_ccval[ret + 1];
 }
 
@@ -3701,7 +3698,7 @@ void helper_fucom_ST0_FT0(void)
 {
     int ret;
 
-    ret = floatx_compare_quiet(ST0, FT0, &env->fp_status);
+    ret = floatx80_compare_quiet(ST0, FT0, &env->fp_status);
     env->fpus = (env->fpus & ~0x4500) | fcom_ccval[ret+ 1];
 }
 
@@ -3712,7 +3709,7 @@ void helper_fcomi_ST0_FT0(void)
     int eflags;
     int ret;
 
-    ret = floatx_compare(ST0, FT0, &env->fp_status);
+    ret = floatx80_compare(ST0, FT0, &env->fp_status);
     eflags = helper_cc_compute_all(CC_OP);
     eflags = (eflags & ~(CC_Z | CC_P | CC_C)) | fcomi_ccval[ret + 1];
     CC_SRC = eflags;
@@ -3723,7 +3720,7 @@ void helper_fucomi_ST0_FT0(void)
     int eflags;
     int ret;
 
-    ret = floatx_compare_quiet(ST0, FT0, &env->fp_status);
+    ret = floatx80_compare_quiet(ST0, FT0, &env->fp_status);
     eflags = helper_cc_compute_all(CC_OP);
     eflags = (eflags & ~(CC_Z | CC_P | CC_C)) | fcomi_ccval[ret + 1];
     CC_SRC = eflags;
@@ -3731,22 +3728,22 @@ void helper_fucomi_ST0_FT0(void)
 
 void helper_fadd_ST0_FT0(void)
 {
-    ST0 += FT0;
+    ST0 = floatx80_add(ST0, FT0, &env->fp_status);
 }
 
 void helper_fmul_ST0_FT0(void)
 {
-    ST0 *= FT0;
+    ST0 = floatx80_mul(ST0, FT0, &env->fp_status);
 }
 
 void helper_fsub_ST0_FT0(void)
 {
-    ST0 -= FT0;
+    ST0 = floatx80_sub(ST0, FT0, &env->fp_status);
 }
 
 void helper_fsubr_ST0_FT0(void)
 {
-    ST0 = FT0 - ST0;
+    ST0 = floatx80_sub(FT0, ST0, &env->fp_status);
 }
 
 void helper_fdiv_ST0_FT0(void)
@@ -3763,36 +3760,34 @@ void helper_fdivr_ST0_FT0(void)
 
 void helper_fadd_STN_ST0(int st_index)
 {
-    ST(st_index) += ST0;
+    ST(st_index) = floatx80_add(ST(st_index), ST0, &env->fp_status);
 }
 
 void helper_fmul_STN_ST0(int st_index)
 {
-    ST(st_index) *= ST0;
+    ST(st_index) = floatx80_mul(ST(st_index), ST0, &env->fp_status);
 }
 
 void helper_fsub_STN_ST0(int st_index)
 {
-    ST(st_index) -= ST0;
+    ST(st_index) = floatx80_sub(ST(st_index), ST0, &env->fp_status);
 }
 
 void helper_fsubr_STN_ST0(int st_index)
 {
-    CPU86_LDouble *p;
-    p = &ST(st_index);
-    *p = ST0 - *p;
+    ST(st_index) = floatx80_sub(ST0, ST(st_index), &env->fp_status);
 }
 
 void helper_fdiv_STN_ST0(int st_index)
 {
-    CPU86_LDouble *p;
+    floatx80 *p;
     p = &ST(st_index);
     *p = helper_fdiv(*p, ST0);
 }
 
 void helper_fdivr_STN_ST0(int st_index)
 {
-    CPU86_LDouble *p;
+    floatx80 *p;
     p = &ST(st_index);
     *p = helper_fdiv(ST0, *p);
 }
@@ -3800,52 +3795,52 @@ void helper_fdivr_STN_ST0(int st_index)
 /* misc FPU operations */
 void helper_fchs_ST0(void)
 {
-    ST0 = floatx_chs(ST0);
+    ST0 = floatx80_chs(ST0);
 }
 
 void helper_fabs_ST0(void)
 {
-    ST0 = floatx_abs(ST0);
+    ST0 = floatx80_abs(ST0);
 }
 
 void helper_fld1_ST0(void)
 {
-    ST0 = f15rk[1];
+    ST0 = floatx80_one;
 }
 
 void helper_fldl2t_ST0(void)
 {
-    ST0 = f15rk[6];
+    ST0 = floatx80_l2t;
 }
 
 void helper_fldl2e_ST0(void)
 {
-    ST0 = f15rk[5];
+    ST0 = floatx80_l2e;
 }
 
 void helper_fldpi_ST0(void)
 {
-    ST0 = f15rk[2];
+    ST0 = floatx80_pi;
 }
 
 void helper_fldlg2_ST0(void)
 {
-    ST0 = f15rk[3];
+    ST0 = floatx80_lg2;
 }
 
 void helper_fldln2_ST0(void)
 {
-    ST0 = f15rk[4];
+    ST0 = floatx80_ln2;
 }
 
 void helper_fldz_ST0(void)
 {
-    ST0 = f15rk[0];
+    ST0 = floatx80_zero;
 }
 
 void helper_fldz_FT0(void)
 {
-    FT0 = f15rk[0];
+    FT0 = floatx80_zero;
 }
 
 uint32_t helper_fnstsw(void)
@@ -3879,7 +3874,6 @@ static void update_fp_status(void)
         break;
     }
     set_float_rounding_mode(rnd_type, &env->fp_status);
-#ifdef FLOATX80
     switch((env->fpuc >> 8) & 3) {
     case 0:
         rnd_type = 32;
@@ -3893,7 +3887,6 @@ static void update_fp_status(void)
         break;
     }
     set_floatx80_rounding_precision(rnd_type, &env->fp_status);
-#endif
 }
 
 void helper_fldcw(uint32_t val)
@@ -3932,7 +3925,7 @@ void helper_fninit(void)
 
 void helper_fbld_ST0(target_ulong ptr)
 {
-    CPU86_LDouble tmp;
+    floatx80 tmp;
     uint64_t val;
     unsigned int v;
     int i;
@@ -3942,9 +3935,10 @@ void helper_fbld_ST0(target_ulong ptr)
         v = ldub(ptr + i);
         val = (val * 100) + ((v >> 4) * 10) + (v & 0xf);
     }
-    tmp = val;
-    if (ldub(ptr + 9) & 0x80)
-        tmp = -tmp;
+    tmp = int64_to_floatx80(val, &env->fp_status);
+    if (ldub(ptr + 9) & 0x80) {
+        floatx80_chs(tmp);
+    }
     fpush();
     ST0 = tmp;
 }
@@ -3955,7 +3949,7 @@ void helper_fbst_ST0(target_ulong ptr)
     target_ulong mem_ref, mem_end;
     int64_t val;
 
-    val = floatx_to_int64(ST0, &env->fp_status);
+    val = floatx80_to_int64(ST0, &env->fp_status);
     mem_ref = ptr;
     mem_end = mem_ref + 9;
     if (val < 0) {
@@ -3979,17 +3973,19 @@ void helper_fbst_ST0(target_ulong ptr)
 
 void helper_f2xm1(void)
 {
-    ST0 = pow(2.0,ST0) - 1.0;
+    double val = floatx80_to_double(ST0);
+    val = pow(2.0, val) - 1.0;
+    ST0 = double_to_floatx80(val);
 }
 
 void helper_fyl2x(void)
 {
-    CPU86_LDouble fptemp;
+    double fptemp = floatx80_to_double(ST0);
 
-    fptemp = ST0;
     if (fptemp>0.0){
-        fptemp = log(fptemp)/log(2.0);	 /* log2(ST) */
-        ST1 *= fptemp;
+        fptemp = log(fptemp)/log(2.0);    /* log2(ST) */
+        fptemp *= floatx80_to_double(ST1);
+        ST1 = double_to_floatx80(fptemp);
         fpop();
     } else {
         env->fpus &= (~0x4700);
@@ -3999,15 +3995,15 @@ void helper_fyl2x(void)
 
 void helper_fptan(void)
 {
-    CPU86_LDouble fptemp;
+    double fptemp = floatx80_to_double(ST0);
 
-    fptemp = ST0;
     if((fptemp > MAXTAN)||(fptemp < -MAXTAN)) {
         env->fpus |= 0x400;
     } else {
-        ST0 = tan(fptemp);
+        fptemp = tan(fptemp);
+        ST0 = double_to_floatx80(fptemp);
         fpush();
-        ST0 = 1.0;
+        ST0 = floatx80_one;
         env->fpus &= (~0x400);  /* C2 <-- 0 */
         /* the above code is for  |arg| < 2**52 only */
     }
@@ -4015,45 +4011,57 @@ void helper_fptan(void)
 
 void helper_fpatan(void)
 {
-    CPU86_LDouble fptemp, fpsrcop;
+    double fptemp, fpsrcop;
 
-    fpsrcop = ST1;
-    fptemp = ST0;
-    ST1 = atan2(fpsrcop,fptemp);
+    fpsrcop = floatx80_to_double(ST1);
+    fptemp = floatx80_to_double(ST0);
+    ST1 = double_to_floatx80(atan2(fpsrcop, fptemp));
     fpop();
 }
 
 void helper_fxtract(void)
 {
-    CPU86_LDoubleU temp;
-    unsigned int expdif;
+    CPU_LDoubleU temp;
 
     temp.d = ST0;
-    expdif = EXPD(temp) - EXPBIAS;
-    /*DP exponent bias*/
-    ST0 = expdif;
-    fpush();
-    BIASEXPONENT(temp);
-    ST0 = temp.d;
+
+    if (floatx80_is_zero(ST0)) {
+        /* Easy way to generate -inf and raising division by 0 exception */
+        ST0 = floatx80_div(floatx80_chs(floatx80_one), floatx80_zero, &env->fp_status);
+        fpush();
+        ST0 = temp.d;
+    } else {
+        int expdif;
+
+        expdif = EXPD(temp) - EXPBIAS;
+        /*DP exponent bias*/
+        ST0 = int32_to_floatx80(expdif, &env->fp_status);
+        fpush();
+        BIASEXPONENT(temp);
+        ST0 = temp.d;
+    }
 }
 
 void helper_fprem1(void)
 {
-    CPU86_LDouble dblq, fpsrcop, fptemp;
-    CPU86_LDoubleU fpsrcop1, fptemp1;
+    double st0, st1, dblq, fpsrcop, fptemp;
+    CPU_LDoubleU fpsrcop1, fptemp1;
     int expdif;
     signed long long int q;
 
-    if (isinf(ST0) || isnan(ST0) || isnan(ST1) || (ST1 == 0.0)) {
-        ST0 = 0.0 / 0.0; /* NaN */
+    st0 = floatx80_to_double(ST0);
+    st1 = floatx80_to_double(ST1);
+
+    if (isinf(st0) || isnan(st0) || isnan(st1) || (st1 == 0.0)) {
+        ST0 = double_to_floatx80(0.0 / 0.0); /* NaN */
         env->fpus &= (~0x4700); /* (C3,C2,C1,C0) <-- 0000 */
         return;
     }
 
-    fpsrcop = ST0;
-    fptemp = ST1;
-    fpsrcop1.d = fpsrcop;
-    fptemp1.d = fptemp;
+    fpsrcop = st0;
+    fptemp = st1;
+    fpsrcop1.d = ST0;
+    fptemp1.d = ST1;
     expdif = EXPD(fpsrcop1) - EXPD(fptemp1);
 
     if (expdif < 0) {
@@ -4067,7 +4075,7 @@ void helper_fprem1(void)
         dblq = fpsrcop / fptemp;
         /* round dblq towards nearest integer */
         dblq = rint(dblq);
-        ST0 = fpsrcop - fptemp * dblq;
+        st0 = fpsrcop - fptemp * dblq;
 
         /* convert dblq to q by truncating towards zero */
         if (dblq < 0.0)
@@ -4083,31 +4091,35 @@ void helper_fprem1(void)
     } else {
         env->fpus |= 0x400;  /* C2 <-- 1 */
         fptemp = pow(2.0, expdif - 50);
-        fpsrcop = (ST0 / ST1) / fptemp;
+        fpsrcop = (st0 / st1) / fptemp;
         /* fpsrcop = integer obtained by chopping */
         fpsrcop = (fpsrcop < 0.0) ?
                   -(floor(fabs(fpsrcop))) : floor(fpsrcop);
-        ST0 -= (ST1 * fpsrcop * fptemp);
+        st0 -= (st1 * fpsrcop * fptemp);
     }
+    ST0 = double_to_floatx80(st0);
 }
 
 void helper_fprem(void)
 {
-    CPU86_LDouble dblq, fpsrcop, fptemp;
-    CPU86_LDoubleU fpsrcop1, fptemp1;
+    double st0, st1, dblq, fpsrcop, fptemp;
+    CPU_LDoubleU fpsrcop1, fptemp1;
     int expdif;
     signed long long int q;
 
-    if (isinf(ST0) || isnan(ST0) || isnan(ST1) || (ST1 == 0.0)) {
-       ST0 = 0.0 / 0.0; /* NaN */
+    st0 = floatx80_to_double(ST0);
+    st1 = floatx80_to_double(ST1);
+
+    if (isinf(st0) || isnan(st0) || isnan(st1) || (st1 == 0.0)) {
+       ST0 = double_to_floatx80(0.0 / 0.0); /* NaN */
        env->fpus &= (~0x4700); /* (C3,C2,C1,C0) <-- 0000 */
        return;
     }
 
-    fpsrcop = (CPU86_LDouble)ST0;
-    fptemp = (CPU86_LDouble)ST1;
-    fpsrcop1.d = fpsrcop;
-    fptemp1.d = fptemp;
+    fpsrcop = st0;
+    fptemp = st1;
+    fpsrcop1.d = ST0;
+    fptemp1.d = ST1;
     expdif = EXPD(fpsrcop1) - EXPD(fptemp1);
 
     if (expdif < 0) {
@@ -4121,7 +4133,7 @@ void helper_fprem(void)
         dblq = fpsrcop/*ST0*/ / fptemp/*ST1*/;
         /* round dblq towards zero */
         dblq = (dblq < 0.0) ? ceil(dblq) : floor(dblq);
-        ST0 = fpsrcop/*ST0*/ - fptemp * dblq;
+        st0 = fpsrcop/*ST0*/ - fptemp * dblq;
 
         /* convert dblq to q by truncating towards zero */
         if (dblq < 0.0)
@@ -4138,22 +4150,23 @@ void helper_fprem(void)
         int N = 32 + (expdif % 32); /* as per AMD docs */
         env->fpus |= 0x400;  /* C2 <-- 1 */
         fptemp = pow(2.0, (double)(expdif - N));
-        fpsrcop = (ST0 / ST1) / fptemp;
+        fpsrcop = (st0 / st1) / fptemp;
         /* fpsrcop = integer obtained by chopping */
         fpsrcop = (fpsrcop < 0.0) ?
                   -(floor(fabs(fpsrcop))) : floor(fpsrcop);
-        ST0 -= (ST1 * fpsrcop * fptemp);
+        st0 -= (st1 * fpsrcop * fptemp);
     }
+    ST0 = double_to_floatx80(st0);
 }
 
 void helper_fyl2xp1(void)
 {
-    CPU86_LDouble fptemp;
+    double fptemp = floatx80_to_double(ST0);
 
-    fptemp = ST0;
     if ((fptemp+1.0)>0.0) {
         fptemp = log(fptemp+1.0) / log(2.0); /* log2(ST+1.0) */
-        ST1 *= fptemp;
+        fptemp *= floatx80_to_double(ST1);
+        ST1 = double_to_floatx80(fptemp);
         fpop();
     } else {
         env->fpus &= (~0x4700);
@@ -4163,27 +4176,23 @@ void helper_fyl2xp1(void)
 
 void helper_fsqrt(void)
 {
-    CPU86_LDouble fptemp;
-
-    fptemp = ST0;
-    if (fptemp<0.0) {
+    if (floatx80_is_neg(ST0)) {
         env->fpus &= (~0x4700);  /* (C3,C2,C1,C0) <-- 0000 */
         env->fpus |= 0x400;
     }
-    ST0 = sqrt(fptemp);
+    ST0 = floatx80_sqrt(ST0, &env->fp_status);
 }
 
 void helper_fsincos(void)
 {
-    CPU86_LDouble fptemp;
+    double fptemp = floatx80_to_double(ST0);
 
-    fptemp = ST0;
     if ((fptemp > MAXTAN)||(fptemp < -MAXTAN)) {
         env->fpus |= 0x400;
     } else {
-        ST0 = sin(fptemp);
+        ST0 = double_to_floatx80(sin(fptemp));
         fpush();
-        ST0 = cos(fptemp);
+        ST0 = double_to_floatx80(cos(fptemp));
         env->fpus &= (~0x400);  /* C2 <-- 0 */
         /* the above code is for  |arg| < 2**63 only */
     }
@@ -4191,23 +4200,27 @@ void helper_fsincos(void)
 
 void helper_frndint(void)
 {
-    ST0 = floatx_round_to_int(ST0, &env->fp_status);
+    ST0 = floatx80_round_to_int(ST0, &env->fp_status);
 }
 
 void helper_fscale(void)
 {
-    ST0 = ldexp (ST0, (int)(ST1));
+    if (floatx80_is_any_nan(ST1)) {
+        ST0 = ST1;
+    } else {
+        int n = floatx80_to_int32_round_to_zero(ST1, &env->fp_status);
+        ST0 = floatx80_scalbn(ST0, n, &env->fp_status);
+    }
 }
 
 void helper_fsin(void)
 {
-    CPU86_LDouble fptemp;
+    double fptemp = floatx80_to_double(ST0);
 
-    fptemp = ST0;
     if ((fptemp > MAXTAN)||(fptemp < -MAXTAN)) {
         env->fpus |= 0x400;
     } else {
-        ST0 = sin(fptemp);
+        ST0 = double_to_floatx80(sin(fptemp));
         env->fpus &= (~0x400);  /* C2 <-- 0 */
         /* the above code is for  |arg| < 2**53 only */
     }
@@ -4215,13 +4228,12 @@ void helper_fsin(void)
 
 void helper_fcos(void)
 {
-    CPU86_LDouble fptemp;
+    double fptemp = floatx80_to_double(ST0);
 
-    fptemp = ST0;
     if((fptemp > MAXTAN)||(fptemp < -MAXTAN)) {
         env->fpus |= 0x400;
     } else {
-        ST0 = cos(fptemp);
+        ST0 = double_to_floatx80(cos(fptemp));
         env->fpus &= (~0x400);  /* C2 <-- 0 */
         /* the above code is for  |arg5 < 2**63 only */
     }
@@ -4229,7 +4241,7 @@ void helper_fcos(void)
 
 void helper_fxam_ST0(void)
 {
-    CPU86_LDoubleU temp;
+    CPU_LDoubleU temp;
     int expdif;
 
     temp.d = ST0;
@@ -4241,11 +4253,7 @@ void helper_fxam_ST0(void)
     /* XXX: test fptags too */
     expdif = EXPD(temp);
     if (expdif == MAXEXPD) {
-#ifdef USE_X86LDOUBLE
         if (MANTD(temp) == 0x8000000000000000ULL)
-#else
-        if (MANTD(temp) == 0)
-#endif
             env->fpus |=  0x500 /*Infinity*/;
         else
             env->fpus |=  0x100 /*NaN*/;
@@ -4263,7 +4271,7 @@ void helper_fstenv(target_ulong ptr, int data32)
 {
     int fpus, fptag, exp, i;
     uint64_t mant;
-    CPU86_LDoubleU tmp;
+    CPU_LDoubleU tmp;
 
     fpus = (env->fpus & ~0x3800) | (env->fpstt & 0x7) << 11;
     fptag = 0;
@@ -4279,9 +4287,7 @@ void helper_fstenv(target_ulong ptr, int data32)
                 /* zero */
 	        fptag |= 1;
 	    } else if (exp == 0 || exp == MAXEXPD
-#ifdef USE_X86LDOUBLE
                        || (mant & (1LL << 63)) == 0
-#endif
                        ) {
                 /* NaNs, infinity, denormal */
                 fptag |= 2;
@@ -4333,7 +4339,7 @@ void helper_fldenv(target_ulong ptr, int data32)
 
 void helper_fsave(target_ulong ptr, int data32)
 {
-    CPU86_LDouble tmp;
+    floatx80 tmp;
     int i;
 
     helper_fstenv(ptr, data32);
@@ -4361,7 +4367,7 @@ void helper_fsave(target_ulong ptr, int data32)
 
 void helper_frstor(target_ulong ptr, int data32)
 {
-    CPU86_LDouble tmp;
+    floatx80 tmp;
     int i;
 
     helper_fldenv(ptr, data32);
@@ -4377,8 +4383,13 @@ void helper_frstor(target_ulong ptr, int data32)
 void helper_fxsave(target_ulong ptr, int data64)
 {
     int fpus, fptag, i, nb_xmm_regs;
-    CPU86_LDouble tmp;
+    floatx80 tmp;
     target_ulong addr;
+
+    /* The operand must be 16 byte aligned */
+    if (ptr & 0xf) {
+        raise_exception(EXCP0D_GPF);
+    }
 
     fpus = (env->fpus & ~0x3800) | (env->fpstt & 0x7) << 11;
     fptag = 0;
@@ -4433,8 +4444,13 @@ void helper_fxsave(target_ulong ptr, int data64)
 void helper_fxrstor(target_ulong ptr, int data64)
 {
     int i, fpus, fptag, nb_xmm_regs;
-    CPU86_LDouble tmp;
+    floatx80 tmp;
     target_ulong addr;
+
+    /* The operand must be 16 byte aligned */
+    if (ptr & 0xf) {
+        raise_exception(EXCP0D_GPF);
+    }
 
     env->fpuc = lduw(ptr);
     fpus = lduw(ptr + 2);
@@ -4475,61 +4491,23 @@ void helper_fxrstor(target_ulong ptr, int data64)
     }
 }
 
-#ifndef USE_X86LDOUBLE
-
-void cpu_get_fp80(uint64_t *pmant, uint16_t *pexp, CPU86_LDouble f)
+void cpu_get_fp80(uint64_t *pmant, uint16_t *pexp, floatx80 f)
 {
-    CPU86_LDoubleU temp;
-    int e;
-
-    temp.d = f;
-    /* mantissa */
-    *pmant = (MANTD(temp) << 11) | (1LL << 63);
-    /* exponent + sign */
-    e = EXPD(temp) - EXPBIAS + 16383;
-    e |= SIGND(temp) >> 16;
-    *pexp = e;
-}
-
-CPU86_LDouble cpu_set_fp80(uint64_t mant, uint16_t upper)
-{
-    CPU86_LDoubleU temp;
-    int e;
-    uint64_t ll;
-
-    /* XXX: handle overflow ? */
-    e = (upper & 0x7fff) - 16383 + EXPBIAS; /* exponent */
-    e |= (upper >> 4) & 0x800; /* sign */
-    ll = (mant >> 11) & ((1LL << 52) - 1);
-#ifdef __arm__
-    temp.l.upper = (e << 20) | (ll >> 32);
-    temp.l.lower = ll;
-#else
-    temp.ll = ll | ((uint64_t)e << 52);
-#endif
-    return temp.d;
-}
-
-#else
-
-void cpu_get_fp80(uint64_t *pmant, uint16_t *pexp, CPU86_LDouble f)
-{
-    CPU86_LDoubleU temp;
+    CPU_LDoubleU temp;
 
     temp.d = f;
     *pmant = temp.l.lower;
     *pexp = temp.l.upper;
 }
 
-CPU86_LDouble cpu_set_fp80(uint64_t mant, uint16_t upper)
+floatx80 cpu_set_fp80(uint64_t mant, uint16_t upper)
 {
-    CPU86_LDoubleU temp;
+    CPU_LDoubleU temp;
 
     temp.l.upper = upper;
     temp.l.lower = mant;
     return temp.d;
 }
-#endif
 
 #ifdef TARGET_X86_64
 
@@ -4793,16 +4771,6 @@ void helper_boundl(target_ulong a0, int v)
     }
 }
 
-static float approx_rsqrt(float a)
-{
-    return 1.0 / sqrt(a);
-}
-
-static float approx_rcp(float a)
-{
-    return 1.0 / a;
-}
-
 #if !defined(CONFIG_USER_ONLY)
 
 #define MMUSUFFIX _mmu
@@ -4847,7 +4815,7 @@ void tlb_fill(target_ulong addr, int is_write, int mmu_idx, void *retaddr)
             if (tb) {
                 /* the PC is inside the translated code. It means that we have
                    a virtual CPU fault */
-                cpu_restore_state(tb, env, pc, NULL);
+                cpu_restore_state(tb, env, pc);
             }
         }
         raise_exception_err(env->exception_index, env->error_code);
@@ -5251,7 +5219,7 @@ void helper_svm_check_intercept_param(uint32_t type, uint64_t param)
             switch((uint32_t)ECX) {
             case 0 ... 0x1fff:
                 t0 = (ECX * 2) % 8;
-                t1 = ECX / 8;
+                t1 = (ECX * 2) / 8;
                 break;
             case 0xc0000000 ... 0xc0001fff:
                 t0 = (8192 + ECX - 0xc0000000) * 2;
@@ -5402,6 +5370,7 @@ void helper_vmexit(uint32_t exit_code, uint64_t exit_info_1)
              ldl_phys(env->vm_vmcb + offsetof(struct vmcb, control.event_inj)));
     stl_phys(env->vm_vmcb + offsetof(struct vmcb, control.exit_int_info_err),
              ldl_phys(env->vm_vmcb + offsetof(struct vmcb, control.event_inj_err)));
+    stl_phys(env->vm_vmcb + offsetof(struct vmcb, control.event_inj), 0);
 
     env->hflags2 &= ~HF2_GIF_MASK;
     /* FIXME: Resets the current ASID register to zero (host ASID). */
@@ -5499,11 +5468,14 @@ target_ulong helper_bsf(target_ulong t0)
     return count;
 }
 
-target_ulong helper_bsr(target_ulong t0)
+target_ulong helper_lzcnt(target_ulong t0, int wordsize)
 {
     int count;
     target_ulong res, mask;
-    
+
+    if (wordsize > 0 && t0 == 0) {
+        return wordsize;
+    }
     res = t0;
     count = TARGET_LONG_BITS - 1;
     mask = (target_ulong)1 << (TARGET_LONG_BITS - 1);
@@ -5511,9 +5483,16 @@ target_ulong helper_bsr(target_ulong t0)
         count--;
         res <<= 1;
     }
+    if (wordsize > 0) {
+        return wordsize - 1 - count;
+    }
     return count;
 }
 
+target_ulong helper_bsr(target_ulong t0)
+{
+	return helper_lzcnt(t0, 0);
+}
 
 static int compute_all_eflags(void)
 {

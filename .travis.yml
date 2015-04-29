@@ -1,0 +1,12 @@
+language: c
+
+compiler:
+   - gcc
+
+before_script:
+   - cd eVSSIM/QEMU/ftl-setting; ./link_pm
+
+script: cd ../; ./configure --target-list=x86_64-softmmu --disable-werror && make
+
+# in the future maybe tests will work
+# script: cd ../; ./configure --target-list=x86_64-softmmu --disable-werror && make && make test

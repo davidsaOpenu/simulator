@@ -1,0 +1,58 @@
+time ./unit_tests
+--gtest_filter=DiskSize/OccupySpaceStressTest.MixSequentialAndRandomOnePageAtTimeWrite*
+|tee test_3_01.txt
+
+real    732m23.210s
+user    728m51.289s
+sys     2m36.402s
+
+
+Running main() from gtest_main.cc
+Note: Google Test filter = DiskSize/OccupySpaceStressTest.MixSequentialAndRandomOnePageAtTimeWrite*
+[==========] Running 3 tests from 1 test case.
+[----------] Global test environment set-up.
+[----------] 3 tests from DiskSize/OccupySpaceStressTest
+[ RUN      ] DiskSize/OccupySpaceStressTest.MixSequentialAndRandomOnePageAtTimeWrite/0
+[FTL_INIT] start
+[SSD_IO_INIT] SSD Emulator Version: 1.0 ver. (13.04.11)
+[FTL_INIT] complete
+[THREAD_SERVER] SERVER THREAD CREATED!!!
+[THREAD_SERVER] Wait for client....[4]
+[THREAD_SERVER] Connected![5]
+[THREAD_SERVER] Error No. [2]
+[FTL_TERM] start
+Average Read Latency	0.000 us
+Average Write Latency	1038.237 us
+[FTL_TERM] complete
+[       OK ] DiskSize/OccupySpaceStressTest.MixSequentialAndRandomOnePageAtTimeWrite/0 (3131593 ms)
+[ RUN      ] DiskSize/OccupySpaceStressTest.MixSequentialAndRandomOnePageAtTimeWrite/1
+[FTL_INIT] start
+[SSD_IO_INIT] SSD Emulator Version: 1.0 ver. (13.04.11)
+[FTL_INIT] complete
+[THREAD_SERVER] SERVER THREAD CREATED!!!
+[THREAD_SERVER] Wait for client....[4]
+[THREAD_SERVER] Connected![5]
+[THREAD_SERVER] Error No. [2]
+[FTL_TERM] start
+Average Read Latency	0.000 us
+Average Write Latency	1043.653 us
+[FTL_TERM] complete
+[       OK ] DiskSize/OccupySpaceStressTest.MixSequentialAndRandomOnePageAtTimeWrite/1 (6706985 ms)
+[ RUN      ] DiskSize/OccupySpaceStressTest.MixSequentialAndRandomOnePageAtTimeWrite/2
+[FTL_INIT] start
+[SSD_IO_INIT] SSD Emulator Version: 1.0 ver. (13.04.11)
+[FTL_INIT] complete
+[THREAD_SERVER] SERVER THREAD CREATED!!!
+[THREAD_SERVER] Wait for client....[4]
+[THREAD_SERVER] Connected![5]
+[THREAD_SERVER] Error No. [2]
+[FTL_TERM] start
+Average Read Latency	0.000 us
+Average Write Latency	1164.460 us
+[FTL_TERM] complete
+[       OK ] DiskSize/OccupySpaceStressTest.MixSequentialAndRandomOnePageAtTimeWrite/2 (34104594 ms)
+[----------] 3 tests from DiskSize/OccupySpaceStressTest (43943172 ms total)
+
+[----------] Global test environment tear-down
+[==========] 3 tests from 1 test case ran. (43943172 ms total)
+[  PASSED  ] 3 tests.

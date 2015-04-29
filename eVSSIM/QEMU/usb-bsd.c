@@ -39,7 +39,6 @@
 #else
 #include <bus/usb/usb.h>
 #endif
-#include <signal.h>
 
 /* This value has maximum potential at 16.
  * You should also set hw.usb.debug to gain
@@ -63,6 +62,7 @@ typedef struct USBHostDevice {
 } USBHostDevice;
 
 
+#if 0
 static int ensure_ep_open(USBHostDevice *dev, int ep, int mode)
 {
     char buf[32];
@@ -110,6 +110,7 @@ static void ensure_eps_closed(USBHostDevice *dev)
         epnum++;
     }
 }
+#endif
 
 static void usb_host_handle_reset(USBDevice *dev)
 {
@@ -118,11 +119,13 @@ static void usb_host_handle_reset(USBDevice *dev)
 #endif
 }
 
+#if 0
 /* XXX:
  * -check device states against transfer requests
  *  and return appropriate response
  */
 static int usb_host_handle_control(USBDevice *dev,
+                                   USBPacket *p,
                                    int request,
                                    int value,
                                    int index,
@@ -275,6 +278,7 @@ static int usb_host_handle_data(USBDevice *dev, USBPacket *p)
         return ret;
     }
 }
+#endif
 
 static void usb_host_handle_destroy(USBDevice *opaque)
 {
@@ -293,17 +297,24 @@ static void usb_host_handle_destroy(USBDevice *opaque)
     qemu_free(s);
 }
 
+static int usb_host_initfn(USBDevice *dev)
+{
+    return 0;
+}
+
 USBDevice *usb_host_device_open(const char *devname)
 {
     struct usb_device_info bus_info, dev_info;
-    USBHostDevice *dev;
+    USBDevice *d = NULL;
+    USBHostDevice *dev, *ret = NULL;
     char ctlpath[PATH_MAX + 1];
     char buspath[PATH_MAX + 1];
     int bfd, dfd, bus, address, i;
     int ugendebug = UGEN_DEBUG_LEVEL;
 
-    if (usb_host_find_device(&bus, &address, devname) < 0)
-        return NULL;
+    if (usb_host_find_device(&bus, &address, devname) < 0) {
+        goto fail;
+    }
 
     snprintf(buspath, PATH_MAX, "/dev/usb%d", bus);
 
@@ -313,7 +324,7 @@ USBDevice *usb_host_device_open(const char *devname)
         printf("usb_host_device_open: failed to open usb bus - %s\n",
                strerror(errno));
 #endif
-        return NULL;
+        goto fail;
     }
 
     bus_info.udi_addr = address;
@@ -322,10 +333,10 @@ USBDevice *usb_host_device_open(const char *devname)
         printf("usb_host_device_open: failed to grab bus information - %s\n",
                strerror(errno));
 #endif
-        return NULL;
+        goto fail_bfd;
     }
 
-#if defined(__FreeBSD__) || defined(__DragonFly__)
+#if defined(__FreeBSD__) || defined(__FreeBSD_kernel__) || defined(__DragonFly__)
     snprintf(ctlpath, PATH_MAX, "/dev/%s", bus_info.udi_devnames[0]);
 #else
     snprintf(ctlpath, PATH_MAX, "/dev/%s.00", bus_info.udi_devnames[0]);
@@ -340,54 +351,73 @@ USBDevice *usb_host_device_open(const char *devname)
                    ctlpath, strerror(errno));
 #endif
         }
+        goto fail_dfd;
     }
 
-    if (dfd >= 0) {
-        dev = qemu_mallocz(sizeof(USBHostDevice));
-        dev->devfd = dfd;
-
-        if (ioctl(dfd, USB_GET_DEVICEINFO, &dev_info) < 0) {
+    if (ioctl(dfd, USB_GET_DEVICEINFO, &dev_info) < 0) {
 #ifdef DEBUG
-            printf("usb_host_device_open: failed to grab device info - %s\n",
-                   strerror(errno));
+        printf("usb_host_device_open: failed to grab device info - %s\n",
+               strerror(errno));
 #endif
-            goto fail;
-        }
-
-        if (dev_info.udi_speed == 1)
-            dev->dev.speed = USB_SPEED_LOW - 1;
-        else
-            dev->dev.speed = USB_SPEED_FULL - 1;
-
-        dev->dev.handle_packet = usb_generic_handle_packet;
-
-        dev->dev.handle_reset = usb_host_handle_reset;
-        dev->dev.handle_control = usb_host_handle_control;
-        dev->dev.handle_data = usb_host_handle_data;
-        dev->dev.handle_destroy = usb_host_handle_destroy;
-
-        if (strncmp(dev_info.udi_product, "product", 7) != 0)
-            pstrcpy(dev->dev.devname, sizeof(dev->dev.devname),
-                    dev_info.udi_product);
-        else
-            snprintf(dev->dev.devname, sizeof(dev->dev.devname),
-                     "host:%s", devname);
-
-        pstrcpy(dev->devpath, sizeof(dev->devpath), "/dev/");
-        pstrcat(dev->devpath, sizeof(dev->devpath), dev_info.udi_devnames[0]);
-
-        /* Mark the endpoints as not yet open */
-        for (i = 0; i < USB_MAX_ENDPOINTS; i++)
-           dev->ep_fd[i] = -1;
-
-        ioctl(dfd, USB_SETDEBUG, &ugendebug);
-
-        return (USBDevice *)dev;
+        goto fail_dfd;
     }
 
+    d = usb_create(NULL /* FIXME */, "usb-host");
+    dev = DO_UPCAST(USBHostDevice, dev, d);
+
+    if (dev_info.udi_speed == 1) {
+        dev->dev.speed = USB_SPEED_LOW - 1;
+    } else {
+        dev->dev.speed = USB_SPEED_FULL - 1;
+    }
+
+    if (strncmp(dev_info.udi_product, "product", 7) != 0) {
+        pstrcpy(dev->dev.product_desc, sizeof(dev->dev.product_desc),
+                dev_info.udi_product);
+    } else {
+        snprintf(dev->dev.product_desc, sizeof(dev->dev.product_desc),
+                 "host:%s", devname);
+    }
+
+    pstrcpy(dev->devpath, sizeof(dev->devpath), "/dev/");
+    pstrcat(dev->devpath, sizeof(dev->devpath), dev_info.udi_devnames[0]);
+
+    /* Mark the endpoints as not yet open */
+    for (i = 0; i < USB_MAX_ENDPOINTS; i++) {
+        dev->ep_fd[i] = -1;
+    }
+
+    ioctl(dfd, USB_SETDEBUG, &ugendebug);
+
+    ret = (USBDevice *)dev;
+
+fail_dfd:
+    close(dfd);
+fail_bfd:
+    close(bfd);
 fail:
-    return NULL;
+    return ret;
 }
+
+static struct USBDeviceInfo usb_host_dev_info = {
+    .product_desc   = "USB Host Device",
+    .qdev.name      = "usb-host",
+    .qdev.size      = sizeof(USBHostDevice),
+    .init           = usb_host_initfn,
+    .handle_packet  = usb_generic_handle_packet,
+    .handle_reset   = usb_host_handle_reset,
+#if 0
+    .handle_control = usb_host_handle_control,
+    .handle_data    = usb_host_handle_data,
+#endif
+    .handle_destroy = usb_host_handle_destroy,
+};
+
+static void usb_host_register_devices(void)
+{
+    usb_qdev_register(&usb_host_dev_info);
+}
+device_init(usb_host_register_devices)
 
 static int usb_host_scan(void *opaque, USBScanFunc *func)
 {
@@ -415,7 +445,7 @@ static int usb_host_scan(void *opaque, USBScanFunc *func)
             if (strncmp(bus_info.udi_devnames[0], "ugen", 4) != 0)
                 continue;
 
-#if defined(__FreeBSD__) || defined(__DragonFly__)
+#if defined(__FreeBSD__) || defined(__FreeBSD_kernel__) || defined(__DragonFly__)
             snprintf(devbuf, sizeof(devbuf) - 1, "/dev/%s", bus_info.udi_devnames[0]);
 #else
             snprintf(devbuf, sizeof(devbuf) - 1, "/dev/%s.00", bus_info.udi_devnames[0]);
@@ -434,7 +464,7 @@ static int usb_host_scan(void *opaque, USBScanFunc *func)
                 printf("usb_host_scan: couldn't get device information for %s - %s\n",
                        devbuf, strerror(errno));
 
-            // XXX: might need to fixup endianess of word values before copying over
+            /* XXX: might need to fixup endianness of word values before copying over */
 
             vendor_id = dev_info.udi_vendorNo;
             product_id = dev_info.udi_productNo;
@@ -552,13 +582,12 @@ static const char *usb_class_str(uint8_t class)
     return p->class_name;
 }
 
-static void usb_info_device(int bus_num, int addr, int class_id,
+static void usb_info_device(Monitor *mon, int bus_num, int addr, int class_id,
                             int vendor_id, int product_id,
                             const char *product_name,
                             int speed)
 {
     const char *class_str, *speed_str;
-    Monitor *mon = cur_mon;
 
     switch(speed) {
     case USB_SPEED_LOW:
@@ -595,14 +624,16 @@ static int usb_host_info_device(void *opaque,
                                 const char *product_name,
                                 int speed)
 {
-    usb_info_device(bus_num, addr, class_id, vendor_id, product_id,
+    Monitor *mon = opaque;
+
+    usb_info_device(mon, bus_num, addr, class_id, vendor_id, product_id,
                     product_name, speed);
     return 0;
 }
 
 void usb_host_info(Monitor *mon)
 {
-    usb_host_scan(NULL, usb_host_info_device);
+    usb_host_scan(mon, usb_host_info_device);
 }
 
 /* XXX add this */

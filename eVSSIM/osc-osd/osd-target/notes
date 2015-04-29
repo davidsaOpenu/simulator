@@ -1,0 +1,757 @@
+#vim : ft=cfg
+
+IMPORTANT
+append
+create
+create and write
+create collection
+create partition
+read
+read buffer
+write
+write buffer
+list
+list collection
+format osd
+get attributes
+set attributes
+remove
+remove collection
+remove partition
+report luns
+set key
+set master key
+
+inquiry
+flush
+flush collection
+flush osd
+flush partition
+receive diagnostic results
+report supported operation codes
+
+
+NOT IMPLEMENTED/OPTIONAL
+log select
+log sense
+mode select
+mode sense
+perform scsi command
+perform task management function
+persistent reserve in
+persistent reserve out
+prevent allow medium removal
+report supported task management functions
+report target port groups
+request sense
+send diagnostic
+set target port groups
+test unit ready
+
+directory pages
+quotas
+
+========================================
+root object
+    partition
+        collection
+        object
+        or any osd object type
+
+
+questions:
+-   how to create osd? flat file? what will be blocks?
+-   how is collection populated?
+-   where will be attributes stored for an object?
+-   
+
+design:
+    root directory for the root object
+    each partition is a directory within the root directory
+    objects are stored within the partition
+    collection objects are stored within the directory
+
+db requirements:
+    get all attr for an oid
+    get all attr for an oid in an attr page
+    get an attr for an oid on an attr page
+    set an attr on oid on an attr page
+    for an oid check for duplicate attr numbers
+    check for duplicate attr pages across attr types
+
+solution:
+    use one db file per object storing is attr
+    don't allow attribute pages beyond F000 0000h
+    restrict attribute pages in range as specified in p22
+    get all attr using db cursor
+    use environment to store database of multiple objects
+
+
+
+# Wed Dec  6 11:54:17 EST 2006
+What is the meaning of the following (p21):
+
+With the exception of attributes pages in the attributes page number range
+assigned to any OSD object types, the same attributes page shall not be
+associated with more than one OSD object type.
+
+Two object types cannot share same page number but two objects can.
+
+#if 0 /* > 3.8.8 of sqlite */
+    ret = sqlite3_extended_result_codes(dbp, 1);
+    if (ret != SQLITE_OK) {
+        fprintf(stderr, "SQL ERROR: %s\n", sqlite3_errmsg(dbp));
+        return -1;
+    }
+#endif
+
+# Mon Jan 22 12:15:56 EST 2007
+prepare functions for most used sql stmt. look at reset, since bound var
+still retain their values.
+get_all_attr in a page
+move create partition to obfs.c
+remove delete object code from attr
+rename attr-* to attr.c
+change uint64_t to use typedefs
+mv db code to db.c
+mv tab code to obj.c and attr.c
+mv obfs to osd
+rm init_attr, use attr_t with len = 0;
+clean finalize code
+
+-   p23, attr number FFFFFFFFh gets all attr for a page
+-   p23, p87, p112: No explicit call to delete an object's attribute. only
+    thing possible is to set an attribute's length to 0. Since only
+    attributes with non-zero length can be retrieved.
+
+# Tue Jan 23 11:59:47 EST 2007
+remove attr_insert and attr_delete. 
+change set_attr properly
+obj: insert, delete works
+attr: 
+    set_attr -> check if attr exists, if so update else insert it
+    get_attr -> select attr, if empty EEMPTY
+    delete_attr -> delete all attr for object
+    get_attr_page -> get all attr in a page
+
+define return values, we return same return values as sqlite or should
+we assume this is single threaded app => no table locking, no checking for
+EBUSY. in future keep sqlite3_step in a infinite loop
+
+# legend for the development log
+#
+# -: issue
+# +: issue is resolved
+# ?: question. the answer to question is usually indented
+# !: important point, make a note of it
+# #: comment
+
+# Fri Jan 26 11:03:52 EST 2007
++   single makefile for tests and libosd
++   make rules for dependencies
++   defines for ROOT_OBJECT, ROOT_PARTITION
++   change obj tab, include type of object being created
+
+# Mon Jan 29 12:39:02 EST 2007
++   what is current commands attr page
+    CCAP stores the results of the command run
++   sense_* functions are not up to date. osd_* are not returning correct
+    values.
++   collect all errors using goto
+
+# Tue Jan 30 16:12:47 EST 2007
+schema changes. attr table need to have directory pages. rows need to have
+writable flags to prevent certain directory pages to be modified. directories
+can be implemented as a sql view on page numbers 0
+
+# Wed Jan 31 14:26:19 EST 2007
++   need sense.c which builds sense, since both cdb and osd want to construct
+    sense.
+
+# Thu Feb  1 14:53:38 EST 2007
++   implement error_fatal as a separate function.
+
+# Fri Feb  9 16:09:55 EST 2007
++   create partition
++   set partition attr as separate osd function
++   set root attr as separate function.
+
+# Mon Feb 12 11:48:43 EST 2007
++   implement cache: hold a struct with latest oid, pid for collections or 
+    objects.
++   implement list on root object
+!   current command attributes page is responsible for returning the results
+    back to initiator: eg. assigned pid, oid etc.
+-   set initial attributes on every object when it is created
++   mv initial_populate into osd.c
+!   get_next* funcs assume monotonic increase in ids, resulting in holes
++   implement remove partition
++   new oid should start from USEROBJECT_OID_LB and pid from PARTITION_PID_LB
+?   how are contents within attr page returned?
+        retrieved attributes returned in list format: Section 7.1.3.[2,3]
+
+# Tue Feb 13 11:50:23 EST 2007
+-   rather than hardcoding test cases within tests, change test scaffold to
+    test each osd function. Modify tests to take arguments, build cases
+    accordingly.
++   devise a clean way to assign values to pointers within struct
+-   stale values of ccap
+
+# Wed Feb 14 11:41:45 EST 2007
++   osd specific return codes, 
+-   db, obj and attr specific return codes
++   mv error_sql into db.c
+?   what happens on removal of non existent obj
+        sqlite successfully complete removal of non existent object
++   gettype func in obj.c
++   make depend targets
+
+# Mon Feb 19 13:08:31 EST 2007
++   use gettype in obj disambiguation
+-   fix fret/ret bugs
++   fix attr_get_* bugs
++   fix test codes with asserts
+-   test different format scenarios
++   replace magic numbers with descriptive codes
++   change valid page to is settable
++   page format Sec 7, 
+
+# Tue Feb 20 15:34:32 EST 2007
++   get size, atime, mtime attr
++   write get page for timestamps
+
+# Fri Feb 23 15:07:22 EST 2007
++   include root info page struct in osd_hndl
+-   osd error precision ??
+-   append
++   split get_attr in cdb.c, handle command ordering, write test cases
++   parse list
++   separate function to handle complex commands in cdb
+
+# Wed Feb 28 12:30:56 EST 2007
++   break each into individual functions
++   change embeded to true/false
++   replace magic numbers in calculating cdb offset 
+        not replacing since they are used only once in target and once in
+        initiator
++   test cases for cdb
++   get_attr_page needs to be changes to get pages like ccap. to get all
+    contents of a page, another command has to be added
+-   ntoh* functions need to be properly aligned
++   attr_page values are aligned to 8-byte boundary
+
+# Thu Mar  1 13:03:27 EST 2007
++   design and implement collections
++   test blob modifications
++   collections as a chunk of memory representing array of oids/cids
+?   collections containing objects across partitions?
+    nope only within a partition
+-   design with quota in pic
++   add attribute list header
++   clean interface for getting multiple attributes
++   for create with > 1 objects:
+        set attr value, set attr list: attr for each object will be set
+        get attr list: attr for each object in attr list of type 0xF.
+        get attr page: ?
++   new function: osd_getattr_page
++   move page related osd funcs to a new file
+        this point no longer valid due to updated design of attrs. Ofcourse
+        osd attr handling can be split into a separate file by itself.
+
+# Fri Mar  2 11:19:42 EST 2007
++   conflicting goals:
+    one function to pack attributes, but that requires double copies? how to
+    solve this?
++   while getting attr in list, in case of overflow, dont overwrite/ignore
+    copied attrs
+-   ispresent_attr, ispresent_attrpage functions
+!   null attributes page for page not found. for non existing attribute, list
+    entry format with len == 0xFFFFFFFF 
+        This point is still not clear
+-   optimize sql query setup
++   change ATTR_VAL_OFFSET to VAL_OFFSET(x)
++   creating a new page, automatically creates page 0. 
+        currently handle pages with no directory page by SQL commands
+-   page directory related functions
+        this is partly done
++   get_all_attr for object function
++   let attr_gather_attr returns EOVERFLOW, but attr is absent, what will be
+    returned in that case? 
+        it will not be treated as an error
++   mark all sematic decisions as XXX:SD
+
+# Sun Mar  4 14:56:45 EST 2007
+-   separate return for sqlite calls in attr_get_attr
++   rename RTRVD_CREATE_ATTR_LIST  RTRVD_CREATE_MUTIOBJ_LIST
+-   if setattr with length zero, don't delete it, since that attr still has
+    definition. this situation is different from where attr has no definition
+    XXX:SD modifiy query.
+-   after opening db, check if all tables exist
++   cdb tests, tests for new osd-functions ??
+
+# Mon Mar  5 16:42:31 EST 2007
++   directory page: sql query to generate a directory page
++   get attribute list length in 5.2.2.3, is list length in bytes
++   still to test getpage_setvalue, setvalue part in cdb.c
+-   implement sense to report the stage where command failed.
+
+# Tue Mar  6 13:08:16 EST 2007
+-   outdata/indata notation different from spec XXX:SD
+-   use stranded files to mv existing dfiles when creating dfiles
+
+# Wed Mar  7 12:43:35 EST 2007
+-   handle access to directory page offset
+!   align Malloc and Calloc  to 8B
+    cannot handle this, as it would need bookkeeping
+-   refactor attr.c 
++   in dir page add by default for each object UTSAP.
+-   sqlite truncates strings with  ??
+
+# Thu Mar  8 17:11:29 EST 2007
+-   reduce number of arguments for : getattr, setattr
++   collect all INCITS strings 
+-   use flexible array at end of struct for le mle
+
+# Fri Mar  9 12:00:46 EST 2007
+-   change return values of db.c and attr.c from SQLITE return to OSD return
+    codes
++   add pragma 
+
+# Wed Mar 14 17:07:06 EDT 2007
++   standardize goto labels
+
+# Wed Apr  4 18:23:26 EDT 2007
+-   rewrite makefiles like pvfs, look at the paper
+
+# Fri Apr  6 11:20:06 EDT 2007
+-   profiling infrastrcture for target
+
+# Sat Apr  7 17:04:08 EDT 2007
+-   configure separate placement of db and storage components
+
+# Tue Apr 10 15:11:36 EDT 2007
+-   optimize sqlite
+-   multithreading sqlite: locking transactions
+-   iSER/SRP target
+-   a new db backend?
+-   make common case fast, assume correct, recover from error. for eg. assume
+    attr and object exist, if not recover from error.
+-   use triggers for time attrs, might slow things down
+-   composing multiple objects into a file
+-   proper sense codes with the point where command failed
+-   flexible handle allocation in PVFS
+-   speeding up file create operations with OSDs
+
+# Sun Apr 15 00:16:14 EDT 2007
+-	composing multiple objects into a file
+-	proper sense codes with the point where command failed
+-	flexible handle allocation in PVFS
+-	speeding up file create operations with OSDs
+
+# Fri Apr 20 15:28:45 EDT 2007
+-   remove global variables in attr.c
++   clean setattr hack
++   implement collections
+-   efficient way of generating next id
+
+# Mon Apr 23 15:54:10 EDT 2007
+!   rev 1652: submitted to SC
++   collection, lists, query list, building collection (N steps). 
+
+# Wed Apr 25 12:47:05 EDT 2007
+-   collection ids grow from botton, user ids grow from top.
+?   who determines collection type?
+?   how are userobjects added to collection of type == 1?
+?   what is the use of removal of userobjects from collection after the
+    execution of multiobject command?
+!   alignment problem for query & list
+
+# Thu Apr 26 14:25:09 EDT 2007
+-   initialize attr, db, object-collection
+-   implement cache near the table, for eg. id cache in obj.c
+-   a table to store ranges, to plug the holes in handles
+?   list command: what is returned when list_attr == 0 and get_set_cdbfmt ==
+    2? 
+        list_attr means list the attributes along with the objects. Therefore
+        when list_attr == 0 no attrs are sent for the list items, though
+        attrs for the containers (partition/collection) might be sent back.
+        When list_attr == 1 then attrs are sent in list format only, for both
+        list items and their containers.
+
+# Fri Apr 27 13:15:42 EDT 2007
+-   table manipulators need local cache. for eg. attr needs cache for blob,
+    obj needs cache for id & storing results of list command. These need to
+    be incorporated in the db_context
+!   getting rowcount and the results in a single sql query
+    http://searchoracle.techtarget.com/ateQuestionNResponse/0,289625,sid41_gci1072588,00.html
+!   sqlite looses precision. If uint64_t value is stored then large values
+    like 0x9FFFFFFFFFFFFFFF cannot be stored, since sqlite converts all integers
+    to double and stores it.
++   scaling as function of objects, putting and taking out of collecitons
++   implement query
++   implement collection
++   implement list, list + attr
+-   implement list collection
+
+!   Storage conference and Workshops
+        TOS (Transactions on Storage)
+        ISCA
+        USENIX Technical conference
+        FAST
+        OSDI (more filesystem and OS related)
+        SOSP ( -do- )
+        NSDI (Network Systems Design and Implementation)
+        HPDC
+        HPCA
+        SIGMOD
+        JSPP
+        IPDPS
+        ICPP
+        CCGrid
+        Cluster
+        DSN ??
+        SC
+        WIOSCA
+        IOPADS (Workshop on Input/Output in Parallel and Distributed Systems)
+        SPDT (Symposium on Parallel and Distributed Tools)
+        MSST 
+        SNAPI Workshop along with MSST
+        HiPC (for vacation in India)
+        APDSC (Asia Pacific Data and Storage conference) Tier 3
+        NAS  (Network Architecture Storage) Tier 3
+
+# Sat Apr 28 14:45:36 EDT 2007
+-   6.18.3 the object descriptors are not aligned at 8 byte, even though the
+    revision makes the case for other formats.
+-   sqlite issues
+        precompile the queries
+        multithreaded
+        reduce the fcntl calls for locking
+        refactor the code such that error checking is minimized
+        read other codes where SQLite is used
+        solve the irritating 'ret' value preservation.
+-   set PAGE_ID attr in set_attr function. refactor that function ??
++   ATTR_PG_ID_LEN is declared twice. standardize on names, PAGE or PG.
+-   Every create and create_collection, create partition sets default attr
+-   use datatime functions to set timestamps
+-   test attr when BLOB == NULL, does it remove the attr. change the
+    semantics to set attr of zero length rather than removing the attr.
+!   the code of deleting attribute is repeated in set_Attribute and set_cap
+-   setup triggers to delete the cids or oids as necessary
+!   get_all_attr needs to be modified to grab values from object_collection
+-   change the semantic decision (XXX:SD) made of leaving no side-effects in
+    case of create and other commands
++   set_attribute must check for obj_type along with page. for eg.
+    collections don't have user 
++   create 256 directories under dfiles to prevent fanout
++   collect and summarize all todos in one place 
+?   how to handle endian correction when attr value is integer?
+        store the values in big endian format. SQLite uses memcmp to compare
+        blobs and only big endian format enables comparison of integers
+        stored as blobs
+
+# Sun Apr 29 12:17:55 EDT 2007
++   look for memory leaks in attr.c, tests etc.
++   run valgrind and span all the code to check for memory leaks
+?   in C how to determine the caller function. can be used to prevent a
+    function being called from outside a set of predetermined functions.
+-   python interface for writing unit tests
+-   function to run different tests
+-   A tech paper about all the complex attribute operations and their
+    translations into efficient SQL statements.
+-   copy sqlite source into the project directory, compile with Multithreaded
+    and other options.
+!   SQLite does not allow sub-query grouping using parenthesis
+?   How should one deal with > 1 attributes, when one of the latter ones has
+    an error. Should the state that has changed be reverted or should it be
+    left as it is.
+        if all the attrs are parsed before the command, then that error can
+        be raised to the higher levels before command is commenced
+?   what is object descriptor format 00h?
+
+# Mon Apr 30 11:16:06 EDT 2007
+-   get/set attr functions in cdb.c assume that for each object all
+    attributes are derieved.
+!   in list command the get/set attrs apply to the oid in the CDB and also
+    the oids generated from executing the CDB.
+-   test set/get attr on collections
++   change COLLECTIONS_PG to USER_COLL_PG
++   todo:
+    set member attributes
+    query
+?   does get/set attr of a query apply to the results of the command or only
+to the cid
+?   when list is sent back with continuation id does it mention pid?
++   change name of getattr_list_entry to something smaller. 
+        no need to change name
+-   how does gcc treat branches? which one is predicted to be true, if or the
+    else part? how does gcc treat condition part of for loop, do the
+    constituents evaluated every time?
+-   reduce the number of args passed to osd functions, using some generic
+    struct
++   test query with alloc_len < than result size to see if sqlite3_step is
+    progressing
+!   the spec again made mistake. in osd2r01 attr_list_len is 16 bits, which
+    is not sufficient to store worst case one 
+
+# Tue May  1 13:23:10 EDT 2007
+-   design attr_list_oids_attr with proper loop invariant and clean code
+
+# Thu May  3 17:43:48 EDT 2007
+-   use CURRENT_TIMESTAMP/CURRENT_TIME to encode creation time of object
+-   combine tests for presence and type into one.
+
+# Sun May  6 14:38:42 EDT 2007
++   optmize QUERY statement
++   include performance tests in tests subdir
+
+# Tue May  8 00:51:36 EDT 2007
++   create a db for storing performance numbers by version
+-   clean sqlite api
++   extend pysqlite API to include sqlite functions
+        that is already done by apsw available at pysqlite website
+
+# Thu May 10 16:57:59 EDT 2007
+-   getattr/setattr before executing the command
+-   osd_context should have fields for get/set attr 
+-   commands in osd.c should account for the fact that attrs in get/set attr
+    might belong to different types of objects. But they should still check
+    the attribute sanity
+
+-   List of changes where implementation differs from the spec
+    -   understanding of undefined attributes
+    -   lists returned by query
+    -   lists returned by list
+    -   processing of getattr and setattr after the command** 
+    -   leaving no side-effects**
+    -   delete the attribute when value it's length is set to 0
+    -   treatment of zero length attributes
+    -   outdata/indata notation different from spec XXX:SD
+
+    **the spec itself it not clear about it
+-   valgrid opts
+    valgrind --trace-children=yes --leak-check=full --log-file-exactly=valgrind.log ./tgtd -f 2>&1 > output.log
+    valgrind -v --trace-children=yes --leak-check=yes --suppressions=./val.supp ./cdb-test >& out
+
+# Fri May 11 15:15:01 EDT 2007
+-   remove init_attr if possible
+-   list of incompatibilities with spec, where spec is wrong
+-   can empty partition or collection be determined w/o actually counting the
+    rows?
+-   timing test for object_collection before and after optimization
+
+# Mon May 14 19:33:48 EDT 2007
+-   in attr_gather * no need to copy blob values. Can pass of directly as a
+    pointer to list-entry funcs
+-   using helper function exec_dml adds about 4% overhead to execution time
+    compared to infunction implementation.
+
+# Tue May 15 17:05:17 EDT 2007
+-   x86_64 assembly resources:
+-   http://www.amd.com/us-en/assets/content_type/white_papers_and_tech_docs/40546.pdf
+-   http://www.x86-64.org/documentation.html
+-   http://www.cs.cmu.edu/~fp/courses/15213-s06/misc/asm64-handout.pdf
+-   http://www.amd.com/us-en/Processors/TechnicalResources/
+-   AMD64 Architecture Programmer's Manual Volume 1: Application Programming
+    http://www.amd.com/us-en/assets/content_type/white_papers_and_tech_docs/24592.pdf
+-   http://developer.amd.com/devguides.jsp
+-   the 4% overhead
+    times without exec_dml:
+    time_insert numiter 10 numobj 10 testone 0 avg 969.802714 +- 3.611856 us
+    time_insert numiter 10 numobj 100 testone 0 avg 9841.456688 +- 17.105755 us
+    time_insert numiter 10 numobj 1000 testone 0 avg 107513.349058 +- 331.922371 us
+    time_insert numiter 10 numobj 1000 testone 0 avg 109118.424264 +- 1139.760928 us
+
+    times with exec_dml:
+    time_insert numiter 10 numobj 10 testone 0 avg 991.425623 +- 3.349941 us
+    time_insert numiter 10 numobj 100 testone 0 avg 10016.951044 +- 22.943269 us
+    time_insert numiter 10 numobj 1000 testone 0 avg 108450.038074 +- 298.843333 us
+    time_insert numiter 10 numobj 1000 testone 0 avg 111032.684933 +- 829.166728 us
+
+-   prama not working
+-   why are we getting SQLITE_SCHEMA error
+    since attr_get_dir_page creates views, it changes db schema and raise
+    SQLITE_SCHEMA error.
+
+# Wed May 16 15:05:32 EDT 2007
+-   change return code names from OSD_OK, they might conflict with OSD_CREATE
+    etc namespace
+-   more evidence of function call overhead:
+    w/o overhead
+time_insert numiter 10 numobj 64 testone 0 avg 6288.029060 +- 25.669674 us
+time_insert numiter 10 numobj 128 testone 0 avg 12248.685379 +- 25.123183 us
+time_insert numiter 10 numobj 256 testone 0 avg 25899.749742 +- 53.774744 us
+time_insert numiter 10 numobj 512 testone 0 avg 54303.741797 +- 4332.570774 us
+    with overhead
+time_insert numiter 10 numobj 64 testone 0 avg 6558.988791 +- 43.907721 us
+time_insert numiter 10 numobj 128 testone 0 avg 12947.509450 +- 30.651306 us
+time_insert numiter 10 numobj 256 testone 0 avg 27491.428278 +- 67.486652 us
+time_insert numiter 10 numobj 512 testone 0 avg 54567.097491 +- 179.033921 us
+
+!   SQLITE_SCHEMA errors happen mostly in sqlite_reset or sqlite_finalize.
+    When fedora updates sqlite to 3.3.9 or later, we can use *_v2 functions
+    which can handle schema changes for us automatically. auto_vaccum may
+    also cause SQLITE_SCHEMA errors, so all calls to sqlite3_step,
+    sqlite3_bind and sqlite3_finalize must be tested for it.
+
+# Thu May 17 16:44:09 EDT 2007
+-   analyze query plan of MAX(oid) and speed it up from O(N) to O(logN)
+-   just get a summary from valgrind and write a unit test for it
+-   find . -regextype posix-egrep -regex '.*Makefile|.*\.[ch]|.*\.py|.*notes|.*todo|.*\.schema' | xargs wc -l | sort -n
+
+# Fri May 18 13:18:32 EDT 2007
+-   a single SQL query to insert default attributes for an object.
+-   try to remember the readline convineance to ease the editing of shell
+    commands on commandline, for e.g. when we use C-r to go back into
+    history, how to get to begining or end of history, general history
+    browsing
+-   how to configure assert that it catched '=' errors
+-   generic debug print statements
+-   where are bash options set
+-   get profile/bashprofile cleared up
+-   oprofile the whole stack
+-   function to set attrs in bulk
+
+# Sat May 19 21:30:48 EDT 2007
+-   XXX:SD the spec does not make it clear whether only the length of the
+    individual attribute is left unmodified or does the length of the whole
+    list is left unmodified if not enough space for the attributes.
+-   change osd.c to reflect changes in return values of coll, obj, attr
+-   what if it fails to bind but reset is successfull?
+    
+# Mon Jun  4 14:40:59 EDT 2007
+-   call trace for login PDU
+    __session_mainloop
+    __session_poll
+    iscsi_login_req
+        iscsi_make_login_pdu
+    ksend_pdu_end
+    (netlink)
+    .
+    .
+    iscsi_prep_scsi_cmd_pdu: sets ISCSI_FLAG_CMD_WRITE
+    .
+    .
+    iscsi_conn_send_pdu 
+    iscsi_conn_send_generic: changes itt and cmdsn
+    scsi_queue_work
+    queue_work
+    __queue_work
+    .
+    .
+    iscsi_xmitworker
+    iscsi_data_xmit
+    iscsi_iser_ctask_xmit
+    iser_send_command
+    iser_prepare_write_cmd
+        iser_post_recv
+    iser_post_send
+
+
+-   change unit tests from hardcoded test cases to a file with test
+    combinations.
+  
+# Fri Jun  8 19:58:59 EDT 2007
+-  set header and data digests to None
+
+# Sun Jun 10 00:25:15 EDT 2007
+-   iscsi api for iser
+    iscsi_iser_event_handler
+    iscsi_iser_rx_handler
+    iscsi_iser_tx_handler
+    data_ack_notify
+    data_comp_notify
+    conn_term_notify
+
+    by ISER
+    ep_write_begin(hndl, *buf, size)
+    ep_write_end(hndl)
+    nbytes ep_read(hndl, **buf)
+    get_data(hndl) == ep_read()
+    alloc_conn_rsrc()
+    dealloc_conn_rsrc()
+    dealloc_task_rsrc(hndl)
+    ep_close(hndl)
+
+-   iSCSI impl for RDMAExt
+    return scsi status in a separate scsi response pdu
+    must support login keys: RDMAExt, Digests set to None, 
+    ORD affects qp caps
+    max outstanding unexpected pdus
+
+-   First message is hello: 
+    the message from initiator does not appear to be it!!
+
+-   completion queue events must be handled in iscsi_iser
+-   status field in iser conn
+
+-   how to control iscsid state transitions?
+
+-   event_loop
+-   rdma low level
+-   list of ready tasks
+-   api change
+
+# Thu Jun 14 00:29:01 EDT 2007
+-   deregister rdmal
+-   handle close conn
+
+
+# Fri Jun 22 17:07:26 EDT 2007
++   isolate mallocs; remove conditions
++   single buffer pool
+
+# Mon Jun 25 14:31:12 EDT 2007
+-   readb writeb
+-   make mem management efficient
+-   take care of buf outruns
+
+# Mon Jul 16 21:09:32 EDT 2007
+-   use new SQLite api for prepared statements
+-   use new SQLite return semantics
+-   try to write configure script to enable dependencies
+-   complete some of the todos like optimizing create, optimizing obj_type
+    lookup etc
+
+# Fri Jul 20 15:08:01 EDT 2007
++   improve setattr perf
+-   clean up iscsi_iser
+
+# Mon Jul 30 15:45:48 EDT 2007
+-   iobench bonnie tests for OSD target
+
+# Thu Aug  2 13:06:05 EDT 2007
+-   combine get/set attrs initial functions
+
+# Mon Aug  6 13:15:05 EDT 2007
+-   coding style: keep all types together
+
+# Sat Oct  6 16:30:31 EDT 2007
+-	mv timestamps from filesytem to db
+
+# Sun Oct  7 12:41:20 EDT 2007
+-	list writer object
+-	gen_cas modifies: osd command execution sequence, type of list, OSD
+	command section
+
+# Tue Oct 16 13:38:58 EDT 2007
+-   new commands: Punch, clear
+
+# Fri Oct 19 14:58:32 EDT 2007
+-   make file path names in def file
+
+# Thu Nov  1 16:45:05 EDT 2007
+- change arguments tests in functions to assertions
+
+# Fri Nov  2 14:37:31 EDT 2007
+- improve SQLite's performance
+
+# Mon Nov  5 15:09:35 EST 2007
+- combine partition/object testing into one
+
+# Fri Nov 30 17:29:47 EST 2007
+- create branch in svn to handle the debug cases. for eg. tick tracing to
+  debug the fairness for different clients
+
+# Mon Jul 21 12:21:07 EDT 2008
+http://www.sqlite.org/atomiccommit.html

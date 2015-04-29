@@ -5,13 +5,13 @@
 
 #include "common.h"
 
-int32_t* mapping_table;
+uint32_t* mapping_table;
 void* block_table_start;
 
 void INIT_MAPPING_TABLE(void)
 {
 	/* Allocation Memory for Mapping Table */
-	mapping_table = (int32_t*)calloc(PAGE_MAPPING_ENTRY_NB, sizeof(int32_t));
+	mapping_table = (uint32_t*)calloc(PAGE_MAPPING_ENTRY_NB, sizeof(uint32_t));
 	if(mapping_table == NULL){
 		printf("ERROR[%s] Calloc mapping table fail\n",__FUNCTION__);
 		return;
@@ -22,7 +22,8 @@ void INIT_MAPPING_TABLE(void)
 	/* If mapping_table.dat file exists */
 	FILE* fp = fopen("./data/mapping_table.dat","r");
 	if(fp != NULL){
-		fread(mapping_table, sizeof(int32_t), PAGE_MAPPING_ENTRY_NB, fp);
+		if(fread(mapping_table, sizeof(uint32_t), PAGE_MAPPING_ENTRY_NB, fp) <= 0)
+			printf("ERROR[%s]\n",__FUNCTION__);
 	}
 	else{	
 		int i;	
@@ -41,20 +42,21 @@ void TERM_MAPPING_TABLE(void)
 	}
 
 	/* Write the mapping table to file */
-	fwrite(mapping_table, sizeof(int32_t),PAGE_MAPPING_ENTRY_NB,fp);
+	if(fwrite(mapping_table, sizeof(uint32_t),PAGE_MAPPING_ENTRY_NB,fp) <= 0)
+		printf("ERROR[%s]\n",__FUNCTION__);
 
 	/* Free memory for mapping table */
 	free(mapping_table);
 }
 
-int32_t GET_MAPPING_INFO(int32_t lpn)
+uint32_t GET_MAPPING_INFO(uint32_t lpn)
 {
-	int32_t ppn = mapping_table[lpn];
+	uint32_t ppn = mapping_table[lpn];
 
 	return ppn;
 }
 
-int GET_NEW_PAGE(int mode, int mapping_index, int32_t* ppn)
+int GET_NEW_PAGE(int mode, int mapping_index, uint32_t* ppn)
 {
 	empty_block_entry* curr_empty_block;
 
@@ -74,9 +76,9 @@ int GET_NEW_PAGE(int mode, int mapping_index, int32_t* ppn)
 	return SUCCESS;
 }
 
-int UPDATE_OLD_PAGE_MAPPING(int32_t lpn)
+int UPDATE_OLD_PAGE_MAPPING(uint32_t lpn)
 {
-	int32_t old_ppn;
+	uint32_t old_ppn;
 
 	old_ppn = GET_MAPPING_INFO(lpn);
 
@@ -94,7 +96,7 @@ int UPDATE_OLD_PAGE_MAPPING(int32_t lpn)
 	return SUCCESS;
 }
 
-int UPDATE_NEW_PAGE_MAPPING(int32_t lpn, int32_t ppn)
+int UPDATE_NEW_PAGE_MAPPING(uint32_t lpn, uint32_t ppn)
 {
 	/* Update Page Mapping Table */
 	mapping_table[lpn] = ppn;
@@ -107,7 +109,16 @@ int UPDATE_NEW_PAGE_MAPPING(int32_t lpn, int32_t ppn)
 	return SUCCESS;
 }
 
-unsigned int CALC_FLASH(int32_t ppn)
+int UPDATE_NEW_PAGE_MAPPING_NO_LOGICAL(uint32_t ppn)
+{
+	/* Update Inverse Page Mapping Table */
+	UPDATE_INVERSE_BLOCK_VALIDITY(CALC_FLASH(ppn), CALC_BLOCK(ppn), CALC_PAGE(ppn), VALID);
+	UPDATE_INVERSE_BLOCK_MAPPING(CALC_FLASH(ppn), CALC_BLOCK(ppn), DATA_BLOCK);
+
+	return SUCCESS;
+}
+
+unsigned int CALC_FLASH(uint32_t ppn)
 {
 	unsigned int flash_nb = (ppn/PAGE_NB)/BLOCK_NB;
 
@@ -117,7 +128,7 @@ unsigned int CALC_FLASH(int32_t ppn)
 	return flash_nb;
 }
 
-unsigned int CALC_BLOCK(int32_t ppn)
+unsigned int CALC_BLOCK(uint32_t ppn)
 {
 	unsigned int block_nb = (ppn/PAGE_NB)%BLOCK_NB;
 
@@ -127,14 +138,14 @@ unsigned int CALC_BLOCK(int32_t ppn)
 	return block_nb;
 }
 
-unsigned int CALC_PAGE(int32_t ppn)
+unsigned int CALC_PAGE(uint32_t ppn)
 {
 	unsigned int page_nb = ppn%PAGE_NB;
 
 	return page_nb;
 }
 
-unsigned int CALC_PLANE(int32_t ppn)
+unsigned int CALC_PLANE(uint32_t ppn)
 {
 	int flash_nb = CALC_FLASH(ppn);
 	int block_nb = CALC_BLOCK(ppn);
@@ -145,7 +156,7 @@ unsigned int CALC_PLANE(int32_t ppn)
 	return plane;
 }
 
-unsigned int CALC_CHANNEL(int32_t ppn)
+unsigned int CALC_CHANNEL(uint32_t ppn)
 {
 	int flash_nb = CALC_FLASH(ppn);
 	int channel;
@@ -155,7 +166,7 @@ unsigned int CALC_CHANNEL(int32_t ppn)
 	return channel;
 }
 
-unsigned int CALC_SCOPE_FIRST_PAGE(int32_t address, int scope)
+unsigned int CALC_SCOPE_FIRST_PAGE(uint32_t address, int scope)
 {
 	int planeNumber;
 	switch (scope)

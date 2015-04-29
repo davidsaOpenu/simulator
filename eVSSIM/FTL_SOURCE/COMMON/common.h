@@ -12,14 +12,16 @@
 #include <malloc.h>
 #include <stdint.h>
 #include <sys/time.h>
+#include <stdbool.h>
 #include "ftl_type.h"
 
 /* FTL */
+//#define FTL_DEBUG 1
 
 /* VSSIM Function */
 #define MONITOR_ON
 #ifdef PAGE_MAP
-	//#define GC_ON			/* Garbage Collection for PAGE MAP */
+#define GC_ON 1			/* Garbage Collection for PAGE MAP */
 #endif
 #define DEL_QEMU_OVERHEAD
 //#define O_DIRECT_VSSIM			/* O_DIRECT IO mode */
@@ -28,6 +30,9 @@
 #include "ftl.h"
 #include "ftl_inverse_mapping_manager.h"
 #include "ftl_perf_manager.h"
+
+#include "ftl_sect_strategy.h"
+#include "ftl_obj_strategy.h"
 
 #include "ssd_util.h"
 #include "ssd_io_manager.h"

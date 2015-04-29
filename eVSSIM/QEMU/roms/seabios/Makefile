@@ -1,0 +1,1 @@
+/home/cool/os/simulator/eVSSIM/QEMU/roms/seabios/Makefile

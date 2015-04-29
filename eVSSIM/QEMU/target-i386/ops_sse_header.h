@@ -30,6 +30,9 @@
 #define dh_ctype_Reg Reg *
 #define dh_ctype_XMMReg XMMReg *
 #define dh_ctype_MMXReg MMXReg *
+#define dh_is_signed_Reg dh_is_signed_ptr
+#define dh_is_signed_XMMReg dh_is_signed_ptr
+#define dh_is_signed_MMXReg dh_is_signed_ptr
 
 DEF_HELPER_2(glue(psrlw, SUFFIX), void, Reg, Reg)
 DEF_HELPER_2(glue(psraw, SUFFIX), void, Reg, Reg)
@@ -187,6 +190,10 @@ DEF_HELPER_2(rsqrtps, void, XMMReg, XMMReg)
 DEF_HELPER_2(rsqrtss, void, XMMReg, XMMReg)
 DEF_HELPER_2(rcpps, void, XMMReg, XMMReg)
 DEF_HELPER_2(rcpss, void, XMMReg, XMMReg)
+DEF_HELPER_2(extrq_r, void, XMMReg, XMMReg)
+DEF_HELPER_3(extrq_i, void, XMMReg, int, int)
+DEF_HELPER_2(insertq_r, void, XMMReg, XMMReg)
+DEF_HELPER_3(insertq_i, void, XMMReg, int, int)
 DEF_HELPER_2(haddps, void, XMMReg, XMMReg)
 DEF_HELPER_2(haddpd, void, XMMReg, XMMReg)
 DEF_HELPER_2(hsubps, void, XMMReg, XMMReg)

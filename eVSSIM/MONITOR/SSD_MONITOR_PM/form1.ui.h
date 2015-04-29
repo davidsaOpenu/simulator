@@ -68,6 +68,7 @@ void Form1::init()
 
 	sock = new QSocket(this);
 	connect(sock, SIGNAL(readyRead()), this, SLOT(onReceive()));
+	connect(sock, SIGNAL(connectionClosed()), this, SLOT(accept()));
 
     	/* socket의 서버 설정. 실험 pc의 서버와 동일하게 한다. */
 	sock->connectToHost("127.0.0.1", 9999);

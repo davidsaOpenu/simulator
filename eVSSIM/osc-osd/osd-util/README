@@ -1,0 +1,27 @@
+Documentation for OSD Utilities library
+
+Copyright (C) 2007 Dennis Dalessandro (dennis@osc.edu)
+Copyright (C) 2007 Ananth Devulapalli (ananth@osc.edu)
+Copyright (C) 2007 Pete Wyckoff (pw@osc.edu)
+
+This little library includes code needed by both the OSD Initiator
+library and the OSD Target library.  Just type "make" to build
+the library of exactly one file.
+
+
+Contents
+--------
+
+bsg.h - temporary header file for /dev/bsg character interface until
+picked up by glibc-headers.  Used by the initiator for all
+communications and by the target for some test programs.
+
+osd-defs.h - handy defines, including values for the OSD command
+types and various parameters, mostly from the specification.
+
+osd-sense.h - handy defines related to sense errors
+
+osd-util.h osd-util.c - grab bag of utilities for error message and
+debug printing, memory allocation, statistics, endian conversion, etc.
+
+# vim: set tw=72 :

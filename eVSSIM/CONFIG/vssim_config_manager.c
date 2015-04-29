@@ -55,10 +55,15 @@ double GC_THRESHOLD;			// added by js
 int GC_THRESHOLD_BLOCK_NB;		// added by js
 int GC_THRESHOLD_BLOCK_NB_EACH;		// added by js
 int GC_VICTIM_NB;
+double GC_L2_THRESHOLD;
+int GC_L2_THRESHOLD_BLOCK_NB;
 #endif
 
-char gFile_Name[1024] = {0,};
-char STAT_PATH[1024] = {0,};
+/* Storage strategy (1 = address-based, 2 = object-based */
+int STORAGE_STRATEGY;
+
+char gFile_Name[PATH_MAX] = {0,};
+char STAT_PATH[PATH_MAX] = {0,};
 
 void INIT_SSD_CONFIG(void)
 {
@@ -75,110 +80,145 @@ void INIT_SSD_CONFIG(void)
 		{
 			if(strcmp(szCommand, "FILE_NAME") == 0)
 			{
-				fscanf(pfData, "%s", gFile_Name);
+				if(fscanf(pfData, "%s", gFile_Name) == EOF)
+					printf("ERROR[%s] Cannot read filename\n",__FUNCTION__);
+
 			}
 			else if(strcmp(szCommand, "PAGE_SIZE") == 0)
 			{
-				fscanf(pfData, "%d", &PAGE_SIZE);
+				if(fscanf(pfData, "%d", &PAGE_SIZE) == EOF)
+					printf("ERROR[%s] Wrong PAGE_SIZE\n",__FUNCTION__);
 			}
 			else if(strcmp(szCommand, "PAGE_NB") == 0)
 			{
-				fscanf(pfData, "%d", &PAGE_NB);
+				if(fscanf(pfData, "%d", &PAGE_NB) == EOF)
+					printf("ERROR[%s] Wrong PAGE_NB\n",__FUNCTION__);
 			}
 			else if(strcmp(szCommand, "SECTOR_SIZE") == 0)
 			{
-				fscanf(pfData, "%d", &SECTOR_SIZE);
+				if(fscanf(pfData, "%d", &SECTOR_SIZE) == EOF)
+					printf("ERROR[%s] Wrong SECTOR_SIZE\n",__FUNCTION__);
 			}	
 			else if(strcmp(szCommand, "FLASH_NB") == 0)
 			{
-				fscanf(pfData, "%d", &FLASH_NB);
+				if(fscanf(pfData, "%d", &FLASH_NB) == EOF)
+					printf("ERROR[%s] Wrong FLASH_NB\n",__FUNCTION__);
 			}	
 			else if(strcmp(szCommand, "BLOCK_NB") == 0)
 			{
-				fscanf(pfData, "%d", &BLOCK_NB);
+				if(fscanf(pfData, "%d", &BLOCK_NB) == EOF)
+					printf("ERROR[%s] Wrong BLOCK_NB\n",__FUNCTION__);
 			}					
 			else if(strcmp(szCommand, "PLANES_PER_FLASH") == 0)
 			{
-				fscanf(pfData, "%d", &PLANES_PER_FLASH);
+				if(fscanf(pfData, "%d", &PLANES_PER_FLASH) == EOF)
+					printf("ERROR[%s] Wrong PLANES_PER_FLASH\n",__FUNCTION__);
 			}
 			else if(strcmp(szCommand, "REG_WRITE_DELAY") == 0)
 			{
-				fscanf(pfData, "%d", &REG_WRITE_DELAY);
+				if(fscanf(pfData, "%d", &REG_WRITE_DELAY) == EOF)
+					printf("ERROR[%s] Wrong REG_WRITE_DELAY\n",__FUNCTION__);
 			}	
 			else if(strcmp(szCommand, "CELL_PROGRAM_DELAY") == 0)
 			{
-				fscanf(pfData, "%d", &CELL_PROGRAM_DELAY);
+				if(fscanf(pfData, "%d", &CELL_PROGRAM_DELAY) == EOF)
+					printf("ERROR[%s] Wrong CELL_PROGRAM_DELAY\n",__FUNCTION__);
 			}
 			else if(strcmp(szCommand, "REG_READ_DELAY") == 0)
 			{
-				fscanf(pfData, "%d", &REG_READ_DELAY);
+				if(fscanf(pfData, "%d", &REG_READ_DELAY) == EOF)
+					printf("ERROR[%s] Wrong REG_READ_DELAY\n",__FUNCTION__);
 			}
 			else if(strcmp(szCommand, "CELL_READ_DELAY") == 0)
 			{
-				fscanf(pfData, "%d", &CELL_READ_DELAY);
+				if(fscanf(pfData, "%d", &CELL_READ_DELAY) == EOF)
+					printf("ERROR[%s] Wrong CELL_READ_DELAY\n",__FUNCTION__);
 			}
 			else if(strcmp(szCommand, "BLOCK_ERASE_DELAY") == 0)
 			{
-				fscanf(pfData, "%d", &BLOCK_ERASE_DELAY);
+				if(fscanf(pfData, "%d", &BLOCK_ERASE_DELAY) == EOF)
+					printf("ERROR[%s] Wrong BLOCK_ERASE_DELAY\n",__FUNCTION__);
 			}
 			else if(strcmp(szCommand, "CHANNEL_SWITCH_DELAY_R") == 0)
 			{
-				fscanf(pfData, "%d", &CHANNEL_SWITCH_DELAY_R);
+				if(fscanf(pfData, "%d", &CHANNEL_SWITCH_DELAY_R) == EOF)
+					printf("ERROR[%s] Wrong CHANNEL_SWITCH_DELAY_R\n",__FUNCTION__);
 			}
 			else if(strcmp(szCommand, "CHANNEL_SWITCH_DELAY_W") == 0)
 			{
-				fscanf(pfData, "%d", &CHANNEL_SWITCH_DELAY_W);
+				if(fscanf(pfData, "%d", &CHANNEL_SWITCH_DELAY_W) == EOF)
+					printf("ERROR[%s] Wrong CHANNEL_SWITCH_DELAY_W\n",__FUNCTION__);
 			}
 			else if(strcmp(szCommand, "DSM_TRIM_ENABLE") == 0)
 			{
-				fscanf(pfData, "%d", &DSM_TRIM_ENABLE);
+				if(fscanf(pfData, "%d", &DSM_TRIM_ENABLE) == EOF)
+					printf("ERROR[%s] Wrong DSM_TRIM_ENABLE\n",__FUNCTION__);
 			}
 			else if(strcmp(szCommand, "IO_PARALLELISM") == 0)
 			{
-				fscanf(pfData, "%d", &IO_PARALLELISM);
+				if(fscanf(pfData, "%d", &IO_PARALLELISM) == EOF)
+					printf("ERROR[%s] Wrong IO_PARALLELISM\n",__FUNCTION__);
 			}
 			else if(strcmp(szCommand, "CHANNEL_NB") == 0)
 			{
-				fscanf(pfData, "%d", &CHANNEL_NB);
+				if(fscanf(pfData, "%d", &CHANNEL_NB) == EOF)
+					printf("ERROR[%s] Wrong CHANNEL_NB\n",__FUNCTION__);
 			}
 			else if(strcmp(szCommand, "STAT_TYPE") == 0)
 			{
-				fscanf(pfData, "%d", &STAT_TYPE);
+				if(fscanf(pfData, "%d", &STAT_TYPE) == EOF)
+					printf("ERROR[%s] Wrong STAT_TYPE\n",__FUNCTION__);
 			}
 			else if(strcmp(szCommand, "STAT_SCOPE") == 0)
 			{
-				fscanf(pfData, "%d", &STAT_SCOPE);
+				if(fscanf(pfData, "%d", &STAT_SCOPE) == EOF)
+					printf("ERROR[%s] Wrong STAT_SCOPE\n",__FUNCTION__);
 			}
 			else if(strcmp(szCommand, "STAT_PATH") == 0)
 			{
-				fscanf(pfData, "%s", &STAT_PATH);
+				//fscanf(pfData, "%s", &STAT_PATH);
+				if(fgets(STAT_PATH, PATH_MAX, pfData) == NULL)
+					printf("ERROR[%s] Wrong STAT_PATH\n",__FUNCTION__);
 			}
 #if defined FTL_MAP_CACHE 
 			else if(strcmp(szCommand, "CACHE_IDX_SIZE") == 0)
 			{
-				fscanf(pfData, "%d", &CACHE_IDX_SIZE);
+				if(fscanf(pfData, "%d", &CACHE_IDX_SIZE) == EOF)
+					printf("ERROR[%s] Wrong CACHE_IDX_SIZE\n",__FUNCTION__);
 			}
 #endif
 #ifdef SSD_WRITE_BUFFER
 			else if(strcmp(szCommand, "WRITE_BUFFER_SIZE") == 0)
 			{
-				fscanf(pfData, "%u", &WRITE_BUFFER_SIZE);
+				if(fscanf(pfData, "%u", &WRITE_BUFFER_SIZE) == EOF)
+					printf("ERROR[%s] Wrong WRITE_BUFFER_SIZE\n",__FUNCTION__);
 			}
 #endif
 #if defined FAST_FTL || defined LAST_FTL
 			else if(strcmp(szCommand, "LOG_RAND_BLOCK_NB") == 0)
 			{
-				fscanf(pfData, "%d", &LOG_RAND_BLOCK_NB);
+				if(fscanf(pfData, "%d", &LOG_RAND_BLOCK_NB) == EOF)
+					printf("ERROR[%s] Wrong LOG_RAND_BLOCK_NB\n",__FUNCTION__);
 			}	
 			else if(strcmp(szCommand, "LOG_SEQ_BLOCK_NB") == 0)
 			{
-				fscanf(pfData, "%d", &LOG_SEQ_BLOCK_NB);
+				if(fscanf(pfData, "%d", &LOG_SEQ_BLOCK_NB) == EOF)
+					printf("ERROR[%s] Wrong LOG_SEQ_BLOCK_NB\n",__FUNCTION__);
 			}	
 #endif
+            else if(strcmp(szCommand, "STORAGE_STRATEGY") == 0)
+			{
+				if(fscanf(pfData, "%d", &STORAGE_STRATEGY) == EOF)
+					printf("ERROR[%s] Wrong STORAGE_STRATEGY\n",__FUNCTION__);
+
+				
+			}
 			memset(szCommand, 0x00, 1024);
 		}	
 		fclose(pfData);
 
+	}else{
+		printf("ERROR[%s] cannot open file: %s\n",__FUNCTION__,"./data/ssd.conf");
 	}
 
 	/* Exception Handler */
@@ -216,6 +256,9 @@ void INIT_SSD_CONFIG(void)
 	GC_THRESHOLD_BLOCK_NB = (int)((1-GC_THRESHOLD) * (double)BLOCK_MAPPING_ENTRY_NB);
 	GC_THRESHOLD_BLOCK_NB_EACH = (int)((1-GC_THRESHOLD) * (double)EACH_EMPTY_TABLE_ENTRY_NB);
 	GC_VICTIM_NB = 1;
+
+    GC_L2_THRESHOLD = 0.1; //90%
+	GC_L2_THRESHOLD_BLOCK_NB = (int)((1-GC_L2_THRESHOLD) * (double)BLOCK_MAPPING_ENTRY_NB);
 #endif
 
 	free(szCommand);

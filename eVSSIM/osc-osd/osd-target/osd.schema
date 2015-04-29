@@ -1,0 +1,73 @@
+--
+-- schema for OSD using sqlite3
+--
+-- Copyright (C) 2007 OSD Team <pvfs-osd@osc.edu>
+--
+-- This program is free software: you can redistribute it and/or modify
+-- it under the terms of the GNU General Public License as published by
+-- the Free Software Foundation, version 2 of the License.
+-- 
+-- This program is distributed in the hope that it will be useful,
+-- but WITHOUT ANY WARRANTY; without even the implied warranty of
+-- MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+-- GNU General Public License for more details.
+-- 
+-- You should have received a copy of the GNU General Public License
+-- along with this program.  If not, see <http://www.gnu.org/licenses/>.
+--
+
+-- 4.6.2: The combination of partition ID and user object ID uniquely
+-- identifies the root obect, each partition, each collection, and each
+-- user object.  Thus we store everything in this one table.
+CREATE TABLE obj (
+	pid INTEGER NOT NULL,
+	oid INTEGER NOT NULL,
+	type INTEGER NOT NULL,
+	PRIMARY KEY (pid, oid)
+);
+
+CREATE TABLE attr (
+	pid INTEGER NOT NULL,
+	oid INTEGER NOT NULL,
+	page INTEGER NOT NULL,
+	number INTEGER NOT NULL,
+	value BLOB,
+	PRIMARY KEY (pid, oid, page, number)
+);
+
+-- object_collection table is used as an intersection table to hold
+-- many-to-many mappings between userobjects and collections.
+-- The conflict condition handles the point mentioned in 7.1.2.19
+-- osd2r02.pdf:
+
+--   If the collection type attribute in the Collection Information attributes
+--   page contains 00h, a user object is removed from the membership of a
+--   collection by:
+--     a) Changing the collection pointer attribute identifying that
+--     collection to have a length of zero; or 
+--     b) Setting the collection pointer attribute identifying that 
+--     collection to the Collection_Object_ID of a different collection.
+
+
+
+CREATE TABLE coll (
+	pid INTEGER NOT NULL,
+	cid INTEGER NOT NULL,
+	oid INTEGER NOT NULL,
+	number INTEGER NOT NULL,
+	PRIMARY KEY (pid, cid, oid),
+	UNIQUE (pid, oid, number) ON CONFLICT REPLACE
+);
+
+-- Add index on most varying fields for performance
+-- CREATE INDEX obj_ind ON obj (pid,oid);
+-- CREATE INDEX attr_ind ON attr (pid,oid,page,number);
+-- CREATE INDEX pgnum_ind ON attr (page,number);
+-- CREATE INDEX type_ind ON obj (type);
+
+-- index on value helps OSD_QUERY 
+CREATE INDEX val_ind ON attr (value);
+
+-- this index help get_dir_page query, but might slow down set_attr
+-- CREATE INDEX num_ind ON attr (pid,oid,number);
+

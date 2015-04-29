@@ -40,7 +40,7 @@ void TERM_PERF_CHECKER(void);
 
 void SEND_TO_PERF_CHECKER(int op_type, int64_t op_delay, int type);
 
-int64_t ALLOC_IO_REQUEST(int32_t sector_nb, unsigned int length, int io_type, int* page_nb);
+int64_t ALLOC_IO_REQUEST(uint32_t sector_nb, unsigned int length, int io_type, int* page_nb);
 void FREE_DUMMY_IO_REQUEST(int type);
 void FREE_IO_REQUEST(io_request* request);
 int64_t UPDATE_IO_REQUEST(int request_nb, int offset, int64_t time, int type);

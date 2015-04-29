@@ -14,7 +14,9 @@
 #include "net.h"
 #include "sysemu.h"
 #include "pci.h"
+#include "usb-ohci.h"
 #include "boards.h"
+#include "blockdev.h"
 
 /* Primary interrupt controller.  */
 
@@ -27,6 +29,18 @@ typedef struct vpb_sic_state
   qemu_irq parent[32];
   int irq;
 } vpb_sic_state;
+
+static const VMStateDescription vmstate_vpb_sic = {
+    .name = "versatilepb_sic",
+    .version_id = 1,
+    .minimum_version_id = 1,
+    .fields = (VMStateField[]) {
+        VMSTATE_UINT32(level, vpb_sic_state),
+        VMSTATE_UINT32(mask, vpb_sic_state),
+        VMSTATE_UINT32(pic_enable, vpb_sic_state),
+        VMSTATE_END_OF_LIST()
+    }
+};
 
 static void vpb_sic_update(vpb_sic_state *s)
 {
@@ -117,19 +131,19 @@ static void vpb_sic_write(void *opaque, target_phys_addr_t offset,
     vpb_sic_update(s);
 }
 
-static CPUReadMemoryFunc *vpb_sic_readfn[] = {
+static CPUReadMemoryFunc * const vpb_sic_readfn[] = {
    vpb_sic_read,
    vpb_sic_read,
    vpb_sic_read
 };
 
-static CPUWriteMemoryFunc *vpb_sic_writefn[] = {
+static CPUWriteMemoryFunc * const vpb_sic_writefn[] = {
    vpb_sic_write,
    vpb_sic_write,
    vpb_sic_write
 };
 
-static void vpb_sic_init(SysBusDevice *dev)
+static int vpb_sic_init(SysBusDevice *dev)
 {
     vpb_sic_state *s = FROM_SYSBUS(vpb_sic_state, dev);
     int iomemtype;
@@ -141,9 +155,10 @@ static void vpb_sic_init(SysBusDevice *dev)
     }
     s->irq = 31;
     iomemtype = cpu_register_io_memory(vpb_sic_readfn,
-                                       vpb_sic_writefn, s);
+                                       vpb_sic_writefn, s,
+                                       DEVICE_NATIVE_ENDIAN);
     sysbus_init_mmio(dev, 0x1000, iomemtype);
-    /* ??? Save/restore.  */
+    return 0;
 }
 
 /* Board init.  */
@@ -178,12 +193,12 @@ static void versatile_init(ram_addr_t ram_size,
         fprintf(stderr, "Unable to find CPU definition\n");
         exit(1);
     }
-    ram_offset = qemu_ram_alloc(ram_size);
+    ram_offset = qemu_ram_alloc(NULL, "versatile.ram", ram_size);
     /* ??? RAM should repeat to fill physical memory space.  */
     /* SDRAM at address zero.  */
     cpu_register_physical_memory(0, ram_size, ram_offset | IO_MEM_RAM);
 
-    arm_sysctl_init(0x10000000, 0x41007004);
+    arm_sysctl_init(0x10000000, 0x41007004, 0x02000000);
     cpu_pic = arm_pic_init_cpu(env);
     dev = sysbus_create_varargs("pl190", 0x10140000,
                                 cpu_pic[0], cpu_pic[1], NULL);
@@ -208,15 +223,15 @@ static void versatile_init(ram_addr_t ram_size,
     for(n = 0; n < nb_nics; n++) {
         nd = &nd_table[n];
 
-        if ((!nd->model && !done_smc) || strcmp(nd->model, "smc91c111") == 0) {
+        if (!done_smc && (!nd->model || strcmp(nd->model, "smc91c111") == 0)) {
             smc91c111_init(nd, 0x10010000, sic[25]);
             done_smc = 1;
         } else {
-            pci_nic_init(nd, "rtl8139", NULL);
+            pci_nic_init_nofail(nd, "rtl8139", NULL);
         }
     }
     if (usb_enabled) {
-        usb_ohci_init_pci(pci_bus, 3, -1);
+        usb_ohci_init_pci(pci_bus, -1);
     }
     n = drive_get_max_bus(IF_SCSI);
     while (n >= 0) {
@@ -331,10 +346,17 @@ static void versatile_machine_init(void)
 
 machine_init(versatile_machine_init);
 
+static SysBusDeviceInfo vpb_sic_info = {
+    .init = vpb_sic_init,
+    .qdev.name = "versatilepb_sic",
+    .qdev.size = sizeof(vpb_sic_state),
+    .qdev.vmsd = &vmstate_vpb_sic,
+    .qdev.no_user = 1,
+};
+
 static void versatilepb_register_devices(void)
 {
-    sysbus_register_dev("versatilepb_sic", sizeof(vpb_sic_state),
-                        vpb_sic_init);
+    sysbus_register_withprop(&vpb_sic_info);
 }
 
 device_init(versatilepb_register_devices)

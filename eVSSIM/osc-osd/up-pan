@@ -1,0 +1,85 @@
+#!/bin/csh
+
+# On Pan-OSD there is only one target
+set BACKSTORE0=/root/pandata/
+# Path to pan_tgtd executables, assuming p4 integration
+set dir=/pan/bin
+set TGTADM=$dir/tgtadm
+set OTGTD_NAME=pan_tgtd
+set OTGTD=$dir/$OTGTD_NAME
+
+# Get the osd device id
+set TARGETNAME=`/pan/bin/getdevinfo -q datasn`
+# logfile name
+set LOG="/var/log/otgtd.log"
+set STAY=""
+
+switch($1)
+case "down":
+	killall $OTGTD_NAME
+	exit
+	breaksw
+
+case "log":
+	less +F $LOG
+	exit
+	breaksw
+
+case "log-reset":
+	echo > $LOG
+	exit
+	breaksw
+
+case "stat":
+	set stat=`ps ax | grep pan_tgtd`
+        if ( "x${stat}" == "x" ) then
+                echo "DOWN"
+        else
+                echo "UP"
+        endif
+	exit
+	breaksw
+
+default:
+	if ("$1" == "--stay") then 
+		set STAY="yes"
+        elseif ("$1" != "") then 
+		echo "what is $0 $1?!?"
+		exit
+        endif
+	breaksw
+endsw
+
+# On Panasas-osd we must make sure that:
+mkdir -p $BACKSTORE0/
+ln -shf /pandata  $BACKSTORE0/dfiles 
+
+echo "================ `date` =========================" >> $LOG
+
+# First run the otgtd daemon in forgraound
+# -f - forgraound
+# -d - debug level
+# DEBUG="-d 9"
+#set DEBUG ""
+$OTGTD  --iscsi portal=:3251 -f >>& $LOG  &
+
+sleep 2
+
+# 2nd Load the target
+#load_target $BACKSTORE0 1
+$TGTADM --lld iscsi --mode target --op new --tid 1 --targetname=$TARGETNAME
+$TGTADM --lld iscsi --mode target \
+	--op bind --tid 1 --initiator-address ALL
+
+$TGTADM --lld iscsi --mode logicalunit \
+	--op new --tid 1 --lun 0 --bstype=osdemu --device-type osd \
+	--backing-store $BACKSTORE0 --osd_name 06$TARGETNAME
+
+# Last print what we got
+$TGTADM --lld iscsi --mode target --op show
+
+echo "otgtd started, run up down to stop"
+
+if ("$STAY"="yes") then 
+	wait
+endif

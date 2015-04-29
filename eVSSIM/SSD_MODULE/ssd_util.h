@@ -7,7 +7,7 @@
 #define _SSD_UTIL_H_
 
 #ifndef _UTEST_
-	#include "hw.h"
+	//#include "hw.h"
 #else
 
 	typedef signed long long int64_t;

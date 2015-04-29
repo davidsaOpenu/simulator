@@ -16,8 +16,7 @@
     GNU General Public License for more details.
 
     You should have received a copy of the GNU General Public License
-    along with this program; if not, write to the Free Software
-    Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
+    along with this program; if not, see <http://www.gnu.org/licenses/>.
 */
 
 #include "fpa11.h"
@@ -34,7 +33,7 @@ void loadSingle(const unsigned int Fn, target_ulong addr)
    FPA11 *fpa11 = GET_FPA11();
    fpa11->fType[Fn] = typeSingle;
    /* FIXME - handle failure of get_user() */
-   get_user_u32(fpa11->fpreg[Fn].fSingle, addr);
+   get_user_u32(float32_val(fpa11->fpreg[Fn].fSingle), addr);
 }
 
 static inline
@@ -44,7 +43,7 @@ void loadDouble(const unsigned int Fn, target_ulong addr)
    unsigned int *p;
    p = (unsigned int*)&fpa11->fpreg[Fn].fDouble;
    fpa11->fType[Fn] = typeDouble;
-#ifdef WORDS_BIGENDIAN
+#ifdef HOST_WORDS_BIGENDIAN
    /* FIXME - handle failure of get_user() */
    get_user_u32(p[0], addr); /* sign & exponent */
    get_user_u32(p[1], addr + 4);
@@ -147,7 +146,7 @@ void storeDouble(const unsigned int Fn, target_ulong addr)
       default: val = fpa11->fpreg[Fn].fDouble;
    }
    /* FIXME - handle put_user() failures */
-#ifdef WORDS_BIGENDIAN
+#ifdef HOST_WORDS_BIGENDIAN
    put_user_u32(p[0], addr);	/* msw */
    put_user_u32(p[1], addr + 4);	/* lsw */
 #else
@@ -221,7 +220,7 @@ static unsigned int PerformLDF(const unsigned int opcode)
    //printk("PerformLDF(0x%08x), Fd = 0x%08x\n",opcode,getFd(opcode));
 
    pBase = readRegister(getRn(opcode));
-   if (REG_PC == getRn(opcode))
+   if (ARM_REG_PC == getRn(opcode))
    {
      pBase += 8;
      write_back = 0;
@@ -257,7 +256,7 @@ static unsigned int PerformSTF(const unsigned int opcode)
    SetRoundingMode(ROUND_TO_NEAREST);
 
    pBase = readRegister(getRn(opcode));
-   if (REG_PC == getRn(opcode))
+   if (ARM_REG_PC == getRn(opcode))
    {
      pBase += 8;
      write_back = 0;
@@ -290,7 +289,7 @@ static unsigned int PerformLFM(const unsigned int opcode)
    target_ulong pBase, pAddress, pFinal;
 
    pBase = readRegister(getRn(opcode));
-   if (REG_PC == getRn(opcode))
+   if (ARM_REG_PC == getRn(opcode))
    {
      pBase += 8;
      write_back = 0;
@@ -323,7 +322,7 @@ static unsigned int PerformSFM(const unsigned int opcode)
    target_ulong pBase, pAddress, pFinal;
 
    pBase = readRegister(getRn(opcode));
-   if (REG_PC == getRn(opcode))
+   if (ARM_REG_PC == getRn(opcode))
    {
      pBase += 8;
      write_back = 0;

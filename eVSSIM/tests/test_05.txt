@@ -1,0 +1,91 @@
+time ./unit_test
+
+real    3140m4.237s
+user    3118m38.368s
+sys     18m9.170s
+
+
+
+Running main() from gtest_main.cc
+[==========] Running 9 tests from 1 test case.
+[----------] Global test environment set-up.
+[----------] 9 tests from DiskSize/OccupySpaceStressTest
+[ RUN      ] DiskSize/OccupySpaceStressTest.SequentialOnePageAtTimeWrite/0
+[FTL_INIT] start
+[SSD_IO_INIT] SSD Emulator Version: 1.0 ver. (13.04.11)
+[FTL_INIT] complete
+[THREAD_SERVER] SERVER THREAD CREATED!!!
+[THREAD_SERVER] Wait for client....[4]
+[THREAD_SERVER] Connected![5]
+[THREAD_SERVER] Error No. [2]
+[FTL_TERM] start
+Average Read Latency	0.000 us
+Average Write Latency	1004.221 us
+[FTL_TERM] complete
+[       OK ] DiskSize/OccupySpaceStressTest.SequentialOnePageAtTimeWrite/0 (5117662 ms)
+[ RUN      ] DiskSize/OccupySpaceStressTest.SequentialOnePageAtTimeWrite/1
+[FTL_INIT] start
+[SSD_IO_INIT] SSD Emulator Version: 1.0 ver. (13.04.11)
+[FTL_INIT] complete
+[THREAD_SERVER] SERVER THREAD CREATED!!!
+[THREAD_SERVER] Wait for client....[4]
+[THREAD_SERVER] Connected![5]
+[THREAD_SERVER] Error No. [2]
+[FTL_TERM] start
+Average Read Latency	0.000 us
+Average Write Latency	1051.212 us
+[FTL_TERM] complete
+[       OK ] DiskSize/OccupySpaceStressTest.SequentialOnePageAtTimeWrite/1 (13735928 ms)
+[ RUN      ] DiskSize/OccupySpaceStressTest.SequentialOnePageAtTimeWrite/2
+[FTL_INIT] start
+[SSD_IO_INIT] SSD Emulator Version: 1.0 ver. (13.04.11)
+[FTL_INIT] complete
+[THREAD_SERVER] SERVER THREAD CREATED!!!
+[THREAD_SERVER] Wait for client....[4]
+[THREAD_SERVER] Connected![5]
+[THREAD_SERVER] Error No. [2]
+[FTL_TERM] start
+Average Read Latency	0.000 us
+Average Write Latency	998.174 us
+[FTL_TERM] complete
+[       OK ] DiskSize/OccupySpaceStressTest.SequentialOnePageAtTimeWrite/2 (64411285 ms)
+[ RUN      ] DiskSize/OccupySpaceStressTest.RandomOnePageAtTimeWrite/0
+[FTL_INIT] start
+[SSD_IO_INIT] SSD Emulator Version: 1.0 ver. (13.04.11)
+[FTL_INIT] complete
+[THREAD_SERVER] SERVER THREAD CREATED!!!
+[THREAD_SERVER] Wait for client....[4]
+[THREAD_SERVER] Connected![5]
+[THREAD_SERVER] Error No. [2]
+[FTL_TERM] start
+Average Read Latency	0.000 us
+Average Write Latency	1018.064 us
+[FTL_TERM] complete
+[       OK ] DiskSize/OccupySpaceStressTest.RandomOnePageAtTimeWrite/0 (7299010 ms)
+[ RUN      ] DiskSize/OccupySpaceStressTest.RandomOnePageAtTimeWrite/1
+[FTL_INIT] start
+[SSD_IO_INIT] SSD Emulator Version: 1.0 ver. (13.04.11)
+[FTL_INIT] complete
+[THREAD_SERVER] SERVER THREAD CREATED!!!
+[THREAD_SERVER] Wait for client....[4]
+[THREAD_SERVER] Connected![5]
+[THREAD_SERVER] Error No. [2]
+[FTL_TERM] start
+Average Read Latency	0.000 us
+Average Write Latency	1029.323 us
+[FTL_TERM] complete
+[       OK ] DiskSize/OccupySpaceStressTest.RandomOnePageAtTimeWrite/1 (15697867 ms)
+[ RUN      ] DiskSize/OccupySpaceStressTest.RandomOnePageAtTimeWrite/2
+[FTL_INIT] start
+[SSD_IO_INIT] SSD Emulator Version: 1.0 ver. (13.04.11)
+[FTL_INIT] complete
+[THREAD_SERVER] SERVER THREAD CREATED!!!
+[THREAD_SERVER] Wait for client....[4]
+[THREAD_SERVER] Connected![5]
+[THREAD_SERVER] Error No. [2]
+[FTL_TERM] start
+Average Read Latency	0.000 us
+Average Write Latency	1077.619 us
+[FTL_TERM] complete
+[       OK ] DiskSize/OccupySpaceStressTest.RandomOnePageAtTimeWrite/2 (79629103 ms)
+[ RUN      ] DiskSize/OccupySpaceStressTest.MixSequentialAndRandomOnePageAtTimeWrite/0

@@ -2,7 +2,6 @@
 OUTPUT_FORMAT("elf64-x86-64", "elf64-x86-64", "elf64-x86-64")
 OUTPUT_ARCH(i386:x86-64)
 ENTRY(_start)
-SEARCH_DIR("/lib64"); SEARCH_DIR("/usr/lib64"); SEARCH_DIR("/usr/local/lib64");
 SECTIONS
 {
   /* Read-only sections, merged into text segment: */
@@ -36,8 +35,20 @@ SECTIONS
   .rela.got       : { *(.rela.got) }
   .rel.bss        : { *(.rel.bss .rel.bss.* .rel.gnu.linkonce.b.*) }
   .rela.bss       : { *(.rela.bss .rela.bss.* .rela.gnu.linkonce.b.*) }
-  .rel.plt        : { *(.rel.plt) }
-  .rela.plt       : { *(.rela.plt) }
+  .rel.plt      :
+  {
+    *(.rel.plt)
+    PROVIDE_HIDDEN (__rel_iplt_start = .);
+    *(.rel.iplt)
+    PROVIDE_HIDDEN (__rel_iplt_end = .);
+  }
+  .rela.plt       :
+  {
+    *(.rela.plt)
+    PROVIDE_HIDDEN (__rela_iplt_start = .);
+    *(.rela.iplt)
+    PROVIDE_HIDDEN (__rela_iplt_end = .);
+  }
   .init           :
   {
     KEEP (*(.init))

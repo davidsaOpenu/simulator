@@ -1,0 +1,104 @@
+Documentation for OSD Target library.
+
+Copyright (C) 2007 Dennis Dalessandro (dennis@osc.edu)
+Copyright (C) 2007 Ananth Devulapalli (ananth@osc.edu)
+Copyright (C) 2007 Pete Wyckoff (pw@osc.edu)
+Copyright (C) 2009 Boaz Harrosh (bharrosh@panasas.com)
+
+This directory contains code to build an OSD command processor that uses
+SQLite as its attribute storage, and a normal file system (such as ext3)
+as its data storage.  It is purely userspace code.  It needs one other
+major component, namely the SCSI transport and processing.  This is
+provided by stgt, and this OSD Target code is a library that is linked
+into stgt's executable.
+
+Major components:
+
+    cdb.c - Main entry point via osdemu_cmd_submit, and parsing for
+	all commands and optional setattr and getattr CDB sections
+    osd.c - One function for every command, plus some helpers.
+
+    obj.c - Object table manipulation
+    attr.c - Attribute manipulation back-end
+
+    coll.c - Collection manipulation
+    db.c - SQLite database open, close, query, error handling
+
+    list-entry.c - Pack attributes in list format, used in a few places.
+    mtq.c - Multitable queries, whenever more than one table is
+	searched
+    osd.schema - The schema used to initialize the SQLite database,
+	converted into a C file during the build process.
+    osd-sense.c - Generating sense (error) return values.
+
+Building
+--------
+
+This directory is not meant to be built by itself. It is part
+of the bigger built system at the root of this folder.
+
+[osd-target]$ cd ../
+[osc-osd]$ make
+
+see the project's root folder README file for more instructions.
+
+Running tgt with OSD target
+---------------------------
+
+The patches you checked out here build the target with OSD support.  They
+also make a few changes to tgt to make it easier to deal with for
+testing scenarios.
+
+By default it will create or reuse a directory /tmp/tgt-$(id -un)
+where $(id -un) is your username.  It sends logging to stderr, not
+to syslog.  A convenient way to run it is:
+
+    ./tgtd -d 9 -f
+
+If you prefer to run it in the background, do not use -f.
+If you prefer no debugging messages, do not use -d 9.
+You can redirect debug output to a file too.
+
+Now, point an iSCSI initiator at this machine, port 3260, and
+issue OSD commands.
+
+If you did not apply to tgt (on by default) the last patch:
+	"osdemu: (OPTIONAL) auto config first target"
+You will need to issue these commands:
+
+[osc-osd]$ ./tgt/usr/tgtadm --lld iscsi --mode target --op new --tid 1 \
+		--targetname $(hostname)
+
+[osc-osd]$ ./tgt/usr/tgtadm --lld iscsi --mode target --op bind --tid 1 \
+		--initiator-address ALL
+
+[osc-osd]$ ./tgt/usr/tgtadm --lld iscsi --mode logicalunit --op new \
+	--tid 1 --lun 1 \
+	--bstype=osdemu --device-type osd \
+	--backing-store /tmp/tgt-$(id -nu)/
+
+[osc-osd]$ ./tgtadm --lld iscsi --mode logicalunit --op update \
+	--tid 1 --lun 1 \
+	--name=scsi_sn --value=$(hostname)
+
+And optionally these for performance:
+
+[osc-osd]$ ./tgt/usr/tgtadm --lld iscsi --mode target --op update --tid 1 \
+	--name MaxRecvDataSegmentLength --value 262144
+
+[osc-osd]$ ./tgt/usr/tgtadm --lld iscsi --mode target --op update --tid 1 \
+	--name FirstBurstLength --value 262144
+
+If you want to add a second osd logical unit issue the following commands:
+
+[osc-osd]$ ./tgt/usr/tgtadm --lld iscsi --mode logicalunit --op new \
+	--tid 1 --lun 2 \
+	--bstype=osdemu --device-type osd \
+	--backing-store /tmp/tgt-$(id -nu)2/
+
+[osc-osd]$ ./tgt/usr/tgtadm --lld iscsi --mode logicalunit --op update \
+	--tid 1 --lun 2 \
+	--name=scsi_sn --value=$(hostname)
+
+Finally print what was configured:
+[osc-osd]$ ./tgt/usr/tgtadm --lld iscsi --mode target --op show

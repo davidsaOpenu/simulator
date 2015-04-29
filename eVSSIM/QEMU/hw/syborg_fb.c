@@ -445,13 +445,13 @@ static void syborg_fb_write(void *opaque, target_phys_addr_t offset,
     }
 }
 
-static CPUReadMemoryFunc *syborg_fb_readfn[] = {
+static CPUReadMemoryFunc * const syborg_fb_readfn[] = {
     syborg_fb_read,
     syborg_fb_read,
     syborg_fb_read
 };
 
-static CPUWriteMemoryFunc *syborg_fb_writefn[] = {
+static CPUWriteMemoryFunc * const syborg_fb_writefn[] = {
     syborg_fb_write,
     syborg_fb_write,
     syborg_fb_write
@@ -503,14 +503,15 @@ static int syborg_fb_load(QEMUFile *f, void *opaque, int version_id)
     return 0;
 }
 
-static void syborg_fb_init(SysBusDevice *dev)
+static int syborg_fb_init(SysBusDevice *dev)
 {
     SyborgFBState *s = FROM_SYSBUS(SyborgFBState, dev);
     int iomemtype;
 
     sysbus_init_irq(dev, &s->irq);
     iomemtype = cpu_register_io_memory(syborg_fb_readfn,
-                                       syborg_fb_writefn, s);
+                                       syborg_fb_writefn, s,
+                                       DEVICE_NATIVE_ENDIAN);
     sysbus_init_mmio(dev, 0x1000, iomemtype);
 
     s->ds = graphic_console_init(syborg_fb_update_display,
@@ -526,8 +527,9 @@ static void syborg_fb_init(SysBusDevice *dev)
     if (!s->rows)
         s->rows = ds_get_height(s->ds);
 
-    register_savevm("syborg_framebuffer", -1, 1,
+    register_savevm(&dev->qdev, "syborg_framebuffer", -1, 1,
                     syborg_fb_save, syborg_fb_load, s);
+    return 0;
 }
 
 static SysBusDeviceInfo syborg_fb_info = {
@@ -535,16 +537,9 @@ static SysBusDeviceInfo syborg_fb_info = {
     .qdev.name  = "syborg,framebuffer",
     .qdev.size  = sizeof(SyborgFBState),
     .qdev.props = (Property[]) {
-        {
-            .name   = "width",
-            .info   = &qdev_prop_uint32,
-            .offset = offsetof(SyborgFBState, cols),
-        },{
-            .name   = "height",
-            .info   = &qdev_prop_uint32,
-            .offset = offsetof(SyborgFBState, rows),
-        },
-        {/* end of list */}
+        DEFINE_PROP_UINT32("width",  SyborgFBState, cols, 0),
+        DEFINE_PROP_UINT32("height", SyborgFBState, rows, 0),
+        DEFINE_PROP_END_OF_LIST(),
     }
 };
 

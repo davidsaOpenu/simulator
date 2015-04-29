@@ -190,8 +190,9 @@ static uint32_t omap_i2c_read(void *opaque, target_phys_addr_t addr)
             if (s->rxlen > 2)
                 s->fifo >>= 16;
             s->rxlen -= 2;
-        } else
-            /* XXX: remote access (qualifier) error - what's that?  */;
+        } else {
+            /* XXX: remote access (qualifier) error - what's that?  */
+        }
         if (!s->rxlen) {
             s->stat &= ~(1 << 3);				/* RRDY */
             if (((s->control >> 10) & 1) &&			/* MST */
@@ -408,13 +409,13 @@ static void omap_i2c_writeb(void *opaque, target_phys_addr_t addr,
     }
 }
 
-static CPUReadMemoryFunc *omap_i2c_readfn[] = {
+static CPUReadMemoryFunc * const omap_i2c_readfn[] = {
     omap_badwidth_read16,
     omap_i2c_read,
     omap_badwidth_read16,
 };
 
-static CPUWriteMemoryFunc *omap_i2c_writefn[] = {
+static CPUWriteMemoryFunc * const omap_i2c_writefn[] = {
     omap_i2c_writeb,	/* Only the last fifo write can be 8 bit.  */
     omap_i2c_write,
     omap_badwidth_write16,
@@ -436,7 +437,7 @@ struct omap_i2c_s *omap_i2c_init(target_phys_addr_t base,
     omap_i2c_reset(s);
 
     iomemtype = cpu_register_io_memory(omap_i2c_readfn,
-                    omap_i2c_writefn, s);
+                    omap_i2c_writefn, s, DEVICE_NATIVE_ENDIAN);
     cpu_register_physical_memory(base, 0x800, iomemtype);
 
     return s;

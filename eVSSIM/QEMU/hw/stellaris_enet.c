@@ -66,9 +66,9 @@ typedef struct {
     uint8_t *rx_fifo;
     int rx_fifo_len;
     int next_packet;
-    VLANClientState *vc;
+    NICState *nic;
+    NICConf conf;
     qemu_irq irq;
-    uint8_t macaddr[6];
     int mmio_index;
 } stellaris_enet_state;
 
@@ -78,9 +78,9 @@ static void stellaris_enet_update(stellaris_enet_state *s)
 }
 
 /* TODO: Implement MAC address filtering.  */
-static ssize_t stellaris_enet_receive(VLANClientState *vc, const uint8_t *buf, size_t size)
+static ssize_t stellaris_enet_receive(VLANClientState *nc, const uint8_t *buf, size_t size)
 {
-    stellaris_enet_state *s = vc->opaque;
+    stellaris_enet_state *s = DO_UPCAST(NICState, nc, nc)->opaque;
     int n;
     uint8_t *p;
     uint32_t crc;
@@ -120,9 +120,9 @@ static ssize_t stellaris_enet_receive(VLANClientState *vc, const uint8_t *buf, s
     return size;
 }
 
-static int stellaris_enet_can_receive(VLANClientState *vc)
+static int stellaris_enet_can_receive(VLANClientState *nc)
 {
-    stellaris_enet_state *s = vc->opaque;
+    stellaris_enet_state *s = DO_UPCAST(NICState, nc, nc)->opaque;
 
     if ((s->rctl & SE_RCTL_RXEN) == 0)
         return 1;
@@ -169,10 +169,10 @@ static uint32_t stellaris_enet_read(void *opaque, target_phys_addr_t offset)
         }
         return val;
     case 0x14: /* IA0 */
-        return s->macaddr[0] | (s->macaddr[1] << 8)
-               | (s->macaddr[2] << 16) | (s->macaddr[3] << 24);
+        return s->conf.macaddr.a[0] | (s->conf.macaddr.a[1] << 8)
+               | (s->conf.macaddr.a[2] << 16) | (s->conf.macaddr.a[3] << 24);
     case 0x18: /* IA1 */
-        return s->macaddr[4] | (s->macaddr[5] << 8);
+        return s->conf.macaddr.a[4] | (s->conf.macaddr.a[5] << 8);
     case 0x1c: /* THR */
         return s->thr;
     case 0x20: /* MCTL */
@@ -258,7 +258,7 @@ static void stellaris_enet_write(void *opaque, target_phys_addr_t offset,
                     memset(&s->tx_fifo[s->tx_frame_len], 0, 60 - s->tx_frame_len);
                     s->tx_fifo_len = 60;
                 }
-                qemu_send_packet(s->vc, s->tx_fifo, s->tx_frame_len);
+                qemu_send_packet(&s->nic->nc, s->tx_fifo, s->tx_frame_len);
                 s->tx_frame_len = -1;
                 s->ris |= SE_INT_TXEMP;
                 stellaris_enet_update(s);
@@ -267,14 +267,14 @@ static void stellaris_enet_write(void *opaque, target_phys_addr_t offset,
         }
         break;
     case 0x14: /* IA0 */
-        s->macaddr[0] = value;
-        s->macaddr[1] = value >> 8;
-        s->macaddr[2] = value >> 16;
-        s->macaddr[3] = value >> 24;
+        s->conf.macaddr.a[0] = value;
+        s->conf.macaddr.a[1] = value >> 8;
+        s->conf.macaddr.a[2] = value >> 16;
+        s->conf.macaddr.a[3] = value >> 24;
         break;
     case 0x18: /* IA1 */
-        s->macaddr[4] = value;
-        s->macaddr[5] = value >> 8;
+        s->conf.macaddr.a[4] = value;
+        s->conf.macaddr.a[5] = value >> 8;
         break;
     case 0x1c: /* THR */
         s->thr = value;
@@ -303,13 +303,13 @@ static void stellaris_enet_write(void *opaque, target_phys_addr_t offset,
     }
 }
 
-static CPUReadMemoryFunc *stellaris_enet_readfn[] = {
+static CPUReadMemoryFunc * const stellaris_enet_readfn[] = {
    stellaris_enet_read,
    stellaris_enet_read,
    stellaris_enet_read
 };
 
-static CPUWriteMemoryFunc *stellaris_enet_writefn[] = {
+static CPUWriteMemoryFunc * const stellaris_enet_writefn[] = {
    stellaris_enet_write,
    stellaris_enet_write,
    stellaris_enet_write
@@ -385,42 +385,59 @@ static int stellaris_enet_load(QEMUFile *f, void *opaque, int version_id)
     return 0;
 }
 
-static void stellaris_enet_cleanup(VLANClientState *vc)
+static void stellaris_enet_cleanup(VLANClientState *nc)
 {
-    stellaris_enet_state *s = vc->opaque;
+    stellaris_enet_state *s = DO_UPCAST(NICState, nc, nc)->opaque;
 
-    unregister_savevm("stellaris_enet", s);
+    unregister_savevm(&s->busdev.qdev, "stellaris_enet", s);
 
     cpu_unregister_io_memory(s->mmio_index);
 
     qemu_free(s);
 }
 
-static void stellaris_enet_init(SysBusDevice *dev)
+static NetClientInfo net_stellaris_enet_info = {
+    .type = NET_CLIENT_TYPE_NIC,
+    .size = sizeof(NICState),
+    .can_receive = stellaris_enet_can_receive,
+    .receive = stellaris_enet_receive,
+    .cleanup = stellaris_enet_cleanup,
+};
+
+static int stellaris_enet_init(SysBusDevice *dev)
 {
     stellaris_enet_state *s = FROM_SYSBUS(stellaris_enet_state, dev);
 
     s->mmio_index = cpu_register_io_memory(stellaris_enet_readfn,
-                                           stellaris_enet_writefn, s);
+                                           stellaris_enet_writefn, s,
+                                           DEVICE_NATIVE_ENDIAN);
     sysbus_init_mmio(dev, 0x1000, s->mmio_index);
     sysbus_init_irq(dev, &s->irq);
-    qdev_get_macaddr(&dev->qdev, s->macaddr);
+    qemu_macaddr_default_if_unset(&s->conf.macaddr);
 
-    s->vc = qdev_get_vlan_client(&dev->qdev,
-                                 stellaris_enet_can_receive,
-                                 stellaris_enet_receive, NULL,
-                                 stellaris_enet_cleanup, s);
-    qemu_format_nic_info_str(s->vc, s->macaddr);
+    s->nic = qemu_new_nic(&net_stellaris_enet_info, &s->conf,
+                          dev->qdev.info->name, dev->qdev.id, s);
+    qemu_format_nic_info_str(&s->nic->nc, s->conf.macaddr.a);
 
     stellaris_enet_reset(s);
-    register_savevm("stellaris_enet", -1, 1,
+    register_savevm(&s->busdev.qdev, "stellaris_enet", -1, 1,
                     stellaris_enet_save, stellaris_enet_load, s);
+    return 0;
 }
+
+static SysBusDeviceInfo stellaris_enet_info = {
+    .init = stellaris_enet_init,
+    .qdev.name  = "stellaris_enet",
+    .qdev.size  = sizeof(stellaris_enet_state),
+    .qdev.props = (Property[]) {
+        DEFINE_NIC_PROPERTIES(stellaris_enet_state, conf),
+        DEFINE_PROP_END_OF_LIST(),
+    }
+};
 
 static void stellaris_enet_register_devices(void)
 {
-    sysbus_register_dev("stellaris_enet", sizeof(stellaris_enet_state),
-                        stellaris_enet_init);
+    sysbus_register_withprop(&stellaris_enet_info);
 }
 
 device_init(stellaris_enet_register_devices)

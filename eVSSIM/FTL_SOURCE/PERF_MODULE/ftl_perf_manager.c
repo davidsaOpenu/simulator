@@ -202,7 +202,7 @@ double GET_IO_BANDWIDTH(double delay)
 
 }
 
-int64_t ALLOC_IO_REQUEST(int32_t sector_nb, unsigned int length, int io_type, int* page_nb)
+int64_t ALLOC_IO_REQUEST(uint32_t sector_nb, unsigned int length, int io_type, int* page_nb)
 {
 	int64_t start = get_usec();
 	int io_page_nb = 0;
@@ -377,7 +377,9 @@ int64_t UPDATE_IO_REQUEST(int request_nb, int offset, int64_t time, int type)
 
 	io_request* curr_request = LOOKUP_IO_REQUEST(request_nb, type);
 	if(curr_request == NULL){
+#ifdef FTL_DEBUG
 		printf("ERROR[%s] No such io request, nb %d\n",__FUNCTION__, request_nb);
+#endif //FTL_DEBUG
 		return 0;
 	}
 
@@ -425,7 +427,9 @@ io_request* LOOKUP_IO_REQUEST(int request_nb, int type)
 		total_request = io_request_nb;
 	}
 	else{
+#ifdef FTL_DEBUG
 		printf("ERROR[%s] There is no request\n",__FUNCTION__);
+#endif //FTL_DEBUG
 		return NULL;
 	}
 

@@ -23,8 +23,6 @@
    for things we don't care about.  */
 
 #include "dis-asm.h"
-#define FALSE 0
-#define TRUE (!FALSE)
 #define ATTRIBUTE_UNUSED __attribute__((unused))
 #define ISSPACE(x) ((x) == ' ' || (x) == '\t' || (x) == '\n')
 
@@ -62,10 +60,8 @@
 #define FPU_VFP_EXT_V3	 0
 #define FPU_NEON_EXT_V1	 0
 
-int floatformat_ieee_single_little;
 /* Assume host uses ieee float.  */
-static void floatformat_to_double (int *ignored, unsigned char *data,
-                                   double *dest)
+static void floatformat_to_double (unsigned char *data, double *dest)
 {
     union {
         uint32_t i;
@@ -1531,7 +1527,7 @@ static unsigned int regname_selected = 1;
 #define NUM_ARM_REGNAMES  NUM_ELEM (regnames)
 #define arm_regnames      regnames[regname_selected].reg_names
 
-static bfd_boolean force_thumb = FALSE;
+static bfd_boolean force_thumb = false;
 
 /* Current IT instruction state.  This contains the same state as the IT
    bits in the CPSR.  */
@@ -1591,7 +1587,7 @@ arm_decode_bitfield (const char *ptr, unsigned long insn,
 }
 
 static void
-arm_decode_shift (long given, fprintf_ftype func, void *stream,
+arm_decode_shift (long given, fprintf_function func, void *stream,
 		  int print_shift)
 {
   func (stream, "%s", arm_regnames[given & 0xf]);
@@ -1628,7 +1624,7 @@ arm_decode_shift (long given, fprintf_ftype func, void *stream,
 }
 
 /* Print one coprocessor instruction on INFO->STREAM.
-   Return TRUE if the instuction matched, FALSE if this is not a
+   Return true if the instuction matched, false if this is not a
    recognised coprocessor instruction.  */
 
 static bfd_boolean
@@ -1637,7 +1633,7 @@ print_insn_coprocessor (bfd_vma pc, struct disassemble_info *info, long given,
 {
   const struct opcode32 *insn;
   void *stream = info->stream;
-  fprintf_ftype func = info->fprintf_func;
+  fprintf_function func = info->fprintf_func;
   unsigned long mask;
   unsigned long value;
   int cond;
@@ -2121,17 +2117,17 @@ print_insn_coprocessor (bfd_vma pc, struct disassemble_info *info, long given,
 	      else
 		func (stream, "%c", *c);
 	    }
-	  return TRUE;
+	  return true;
 	}
     }
-  return FALSE;
+  return false;
 }
 
 static void
 print_arm_address (bfd_vma pc, struct disassemble_info *info, long given)
 {
   void *stream = info->stream;
-  fprintf_ftype func = info->fprintf_func;
+  fprintf_function func = info->fprintf_func;
 
   if (((given & 0x000f0000) == 0x000f0000)
       && ((given & 0x02000000) == 0))
@@ -2218,7 +2214,7 @@ print_arm_address (bfd_vma pc, struct disassemble_info *info, long given)
 }
 
 /* Print one neon instruction on INFO->STREAM.
-   Return TRUE if the instuction matched, FALSE if this is not a
+   Return true if the instuction matched, false if this is not a
    recognised neon instruction.  */
 
 static bfd_boolean
@@ -2226,7 +2222,7 @@ print_insn_neon (struct disassemble_info *info, long given, bfd_boolean thumb)
 {
   const struct opcode32 *insn;
   void *stream = info->stream;
-  fprintf_ftype func = info->fprintf_func;
+  fprintf_function func = info->fprintf_func;
 
   if (thumb)
     {
@@ -2244,7 +2240,7 @@ print_insn_neon (struct disassemble_info *info, long given, bfd_boolean thumb)
       else if ((given & 0xff000000) == 0xf9000000)
 	given ^= 0xf9000000 ^ 0xf4000000;
       else
-	return FALSE;
+	return false;
     }
 
   for (insn = neon_opcodes; insn->assembler; insn++)
@@ -2334,34 +2330,34 @@ print_insn_neon (struct disassemble_info *info, long given, bfd_boolean thumb)
                             {
                               int amask = (1 << size) - 1;
                               if ((idx_align & (1 << size)) != 0)
-                                return FALSE;
+                                return false;
                               if (size > 0)
                                 {
                                   if ((idx_align & amask) == amask)
                                     align = 8 << size;
                                   else if ((idx_align & amask) != 0)
-                                    return FALSE;
+                                    return false;
                                 }
                               }
                             break;
 
                           case 2:
                             if (size == 2 && (idx_align & 2) != 0)
-                              return FALSE;
+                              return false;
                             align = (idx_align & 1) ? 16 << size : 0;
                             break;
 
                           case 3:
                             if ((size == 2 && (idx_align & 3) != 0)
                                 || (idx_align & 1) != 0)
-                              return FALSE;
+                              return false;
                             break;
 
                           case 4:
                             if (size == 2)
                               {
                                 if ((idx_align & 3) == 3)
-                                  return FALSE;
+                                  return false;
                                 align = (idx_align & 3) * 64;
                               }
                             else
@@ -2519,7 +2515,6 @@ print_insn_neon (struct disassemble_info *info, long given, bfd_boolean thumb)
 			  {
 			    func (stream, "<illegal constant %.8x:%x:%x>",
                                   bits, cmode, op);
-                            size = 32;
 			    break;
 			  }
                         switch (size)
@@ -2545,9 +2540,7 @@ print_insn_neon (struct disassemble_info *info, long given, bfd_boolean thumb)
                                 valbytes[2] = (value >> 16) & 0xff;
                                 valbytes[3] = (value >> 24) & 0xff;
 
-                                floatformat_to_double
-                                  (&floatformat_ieee_single_little, valbytes,
-                                  &fvalue);
+                                floatformat_to_double (valbytes, &fvalue);
 
                                 func (stream, "#%.7g\t; 0x%.8lx", fvalue,
                                       value);
@@ -2670,10 +2663,10 @@ print_insn_neon (struct disassemble_info *info, long given, bfd_boolean thumb)
 	      else
 		func (stream, "%c", *c);
 	    }
-	  return TRUE;
+	  return true;
 	}
     }
-  return FALSE;
+  return false;
 }
 
 /* Print one ARM instruction from PC on INFO->STREAM.  */
@@ -2683,12 +2676,12 @@ print_insn_arm_internal (bfd_vma pc, struct disassemble_info *info, long given)
 {
   const struct opcode32 *insn;
   void *stream = info->stream;
-  fprintf_ftype func = info->fprintf_func;
+  fprintf_function func = info->fprintf_func;
 
-  if (print_insn_coprocessor (pc, info, given, FALSE))
+  if (print_insn_coprocessor (pc, info, given, false))
     return;
 
-  if (print_insn_neon (info, given, FALSE))
+  if (print_insn_neon (info, given, false))
     return;
 
   for (insn = arm_opcodes; insn->assembler; insn++)
@@ -3043,7 +3036,7 @@ print_insn_thumb16 (bfd_vma pc, struct disassemble_info *info, long given)
 {
   const struct opcode16 *insn;
   void *stream = info->stream;
-  fprintf_ftype func = info->fprintf_func;
+  fprintf_function func = info->fprintf_func;
 
   for (insn = thumb_opcodes; insn->assembler; insn++)
     if ((given & insn->mask) == insn->value)
@@ -3155,14 +3148,14 @@ print_insn_thumb16 (bfd_vma pc, struct disassemble_info *info, long given)
 		      if (started)
 			func (stream, ", ");
 		      started = 1;
-		      func (stream, arm_regnames[14] /* "lr" */);
+		      func (stream, "%s", arm_regnames[14] /* "lr" */);
 		    }
 
 		  if (domaskpc)
 		    {
 		      if (started)
 			func (stream, ", ");
-		      func (stream, arm_regnames[15] /* "pc" */);
+		      func (stream, "%s", arm_regnames[15] /* "pc" */);
 		    }
 
 		  func (stream, "}");
@@ -3319,12 +3312,12 @@ print_insn_thumb32 (bfd_vma pc, struct disassemble_info *info, long given)
 {
   const struct opcode32 *insn;
   void *stream = info->stream;
-  fprintf_ftype func = info->fprintf_func;
+  fprintf_function func = info->fprintf_func;
 
-  if (print_insn_coprocessor (pc, info, given, TRUE))
+  if (print_insn_coprocessor (pc, info, given, true))
     return;
 
-  if (print_insn_neon (info, given, TRUE))
+  if (print_insn_neon (info, given, true))
     return;
 
   for (insn = thumb32_opcodes; insn->assembler; insn++)
@@ -3459,7 +3452,7 @@ print_insn_thumb32 (bfd_vma pc, struct disassemble_info *info, long given)
 		  unsigned int op  = (given & 0x00000f00) >> 8;
 		  unsigned int i12 = (given & 0x00000fff);
 		  unsigned int i8  = (given & 0x000000ff);
-		  bfd_boolean writeback = FALSE, postind = FALSE;
+		  bfd_boolean writeback = false, postind = false;
 		  int offset = 0;
 
 		  func (stream, "[%s", arm_regnames[Rn]);
@@ -3489,22 +3482,22 @@ print_insn_thumb32 (bfd_vma pc, struct disassemble_info *info, long given)
 
 		    case 0xF:  /* 8-bit + preindex with wb */
 		      offset = i8;
-		      writeback = TRUE;
+		      writeback = true;
 		      break;
 
 		    case 0xD:  /* 8-bit - preindex with wb */
 		      offset = -i8;
-		      writeback = TRUE;
+		      writeback = true;
 		      break;
 
 		    case 0xB:  /* 8-bit + postindex */
 		      offset = i8;
-		      postind = TRUE;
+		      postind = true;
 		      break;
 
 		    case 0x9:  /* 8-bit - postindex */
 		      offset = -i8;
-		      postind = TRUE;
+		      postind = true;
 		      break;
 
 		    default:
@@ -3705,7 +3698,7 @@ print_insn_thumb32 (bfd_vma pc, struct disassemble_info *info, long given)
 		  }
 		else
 		  {
-		    func (stream, psr_name (given & 0xff));
+		    func (stream, "%s", psr_name (given & 0xff));
 		  }
 		break;
 
@@ -3713,7 +3706,7 @@ print_insn_thumb32 (bfd_vma pc, struct disassemble_info *info, long given)
 		if ((given & 0xff) == 0)
 		  func (stream, "%cPSR", (given & 0x100000) ? 'S' : 'C');
 		else
-		  func (stream, psr_name (given & 0xff));
+		  func (stream, "%s", psr_name (given & 0xff));
 		break;
 
 	      case '0': case '1': case '2': case '3': case '4':
@@ -3877,12 +3870,12 @@ print_insn_arm (bfd_vma pc, struct disassemble_info *info)
   unsigned char b[4];
   long		given;
   int           status;
-  int           is_thumb = FALSE;
-  int           is_data = FALSE;
+  int           is_thumb = false;
+  int           is_data = false;
   unsigned int	size = 4;
   void	 	(*printer) (bfd_vma, struct disassemble_info *, long);
 #if 0
-  bfd_boolean   found = FALSE;
+  bfd_boolean   found = false;
 
   if (info->disassembler_options)
     {
@@ -3905,7 +3898,7 @@ print_insn_arm (bfd_vma pc, struct disassemble_info *info)
       if (pc <= last_mapping_addr)
 	last_mapping_sym = -1;
       is_thumb = (last_type == MAP_THUMB);
-      found = FALSE;
+      found = false;
       /* Start scanning at the start of the function, or wherever
 	 we finished last time.  */
       n = info->symtab_pos + 1;
@@ -3923,7 +3916,7 @@ print_insn_arm (bfd_vma pc, struct disassemble_info *info)
 	      && get_sym_code_type (info, n, &type))
 	    {
 	      last_sym = n;
-	      found = TRUE;
+	      found = true;
 	    }
 	}
 
@@ -3940,7 +3933,7 @@ print_insn_arm (bfd_vma pc, struct disassemble_info *info)
 	      if (get_sym_code_type (info, n, &type))
 		{
 		  last_sym = n;
-		  found = TRUE;
+		  found = true;
 		  break;
 		}
 	    }
@@ -4012,7 +4005,7 @@ print_insn_arm (bfd_vma pc, struct disassemble_info *info)
 #endif
 
   if (force_thumb)
-    is_thumb = TRUE;
+    is_thumb = true;
 
   info->bytes_per_line = 4;
 
@@ -4107,6 +4100,30 @@ print_insn_arm (bfd_vma pc, struct disassemble_info *info)
        In such cases, we can ignore the pc when computing
        addresses, since the addend is not currently pc-relative.  */
     pc = 0;
+
+  /* We include the hexdump of the instruction. The format here
+     matches that used by objdump and the ARM ARM (in particular,
+     32 bit Thumb instructions are displayed as pairs of halfwords,
+     not as a single word.)  */
+  if (is_thumb)
+    {
+      if (size == 2)
+	{
+	  info->fprintf_func(info->stream, "%04lx       ",
+			     ((unsigned long)given) & 0xffff);
+	}
+      else
+	{
+	  info->fprintf_func(info->stream, "%04lx %04lx  ",
+			     (((unsigned long)given) >> 16) & 0xffff,
+			     ((unsigned long)given) & 0xffff);
+	}
+    }
+  else
+    {
+      info->fprintf_func(info->stream, "%08lx      ",
+			 ((unsigned long)given) & 0xffffffff);
+    }
 
   printer (pc, info, given);
 

@@ -21,7 +21,7 @@
 static QEMUTimer *kvmppc_timer;
 static unsigned int kvmppc_timer_rate;
 
-#ifdef HAVE_FDT
+#ifdef CONFIG_FDT
 int kvmppc_read_host_property(const char *node_path, const char *prop,
                                      void *val, size_t len)
 {
@@ -52,7 +52,6 @@ close:
     fclose(f);
 free:
     free(path);
-out:
     return ret;
 }
 
@@ -90,7 +89,7 @@ void kvmppc_fdt_update(void *fdt)
 static void kvmppc_timer_hack(void *opaque)
 {
     qemu_service_io();
-    qemu_mod_timer(kvmppc_timer, qemu_get_clock(vm_clock) + kvmppc_timer_rate);
+    qemu_mod_timer(kvmppc_timer, qemu_get_clock_ns(vm_clock) + kvmppc_timer_rate);
 }
 
 void kvmppc_init(void)
@@ -99,8 +98,8 @@ void kvmppc_init(void)
      * an idle guest does no IO, qemu's device model will never get a chance to
      * run. So, until Qemu gains IO threads, we create this timer to ensure
      * that the device model gets a chance to run. */
-    kvmppc_timer_rate = ticks_per_sec / 10;
-    kvmppc_timer = qemu_new_timer(vm_clock, &kvmppc_timer_hack, NULL);
-    qemu_mod_timer(kvmppc_timer, qemu_get_clock(vm_clock) + kvmppc_timer_rate);
+    kvmppc_timer_rate = get_ticks_per_sec() / 10;
+    kvmppc_timer = qemu_new_timer_ns(vm_clock, &kvmppc_timer_hack, NULL);
+    qemu_mod_timer(kvmppc_timer, qemu_get_clock_ns(vm_clock) + kvmppc_timer_rate);
 }
 

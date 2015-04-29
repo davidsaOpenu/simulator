@@ -6,7 +6,7 @@
 #ifndef _INVERSE_MAPPING_MANAGER_H_
 #define _INVERSE_MAPPING_MANAGER_H_
 
-extern int32_t* inverse_page_mapping_table;
+extern uint32_t* inverse_page_mapping_table;
 
 extern int64_t total_empty_block_nb;
 extern int64_t total_victim_block_nb;
@@ -52,7 +52,7 @@ typedef struct victim_block_entry
 {
 	unsigned int phy_flash_nb;
 	unsigned int phy_block_nb;
-	int valid_page_nb;
+	int *valid_page_nb;
 	struct victim_block_entry* prev;
 	struct victim_block_entry* next;
 }victim_block_entry;
@@ -80,8 +80,8 @@ int EJECT_VICTIM_BLOCK(victim_block_entry* victim_block);
 
 inverse_block_mapping_entry* GET_INVERSE_BLOCK_MAPPING_ENTRY(unsigned int phy_flash_nb, unsigned int phy_block_nb);
 
-int32_t GET_INVERSE_MAPPING_INFO(int32_t lpn);
-int UPDATE_INVERSE_PAGE_MAPPING(int32_t ppn, int32_t lpn);
+uint32_t GET_INVERSE_MAPPING_INFO(uint32_t lpn);
+int UPDATE_INVERSE_PAGE_MAPPING(uint32_t ppn, uint32_t lpn);
 int UPDATE_INVERSE_BLOCK_MAPPING(unsigned int phy_flash_nb, unsigned int phy_block_nb, int type);
 int UPDATE_INVERSE_BLOCK_VALIDITY(unsigned int phy_flash_nb, unsigned int phy_block_nb, unsigned int phy_page_nb, int valid);
 

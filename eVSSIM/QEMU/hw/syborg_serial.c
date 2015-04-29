@@ -126,7 +126,7 @@ static void do_dma_tx(SyborgSerialState *s, uint32_t count)
         s->dma_tx_ptr += count;
     }
     /* QEMU char backends do not have a nonblocking mode, so we transmit all
-       the data imediately and the interrupt status will be unchanged.  */
+       the data immediately and the interrupt status will be unchanged.  */
 }
 
 /* Initiate RX DMA, and transfer data from the FIFO.  */
@@ -261,68 +261,46 @@ static void syborg_serial_event(void *opaque, int event)
     /* TODO: Report BREAK events?  */
 }
 
-static CPUReadMemoryFunc *syborg_serial_readfn[] = {
+static CPUReadMemoryFunc * const syborg_serial_readfn[] = {
      syborg_serial_read,
      syborg_serial_read,
      syborg_serial_read
 };
 
-static CPUWriteMemoryFunc *syborg_serial_writefn[] = {
+static CPUWriteMemoryFunc * const syborg_serial_writefn[] = {
      syborg_serial_write,
      syborg_serial_write,
      syborg_serial_write
 };
 
-static void syborg_serial_save(QEMUFile *f, void *opaque)
-{
-    SyborgSerialState *s = opaque;
-    int i;
-
-    qemu_put_be32(f, s->fifo_size);
-    qemu_put_be32(f, s->int_enable);
-    qemu_put_be32(f, s->read_pos);
-    qemu_put_be32(f, s->read_count);
-    qemu_put_be32(f, s->dma_tx_ptr);
-    qemu_put_be32(f, s->dma_rx_ptr);
-    qemu_put_be32(f, s->dma_rx_size);
-    for (i = 0; i < s->fifo_size; i++) {
-        qemu_put_be32(f, s->read_fifo[i]);
+static const VMStateDescription vmstate_syborg_serial = {
+    .name = "syborg_serial",
+    .version_id = 1,
+    .minimum_version_id = 1,
+    .minimum_version_id_old = 1,
+    .fields      = (VMStateField[]) {
+        VMSTATE_UINT32_EQUAL(fifo_size, SyborgSerialState),
+        VMSTATE_UINT32(int_enable, SyborgSerialState),
+        VMSTATE_INT32(read_pos, SyborgSerialState),
+        VMSTATE_INT32(read_count, SyborgSerialState),
+        VMSTATE_UINT32(dma_tx_ptr, SyborgSerialState),
+        VMSTATE_UINT32(dma_rx_ptr, SyborgSerialState),
+        VMSTATE_UINT32(dma_rx_size, SyborgSerialState),
+        VMSTATE_VARRAY_UINT32(read_fifo, SyborgSerialState, fifo_size, 1,
+                              vmstate_info_uint32, uint32),
+        VMSTATE_END_OF_LIST()
     }
-}
+};
 
-static int syborg_serial_load(QEMUFile *f, void *opaque, int version_id)
-{
-    SyborgSerialState *s = opaque;
-    int i;
-
-    if (version_id != 1)
-        return -EINVAL;
-
-    i = qemu_get_be32(f);
-    if (s->fifo_size != i)
-        return -EINVAL;
-
-    s->int_enable = qemu_get_be32(f);
-    s->read_pos = qemu_get_be32(f);
-    s->read_count = qemu_get_be32(f);
-    s->dma_tx_ptr = qemu_get_be32(f);
-    s->dma_rx_ptr = qemu_get_be32(f);
-    s->dma_rx_size = qemu_get_be32(f);
-    for (i = 0; i < s->fifo_size; i++) {
-        s->read_fifo[i] = qemu_get_be32(f);
-    }
-
-    return 0;
-}
-
-static void syborg_serial_init(SysBusDevice *dev)
+static int syborg_serial_init(SysBusDevice *dev)
 {
     SyborgSerialState *s = FROM_SYSBUS(SyborgSerialState, dev);
     int iomemtype;
 
     sysbus_init_irq(dev, &s->irq);
     iomemtype = cpu_register_io_memory(syborg_serial_readfn,
-                                       syborg_serial_writefn, s);
+                                       syborg_serial_writefn, s,
+                                       DEVICE_NATIVE_ENDIAN);
     sysbus_init_mmio(dev, 0x1000, iomemtype);
     s->chr = qdev_init_chardev(&dev->qdev);
     if (s->chr) {
@@ -335,22 +313,17 @@ static void syborg_serial_init(SysBusDevice *dev)
     }
     s->read_fifo = qemu_mallocz(s->fifo_size * sizeof(s->read_fifo[0]));
 
-    register_savevm("syborg_serial", -1, 1,
-                    syborg_serial_save, syborg_serial_load, s);
+    return 0;
 }
 
 static SysBusDeviceInfo syborg_serial_info = {
     .init = syborg_serial_init,
     .qdev.name  = "syborg,serial",
     .qdev.size  = sizeof(SyborgSerialState),
+    .qdev.vmsd  = &vmstate_syborg_serial,
     .qdev.props = (Property[]) {
-        {
-            .name   = "fifo-size",
-            .info   = &qdev_prop_uint32,
-            .offset = offsetof(SyborgSerialState, fifo_size),
-            .defval = (uint32_t[]) { 16 },
-        },
-        {/* end of list */}
+        DEFINE_PROP_UINT32("fifo-size", SyborgSerialState, fifo_size, 16),
+        DEFINE_PROP_END_OF_LIST(),
     }
 };
 

@@ -11,6 +11,8 @@
 #include "sysemu.h"
 #include "net.h"
 #include "boards.h"
+#include "loader.h"
+#include "elf.h"
 
 #define SYS_FREQ 66000000
 
@@ -118,13 +120,13 @@ static uint32_t m5208_timer_read(void *opaque, target_phys_addr_t addr)
     }
 }
 
-static CPUReadMemoryFunc *m5208_timer_readfn[] = {
+static CPUReadMemoryFunc * const m5208_timer_readfn[] = {
    m5208_timer_read,
    m5208_timer_read,
    m5208_timer_read
 };
 
-static CPUWriteMemoryFunc *m5208_timer_writefn[] = {
+static CPUWriteMemoryFunc * const m5208_timer_writefn[] = {
    m5208_timer_write,
    m5208_timer_write,
    m5208_timer_write
@@ -157,13 +159,13 @@ static void m5208_sys_write(void *opaque, target_phys_addr_t addr,
     hw_error("m5208_sys_write: Bad offset 0x%x\n", (int)addr);
 }
 
-static CPUReadMemoryFunc *m5208_sys_readfn[] = {
+static CPUReadMemoryFunc * const m5208_sys_readfn[] = {
    m5208_sys_read,
    m5208_sys_read,
    m5208_sys_read
 };
 
-static CPUWriteMemoryFunc *m5208_sys_writefn[] = {
+static CPUWriteMemoryFunc * const m5208_sys_writefn[] = {
    m5208_sys_write,
    m5208_sys_write,
    m5208_sys_write
@@ -177,7 +179,8 @@ static void mcf5208_sys_init(qemu_irq *pic)
     int i;
 
     iomemtype = cpu_register_io_memory(m5208_sys_readfn,
-                                       m5208_sys_writefn, NULL);
+                                       m5208_sys_writefn, NULL,
+                                       DEVICE_NATIVE_ENDIAN);
     /* SDRAMC.  */
     cpu_register_physical_memory(0xfc0a8000, 0x00004000, iomemtype);
     /* Timers.  */
@@ -186,7 +189,8 @@ static void mcf5208_sys_init(qemu_irq *pic)
         bh = qemu_bh_new(m5208_timer_trigger, s);
         s->timer = ptimer_init(bh);
         iomemtype = cpu_register_io_memory(m5208_timer_readfn,
-                                           m5208_timer_writefn, s);
+                                           m5208_timer_writefn, s,
+                                           DEVICE_NATIVE_ENDIAN);
         cpu_register_physical_memory(0xfc080000 + 0x4000 * i, 0x00004000,
                                      iomemtype);
         s->irq = pic[4 + i];
@@ -201,7 +205,7 @@ static void mcf5208evb_init(ram_addr_t ram_size,
     CPUState *env;
     int kernel_size;
     uint64_t elf_entry;
-    target_ulong entry;
+    target_phys_addr_t entry;
     qemu_irq *pic;
 
     if (!cpu_model)
@@ -218,11 +222,11 @@ static void mcf5208evb_init(ram_addr_t ram_size,
 
     /* DRAM at 0x40000000 */
     cpu_register_physical_memory(0x40000000, ram_size,
-        qemu_ram_alloc(ram_size) | IO_MEM_RAM);
+        qemu_ram_alloc(NULL, "mcf5208.ram", ram_size) | IO_MEM_RAM);
 
     /* Internal SRAM.  */
     cpu_register_physical_memory(0x80000000, 16384,
-        qemu_ram_alloc(16384) | IO_MEM_RAM);
+        qemu_ram_alloc(NULL, "mcf5208.sram", 16384) | IO_MEM_RAM);
 
     /* Internal peripherals.  */
     pic = mcf_intc_init(0xfc048000, env);
@@ -268,7 +272,8 @@ static void mcf5208evb_init(ram_addr_t ram_size,
         exit(1);
     }
 
-    kernel_size = load_elf(kernel_filename, 0, &elf_entry, NULL, NULL);
+    kernel_size = load_elf(kernel_filename, NULL, NULL, &elf_entry,
+                           NULL, NULL, 1, ELF_MACHINE, 0);
     entry = elf_entry;
     if (kernel_size < 0) {
         kernel_size = load_uimage(kernel_filename, &entry, NULL, NULL);

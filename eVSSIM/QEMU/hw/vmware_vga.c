@@ -22,24 +22,21 @@
  * THE SOFTWARE.
  */
 #include "hw.h"
+#include "loader.h"
 #include "console.h"
 #include "pci.h"
+#include "vmware_vga.h"
 
 #define VERBOSE
-#define EMBED_STDVGA
 #undef DIRECT_VRAM
 #define HW_RECT_ACCEL
 #define HW_FILL_ACCEL
 #define HW_MOUSE_ACCEL
 
-#ifdef EMBED_STDVGA
 # include "vga_int.h"
-#endif
 
 struct vmsvga_state_s {
-#ifdef EMBED_STDVGA
     VGACommonState vga;
-#endif
 
     int width;
     int height;
@@ -55,12 +52,6 @@ struct vmsvga_state_s {
         int on;
     } cursor;
 
-#ifndef EMBED_STDVGA
-    DisplayState *ds;
-    int vram_size;
-    ram_addr_t vram_offset;
-    uint8_t *vram_ptr;
-#endif
     target_phys_addr_t vram_base;
 
     int index;
@@ -75,6 +66,11 @@ struct vmsvga_state_s {
     uint32_t wblue;
     int syncing;
     int fb_size;
+
+    ram_addr_t fifo_offset;
+    uint8_t *fifo_ptr;
+    unsigned int fifo_size;
+    target_phys_addr_t fifo_base;
 
     union {
         uint32_t *fifo;
@@ -118,14 +114,12 @@ struct pci_vmsvga_state_s {
 # define SVGA_IO_BASE		SVGA_LEGACY_BASE_PORT
 # define SVGA_IO_MUL		1
 # define SVGA_FIFO_SIZE		0x10000
-# define SVGA_MEM_BASE		0xe0000000
 # define SVGA_PCI_DEVICE_ID	PCI_DEVICE_ID_VMWARE_SVGA2
 #else
 # define SVGA_ID		SVGA_ID_1
 # define SVGA_IO_BASE		SVGA_LEGACY_BASE_PORT
 # define SVGA_IO_MUL		4
 # define SVGA_FIFO_SIZE		0x10000
-# define SVGA_MEM_BASE		0xe0000000
 # define SVGA_PCI_DEVICE_ID	PCI_DEVICE_ID_VMWARE_SVGA
 #endif
 
@@ -471,7 +465,7 @@ struct vmsvga_cursor_definition_s {
     int hot_x;
     int hot_y;
     uint32_t mask[1024];
-    uint32_t image[1024];
+    uint32_t image[4096];
 };
 
 #define SVGA_BITMAP_SIZE(w, h)		((((w) + 31) >> 5) * (h))
@@ -481,23 +475,57 @@ struct vmsvga_cursor_definition_s {
 static inline void vmsvga_cursor_define(struct vmsvga_state_s *s,
                 struct vmsvga_cursor_definition_s *c)
 {
-    int i;
-    for (i = SVGA_BITMAP_SIZE(c->width, c->height) - 1; i >= 0; i --)
-        c->mask[i] = ~c->mask[i];
+    QEMUCursor *qc;
+    int i, pixels;
+
+    qc = cursor_alloc(c->width, c->height);
+    qc->hot_x = c->hot_x;
+    qc->hot_y = c->hot_y;
+    switch (c->bpp) {
+    case 1:
+        cursor_set_mono(qc, 0xffffff, 0x000000, (void*)c->image,
+                        1, (void*)c->mask);
+#ifdef DEBUG
+        cursor_print_ascii_art(qc, "vmware/mono");
+#endif
+        break;
+    case 32:
+        /* fill alpha channel from mask, set color to zero */
+        cursor_set_mono(qc, 0x000000, 0x000000, (void*)c->mask,
+                        1, (void*)c->mask);
+        /* add in rgb values */
+        pixels = c->width * c->height;
+        for (i = 0; i < pixels; i++) {
+            qc->data[i] |= c->image[i] & 0xffffff;
+        }
+#ifdef DEBUG
+        cursor_print_ascii_art(qc, "vmware/32bit");
+#endif
+        break;
+    default:
+        fprintf(stderr, "%s: unhandled bpp %d, using fallback cursor\n",
+                __FUNCTION__, c->bpp);
+        cursor_put(qc);
+        qc = cursor_builtin_left_ptr();
+    }
 
     if (s->vga.ds->cursor_define)
-        s->vga.ds->cursor_define(c->width, c->height, c->bpp, c->hot_x, c->hot_y,
-                        (uint8_t *) c->image, (uint8_t *) c->mask);
+        s->vga.ds->cursor_define(qc);
+    cursor_put(qc);
 }
 #endif
 
 #define CMD(f)	le32_to_cpu(s->cmd->f)
 
-static inline int vmsvga_fifo_empty(struct vmsvga_state_s *s)
+static inline int vmsvga_fifo_length(struct vmsvga_state_s *s)
 {
+    int num;
     if (!s->config || !s->enable)
-        return 1;
-    return (s->cmd->next_cmd == s->cmd->stop);
+        return 0;
+    num = CMD(next_cmd) - CMD(stop);
+    if (num < 0)
+        num += CMD(max) - CMD(min);
+    return num >> 2;
 }
 
 static inline uint32_t vmsvga_fifo_read_raw(struct vmsvga_state_s *s)
@@ -517,13 +545,23 @@ static inline uint32_t vmsvga_fifo_read(struct vmsvga_state_s *s)
 static void vmsvga_fifo_run(struct vmsvga_state_s *s)
 {
     uint32_t cmd, colour;
-    int args = 0;
+    int args, len;
     int x, y, dx, dy, width, height;
     struct vmsvga_cursor_definition_s cursor;
-    while (!vmsvga_fifo_empty(s))
+    uint32_t cmd_start;
+
+    len = vmsvga_fifo_length(s);
+    while (len > 0) {
+        /* May need to go back to the start of the command if incomplete */
+        cmd_start = s->cmd->stop;
+
         switch (cmd = vmsvga_fifo_read(s)) {
         case SVGA_CMD_UPDATE:
         case SVGA_CMD_UPDATE_VERBOSE:
+            len -= 5;
+            if (len < 0)
+                goto rewind;
+
             x = vmsvga_fifo_read(s);
             y = vmsvga_fifo_read(s);
             width = vmsvga_fifo_read(s);
@@ -532,6 +570,10 @@ static void vmsvga_fifo_run(struct vmsvga_state_s *s)
             break;
 
         case SVGA_CMD_RECT_FILL:
+            len -= 6;
+            if (len < 0)
+                goto rewind;
+
             colour = vmsvga_fifo_read(s);
             x = vmsvga_fifo_read(s);
             y = vmsvga_fifo_read(s);
@@ -541,10 +583,15 @@ static void vmsvga_fifo_run(struct vmsvga_state_s *s)
             vmsvga_fill_rect(s, colour, x, y, width, height);
             break;
 #else
+            args = 0;
             goto badcmd;
 #endif
 
         case SVGA_CMD_RECT_COPY:
+            len -= 7;
+            if (len < 0)
+                goto rewind;
+
             x = vmsvga_fifo_read(s);
             y = vmsvga_fifo_read(s);
             dx = vmsvga_fifo_read(s);
@@ -555,10 +602,15 @@ static void vmsvga_fifo_run(struct vmsvga_state_s *s)
             vmsvga_copy_rect(s, x, y, dx, dy, width, height);
             break;
 #else
+            args = 0;
             goto badcmd;
 #endif
 
         case SVGA_CMD_DEFINE_CURSOR:
+            len -= 8;
+            if (len < 0)
+                goto rewind;
+
             cursor.id = vmsvga_fifo_read(s);
             cursor.hot_x = vmsvga_fifo_read(s);
             cursor.hot_y = vmsvga_fifo_read(s);
@@ -566,6 +618,16 @@ static void vmsvga_fifo_run(struct vmsvga_state_s *s)
             cursor.height = y = vmsvga_fifo_read(s);
             vmsvga_fifo_read(s);
             cursor.bpp = vmsvga_fifo_read(s);
+
+            args = SVGA_BITMAP_SIZE(x, y) + SVGA_PIXMAP_SIZE(x, y, cursor.bpp);
+            if (SVGA_BITMAP_SIZE(x, y) > sizeof cursor.mask ||
+                SVGA_PIXMAP_SIZE(x, y, cursor.bpp) > sizeof cursor.image)
+                    goto badcmd;
+
+            len -= args;
+            if (len < 0)
+                goto rewind;
+
             for (args = 0; args < SVGA_BITMAP_SIZE(x, y); args ++)
                 cursor.mask[args] = vmsvga_fifo_read_raw(s);
             for (args = 0; args < SVGA_PIXMAP_SIZE(x, y, cursor.bpp); args ++)
@@ -583,6 +645,10 @@ static void vmsvga_fifo_run(struct vmsvga_state_s *s)
          * for so we can avoid FIFO desync if driver uses them illegally.
          */
         case SVGA_CMD_DEFINE_ALPHA_CURSOR:
+            len -= 6;
+            if (len < 0)
+                goto rewind;
+
             vmsvga_fifo_read(s);
             vmsvga_fifo_read(s);
             vmsvga_fifo_read(s);
@@ -597,6 +663,10 @@ static void vmsvga_fifo_run(struct vmsvga_state_s *s)
             args = 7;
             goto badcmd;
         case SVGA_CMD_DRAW_GLYPH_CLIPPED:
+            len -= 4;
+            if (len < 0)
+                goto rewind;
+
             vmsvga_fifo_read(s);
             vmsvga_fifo_read(s);
             args = 7 + (vmsvga_fifo_read(s) >> 2);
@@ -617,33 +687,42 @@ static void vmsvga_fifo_run(struct vmsvga_state_s *s)
             break; /* Nop */
 
         default:
+            args = 0;
         badcmd:
+            len -= args;
+            if (len < 0)
+                goto rewind;
             while (args --)
                 vmsvga_fifo_read(s);
             printf("%s: Unknown command 0x%02x in SVGA command FIFO\n",
                             __FUNCTION__, cmd);
             break;
+
+        rewind:
+            s->cmd->stop = cmd_start;
+            break;
         }
+    }
 
     s->syncing = 0;
 }
 
 static uint32_t vmsvga_index_read(void *opaque, uint32_t address)
 {
-    struct vmsvga_state_s *s = (struct vmsvga_state_s *) opaque;
+    struct vmsvga_state_s *s = opaque;
     return s->index;
 }
 
 static void vmsvga_index_write(void *opaque, uint32_t address, uint32_t index)
 {
-    struct vmsvga_state_s *s = (struct vmsvga_state_s *) opaque;
+    struct vmsvga_state_s *s = opaque;
     s->index = index;
 }
 
 static uint32_t vmsvga_value_read(void *opaque, uint32_t address)
 {
     uint32_t caps;
-    struct vmsvga_state_s *s = (struct vmsvga_state_s *) opaque;
+    struct vmsvga_state_s *s = opaque;
     switch (s->index) {
     case SVGA_REG_ID:
         return s->svgaid;
@@ -689,7 +768,7 @@ static uint32_t vmsvga_value_read(void *opaque, uint32_t address)
         return 0x0;
 
     case SVGA_REG_VRAM_SIZE:
-        return s->vga.vram_size - SVGA_FIFO_SIZE;
+        return s->vga.vram_size;
 
     case SVGA_REG_FB_SIZE:
         return s->fb_size;
@@ -710,10 +789,10 @@ static uint32_t vmsvga_value_read(void *opaque, uint32_t address)
         return caps;
 
     case SVGA_REG_MEM_START:
-        return s->vram_base + s->vga.vram_size - SVGA_FIFO_SIZE;
+        return s->fifo_base;
 
     case SVGA_REG_MEM_SIZE:
-        return SVGA_FIFO_SIZE;
+        return s->fifo_size;
 
     case SVGA_REG_CONFIG_DONE:
         return s->config;
@@ -761,7 +840,7 @@ static uint32_t vmsvga_value_read(void *opaque, uint32_t address)
 
 static void vmsvga_value_write(void *opaque, uint32_t address, uint32_t value)
 {
-    struct vmsvga_state_s *s = (struct vmsvga_state_s *) opaque;
+    struct vmsvga_state_s *s = opaque;
     switch (s->index) {
     case SVGA_REG_ID:
         if (value == SVGA_ID_2 || value == SVGA_ID_1 || value == SVGA_ID_0)
@@ -774,11 +853,13 @@ static void vmsvga_value_write(void *opaque, uint32_t address, uint32_t value)
         s->width = -1;
         s->height = -1;
         s->invalidated = 1;
-#ifdef EMBED_STDVGA
         s->vga.invalidate(&s->vga);
-#endif
-        if (s->enable)
+        if (s->enable) {
             s->fb_size = ((s->depth + 7) >> 3) * s->new_width * s->new_height;
+            vga_dirty_log_stop(&s->vga);
+        } else {
+            vga_dirty_log_start(&s->vga);
+        }
         break;
 
     case SVGA_REG_WIDTH:
@@ -801,7 +882,7 @@ static void vmsvga_value_write(void *opaque, uint32_t address, uint32_t value)
 
     case SVGA_REG_CONFIG_DONE:
         if (value) {
-            s->fifo = (uint32_t *) &s->vga.vram_ptr[s->vga.vram_size - SVGA_FIFO_SIZE];
+            s->fifo = (uint32_t *) s->fifo_ptr;
             /* Check range and alignment.  */
             if ((CMD(min) | CMD(max) |
                         CMD(next_cmd) | CMD(stop)) & 3)
@@ -892,11 +973,9 @@ static inline void vmsvga_size(struct vmsvga_state_s *s)
 
 static void vmsvga_update_display(void *opaque)
 {
-    struct vmsvga_state_s *s = (struct vmsvga_state_s *) opaque;
+    struct vmsvga_state_s *s = opaque;
     if (!s->enable) {
-#ifdef EMBED_STDVGA
         s->vga.update(&s->vga);
-#endif
         return;
     }
 
@@ -924,7 +1003,7 @@ static void vmsvga_reset(struct vmsvga_state_s *s)
     s->height = -1;
     s->svgaid = SVGA_ID;
     s->depth = ds_get_bits_per_pixel(s->vga.ds);
-    s->bypp = (s->depth + 7) >> 3;
+    s->bypp = ds_get_bytes_per_pixel(s->vga.ds);
     s->cursor.on = 0;
     s->redraw_fifo_first = 0;
     s->redraw_fifo_last = 0;
@@ -956,15 +1035,15 @@ static void vmsvga_reset(struct vmsvga_state_s *s)
         break;
     }
     s->syncing = 0;
+
+    vga_dirty_log_start(&s->vga);
 }
 
 static void vmsvga_invalidate_display(void *opaque)
 {
-    struct vmsvga_state_s *s = (struct vmsvga_state_s *) opaque;
+    struct vmsvga_state_s *s = opaque;
     if (!s->enable) {
-#ifdef EMBED_STDVGA
         s->vga.invalidate(&s->vga);
-#endif
         return;
     }
 
@@ -975,11 +1054,9 @@ static void vmsvga_invalidate_display(void *opaque)
    available */
 static void vmsvga_screen_dump(void *opaque, const char *filename)
 {
-    struct vmsvga_state_s *s = (struct vmsvga_state_s *) opaque;
+    struct vmsvga_state_s *s = opaque;
     if (!s->enable) {
-#ifdef EMBED_STDVGA
         s->vga.screen_dump(&s->vga, filename);
-#endif
         return;
     }
 
@@ -993,7 +1070,7 @@ static void vmsvga_screen_dump(void *opaque, const char *filename)
 
 static void vmsvga_text_update(void *opaque, console_ch_t *chardata)
 {
-    struct vmsvga_state_s *s = (struct vmsvga_state_s *) opaque;
+    struct vmsvga_state_s *s = opaque;
 
     if (s->vga.text_update)
         s->vga.text_update(&s->vga, chardata);
@@ -1002,7 +1079,7 @@ static void vmsvga_text_update(void *opaque, console_ch_t *chardata)
 #ifdef DIRECT_VRAM
 static uint32_t vmsvga_vram_readb(void *opaque, target_phys_addr_t addr)
 {
-    struct vmsvga_state_s *s = (struct vmsvga_state_s *) opaque;
+    struct vmsvga_state_s *s = opaque;
     if (addr < s->fb_size)
         return *(uint8_t *) (ds_get_data(s->ds) + addr);
     else
@@ -1011,7 +1088,7 @@ static uint32_t vmsvga_vram_readb(void *opaque, target_phys_addr_t addr)
 
 static uint32_t vmsvga_vram_readw(void *opaque, target_phys_addr_t addr)
 {
-    struct vmsvga_state_s *s = (struct vmsvga_state_s *) opaque;
+    struct vmsvga_state_s *s = opaque;
     if (addr < s->fb_size)
         return *(uint16_t *) (ds_get_data(s->ds) + addr);
     else
@@ -1020,7 +1097,7 @@ static uint32_t vmsvga_vram_readw(void *opaque, target_phys_addr_t addr)
 
 static uint32_t vmsvga_vram_readl(void *opaque, target_phys_addr_t addr)
 {
-    struct vmsvga_state_s *s = (struct vmsvga_state_s *) opaque;
+    struct vmsvga_state_s *s = opaque;
     if (addr < s->fb_size)
         return *(uint32_t *) (ds_get_data(s->ds) + addr);
     else
@@ -1030,7 +1107,7 @@ static uint32_t vmsvga_vram_readl(void *opaque, target_phys_addr_t addr)
 static void vmsvga_vram_writeb(void *opaque, target_phys_addr_t addr,
                 uint32_t value)
 {
-    struct vmsvga_state_s *s = (struct vmsvga_state_s *) opaque;
+    struct vmsvga_state_s *s = opaque;
     if (addr < s->fb_size)
         *(uint8_t *) (ds_get_data(s->ds) + addr) = value;
     else
@@ -1040,7 +1117,7 @@ static void vmsvga_vram_writeb(void *opaque, target_phys_addr_t addr,
 static void vmsvga_vram_writew(void *opaque, target_phys_addr_t addr,
                 uint32_t value)
 {
-    struct vmsvga_state_s *s = (struct vmsvga_state_s *) opaque;
+    struct vmsvga_state_s *s = opaque;
     if (addr < s->fb_size)
         *(uint16_t *) (ds_get_data(s->ds) + addr) = value;
     else
@@ -1050,130 +1127,101 @@ static void vmsvga_vram_writew(void *opaque, target_phys_addr_t addr,
 static void vmsvga_vram_writel(void *opaque, target_phys_addr_t addr,
                 uint32_t value)
 {
-    struct vmsvga_state_s *s = (struct vmsvga_state_s *) opaque;
+    struct vmsvga_state_s *s = opaque;
     if (addr < s->fb_size)
         *(uint32_t *) (ds_get_data(s->ds) + addr) = value;
     else
         *(uint32_t *) (s->vram_ptr + addr) = value;
 }
 
-static CPUReadMemoryFunc *vmsvga_vram_read[] = {
+static CPUReadMemoryFunc * const vmsvga_vram_read[] = {
     vmsvga_vram_readb,
     vmsvga_vram_readw,
     vmsvga_vram_readl,
 };
 
-static CPUWriteMemoryFunc *vmsvga_vram_write[] = {
+static CPUWriteMemoryFunc * const vmsvga_vram_write[] = {
     vmsvga_vram_writeb,
     vmsvga_vram_writew,
     vmsvga_vram_writel,
 };
 #endif
 
-static void vmsvga_save(struct vmsvga_state_s *s, QEMUFile *f)
+static int vmsvga_post_load(void *opaque, int version_id)
 {
-    qemu_put_be32(f, s->depth);
-    qemu_put_be32(f, s->enable);
-    qemu_put_be32(f, s->config);
-    qemu_put_be32(f, s->cursor.id);
-    qemu_put_be32(f, s->cursor.x);
-    qemu_put_be32(f, s->cursor.y);
-    qemu_put_be32(f, s->cursor.on);
-    qemu_put_be32(f, s->index);
-    qemu_put_buffer(f, (uint8_t *) s->scratch, s->scratch_size * 4);
-    qemu_put_be32(f, s->new_width);
-    qemu_put_be32(f, s->new_height);
-    qemu_put_be32s(f, &s->guest);
-    qemu_put_be32s(f, &s->svgaid);
-    qemu_put_be32(f, s->syncing);
-    qemu_put_be32(f, s->fb_size);
-}
-
-static int vmsvga_load(struct vmsvga_state_s *s, QEMUFile *f)
-{
-    int depth;
-    depth=qemu_get_be32(f);
-    s->enable=qemu_get_be32(f);
-    s->config=qemu_get_be32(f);
-    s->cursor.id=qemu_get_be32(f);
-    s->cursor.x=qemu_get_be32(f);
-    s->cursor.y=qemu_get_be32(f);
-    s->cursor.on=qemu_get_be32(f);
-    s->index=qemu_get_be32(f);
-    qemu_get_buffer(f, (uint8_t *) s->scratch, s->scratch_size * 4);
-    s->new_width=qemu_get_be32(f);
-    s->new_height=qemu_get_be32(f);
-    qemu_get_be32s(f, &s->guest);
-    qemu_get_be32s(f, &s->svgaid);
-    s->syncing=qemu_get_be32(f);
-    s->fb_size=qemu_get_be32(f);
-
-    if (s->enable && depth != s->depth) {
-        printf("%s: need colour depth of %i bits to resume operation.\n",
-                        __FUNCTION__, depth);
-        return -EINVAL;
-    }
+    struct vmsvga_state_s *s = opaque;
 
     s->invalidated = 1;
     if (s->config)
-        s->fifo = (uint32_t *) &s->vga.vram_ptr[s->vga.vram_size - SVGA_FIFO_SIZE];
+        s->fifo = (uint32_t *) s->fifo_ptr;
 
     return 0;
 }
+
+static const VMStateDescription vmstate_vmware_vga_internal = {
+    .name = "vmware_vga_internal",
+    .version_id = 0,
+    .minimum_version_id = 0,
+    .minimum_version_id_old = 0,
+    .post_load = vmsvga_post_load,
+    .fields      = (VMStateField []) {
+        VMSTATE_INT32_EQUAL(depth, struct vmsvga_state_s),
+        VMSTATE_INT32(enable, struct vmsvga_state_s),
+        VMSTATE_INT32(config, struct vmsvga_state_s),
+        VMSTATE_INT32(cursor.id, struct vmsvga_state_s),
+        VMSTATE_INT32(cursor.x, struct vmsvga_state_s),
+        VMSTATE_INT32(cursor.y, struct vmsvga_state_s),
+        VMSTATE_INT32(cursor.on, struct vmsvga_state_s),
+        VMSTATE_INT32(index, struct vmsvga_state_s),
+        VMSTATE_VARRAY_INT32(scratch, struct vmsvga_state_s,
+                             scratch_size, 0, vmstate_info_uint32, uint32_t),
+        VMSTATE_INT32(new_width, struct vmsvga_state_s),
+        VMSTATE_INT32(new_height, struct vmsvga_state_s),
+        VMSTATE_UINT32(guest, struct vmsvga_state_s),
+        VMSTATE_UINT32(svgaid, struct vmsvga_state_s),
+        VMSTATE_INT32(syncing, struct vmsvga_state_s),
+        VMSTATE_INT32(fb_size, struct vmsvga_state_s),
+        VMSTATE_END_OF_LIST()
+    }
+};
+
+static const VMStateDescription vmstate_vmware_vga = {
+    .name = "vmware_vga",
+    .version_id = 0,
+    .minimum_version_id = 0,
+    .minimum_version_id_old = 0,
+    .fields      = (VMStateField []) {
+        VMSTATE_PCI_DEVICE(card, struct pci_vmsvga_state_s),
+        VMSTATE_STRUCT(chip, struct pci_vmsvga_state_s, 0,
+                       vmstate_vmware_vga_internal, struct vmsvga_state_s),
+        VMSTATE_END_OF_LIST()
+    }
+};
 
 static void vmsvga_init(struct vmsvga_state_s *s, int vga_ram_size)
 {
     s->scratch_size = SVGA_SCRATCH_SIZE;
-    s->scratch = (uint32_t *) qemu_malloc(s->scratch_size * 4);
-
-#ifdef EMBED_STDVGA
-    vga_common_init((VGAState *) s, vga_ram_size);
-    vga_init((VGAState *) s);
-#else
-    s->vram_size = vga_ram_size;
-    s->vram_offset = qemu_ram_alloc(vga_ram_size);
-    s->vram_ptr = qemu_get_ram_ptr(s->vram_offset);
-#endif
+    s->scratch = qemu_malloc(s->scratch_size * 4);
 
     s->vga.ds = graphic_console_init(vmsvga_update_display,
                                      vmsvga_invalidate_display,
                                      vmsvga_screen_dump,
-                                     vmsvga_text_update, &s->vga);
+                                     vmsvga_text_update, s);
+
+
+    s->fifo_size = SVGA_FIFO_SIZE;
+    s->fifo_offset = qemu_ram_alloc(NULL, "vmsvga.fifo", s->fifo_size);
+    s->fifo_ptr = qemu_get_ram_ptr(s->fifo_offset);
+
+    vga_common_init(&s->vga, vga_ram_size);
+    vga_init(&s->vga);
+    vmstate_register(NULL, 0, &vmstate_vga_common, &s->vga);
 
     vmsvga_reset(s);
-
-#ifdef CONFIG_BOCHS_VBE
-    /* XXX: use optimized standard vga accesses */
-    cpu_register_physical_memory(VBE_DISPI_LFB_PHYSICAL_ADDRESS,
-                                 vga_ram_size, s->vga.vram_offset);
-#endif
-}
-
-static void pci_vmsvga_save(QEMUFile *f, void *opaque)
-{
-    struct pci_vmsvga_state_s *s = (struct pci_vmsvga_state_s *) opaque;
-    pci_device_save(&s->card, f);
-    vmsvga_save(&s->chip, f);
-}
-
-static int pci_vmsvga_load(QEMUFile *f, void *opaque, int version_id)
-{
-    struct pci_vmsvga_state_s *s = (struct pci_vmsvga_state_s *) opaque;
-    int ret;
-
-    ret = pci_device_load(&s->card, f);
-    if (ret < 0)
-        return ret;
-
-    ret = vmsvga_load(&s->chip, f);
-    if (ret < 0)
-        return ret;
-
-    return 0;
 }
 
 static void pci_vmsvga_map_ioport(PCIDevice *pci_dev, int region_num,
-                uint32_t addr, uint32_t size, int type)
+                pcibus_t addr, pcibus_t size, int type)
 {
     struct pci_vmsvga_state_s *d = (struct pci_vmsvga_state_s *) pci_dev;
     struct vmsvga_state_s *s = &d->chip;
@@ -1193,7 +1241,7 @@ static void pci_vmsvga_map_ioport(PCIDevice *pci_dev, int region_num,
 }
 
 static void pci_vmsvga_map_mem(PCIDevice *pci_dev, int region_num,
-                uint32_t addr, uint32_t size, int type)
+                pcibus_t addr, pcibus_t size, int type)
 {
     struct pci_vmsvga_state_s *d = (struct pci_vmsvga_state_s *) pci_dev;
     struct vmsvga_state_s *s = &d->chip;
@@ -1202,41 +1250,75 @@ static void pci_vmsvga_map_mem(PCIDevice *pci_dev, int region_num,
     s->vram_base = addr;
 #ifdef DIRECT_VRAM
     iomemtype = cpu_register_io_memory(vmsvga_vram_read,
-                    vmsvga_vram_write, s);
+                    vmsvga_vram_write, s, DEVICE_NATIVE_ENDIAN);
 #else
     iomemtype = s->vga.vram_offset | IO_MEM_RAM;
 #endif
     cpu_register_physical_memory(s->vram_base, s->vga.vram_size,
                     iomemtype);
+
+    s->vga.map_addr = addr;
+    s->vga.map_end = addr + s->vga.vram_size;
+    vga_dirty_log_restart(&s->vga);
 }
 
-void pci_vmsvga_init(PCIBus *bus)
+static void pci_vmsvga_map_fifo(PCIDevice *pci_dev, int region_num,
+                pcibus_t addr, pcibus_t size, int type)
 {
-    struct pci_vmsvga_state_s *s;
+    struct pci_vmsvga_state_s *d = (struct pci_vmsvga_state_s *) pci_dev;
+    struct vmsvga_state_s *s = &d->chip;
+    ram_addr_t iomemtype;
 
-    /* Setup PCI configuration */
-    s = (struct pci_vmsvga_state_s *)
-        pci_register_device(bus, "QEMUware SVGA",
-                sizeof(struct pci_vmsvga_state_s), -1, NULL, NULL);
-    pci_config_set_vendor_id(s->card.config, PCI_VENDOR_ID_VMWARE);
-    pci_config_set_device_id(s->card.config, SVGA_PCI_DEVICE_ID);
-    s->card.config[PCI_COMMAND]		= 0x07;		/* I/O + Memory */
-    pci_config_set_class(s->card.config, PCI_CLASS_DISPLAY_VGA);
-    s->card.config[0x0c]		= 0x08;		/* Cache line size */
-    s->card.config[0x0d]		= 0x40;		/* Latency timer */
-    s->card.config[PCI_HEADER_TYPE]	= PCI_HEADER_TYPE_NORMAL;
-    s->card.config[0x2c]		= PCI_VENDOR_ID_VMWARE & 0xff;
-    s->card.config[0x2d]		= PCI_VENDOR_ID_VMWARE >> 8;
-    s->card.config[0x2e]		= SVGA_PCI_DEVICE_ID & 0xff;
-    s->card.config[0x2f]		= SVGA_PCI_DEVICE_ID >> 8;
-    s->card.config[0x3c]		= 0xff;		/* End */
+    s->fifo_base = addr;
+    iomemtype = s->fifo_offset | IO_MEM_RAM;
+    cpu_register_physical_memory(s->fifo_base, s->fifo_size,
+                    iomemtype);
+}
+
+static int pci_vmsvga_initfn(PCIDevice *dev)
+{
+    struct pci_vmsvga_state_s *s =
+        DO_UPCAST(struct pci_vmsvga_state_s, card, dev);
+
+    s->card.config[PCI_CACHE_LINE_SIZE]	= 0x08;		/* Cache line size */
+    s->card.config[PCI_LATENCY_TIMER] = 0x40;		/* Latency timer */
+    s->card.config[PCI_INTERRUPT_LINE] = 0xff;		/* End */
 
     pci_register_bar(&s->card, 0, 0x10,
-                    PCI_ADDRESS_SPACE_IO, pci_vmsvga_map_ioport);
+                    PCI_BASE_ADDRESS_SPACE_IO, pci_vmsvga_map_ioport);
     pci_register_bar(&s->card, 1, VGA_RAM_SIZE,
-                    PCI_ADDRESS_SPACE_MEM_PREFETCH, pci_vmsvga_map_mem);
+                    PCI_BASE_ADDRESS_MEM_PREFETCH, pci_vmsvga_map_mem);
+
+    pci_register_bar(&s->card, 2, SVGA_FIFO_SIZE,
+                    PCI_BASE_ADDRESS_MEM_PREFETCH, pci_vmsvga_map_fifo);
 
     vmsvga_init(&s->chip, VGA_RAM_SIZE);
 
-    register_savevm("vmware_vga", 0, 0, pci_vmsvga_save, pci_vmsvga_load, s);
+    if (!dev->rom_bar) {
+        /* compatibility with pc-0.13 and older */
+        vga_init_vbe(&s->chip.vga);
+    }
+
+    return 0;
 }
+
+static PCIDeviceInfo vmsvga_info = {
+    .qdev.name    = "vmware-svga",
+    .qdev.size    = sizeof(struct pci_vmsvga_state_s),
+    .qdev.vmsd    = &vmstate_vmware_vga,
+    .no_hotplug   = 1,
+    .init         = pci_vmsvga_initfn,
+    .romfile      = "vgabios-vmware.bin",
+
+    .vendor_id    =  PCI_VENDOR_ID_VMWARE,
+    .device_id    = SVGA_PCI_DEVICE_ID,
+    .class_id     = PCI_CLASS_DISPLAY_VGA,
+    .subsystem_vendor_id = PCI_VENDOR_ID_VMWARE,
+    .subsystem_id = SVGA_PCI_DEVICE_ID,
+};
+
+static void vmsvga_register(void)
+{
+    pci_qdev_register(&vmsvga_info);
+}
+device_init(vmsvga_register);

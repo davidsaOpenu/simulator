@@ -21,9 +21,12 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  * THE SOFTWARE.
  */
+
 #include "hw.h"
 #include "sun4m.h"
 #include "monitor.h"
+#include "sysbus.h"
+
 //#define DEBUG_IRQ_COUNT
 //#define DEBUG_IRQ
 
@@ -42,10 +45,11 @@
 #define MAX_PILS 16
 
 typedef struct Sun4c_INTCTLState {
+    SysBusDevice busdev;
 #ifdef DEBUG_IRQ_COUNT
     uint64_t irq_count;
 #endif
-    qemu_irq *cpu_irqs;
+    qemu_irq cpu_irqs[MAX_PILS];
     const uint32_t *intbit_to_level;
     uint32_t pil_out;
     uint8_t reg;
@@ -78,13 +82,13 @@ static void sun4c_intctl_mem_writeb(void *opaque, target_phys_addr_t addr,
     sun4c_check_interrupts(s);
 }
 
-static CPUReadMemoryFunc *sun4c_intctl_mem_read[3] = {
+static CPUReadMemoryFunc * const sun4c_intctl_mem_read[3] = {
     sun4c_intctl_mem_readb,
     NULL,
     NULL,
 };
 
-static CPUWriteMemoryFunc *sun4c_intctl_mem_write[3] = {
+static CPUWriteMemoryFunc * const sun4c_intctl_mem_write[3] = {
     sun4c_intctl_mem_writeb,
     NULL,
     NULL,
@@ -165,54 +169,56 @@ static void sun4c_set_irq(void *opaque, int irq, int level)
     }
 }
 
-static void sun4c_intctl_save(QEMUFile *f, void *opaque)
+static const VMStateDescription vmstate_sun4c_intctl = {
+    .name ="sun4c_intctl",
+    .version_id = 1,
+    .minimum_version_id = 1,
+    .minimum_version_id_old = 1,
+    .fields      = (VMStateField []) {
+        VMSTATE_UINT8(reg, Sun4c_INTCTLState),
+        VMSTATE_UINT8(pending, Sun4c_INTCTLState),
+        VMSTATE_END_OF_LIST()
+    }
+};
+
+static void sun4c_intctl_reset(DeviceState *d)
 {
-    Sun4c_INTCTLState *s = opaque;
-
-    qemu_put_8s(f, &s->reg);
-    qemu_put_8s(f, &s->pending);
-}
-
-static int sun4c_intctl_load(QEMUFile *f, void *opaque, int version_id)
-{
-    Sun4c_INTCTLState *s = opaque;
-
-    if (version_id != 1)
-        return -EINVAL;
-
-    qemu_get_8s(f, &s->reg);
-    qemu_get_8s(f, &s->pending);
-
-    return 0;
-}
-
-static void sun4c_intctl_reset(void *opaque)
-{
-    Sun4c_INTCTLState *s = opaque;
+    Sun4c_INTCTLState *s = container_of(d, Sun4c_INTCTLState, busdev.qdev);
 
     s->reg = 1;
     s->pending = 0;
 }
 
-void *sun4c_intctl_init(target_phys_addr_t addr, qemu_irq **irq,
-                        qemu_irq *parent_irq)
+static int sun4c_intctl_init1(SysBusDevice *dev)
 {
-    int sun4c_intctl_io_memory;
-    Sun4c_INTCTLState *s;
+    Sun4c_INTCTLState *s = FROM_SYSBUS(Sun4c_INTCTLState, dev);
+    int io_memory;
+    unsigned int i;
 
-    s = qemu_mallocz(sizeof(Sun4c_INTCTLState));
+    io_memory = cpu_register_io_memory(sun4c_intctl_mem_read,
+                                       sun4c_intctl_mem_write, s,
+                                       DEVICE_NATIVE_ENDIAN);
+    sysbus_init_mmio(dev, INTCTL_SIZE, io_memory);
+    qdev_init_gpio_in(&dev->qdev, sun4c_set_irq, 8);
 
-    sun4c_intctl_io_memory = cpu_register_io_memory(sun4c_intctl_mem_read,
-                                                    sun4c_intctl_mem_write, s);
-    cpu_register_physical_memory(addr, INTCTL_SIZE, sun4c_intctl_io_memory);
-    s->cpu_irqs = parent_irq;
+    for (i = 0; i < MAX_PILS; i++) {
+        sysbus_init_irq(dev, &s->cpu_irqs[i]);
+    }
 
-    register_savevm("sun4c_intctl", addr, 1, sun4c_intctl_save,
-                    sun4c_intctl_load, s);
-
-    qemu_register_reset(sun4c_intctl_reset, s);
-    *irq = qemu_allocate_irqs(sun4c_set_irq, s, 8);
-
-    sun4c_intctl_reset(s);
-    return s;
+    return 0;
 }
+
+static SysBusDeviceInfo sun4c_intctl_info = {
+    .init = sun4c_intctl_init1,
+    .qdev.name  = "sun4c_intctl",
+    .qdev.size  = sizeof(Sun4c_INTCTLState),
+    .qdev.vmsd  = &vmstate_sun4c_intctl,
+    .qdev.reset = sun4c_intctl_reset,
+};
+
+static void sun4c_intctl_register_devices(void)
+{
+    sysbus_register_withprop(&sun4c_intctl_info);
+}
+
+device_init(sun4c_intctl_register_devices)

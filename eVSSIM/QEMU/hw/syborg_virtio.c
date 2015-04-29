@@ -25,7 +25,7 @@
 #include "syborg.h"
 #include "sysbus.h"
 #include "virtio.h"
-#include "sysemu.h"
+#include "virtio-net.h"
 
 //#define DEBUG_SYBORG_VIRTIO
 
@@ -65,6 +65,9 @@ typedef struct {
     qemu_irq irq;
     uint32_t int_enable;
     uint32_t id;
+    NICConf nic;
+    uint32_t host_features;
+    virtio_net_conf net;
 } SyborgVirtIOProxy;
 
 static uint32_t syborg_virtio_readl(void *opaque, target_phys_addr_t offset)
@@ -85,11 +88,10 @@ static uint32_t syborg_virtio_readl(void *opaque, target_phys_addr_t offset)
         ret = s->id;
         break;
     case SYBORG_VIRTIO_HOST_FEATURES:
-        ret = vdev->get_features(vdev);
-        ret |= (1 << VIRTIO_F_NOTIFY_ON_EMPTY);
+        ret = s->host_features;
         break;
     case SYBORG_VIRTIO_GUEST_FEATURES:
-        ret = vdev->features;
+        ret = vdev->guest_features;
         break;
     case SYBORG_VIRTIO_QUEUE_BASE:
         ret = virtio_queue_get_addr(vdev, vdev->queue_sel);
@@ -131,7 +133,7 @@ static void syborg_virtio_writel(void *opaque, target_phys_addr_t offset,
     case SYBORG_VIRTIO_GUEST_FEATURES:
         if (vdev->set_features)
             vdev->set_features(vdev, value);
-        vdev->features = value;
+        vdev->guest_features = value;
         break;
     case SYBORG_VIRTIO_QUEUE_BASE:
         if (value == 0)
@@ -144,10 +146,12 @@ static void syborg_virtio_writel(void *opaque, target_phys_addr_t offset,
             vdev->queue_sel = value;
         break;
     case SYBORG_VIRTIO_QUEUE_NOTIFY:
-        virtio_queue_notify(vdev, value);
+        if (value < VIRTIO_PCI_QUEUE_MAX) {
+            virtio_queue_notify(vdev, value);
+        }
         break;
     case SYBORG_VIRTIO_STATUS:
-        vdev->status = value & 0xFF;
+        virtio_set_status(vdev, value & 0xFF);
         if (vdev->status == 0)
             virtio_reset(vdev);
         break;
@@ -219,13 +223,13 @@ static void syborg_virtio_writeb(void *opaque, target_phys_addr_t offset,
     BADF("Bad byte write offset 0x%x\n", (int)offset);
 }
 
-static CPUReadMemoryFunc *syborg_virtio_readfn[] = {
+static CPUReadMemoryFunc * const syborg_virtio_readfn[] = {
      syborg_virtio_readb,
      syborg_virtio_readw,
      syborg_virtio_readl
 };
 
-static CPUWriteMemoryFunc *syborg_virtio_writefn[] = {
+static CPUWriteMemoryFunc * const syborg_virtio_writefn[] = {
      syborg_virtio_writeb,
      syborg_virtio_writew,
      syborg_virtio_writel
@@ -241,11 +245,18 @@ static void syborg_virtio_update_irq(void *opaque, uint16_t vector)
     qemu_set_irq(proxy->irq, level != 0);
 }
 
+static unsigned syborg_virtio_get_features(void *opaque)
+{
+    SyborgVirtIOProxy *proxy = opaque;
+    return proxy->host_features;
+}
+
 static VirtIOBindings syborg_virtio_bindings = {
-    .notify = syborg_virtio_update_irq
+    .notify = syborg_virtio_update_irq,
+    .get_features = syborg_virtio_get_features,
 };
 
-static void syborg_virtio_init(SyborgVirtIOProxy *proxy, VirtIODevice *vdev)
+static int syborg_virtio_init(SyborgVirtIOProxy *proxy, VirtIODevice *vdev)
 {
     int iomemtype;
 
@@ -255,7 +266,8 @@ static void syborg_virtio_init(SyborgVirtIOProxy *proxy, VirtIODevice *vdev)
     proxy->vdev->nvectors = 0;
     sysbus_init_irq(&proxy->busdev, &proxy->irq);
     iomemtype = cpu_register_io_memory(syborg_virtio_readfn,
-                                       syborg_virtio_writefn, proxy);
+                                       syborg_virtio_writefn, proxy,
+                                       DEVICE_NATIVE_ENDIAN);
     sysbus_init_mmio(&proxy->busdev, 0x1000, iomemtype);
 
     proxy->id = ((uint32_t)0x1af4 << 16) | vdev->device_id;
@@ -263,23 +275,41 @@ static void syborg_virtio_init(SyborgVirtIOProxy *proxy, VirtIODevice *vdev)
     qemu_register_reset(virtio_reset, vdev);
 
     virtio_bind_device(vdev, &syborg_virtio_bindings, proxy);
+    proxy->host_features |= (0x1 << VIRTIO_F_NOTIFY_ON_EMPTY);
+    proxy->host_features = vdev->get_features(vdev, proxy->host_features);
+    return 0;
 }
 
 /* Device specific bindings.  */
 
-static void syborg_virtio_net_init(SysBusDevice *dev)
+static int syborg_virtio_net_init(SysBusDevice *dev)
 {
     VirtIODevice *vdev;
     SyborgVirtIOProxy *proxy = FROM_SYSBUS(SyborgVirtIOProxy, dev);
 
-    vdev = virtio_net_init(&dev->qdev);
-    syborg_virtio_init(proxy, vdev);
+    vdev = virtio_net_init(&dev->qdev, &proxy->nic, &proxy->net);
+    return syborg_virtio_init(proxy, vdev);
 }
+
+static SysBusDeviceInfo syborg_virtio_net_info = {
+    .init = syborg_virtio_net_init,
+    .qdev.name  = "syborg,virtio-net",
+    .qdev.size  = sizeof(SyborgVirtIOProxy),
+    .qdev.props = (Property[]) {
+        DEFINE_NIC_PROPERTIES(SyborgVirtIOProxy, nic),
+        DEFINE_VIRTIO_NET_FEATURES(SyborgVirtIOProxy, host_features),
+        DEFINE_PROP_UINT32("x-txtimer", SyborgVirtIOProxy,
+                           net.txtimer, TX_TIMER_INTERVAL),
+        DEFINE_PROP_INT32("x-txburst", SyborgVirtIOProxy,
+                          net.txburst, TX_BURST),
+        DEFINE_PROP_STRING("tx", SyborgVirtIOProxy, net.tx),
+        DEFINE_PROP_END_OF_LIST(),
+    }
+};
 
 static void syborg_virtio_register_devices(void)
 {
-    sysbus_register_dev("syborg,virtio-net", sizeof(SyborgVirtIOProxy),
-                        syborg_virtio_net_init);
+    sysbus_register_withprop(&syborg_virtio_net_info);
 }
 
 device_init(syborg_virtio_register_devices)
