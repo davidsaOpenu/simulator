@@ -15,16 +15,14 @@ VSSIM unit tests
        a.3 cmake .. (yum install cmake if needed)
        a.4 make
     b. mkdir data; cd data; ln -s ../../CONFIG/ssd.conf 
-    c. install sqlite (yum install sqlite-devel for CENTOS; apt-get install libsqlite3-dev) 
+    c. compile osc-osd (cd osc-osd/; make)
+    d. install sqlite (yum install sqlite-devel for CENTOS; apt-get install libsqlite3-dev) 
 
 2. Build
     a. Make links
         make mklink
 
-    b. Create directory for mapping files and ssd.conf 
-       make data
-
-    c. Build unit_tests
+    b. Build unit_tests
         make
 
 3. Run unit tests
