@@ -1,1 +1,1 @@
-/home/cool/os/simulator/eVSSIM/QEMU/roms/vgabios/Makefile
+/root/simulator/eVSSIM/QEMU/roms/vgabios/Makefile

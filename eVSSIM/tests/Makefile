@@ -7,15 +7,15 @@ VSSIM_OBJ = vssim_config_manager.o \
 			ftl_sect_strategy.o ftl_obj_strategy.o
 
 #CFLAGS = -I/opt/gtest/include -I../osc-osd -I../osc-osd/osd-target -g -DGTEST -DFTL_DEBUG -DNO_OSD
-CFLAGS = -I/opt/gtest/include -I../osc-osd -I../osc-osd/osd-target -g -DGTEST
+CFLAGS = -I/opt/gtest/include -I../osc-osd -I../osc-osd/osd-target -g -DGTEST -L/opt/gtest/lib
 
 all: sector_tests object_tests
 
 sector_tests: sector_tests.o $(VSSIM_OBJ)
-	g++ -Wall -o sector_tests sector_tests.o $(VSSIM_OBJ) -lpthread -lgtest -lgtest_main
+	g++ $(CFLAGS) -Wall -o sector_tests sector_tests.o $(VSSIM_OBJ) -lpthread -lgtest -lgtest_main
 
 object_tests: object_tests.o $(VSSIM_OBJ)
-	g++ -Wall -o object_tests object_tests.o $(VSSIM_OBJ) -Wl,-Bstatic -L../osc-osd/osd-util -L../osc-osd/osd-target -losdutil -losdtgt -Wl,-Bdynamic -lsqlite3 -lm -lpthread -lgtest -lgtest_main
+	g++ $(CFLAGS) -Wall -o object_tests object_tests.o $(VSSIM_OBJ) -Wl,-Bstatic -L../osc-osd/osd-util -L../osc-osd/osd-target -losdutil -losdtgt -Wl,-Bdynamic -lsqlite3 -lm -lpthread -lgtest -lgtest_main
 
 %.o: %.cc
 	g++ -Wall $(CFLAGS) -c $<
