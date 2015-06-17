@@ -174,7 +174,7 @@ void Form1::onReceive()
 			}
 			else
 			{
-	      			WriteAmpCount += wb;
+	      			WriteAmpCount = wb;
 	      			sprintf(szTemp, "%ld", WriteAmpCount);
 	      			txtWriteAmpCount->setText(szTemp);
 			}
