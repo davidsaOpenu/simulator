@@ -9,7 +9,12 @@
 # ramdisk
 eVSSIM/RAMDISK/rd
 
-# monitr executable and files
+# QMake-generated makefiles
+eVSSIM/MONITOR/SSD_MONITOR_PM/Makefile
+eVSSIM/QEMU/roms/seabios/Makefile
+eVSSIM/QEMU/roms/vgabios/Makefile
+
+# monitor executable and files
 eVSSIM/MONITOR/SSD_MONITOR_PM/ssd_monitor_p
 eVSSIM/MONITOR/SSD_MONITOR_PM/form1.cpp
 eVSSIM/MONITOR/SSD_MONITOR_PM/form1.h
@@ -66,6 +71,7 @@ eVSSIM/QEMU/hw/vssim_config_manager.c
 eVSSIM/QEMU/hw/uthash.h
 eVSSIM/QEMU/hw/ssd.c
 eVSSIM/QEMU/hw/ssd.h
+eVSSIM/QEMU/hw/ssd_monitor
 
 # unit test files
 eVSSIM/tests/test_*.txt
