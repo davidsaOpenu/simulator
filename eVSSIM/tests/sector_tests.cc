@@ -22,16 +22,16 @@ namespace {
         public:
             virtual void SetUp() {
                 size_t mb = GetParam();
-                pages_= mb * (1048576 / 4096); // number_of_pages = disk_size (in MB) * 1048576 / page_size
+                pages_= (mb * 1024 * 1024) / 4096; // number_of_pages = disk_size (in bytes) / page_size in bytes
                 size_t block_x_flash = pages_ / 8; // all_blocks_on_all_flashes = number_of_pages / pages_in_block
                 size_t flash = block_x_flash / 4096; // number_of_flashes = all_blocks_on_all_flashes / number_of_blocks_in_flash
                 ofstream ssd_conf("data/ssd.conf", ios_base::out | ios_base::trunc);
                 ssd_conf << "FILE_NAME ./data/ssd.img\n"
-                    "PAGE_SIZE 4096\n"
+                    "PAGE_SIZE 4096\n" // page size in bytes
                     "PAGE_NB 10\n" // 8 pages per block +2 pages over-provision = 125% of disk size
                     "SECTOR_SIZE 1\n"
                     "FLASH_NB " << flash << "\n" // see calculations above
-                    "BLOCK_NB 4096\n"
+                    "BLOCK_NB 4096\n" // amount of blocks per flash
                     "PLANES_PER_FLASH 1\n"
                     "REG_WRITE_DELAY 82\n"
                     "CELL_PROGRAM_DELAY 900\n"
