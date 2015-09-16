@@ -7,7 +7,7 @@ VSSIM_OBJ = vssim_config_manager.o \
 			ftl_sect_strategy.o ftl_obj_strategy.o
 
 #CFLAGS = -I/opt/gtest/include -I../osc-osd -I../osc-osd/osd-target -g -DGTEST -DFTL_DEBUG -DNO_OSD
-CFLAGS = -I/opt/gtest/include -I../osc-osd -I../osc-osd/osd-target -g -DGTEST -L/opt/gtest/lib
+CFLAGS = -I/opt/gtest/include -I../osc-osd -I../osc-osd/osd-target -g -DGTEST -L/opt/gtest/
 
 all: sector_tests object_tests
 
