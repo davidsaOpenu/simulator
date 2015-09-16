@@ -10,6 +10,9 @@ unsigned int gc_count = 0;
 int fail_cnt = 0;
 extern double ssd_util;
 
+write_amplification_counters wa_counters;
+
+
 void GC_CHECK(unsigned int phy_flash_nb, unsigned int phy_block_nb, bool force)
 {
 	int i, ret;
@@ -110,6 +113,9 @@ int GARBAGE_COLLECTION(int mapping_index, int l2)
             }
 
 			copy_page_nb++;
+			//if we got this far, it means we copied the page from the victim block to a new one -> meaning, we wrote to that new block so we need to update the relevant counter
+			wa_counters.physical_block_write_counter++;
+
 		}
 	}
 
@@ -119,6 +125,8 @@ int GARBAGE_COLLECTION(int mapping_index, int l2)
 	}
 
 	SSD_BLOCK_ERASE(victim_phy_flash_nb, victim_phy_block_nb);
+	//update the physical block write counter as we're deleting the victim block which we're freeing during the GC procedure
+	wa_counters.physical_block_write_counter++;
 	UPDATE_INVERSE_BLOCK_MAPPING(victim_phy_flash_nb, victim_phy_block_nb, EMPTY_BLOCK);
 	INSERT_EMPTY_BLOCK(victim_phy_flash_nb, victim_phy_block_nb);
 
@@ -128,7 +136,7 @@ int GARBAGE_COLLECTION(int mapping_index, int l2)
 	char szTemp[1024];
 	sprintf(szTemp, "GC ");
 	WRITE_LOG(szTemp);
-	sprintf(szTemp, "WB AMP %d", copy_page_nb);
+	sprintf(szTemp, "WB AMP %f", (float)wa_counters.physical_block_write_counter / (float)wa_counters.logical_block_write_counter);
 	WRITE_LOG(szTemp);
 #endif
 

@@ -153,6 +153,10 @@ int _FTL_WRITE_SECT(uint64_t sector_nb, unsigned int length)
 		}
 
 		ret = SSD_PAGE_WRITE(CALC_FLASH(new_ppn), CALC_BLOCK(new_ppn), CALC_PAGE(new_ppn), write_page_nb, WRITE, io_page_nb);
+
+		//we caused a block write -> update the logical block_write counter + update the physical block write counter
+		wa_counters.logical_block_write_counter++;
+		wa_counters.physical_block_write_counter++;
 		//Send a physical write action being done to the statistics gathering
 		if (ret == SUCCESS)
 		{
@@ -160,6 +164,7 @@ int _FTL_WRITE_SECT(uint64_t sector_nb, unsigned int length)
 		}
 		write_page_nb++;
 
+		//Calculate the logical page number -> the current sector_number / amount_of_sectors_per_page
 		lpn = lba / (int32_t)SECTORS_PER_PAGE;
 		//Send a logical write action being done to the statistics gathering
 		FTL_STATISTICS_GATHERING(lpn , LOGICAL_WRITE);
@@ -190,6 +195,9 @@ int _FTL_WRITE_SECT(uint64_t sector_nb, unsigned int length)
 	sprintf(szTemp, "WRITE PAGE %d ", length);
 	WRITE_LOG(szTemp);
 	sprintf(szTemp, "WB CORRECT %d", write_page_nb);
+	WRITE_LOG(szTemp);
+	//also update the write amplifications status here
+	sprintf(szTemp, "WB AMP %f", (float)wa_counters.physical_block_write_counter / (float)wa_counters.logical_block_write_counter);
 	WRITE_LOG(szTemp);
 #endif
 
