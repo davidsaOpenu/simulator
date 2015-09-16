@@ -67,6 +67,14 @@ int GET_NEW_PAGE(int mode, int mapping_index, uint32_t* ppn)
 		return FAIL;
 	}
 
+
+	//In order to understand what is the SYSTEM WIDE index number of the next available page (this is actually the physical page number)
+	//we need to count the number of pages from the beginning of the disk, up until the location of the empty block we received from the "GET_EMPTY_BLOCK"
+	//method above:
+	//
+	//We count the number of pages in all flash chips before us
+	//We add to it the number of pages in all blocks before our current block (which was returned by the GET_EMPTY_BLOCK method)
+	//and then we add to it the amount of blocks which are already used in our current block
 	*ppn = curr_empty_block->phy_flash_nb*BLOCK_NB*PAGE_NB \
 	       + curr_empty_block->phy_block_nb*PAGE_NB \
 	       + curr_empty_block->curr_phy_page_nb;

@@ -400,6 +400,8 @@ void TERM_VICTIM_BLOCK_LIST(void)
 	fclose(fp);
 }
 
+//If we're using the VICTIM_OVERALL option, then a candidate block (one with an empty page available) is returned from a different
+//flash plane each time, sequentially (wraps at the end and starts all over again)
 empty_block_entry* GET_EMPTY_BLOCK(int mode, int mapping_index)
 {
 	if(total_empty_block_nb == 0){
