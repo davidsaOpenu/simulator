@@ -194,7 +194,7 @@ double GET_IO_BANDWIDTH(double delay)
 	double bw;
 
 	if(delay != 0)
-		bw = ((double)PAGE_SIZE*1000000)/(delay*1024*1024);
+		bw = ((double)VSSIM_PAGE_SIZE*1000000)/(delay*1024*1024);
 	else
 		bw = 0;
 

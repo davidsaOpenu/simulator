@@ -25,16 +25,19 @@
 #include "nvme.h"
 #include "nvme_debug.h"
 
-
 #ifdef CONFIG_VSSIM
 #include "ssd.h"
-extern char* GET_FILE_NAME(void);
+#include "vssim_config_manager.h"
+#include "ftl_obj_strategy.h"
+
+//extern char* GET_FILE_NAME(void);
 //TODO: review SECTOR_SIZE vs. page_size of the NVME
-extern int SECTOR_SIZE; // SSD configuration. See CONFIG/vssim_config_manager
+//extern int SECTOR_SIZE; // SSD configuration. See CONFIG/vssim_config_manager
 #endif /* CONFIG_VSSIM */
 
 #include <sys/mman.h>
 #include <assert.h>
+
 
 #define MASK_AD         0x4
 #define MASK_IDW        0x2
@@ -44,6 +47,11 @@ static uint8_t read_dsm_ranges(uint64_t range_prp1, uint64_t range_prp2,
     uint8_t *buffer_addr, uint64_t *data_size_p);
 static void dsm_dealloc(DiskInfo *disk, uint64_t slba, uint64_t nlb);
 
+static object_location parse_metadata(metadata_info meta_info)
+{
+	object_location obj_loc;
+	return obj_loc;
+}
 
 void nvme_dma_mem_read(target_phys_addr_t addr, uint8_t *buf, int len)
 {
@@ -57,7 +65,7 @@ void nvme_dma_mem_write(target_phys_addr_t addr, uint8_t *buf, int len)
 
 #ifdef CONFIG_VSSIM
 static void nvme_dma_mem_read2(target_phys_addr_t addr, uint8_t *buf, int len,
-        uint8_t *mapping_addr)
+        uint8_t *mapping_addr, unsigned int partition_id, unsigned int object_id)
 {
     if((len % SECTOR_SIZE) != 0){
         LOG_ERR("nvme_dma_mem_read2: len (=%d) %% %d == %d (should be 0)",
@@ -69,12 +77,41 @@ static void nvme_dma_mem_read2(target_phys_addr_t addr, uint8_t *buf, int len,
                 buf - mapping_addr, SECTOR_SIZE,
                 (buf - mapping_addr) % SECTOR_SIZE);
     }
-    SSD_WRITE(len / SECTOR_SIZE, (buf - mapping_addr) / SECTOR_SIZE);
-    cpu_physical_memory_rw(addr, buf, len, 0);
+
+    if (STORAGE_STRATEGY == STORAGE_STRATEGY_OBJECT)
+    {
+
+    	printf("NIR-->object strategy\n");
+    	object_location obj_loc = {
+    			.object_id = object_id,
+				.partition_id = partition_id
+    	};
+
+    	//We don't need to specify the parition_id + object id
+    	//as they're determined automatically by the
+    	//simulator methods. However, I'm leaving this here
+    	//as infrastructure if we'd like to change this in the future
+    	//and set the IDs ourselves
+    	SSD_OBJECT_WRITE(obj_loc, len);
+
+    	//write the object data to the persistent osd storage
+    	//
+    	//We DO use the obj_loc IDs here... they're NOT auto-determined
+    	OSD_WRITE(obj_loc, len, addr);
+    }
+    else
+    {
+    	printf("NIR-->sector strategy\n");
+    	//sector strategy -> continue normally
+    	SSD_WRITE(len / SECTOR_SIZE, (buf - mapping_addr) / SECTOR_SIZE);
+    	//read from dma memory (prp) and write to qemu's volatile memory
+    	cpu_physical_memory_rw(addr, buf, len, 0);
+    }
+
 }
 
 static void nvme_dma_mem_write2(target_phys_addr_t addr, uint8_t *buf, int len,
-        uint8_t *mapping_addr)
+        uint8_t *mapping_addr, unsigned int partition_id, unsigned int object_id)
 {
     if((len % SECTOR_SIZE) != 0){
         LOG_ERR("nvme_dma_mem_write2: len (=%d) %% %d == %d (should be 0)",
@@ -86,13 +123,36 @@ static void nvme_dma_mem_write2(target_phys_addr_t addr, uint8_t *buf, int len,
                 buf - mapping_addr, SECTOR_SIZE,
                 (buf - mapping_addr) % SECTOR_SIZE);
     }
-    SSD_READ(len / SECTOR_SIZE, (buf - mapping_addr) / SECTOR_SIZE);
-    cpu_physical_memory_rw(addr, buf, len, 1);
+
+    if (STORAGE_STRATEGY == STORAGE_STRATEGY_OBJECT)
+    {
+
+    	printf("NIR-->object strategy\n");
+    	object_location obj_loc = {
+    			.object_id = object_id,
+				.partition_id = partition_id
+    	};
+
+    	//perform a simulator READ -> don't use SSD_READ as it requires us
+    	//to pass too many unused parameters
+        SSD_OBJECT_READ(obj_loc, len);
+
+        //read from persistent OSD storage
+    	OSD_READ(obj_loc, len, addr);
+    }
+    else
+    {
+    	printf("NIR-->sector strategy\n");
+    	//sector strategy -> continue normally
+        SSD_READ(len / SECTOR_SIZE, (buf - mapping_addr) / SECTOR_SIZE);
+    	//read from qemu's volatile memory and write to dma memory (prp)
+        cpu_physical_memory_rw(addr, buf, len, 1);
+    }
 }
 #endif /* CONFIG_VSSIM */
 
 static uint8_t do_rw_prp(NVMEState *n, uint64_t mem_addr, uint64_t *data_size_p,
-    uint64_t *file_offset_p, uint8_t *mapping_addr, uint8_t rw)
+    uint64_t *file_offset_p, uint8_t *mapping_addr, uint8_t rw, metadata_info meta_info)
 {
     uint64_t data_len;
 
@@ -110,11 +170,13 @@ static uint8_t do_rw_prp(NVMEState *n, uint64_t mem_addr, uint64_t *data_size_p,
     LOG_DBG("Length for read/write:%ld (0x%016lX)", data_len, data_len);
     LOG_DBG("Address for read/write:%ld (0x%016lX))", mem_addr, mem_addr);
 
+    object_location obj_loc = parse_metadata(meta_info);
+
     switch (rw) {
     case NVME_CMD_READ:
         LOG_DBG("Read cmd called");
 #ifdef CONFIG_VSSIM
-        nvme_dma_mem_write2(mem_addr, (mapping_addr + *file_offset_p), data_len, mapping_addr);
+        nvme_dma_mem_write2(mem_addr, (mapping_addr + *file_offset_p), data_len, mapping_addr, obj_loc.partition_id, obj_loc.object_id);
 #else
         nvme_dma_mem_write(mem_addr, (mapping_addr + *file_offset_p), data_len);
 #endif
@@ -122,7 +184,7 @@ static uint8_t do_rw_prp(NVMEState *n, uint64_t mem_addr, uint64_t *data_size_p,
     case NVME_CMD_WRITE:
         LOG_DBG("Write cmd called");
 #ifdef CONFIG_VSSIM
-        nvme_dma_mem_read2(mem_addr, (mapping_addr + *file_offset_p), data_len, mapping_addr);
+        nvme_dma_mem_read2(mem_addr, (mapping_addr + *file_offset_p), data_len, mapping_addr, obj_loc.partition_id, obj_loc.object_id);
 #else
         nvme_dma_mem_read(mem_addr, (mapping_addr + *file_offset_p), data_len);
 #endif
@@ -131,7 +193,7 @@ static uint8_t do_rw_prp(NVMEState *n, uint64_t mem_addr, uint64_t *data_size_p,
         LOG_ERR("Error- wrong opcode: %d", rw);
         return FAIL;
     }
-    /*{ // DEBUG CODE DUMP
+    { // DEBUG CODE DUMP
     	unsigned int* start_p = (unsigned int*)(mapping_addr + *file_offset_p);
     	unsigned int* end_p = (unsigned int*)(mapping_addr + *file_offset_p) + data_len / sizeof(unsigned int);
     	int i =0,iall = 0;
@@ -166,7 +228,7 @@ static uint8_t do_rw_prp(NVMEState *n, uint64_t mem_addr, uint64_t *data_size_p,
 
     	}
     	printf("---------------------------------------\nDUMP MEMORY END\n---------------------------------------\n");
-    }//*/
+    }
 
     *file_offset_p = *file_offset_p + data_len;
     *data_size_p = *data_size_p - data_len;
@@ -174,7 +236,7 @@ static uint8_t do_rw_prp(NVMEState *n, uint64_t mem_addr, uint64_t *data_size_p,
 }
 
 static uint8_t do_rw_prp_list(NVMEState *n, NVMECmd *command,
-    uint64_t *data_size_p, uint64_t *file_offset_p, uint8_t *mapping_addr)
+    uint64_t *data_size_p, uint64_t *file_offset_p, uint8_t *mapping_addr, metadata_info meta_info)
 {
     uint64_t prp_list[512], prp_entries;
     uint16_t i = 0;
@@ -183,14 +245,14 @@ static uint8_t do_rw_prp_list(NVMEState *n, NVMECmd *command,
 
     LOG_DBG("Data Size remaining for read/write:%ld", *data_size_p);
 
+    object_location obj_loc = parse_metadata(meta_info);
+
     /* Logic to find the number of PRP Entries */
     prp_entries = (uint64_t) ((*data_size_p + PAGE_SIZE - 1) / PAGE_SIZE);
 #ifdef CONFIG_VSSIM
-    nvme_dma_mem_read2(cmd->prp2, (uint8_t *)prp_list,
-        min(sizeof(prp_list), prp_entries * sizeof(uint64_t)), mapping_addr);
+    nvme_dma_mem_read2(cmd->prp2, (uint8_t *)prp_list, min(sizeof(prp_list), prp_entries * sizeof(uint64_t)), mapping_addr, obj_loc.partition_id, obj_loc.object_id);
 #else
-    nvme_dma_mem_read(cmd->prp2, (uint8_t *)prp_list,
-        min(sizeof(prp_list), prp_entries * sizeof(uint64_t)));
+    nvme_dma_mem_read(cmd->prp2, (uint8_t *)prp_list, min(sizeof(prp_list), prp_entries * sizeof(uint64_t)));
 #endif
 
     /* Read/Write on PRPList */
@@ -200,17 +262,14 @@ static uint8_t do_rw_prp_list(NVMEState *n, NVMECmd *command,
             prp_entries = (uint64_t) ((*data_size_p + PAGE_SIZE - 1) /
                 PAGE_SIZE);
 #ifdef CONFIG_VSSIM
-            nvme_dma_mem_read2(prp_list[511], (uint8_t *)prp_list,
-                min(sizeof(prp_list), prp_entries * sizeof(uint64_t)), mapping_addr);
+            nvme_dma_mem_read2(prp_list[511], (uint8_t *)prp_list, min(sizeof(prp_list), prp_entries * sizeof(uint64_t)), mapping_addr, obj_loc.partition_id, obj_loc.object_id);
 #else
-            nvme_dma_mem_read(prp_list[511], (uint8_t *)prp_list,
-                min(sizeof(prp_list), prp_entries * sizeof(uint64_t)));
+            nvme_dma_mem_read(prp_list[511], (uint8_t *)prp_list, min(sizeof(prp_list), prp_entries * sizeof(uint64_t)));
 #endif
             i = 0;
         }
 
-        res = do_rw_prp(n, prp_list[i], data_size_p,
-            file_offset_p, mapping_addr, cmd->opcode);
+        res = do_rw_prp(n, prp_list[i], data_size_p, file_offset_p, mapping_addr, cmd->opcode, meta_info);
         LOG_DBG("Data Size remaining for read/write:%ld", *data_size_p);
         if (res == FAIL) {
             break;
@@ -370,10 +429,21 @@ uint8_t nvme_io_command(NVMEState *n, NVMECmd *sqe, NVMECQE *cqe)
         return FAIL;
     }
 
+
+    //Metadata parsing will probably fit here
+    unsigned int ms, metaOffset;
+    ms = disk->idtfy_ns.lbafx[lba_idx].ms;
+    metaOffset = e->slba * ms;
+
+    metadata_info meta_info = {
+    		.metadata_mapping_addr = disk->meta_mapping_addr + metaOffset,
+			.metadata_size = (e->nlb + 1) * ms
+    };
+
     /* Writing/Reading PRP1 */
     LOG_DBG("Writing/Reading PRP1");
     res = do_rw_prp(n, e->prp1, &data_size, &file_offset, mapping_addr,
-        e->opcode);
+        e->opcode, meta_info);
     if (res == FAIL) {
         return FAIL;
     }
@@ -381,11 +451,11 @@ uint8_t nvme_io_command(NVMEState *n, NVMECmd *sqe, NVMECQE *cqe)
         if (data_size <= PAGE_SIZE) {
         	LOG_DBG("Writing/Reading PRP2");
             res = do_rw_prp(n, e->prp2, &data_size, &file_offset, mapping_addr,
-                e->opcode);
+                e->opcode, meta_info);
         } else {
         	LOG_DBG("Writing/Reading do_rw_prp_list!");
             res = do_rw_prp_list(n, sqe, &data_size, &file_offset,
-                mapping_addr);
+                mapping_addr, meta_info);
         }
         if (res == FAIL) {
             return FAIL;

@@ -3,7 +3,10 @@
 // Hanyang University, Seoul, Korea
 // Embedded Software Systems Lab. All right reserved
 
+
 #include "common.h"
+#include "ftl_sect_strategy.h"
+#include "ftl_obj_strategy.h"
 
 #include <arpa/inet.h>
 #include <sys/socket.h>
@@ -110,11 +113,9 @@ int FTL_COPYBACK(uint32_t source, uint32_t destination)
 	return storage_strategy->FTL_COPYBACK(source, destination);
 }
 
-void FTL_CREATE(size_t size)
+int FTL_CREATE(size_t size)
 {
-	int ret;
-	
-	ret = storage_strategy->FTL_CREATE(size);
+	return storage_strategy->FTL_CREATE(size);
 }
 
 void FTL_DELETE(uint64_t id)
@@ -201,17 +202,17 @@ int FTL_STATISTICS_GATHERING(uint32_t address , int type){
 
 	if (gatherStats == 0)
 	{
-		return SUCCESS;
+		return SUCCESSFUL;
 	}
 	if (address > PAGE_MAPPING_ENTRY_NB){
-		return FAIL;
+		return FAILED;
 	}
 
 	//Increase the count of the action that was done.
 	mapping_stats_table[type][address] = mapping_stats_table[type][address] + 1;
 
 
-	return SUCCESS;
+	return SUCCESSFUL;
 }
 
 uint32_t FTL_STATISTICS_QUERY	(uint32_t address, int scope , int type){

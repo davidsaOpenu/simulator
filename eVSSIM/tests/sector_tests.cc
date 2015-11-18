@@ -1,5 +1,6 @@
 
 extern "C" {
+#include "common.h"
 #include "ssd.h"
 #include "ftl.h"
 }

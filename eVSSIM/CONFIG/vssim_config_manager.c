@@ -7,7 +7,7 @@
 
 /* SSD Configuration */
 int SECTOR_SIZE;
-int PAGE_SIZE;
+int VSSIM_PAGE_SIZE;
 
 int64_t SECTOR_NB;
 int PAGE_NB;
@@ -86,7 +86,7 @@ void INIT_SSD_CONFIG(void)
 			}
 			else if(strcmp(szCommand, "PAGE_SIZE") == 0)
 			{
-				if(fscanf(pfData, "%d", &PAGE_SIZE) == EOF)
+				if(fscanf(pfData, "%d", &VSSIM_PAGE_SIZE) == EOF)
 					printf("ERROR[%s] Wrong PAGE_SIZE\n",__FUNCTION__);
 			}
 			else if(strcmp(szCommand, "PAGE_NB") == 0)
@@ -232,7 +232,7 @@ void INIT_SSD_CONFIG(void)
 	}
 
 	/* SSD Configuration */
-	SECTORS_PER_PAGE = PAGE_SIZE / SECTOR_SIZE;
+	SECTORS_PER_PAGE = VSSIM_PAGE_SIZE / SECTOR_SIZE;
 	PAGES_PER_FLASH = PAGE_NB * BLOCK_NB;
 	SECTOR_NB = (int64_t)SECTORS_PER_PAGE * (int64_t)PAGE_NB * (int64_t)BLOCK_NB * (int64_t)FLASH_NB;
 

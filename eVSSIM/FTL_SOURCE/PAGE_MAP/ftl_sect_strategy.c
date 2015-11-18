@@ -14,7 +14,7 @@ int _FTL_READ_SECT(uint64_t sector_nb, unsigned int length)
 	if (sector_nb + length > SECTOR_NB)
 	{
 		printf("Error[FTL_READ] Exceed Sector number\n"); 
-		return FAIL;	
+		return FAILED;
 	}
 
 	int32_t lpn;
@@ -25,7 +25,7 @@ int _FTL_READ_SECT(uint64_t sector_nb, unsigned int length)
 	unsigned long right_skip;
 	unsigned int read_sects;
 
-	unsigned int ret = FAIL;
+	unsigned int ret = FAILED;
 	int read_page_nb = 0;
 	int io_page_nb;
 
@@ -59,18 +59,18 @@ int _FTL_READ_SECT(uint64_t sector_nb, unsigned int length)
 #ifdef FTL_DEBUG
 			printf("Error[%s] No Mapping info\n",__FUNCTION__);
 #endif
-            return FAIL;
+            return FAILED;
 		}
 
 		ret = SSD_PAGE_READ(CALC_FLASH(ppn), CALC_BLOCK(ppn), CALC_PAGE(ppn), read_page_nb, READ, io_page_nb);
 		//Send a physical read action being done to the statistics gathering
-		if (ret == SUCCESS)
+		if (ret == SUCCESSFUL)
 		{
 			FTL_STATISTICS_GATHERING(ppn , PHYSICAL_READ);
 		}
 
 #ifdef FTL_DEBUG
-		if (ret == FAIL)
+		if (ret == FAILED)
 		{
 			printf("Error[%s] %u page read fail \n", __FUNCTION__, ppn);
 		}
@@ -105,7 +105,7 @@ int _FTL_WRITE(uint64_t sector_nb, unsigned int offset, unsigned int length)
 int _FTL_WRITE_SECT(uint64_t sector_nb, unsigned int length)
 {
 #ifdef FTL_DEBUG
-	printf("[%s] Start: sector_nb %d length %u\n",__FUNCTION__, sector_nb, length);
+	printf("[%s] Start: sector_nb %" PRIu64 "length %u\n",__FUNCTION__, sector_nb, length);
 #endif
 
 	int io_page_nb;
@@ -113,7 +113,7 @@ int _FTL_WRITE_SECT(uint64_t sector_nb, unsigned int length)
 	if (sector_nb + length > SECTOR_NB)
 	{
 		printf("Error[FTL_WRITE] Exceed Sector number\n");
-        return FAIL;
+        return FAILED;
     }
 	else
 	{
@@ -129,7 +129,7 @@ int _FTL_WRITE_SECT(uint64_t sector_nb, unsigned int length)
 	unsigned int right_skip;
 	unsigned int write_sects;
 
-	unsigned int ret = FAIL;
+	unsigned int ret = FAILED;
 	int write_page_nb=0;
 
 	while (remain > 0)
@@ -146,10 +146,10 @@ int _FTL_WRITE_SECT(uint64_t sector_nb, unsigned int length)
 		write_sects = SECTORS_PER_PAGE - left_skip - right_skip;
 
 		ret = GET_NEW_PAGE(VICTIM_OVERALL, EMPTY_TABLE_ENTRY_NB, &new_ppn);
-		if (ret == FAIL)
+		if (ret == FAILED)
 		{
 			printf("ERROR[FTL_WRITE] Get new page fail \n");
-			return FAIL;
+			return FAILED;
 		}
 
 		ret = SSD_PAGE_WRITE(CALC_FLASH(new_ppn), CALC_BLOCK(new_ppn), CALC_PAGE(new_ppn), write_page_nb, WRITE, io_page_nb);
@@ -158,7 +158,7 @@ int _FTL_WRITE_SECT(uint64_t sector_nb, unsigned int length)
 		wa_counters.logical_block_write_counter++;
 		wa_counters.physical_block_write_counter++;
 		//Send a physical write action being done to the statistics gathering
-		if (ret == SUCCESS)
+		if (ret == SUCCESSFUL)
 		{
 			FTL_STATISTICS_GATHERING(new_ppn , PHYSICAL_WRITE);
 		}
@@ -174,7 +174,7 @@ int _FTL_WRITE_SECT(uint64_t sector_nb, unsigned int length)
 		UPDATE_NEW_PAGE_MAPPING(lpn, new_ppn);
 
 #ifdef FTL_DEBUG
-        if (ret == FAIL)
+        if (ret == FAILED)
         {
             printf("Error[FTL_WRITE] %d page write fail \n", new_ppn);
         }
@@ -211,7 +211,7 @@ int _FTL_WRITE_SECT(uint64_t sector_nb, unsigned int length)
 int _FTL_COPYBACK(int32_t source, int32_t destination)
 {
 	int32_t lpn; //The logical page address, the page that being moved.
-	unsigned int ret = FAIL;
+	unsigned int ret = FAILED;
 
 	//Handle copyback delays
 	ret = SSD_PAGE_COPYBACK(source, destination, COPYBACK);
@@ -222,13 +222,13 @@ int _FTL_COPYBACK(int32_t source, int32_t destination)
     lpn = GET_INVERSE_MAPPING_INFO(source);
     UPDATE_NEW_PAGE_MAPPING(lpn, destination);*/
 
-	if (ret == FAIL)
+	if (ret == FAILED)
 	{
 #ifdef FTL_DEBUG
 		printf("Error[%s] %u page copyback fail \n", __FUNCTION__, source);
 #endif
 
-        return FAIL;
+        return FAILED;
 	}
 
 	//Handle page map
@@ -246,11 +246,11 @@ int _FTL_COPYBACK(int32_t source, int32_t destination)
 int _FTL_CREATE(size_t size)
 {
     // no "creation" in address-based storage
-    return SUCCESS;
+    return SUCCESSFUL;
 }
 
 int _FTL_DELETE(uint64_t id)
 {
     // no "deletion" in address-based storage
-    return SUCCESS;
+    return SUCCESSFUL;
 }

@@ -23,6 +23,16 @@ typedef struct stored_object {
     UT_hash_handle hh; /* makes this structure hashable */
 } stored_object;
 
+typedef struct {
+	unsigned int partition_id;
+	unsigned int object_id;
+} object_location;
+
+typedef struct {
+	 uint8_t *metadata_mapping_addr;
+	 unsigned int metadata_size;
+} metadata_info;
+
 void INIT_OBJ_STRATEGY(void);
 void TERM_OBJ_STRATEGY(void);
 

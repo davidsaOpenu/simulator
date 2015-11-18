@@ -6,7 +6,6 @@
 #ifndef _FTL_H_
 #define _FTL_H_
 
-#include "common.h"
 extern uint32_t** mapping_stats_table;
 void FTL_INIT(void);
 void FTL_TERM(void);
@@ -17,7 +16,7 @@ void FTL_TERM_STRATEGY(void);
 void FTL_READ(uint64_t id, unsigned int offset, unsigned int length);
 void FTL_WRITE(uint64_t id, unsigned int offset, unsigned int length);
 int FTL_COPYBACK(uint32_t source, uint32_t destination);
-void FTL_CREATE(size_t size);
+int FTL_CREATE(size_t size);
 void FTL_DELETE(uint64_t id);
 
 void FTL_INIT_STATS(void);
@@ -38,7 +37,6 @@ typedef struct {
         int (* FTL_DELETE)(uint64_t);
 } storage_strategy_functions;
 
-#define STORAGE_STRATEGY_SECTOR    1
-#define STORAGE_STRATEGY_OBJECT    2
+
 
 #endif
