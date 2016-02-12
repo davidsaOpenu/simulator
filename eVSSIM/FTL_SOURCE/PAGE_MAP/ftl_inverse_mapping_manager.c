@@ -400,6 +400,8 @@ void TERM_VICTIM_BLOCK_LIST(void)
 	fclose(fp);
 }
 
+//If we're using the VICTIM_OVERALL option, then a candidate block (one with an empty page available) is returned from a different
+//flash plane each time, sequentially (wraps at the end and starts all over again)
 empty_block_entry* GET_EMPTY_BLOCK(int mode, int mapping_index)
 {
 	if(total_empty_block_nb == 0){
@@ -561,7 +563,7 @@ int INSERT_EMPTY_BLOCK(unsigned int phy_flash_nb, unsigned int phy_block_nb)
 	new_empty_block = (empty_block_entry*)calloc(1, sizeof(empty_block_entry));
 	if(new_empty_block == NULL){
 		printf("ERROR[%s] Alloc new empty block fail\n",__FUNCTION__);
-		return FAIL;
+		return FAILURE;
 	}
 
 	/* Init New empty block */
@@ -586,7 +588,7 @@ int INSERT_EMPTY_BLOCK(unsigned int phy_flash_nb, unsigned int phy_block_nb)
 	}
 	total_empty_block_nb++;
 
-	return SUCCESS;
+	return SUCCESSFUL;
 }
 
 int INSERT_VICTIM_BLOCK(empty_block_entry* full_block){
@@ -604,7 +606,7 @@ int INSERT_VICTIM_BLOCK(empty_block_entry* full_block){
 	new_victim_block = (victim_block_entry*)calloc(1, sizeof(victim_block_entry));
 	if(new_victim_block == NULL){
 		printf("ERROR[%s] Calloc fail\n",__FUNCTION__);
-		return FAIL;
+		return FAILURE;
 	}
 
 	/* Copy the full block address */
@@ -638,7 +640,7 @@ int INSERT_VICTIM_BLOCK(empty_block_entry* full_block){
 	/* Update the total number of victim block */
 	total_victim_block_nb++;
 
-	return SUCCESS;
+	return SUCCESSFUL;
 }
 
 int EJECT_VICTIM_BLOCK(victim_block_entry* victim_block){
@@ -679,7 +681,7 @@ int EJECT_VICTIM_BLOCK(victim_block_entry* victim_block){
 	/* Free the victim block */
 	free(victim_block);
 
-	return SUCCESS;
+	return SUCCESSFUL;
 }
 
 inverse_block_mapping_entry* GET_INVERSE_BLOCK_MAPPING_ENTRY(unsigned int phy_flash_nb, unsigned int phy_block_nb){
@@ -702,7 +704,7 @@ int UPDATE_INVERSE_PAGE_MAPPING(uint32_t ppn,  uint32_t lpn)
 {
 	inverse_page_mapping_table[ppn] = lpn;
 
-	return SUCCESS;
+	return SUCCESSFUL;
 }
 
 int UPDATE_INVERSE_BLOCK_MAPPING(unsigned int phy_flash_nb, unsigned int phy_block_nb, int type)
@@ -718,14 +720,14 @@ int UPDATE_INVERSE_BLOCK_MAPPING(unsigned int phy_flash_nb, unsigned int phy_blo
                 }
         }
 
-        return SUCCESS;
+        return SUCCESSFUL;
 }
 
 int UPDATE_INVERSE_BLOCK_VALIDITY(unsigned int phy_flash_nb, unsigned int phy_block_nb, unsigned int phy_page_nb, int valid)
 {
 	if(phy_flash_nb >= FLASH_NB || phy_block_nb >= BLOCK_NB || phy_page_nb >= PAGE_NB){
 		printf("ERROR[%s] Wrong physical address\n",__FUNCTION__);
-		return FAIL;
+		return FAILURE;
 	}
 
 	int i;
@@ -755,5 +757,5 @@ int UPDATE_INVERSE_BLOCK_VALIDITY(unsigned int phy_flash_nb, unsigned int phy_bl
 	}
 	mapping_entry->valid_page_nb = valid_count;
 
-	return SUCCESS;
+	return SUCCESSFUL;
 }

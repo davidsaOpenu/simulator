@@ -544,7 +544,7 @@ static uint32_t nvme_mmio_readl(void *opaque, target_phys_addr_t addr)
     uint32_t rd_val = 0;
     NVMEState *nvme_dev = (NVMEState *) opaque;
 
-    LOG_DBG("%s(): addr = 0x%08x", __func__, (unsigned)addr);
+    //LOG_DBG("%s(): addr = 0x%08x", __func__, (unsigned)addr);
 
     /* Check if NVME controller Capabilities was written */
     if (addr < NVME_SQ0TDBL) {
