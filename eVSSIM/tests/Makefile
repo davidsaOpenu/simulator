@@ -4,7 +4,7 @@ VSSIM_OBJ = vssim_config_manager.o \
 			ssd_log_manager.o ssd_io_manager.o \
 			ftl_sect_strategy.o ftl_obj_strategy.o
 
-CFLAGS = -I/opt/gtest/include -I../osc-osd -I../osc-osd/osd-target -I../QEMU -g -DGTEST -DSECTOR_TESTS -L/opt/gtest/ -L../osc-osd/osd-util -L../osc-osd/osd-target
+CFLAGS = -I/opt/gtest/include -I../osc-osd -I../osc-osd/osd-target -I../QEMU -g -DGTEST -DCOMPLIANCE_TESTS -L/opt/gtest/ -L../osc-osd/osd-util -L../osc-osd/osd-target
 
 all: sector_tests object_tests
 #all: sector_tests

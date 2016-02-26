@@ -4,7 +4,7 @@
 #include "osd-util/osd-util.h"
 #include "osd-util/osd-defs.h"
 
-#ifndef SECTOR_TESTS
+#ifndef COMPLIANCE_TESTS
 #include "hw.h"
 #endif
 
@@ -91,7 +91,7 @@ int _FTL_OBJ_READ(object_id_t object_id, unsigned int offset, unsigned int lengt
     
     if(!(current_page = page_by_offset(object, offset)))
     {
-        printf("Error[%s] %u lookup page by offset failed \n", __FUNCTION__, current_page->page_id);
+        LOG_VSSIMDBG("Error[%s] %u lookup page by offset failed \n", __FUNCTION__, current_page->page_id);
         return FAILURE;
     }
     
@@ -112,7 +112,7 @@ int _FTL_OBJ_READ(object_id_t object_id, unsigned int offset, unsigned int lengt
 #ifdef FTL_DEBUG
 		if (ret == FAILURE)
 		{
-			printf("Error[%s] %u page read fail \n", __FUNCTION__, current_page->page_id);
+			LOG_VSSIMDBG("Error[%s] %u page read fail \n", __FUNCTION__, current_page->page_id);
 		}
 #endif
         
@@ -129,7 +129,7 @@ int _FTL_OBJ_READ(object_id_t object_id, unsigned int offset, unsigned int lengt
 #endif
 
 #ifdef FTL_DEBUG
-	printf("[%s] Complete\n",__FUNCTION__);
+	LOG_VSSIMDBG("[%s] Complete\n",__FUNCTION__);
 #endif
 
 	return ret;
@@ -149,7 +149,7 @@ int _FTL_OBJ_WRITE(object_id_t object_id, unsigned int offset, unsigned int leng
     // file not found
     if (object == NULL)
     {
-    	printf("[%s] failed lookup\n", __FUNCTION__);
+    	LOG_VSSIMDBG("[%s] failed lookup\n", __FUNCTION__);
         return FAILURE;
     }
     
@@ -162,7 +162,7 @@ int _FTL_OBJ_WRITE(object_id_t object_id, unsigned int offset, unsigned int leng
         if (GET_NEW_PAGE(VICTIM_OVERALL, EMPTY_TABLE_ENTRY_NB, &page_id) == FAILURE)
         {
             // not enough memory presumably
-            printf("ERROR[FTL_WRITE] Get new page fail \n");
+            LOG_VSSIMDBG("ERROR[FTL_WRITE] Get new page fail \n");
             return FAILURE;
         }
         if(!add_page(object, page_id))
@@ -183,12 +183,12 @@ int _FTL_OBJ_WRITE(object_id_t object_id, unsigned int offset, unsigned int leng
         // get the pge we'll be writing to
         if (GET_NEW_PAGE(VICTIM_OVERALL, EMPTY_TABLE_ENTRY_NB, &page_id) == FAILURE)
         {
-            printf("ERROR[FTL_WRITE] Get new page fail \n");
+            LOG_VSSIMDBG("ERROR[FTL_WRITE] Get new page fail \n");
             return FAILURE;
         }
         if((temp_page=lookup_page(page_id)))
         {
-            printf("ERROR[FTL_WRITE] Object %lu already contains page %d\n",temp_page->object_id,page_id);
+            LOG_VSSIMDBG("ERROR[FTL_WRITE] Object %lu already contains page %d\n",temp_page->object_id,page_id);
             return FAILURE;
         }
         
@@ -228,7 +228,7 @@ int _FTL_OBJ_WRITE(object_id_t object_id, unsigned int offset, unsigned int leng
 #ifdef FTL_DEBUG
         if (ret == FAILURE)
         {
-            printf("Error[FTL_WRITE] %d page write fail \n", page_id);
+            LOG_VSSIMDBG("Error[FTL_WRITE] %d page write fail \n", page_id);
         }
 #endif
 
@@ -251,7 +251,7 @@ int _FTL_OBJ_WRITE(object_id_t object_id, unsigned int offset, unsigned int leng
 #endif
 
 #ifdef FTL_DEBUG
-	printf("[%s] Complete\n",__FUNCTION__);
+	LOG_VSSIMDBG("[%s] Complete\n",__FUNCTION__);
 #endif
 
 	return ret;
@@ -280,7 +280,7 @@ int _FTL_OBJ_COPYBACK(int32_t source, int32_t destination)
 #ifdef FTL_DEBUG
     else
     {
-        printf("Warning[%s] %u copyback page not mapped to an object \n", __FUNCTION__, source);
+        LOG_VSSIMDBG("Warning[%s] %u copyback page not mapped to an object \n", __FUNCTION__, source);
     }
 #endif
 
@@ -359,7 +359,7 @@ stored_object *create_object(object_id_t obj_id, size_t size)
     }
     else
     {
-    	printf("[%s] Object %lu already exists, cannot create it !\n", __FUNCTION__, obj_id);
+    	LOG_VSSIMDBG("[%s] Object %lu already exists, cannot create it !\n", __FUNCTION__, obj_id);
     	return NULL;
     }
 
@@ -447,7 +447,7 @@ page_node *add_page(stored_object *object, uint32_t page_id)
     HASH_FIND_INT(global_page_table,&page_id,page);
     if(page)
     {
-        printf("ERROR[add_page] Object %lu already contains page %d\n",page->object_id,page_id);
+        LOG_VSSIMDBG("ERROR[add_page] Object %lu already contains page %d\n",page->object_id,page_id);
         return NULL;
     }
 
@@ -463,7 +463,7 @@ page_node *add_page(stored_object *object, uint32_t page_id)
         ;
     if(page)
     {
-        printf("ERROR[add_page] Object %lu already contains page %d\n",page->object_id,page_id);
+        LOG_VSSIMDBG("ERROR[add_page] Object %lu already contains page %d\n",page->object_id,page_id);
         return NULL;
     }
 
@@ -479,31 +479,45 @@ page_node *add_page(stored_object *object, uint32_t page_id)
 	//If that's the first prp, we need to create the object
 	if (obj_loc.create_object)
 	{
-		printf("[%s] about to create an object in the SIMULATOR -> obj id: %lu size: %lu\n", __FUNCTION__, obj_loc.object_id, size);
+		LOG_VSSIMDBG("[%s] about to create an object in the SIMULATOR -> obj id: %lu size: %lu\n", __FUNCTION__, obj_loc.object_id, size);
 		bool created = _FTL_OBJ_CREATE(obj_loc.object_id, size);
-		printf("[%s] created the SIMULATOR object !\n", __FUNCTION__);
+		LOG_VSSIMDBG("[%s] created the SIMULATOR object !\n", __FUNCTION__);
 
 		if (!created)
 		{
-			printf("[%s] could not create the SIMULATOR object. Aborting !\n", __FUNCTION__);
+			LOG_VSSIMDBG("[%s] could not create the SIMULATOR object. Aborting !\n", __FUNCTION__);
 			return;
 		}
 	}
 
-	printf("[%s] about to write an object to the SIMULATOR -> obj id: %lu size: %lu\n", __FUNCTION__, obj_loc.object_id, size);
-	int res = _FTL_OBJ_WRITE(obj_loc.object_id, 0, size);
-	printf("[%s] object written to the SIMULATOR with res:%d\n", __FUNCTION__, res);
+	LOG_VSSIMDBG("[%s] about to write an object to the SIMULATOR -> obj id: %lu size: %lu\n", __FUNCTION__, obj_loc.object_id, size);
+	_FTL_OBJ_WRITE(obj_loc.object_id, 0, size);
+	//LOG_VSSIMDBG("[%s] object written to the SIMULATOR with res:%d\n", __FUNCTION__, res);
 
 	return;
 }
 
  bool osd_init(void) {
-	 const char *root = "/tmp/osd/";
-	 if (system("rm -rf /tmp/osd"))
+	 const char *rm_command = "rm -rf ";
+	 char *rm_tmp_osd_command = malloc(strlen(OSD_PATH)+strlen(rm_command)+1);
+
+	 if (rm_tmp_osd_command != NULL)
+	 {
+		 rm_tmp_osd_command[0] = '\0';
+		 strcat(rm_tmp_osd_command, rm_command);
+		 strcat(rm_tmp_osd_command, OSD_PATH);
+	 }
+	 else
+	 {
+		 LOG_VSSIMDBG("malloc failed !\n");
 		 return false;
-	 if (osd_open(root, &osd))
+	 }
+
+	 if (system(rm_tmp_osd_command))
 		 return false;
-	 printf("[%s] osd_init() finished successfully !\n", __FUNCTION__);
+	 if (osd_open(OSD_PATH, &osd))
+		 return false;
+	 LOG_VSSIMDBG("[%s] osd_init() finished successfully !\n", __FUNCTION__);
 	 return true;
 
  }
@@ -517,7 +531,7 @@ page_node *add_page(stored_object *object, uint32_t page_id)
 	 osd_sense = (uint8_t*)Calloc(1, 1024);
 	 if (osd_create_partition(&osd, part_id, cdb_cont_len, osd_sense))
 		 return false;
-	 printf("[%s] created partition: %lu finished successfully !\n", __FUNCTION__, part_id);
+	 LOG_VSSIMDBG("[%s] created partition: %lu finished successfully !\n", __FUNCTION__, part_id);
 	 return true;
  }
 
@@ -535,7 +549,7 @@ void OSD_WRITE_OBJ(object_location obj_loc, unsigned int length, uint8_t *buf)
 	    //if the requested id was not found, let's add it
 	    if (part_map == NULL)
 	    {
-	    	printf("[%s] osd partition %lu does not exist - trying to create it!\n", __FUNCTION__, part_id);
+	    	LOG_VSSIMDBG("[%s] osd partition %lu does not exist - trying to create it!\n", __FUNCTION__, part_id);
 	    	bool created = create_partition(part_id);
 	    	if (created)
 			{
@@ -543,39 +557,39 @@ void OSD_WRITE_OBJ(object_location obj_loc, unsigned int length, uint8_t *buf)
 				new_partition_id->id = part_id;
 				new_partition_id->exists = true;
 				HASH_ADD_INT(partitions_mapping, id, new_partition_id);
-		    	printf("[%s] osd partition %lu created successfully!\n", __FUNCTION__, part_id);
+		    	LOG_VSSIMDBG("[%s] osd partition %lu created successfully!\n", __FUNCTION__, part_id);
 
 			}
 	    	else
 	    	{
-	    		printf("[%s] Could not create an osd partition !\n", __FUNCTION__);
+	    		LOG_VSSIMDBG("[%s] Could not create an osd partition !\n", __FUNCTION__);
 	    		return;
 	    	}
 
 	    }
 	    else
 	    {
-	    	printf("partition %lu already exists, no need to create it !\n", part_id);
+	    	LOG_VSSIMDBG("partition %lu already exists, no need to create it !\n", part_id);
 	    }
 
-		printf("[%s] creating an writing object to OSD with partition id: %lu and object id: %lu of size: %d\n", __FUNCTION__, part_id, obj_id, length);
+		LOG_VSSIMDBG("[%s] creating an writing object to OSD with partition id: %lu and object id: %lu of size: %d\n", __FUNCTION__, part_id, obj_id, length);
 		ret = osd_create_and_write(&osd, part_id, obj_id, length, 0, buf, cdb_cont_len, 0, osd_sense, DDT_CONTIG);
 		if (ret) {
-			printf("[%s] FAILED ! ret for osd_create_and_write() is: %d\n", __FUNCTION__, ret);
+			LOG_VSSIMDBG("[%s] FAILED ! ret for osd_create_and_write() is: %d\n", __FUNCTION__, ret);
 			return;
 		}
-		printf("[%s] object was created and written to osd !\n", __FUNCTION__);
+		LOG_VSSIMDBG("[%s] object was created and written to osd !\n", __FUNCTION__);
 	}
 
 	else{
-		printf("[%s] updating OSD object id: %lu of size: %d\n", __FUNCTION__, obj_id, length);
+		LOG_VSSIMDBG("[%s] updating OSD object id: %lu of size: %d\n", __FUNCTION__, obj_id, length);
 		ret = osd_append(&osd,part_id, obj_id, length, buf, cdb_cont_len, osd_sense, DDT_CONTIG);
 		if (ret) {
-			printf("[%s] FAIL! ret for osd_append() is: %d\n", __FUNCTION__, ret);
+			LOG_VSSIMDBG("[%s] FAIL! ret for osd_append() is: %d\n", __FUNCTION__, ret);
 
 			return;
 		}
-		printf("[%s] OSD object was updated successfully\n", __FUNCTION__);
+		LOG_VSSIMDBG("[%s] OSD object was updated successfully\n", __FUNCTION__);
 	}
 }
 
@@ -583,12 +597,12 @@ void printMemoryDump(uint8_t *buffer, unsigned int bufferLength)
 {
 	unsigned int* start_p = (unsigned int*)buffer;
 	unsigned int* end_p = (unsigned int*)buffer + bufferLength / sizeof(unsigned int);
-	printf("code dump length: %ld\n", end_p - start_p);
+	LOG_VSSIMDBG("code dump length: %ld\n", end_p - start_p);
 	int i =0,iall = 0;
 	char msgBuf[512];
 	char* msg = (char*)msgBuf;
 	int gotSomething = 0;
-	printf("---------------------------------------\nDUMP MEMORY START\n0x%016lX - 0x%016lX\n---------------------------------------\n",(uint64_t)start_p,(uint64_t)end_p);
+	LOG_VSSIMDBG("---------------------------------------\nDUMP MEMORY START\n0x%016lX - 0x%016lX\n---------------------------------------\n",(uint64_t)start_p,(uint64_t)end_p);
 
 	while (start_p < end_p){
 		char* asCharArray = (char*)start_p;
@@ -602,7 +616,7 @@ void printMemoryDump(uint8_t *buffer, unsigned int bufferLength)
 		msg += sprintf(msg, "0x%X %c%c%c%c | ", *start_p, asCharArray[0], asCharArray[1], asCharArray[2], asCharArray[3]);
 		if (i == 3) {
 			if (gotSomething){
-				printf("%s\n",msgBuf);
+				LOG_VSSIMDBG("%s\n",msgBuf);
 			}
 			i = 0;
 			gotSomething = 0;
@@ -615,7 +629,7 @@ void printMemoryDump(uint8_t *buffer, unsigned int bufferLength)
 		iall++;
 
 	}
-	printf("---------------------------------------\nDUMP MEMORY END\n---------------------------------------\n");
+	LOG_VSSIMDBG("---------------------------------------\nDUMP MEMORY END\n---------------------------------------\n");
 }
 
 void OSD_READ_OBJ(object_location obj_loc, unsigned int length, uint64_t addr, uint64_t offset)
@@ -624,7 +638,7 @@ void OSD_READ_OBJ(object_location obj_loc, unsigned int length, uint64_t addr, u
 	partition_id_t part_id = USEROBJECT_PID_LB + obj_loc.partition_id;
 
 
-	printf("[%s] READING %d bytes from OSD OBJECT: %lu %lu\n", __FUNCTION__, length, part_id, obj_id);
+	LOG_VSSIMDBG("[%s] READING %d bytes from OSD OBJECT: %lu %lu\n", __FUNCTION__, length, part_id, obj_id);
 	uint64_t len;
 
 	uint8_t *rdbuf = malloc(length);
@@ -632,12 +646,12 @@ void OSD_READ_OBJ(object_location obj_loc, unsigned int length, uint64_t addr, u
 	//we should also get the offset here, for cases where there's more than one prp
 
 	if(osd_read(&osd, part_id, obj_id, length, offset, NULL, rdbuf, &len, 0, osd_sense, DDT_CONTIG))
-		printf("[%s] failed in osd_read()\n", __FUNCTION__);
+		LOG_VSSIMDBG("[%s] failed in osd_read()\n", __FUNCTION__);
 	else
 	{
-		printf("[%s] osd_read() was successful. %lu bytes were read !\n", __FUNCTION__, len);
+		LOG_VSSIMDBG("[%s] osd_read() was successful. %lu bytes were read !\n", __FUNCTION__, len);
 
-#ifndef SECTOR_TESTS
+#ifndef COMPLIANCE_TESTS
 		cpu_physical_memory_rw(addr, rdbuf, len, 1);
 #endif
 

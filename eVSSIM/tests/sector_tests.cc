@@ -30,7 +30,7 @@ namespace {
                     "PAGE_SIZE 4096\n" // page size in bytes
                     "PAGE_NB 10\n" // 8 pages per block +2 pages over-provision = 125% of disk size
                     "SECTOR_SIZE 1\n"
-                    "FLASH_NB " << flash << "\n" // see calculations above
+                    "FLASH_NB 32\n"   // << flash << "\n" // see calculations above
                     "BLOCK_NB 4096\n" // amount of blocks per flash
                     "PLANES_PER_FLASH 1\n"
                     "REG_WRITE_DELAY 82\n"

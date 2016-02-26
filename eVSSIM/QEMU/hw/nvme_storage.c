@@ -190,9 +190,13 @@ static void nvme_dma_mem_write2(target_phys_addr_t addr, uint8_t *buf, int len,
     	//object id we're about to read from the osd later
         int ret = _FTL_OBJ_READ(obj_loc.object_id, 0, len);
         if (!ret)
+        {
         	LOG_DBG("FTL_OBJ_READ failed with ret: %d\n", ret);
+        }
         else
+        {
         	LOG_DBG("Successfully read object from simulator\n");
+        }
 
         //read from persistent OSD storage
     	OSD_READ_OBJ(obj_loc, len, addr, offset);
@@ -809,7 +813,9 @@ int nvme_create_storage_disks(NVMEState *n)
 #ifdef CONFIG_VSSIM
 	FTL_INIT();
 	if (!osd_init())
+	{
 		LOG_DBG("Could not init osd !\n");
+	}
 	#ifdef MONITOR_ON
 		INIT_LOG_MANAGER();
 	#endif

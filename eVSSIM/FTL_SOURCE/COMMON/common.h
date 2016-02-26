@@ -35,6 +35,13 @@
 #include "ssd_io_manager.h"
 #include "ssd_log_manager.h"
 
+#ifdef VSSIMDEBUG
+#define LOG_VSSIMDBG(fmt, ...)    \
+    printf("DBG|: " fmt "\n",## __VA_ARGS__)
+#else
+#define LOG_VSSIMDBG(fmt, ...)
+#endif
+
 #ifdef PAGE_MAP
 	#include "ftl_gc_manager.h"
 	#include "ftl_mapping_manager.h"

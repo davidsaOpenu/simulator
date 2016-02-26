@@ -3,12 +3,12 @@
 int _FTL_READ_SECT(uint64_t sector_nb, unsigned int length)
 {
 #ifdef FTL_DEBUG
-	printf("[%s] Start: sector_nb %ld length %u\n",__FUNCTION__, sector_nb, length);
+	LOG_VSSIMDBG("[%s] Start: sector_nb %ld length %u\n",__FUNCTION__, sector_nb, length);
 #endif
 
 	if (sector_nb + length > SECTOR_NB)
 	{
-		printf("Error[FTL_READ] Exceed Sector number\n"); 
+		LOG_VSSIMDBG("Error[FTL_READ] Exceed Sector number\n");
 		return FAILURE;
 	}
 
@@ -52,7 +52,7 @@ int _FTL_READ_SECT(uint64_t sector_nb, unsigned int length)
 
 		if(ppn == -1){
 #ifdef FTL_DEBUG
-			printf("Error[%s] No Mapping info\n",__FUNCTION__);
+			LOG_VSSIMDBG("Error[%s] No Mapping info\n",__FUNCTION__);
 #endif
             return FAILURE;
 		}
@@ -67,7 +67,7 @@ int _FTL_READ_SECT(uint64_t sector_nb, unsigned int length)
 #ifdef FTL_DEBUG
 		if (ret == FAILURE)
 		{
-			printf("Error[%s] %u page read fail \n", __FUNCTION__, ppn);
+			LOG_VSSIMDBG("Error[%s] %u page read fail \n", __FUNCTION__, ppn);
 		}
 #endif
 		read_page_nb++;
@@ -86,7 +86,7 @@ int _FTL_READ_SECT(uint64_t sector_nb, unsigned int length)
 #endif
 
 #ifdef FTL_DEBUG
-	printf("[%s] Complete\n",__FUNCTION__);
+	LOG_VSSIMDBG("[%s] Complete\n",__FUNCTION__);
 #endif
 
 	return ret;
@@ -100,14 +100,14 @@ int _FTL_WRITE(uint64_t sector_nb, unsigned int offset, unsigned int length)
 int _FTL_WRITE_SECT(uint64_t sector_nb, unsigned int length)
 {
 #ifdef FTL_DEBUG
-	printf("[%s] Start: sector_nb %" PRIu64 "length %u\n",__FUNCTION__, sector_nb, length);
+	LOG_VSSIMDBG("[%s] Start: sector_nb %" PRIu64 "length %u\n",__FUNCTION__, sector_nb, length);
 #endif
 
 	int io_page_nb;
 
 	if (sector_nb + length > SECTOR_NB)
 	{
-		printf("Error[FTL_WRITE] Exceed Sector number\n");
+		LOG_VSSIMDBG("Error[FTL_WRITE] Exceed Sector number\n");
         return FAILURE;
     }
 	else
@@ -143,7 +143,7 @@ int _FTL_WRITE_SECT(uint64_t sector_nb, unsigned int length)
 		ret = GET_NEW_PAGE(VICTIM_OVERALL, EMPTY_TABLE_ENTRY_NB, &new_ppn);
 		if (ret == FAILURE)
 		{
-			printf("ERROR[FTL_WRITE] Get new page fail \n");
+			LOG_VSSIMDBG("ERROR[FTL_WRITE] Get new page fail \n");
 			return FAILURE;
 		}
 
@@ -171,7 +171,7 @@ int _FTL_WRITE_SECT(uint64_t sector_nb, unsigned int length)
 #ifdef FTL_DEBUG
         if (ret == FAILURE)
         {
-            printf("Error[FTL_WRITE] %d page write fail \n", new_ppn);
+            LOG_VSSIMDBG("Error[FTL_WRITE] %d page write fail \n", new_ppn);
         }
 #endif
 		lba += write_sects;
@@ -197,7 +197,7 @@ int _FTL_WRITE_SECT(uint64_t sector_nb, unsigned int length)
 #endif
 
 #ifdef FTL_DEBUG
-	printf("[%s] Complete\n",__FUNCTION__);
+	LOG_VSSIMDBG("[%s] Complete\n",__FUNCTION__);
 #endif
 	return ret;
 }
@@ -220,7 +220,7 @@ int _FTL_COPYBACK(int32_t source, int32_t destination)
 	if (ret == FAILURE)
 	{
 #ifdef FTL_DEBUG
-		printf("Error[%s] %u page copyback fail \n", __FUNCTION__, source);
+		LOG_VSSIMDBG("Error[%s] %u page copyback fail \n", __FUNCTION__, source);
 #endif
 
         return FAILURE;

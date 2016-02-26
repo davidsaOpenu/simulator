@@ -60,6 +60,7 @@ int GC_L2_THRESHOLD_BLOCK_NB;
 #endif
 
 char gFile_Name[PATH_MAX] = {0,};
+char OSD_PATH[PATH_MAX] = {0,};
 char STAT_PATH[PATH_MAX] = {0,};
 
 void INIT_SSD_CONFIG(void)
@@ -79,6 +80,12 @@ void INIT_SSD_CONFIG(void)
 			{
 				if(fscanf(pfData, "%s", gFile_Name) == EOF)
 					printf("ERROR[%s] Cannot read filename\n",__FUNCTION__);
+
+			}
+			else if(strcmp(szCommand, "OSD_PATH") == 0)
+			{
+				if(fscanf(pfData, "%s", OSD_PATH) == EOF)
+					printf("ERROR[%s] Cannot read temp OSD path\n",__FUNCTION__);
 
 			}
 			else if(strcmp(szCommand, "PAGE_SIZE") == 0)
