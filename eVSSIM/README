@@ -4,19 +4,25 @@
 4. QEMU distclean
 5. Ubuntu installation (14.04.1-server-amd64)
 
-
-VSSIM talking NVMe
+============================================================
 
 1. Build
-    a. Build ssd_monitor
-        cd MONITOR/SSD_MONITOR_PM
-        qmake -o Makefile ssd_monitor_p.pro
-        make
 
-    b. Build qemu
-        cd QEMU
-        ./configure --enable-io-thread --enable-linux-aio --target-list=x86_64-softmmu --enable-sdl --enable-vssim
-        make
+    gcc version to build the code is gcc-4.4
+
+    a. Build ssd_monitor
+     cd MONITOR/SSD_MONITOR_PM
+     qmake -o Makefile ssd_monitor_p.pro
+     make
+
+    b. Build osd-util
+     cd osc-osd
+     make target
+
+    c. Build qemu
+     cd QEMU
+     ./configure --enable-io-thread --enable-linux-aio --target-list=x86_64-softmmu --enable-sdl --enable-vssim
+     make
 
 2. Setup VSSIM runtime
     a. Setup data directory

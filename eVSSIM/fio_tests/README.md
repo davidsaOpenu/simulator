@@ -4,8 +4,8 @@
 contains various tests for storage performance and integrity
 
 ## Important note before using this
-all tests writing directly to block device /dev/sdb. Not a good thing to enable by default, so its off.
-to enable for all tests, use enable_sdb.sh. To disable, use disable_sdb.sh.
+all tests writing directly to block device /dev/nvme0n1. Not a good thing to enable by default, so its off.
+to enable for all tests, use enable_nvme.sh. To disable, use disable_nvme.sh.
 
 ## Short story:
  * use `surface-scan.fio` to run a surface test

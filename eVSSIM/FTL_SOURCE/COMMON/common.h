@@ -14,9 +14,10 @@
 #include <sys/time.h>
 #include <stdbool.h>
 #include "ftl_type.h"
+#include <inttypes.h>
 
 /* FTL */
-//#define FTL_DEBUG 1
+#define FTL_DEBUG 1
 
 /* VSSIM Function */
 #define MONITOR_ON
@@ -31,20 +32,23 @@
 #include "ftl_inverse_mapping_manager.h"
 #include "ftl_perf_manager.h"
 
-#include "ftl_sect_strategy.h"
-#include "ftl_obj_strategy.h"
-
-#include "ssd_util.h"
 #include "ssd_io_manager.h"
 #include "ssd_log_manager.h"
+
+#ifdef VSSIMDEBUG
+#define LOG_VSSIMDBG(fmt, ...)    \
+    printf("DBG|: " fmt "\n",## __VA_ARGS__)
+#else
+#define LOG_VSSIMDBG(fmt, ...)
+#endif
 
 #ifdef PAGE_MAP
 	#include "ftl_gc_manager.h"
 	#include "ftl_mapping_manager.h"
 #endif
 
-#define SUCCESS		1
-#define FAIL		0
+#define SUCCESSFUL		1
+#define FAILURE		0
 
 /* Block Type */
 #define EMPTY_BLOCK             30

@@ -6,8 +6,8 @@
 #include "common.h"
 
 /* SSD Configuration */
-int SECTOR_SIZE;
-int PAGE_SIZE;
+int eVSSIM_SECTOR_SIZE;
+int eVSSIM_PAGE_SIZE;
 
 int64_t SECTOR_NB;
 int PAGE_NB;
@@ -59,10 +59,8 @@ double GC_L2_THRESHOLD;
 int GC_L2_THRESHOLD_BLOCK_NB;
 #endif
 
-/* Storage strategy (1 = address-based, 2 = object-based */
-int STORAGE_STRATEGY;
-
 char gFile_Name[PATH_MAX] = {0,};
+char OSD_PATH[PATH_MAX] = {0,};
 char STAT_PATH[PATH_MAX] = {0,};
 
 void INIT_SSD_CONFIG(void)
@@ -84,9 +82,15 @@ void INIT_SSD_CONFIG(void)
 					printf("ERROR[%s] Cannot read filename\n",__FUNCTION__);
 
 			}
+			else if(strcmp(szCommand, "OSD_PATH") == 0)
+			{
+				if(fscanf(pfData, "%s", OSD_PATH) == EOF)
+					printf("ERROR[%s] Cannot read temp OSD path\n",__FUNCTION__);
+
+			}
 			else if(strcmp(szCommand, "PAGE_SIZE") == 0)
 			{
-				if(fscanf(pfData, "%d", &PAGE_SIZE) == EOF)
+				if(fscanf(pfData, "%d", &eVSSIM_PAGE_SIZE) == EOF)
 					printf("ERROR[%s] Wrong PAGE_SIZE\n",__FUNCTION__);
 			}
 			else if(strcmp(szCommand, "PAGE_NB") == 0)
@@ -96,7 +100,7 @@ void INIT_SSD_CONFIG(void)
 			}
 			else if(strcmp(szCommand, "SECTOR_SIZE") == 0)
 			{
-				if(fscanf(pfData, "%d", &SECTOR_SIZE) == EOF)
+				if(fscanf(pfData, "%d", &eVSSIM_SECTOR_SIZE) == EOF)
 					printf("ERROR[%s] Wrong SECTOR_SIZE\n",__FUNCTION__);
 			}	
 			else if(strcmp(szCommand, "FLASH_NB") == 0)
@@ -206,13 +210,6 @@ void INIT_SSD_CONFIG(void)
 					printf("ERROR[%s] Wrong LOG_SEQ_BLOCK_NB\n",__FUNCTION__);
 			}	
 #endif
-            else if(strcmp(szCommand, "STORAGE_STRATEGY") == 0)
-			{
-				if(fscanf(pfData, "%d", &STORAGE_STRATEGY) == EOF)
-					printf("ERROR[%s] Wrong STORAGE_STRATEGY\n",__FUNCTION__);
-
-				
-			}
 			memset(szCommand, 0x00, 1024);
 		}	
 		fclose(pfData);
@@ -232,7 +229,7 @@ void INIT_SSD_CONFIG(void)
 	}
 
 	/* SSD Configuration */
-	SECTORS_PER_PAGE = PAGE_SIZE / SECTOR_SIZE;
+	SECTORS_PER_PAGE = eVSSIM_PAGE_SIZE / eVSSIM_SECTOR_SIZE;
 	PAGES_PER_FLASH = PAGE_NB * BLOCK_NB;
 	SECTOR_NB = (int64_t)SECTORS_PER_PAGE * (int64_t)PAGE_NB * (int64_t)BLOCK_NB * (int64_t)FLASH_NB;
 

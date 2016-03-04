@@ -64,16 +64,24 @@ int GET_NEW_PAGE(int mode, int mapping_index, uint32_t* ppn)
 
 	if(curr_empty_block == NULL){
 		printf("ERROR[%s] fail\n",__FUNCTION__);
-		return FAIL;
+		return FAILURE;
 	}
 
+
+	//In order to understand what is the SYSTEM WIDE index number of the next available page (this is actually the physical page number)
+	//we need to count the number of pages from the beginning of the disk, up until the location of the empty block we received from the "GET_EMPTY_BLOCK"
+	//method above:
+	//
+	//We count the number of pages in all flash chips before us
+	//We add to it the number of pages in all blocks before our current block (which was returned by the GET_EMPTY_BLOCK method)
+	//and then we add to it the amount of blocks which are already used in our current block
 	*ppn = curr_empty_block->phy_flash_nb*BLOCK_NB*PAGE_NB \
 	       + curr_empty_block->phy_block_nb*PAGE_NB \
 	       + curr_empty_block->curr_phy_page_nb;
 
 	curr_empty_block->curr_phy_page_nb += 1;
 
-	return SUCCESS;
+	return SUCCESSFUL;
 }
 
 int UPDATE_OLD_PAGE_MAPPING(uint32_t lpn)
@@ -86,14 +94,14 @@ int UPDATE_OLD_PAGE_MAPPING(uint32_t lpn)
 #ifdef FTL_DEBUG
 		printf("[%s] New page \n",__FUNCTION__);
 #endif
-		return SUCCESS;
+		return SUCCESSFUL;
 	}
 	else{
 		UPDATE_INVERSE_BLOCK_VALIDITY(CALC_FLASH(old_ppn), CALC_BLOCK(old_ppn), CALC_PAGE(old_ppn), INVALID);
 		UPDATE_INVERSE_PAGE_MAPPING(old_ppn, -1);
 	}
 
-	return SUCCESS;
+	return SUCCESSFUL;
 }
 
 int UPDATE_NEW_PAGE_MAPPING(uint32_t lpn, uint32_t ppn)
@@ -106,7 +114,7 @@ int UPDATE_NEW_PAGE_MAPPING(uint32_t lpn, uint32_t ppn)
 	UPDATE_INVERSE_BLOCK_MAPPING(CALC_FLASH(ppn), CALC_BLOCK(ppn), DATA_BLOCK);
 	UPDATE_INVERSE_PAGE_MAPPING(ppn, lpn);
 
-	return SUCCESS;
+	return SUCCESSFUL;
 }
 
 int UPDATE_NEW_PAGE_MAPPING_NO_LOGICAL(uint32_t ppn)
@@ -115,7 +123,7 @@ int UPDATE_NEW_PAGE_MAPPING_NO_LOGICAL(uint32_t ppn)
 	UPDATE_INVERSE_BLOCK_VALIDITY(CALC_FLASH(ppn), CALC_BLOCK(ppn), CALC_PAGE(ppn), VALID);
 	UPDATE_INVERSE_BLOCK_MAPPING(CALC_FLASH(ppn), CALC_BLOCK(ppn), DATA_BLOCK);
 
-	return SUCCESS;
+	return SUCCESSFUL;
 }
 
 unsigned int CALC_FLASH(uint32_t ppn)

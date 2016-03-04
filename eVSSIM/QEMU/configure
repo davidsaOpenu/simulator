@@ -233,8 +233,9 @@ QEMU_CFLAGS="-Wall -Wundef -Wwrite-strings -Wmissing-prototypes $QEMU_CFLAGS"
 QEMU_CFLAGS="-Wstrict-prototypes -Wredundant-decls $QEMU_CFLAGS"
 QEMU_CFLAGS="-D_GNU_SOURCE -D_FILE_OFFSET_BITS=64 -D_LARGEFILE_SOURCE $QEMU_CFLAGS"
 QEMU_CFLAGS="-D_FORTIFY_SOURCE=2 $QEMU_CFLAGS"
-QEMU_INCLUDES="-I. -I\$(SRC_PATH)"
-LDFLAGS="-g $LDFLAGS"
+QEMU_INCLUDES="-I. -I\$(SRC_PATH) -I\$(SRC_PATH)/../osc-osd -I\$(SRC_PATH)/../osc-osd/osd-target"
+LDFLAGS="-g $LDFLAGS -L\$(SRC_PATH)/../osc-osd/osd-util -L\$(SRC_PATH)/../osc-osd/osd-target"
+LIBS="-losdutil -losdtgt -lsqlite3 $LIBS"
 
 # make source path absolute
 source_path=`cd "$source_path"; pwd`

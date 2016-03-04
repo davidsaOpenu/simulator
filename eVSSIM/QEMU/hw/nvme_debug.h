@@ -3,12 +3,14 @@
 
 #define CHOP_FILE(str) (strstr(str, "nvmeqemu") == 0 ? str : strstr(str, "nvmeqemu") + 9)
 
+//#define DEBUG
+
 #define LOG_NORM(fmt, ...)    \
     printf("%s: " fmt "\n", LEVEL, ## __VA_ARGS__)
 #define LOG_ERR(fmt, ...)    \
     printf("%s-ERR:%s:%d: " fmt "\n", LEVEL, CHOP_FILE(__FILE__), \
         __LINE__, ## __VA_ARGS__)
-#ifdef DEBUG
+#ifdef NVMEDEBUG
 #define LOG_DBG(fmt, ...)    \
     printf("DBG|:%s:%d: " fmt "\n", CHOP_FILE(__FILE__), \
         __LINE__, ## __VA_ARGS__)
