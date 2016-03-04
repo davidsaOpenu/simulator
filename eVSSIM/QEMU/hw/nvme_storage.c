@@ -205,8 +205,8 @@ static void nvme_dma_mem_write2(target_phys_addr_t addr, uint8_t *buf, int len,
     {
     	LOG_DBG("sector strategy\n");
     	//sector strategy -> continue normally
-        //_FTL_READ_SECT((buf - mapping_addr) / eVSSIM_SECTOR_SIZE, len / eVSSIM_SECTOR_SIZE);
-    	_FTL_READ_SECT(len / eVSSIM_SECTOR_SIZE, (buf - mapping_addr) / eVSSIM_SECTOR_SIZE);
+        _FTL_READ_SECT((buf - mapping_addr) / eVSSIM_SECTOR_SIZE, len / eVSSIM_SECTOR_SIZE);
+    	//_FTL_READ_SECT(len / eVSSIM_SECTOR_SIZE, (buf - mapping_addr) / eVSSIM_SECTOR_SIZE);
     	//read from qemu's volatile memory and write to dma memory (prp)
         cpu_physical_memory_rw(addr, buf, len, 1);
     }
@@ -447,8 +447,8 @@ uint8_t nvme_io_command(NVMEState *n, NVMECmd *sqe, NVMECQE *cqe)
     	ms = disk->idtfy_ns.lbafx[lba_idx].ms;
     	meta_offset = e->slba * ms;
 
-    	//meta_size = (e->nlb + 1) * ms; //metadata size should be set according to the lba format and not according to the block size as it leads to sizes which are bigger than 128 and thus to memory corruption
-    	meta_size = ms;
+    	meta_size = (e->nlb + 1) * ms; //metadata size should be set according to the lba format and not according to the block size as it leads to sizes which are bigger than 128 and thus to memory corruption
+    	//meta_size = ms;
     	meta_mapping_addr = disk->meta_mapping_addr + meta_offset;
 
     	LOG_DBG("e->mptr (%lu) is: %p\n", e->mptr, (void*)e->mptr);
@@ -458,7 +458,7 @@ uint8_t nvme_io_command(NVMEState *n, NVMECmd *sqe, NVMECQE *cqe)
     	//
     	//When reading, we do the exact same, as we want to know what object to read from later on -> we don't want to read the metadata from the "physical" (emulated in memory) storage
     	if (e->opcode == NVME_CMD_READ || e->opcode == NVME_CMD_WRITE) {
-    		uint8_t* meta_buf = qemu_mallocz(ms);
+    		uint8_t* meta_buf = qemu_mallocz(meta_size);
     		LOG_DBG("meta_buf is: %p\n", meta_buf);
     		nvme_dma_mem_read(e->mptr, meta_buf, meta_size);
         	parse_metadata(meta_buf, meta_size, &obj_loc);
