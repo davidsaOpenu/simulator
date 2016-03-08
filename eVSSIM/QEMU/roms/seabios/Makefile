@@ -1,1 +1,0 @@
-/root/simulator/eVSSIM/QEMU/roms/seabios/Makefile
