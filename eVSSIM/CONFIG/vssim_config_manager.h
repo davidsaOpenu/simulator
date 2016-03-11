@@ -63,6 +63,10 @@ extern int STAT_TYPE;
 extern int STAT_SCOPE;
 extern char STAT_PATH[PATH_MAX];
 extern char OSD_PATH[PATH_MAX];
+
+/* Storage strategy (0 = Sector based, 1 = Object based */
+extern int STORAGE_STRATEGY;
+
 void INIT_SSD_CONFIG(void);
 char* GET_FILE_NAME(void);
 

@@ -6,6 +6,7 @@
 
 import os
 import sys
+from random import randint
 
 write_command_template = "./nvme write /dev/nvme0n1 --block-count=%d --data-size=%d --data=%s --metadata-size=%d --metadata=%s" #--show-command"
 read_command_template = "./nvme read /dev/nvme0n1 --block-count=%d --data-size=%d --data=%s --metadata-size=%d --metadata=%s" #--show-command"
@@ -64,8 +65,11 @@ def executeSingleTest(data_size, count, partition_id):
 	
 	#perform total time + avg time for each run (by dividing at the end)
 
+#we're using a random partition id as we want to avoid a situtation where this util fails in different executions because of using the same partition id -> this minimizes the chance of that happening
+part_id = randint(100,9999999)
+print "partition id is: " + str(part_id)
 
-if executeSingleTest(10,10,1123) and executeSingleTest(512,10,1124) and executeSingleTest(1000,100,1125) and executeSingleTest(10000,100,1126) and executeSingleTest(10000,1000,1127):
+if executeSingleTest(10,10,part_id) and executeSingleTest(512,10,part_id+1) and executeSingleTest(1000,100,part_id+2) and executeSingleTest(10000,100,part_id+3) and executeSingleTest(10000,1000,part_id+4):
 	print "Finished all tests successfully!"
 
 

@@ -453,16 +453,27 @@ uint8_t nvme_io_command(NVMEState *n, NVMECmd *sqe, NVMECQE *cqe)
 
     	LOG_DBG("e->mptr (%lu) is: %p\n", e->mptr, (void*)e->mptr);
 
-    	//When writing, we're using the metadata's contents, which contain the partition and object ids, so we know where to write to.
-    	//In order to get the metadata's contents, we first read it from the prp, straight to qemu's emulated storage (in memory) and then parse it.
-    	//
-    	//When reading, we do the exact same, as we want to know what object to read from later on -> we don't want to read the metadata from the "physical" (emulated in memory) storage
-    	if (e->opcode == NVME_CMD_READ || e->opcode == NVME_CMD_WRITE) {
+    	if (STORAGE_STRATEGY == 1 &&  (e->opcode == NVME_CMD_READ || e->opcode == NVME_CMD_WRITE)) {
+    	   	//When writing, we're using the metadata's contents, which contain the partition and object ids, so we know where to write to.
+    	  	//In order to get the metadata's contents, we first read it from the prp, straight to qemu's emulated storage (in memory) and then parse it.
+    	  	//
+    	   	//When reading, we do the exact same, as we want to know what object to read from later on -> we don't want to read the metadata from the "physical" (emulated in memory) storage
+    		LOG_DBG("object strategy - writing metadata\n");
     		uint8_t* meta_buf = qemu_mallocz(meta_size);
     		LOG_DBG("meta_buf is: %p\n", meta_buf);
     		nvme_dma_mem_read(e->mptr, meta_buf, meta_size);
         	parse_metadata(meta_buf, meta_size, &obj_loc);
         	qemu_free(meta_buf);
+    	}
+    	else if(STORAGE_STRATEGY == 0)
+    	{
+    		if (e->opcode == NVME_CMD_READ) {
+        		LOG_DBG("sector strategy - reading metadata\n");
+    			nvme_dma_mem_write(e->mptr, meta_mapping_addr, meta_size);
+			} else if (e->opcode == NVME_CMD_WRITE) {
+				LOG_DBG("sector strategy - writing metadata\n");
+				nvme_dma_mem_read(e->mptr, meta_mapping_addr, meta_size);
+			}
     	}
 
      }

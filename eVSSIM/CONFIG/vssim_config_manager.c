@@ -59,6 +59,8 @@ double GC_L2_THRESHOLD;
 int GC_L2_THRESHOLD_BLOCK_NB;
 #endif
 
+int STORAGE_STRATEGY;
+
 char gFile_Name[PATH_MAX] = {0,};
 char OSD_PATH[PATH_MAX] = {0,};
 char STAT_PATH[PATH_MAX] = {0,};
@@ -210,6 +212,11 @@ void INIT_SSD_CONFIG(void)
 					printf("ERROR[%s] Wrong LOG_SEQ_BLOCK_NB\n",__FUNCTION__);
 			}	
 #endif
+            else if(strcmp(szCommand, "STORAGE_STRATEGY") == 0)
+            {
+            	if(fscanf(pfData, "%d", &STORAGE_STRATEGY) == EOF)
+            		printf("ERROR[%s] Wrong STORAGE_STRATEGY\n",__FUNCTION__);
+            }
 			memset(szCommand, 0x00, 1024);
 		}	
 		fclose(pfData);
