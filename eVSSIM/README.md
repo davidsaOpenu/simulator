@@ -18,7 +18,7 @@ Building
     cd QEMU
     ./configure --enable-io-thread --enable-linux-aio --target-list=x86_64-softmmu \
         --enable-sdl --enable-vssim \
-        --extra-cflags='-Wno-error=unused-but-set-variable ---Wno-error=deprecated-declarations'
+        --extra-cflags='-Wno-error=unused-but-set-variable -Wno-error=deprecated-declarations'
     make
     ```
 
