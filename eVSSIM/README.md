@@ -18,7 +18,7 @@ Building
     cd QEMU
     ./configure --enable-io-thread --enable-linux-aio --target-list=x86_64-softmmu \
         --enable-sdl --enable-vssim \
-        --extra-cflags='-Wno-error=unused-but-set-variable -Wno-error=deprecated-declarations'
+        --extra-cflags='-Wno-error=deprecated-declarations'
     make
     ```
 
@@ -30,14 +30,14 @@ Setting up VSSIM runtime
     ```sh
     cd QEMU/hw
     mkdir data
-    mount -t tmpfs -o size=16g tmpfs ./data 
+    sudo mount -t tmpfs -o size=16g tmpfs data 
     ```
 
 2. SSD configuration
 
     ```sh
-    cd QEMU/hw/data
-    ln -s ../../../CONFIG/ssd.conf
+    cd QEMU/hw
+    ln -s ../../../CONFIG/ssd.conf data
     ```
 
 3. Set configuration parameters in ssd.conf file.
