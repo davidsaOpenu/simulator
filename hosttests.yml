@@ -1,0 +1,40 @@
+---
+- hosts: localhost
+  connection: local
+ 
+  vars:
+    - destination: ../target/simulator
+
+  tasks:
+    - name: rm prev target
+      file: path={{ destination }}
+            state=absent
+
+    # XXX: change to global repo, and ssh key
+    - name: clone simulator repo
+      git: repo=git@github.com:moranya/simulator.git key_file=/home/mcohenya/.ssh/id_rsa accept_hostkey=yes recursive=no dest={{ destination }}
+      
+    - name: create data
+      file: path={{ destination }}/eVSSIM/tests/data state=directory
+     
+    - name: rm conf link
+      file: path={{ destination }}/eVSSIM/tests/data/ssd.conf 
+            state=absent
+  
+    - name: create conf link
+      shell: cd {{ destination }}/eVSSIM/tests/data; ln -s ../../CONFIG/ssd.conf
+
+    - name: compile osc-osd
+      shell: cd {{ destination }}/eVSSIM/osc-osd/; make target_clean; make target
+
+    - name: make links
+      shell: cd {{ destination }}/eVSSIM/tests/; make mklink
+      ignore_errors: yes
+
+    - name: build unit tests
+      shell: cd {{ destination }}/eVSSIM/tests/; make 
+      register: build_unit_tests
+    
+    #  XXX: print error messages if any
+    #- debug: var=build_unit_tests.stdout_lines
+ 
