@@ -13,11 +13,17 @@
     - name: install sqlite
       apt: name=libsqlite3-dev state=installed
 
+    - name: install g++
+      apt: name=g++ state=installed
+
+    - name: Ensures /opt/gtest dir exists
+      file: path=/opt/gtest state=directory
+
     - name: get gtest
       unarchive: src=https://github.com/google/googletest/archive/release-1.7.0.tar.gz dest=/opt/gtest copy=no
     
     - name: create lib for gtest
-      file: path=/opt/gtest/lib state=directory
+      file: path=/opt/gtest/googletest-release-1.7.0/lib state=directory
      
     - name: build gtest
-      shell: cd /opt/gtest/lib; cmake ..; make
+      shell: cd /opt/gtest/googletest-release-1.7.0/lib; cmake ..; make
