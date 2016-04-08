@@ -10,16 +10,19 @@ VSSIM unit tests
 
 1. Prerequisites
     a. Install google-test framework
-       a.1 Download gtest-1.7.0.zip, unzip to /opt and rename from gtest-1.7.0 to gtest
-       a.2 cd  /opt/gtest/lib
-       a.3 cmake .. (yum install cmake if needed)
+       a.1 Download gtest-1.7.0.zip
+          (https://code.google.com/p/googletest/downloads/detail?name=gtest-1.7.0.zip) 
+          and unzip to /opt and rename from gtest-1.7.0 to gtest.
+       a.2 mkdir /opt/gtest/lib; cd  /opt/gtest/lib
+       a.3 cmake .. (yum install cmake)
        a.4 make
-    b. mkdir data; cd data; ln -s ../../CONFIG/ssd.conf 
-    c. compile osc-osd (cd osc-osd/; make)
-    d. install sqlite (yum install sqlite-devel for CENTOS; apt-get install libsqlite3-dev) 
+    b. cd eVSSIM/tests; mkdir data; cd data; ln -s ../../CONFIG/ssd.conf 
+    c. install sqlite (yum install sqlite-devel for CENTOS; apt-get install libsqlite3-dev) 
+    d. compile osc-osd (cd eVSSIM/osc-osd/; make)
 
 2. Build
     a. Make links
+        cd eVSSIM/tests
         make mklink
 
     b. Build unit_tests
