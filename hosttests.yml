@@ -2,12 +2,14 @@
 - hosts: localhost
   connection: local
  
-  # Variables:
-  # pr - specify the pr to pull. example: ansible-playbook hosttests.yml -e pr=
+# Usage:
+#
+# ansible-playbook hosttests.yml -e ref=refs/changes/53/271953/1
+#
 
   vars:
     - destination: ../target/simulator
-    - ref: refs/changes/53/271953/1
+    - ref: refs/head/master
 
   tasks:
     - name: rm prev target
