@@ -12,10 +12,6 @@
     - ref: refs/heads/master
 
   tasks:
-    - name: rm prev target
-      file: path={{ destination }}
-            state=absent
-
     - name: clone simulator repo 
       git:
           repo=https://review.gerrithub.io/davidsaOpenu/simulator
@@ -25,6 +21,9 @@
           version=FETCH_HEAD
           refspec={{ ref }}
           dest={{ destination }}
+
+    - name: clean untracked files from repository
+      shell: git clean -x -f -d -q chdir={{ destination }}
 
     - name: create data
       file: path={{ destination }}/eVSSIM/tests/data state=directory
