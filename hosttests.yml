@@ -3,10 +3,11 @@
   connection: local
  
   # Variables:
-  # pr - specify the pr to pull. example: ansible-playbook hosttests.yml -e pr=refs/changes/53/271953/1
+  # pr - specify the pr to pull. example: ansible-playbook hosttests.yml -e pr=
 
   vars:
     - destination: ../target/simulator
+    - ref: refs/changes/53/271953/1
 
   tasks:
     - name: rm prev target
@@ -14,18 +15,15 @@
             state=absent
 
     - name: clone simulator repo 
-      git: repo=https://review.gerrithub.io/davidsaOpenu/simulator accept_hostkey=yes recursive=no dest={{ destination }}
+      git:
+          repo=https://review.gerrithub.io/davidsaOpenu/simulator
+          accept_hostkey=yes
+          recursive=no
+          force=yes
+          version=FETCH_HEAD
+          refspec={{ ref }}
+          dest={{ destination }}
 
-    - name: git reset  
-      shell: git reset --hard HEAD chdir={{ destination }}
-   
-    - name: git clean
-      shell: git clean -x -f -d -q chdir={{ destination }}
-
-    - name: git pull PR
-      shell: git pull origin {{ pr }} chdir={{ destination }}
-      when: pr is defined
-   
     - name: create data
       file: path={{ destination }}/eVSSIM/tests/data state=directory
      
