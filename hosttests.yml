@@ -9,7 +9,7 @@
 
   vars:
     - destination: ../target/simulator
-    - ref: refs/head/master
+    - ref: refs/heads/master
 
   tasks:
     - name: rm prev target
