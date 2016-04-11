@@ -8,7 +8,7 @@
 #
 
   vars:
-    - destination: ../target/simulator
+    - dest: ../target/simulator
     - ref: refs/heads/master
 
   tasks:
@@ -20,32 +20,47 @@
           force=yes
           version=FETCH_HEAD
           refspec={{ ref }}
-          dest={{ destination }}
+          dest={{ dest }}
 
     - name: clean untracked files from repository
-      shell: git clean -x -f -d -q chdir={{ destination }}
+      shell: git clean -x -f -d -q chdir={{ dest }}
 
     - name: create data
-      file: path={{ destination }}/eVSSIM/tests/data state=directory
+      file: path={{ dest }}/eVSSIM/tests/data state=directory
      
     - name: rm conf link
-      file: path={{ destination }}/eVSSIM/tests/data/ssd.conf 
+      file: path={{ dest }}/eVSSIM/tests/data/ssd.conf 
             state=absent
   
     - name: create conf link
-      shell: cd {{ destination }}/eVSSIM/tests/data; ln -s ../../CONFIG/ssd.conf
+      shell: ln -s ../../CONFIG/ssd.conf chdir={{ dest }}/eVSSIM/tests/data
+
+    - name: build ssd_monitor
+      shell: qmake -o Makefile ssd_monitor_p.pro && make chdir={{ dest }}/eVSSIM/MONITOR/SSD_MONITOR_PM
 
     - name: compile osc-osd
-      shell: cd {{ destination }}/eVSSIM/osc-osd/; make target_clean; make target
+      shell: make target_clean && make target chdir={{ dest }}/eVSSIM/osc-osd 
 
     - name: make links
-      shell: cd {{ destination }}/eVSSIM/tests/; make mklink
+      shell: make mklink chdir={{ dest }}/eVSSIM/tests
       ignore_errors: yes
 
     - name: build unit tests
-      shell: cd {{ destination }}/eVSSIM/tests/; make 
+      shell: make chdir={{ dest }}/eVSSIM/tests
       register: build_unit_tests
-    
-    #  XXX: print error messages if any
-    #- debug: var=build_unit_tests.stdout_lines
+      failed_when: build_unit_tests.rc == 1
+   
+    # XXX: run with param 
+    - name: run sector tests
+      shell: ./sector_tests chdir={{ dest }}/eVSSIM/tests
+      register: sector_tests
+      failed_when: sector_tests.rc == 1
+ 
+    # XXX: run with param 
+    - name: run object tests
+      shell: ./object_tests chdir={{ dest }}/eVSSIM/tests
+      register: object_tests
+      failed_when: object_tests.rc == 1
+
+    - debug: msg="Done running tests on {{ ref }}, target is in {{ dest }}"
  
