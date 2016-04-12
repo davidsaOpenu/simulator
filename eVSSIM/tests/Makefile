@@ -12,10 +12,10 @@ CFLAGS = -I/opt/gtest/include -I../osc-osd -I../osc-osd/osd-target -g -DGTEST -L
 all: sector_tests object_tests
 
 sector_tests: sector_tests.o $(VSSIM_OBJ)
-	g++ $(CFLAGS) -Wall -o sector_tests sector_tests.o $(VSSIM_OBJ) -lpthread -lgtest -lgtest_main
+	g++ $(CFLAGS) -Wall -o sector_tests sector_tests.o $(VSSIM_OBJ) -lpthread -lgtest
 
 object_tests: object_tests.o $(VSSIM_OBJ)
-	g++ $(CFLAGS) -Wall -o object_tests object_tests.o $(VSSIM_OBJ) -Wl,-Bstatic -L../osc-osd/osd-util -L../osc-osd/osd-target -losdutil -losdtgt -Wl,-Bdynamic -lsqlite3 -lm -lpthread -lgtest -lgtest_main
+	g++ $(CFLAGS) -Wall -o object_tests object_tests.o $(VSSIM_OBJ) -Wl,-Bstatic -L../osc-osd/osd-util -L../osc-osd/osd-target -losdutil -losdtgt -Wl,-Bdynamic -lsqlite3 -lm -lpthread -lgtest
 
 %.o: %.cc
 	g++ -Wall $(CFLAGS) -c $<
