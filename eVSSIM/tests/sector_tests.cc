@@ -6,6 +6,7 @@ extern "C" {
 extern "C" int g_init;
 extern "C" int g_server_create;
 extern "C" int g_init_log_server;
+bool g_ci_mode = false;
 
 #define GTEST_DONT_DEFINE_FAIL 1
 #include <gtest/gtest.h>
@@ -13,6 +14,16 @@ extern "C" int g_init_log_server;
 #include <fstream>
 #include <cstdio>
 #include <cstdlib>
+
+int main(int argc, char **argv) {
+    for (int i = 0; i < argc; i++) {
+        if (strcmp(argv[i], "--ci") == 0) {
+            g_ci_mode = true;
+        }
+    }
+    testing::InitGoogleTest(&argc, argv);
+    return RUN_ALL_TESTS();
+}
 
 using namespace std;
 
@@ -77,9 +88,21 @@ namespace {
             size_t pages_;
     }; // OccupySpaceStressTest
 
+    std::vector<size_t> GetParams() {
+        std::vector<size_t> list;
 
-    INSTANTIATE_TEST_CASE_P(DiskSize, SectorUnitTest, ::testing::Values(256, 256)); //512 /*MB */, 1024 /*1G*/, 4096 /*4G*/)); //Values are in MB
+        if (g_ci_mode) {
+            printf("Running in CI mode\n");
+            // TODO: use smaller size
+            list.push_back(256);
+            return list;
+        }
 
+        list.push_back(256);
+        return list;
+    }
+
+    INSTANTIATE_TEST_CASE_P(DiskSize, SectorUnitTest, ::testing::ValuesIn(GetParams()));
     TEST_P(SectorUnitTest, SequentialOnePageAtTimeWrite) {
         for(int x=0; x<8; x++){
             for(size_t p=0; p < pages_; p++){
