@@ -16,6 +16,24 @@
     - name: install g++
       apt: name=g++ state=installed
 
+    - name: install libqt3-mt-dev
+      apt: name=libqt3-mt-dev state=installed
+
+    - name: install zlib1g-dev
+      apt: name=zlib1g-dev state=installed
+
+    - name: install libgnutls-dev
+      apt: name=libgnutls-dev state=installed
+
+    - name: install libvncserver-dev
+      apt: name=libvncserver-dev state=installed
+
+    - name: install libpci-dev
+      apt: name=libpci-dev state=installed
+
+    - name: install libaio-dev
+      apt: name=libaio-dev state=installed
+
     - name: get gtest
       unarchive: src=https://github.com/google/googletest/archive/release-1.7.0.tar.gz dest=/opt/ copy=no
    
