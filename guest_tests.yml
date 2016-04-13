@@ -1,0 +1,23 @@
+---
+- hosts: localhost
+  connection: local
+ 
+# Usage:
+#
+# ansible-playbook hosttests.yml -e ref=refs/changes/53/271953/1
+#
+
+  vars:
+    - dest: ../target/simulator
+    - ref: refs/heads/master
+
+  tasks:
+    - include: simulator.yml
+
+    - name: build qemu
+      shell: 
+          ./configure --enable-io-thread --enable-linux-aio --target-list=x86_64-softmmu --enable-sdl --enable-vssim --extra-cflags='-Wno-error=unused-but-set-variable -Wno-error=deprecated-declarations' && make
+          chdir={{ dest }}/eVSSIM/QEMU
+
+    - debug: msg="Done running tests on {{ ref }}, target is in {{ dest }}"
+
