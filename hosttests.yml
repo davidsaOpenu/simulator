@@ -12,34 +12,7 @@
     - ref: refs/heads/master
 
   tasks:
-    - name: clone simulator repo 
-      git:
-          repo=https://review.gerrithub.io/davidsaOpenu/simulator
-          accept_hostkey=yes
-          recursive=no
-          force=yes
-          version=FETCH_HEAD
-          refspec={{ ref }}
-          dest={{ dest }}
-
-    - name: clean untracked files from repository
-      shell: git clean -x -f -d -q chdir={{ dest }}
-
-    - name: create data
-      file: path={{ dest }}/eVSSIM/tests/data state=directory
-     
-    - name: rm conf link
-      file: path={{ dest }}/eVSSIM/tests/data/ssd.conf 
-            state=absent
-  
-    - name: create conf link
-      shell: ln -s ../../CONFIG/ssd.conf chdir={{ dest }}/eVSSIM/tests/data
-
-    - name: build ssd_monitor
-      shell: qmake -o Makefile ssd_monitor_p.pro && make chdir={{ dest }}/eVSSIM/MONITOR/SSD_MONITOR_PM
-
-    - name: compile osc-osd
-      shell: make target_clean && make target chdir={{ dest }}/eVSSIM/osc-osd 
+    - include: simulator.yml
 
     # XXX: remove ignore_errors 
     - name: make links
