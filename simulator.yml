@@ -27,8 +27,3 @@
 - name: compile osc-osd
   shell: make target_clean && make target chdir={{ dest }}/eVSSIM/osc-osd 
 
-# XXX: remove ignore_errors 
-- name: make links
-  shell: make mklink chdir={{ dest }}/eVSSIM/tests
-  ignore_errors: yes
-
