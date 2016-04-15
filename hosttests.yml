@@ -14,11 +14,6 @@
   tasks:
     - include: simulator.yml
 
-    # XXX: remove ignore_errors 
-    - name: make links
-      shell: make mklink chdir={{ dest }}/eVSSIM/tests
-      ignore_errors: yes
-
     - name: build unit tests
       shell: make chdir={{ dest }}/eVSSIM/tests
       register: build_unit_tests
@@ -27,11 +22,9 @@
       shell: ./sector_tests --ci chdir={{ dest }}/eVSSIM/tests
       register: sector_tests
  
-    # XXX: remove ignore_errors 
     - name: run object tests
       shell: ./object_tests --ci chdir={{ dest }}/eVSSIM/tests
       register: object_tests
-      ignore_errors: yes
 
     - debug: msg="Done running tests on {{ ref }}, target is in {{ dest }}"
  
