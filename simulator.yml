@@ -16,12 +16,8 @@
 - name: create data
   file: path={{ dest }}/eVSSIM/tests/data state=directory
  
-- name: rm conf link
-  file: path={{ dest }}/eVSSIM/tests/data/ssd.conf 
-        state=absent
-
 - name: create conf link
-  shell: ln -s ../../CONFIG/ssd.conf chdir={{ dest }}/eVSSIM/tests/data
+  shell: ln -sf ../../CONFIG/ssd.conf chdir={{ dest }}/eVSSIM/tests/data
 
 - name: build ssd_monitor
   shell:
