@@ -10,6 +10,10 @@
       refspec={{ ref }}
       dest={{ dest }}
 
+- name: unmount tmpfs data
+  become: true
+  mount: state=unmounted src=tmpfs fstype=tmpfs name={{ dest }}/eVSSIM/QEMU/hw/data
+
 - name: clean untracked files from repository
   shell: git clean -x -f -d -q chdir={{ dest }}
 
