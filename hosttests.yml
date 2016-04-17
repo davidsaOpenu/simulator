@@ -8,7 +8,7 @@
 #
 
   vars:
-    - dest: ../target/simulator
+    - dest: "{{ ansible_env.HOME }}/simulator"
     - ref: refs/heads/master
 
   tasks:
