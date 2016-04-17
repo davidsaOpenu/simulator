@@ -15,24 +15,24 @@
     - qemu_pid_file: "{{ ansible_env.HOME }}/simulator_qemu.pid"
 
   tasks:
-    # - include: simulator.yml
-    #
-    # - name: disable SSD monitor
-    #   patch: src=patches/qemu-monitor-off.patch basedir={{ dest }} remote_src=yes strip=1
-    #
-    # - name: build qemu
-    #   shell: chdir={{ dest }}/eVSSIM/QEMU
-    #       ./configure --enable-io-thread --enable-linux-aio --target-list=x86_64-softmmu --enable-sdl --enable-vssim --extra-cflags='-Wno-error=unused-but-set-variable -Wno-error=deprecated-declarations' && make
-    #
-    # - name: ensure QEMU/hw/data exists
-    #   file: path={{ dest }}/eVSSIM/QEMU/hw/data state=directory
-    #
-    # - name: mount tmpfs data
-    #   become: true
-    #   mount: fstype=tmpfs opts="size=16g" state=mounted src=tmpfs name={{ dest }}/eVSSIM/QEMU/hw/data
-    #
-    # - name: link SSD configuration
-    #   file: path={{ dest }}/eVSSIM/QEMU/hw/data/ssd.conf src=../../../CONFIG/ssd.conf force=yes state=link
+    - include: simulator.yml
+
+    - name: disable SSD monitor
+      patch: src=patches/qemu-monitor-off.patch basedir={{ dest }} remote_src=yes strip=1
+
+    - name: build qemu
+      shell: chdir={{ dest }}/eVSSIM/QEMU
+          ./configure --enable-io-thread --enable-linux-aio --target-list=x86_64-softmmu --enable-sdl --enable-vssim --extra-cflags='-Wno-error=unused-but-set-variable -Wno-error=deprecated-declarations' && make
+
+    - name: ensure QEMU/hw/data exists
+      file: path={{ dest }}/eVSSIM/QEMU/hw/data state=directory
+
+    - name: mount tmpfs data
+      become: true
+      mount: fstype=tmpfs opts="size=16g" state=mounted src=tmpfs name={{ dest }}/eVSSIM/QEMU/hw/data
+
+    - name: link SSD configuration
+      file: path={{ dest }}/eVSSIM/QEMU/hw/data/ssd.conf src=../../../CONFIG/ssd.conf force=yes state=link
 
     # Newer version of SeaBIOS is required to allow booting directly with a Linux kernel image.
     - name: overwrite bios.bin
