@@ -12,6 +12,8 @@
       - unzip
       # to build osc-osd
       - libsqlite3-dev
+      # to build qemu with XEN acceleration support
+      - libxen-dev
       - zlib1g-dev
       - libgnutls-dev
       - libvncserver-dev
