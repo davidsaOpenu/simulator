@@ -10,22 +10,41 @@
 
 - name: unmount tmpfs data
   become: true
-  mount: state=unmounted src=tmpfs fstype=tmpfs name={{ dest }}/eVSSIM/QEMU/hw/data
+  mount:
+  args:
+      state: unmounted
+      src: tmpfs
+      fstype: tmpfs
+      name: "{{ dest }}/eVSSIM/QEMU/hw/data"
 
 - name: clean untracked files from repository
-  shell: git clean -x -f -d -q chdir={{ dest }}
+  shell: git clean -x -f -d -q
+  args:
+    chdir: "{{dest}}"
+    # git clean is not available through 'git' module
+    warn: no
 
-- name: create data
-  file: path={{ dest }}/eVSSIM/tests/data state=directory
+- name: create data directory
+  file:
+  args:
+      path: "{{ dest }}/eVSSIM/tests/data"
+      state: directory
  
-- name: create conf link
-  shell: ln -sf ../../CONFIG/ssd.conf chdir={{ dest }}/eVSSIM/tests/data
+- name: link SSD configuration into eVSSIM/tests/data
+  file:
+  args:
+      state: link
+      src: "../../../CONFIG/ssd.conf"
+      path: "{{ dest }}/eVSSIM/tests/data/ssd.conf"
+      force: yes
 
 - name: build ssd_monitor
-  shell:
-      qmake -o Makefile ssd_monitor_p.pro && make
-      chdir={{ dest }}/eVSSIM/MONITOR/SSD_MONITOR_PM
+  shell: "qmake -o Makefile ssd_monitor_p.pro && make"
+  args:
+    chdir: "{{ dest }}/eVSSIM/MONITOR/SSD_MONITOR_PM"
   when: build_ssd_monitor
 
 - name: compile osc-osd
-  shell: make target_clean && make target chdir={{ dest }}/eVSSIM/osc-osd
+  shell: "make target_clean && make target"
+  args:
+      chdir: "{{ dest }}/eVSSIM/osc-osd"
