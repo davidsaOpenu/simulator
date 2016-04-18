@@ -55,6 +55,11 @@ It is possible to customize variables per host. For example, if your test machin
 [guest_testers]
 tester1.my-hosting.com hda_dir=/var/tmp
 ```
+
+## Useful variables
+
+- `hda_dir` — specifies the directory to download the ~2GB `hda.zip` and unpack the ~6GB `hda.img`; defaults to the home directory on the host
+
 ## TODO
 
 - Add a public key to the guest VM image's `~esd/.ssh/authorized_keys` and get rid of `sshpass`.
