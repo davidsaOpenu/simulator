@@ -84,12 +84,12 @@
   wait_for:
   args:
     port: "{{guest_ssh_port}}"
-    delay: 30
     search_regex: OpenSSH
     timeout: 10000
 
 - name: ssh into guest
-  shell: sshpass -p esd ssh -p "{{guest_ssh_port}}" -o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no esd@127.0.0.1 uname
+  delegate_to: "{{inventory_hostname}}__guest"
+  shell: "uname"
   register: guest_uname
 
 # Should display "Linux"
