@@ -1,0 +1,14 @@
+- name: configure prerequisites
+  hosts: all
+  roles:
+    - common
+
+- name: perform host tests
+  hosts: host_testers
+  roles:
+    - host_tester
+
+- name: perform guest tests
+  hosts: guest_testers
+  roles:
+    - guest_tester

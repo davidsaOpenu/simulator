@@ -1,0 +1,63 @@
+diff --git a/eVSSIM/QEMU/Makefile.target b/eVSSIM/QEMU/Makefile.target
+index 03d3646..3701cd6 100644
+--- a/eVSSIM/QEMU/Makefile.target
++++ b/eVSSIM/QEMU/Makefile.target
+@@ -195,6 +195,7 @@ obj-y += rwhandler.o
+ obj-$(CONFIG_KVM) += kvm.o kvm-all.o
+ obj-$(CONFIG_NO_KVM) += kvm-stub.o
+ LIBS+=-lz
++LIBS+=-lrt
+ 
+ QEMU_CFLAGS += $(VNC_TLS_CFLAGS)
+ QEMU_CFLAGS += $(VNC_SASL_CFLAGS)
+diff --git a/eVSSIM/QEMU/slirp/misc.c b/eVSSIM/QEMU/slirp/misc.c
+index 08eba6a..b6b8558 100755
+--- a/eVSSIM/QEMU/slirp/misc.c
++++ b/eVSSIM/QEMU/slirp/misc.c
+@@ -347,7 +347,6 @@ void slirp_connection_info(Slirp *slirp, Monitor *mon)
+     struct socket *so;
+     const char *state;
+     char buf[20];
+-    int n;
+ 
+     monitor_printf(mon, "  Protocol[State]    FD  Source Address  Port   "
+                         "Dest. Address  Port RecvQ SendQ\n");
+@@ -371,10 +370,8 @@ void slirp_connection_info(Slirp *slirp, Monitor *mon)
+             dst_addr = so->so_faddr;
+             dst_port = so->so_fport;
+         }
+-        n = snprintf(buf, sizeof(buf), "  TCP[%s]", state);
+-        memset(&buf[n], ' ', 19 - n);
+-        buf[19] = 0;
+-        monitor_printf(mon, "%s %3d %15s %5d ", buf, so->s,
++        snprintf(buf, sizeof(buf), "  TCP[%s]", state);
++        monitor_printf(mon, "%-19s %3d %15s %5d ", buf, so->s,
+                        src.sin_addr.s_addr ? inet_ntoa(src.sin_addr) : "*",
+                        ntohs(src.sin_port));
+         monitor_printf(mon, "%15s %5d %5d %5d\n",
+@@ -384,22 +381,20 @@ void slirp_connection_info(Slirp *slirp, Monitor *mon)
+ 
+     for (so = slirp->udb.so_next; so != &slirp->udb; so = so->so_next) {
+         if (so->so_state & SS_HOSTFWD) {
+-            n = snprintf(buf, sizeof(buf), "  UDP[HOST_FORWARD]");
++            snprintf(buf, sizeof(buf), "  UDP[HOST_FORWARD]");
+             src_len = sizeof(src);
+             getsockname(so->s, (struct sockaddr *)&src, &src_len);
+             dst_addr = so->so_laddr;
+             dst_port = so->so_lport;
+         } else {
+-            n = snprintf(buf, sizeof(buf), "  UDP[%d sec]",
++            snprintf(buf, sizeof(buf), "  UDP[%d sec]",
+                          (so->so_expire - curtime) / 1000);
+             src.sin_addr = so->so_laddr;
+             src.sin_port = so->so_lport;
+             dst_addr = so->so_faddr;
+             dst_port = so->so_fport;
+         }
+-        memset(&buf[n], ' ', 19 - n);
+-        buf[19] = 0;
+-        monitor_printf(mon, "%s %3d %15s %5d ", buf, so->s,
++        monitor_printf(mon, "%-19s %3d %15s %5d ", buf, so->s,
+                        src.sin_addr.s_addr ? inet_ntoa(src.sin_addr) : "*",
+                        ntohs(src.sin_port));
+         monitor_printf(mon, "%15s %5d %5d %5d\n",
