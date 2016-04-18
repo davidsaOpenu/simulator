@@ -59,6 +59,7 @@ tester1.my-hosting.com hda_dir=/var/tmp
 ## Useful variables
 
 - `hda_dir` — specifies the directory to download the ~2GB `hda.zip` and unpack the ~6GB `hda.img`; defaults to the home directory on the host
+- `qemu_machine` — defaults to `accel=tcg` (no acceleration); can be set to `accel=kvm` or `accel=xen` on supporting hosts
 
 ## TODO
 

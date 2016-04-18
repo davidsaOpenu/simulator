@@ -76,7 +76,7 @@
 # Start new qemu process
 
 - name: start guest
-  shell: ../x86_64-softmmu/qemu-system-x86_64 -m {{memory}} -smp {{smp}} -hda {{hda_img}} -device nvme -redir tcp:{{guest_ssh_port}}::22 -nographic -vnc :0 -kernel "{{dest}}/{{kernel_image}}" -initrd "{{dest}}/{{initrd_image}}" -append "{{kernel_cmdline}}" -daemonize -pidfile "{{qemu_pid_file}}"
+  shell: "../x86_64-softmmu/qemu-system-x86_64 -m {{memory}} -smp {{smp}} -hda '{{hda_img}}' -device nvme -redir tcp:{{guest_ssh_port}}::22 -nographic -vnc :0 -kernel '{{dest}}/{{kernel_image}}' -initrd '{{dest}}/{{initrd_image}}' -append '{{kernel_cmdline}}' -daemonize -pidfile '{{qemu_pid_file}}' -machine {{qemu_machine}}"
   args:
     chdir: "{{ dest }}/eVSSIM/QEMU/hw"
 
