@@ -1,13 +1,19 @@
 - name: build unit tests
-  shell: make chdir={{ dest }}/eVSSIM/tests
+  shell: "make mklink && make all"
+  args:
+      chdir: "{{ dest }}/eVSSIM/tests"
   register: build_unit_tests
 
 - name: run sector tests
-  shell: ./sector_tests --ci chdir={{ dest }}/eVSSIM/tests
+  shell: ./sector_tests --ci
+  args:
+      chdir: "{{ dest }}/eVSSIM/tests"
   register: sector_tests
 
 - name: run object tests
-  shell: ./object_tests --ci chdir={{ dest }}/eVSSIM/tests
+  shell: ./object_tests --ci
+  args:
+      chdir: "{{ dest }}/eVSSIM/tests"
   register: object_tests
 
 - debug: msg="Done running tests on {{ ref }}, target is in {{ dest }}"
