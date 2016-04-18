@@ -34,7 +34,7 @@
   file:
   args:
       state: link
-      src: "../../../CONFIG/ssd.conf"
+      src: "../../CONFIG/ssd.conf"
       path: "{{ dest }}/eVSSIM/tests/data/ssd.conf"
       force: yes
 
