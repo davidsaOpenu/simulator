@@ -24,3 +24,26 @@
   with_items:
       - libqt3-mt-dev
   when: build_ssd_monitor
+
+- name: check whether gtest was built
+  stat: path="/opt/gtest/lib/libgtest.a"
+  register: libgtest_file
+
+- name: get gtest
+  unarchive: src=https://github.com/google/googletest/archive/release-1.7.0.tar.gz dest=/tmp copy=no
+  when: libgtest_file.stat.exists == false
+
+- name: move googletest to gtest
+  command: mv /tmp/googletest-release-1.7.0 /opt/gtest
+  become: true
+  args:
+    creates: /opt/gtest
+  when: libgtest_file.stat.exists == false
+
+- name: create lib for gtest
+  file: path=/opt/gtest/lib state=directory
+  when: libgtest_file.stat.exists == false
+
+- name: build gtest
+  shell: cd /opt/gtest/lib && cmake .. && make
+  when: libgtest_file.stat.exists == false
