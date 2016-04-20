@@ -72,6 +72,7 @@
 
 - name: wait for old guest to shut down
   wait_for: path=/proc/{{old_qemu_pid_task.stdout}}/status state=absent
+  when: old_qemu_pid_task.stdout != ""
 
 # Start new qemu process
 
