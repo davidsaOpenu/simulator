@@ -43,7 +43,7 @@ foobar2
 [guests]
 foobar1__guest ansible_host=foobar1
 foobar2__guest ansible_host=foobar2
-````
+```
 
 To see how they're impemented, see `group_vars/guests.yml`.
 
