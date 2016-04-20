@@ -1,4 +1,6 @@
 #!/usr/bin/env bash
+#Add simulator comp here 
+
 if [ -z "$1" ]; then
 	echo "usage: sudo $0 <IMAGE>"
 	exit 1
