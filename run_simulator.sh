@@ -1,4 +1,5 @@
 #!/usr/bin/env bash
+
 if [ -z "$1" ]; then
 	echo "usage: sudo $0 <IMAGE>"
 	exit 1
