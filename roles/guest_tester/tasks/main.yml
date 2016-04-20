@@ -22,9 +22,6 @@
   when: hda_file.stat.exists == false
 
 - name: disable SSD monitor
-  patch: "src=qemu-monitor-off.patch basedir={{ dest }} strip=1"
-
-- name: disable SSD monitor
   patch: "src=qemu-ubuntu-14.patch basedir={{ dest }} strip=1"
 
 - name: build qemu

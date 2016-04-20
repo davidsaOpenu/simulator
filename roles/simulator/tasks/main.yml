@@ -38,6 +38,9 @@
       path: "{{ dest }}/eVSSIM/tests/data/ssd.conf"
       force: yes
 
+- name: disable FTL SSD monitor
+  patch: "src=ftl-monitor-off.patch basedir={{ dest }} strip=1"
+
 - name: build ssd_monitor
   shell: "qmake -o Makefile ssd_monitor_p.pro && make"
   args:
