@@ -21,7 +21,7 @@
   file: "path={{hda_zip}} state=absent"
   when: hda_file.stat.exists == false
 
-- name: disable SSD monitor
+- name: fix qemu compilation errors on Ubuntu 14.04
   patch: "src=qemu-ubuntu-14.patch basedir={{ dest }} strip=1"
 
 - name: build qemu
