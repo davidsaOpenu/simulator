@@ -1,5 +1,8 @@
 - name: install required packages
-  apt: pkg={{ item }} state=installed
+  apt:
+  args:
+      pkg: "{{ item }}"
+      state: installed
   become: true
   with_items:
       - git
@@ -22,7 +25,10 @@
       - sshpass
 
 - name: install packages for SSD monitor
-  apt: pkg={{ item }} state=installed
+  apt:
+  args:
+    pkg: "{{ item }}"
+    state: installed
   with_items:
       - libqt3-mt-dev
   when: build_ssd_monitor

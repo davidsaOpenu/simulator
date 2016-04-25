@@ -64,11 +64,14 @@
   register: old_qemu_pid_task
 
 - name: shut down old guest
-  shell: kill {{old_qemu_pid_task.stdout}}
+  shell: "kill {{old_qemu_pid_task.stdout}}"
   when: old_qemu_pid_task.stdout != ""
 
 - name: wait for old guest to shut down
-  wait_for: path=/proc/{{old_qemu_pid_task.stdout}}/status state=absent
+  wait_for:
+  args:
+      path: "/proc/{{old_qemu_pid_task.stdout}}/status"
+      state: absent
   when: old_qemu_pid_task.stdout != ""
 
 # Start new qemu process
@@ -106,10 +109,13 @@
   register: qemu_pid_task
 
 - name: shut down guest
-  shell: kill {{qemu_pid_task.stdout}}
+  shell: "kill {{qemu_pid_task.stdout}}"
   when: qemu_pid_task.stdout != ""
 
 - name: wait for guest to shut down
-  wait_for: path=/proc/{{qemu_pid_task.stdout}}/status state=absent
+  wait_for:
+  args:
+      path: "/proc/{{qemu_pid_task.stdout}}/status"
+      state: absent
 
-- debug: msg="Done running tests on {{ ref }}, target is in {{ dest }}"
+- debug: "msg=Done running tests on {{ ref }}, target is in {{ dest }}"
