@@ -2,9 +2,7 @@
   apt: pkg={{ item }} state=installed
   with_items:
       - git
-      # common gcc for Ubuntu 12.04 and Ubuntu 14.04
-      # that manages to compile our ancient version of qemu
-      - gcc-4.7
+      - "{{ gcc }}"
       # to build gtest
       - cmake
       - g++

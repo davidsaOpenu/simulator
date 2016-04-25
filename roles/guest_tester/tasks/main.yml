@@ -26,7 +26,7 @@
 
 - name: build qemu
   shell: chdir={{ dest }}/eVSSIM/QEMU
-      ./configure --enable-io-thread --enable-linux-aio --target-list=x86_64-softmmu --enable-sdl --enable-vssim --extra-cflags='-Wno-error=unused-but-set-variable -Wno-error=deprecated-declarations -Wno-error=cpp' --cc=gcc-4.7 --enable-xen && make
+      ./configure --enable-io-thread --enable-linux-aio --target-list=x86_64-softmmu --enable-sdl --enable-vssim --extra-cflags='-Wno-error=unused-but-set-variable -Wno-error=deprecated-declarations -Wno-error=cpp' --cc={{ gcc }} --enable-xen && make
 
 - name: ensure QEMU/hw/data exists
   file: path={{ dest }}/eVSSIM/QEMU/hw/data state=directory
