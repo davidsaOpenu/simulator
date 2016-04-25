@@ -21,9 +21,6 @@
   file: "path={{hda_zip}} state=absent"
   when: hda_file.stat.exists == false
 
-- name: fix qemu compilation errors on Ubuntu 14.04
-  patch: "src=qemu-ubuntu-14.patch basedir={{ dest }} strip=1"
-
 - name: build qemu
   shell: chdir={{ dest }}/eVSSIM/QEMU
       ./configure --enable-io-thread --enable-linux-aio --target-list=x86_64-softmmu --enable-sdl --enable-vssim --extra-cflags='-Wno-error=unused-but-set-variable -Wno-error=deprecated-declarations -Wno-error=cpp' --cc={{ gcc }} --enable-xen && make
