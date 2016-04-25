@@ -27,7 +27,13 @@ tester1.my-hosting.com__guest ansible_host=tester1.my-hosting.com
 and then run:
 
 ```sh
-ansible-playbook -i my_hosts site.yml
+ansible-playbook -K -i my_hosts site.yml
+```
+
+To skip to QEMU execution tasks without running all the lengthy setup and build tasks, run:
+
+```sh
+ansible-playbook -K -i my_hosts --tags qemu site.yml
 ```
 
 ## Guest hosts

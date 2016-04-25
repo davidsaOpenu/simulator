@@ -62,10 +62,12 @@
       # using bashisms
       executable: /bin/bash
   register: old_qemu_pid_task
+  tags: qemu
 
 - name: shut down old guest
   shell: "kill {{old_qemu_pid_task.stdout}}"
   when: old_qemu_pid_task.stdout != ""
+  tags: qemu
 
 - name: wait for old guest to shut down
   wait_for:
@@ -73,6 +75,7 @@
       path: "/proc/{{old_qemu_pid_task.stdout}}/status"
       state: absent
   when: old_qemu_pid_task.stdout != ""
+  tags: qemu
 
 # Start new qemu process
 
@@ -80,6 +83,7 @@
   shell: "../x86_64-softmmu/qemu-system-x86_64 -m {{memory}} -smp {{smp}} -hda '{{hda_img}}' -device nvme -redir tcp:{{guest_ssh_port}}::22 -nographic -vnc :0 -kernel '{{dest}}/{{kernel_image}}' -initrd '{{dest}}/{{initrd_image}}' -append '{{kernel_cmdline}}' -daemonize -pidfile '{{qemu_pid_file}}' -machine {{qemu_machine}}"
   args:
     chdir: "{{ dest }}/eVSSIM/QEMU/hw"
+  tags: qemu
 
 - name: waiting for guest to start
   wait_for:
@@ -87,17 +91,20 @@
     port: "{{guest_ssh_port}}"
     search_regex: OpenSSH
     timeout: 10000
+  tags: qemu
 
 - name: ssh into guest
   delegate_to: "{{inventory_hostname}}__guest"
   shell: "uname"
   register: guest_uname
+  tags: qemu
 
 # Should display "Linux"
 
 - debug:
   args:
     msg: "Output of 'ssh uname' to guest: {{ guest_uname.stdout }}"
+  tags: qemu
 
 # Shutdown qemu and confirm it has gone down
 
@@ -107,15 +114,19 @@
       # using bashisms
       executable: /bin/bash
   register: qemu_pid_task
+  tags: qemu
 
 - name: shut down guest
   shell: "kill {{qemu_pid_task.stdout}}"
   when: qemu_pid_task.stdout != ""
+  tags: qemu
 
 - name: wait for guest to shut down
   wait_for:
   args:
       path: "/proc/{{qemu_pid_task.stdout}}/status"
       state: absent
+  tags: qemu
 
 - debug: "msg=Done running tests on {{ ref }}, target is in {{ dest }}"
+  tags: qemu
