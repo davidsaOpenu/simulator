@@ -24,6 +24,11 @@
     # git clean is not available through 'git' module
     warn: no
 
+- name: apply all patches to simulator
+  patch: "src={{ item }} basedir={{ dest }} strip=1"
+  with_fileglob:
+      - "*.patch"
+
 - name: create data directory
   file:
   args:
@@ -37,9 +42,6 @@
       src: "../../CONFIG/ssd.conf"
       path: "{{ dest }}/eVSSIM/tests/data/ssd.conf"
       force: yes
-
-- name: disable FTL SSD monitor
-  patch: "src=ftl-monitor-off.patch basedir={{ dest }} strip=1"
 
 - name: build ssd_monitor
   shell: "qmake -o Makefile ssd_monitor_p.pro && make"
