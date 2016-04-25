@@ -1,5 +1,6 @@
 - name: install required packages
   apt: pkg={{ item }} state=installed
+  become: true
   with_items:
       - git
       - "{{ gcc }}"
