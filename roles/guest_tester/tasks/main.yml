@@ -93,9 +93,15 @@
     timeout: 10000
   tags: qemu
 
-- name: ssh into guest
+- name: ssh into guest over ansible
   delegate_to: "{{inventory_hostname}}__guest"
   shell: "uname"
+  register: guest_uname
+  when: false
+  tags: qemu
+
+- name: ssh into guest
+  shell: "{{ guest_ssh_cmd }} uname"
   register: guest_uname
   tags: qemu
 

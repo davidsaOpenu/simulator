@@ -1,0 +1,1 @@
+guest_ssh_cmd: "sshpass -p esd ssh esd@localhost -p {{ guest_ssh_port }}"
