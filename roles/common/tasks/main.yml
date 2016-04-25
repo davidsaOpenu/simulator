@@ -13,6 +13,7 @@
       # to build qemu with XEN acceleration support
       - libxen-dev
       - zlib1g-dev
+      - libsdl-image1.2-dev
       - libgnutls-dev
       - libvncserver-dev
       - libpci-dev
