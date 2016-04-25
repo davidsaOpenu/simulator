@@ -57,7 +57,10 @@
 # Ensure any old qemu process is stopped
 
 - name: get old qemu pid
-  shell: read pid<{{qemu_pid_file}}; if [[ -n "$pid" && -e /proc/$pid/status ]]; then echo $pid; fi
+  shell: 'read pid<{{qemu_pid_file}}; if [[ -n "$pid" && -e /proc/$pid/status ]]; then echo $pid; fi'
+  args:
+      # using bashisms
+      executable: /bin/bash
   register: old_qemu_pid_task
 
 - name: shut down old guest
@@ -96,7 +99,10 @@
 # Shutdown qemu and confirm it has gone down
 
 - name: get existing qemu pid
-  shell: read pid<{{qemu_pid_file}}; if [[ -n "$pid" && -e /proc/$pid/status ]]; then echo $pid; fi
+  shell: 'read pid<{{qemu_pid_file}}; if [[ -n "$pid" && -e /proc/$pid/status ]]; then echo $pid; fi'
+  args:
+      # using bashisms
+      executable: /bin/bash
   register: qemu_pid_task
 
 - name: shut down guest
