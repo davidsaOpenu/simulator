@@ -1,0 +1,10 @@
+[host_testers]
+localhost ansible_connection=local
+
+[guest_testers]
+localhost ansible_connection=local
+
+[guests]
+localhost   ansible_host=localhost ssh_proxy="" ansible_ssh_port=2222 ansible_ssh_host=localhost
+#localhost   ansible_host=localhost ssh_proxy=" -o ProxyCommand='ssh -W localhost:2222 -q %h'"
+

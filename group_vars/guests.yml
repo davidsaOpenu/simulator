@@ -1,6 +1,6 @@
 # Must use 'ansible_connection: ssh' (rather than built-in Python-based 'paramiko') to support ProxyCommand
 ansible_connection: ssh
 # Must use TCPKeepAlive=no or otherwise terribly slow VM times out.
-ansible_ssh_common_args: "-o TCPKeepAlive=no -o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no -o ProxyCommand='ssh -q -p %p %h nc localhost:2222'"
-ansible_ssh_user: esd 
+ansible_ssh_common_args: "-o TCPKeepAlive=no -o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no {{ ssh_proxy }}"
+ansible_ssh_user: esd
 ansible_ssh_pass: esd
