@@ -1,25 +1,4 @@
-- name: test whether hda.img exists
-  stat:
-  args:
-    path: "{{hda_img}}"
-    get_checksum: False
-    get_md5: False
-  register: hda_file
-
-- name: download hda.img
-  shell: "test -e {{hda_zip}} || curl -L -o {{hda_zip}} 'https://www.dropbox.com/s/6v13efgzmcidgao/hda.zip'"
-  args:
-    # get_url module doesn't seem to follow redirects, curl just works
-    warn: no
-  when: hda_file.stat.exists == false
-
-- name: unarchive hda.img
-  unarchive: "copy=no src={{hda_zip}} dest={{hda_dir}}"
-  when: hda_file.stat.exists == false
-
-- name: delete hda archive
-  file: "path={{hda_zip}} state=absent"
-  when: hda_file.stat.exists == false
+- include: hda_image.yml
 
 - name: build qemu
   shell: chdir={{ dest }}/eVSSIM/QEMU
@@ -31,9 +10,11 @@
 - name: mount tmpfs data
   become: true
   mount: fstype=tmpfs opts="size=16g" state=mounted src=tmpfs name={{ dest }}/eVSSIM/QEMU/hw/data
+  tags: qemu
 
 - name: link SSD configuration
   file: path={{ dest }}/eVSSIM/QEMU/hw/data/ssd.conf src=../../../CONFIG/ssd.conf force=yes state=link
+  tags: qemu
 
 # Newer version of SeaBIOS is required to allow booting directly with a Linux kernel image.
 - name: overwrite bios.bin
@@ -53,29 +34,6 @@
   args:
     src: "{{initrd_image}}"
     dest: "{{ dest }}/{{initrd_image}}"
-
-# Ensure any old qemu process is stopped
-
-- name: get old qemu pid
-  shell: 'read pid<{{qemu_pid_file}}; if [[ -n "$pid" && -e /proc/$pid/status ]]; then echo $pid; fi'
-  args:
-      # using bashisms
-      executable: /bin/bash
-  register: old_qemu_pid_task
-  tags: qemu
-
-- name: shut down old guest
-  shell: "kill {{old_qemu_pid_task.stdout}}"
-  when: old_qemu_pid_task.stdout != ""
-  tags: qemu
-
-- name: wait for old guest to shut down
-  wait_for:
-  args:
-      path: "/proc/{{old_qemu_pid_task.stdout}}/status"
-      state: absent
-  when: old_qemu_pid_task.stdout != ""
-  tags: qemu
 
 # Start new qemu process
 
@@ -97,12 +55,12 @@
   delegate_to: "{{inventory_hostname}}__guest"
   shell: "uname"
   register: guest_uname
-  when: false
   tags: qemu
 
 - name: ssh into guest
   shell: "{{ guest_ssh_cmd }} uname"
-  register: guest_uname
+  register: guest_uname_new
+  when: false
   tags: qemu
 
 # Should display "Linux"
@@ -113,26 +71,7 @@
   tags: qemu
 
 # Shutdown qemu and confirm it has gone down
-
-- name: get existing qemu pid
-  shell: 'read pid<{{qemu_pid_file}}; if [[ -n "$pid" && -e /proc/$pid/status ]]; then echo $pid; fi'
-  args:
-      # using bashisms
-      executable: /bin/bash
-  register: qemu_pid_task
-  tags: qemu
-
-- name: shut down guest
-  shell: "kill {{qemu_pid_task.stdout}}"
-  when: qemu_pid_task.stdout != ""
-  tags: qemu
-
-- name: wait for guest to shut down
-  wait_for:
-  args:
-      path: "/proc/{{qemu_pid_task.stdout}}/status"
-      state: absent
-  tags: qemu
+- include: roles/simulator/tasks/qemu_stop.yml
 
 - debug: "msg=Done running tests on {{ ref }}, target is in {{ dest }}"
   tags: qemu

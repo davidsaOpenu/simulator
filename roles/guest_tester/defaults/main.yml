@@ -2,13 +2,10 @@ memory: 2048
 smp: 4
 # This has to be a directory with ~ 9GB free space
 hda_dir: "{{ ansible_env.HOME }}"
-dest: "{{ ansible_env.HOME }}/simulator"
-ref: refs/heads/master
 guest_ssh_port: 2222
 hda_img: "{{hda_dir}}/hda.img"
 hda_zip: "{{hda_dir}}/hda.zip"
 kernel_image: vmlinuz-3.8.0-29-generic
 initrd_image: initrd.img-3.8.0-29-generic
 kernel_cmdline: "BOOT_IMAGE=/boot/{{kernel_image}} root=UUID=063018ec-674c-4c3e-a976-ac4fa950864f ro"
-qemu_pid_file: "{{ ansible_env.HOME }}/simulator_qemu.pid"
 qemu_machine: accel=tcg

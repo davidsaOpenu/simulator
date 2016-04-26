@@ -1,3 +1,6 @@
+# Cleanup previous executions on this host
+- include: qemu_stop.yml
+
 - name: clone simulator repo 
   git:
       repo=https://review.gerrithub.io/davidsaOpenu/simulator
@@ -7,15 +10,7 @@
       version=FETCH_HEAD
       refspec={{ ref }}
       dest={{ dest }}
-
-- name: unmount tmpfs data
-  become: true
-  mount:
-  args:
-      state: unmounted
-      src: tmpfs
-      fstype: tmpfs
-      name: "{{ dest }}/eVSSIM/QEMU/hw/data"
+  tags: clean
 
 - name: clean untracked files from repository
   shell: git clean -x -f -d -q
@@ -23,6 +18,7 @@
     chdir: "{{dest}}"
     # git clean is not available through 'git' module
     warn: no
+  tags: clean
 
 - name: apply all patches to simulator
   patch: "src={{ item }} basedir={{ dest }} strip=1"

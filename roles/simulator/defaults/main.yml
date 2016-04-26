@@ -1,3 +1,4 @@
 dest: "{{ ansible_env.HOME }}/simulator"
 ref: refs/heads/master
 build_ssd_monitor: false
+qemu_pid_file: "{{ ansible_env.HOME }}/simulator_qemu.pid"

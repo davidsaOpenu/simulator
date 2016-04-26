@@ -1,0 +1,32 @@
+# Ensure any old qemu process is stopped
+
+- name: get old qemu pid
+  shell: 'read pid<{{qemu_pid_file}}; if [[ -n "$pid" && -e /proc/$pid/status ]]; then echo $pid; fi'
+  args:
+      # using bashisms
+      executable: /bin/bash
+  register: qemu_pid_task
+  tags: qemu
+
+- name: shut down old guest
+  shell: "kill {{qemu_pid_task.stdout}}"
+  when: qemu_pid_task.stdout != ""
+  tags: qemu
+
+- name: wait for old guest to shut down
+  wait_for:
+  args:
+      path: "/proc/{{qemu_pid_task.stdout}}/status"
+      state: absent
+  when: qemu_pid_task.stdout != ""
+  tags: qemu
+
+- name: unmount tmpfs data
+  become: true
+  mount:
+  args:
+      state: unmounted
+      src: tmpfs
+      fstype: tmpfs
+      name: "{{ dest }}/eVSSIM/QEMU/hw/data"
+

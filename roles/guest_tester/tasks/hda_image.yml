@@ -1,0 +1,23 @@
+- name: test whether hda.img exists
+  stat:
+  args:
+    path: "{{hda_img}}"
+    get_checksum: False
+    get_md5: False
+  register: hda_file
+
+- name: download hda.img
+  shell: "test -e {{hda_zip}} || curl -L -o {{hda_zip}} 'https://www.dropbox.com/s/6v13efgzmcidgao/hda.zip'"
+  args:
+    # get_url module doesn't seem to follow redirects, curl just works
+    warn: no
+  when: hda_file.stat.exists == false
+
+- name: unarchive hda.img
+  unarchive: "copy=no src={{hda_zip}} dest={{hda_dir}}"
+  when: hda_file.stat.exists == false
+
+- name: delete hda archive
+  file: "path={{hda_zip}} state=absent"
+  when: hda_file.stat.exists == false
+
