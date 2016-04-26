@@ -2,13 +2,16 @@
   hosts: all
   roles:
     - common
+  tags: [host, guest]
 
 - name: perform host tests
   hosts: host_testers
   roles:
     - host_tester
+  tags: host
 
 - name: perform guest tests
   hosts: guest_testers
   roles:
     - guest_tester
+  tags: guest

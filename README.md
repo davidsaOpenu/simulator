@@ -8,7 +8,7 @@ brew install https://raw.githubusercontent.com/kadwanev/bigboybrew/master/Librar
 
 `sshpass` is not available in Homebrew due to security considerations. We're using `sshpass` to login into the guest VM after logging in into the host VM, so it doesn't present a security risk in our case.
 
-- On Ubuntu 12.02, run `./ansible_install.sh`
+- On Ubuntu 12.04, run `sudo ./ansible_install.sh`
 
 ## Running
 
@@ -28,6 +28,17 @@ and then run:
 
 ```sh
 ansible-playbook -K -i my_hosts site.yml
+```
+To run only host/guest tests pass this as tags:
+
+```sh
+ansible-playbook -K -i my_hosts --tags guest site.yml
+```
+
+To do a re-run on an existing setup, you can skip the clean actions so there is no need to re-build the packages: 
+
+```sh
+ansible-playbook -K -i my_hosts --skip-tags clean --tags guest site.yml
 ```
 
 To skip to QEMU execution tasks without running all the lengthy setup and build tasks, run:
