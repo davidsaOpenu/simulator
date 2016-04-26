@@ -4,53 +4,15 @@ VSSIM talking NVMe
 Building
 --------
 
-1. Build ssd_monitor
+1. cd to root folder (cd ..)
+2. run compile.sh script (./compile.sh)
 
-    ```sh
-    cd MONITOR/SSD_MONITOR_PM
-    qmake -o Makefile ssd_monitor_p.pro
-    make
-    ```
-
-2. Build qemu
-
-    ```sh
-    cd QEMU
-    ./configure --enable-io-thread --enable-linux-aio --target-list=x86_64-softmmu \
-        --enable-sdl --enable-vssim \
-        --extra-cflags='-Wno-error=unused-but-set-variable -Wno-error=deprecated-declarations'
-    make
-    ```
-
-Setting up VSSIM runtime
+Setting up VSSIM and run QEMU
 ------------------------
 
-1. Setup data directory
-
-    ```sh
-    cd QEMU/hw
-    mkdir data
-    mount -t tmpfs -o size=16g tmpfs ./data 
-    ```
-
-2. SSD configuration
-
-    ```sh
-    cd QEMU/hw/data
-    ln -s ../../../CONFIG/ssd.conf
-    ```
-
-3. Set configuration parameters in ssd.conf file.
-
-   Note: NVMe disk size set during start of QEMU must consider provisioning used in configuration file `ssd.conf`.
-
-Run QEMU with VSSIM talking NVMe
---------------------------------
-
-```sh
-cd QEMU/hw # qemu must be run from QEMU/hw directory
-../x86_64-softmmu/qemu-system-x86_64 -m 2048 -smp 4 -hda HDA_IMAGE.img -device nvme -enable-kvm -redir tcp:2222::22
-```
+1. cd to root folder (cd ..)
+2. run run_simulator.sh script (sudo ./run_simulator.sh <PATH-TO-IMAGE>)
+   the script needs root permission in order to mount a tmpfs for the simulator.
 
 QEMU distclean
 --------------
