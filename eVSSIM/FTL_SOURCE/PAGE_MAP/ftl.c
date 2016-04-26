@@ -93,16 +93,12 @@ void FTL_TERM_STRATEGY(void)
 
 void FTL_READ(uint64_t id, unsigned int offset, unsigned int length)
 {
-	int ret;
-
-	ret = storage_strategy->FTL_READ(id, offset, length);
+	storage_strategy->FTL_READ(id, offset, length);
 }
 
 void FTL_WRITE(uint64_t id, unsigned int offset, unsigned int length)
 {
-	int ret;
-
-	ret = storage_strategy->FTL_WRITE(id, offset, length);
+	storage_strategy->FTL_WRITE(id, offset, length);
 }
 
 int FTL_COPYBACK(uint32_t source, uint32_t destination)
@@ -112,16 +108,12 @@ int FTL_COPYBACK(uint32_t source, uint32_t destination)
 
 void FTL_CREATE(size_t size)
 {
-	int ret;
-	
-	ret = storage_strategy->FTL_CREATE(size);
+	storage_strategy->FTL_CREATE(size);
 }
 
 void FTL_DELETE(uint64_t id)
 {
-	int ret;
-	
-	ret = storage_strategy->FTL_DELETE(id);
+	storage_strategy->FTL_DELETE(id);
 }
 
 void FTL_INIT_STATS(void)
