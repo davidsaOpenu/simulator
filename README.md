@@ -12,64 +12,39 @@ brew install https://raw.githubusercontent.com/kadwanev/bigboybrew/master/Librar
 
 ## Running
 
-Create a file named e.g. "my_hosts" containing your hosts. For example:
-```
-[host_testers]
-tester1.my-hosting.com
+Modify 'hosts' file to containing your hosts configuration. 
+It is currently configured to run on localhost.
 
-[guest_testers]
-tester1.my-hosting.com
-
-[guests]
-tester1.my-hosting.com__guest ansible_host=tester1.my-hosting.com
-```
+Note: you must configure the default host file to include the sudo password of your localhost.
 
 and then run:
 
 ```sh
-ansible-playbook -K -i my_hosts site.yml
+ansible-playbook -i hosts site.yml
 ```
 To run only host/guest tests pass this as tags:
 
 ```sh
-ansible-playbook -K -i my_hosts --tags guest site.yml
+ansible-playbook -i hosts --tags guest site.yml
 ```
 
 To do a re-run on an existing setup, you can skip the clean actions so there is no need to re-build the packages: 
 
 ```sh
-ansible-playbook -K -i my_hosts --skip-tags clean --tags guest site.yml
+ansible-playbook -i hosts --skip-tags clean --tags guest site.yml
 ```
 
 To skip to QEMU execution tasks without running all the lengthy setup and build tasks, run:
 
 ```sh
-ansible-playbook -K -i my_hosts --tags qemu site.yml
+ansible-playbook -i hosts --tags qemu site.yml
 ```
-
-## Guest hosts
-
-Guest hosts are special kind of hosts, used to communicate with the guest VM within the guest testers. The guest hosts are not given a role; instead, they're used explicitly with `delegate_to` when time comes.
-
-Each guest tester should be accompanied with a matching guest entry, i.e.:
-```
-[guest_testers]
-foobar1
-foobar2
-
-[guests]
-foobar1__guest ansible_host=foobar1
-foobar2__guest ansible_host=foobar2
-```
-
-To see how they're impemented, see `group_vars/guests.yml`.
 
 ## Customizing
 
-It is possible to customize variables per host. For example, if your test machine has little disk space in your home directory but has ample disk space in /var/tmp, change your "my_hosts" file as follows:
+It is possible to customize variables per host. For example, if your test machine has little disk space in your home directory but has ample disk space in /var/tmp, change your "hosts" file as follows:
 
 ```
-[guest_testers]
 tester1.my-hosting.com hda_dir=/var/tmp
 ```
 
