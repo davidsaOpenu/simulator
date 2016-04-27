@@ -1,10 +1,5 @@
-[host_testers]
-localhost ansible_connection=local
 
-[guest_testers]
-localhost ansible_connection=local
+local_host ansible_host=localhost ansible_sudo=True ansible_sudo_pass='root' ansible_connection=local
 
 [guests]
-localhost   ansible_host=localhost ssh_proxy="" ansible_ssh_port=2222 ansible_ssh_host=localhost
-#localhost   ansible_host=localhost ssh_proxy=" -o ProxyCommand='ssh -W localhost:2222 -q %h'"
-
+guest_host ansible_connection=ssh ansible_sudo=True ansible_sudo_pass=esd ssh_proxy="" ansible_port=2222 ansible_host=localhost

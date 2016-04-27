@@ -1,0 +1,19 @@
+- name: rmmod dnvme
+  become: true
+  shell: rmmod dnvme
+  ignore_errors: True
+
+- name: insmod nvme
+  become: true
+  shell: modprobe nvme
+
+- name: disable sdb
+  shell: ./disable_sdb.sh
+  args:
+    chdir: "fio_tests/"
+  
+- name: run fio job I
+  become: true
+  shell: echo "Run FIO"
+
+- debug: msg="Done running tests on guest"

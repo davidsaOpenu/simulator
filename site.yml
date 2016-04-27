@@ -1,17 +1,30 @@
 - name: configure prerequisites
-  hosts: all
+  hosts: local_host
   roles:
     - common
   tags: [host, guest]
 
 - name: perform host tests
-  hosts: host_testers
+  hosts: local_host 
   roles:
     - host_tester
   tags: host
 
-- name: perform guest tests
-  hosts: guest_testers
+- name: perform guest tests setup
+  hosts: local_host
+  roles:
+    - guest_tester_pre
+  tags: guest
+
+- name: perform quest tests
+  hosts: guest_host
   roles:
     - guest_tester
   tags: guest
+
+- name: perform guest tests cleanup
+  hosts: local_host
+  roles:
+    - { role: simulator, cleanup_only: true} 
+  tags: guest
+
