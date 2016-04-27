@@ -93,6 +93,20 @@ int SSD_IO_INIT(void){
 	return 0;
 }
 
+int SSD_IO_TERM(void)
+{
+	free(reg_io_cmd);
+	free(reg_io_type);
+	free(reg_io_time);
+	free(cell_io_time);
+	int i;
+	for(i=0; i< FLASH_NB*PLANES_PER_FLASH; i++)
+		free(access_nb[i]);
+	free(access_nb);
+	free(io_overhead);
+	return 0;
+}
+
 int SSD_PAGE_WRITE(unsigned int flash_nb, unsigned int block_nb, unsigned int page_nb, int offset, int type, int io_page_nb)
 {
 	int channel, reg;
