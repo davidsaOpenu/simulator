@@ -9,18 +9,18 @@ typedef uint64_t object_id_t;
 
 /* A page node in the linked list of object-mapped pages */
 typedef struct page_node {
-    uint32_t page_id;
-    object_id_t object_id;
-    struct page_node *next;
-    UT_hash_handle hh; /* makes this structure hashable */
+	uint32_t page_id;
+	object_id_t object_id;
+	struct page_node *next;
+	UT_hash_handle hh; /* makes this structure hashable */
 } page_node;
 
 /* The object struct. Metadata will be added as a pointer to another struct or as more fields */
 typedef struct stored_object {
-    object_id_t id;
-    size_t size;
-    page_node *pages;
-    UT_hash_handle hh; /* makes this structure hashable */
+	object_id_t id;
+	size_t size;
+	page_node *pages;
+	UT_hash_handle hh; /* makes this structure hashable */
 } stored_object;
 
 void INIT_OBJ_STRATEGY(void);

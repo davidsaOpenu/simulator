@@ -20,33 +20,33 @@ storage_strategy_functions* storage_strategy;
 
 void FTL_INIT(void)
 {
-	if(g_init == 0){
-        	printf("[%s] start\n",__FUNCTION__);
+	if(g_init != 0)
+		return;
 
-		INIT_SSD_CONFIG();
-		INIT_MAPPING_TABLE();
-		INIT_INVERSE_PAGE_MAPPING();
-		INIT_INVERSE_BLOCK_MAPPING();
-		INIT_VALID_ARRAY();
-		INIT_EMPTY_BLOCK_LIST();
-		INIT_VICTIM_BLOCK_LIST();
-		INIT_PERF_CHECKER();
-		FTL_INIT_STRATEGY();
-		
-		//Initialize The Statistics gathering component.
-		FTL_INIT_STATS();
-		
-		g_init = 1;
+	PINFO("start\n");
 
-		SSD_IO_INIT();
-		printf("[%s] complete\n",__FUNCTION__);
-	}
+	INIT_SSD_CONFIG();
+	INIT_MAPPING_TABLE();
+	INIT_INVERSE_PAGE_MAPPING();
+	INIT_INVERSE_BLOCK_MAPPING();
+	INIT_VALID_ARRAY();
+	INIT_EMPTY_BLOCK_LIST();
+	INIT_VICTIM_BLOCK_LIST();
+	INIT_PERF_CHECKER();
+	FTL_INIT_STRATEGY();
+
+	//Initialize The Statistics gathering component.
+	FTL_INIT_STATS();
+
+	g_init = 1;
+
+	SSD_IO_INIT();
+	PINFO("complete\n");
 }
 
 void FTL_TERM(void)
 {
-	printf("[%s] start\n",__FUNCTION__);
-
+	PINFO("start\n");
 	TERM_MAPPING_TABLE();
 	TERM_INVERSE_PAGE_MAPPING();
 	TERM_VALID_ARRAY();
@@ -56,26 +56,25 @@ void FTL_TERM(void)
 	TERM_PERF_CHECKER();
 	FTL_TERM_STRATEGY();
 	FTL_TERM_STATS();
-	printf("[%s] complete\n",__FUNCTION__);
+	SSD_IO_TERM();
+	PINFO("complete\n");
 }
 
 void FTL_INIT_STRATEGY(void)
 {
 	storage_strategy = malloc(sizeof(storage_strategy_functions));
-	
-	if (STORAGE_STRATEGY == STORAGE_STRATEGY_OBJECT)
-	{
+
+	if (STORAGE_STRATEGY == STORAGE_STRATEGY_OBJECT){
 		storage_strategy->FTL_READ = _FTL_OBJ_READ;
 		storage_strategy->FTL_WRITE = _FTL_OBJ_WRITE;
 		storage_strategy->FTL_COPYBACK = _FTL_OBJ_COPYBACK;
 		storage_strategy->FTL_CREATE = _FTL_OBJ_CREATE;
 		storage_strategy->FTL_DELETE = _FTL_OBJ_DELETE;
-        
-        // object strategy needs initializing, unlike current other strategies
-        INIT_OBJ_STRATEGY();
+
+		// object strategy needs initializing, unlike current other strategies
+		INIT_OBJ_STRATEGY();
 	}
-	else // default behaviour, if strategy was not defined or is invalid or whatever
-	{
+	else{ // default behaviour, if strategy was not defined or is invalid or whatever
 		storage_strategy->FTL_READ = _FTL_READ;
 		storage_strategy->FTL_WRITE = _FTL_WRITE;
 		storage_strategy->FTL_COPYBACK = _FTL_COPYBACK;
@@ -86,8 +85,8 @@ void FTL_INIT_STRATEGY(void)
 
 void FTL_TERM_STRATEGY(void)
 {
-        if(STORAGE_STRATEGY == STORAGE_STRATEGY_OBJECT)
-            TERM_OBJ_STRATEGY();
+	if(STORAGE_STRATEGY == STORAGE_STRATEGY_OBJECT)
+		TERM_OBJ_STRATEGY();
 	free(storage_strategy);
 }
 
@@ -168,17 +167,16 @@ TODO: review statistics implementation
 #endif
 }
 
-void FTL_RESET_STATS(void){
+void FTL_RESET_STATS(void)
+{
 	int i,j;
-
-	for(i=0; i < SUPPORTED_OPERATION; i++){
-		for(j=0;j<PAGE_MAPPING_ENTRY_NB;j++){
+	for (i = 0; i < SUPPORTED_OPERATION; i++)
+		for (j = 0; j < PAGE_MAPPING_ENTRY_NB; j++)
 			mapping_stats_table[i][j] = 0;
-		}
-	}
 }
 
-void FTL_TERM_STATS(void){
+void FTL_TERM_STATS(void)
+{
 #if 0
 	int i;
 
@@ -189,24 +187,20 @@ void FTL_TERM_STATS(void){
 #endif
 }
 
-int FTL_STATISTICS_GATHERING(uint32_t address , int type){
-
+int FTL_STATISTICS_GATHERING(uint32_t address, int type)
+{
 	if (gatherStats == 0)
-	{
 		return SUCCESS;
-	}
-	if (address > PAGE_MAPPING_ENTRY_NB){
+	if (address > PAGE_MAPPING_ENTRY_NB)
 		return FAIL;
-	}
 
 	//Increase the count of the action that was done.
-	mapping_stats_table[type][address] = mapping_stats_table[type][address] + 1;
-
-
+	mapping_stats_table[type][address] += 1;
 	return SUCCESS;
 }
 
-uint32_t FTL_STATISTICS_QUERY	(uint32_t address, int scope , int type){
+uint32_t FTL_STATISTICS_QUERY	(uint32_t address, int scope, int type)
+{
 	//PAGE_NB = is the number of pages in a block, BLOCK_NB is the number of blocks in a flash.
 	//The first address in the scope start at address 0.
 
@@ -216,169 +210,151 @@ uint32_t FTL_STATISTICS_QUERY	(uint32_t address, int scope , int type){
 	actionSum = 0;
 
 	scopeFirstPage = CALC_SCOPE_FIRST_PAGE(address, scope);
-	switch (scope)
-	{
+	switch (scope){
 		case PAGE:
 			return mapping_stats_table[type][address];
 		case BLOCK:
-			for (i = 0; i < PAGE_NB ; i++){
+			for (i = 0; i < PAGE_NB; i++)
 				actionSum += mapping_stats_table[type][scopeFirstPage + i];
-			}
 			return actionSum;
 		case PLANE:
 			if (PLANES_PER_FLASH > 1){
 				for (i = 0; i < BLOCK_NB; i += PLANES_PER_FLASH){
-					for(j = 0; j < PAGE_NB ; j++){
+					for (j = 0; j < PAGE_NB; j++)
 						actionSum += mapping_stats_table[type][scopeFirstPage + j];
-					}
 					scopeFirstPage += PAGE_NB * PLANES_PER_FLASH;
-					printf ("%d\n" , scopeFirstPage);
+					printf("%d\n", scopeFirstPage);
 				}
 				return actionSum;
 			}
 			else{
-				for (i = 0; i < PAGES_PER_FLASH; i++){
+				for (i = 0; i < PAGES_PER_FLASH; i++)
 					actionSum += mapping_stats_table[type][scopeFirstPage + i];
-				}
 				return actionSum;
 			}
 		case FLASH:
-			for (i = 0; i < PAGES_PER_FLASH; i++){
+			for (i = 0; i < PAGES_PER_FLASH; i++)
 				actionSum += mapping_stats_table[type][scopeFirstPage + i];
-			}
 			return actionSum;
 		case CHANNEL:
 			for (i = 0; i < FLASH_NB; i += CHANNEL_NB){
-				for(j = 0; j < PAGES_PER_FLASH ; j++){
+				for (j = 0; j < PAGES_PER_FLASH; j++)
 					actionSum += mapping_stats_table[type][scopeFirstPage + j];
-				}
 				scopeFirstPage += PAGES_PER_FLASH * CHANNEL_NB; //Pages in blocks that don't belongs to this plane.
 			}
 			return actionSum;
 		case SSD:
-			for (i =0; i < PAGE_MAPPING_ENTRY_NB ; i++){
+			for (i = 0; i < PAGE_MAPPING_ENTRY_NB; i++)
 				actionSum += mapping_stats_table[type][i];
-			}
 			return actionSum;
 		default:
 			return -1;
 	}
 }
 
+void FTL_RECORD_STATISTICS(void)
+{
+	int scopeRange, i, queryResult, scope, address;
 
-void FTL_RECORD_STATISTICS(void){
-	int scopeRange , i , queryResult , scope , address;
+	FILE *fp = fopen(STAT_PATH, "w");
+	if (fp == NULL)
+		RERR(, "File open fail\n");
 
-	FILE* fp = fopen(STAT_PATH,"w");
-	if(fp==NULL){
-		printf("ERROR[%s] File open fail\n",__FUNCTION__);
-		return;
-	}
 	//Print required titles
 	if (STAT_SCOPE & COLLECT_SSD){
-		fprintf(fp , "SSD,");
+		fprintf(fp, "SSD,");
 		scopeRange = 1;
 		scope = SSD;
 	}
 	if (STAT_SCOPE & COLLECT_CHANNEL){
-		fprintf(fp , "Channel,");
+		fprintf(fp, "Channel,");
 		scopeRange = CHANNEL_NB;
 		scope = CHANNEL;
 	}
 	if (STAT_SCOPE & COLLECT_FLASH){
-		fprintf(fp , "Flash,");
+		fprintf(fp, "Flash,");
 		scopeRange = FLASH_NB;
 		scope = FLASH;
 	}
 	if (STAT_SCOPE & COLLECT_PLANE){
-		fprintf(fp , "Plane,");
-		scopeRange =  FLASH_NB * PLANES_PER_FLASH;
+		fprintf(fp, "Plane,");
+		scopeRange = FLASH_NB * PLANES_PER_FLASH;
 		scope = PLANE;
 	}
 	if (STAT_SCOPE & COLLECT_BLOCK){
-		fprintf(fp , "Block,");
+		fprintf(fp, "Block,");
 		scopeRange = (int64_t)BLOCK_NB * (int64_t)FLASH_NB;
 		scope = BLOCK;
 	}
 	if (STAT_SCOPE & COLLECT_PAGE){
-		fprintf(fp , "Page,");
+		fprintf(fp, "Page,");
 		scopeRange = PAGES_IN_SSD;
 		scope = PAGE;
 	}
-	if (STAT_TYPE & COLLECT_LOGICAL_READ){
-		fprintf(fp , "Logical Read,");
-	}
-	if (STAT_TYPE & COLLECT_LOGICAL_WRITE){
-		fprintf(fp , "Logical Write,");
-	}
-	if (STAT_TYPE & COLLECT_PHYSICAL_READ){
-		fprintf(fp , "Physical Read,");
-	}
-	if (STAT_TYPE & COLLECT_PHYSICAL_WRITE){
-		fprintf(fp , "Physical Write");
-	}
-	fprintf(fp , "\n");
+	if (STAT_TYPE & COLLECT_LOGICAL_READ)
+		fprintf(fp, "Logical Read,");
+	if (STAT_TYPE & COLLECT_LOGICAL_WRITE)
+		fprintf(fp, "Logical Write,");
+	if (STAT_TYPE & COLLECT_PHYSICAL_READ)
+		fprintf(fp, "Physical Read,");
+	if (STAT_TYPE & COLLECT_PHYSICAL_WRITE)
+		fprintf(fp, "Physical Write");
+	fprintf(fp, "\n");
 
-	for (i = 0; i < scopeRange ; i++){
-		address = CALC_SCOPE_FIRST_PAGE(i,scope);
-		if (STAT_SCOPE & COLLECT_SSD){
-			fprintf(fp , "1,");
-		}
-		if (STAT_SCOPE & COLLECT_CHANNEL){
-			fprintf(fp , "%d," , CALC_CHANNEL(address));
-		}
-		if (STAT_SCOPE & COLLECT_FLASH){
-			fprintf(fp , "%d," , CALC_FLASH(address));
-		}
-		if (STAT_SCOPE & COLLECT_PLANE){
-			fprintf(fp , "%d," , CALC_PLANE(address));
-		}
-		if (STAT_SCOPE & COLLECT_BLOCK){
-			fprintf(fp , "%d,", CALC_BLOCK(address));
-		}
-		if (STAT_SCOPE & COLLECT_PAGE){
-			fprintf(fp , "%d," , address);
-		}
+	for (i = 0; i < scopeRange; i++){
+		address = CALC_SCOPE_FIRST_PAGE(i, scope);
+		if (STAT_SCOPE & COLLECT_SSD)
+			fprintf(fp, "1,");
+		if (STAT_SCOPE & COLLECT_CHANNEL)
+			fprintf(fp, "%d,", CALC_CHANNEL(address));
+		if (STAT_SCOPE & COLLECT_FLASH)
+			fprintf(fp, "%d,", CALC_FLASH(address));
+		if (STAT_SCOPE & COLLECT_PLANE)
+			fprintf(fp, "%d,", CALC_PLANE(address));
+		if (STAT_SCOPE & COLLECT_BLOCK)
+			fprintf(fp, "%d,", CALC_BLOCK(address));
+		if (STAT_SCOPE & COLLECT_PAGE)
+			fprintf(fp, "%d,", address);
 		if (STAT_TYPE & COLLECT_LOGICAL_READ){
-			queryResult = FTL_STATISTICS_QUERY(i , scope , LOGICAL_READ);
-			fprintf(fp , "%d," , queryResult);
+			queryResult = FTL_STATISTICS_QUERY(i, scope, LOGICAL_READ);
+			fprintf(fp, "%d,", queryResult);
 		}
 		if (STAT_TYPE & COLLECT_LOGICAL_WRITE){
-			queryResult = FTL_STATISTICS_QUERY(i , scope , LOGICAL_WRITE);
-			fprintf(fp , "%d," ,queryResult);
+			queryResult = FTL_STATISTICS_QUERY(i, scope, LOGICAL_WRITE);
+			fprintf(fp, "%d,", queryResult);
 		}
 		if (STAT_TYPE & COLLECT_PHYSICAL_READ){
-			queryResult = FTL_STATISTICS_QUERY(i , scope , PHYSICAL_READ);
-			fprintf(fp , "%d,", queryResult);
+			queryResult = FTL_STATISTICS_QUERY(i, scope, PHYSICAL_READ);
+			fprintf(fp, "%d,", queryResult);
 		}
 		if (STAT_TYPE & COLLECT_PHYSICAL_WRITE){
-			queryResult = FTL_STATISTICS_QUERY(i , scope , PHYSICAL_WRITE);
-			fprintf(fp , "%d," , queryResult);
+			queryResult = FTL_STATISTICS_QUERY(i, scope, PHYSICAL_WRITE);
+			fprintf(fp, "%d," , queryResult);
 		}
-		fprintf(fp , "\n");
+		fprintf(fp, "\n");
 	}
 
 	fclose(fp);
 }
 
-void *STAT_LISTEN(void *socket){
+void *STAT_LISTEN(void *socket)
+{
 	char buffer[256];
 	int sock = (*(int *) socket);
 	int stopListen = 1;
-	while(stopListen){
-		memset(buffer,0,256);
+	while (stopListen){
+		memset(buffer, 0, 256);
 		while (buffer[0] == 0){
-			if(read(sock,buffer,255) <= 0){
+			if (read(sock, buffer,255) <= 0){
 #ifndef GTEST
 				perror("read");
 #endif
 			}
 		}
-		printf("buffer %s\n",buffer);
+		printf("buffer %s\n", buffer);
 		if (strcmp(buffer, "start") == 0)
-		{
 			gatherStats = 1;
-		}else if (strcmp(buffer, "stop") == 0){
+		else if (strcmp(buffer, "stop") == 0){
 			FTL_RECORD_STATISTICS();
 			FTL_RESET_STATS();
 			gatherStats = 0;

@@ -8,9 +8,9 @@
 
 void INIT_LOG_MANAGER(void);
 void TERM_LOG_MANAGER(void);
-void WRITE_LOG(char* szLog);
+void WRITE_LOG(char *szLog);
 
-void THREAD_SERVER(void* arg);
-void THREAD_CLIENT(void* arg);
+void THREAD_SERVER(void *arg);
+void THREAD_CLIENT(void *arg);
 
 #endif

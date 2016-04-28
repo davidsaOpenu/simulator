@@ -32,4 +32,3 @@ void SSD_READ(unsigned int length, uint32_t sector_nb)
 {
 	FTL_READ((uint64_t)sector_nb, 0, length);
 }
-
