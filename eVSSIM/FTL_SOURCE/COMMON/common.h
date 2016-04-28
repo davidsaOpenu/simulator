@@ -144,4 +144,42 @@
 /* SSD Debugging */
 //#define SSD_DEBUG
 
+#define print_wrapper(prefix, msg, args...) \
+	printf(prefix "[%s]: " msg, __FUNCTION__, ##args)
+
+#define print_and_ret(ret, prefix, msg, args...){\
+        print_wrapper(prefix, msg, ##args);\
+        return ret;\
+}
+
+#define PDBG(msg, args...) print_wrapper("DEBUG", msg, ##args)
+#define PERR(msg, args...) print_wrapper("ERROR", msg, ##args)
+#define PINFO(msg, args...) print_wrapper("", msg, ##args)
+
+#define RDBG(ret, msg, args...) print_and_ret(ret, "DEBUG", msg, ##args)
+#define RERR(ret, msg, args...) print_and_ret(ret, "ERROR", msg, ##args)
+#define RINFO(ret, msg, args...) print_and_ret(ret, "", msg, ##args)
+
+#ifdef FTL_DEBUG
+#define PDBG_FTL(msg, args...) PDBG(msg, ##args)
+#else
+#define PDBG_FTL(msg, args...)
+#endif
+
+#define RDBG_FTL(ret, msg, args...){\
+	PDBG_FTL(msg, ##args);\
+	return ret;\
+}
+
+#ifdef MNT_DEBUG
+#define PDBG_MNT(msg, args...) PDBG(msg, ##args)
+#else
+#define PDBG_MNT(msg, args...)
+#endif
+
+#define RDBG_MNT(ret, msg, args...){\
+	PDBG_MNT(msg, ##args);\
+	return ret;\
+}
+
 #endif
