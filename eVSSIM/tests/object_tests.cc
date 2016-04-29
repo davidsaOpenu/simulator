@@ -13,6 +13,7 @@ extern "C" {
 extern "C" int g_init;
 extern "C" int g_server_create;
 extern "C" int g_init_log_server;
+bool g_ci_mode = false;
 
 #define GTEST_DONT_DEFINE_FAIL 1
 
@@ -23,6 +24,16 @@ extern "C" int g_init_log_server;
 #include <cstdlib>
 #include <math.h>
 #include <assert.h>
+
+int main(int argc, char **argv) {
+    for (int i = 0; i < argc; i++) {
+        if (strcmp(argv[i], "--ci") == 0) {
+	    g_ci_mode = true;
+        }
+    }
+    testing::InitGoogleTest(&argc, argv);
+    return RUN_ALL_TESTS();
+}
 
 using namespace std;
 
@@ -95,12 +106,23 @@ namespace {
             struct osd_device osd;
     }; // OccupySpaceStressTest
 
-    INSTANTIATE_TEST_CASE_P(DiskSize, ObjectUnitTest, ::testing::Values(2048, // 1/2 page
+    std::vector<size_t> GetParams() {
+	std::vector<size_t> list;
 
-                                                                        6144, // 1 1/2 pages
-                                                                        2 * 1024 * 1024, // 2 MB
-                                                                        6 * 1024 * 1024)); // 6 MB
+	 if (g_ci_mode) {
+             printf("Running in CI mode\n");
+	     list.push_back(2048);
+	     return list;
+         }
 
+         list.push_back(2048); // 1/2 page
+         list.push_back(6144); // 1 1/2 pages
+         list.push_back(2 * 1024 * 1024); // 2 MB
+         list.push_back(6 * 1024 * 1024); // 6 MB
+         return list;
+    }
+
+    INSTANTIATE_TEST_CASE_P(DiskSize, ObjectUnitTest, ::testing::ValuesIn(GetParams())); 
     TEST_P(ObjectUnitTest, SimpleObjectCreate) {
         printf("SimpleObjectCreate test started\n");
         printf("Page no.:%ld\nPage size:%d\n",PAGES_IN_SSD,PAGE_SIZE);
