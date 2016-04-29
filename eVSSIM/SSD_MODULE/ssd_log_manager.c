@@ -66,7 +66,7 @@ void THREAD_SERVER(void* arg)
 	//struct sockaddr_in clientAddr2;
 
 	if ((servSock = socket(AF_INET, SOCK_STREAM, IPPROTO_TCP)) < 0)
-		PDBG_MNT("Server Socket Creation error!!!\n");
+		RDBG_MNT(, "Server Socket Creation error!!!\n");
 
 	int flags = fcntl(servSock, F_GETFL, 0);
 	fcntl(servSock, F_SETFL, flags | O_APPEND);
@@ -82,7 +82,7 @@ void THREAD_SERVER(void* arg)
 		RDBG_MNT(, "Server Socket Bind Error!!!\n");
 
 	if (listen(servSock, 100) < 0)
-		PDBG_MNT("Server Socket Listen Error!!!\n");
+		RDBG_MNT(, "Server Socket Listen Error!!!\n");
 
 	PDBG_MNT("Wait for client....[%d]\n", servSock);
 

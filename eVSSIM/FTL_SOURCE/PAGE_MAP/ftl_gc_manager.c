@@ -28,10 +28,8 @@ int GARBAGE_COLLECTION(int mapping_index, int l2)
 	int copy_page_nb = 0;
 
 	ret = SELECT_VICTIM_BLOCK(&victim_phy_flash_nb, &victim_phy_block_nb);
-	if (ret == FAIL){
-		PDBG_FTL("There is no available victim block\n");
-		return FAIL;
-	}
+	if (ret == FAIL)
+		RDBG_FTL(FAIL, "There is no available victim block\n");
 
 	inverse_block_mapping_entry *inverse_block_entry;
 	inverse_block_entry = GET_INVERSE_BLOCK_MAPPING_ENTRY(victim_phy_flash_nb, victim_phy_block_nb);
@@ -118,10 +116,8 @@ int SELECT_VICTIM_BLOCK(unsigned int *phy_flash_nb, unsigned int *phy_block_nb)
 	victim_block_entry *curr_victim_entry;
 	victim_block_entry *victim_block = NULL;
 
-	if (total_victim_block_nb == 0){
-		PDBG_FTL("There is no victim block\n");
-		return FAIL;
-	}
+	if (total_victim_block_nb == 0)
+		RDBG_FTL(FAIL, "There is no victim block\n");
 
 	/* if GC_TRIGGER_OVERALL is defined, then */
 	curr_root = (victim_block_root*)victim_block_table_start;

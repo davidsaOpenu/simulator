@@ -65,14 +65,11 @@ int GET_NEW_PAGE(int mode, int mapping_index, uint32_t *ppn)
 int UPDATE_OLD_PAGE_MAPPING(uint32_t lpn)
 {
 	uint32_t old_ppn = GET_MAPPING_INFO(lpn);
-	if (old_ppn == -1){
-		PDBG_FTL("New page\n");
-		return FAIL;
-	}
-	else{
-		UPDATE_INVERSE_BLOCK_VALIDITY(CALC_FLASH(old_ppn), CALC_BLOCK(old_ppn), CALC_PAGE(old_ppn), INVALID);
-		UPDATE_INVERSE_PAGE_MAPPING(old_ppn, -1);
-	}
+	if (old_ppn == -1)
+		RDBG_FTL(FAIL, "New page\n");
+
+	UPDATE_INVERSE_BLOCK_VALIDITY(CALC_FLASH(old_ppn), CALC_BLOCK(old_ppn), CALC_PAGE(old_ppn), INVALID);
+	UPDATE_INVERSE_PAGE_MAPPING(old_ppn, -1);
 
 	return SUCCESS;
 }

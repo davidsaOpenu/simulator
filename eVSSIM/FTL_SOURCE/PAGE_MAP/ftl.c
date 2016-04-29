@@ -199,7 +199,7 @@ int FTL_STATISTICS_GATHERING(uint32_t address, int type)
 	return SUCCESS;
 }
 
-uint32_t FTL_STATISTICS_QUERY	(uint32_t address, int scope, int type)
+uint32_t FTL_STATISTICS_QUERY(uint32_t address, int scope, int type)
 {
 	//PAGE_NB = is the number of pages in a block, BLOCK_NB is the number of blocks in a flash.
 	//The first address in the scope start at address 0.

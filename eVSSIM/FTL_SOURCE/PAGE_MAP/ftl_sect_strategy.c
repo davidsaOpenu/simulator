@@ -36,10 +36,8 @@ int _FTL_READ_SECT(uint64_t sector_nb, unsigned int length)
 
 		int32_t ppn = GET_MAPPING_INFO(lpn);
 
-		if (ppn == -1){
-			PDBG_FTL("No Mapping info\n");
-			return FAIL;
-		}
+		if (ppn == -1)
+			RDBG_FTL(FAIL, "No Mapping info\n");
 
 		ret = SSD_PAGE_READ(CALC_FLASH(ppn), CALC_BLOCK(ppn), CALC_PAGE(ppn), read_page_nb, READ, io_page_nb);
 		//Send a physical read action being done to the statistics gathering
@@ -163,10 +161,8 @@ int _FTL_COPYBACK(int32_t source, int32_t destination)
 	lpn = GET_INVERSE_MAPPING_INFO(source);
 	UPDATE_NEW_PAGE_MAPPING(lpn, destination);*/
 
-	if (ret == FAIL){
-		PDBG_FTL("%u page copyback fail \n", source);
-		return FAIL;
-	}
+	if (ret == FAIL)
+		RDBG_FTL(FAIL, "%u page copyback fail \n", source);
 
 	//Handle page map
 	lpn = GET_INVERSE_MAPPING_INFO(source);

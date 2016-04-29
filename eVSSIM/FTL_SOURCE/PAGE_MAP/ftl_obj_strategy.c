@@ -335,11 +335,11 @@ page_node *page_by_offset(stored_object *object, unsigned int offset)
 	page_node *page;
 
 	// check if out of bounds
-	if(offset > object->size)
+	if (offset > object->size)
 		return NULL;
 
 	// skim through pages until offset is less than a page's size
-	for(page = object->pages; page && offset >= PAGE_SIZE; offset -= PAGE_SIZE, page = page->next)
+	for (page = object->pages; page && offset >= PAGE_SIZE; offset -= PAGE_SIZE, page = page->next)
 		;
 
 	// if page==NULL then page collection < size - report error? or assume it's valid? - this technically shouldn't happen after the if at the beginning. just return NULL if it does

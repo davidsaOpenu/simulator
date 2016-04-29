@@ -337,10 +337,8 @@ int64_t UPDATE_IO_REQUEST(int request_nb, int offset, int64_t time, int type)
 		return 0;
 
 	io_request* curr_request = LOOKUP_IO_REQUEST(request_nb, type);
-	if (curr_request == NULL){
-		PDBG_FTL("No such io request, nb %d\n", request_nb);
-		return 0;
-	}
+	if (curr_request == NULL)
+		RDBG_FTL(0, "No such io request, nb %d\n", request_nb);
 
 	if (type == UPDATE_START_TIME){
 		curr_request->start_time[offset] = time;
@@ -381,10 +379,8 @@ io_request *LOOKUP_IO_REQUEST(int request_nb, int type)
 		curr_request = io_request_start;
 		total_request = io_request_nb;
 	}
-	else{
-		PDBG_FTL("There is no request\n");
-		return NULL;
-	}
+	else
+		RDBG_FTL(NULL, "There is no request\n");
 
 	for (i = 0; i < total_request; i++){
 		if (curr_request->request_nb == request_nb)

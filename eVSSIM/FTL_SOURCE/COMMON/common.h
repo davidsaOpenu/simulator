@@ -148,7 +148,7 @@
 	printf(prefix "[%s]: " msg, __FUNCTION__, ##args)
 
 #define print_and_ret(ret, prefix, msg, args...){\
-        printf(prefix "[%s]: " msg, __FUNCTION__, ##args);\
+        print_wrapper(prefix, msg, ##args);\
         return ret;\
 }
 
@@ -162,17 +162,23 @@
 
 #ifdef FTL_DEBUG
 #define PDBG_FTL(msg, args...) PDBG(msg, ##args)
-#define RDBG_FTL(ret, msg, args...) RDBG(ret, msg, ##args)
 #else
 #define PDBG_FTL(msg, args...)
-#define RDBG_FTL(ret, msg, args...)
 #endif
+
+#define RDBG_FTL(ret, msg, args...){\
+	PDBG_FTL(msg, ##args);\
+	return ret;\
+}
 
 #ifdef MNT_DEBUG
 #define PDBG_MNT(msg, args...) PDBG(msg, ##args)
-#define RDBG_MNT(ret, msg, args...) RDBG(ret, msg, ##args)
 #else
 #define PDBG_MNT(msg, args...)
-#define RDBG_MNT(ret, msg, args...)
 #endif
+
+#define RDBG_MNT(ret, msg, args...){\
+	PDBG_MNT(msg, ##args);\
+	return ret;\
+}
 #endif
