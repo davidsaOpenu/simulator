@@ -16,7 +16,7 @@
     - guest_tester_pre
   tags: guest
 
-- name: perform quest tests
+- name: perform guest tests
   hosts: guest_host
   roles:
     - guest_tester
