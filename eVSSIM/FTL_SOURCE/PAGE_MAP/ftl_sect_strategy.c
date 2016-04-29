@@ -84,11 +84,7 @@ int _FTL_READ_SECT(uint64_t sector_nb, unsigned int length)
 
 	INCREASE_IO_REQUEST_SEQ_NB();
 
-#ifdef MONITOR_ON
-	char szTemp[1024];
-	sprintf(szTemp, "READ PAGE %d ", length);
-	WRITE_LOG(szTemp);
-#endif
+	WRITE_LOG("READ PAGE %d ", length);
 
 #ifdef FTL_DEBUG
 	printf("[%s] Complete\n",__FUNCTION__);
@@ -185,13 +181,8 @@ int _FTL_WRITE_SECT(uint64_t sector_nb, unsigned int length)
 	GC_CHECK(CALC_FLASH(new_ppn), CALC_BLOCK(new_ppn), false); // is this a bug? gc will only happen on the last page's flash and block
 #endif
 
-#ifdef MONITOR_ON
-	char szTemp[1024];
-	sprintf(szTemp, "WRITE PAGE %d ", length);
-	WRITE_LOG(szTemp);
-	sprintf(szTemp, "WB CORRECT %d", write_page_nb);
-	WRITE_LOG(szTemp);
-#endif
+	WRITE_LOG("WRITE PAGE %d ", length);
+	WRITE_LOG("WB CORRECT %d", write_page_nb);
 
 #ifdef FTL_DEBUG
 	printf("[%s] Complete\n",__FUNCTION__);
