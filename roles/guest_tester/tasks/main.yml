@@ -7,11 +7,25 @@
   become: true
   shell: modprobe nvme
 
+- name: delete previous fio_tests 
+  file: "path=fio_tests state=absent"
+ 
+- name: unarchive fio_tests.tar 
+  unarchive: "copy=no src=fio_tests.tar dest=."
+
+- name: create results directory
+  file:
+  args:
+      path: "fio_tests/reference_results"
+      state: directory
+ 
 - name: disable sdb
   shell: ./disable_sdb.sh
   args:
     chdir: "fio_tests/"
-  
+ 
+# XXX: do we need to install fio or use existing one?  
+# XXX: do we need to replace /dev/sdb with /dev/nvme0n1? 
 - name: run fio job I
   become: true
   shell: echo "Run FIO"

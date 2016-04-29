@@ -4,5 +4,23 @@
 # Start Guest machine and confirm it is up
 - include: qemu_start.yml
 
-- debug: "msg=Done running tests on {{ ref }}, target is in {{ dest }}"
+- name: test whether fio_tests.tar exists
+  stat:
+  args:
+    path: "{{ dest }}/eVSSIM/fio_tests.tar"
+  register: fio_file
+
+- name: Compress fio_tests
+  shell: tar -cvf fio_tests.tar fio_tests 
+  args:
+    chdir: "{{ dest }}/eVSSIM"
+  when: fio_file.stat.exists == false
+
+# XXX: change to be generic
+- name: Transfer file from local_host to guest_host
+  shell: sshpass -p esd scp -P 2222 fio_tests.tar esd@127.0.0.1:~ 
+  args:
+    chdir: "{{ dest }}/eVSSIM"
+
+- debug: msg="Done preparing guest machine"
   tags: qemu
