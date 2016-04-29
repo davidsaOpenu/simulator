@@ -14,18 +14,18 @@
 #include <errno.h>
 #include <sys/types.h>
 #include <fcntl.h>
+#include <stdarg.h>
 
 int servSock;
 int clientSock;
 int clientSock2;
-
-pthread_t thread_ID;
 
 int g_server_create = 0;
 int g_init_log_server = 0;
 
 void INIT_LOG_MANAGER(void)
 {
+#ifdef MONITOR_ON
 	if (g_init_log_server == 0){
 		if (popen("./ssd_monitor", "r") == NULL){
 			perror("popen");
@@ -35,22 +35,32 @@ void INIT_LOG_MANAGER(void)
 
 		g_init_log_server = 1;
 	}
+#endif
 }
 
 void TERM_LOG_MANAGER(void)
 {
+#ifdef MONITOR_ON
 	close(servSock);
 	close(clientSock);
 	close(clientSock2);
+#endif
 }
 
-void WRITE_LOG(char* szLog)
+void WRITE_LOG(const char *fmt, ...)
 {
+#ifdef MONITOR_ON
 	if (g_server_create == 0)
 		RERR(, "write log is failed\n");
 
+	char szLog[1024];
+	va_list argp;
+	va_start(argp, fmt);
+	vsprintf(szLog, fmt, argp);
 	send(clientSock, szLog, strlen(szLog), 0);
 	send(clientSock, "\n", 1, MSG_DONTWAIT);
+	va_end(argp);
+#endif
 }
 
 void THREAD_SERVER(void* arg)

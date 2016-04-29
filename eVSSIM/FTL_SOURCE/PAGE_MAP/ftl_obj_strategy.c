@@ -74,11 +74,7 @@ int _FTL_OBJ_READ(object_id_t object_id, unsigned int offset, unsigned int lengt
 
 	INCREASE_IO_REQUEST_SEQ_NB();
 
-#ifdef MONITOR_ON
-	char szTemp[1024];
-	sprintf(szTemp, "READ PAGE %d ", length);
-	WRITE_LOG(szTemp);
-#endif
+	WRITE_LOG("READ PAGE %d ", length);
 
 	PDBG_FTL("Complete\n");
 	return ret;
@@ -169,13 +165,8 @@ int _FTL_OBJ_WRITE(object_id_t object_id, unsigned int offset, unsigned int leng
 
 	INCREASE_IO_REQUEST_SEQ_NB();
 
-#ifdef MONITOR_ON
-	char szTemp[1024];
-	sprintf(szTemp, "WRITE PAGE %d ", length);
-	WRITE_LOG(szTemp);
-	sprintf(szTemp, "WB CORRECT %d", curr_io_page_nb);
-	WRITE_LOG(szTemp);
-#endif
+	WRITE_LOG("WRITE PAGE %d ", length);
+	WRITE_LOG("WB CORRECT %d", curr_io_page_nb);
 
 	PDBG_FTL("Complete\n");
 	return ret;

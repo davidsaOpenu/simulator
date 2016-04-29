@@ -9,18 +9,13 @@
 void SSD_INIT(void)
 {
 	FTL_INIT();
-#ifdef MONITOR_ON
 	INIT_LOG_MANAGER();
-#endif
 }
 
 void SSD_TERM(void)
 {	
 	FTL_TERM();
-
-#ifdef MONITOR_ON
 	TERM_LOG_MANAGER();
-#endif
 }
 
 void SSD_WRITE(unsigned int length, uint32_t sector_nb)

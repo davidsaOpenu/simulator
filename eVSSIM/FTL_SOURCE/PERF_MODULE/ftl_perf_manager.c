@@ -85,10 +85,6 @@ void TERM_PERF_CHECKER(void)
 void SEND_TO_PERF_CHECKER(int op_type, int64_t op_delay, int type)
 {
 	double delay = (double)op_delay;
-#ifdef MONITOR_ON
-	char szTemp[1024];
-	char szUtil[1024];
-#endif
 	if (type == CH_OP){
 		switch (op_type){
 			case READ:
@@ -126,10 +122,7 @@ void SEND_TO_PERF_CHECKER(int op_type, int64_t op_delay, int type)
 				break;
 			case ERASE:
 				written_page_nb -= PAGE_NB;
-#ifdef MONITOR_ON
-				sprintf(szTemp, "ERASE %d", 1);
-				WRITE_LOG(szTemp);
-#endif
+				WRITE_LOG("ERASE 1");
 				break;
 			case GC_READ:
 				total_gc_read_delay += delay;
@@ -156,20 +149,13 @@ void SEND_TO_PERF_CHECKER(int op_type, int64_t op_delay, int type)
 			case READ:
 				avg_read_latency = (avg_read_latency * read_latency_count + delay)/(read_latency_count + 1);
 				read_latency_count++;
-#ifdef MONITOR_ON
-				sprintf(szTemp, "READ BW %lf ", GET_IO_BANDWIDTH(avg_read_delay));
-				WRITE_LOG(szTemp);
-#endif
+				WRITE_LOG("READ BW %lf ", GET_IO_BANDWIDTH(avg_read_delay));
 				break;
 			case WRITE:
 				avg_write_latency = (avg_write_latency * write_latency_count + delay)/(write_latency_count + 1);
 				write_latency_count++;
-#ifdef MONITOR_ON
-				sprintf(szTemp, "WRITE BW %lf ", GET_IO_BANDWIDTH(avg_write_delay));
-				WRITE_LOG(szTemp);
-				sprintf(szUtil, "UTIL %lf ", ssd_util);
-				WRITE_LOG(szUtil);
-#endif
+				WRITE_LOG("WRITE BW %lf ", GET_IO_BANDWIDTH(avg_write_delay));
+				WRITE_LOG("UTIL %lf ", ssd_util);
 				break;
 			default:
 				break;
