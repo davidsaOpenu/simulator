@@ -53,16 +53,16 @@ int SSD_IO_INIT(void)
 
 	/* Init Variable for Time-stamp */
 
-	reg_io_cmd = (int *)calloc(FLASH_NB * PLANES_PER_FLASH, sizeof(int));
-	reg_io_type = (int *)calloc(FLASH_NB * PLANES_PER_FLASH, sizeof(int));
-	reg_io_time = (int64_t *)calloc(FLASH_NB * PLANES_PER_FLASH, sizeof(int64_t));
-	cell_io_time = (int64_t *)calloc(FLASH_NB * PLANES_PER_FLASH, sizeof(int64_t));
-	access_nb = (int **)calloc(FLASH_NB * PLANES_PER_FLASH, sizeof(int*));
-	io_overhead = (int64_t *)calloc(FLASH_NB * PLANES_PER_FLASH, sizeof(int64_t));
+	reg_io_cmd = (int *)calloc(PLANES_NB, sizeof(int));
+	reg_io_type = (int *)calloc(PLANES_NB, sizeof(int));
+	reg_io_time = (int64_t *)calloc(PLANES_NB, sizeof(int64_t));
+	cell_io_time = (int64_t *)calloc(PLANES_NB, sizeof(int64_t));
+	access_nb = (int **)calloc(PLANES_NB, sizeof(int*));
+	io_overhead = (int64_t *)calloc(PLANES_NB, sizeof(int64_t));
 	if (!reg_io_cmd || !reg_io_type || !reg_io_time || !cell_io_time || !access_nb || !io_overhead)
 		RERR(1, "Init failed\n");
 
-	for (i = 0; i < FLASH_NB * PLANES_PER_FLASH; i++){
+	for (i = 0; i < PLANES_NB; i++){
 		reg_io_cmd[i] = NOOP;
 		reg_io_type[i] = NOOP;
 		reg_io_time[i] = -1;
@@ -85,7 +85,7 @@ int SSD_IO_TERM(void)
 	free(reg_io_time);
 	free(cell_io_time);
 	int i;
-	for (i = 0; i < FLASH_NB * PLANES_PER_FLASH; i++)
+	for (i = 0; i < PLANES_NB; i++)
 		free(access_nb[i]);
 	free(access_nb);
 	free(io_overhead);
@@ -96,15 +96,11 @@ int SSD_PAGE_WRITE(unsigned int flash_nb, unsigned int block_nb, unsigned int pa
 {
 	int channel = flash_nb % CHANNEL_NB;
 	int reg = flash_nb*PLANES_PER_FLASH + block_nb%PLANES_PER_FLASH;
-	int delay_ret;
 
 	/* Delay Operation */
 	SSD_CH_ENABLE(channel);	// channel enable	
 
-	if (IO_PARALLELISM == 0)
-		delay_ret = SSD_FLASH_ACCESS(flash_nb, reg);
-	else
-		delay_ret = SSD_REG_ACCESS(reg);
+	int delay_ret = IO_PARALLELISM_DELAY(flash_nb, reg);
 
 	while (SSD_CH_ACCESS(channel) == FAIL)
 		;
@@ -125,16 +121,12 @@ int SSD_PAGE_READ(unsigned int flash_nb, unsigned int block_nb, unsigned int pag
 {
 	int channel = flash_nb % CHANNEL_NB;
 	int reg = flash_nb*PLANES_PER_FLASH + block_nb%PLANES_PER_FLASH;
-	int delay_ret;
 
 	/* Delay Operation */
 	SSD_CH_ENABLE(channel);	// channel enable
 
 	/* Access Register */
-	if (IO_PARALLELISM == 0)
-		delay_ret = SSD_FLASH_ACCESS(flash_nb, reg);
-	else
-		delay_ret = SSD_REG_ACCESS(reg);
+	int delay_ret = IO_PARALLELISM_DELAY(flash_nb, reg);
 
 	/* Record Time Stamp */
 	SSD_CH_RECORD(channel, READ, offset, delay_ret);
@@ -154,10 +146,7 @@ int SSD_BLOCK_ERASE(unsigned int flash_nb, unsigned int block_nb)
 	int reg = flash_nb*PLANES_PER_FLASH + block_nb%PLANES_PER_FLASH;
 
 	/* Delay Operation */
-	if (IO_PARALLELISM == 0)
-		SSD_FLASH_ACCESS(flash_nb, reg);
-	else
-		SSD_REG_ACCESS(reg);
+	IO_PARALLELISM_DELAY(flash_nb, reg);
 
 	/* Record Time Stamp */
 	SSD_REG_RECORD(reg, ERASE, ERASE, -1, channel);
@@ -591,7 +580,7 @@ int64_t qemu_overhead;
 void SSD_UPDATE_QEMU_OVERHEAD(int64_t delay)
 {
 	int i;
-	int p_num = FLASH_NB * PLANES_PER_FLASH;
+	int p_num = PLANES_NB;
 	int64_t diff = delay;
 
 	if (qemu_overhead == 0)
@@ -609,7 +598,7 @@ void SSD_UPDATE_QEMU_OVERHEAD(int64_t delay)
 
 int SSD_PAGE_COPYBACK(uint32_t source, uint32_t destination, int type)
 {
-	int flash_nb, reg, channel, delay_ret;
+	int flash_nb, reg, channel;
 
 	//Check source and destination pages are at the same plane.
 	int source_plane = CALC_FLASH(source)*PLANES_PER_FLASH + CALC_BLOCK(source)%PLANES_PER_FLASH;
@@ -627,14 +616,18 @@ int SSD_PAGE_COPYBACK(uint32_t source, uint32_t destination, int type)
 	//SSD_CH_ENABLE(channel);	// channel enable
 
 	/* Access Register */
-	if (IO_PARALLELISM == 0)
-		delay_ret = SSD_FLASH_ACCESS(flash_nb, reg);
-	else
-		delay_ret = SSD_REG_ACCESS(reg);
+	int delay_ret = IO_PARALLELISM_DELAY(flash_nb, reg);
 
 	SSD_CH_RECORD(channel, COPYBACK, 0, delay_ret);
 	SSD_CELL_RECORD(reg, COPYBACK);
 	SSD_REG_RECORD(reg, COPYBACK, type, 0, channel);
 
 	return SUCCESS;
+}
+
+int IO_PARALLELISM_DELAY(int flash_nb, int reg)
+{
+	if (IO_PARALLELISM == 0)
+		return SSD_FLASH_ACCESS(flash_nb, reg);
+	return SSD_REG_ACCESS(reg);
 }

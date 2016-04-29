@@ -31,6 +31,7 @@ int SSD_CH_ENABLE(int channel);
 /* Flash or Register Access */
 int SSD_FLASH_ACCESS(unsigned int flash_nb, int reg);
 int SSD_REG_ACCESS(int reg);
+int IO_PARALLELISM_DELAY(int flash_nb, int reg);
 
 /* Channel Delay */
 int64_t SSD_CH_SWITCH_DELAY(int channel);

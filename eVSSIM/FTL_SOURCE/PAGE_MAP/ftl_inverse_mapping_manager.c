@@ -97,14 +97,14 @@ void INIT_EMPTY_BLOCK_LIST(void)
 	empty_block_entry *curr_entry;
 	empty_block_root *curr_root;
 
-	empty_block_table_start = calloc(PLANES_PER_FLASH * FLASH_NB, sizeof(empty_block_root));
+	empty_block_table_start = calloc(PLANES_NB, sizeof(empty_block_root));
 	if (empty_block_table_start == NULL)
 		RERR(, "calloc mapping table fail\n");
 
 	FILE *fp = fopen("./data/empty_block_list.dat", "r");
 	if (fp != NULL){
 		total_empty_block_nb = 0;
-		if (fread(empty_block_table_start, sizeof(empty_block_root), PLANES_PER_FLASH * FLASH_NB, fp) <= 0)
+		if (fread(empty_block_table_start, sizeof(empty_block_root), PLANES_NB, fp) <= 0)
 			PERR("fread\n");
 		curr_root = (empty_block_root*)empty_block_table_start;
 
@@ -165,14 +165,14 @@ void INIT_VICTIM_BLOCK_LIST(void)
 	victim_block_entry *curr_entry;
 	victim_block_root *curr_root;
 
-	victim_block_table_start = calloc(PLANES_PER_FLASH * FLASH_NB, sizeof(victim_block_root));
+	victim_block_table_start = calloc(PLANES_NB, sizeof(victim_block_root));
 	if (victim_block_table_start == NULL)
 		RERR(, "calloc mapping table fail\n");
 
 	FILE *fp = fopen("./data/victim_block_list.dat", "r");
 	if (fp != NULL){
 		total_victim_block_nb = 0;
-		if (fread(victim_block_table_start, sizeof(victim_block_root), PLANES_PER_FLASH * FLASH_NB, fp) <= 0)
+		if (fread(victim_block_table_start, sizeof(victim_block_root), PLANES_NB, fp) <= 0)
 			PERR("fread\n");
 		curr_root = (victim_block_root*)victim_block_table_start;
 
@@ -266,7 +266,7 @@ void TERM_EMPTY_BLOCK_LIST(void)
 	if (fp == NULL)
 		RERR(, "File open fail\n");
 
-	if (fwrite(empty_block_table_start,sizeof(empty_block_root),PLANES_PER_FLASH*FLASH_NB, fp) <= 0)
+	if (fwrite(empty_block_table_start,sizeof(empty_block_root),PLANES_NB, fp) <= 0)
 		PERR("fwrite\n");
 
 	curr_root = (empty_block_root*)empty_block_table_start;
@@ -298,7 +298,7 @@ void TERM_VICTIM_BLOCK_LIST(void)
 	if (fp == NULL)
 		RERR(, "File open fail\n");
 
-	if (fwrite(victim_block_table_start, sizeof(victim_block_root), PLANES_PER_FLASH * FLASH_NB, fp) <= 0)
+	if (fwrite(victim_block_table_start, sizeof(victim_block_root), PLANES_NB, fp) <= 0)
 		PERR("fwrite\n");
 
 	curr_root = (victim_block_root*)victim_block_table_start;
