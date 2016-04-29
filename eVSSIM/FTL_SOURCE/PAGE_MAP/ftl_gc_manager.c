@@ -123,14 +123,8 @@ int GARBAGE_COLLECTION(int mapping_index, int l2)
 	INSERT_EMPTY_BLOCK(victim_phy_flash_nb, victim_phy_block_nb);
 
 	gc_count++;
-
-#ifdef MONITOR_ON
-	char szTemp[1024];
-	sprintf(szTemp, "GC ");
-	WRITE_LOG(szTemp);
-	sprintf(szTemp, "WB AMP %d", copy_page_nb);
-	WRITE_LOG(szTemp);
-#endif
+	WRITE_LOG("GC ");
+	WRITE_LOG("WB AMP %d", copy_page_nb);
 
 	return SUCCESS;
 }
