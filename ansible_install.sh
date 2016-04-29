@@ -3,4 +3,4 @@
 sudo apt-get install software-properties-common
 echo -ne '\n' | sudo add-apt-repository ppa:ansible/ansible
 sudo apt-get update
-echo -ne 'Y' | sudo apt-get install ansible
+while true; do echo 'Y'; done | sudo apt-get install ansible
