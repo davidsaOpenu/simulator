@@ -112,9 +112,9 @@ void INIT_EMPTY_BLOCK_LIST(void)
 			for (j = 0; j < FLASH_NB; j++, curr_root += 1){
 				total_empty_block_nb += curr_root->empty_block_nb;
 				for (k = curr_root->empty_block_nb; k > 0; k--){
-					curr_entry = (empty_block_entry*)malloc(sizeof(empty_block_entry));
+					curr_entry = (empty_block_entry*)calloc(1, sizeof(empty_block_entry));
 					if (curr_entry == NULL){
-						PERR("malloc fail\n");
+						PERR("calloc fail\n");
 						break;
 					}
 
@@ -136,9 +136,9 @@ void INIT_EMPTY_BLOCK_LIST(void)
 		for (i = 0; i < PLANES_PER_FLASH; i++){
 			for (j = 0; j < FLASH_NB; j++, curr_root += 1){
 				for (k = i; k < BLOCK_NB; k += PLANES_PER_FLASH){
-					curr_entry = (empty_block_entry*)malloc(sizeof(empty_block_entry));	
+					curr_entry = (empty_block_entry*)calloc(1, sizeof(empty_block_entry));	
 					if (curr_entry == NULL){
-						PERR("malloc fail\n");
+						PERR("calloc fail\n");
 						break;
 					}
 
@@ -180,9 +180,9 @@ void INIT_VICTIM_BLOCK_LIST(void)
 			for (j = 0; j < FLASH_NB; j++, curr_root += 1){
 				total_victim_block_nb += curr_root->victim_block_nb;
 				for(k = curr_root->victim_block_nb; k > 0; k--){
-					curr_entry = (victim_block_entry*)malloc(sizeof(victim_block_entry));
+					curr_entry = (victim_block_entry*)calloc(1, sizeof(victim_block_entry));
 					if(curr_entry == NULL){
-						PERR("malloc fail\n");
+						PERR("calloc fail\n");
 						break;
 					}
 
@@ -251,7 +251,7 @@ void TERM_VALID_ARRAY(void)
 		valid_array = curr_mapping_entry->valid_array;
 		if (fwrite(valid_array, sizeof(char), PAGE_NB, fp) <= 0)
 			PERR("fwrite\n");
-		free(valid_array); /*MYCODE*/
+		free(valid_array);
 	}
 	fclose(fp);
 }
@@ -278,7 +278,7 @@ void TERM_EMPTY_BLOCK_LIST(void)
 			for (; k > 0; k--){
 				if (fwrite(curr_entry, sizeof(empty_block_entry), 1, fp) <= 0)
 					PERR("fwrite\n");
-				tmp_entry = curr_entry->next; /*MYCODE*/
+				tmp_entry = curr_entry->next;
 				free(curr_entry);
 				curr_entry = tmp_entry;
 			}
@@ -310,7 +310,7 @@ void TERM_VICTIM_BLOCK_LIST(void)
 			for (; k > 0; k--){
 				if (fwrite(curr_entry, sizeof(victim_block_entry), 1, fp) <= 0)
 					PERR("fwrite\n");
-				tmp_entry = curr_entry->next; /*MYCODE*/
+				tmp_entry = curr_entry->next;
 				free(curr_entry);
 				curr_entry = tmp_entry;
 			}
@@ -381,7 +381,7 @@ empty_block_entry *GET_EMPTY_BLOCK(int mode, int mapping_index)
 			else{
 				curr_empty_block = curr_root_entry->next;
 				if (curr_empty_block == NULL)
-					RERR(NULL, "MYERR1\n");
+					RERR(NULL, "curr_empty_block is NULL\n");
 				if (curr_empty_block->curr_phy_page_nb == PAGE_NB){
 					/* Update Empty Block List */
 					if (curr_root_entry->empty_block_nb == 1){
@@ -454,9 +454,9 @@ int INSERT_EMPTY_BLOCK(unsigned int phy_flash_nb, unsigned int phy_block_nb)
 	empty_block_root *curr_root_entry;
 	empty_block_entry *new_empty_block;
 
-	new_empty_block = (empty_block_entry*)malloc(sizeof(empty_block_entry));
+	new_empty_block = (empty_block_entry*)calloc(1, sizeof(empty_block_entry));
 	if (new_empty_block == NULL)
-		RERR(FAIL, "mlloc new empty block fail\n");
+		RERR(FAIL, "calloc new empty block fail\n");
 
 	/* Init New empty block */
 	new_empty_block->phy_flash_nb = phy_flash_nb;
@@ -484,9 +484,9 @@ int INSERT_VICTIM_BLOCK(empty_block_entry *full_block)
 	inverse_block_entry = GET_INVERSE_BLOCK_MAPPING_ENTRY(full_block->phy_flash_nb, full_block->phy_block_nb);
 
 	/* Alloc New victim block entry */
-	new_victim_block = (victim_block_entry*)malloc(sizeof(victim_block_entry));
+	new_victim_block = (victim_block_entry*)calloc(1, sizeof(victim_block_entry));
 	if (new_victim_block == NULL)
-		RERR(FAIL, "malloc fail\n");
+		RERR(FAIL, "calloc fail\n");
 
 	/* Copy the full block address */
 	new_victim_block->phy_flash_nb = full_block->phy_flash_nb;
