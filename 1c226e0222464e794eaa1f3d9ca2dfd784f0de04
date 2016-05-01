@@ -1,0 +1,72 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "baa041b7_8f9fb3b3",
+        "filename": "eVSSIM/tests/object_tests.cc",
+        "patchSetId": 1
+      },
+      "lineNbr": 45,
+      "author": {
+        "id": 1007990
+      },
+      "writtenOn": "2016-05-01T05:42:02Z",
+      "side": 1,
+      "message": "Lets return\u0027 the object sizes and if needed reduce the disk size size",
+      "revId": "1c226e0222464e794eaa1f3d9ca2dfd784f0de04",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "baa041b7_ef63dfda",
+        "filename": "eVSSIM/tests/object_tests.cc",
+        "patchSetId": 1
+      },
+      "lineNbr": 130,
+      "author": {
+        "id": 1007990
+      },
+      "writtenOn": "2016-05-01T05:42:02Z",
+      "side": 1,
+      "message": "nitpicking: let\u0027s remove this line",
+      "revId": "1c226e0222464e794eaa1f3d9ca2dfd784f0de04",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "baa041b7_cf5edb11",
+        "filename": "eVSSIM/tests/object_tests.cc",
+        "patchSetId": 1
+      },
+      "lineNbr": 134,
+      "author": {
+        "id": 1007990
+      },
+      "writtenOn": "2016-05-01T05:42:02Z",
+      "side": 1,
+      "message": "nitpicking: let\u0027s remove this line",
+      "revId": "1c226e0222464e794eaa1f3d9ca2dfd784f0de04",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "baa041b7_af9cb7c0",
+        "filename": "eVSSIM/tests/object_tests.cc",
+        "patchSetId": 1
+      },
+      "lineNbr": 144,
+      "author": {
+        "id": 1007990
+      },
+      "writtenOn": "2016-05-01T05:42:02Z",
+      "side": 1,
+      "message": "nitpicking: let\u0027s remove this line",
+      "revId": "1c226e0222464e794eaa1f3d9ca2dfd784f0de04",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    }
+  ]
+}
