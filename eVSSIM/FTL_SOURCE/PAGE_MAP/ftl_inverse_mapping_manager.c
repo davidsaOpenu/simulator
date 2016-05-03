@@ -122,7 +122,7 @@ void INIT_EMPTY_BLOCK_LIST(void)
 					curr_entry->next = NULL;
 
 					if(k == curr_root->empty_block_nb)
-						curr_root->tail = curr_root->next = curr_entry;
+						curr_root->tail = curr_root->head = curr_entry;
 					else
 						curr_root->tail = curr_root->tail->next = curr_entry;
 				}
@@ -142,7 +142,7 @@ void INIT_EMPTY_BLOCK_LIST(void)
 					}
 
 					if(k == i)
-						curr_root->tail = curr_root->next = curr_entry;
+						curr_root->tail = curr_root->head = curr_entry;
 					else
 						curr_root->tail = curr_root->tail->next = curr_entry;
 					curr_root->tail->phy_flash_nb = j;
@@ -190,7 +190,7 @@ void INIT_VICTIM_BLOCK_LIST(void)
 					curr_entry->prev = curr_entry->next = NULL;
 
 					if(k == curr_root->victim_block_nb)
-						curr_root->tail = curr_root->next = curr_entry;
+						curr_root->tail = curr_root->head = curr_entry;
 					else{
 						curr_entry->prev = curr_root->tail;
 						curr_root->tail = curr_root->tail->next = curr_entry;
@@ -201,10 +201,10 @@ void INIT_VICTIM_BLOCK_LIST(void)
 		fclose(fp);
 	}
 	else{
-		curr_root = (victim_block_root*)victim_block_table_start;		
+		curr_root = (victim_block_root*)victim_block_table_start;	
 		for (i = 0; i < PLANES_PER_FLASH; i++){
 			for (j = 0; j < FLASH_NB; j++, curr_root += 1){
-				curr_root->tail = curr_root->next = NULL;
+				curr_root->tail = curr_root->head = NULL;
 				curr_root->victim_block_nb = 0;
 			}
 		}
@@ -273,7 +273,7 @@ void TERM_EMPTY_BLOCK_LIST(void)
 		for (j = 0; j < FLASH_NB; j++, curr_root += 1){
 			k = curr_root->empty_block_nb;
 			if (k != 0)
-				curr_entry = (empty_block_entry*)curr_root->next;
+				curr_entry = (empty_block_entry*)curr_root->head;
 			for (; k > 0; k--){
 				if (fwrite(curr_entry, sizeof(empty_block_entry), 1, fp) <= 0)
 					PERR("fwrite\n");
@@ -305,7 +305,7 @@ void TERM_VICTIM_BLOCK_LIST(void)
 		for (j = 0; j < FLASH_NB; j++, curr_root += 1){
 			k = curr_root->victim_block_nb;
 			if (k != 0)
-				curr_entry = (victim_block_entry*)curr_root->next;
+				curr_entry = (victim_block_entry*)curr_root->head;
 			for (; k > 0; k--){
 				if (fwrite(curr_entry, sizeof(victim_block_entry), 1, fp) <= 0)
 					PERR("fwrite\n");
@@ -338,15 +338,15 @@ empty_block_entry *GET_EMPTY_BLOCK(int mode, int mapping_index)
 				continue;
 			}
 			else{
-				curr_empty_block = curr_root_entry->next;
+				curr_empty_block = curr_root_entry->head;
 				if (curr_empty_block->curr_phy_page_nb == PAGE_NB){
 					/* Update Empty Block List */
 					if (curr_root_entry->empty_block_nb == 1){
-						curr_root_entry->next = NULL;
+						curr_root_entry->head = NULL;
 						curr_root_entry->empty_block_nb = 0;
 					}
 					else{
-						curr_root_entry->next = curr_empty_block->next;
+						curr_root_entry->head = curr_empty_block->next;
 						curr_root_entry->empty_block_nb -= 1;
 					}
 
@@ -378,17 +378,17 @@ empty_block_entry *GET_EMPTY_BLOCK(int mode, int mapping_index)
 				continue;
 			}
 			else{
-				curr_empty_block = curr_root_entry->next;
+				curr_empty_block = curr_root_entry->head;
 				if (curr_empty_block == NULL)
 					RERR(NULL, "curr_empty_block is NULL\n");
 				if (curr_empty_block->curr_phy_page_nb == PAGE_NB){
 					/* Update Empty Block List */
 					if (curr_root_entry->empty_block_nb == 1){
-						curr_root_entry->next = NULL;
+						curr_root_entry->head = NULL;
 						curr_root_entry->empty_block_nb = 0;
 					}
 					else{
-						curr_root_entry->next = curr_empty_block->next;
+						curr_root_entry->head = curr_empty_block->next;
 						curr_root_entry->empty_block_nb -= 1;
 					}
 
@@ -401,7 +401,7 @@ empty_block_entry *GET_EMPTY_BLOCK(int mode, int mapping_index)
 					continue;
 				}
 				else
-					curr_empty_block = curr_root_entry->next;
+					curr_empty_block = curr_root_entry->head;
 				return curr_empty_block;
 			}
 		}
@@ -416,15 +416,15 @@ empty_block_entry *GET_EMPTY_BLOCK(int mode, int mapping_index)
 				continue;
 			}
 			else{
-				curr_empty_block = curr_root_entry->next;
+				curr_empty_block = curr_root_entry->head;
 				if (curr_empty_block->curr_phy_page_nb == PAGE_NB){
 					/* Update Empty Block List */
 					if (curr_root_entry->empty_block_nb == 1){
-						curr_root_entry->next = NULL;
+						curr_root_entry->head = NULL;
 						curr_root_entry->empty_block_nb = 0;
 					}
 					else{
-						curr_root_entry->next = curr_empty_block->next;
+						curr_root_entry->head = curr_empty_block->next;
 						curr_root_entry->empty_block_nb -= 1;
 					}
 
@@ -437,7 +437,7 @@ empty_block_entry *GET_EMPTY_BLOCK(int mode, int mapping_index)
 					continue;
 				}
 				else
-					curr_empty_block = curr_root_entry->next;
+					curr_empty_block = curr_root_entry->head;
 				return curr_empty_block;
 			}	
 		}
@@ -467,7 +467,7 @@ int INSERT_EMPTY_BLOCK(unsigned int phy_flash_nb, unsigned int phy_block_nb)
 	curr_root_entry = (empty_block_root*)empty_block_table_start + mapping_index;
 
 	if (curr_root_entry->empty_block_nb == 0)
-		curr_root_entry->tail = curr_root_entry->next = new_empty_block;
+		curr_root_entry->tail = curr_root_entry->head = new_empty_block;
 	else
 		curr_root_entry->tail = curr_root_entry->tail->next = new_empty_block;
 	curr_root_entry->empty_block_nb++;
@@ -499,7 +499,7 @@ int INSERT_VICTIM_BLOCK(empty_block_entry *full_block)
 
 	/* Update victim block list */
 	if (curr_root_entry->victim_block_nb == 0)
-		curr_root_entry->tail = curr_root_entry->next = new_victim_block;
+		curr_root_entry->tail = curr_root_entry->head = new_victim_block;
 	else{
 		new_victim_block->prev = curr_root_entry->tail;
 		curr_root_entry->tail = curr_root_entry->tail->next = new_victim_block;
@@ -521,12 +521,12 @@ int EJECT_VICTIM_BLOCK(victim_block_entry *victim_block)
 	curr_root_entry = (victim_block_root*)victim_block_table_start + mapping_index;
 
 	/* Update victim block list */
-	if (victim_block == curr_root_entry->next){
+	if (victim_block == curr_root_entry->head){
 		if (curr_root_entry->victim_block_nb == 1)
-			curr_root_entry->tail = curr_root_entry->next = NULL;
+			curr_root_entry->tail = curr_root_entry->head = NULL;
 		else{
-			curr_root_entry->next = victim_block->next;
-			curr_root_entry->next->prev = NULL;
+			curr_root_entry->head = victim_block->next;
+			curr_root_entry->head->prev = NULL;
 		}
 	}
 	else if (victim_block == curr_root_entry->tail){

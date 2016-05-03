@@ -120,9 +120,9 @@ int SELECT_VICTIM_BLOCK(unsigned int *phy_flash_nb, unsigned int *phy_block_nb)
 	for (i = 0; i < VICTIM_TABLE_ENTRY_NB; i++){
 		if (curr_root->victim_block_nb != 0){
 			entry_nb = curr_root->victim_block_nb;
-			curr_victim_entry = curr_root->next;
+			curr_victim_entry = curr_root->head;
 			if (victim_block == NULL)
-				victim_block = curr_root->next;
+				victim_block = curr_root->head;
 		}
 		else
 			entry_nb = 0;

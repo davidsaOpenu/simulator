@@ -26,7 +26,7 @@ typedef struct inverse_block_mapping_entry
 
 typedef struct empty_block_root
 {
-	struct empty_block_entry *next;
+	struct empty_block_entry *head;
 	struct empty_block_entry *tail;
 	unsigned int empty_block_nb;
 } empty_block_root;
@@ -41,7 +41,7 @@ typedef struct empty_block_entry
 
 typedef struct victim_block_root
 {
-	struct victim_block_entry *next;
+	struct victim_block_entry *head;
 	struct victim_block_entry *tail;
 	unsigned int victim_block_nb;
 } victim_block_root;
