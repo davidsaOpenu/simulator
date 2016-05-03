@@ -569,9 +569,11 @@ int UPDATE_INVERSE_BLOCK_MAPPING(unsigned int phy_flash_nb, unsigned int phy_blo
 	int i;
 	inverse_block_mapping_entry *mapping_entry = GET_INVERSE_BLOCK_MAPPING_ENTRY(phy_flash_nb, phy_block_nb);
 	mapping_entry->type = type;
-	if (type == EMPTY_BLOCK)
+	if (type == EMPTY_BLOCK){
 		for (i = 0; i < PAGE_NB; i++)
-			UPDATE_INVERSE_BLOCK_VALIDITY(phy_flash_nb, phy_block_nb, i, PAGE_ZERO);
+			mapping_entry->valid_array[i] = PAGE_ZERO;
+		mapping_entry->valid_page_nb = 0;
+	}
 	return SUCCESS;
 }
 
