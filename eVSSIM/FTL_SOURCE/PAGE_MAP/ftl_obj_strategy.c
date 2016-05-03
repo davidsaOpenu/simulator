@@ -151,10 +151,10 @@ int _FTL_OBJ_WRITE(object_id_t object_id, unsigned int offset, unsigned int leng
             printf("ERROR[FTL_WRITE] Object %lu already contains page %d\n",temp_page->object_id,page_id);
             return FAIL;
         }
-        
+
         // mark new page as valid and used
         UPDATE_NEW_PAGE_MAPPING_NO_LOGICAL(page_id);
-        
+
         if (current_page == NULL) // writing at the end of the object and need to allocate more space for it
         {
             current_page = add_page(object, page_id);
@@ -164,12 +164,12 @@ int _FTL_OBJ_WRITE(object_id_t object_id, unsigned int offset, unsigned int leng
         else // writing over parts of the object
         {
             // invalidate the old physical page and replace the page_node's page
-            UPDATE_INVERSE_BLOCK_VALIDITY(CALC_FLASH(current_page->page_id), CALC_BLOCK(current_page->page_id), CALC_PAGE(current_page->page_id), INVALID);
-            UPDATE_INVERSE_PAGE_MAPPING(current_page->page_id, -1);            
+            UPDATE_INVERSE_BLOCK_VALIDITY(CALC_FLASH(current_page->page_id), CALC_BLOCK(current_page->page_id), CALC_PAGE(current_page->page_id), PAGE_INVALID);
+            UPDATE_INVERSE_PAGE_MAPPING(current_page->page_id, -1);
 
-            HASH_DEL(global_page_table, current_page); 
+            HASH_DEL(global_page_table, current_page);
             current_page->page_id = page_id;
-            HASH_ADD_INT(global_page_table, page_id, current_page); 
+            HASH_ADD_INT(global_page_table, page_id, current_page);
         }
 #ifdef GC_ON
             // must improve this because it is very possible that we will do multiple GCs on the same flash chip and block
@@ -220,18 +220,18 @@ int _FTL_OBJ_WRITE(object_id_t object_id, unsigned int offset, unsigned int leng
 int _FTL_OBJ_COPYBACK(int32_t source, int32_t destination)
 {
     page_node *source_p;
-    
+
     source_p = lookup_page(source);
-    
+
     // source_p can be NULL if the GC is working on some old pages that belonged to an object we deleted already
     if (source_p != NULL)
     {
         // invalidate the source page
-        UPDATE_INVERSE_BLOCK_VALIDITY(CALC_FLASH(source), CALC_BLOCK(source), CALC_PAGE(source), INVALID);
-        
+        UPDATE_INVERSE_BLOCK_VALIDITY(CALC_FLASH(source), CALC_BLOCK(source), CALC_PAGE(source), PAGE_INVALID);
+
         // mark new page as valid and used
         UPDATE_NEW_PAGE_MAPPING_NO_LOGICAL(destination);
-        
+
         // change the object's page mapping to the new page
         HASH_DEL(global_page_table, source_p); 
         source_p->page_id = destination;
@@ -320,18 +320,18 @@ int remove_object(stored_object *object)
 {
     page_node *current_page;
     page_node *invalidated_page;
-    
+
     // object could not exist in the hashtable yet because it could just be cleanup in case create_object failed
     // if we do perform HASH_DEL on an object that is not in the hashtable, the whole hashtable will be deleted
     if (object->hh.tbl != NULL)
         HASH_DEL(objects_table, object);
-    
+
     current_page = object->pages;
     while (current_page != NULL)
     {
         // invalidate the physical page and update its mapping
-        UPDATE_INVERSE_BLOCK_VALIDITY(CALC_FLASH(current_page->page_id), CALC_BLOCK(current_page->page_id), CALC_PAGE(current_page->page_id), INVALID);
-        
+        UPDATE_INVERSE_BLOCK_VALIDITY(CALC_FLASH(current_page->page_id), CALC_BLOCK(current_page->page_id), CALC_PAGE(current_page->page_id), PAGE_INVALID);
+
 #ifdef GC_ON
         // should we really perform GC for every page? we know we are invalidating a lot of them now...
         GC_CHECK(CALC_FLASH(current_page->page_id), CALC_BLOCK(current_page->page_id), true);

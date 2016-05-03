@@ -65,8 +65,9 @@
 #define VICTIM_NOPARAL	43
 
 /* Page Type */
-#define VALID		50
-#define INVALID		51
+#define PAGE_VALID		'V'
+#define PAGE_INVALID		'I'
+#define PAGE_ZERO		'0'
 
 /* Perf Checker Calloc Type */
 #define CH_OP		80

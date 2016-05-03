@@ -82,7 +82,12 @@ inverse_block_mapping_entry* GET_INVERSE_BLOCK_MAPPING_ENTRY(unsigned int phy_fl
 
 uint32_t GET_INVERSE_MAPPING_INFO(uint32_t lpn);
 int UPDATE_INVERSE_PAGE_MAPPING(uint32_t ppn, uint32_t lpn);
-int UPDATE_INVERSE_BLOCK_MAPPING(unsigned int phy_flash_nb, unsigned int phy_block_nb, int type);
-int UPDATE_INVERSE_BLOCK_VALIDITY(unsigned int phy_flash_nb, unsigned int phy_block_nb, unsigned int phy_page_nb, int valid);
+int UPDATE_INVERSE_BLOCK_MAPPING(unsigned int phy_flash_nb,
+                                 unsigned int phy_block_nb,
+                                 int type);
+int UPDATE_INVERSE_BLOCK_VALIDITY(unsigned int phy_flash_nb,
+                                  unsigned int phy_block_nb,
+                                  unsigned int phy_page_nb,
+                                  char valid);
 
 #endif
