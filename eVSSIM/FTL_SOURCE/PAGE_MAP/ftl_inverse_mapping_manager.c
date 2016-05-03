@@ -84,7 +84,6 @@ void INIT_VALID_ARRAY(void)
 	else{
 		for (i = 0; i < BLOCK_MAPPING_ENTRY_NB; i++){
 			valid_array = (char*)calloc(PAGE_NB, sizeof(char));
-			memset(valid_array,0,PAGE_NB);
 			curr_mapping_entry->valid_array = valid_array;
 			curr_mapping_entry += 1;
 		}			
@@ -572,33 +571,20 @@ int UPDATE_INVERSE_BLOCK_MAPPING(unsigned int phy_flash_nb, unsigned int phy_blo
 	mapping_entry->type = type;
 	if (type == EMPTY_BLOCK)
 		for (i = 0; i < PAGE_NB; i++)
-			UPDATE_INVERSE_BLOCK_VALIDITY(phy_flash_nb, phy_block_nb, i, 0);
+			UPDATE_INVERSE_BLOCK_VALIDITY(phy_flash_nb, phy_block_nb, i, PAGE_ZERO);
 	return SUCCESS;
 }
 
-int UPDATE_INVERSE_BLOCK_VALIDITY(unsigned int phy_flash_nb, unsigned int phy_block_nb, unsigned int phy_page_nb, int valid)
+int UPDATE_INVERSE_BLOCK_VALIDITY(unsigned int phy_flash_nb, unsigned int phy_block_nb, unsigned int phy_page_nb, char valid)
 {
 	if (phy_flash_nb >= FLASH_NB || phy_block_nb >= BLOCK_NB || phy_page_nb >= PAGE_NB)
 		RERR(FAIL, "Wrong physical address\n");
 
-	int i;
-	int valid_count = 0;
 	inverse_block_mapping_entry *mapping_entry = GET_INVERSE_BLOCK_MAPPING_ENTRY(phy_flash_nb, phy_block_nb);
-	char *valid_array = mapping_entry->valid_array;
-
-	if (valid == VALID)
-		valid_array[phy_page_nb] = 'V';
-	else if (valid == INVALID)
-		valid_array[phy_page_nb] = 'I';
-	else if (valid == 0)
-		valid_array[phy_page_nb] = '0';
-	else
-		PERR("Wrong valid value\n");
-
-	/* Update valid_page_nb */
-	for (i = 0; i < PAGE_NB; i++)
-		if (valid_array[i] == 'V')
-			valid_count++;
-	mapping_entry->valid_page_nb = valid_count;
+	if ((valid == PAGE_VALID) && (mapping_entry->valid_array[phy_page_nb] != PAGE_VALID))
+		mapping_entry->valid_page_nb++;
+	else if ((valid != PAGE_VALID) && (mapping_entry->valid_array[phy_page_nb] == PAGE_VALID))
+		mapping_entry->valid_page_nb--;
+	mapping_entry->valid_array[phy_page_nb] = valid;
 	return SUCCESS;
 }

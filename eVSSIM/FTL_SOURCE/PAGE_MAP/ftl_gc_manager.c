@@ -37,7 +37,7 @@ int GARBAGE_COLLECTION(int mapping_index, int l2)
 	int valid_page_nb = inverse_block_entry->valid_page_nb;
 
 	for (i = 0; i < PAGE_NB; i++){
-		if (valid_array[i] == 'V'){
+		if (valid_array[i] == PAGE_VALID){
 
 
 // This is original vssim code without copyback            
