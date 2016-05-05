@@ -13,7 +13,7 @@ void SSD_INIT(void)
 }
 
 void SSD_TERM(void)
-{	
+{
 	FTL_TERM();
 	TERM_LOG_MANAGER();
 }

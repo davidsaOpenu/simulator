@@ -134,9 +134,9 @@ int _FTL_OBJ_WRITE(object_id_t object_id, unsigned int offset, unsigned int leng
 			UPDATE_INVERSE_BLOCK_VALIDITY(CALC_FLASH(current_page->page_id), CALC_BLOCK(current_page->page_id), CALC_PAGE(current_page->page_id), PAGE_INVALID);
 			UPDATE_INVERSE_PAGE_MAPPING(current_page->page_id, -1);
 
-			HASH_DEL(global_page_table, current_page); 
+			HASH_DEL(global_page_table, current_page);
 			current_page->page_id = page_id;
-			HASH_ADD_INT(global_page_table, page_id, current_page); 
+			HASH_ADD_INT(global_page_table, page_id, current_page);
 		}
 #ifdef GC_ON
 			// must improve this because it is very possible that we will do multiple GCs on the same flash chip and block
@@ -185,9 +185,9 @@ int _FTL_OBJ_COPYBACK(int32_t source, int32_t destination)
 		UPDATE_NEW_PAGE_MAPPING_NO_LOGICAL(destination);
 
 		// change the object's page mapping to the new page
-		HASH_DEL(global_page_table, source_p); 
+		HASH_DEL(global_page_table, source_p);
 		source_p->page_id = destination;
-		HASH_ADD_INT(global_page_table, page_id, source_p); 
+		HASH_ADD_INT(global_page_table, page_id, source_p);
 	}
 #ifdef FTL_DEBUG
 	else
@@ -236,7 +236,7 @@ stored_object *create_object(size_t size)
 	obj->pages = NULL;
 
 	// add the new object to the objects' hashtable
-	HASH_ADD_INT(objects_table, id, obj); 
+	HASH_ADD_INT(objects_table, id, obj);
 
 	while (size > obj->size){
 		if (GET_NEW_PAGE(VICTIM_OVERALL, EMPTY_TABLE_ENTRY_NB, &page_id) == FAIL){
@@ -306,7 +306,7 @@ page_node *add_page(stored_object *object, uint32_t page_id)
 	object->size += PAGE_SIZE;
 	if (object->pages == NULL){
 		page = allocate_new_page(object->id,page_id);
-		HASH_ADD_INT(global_page_table, page_id, page); 
+		HASH_ADD_INT(global_page_table, page_id, page);
 		object->pages = page;
 		return object->pages;
 	}
@@ -316,7 +316,7 @@ page_node *add_page(stored_object *object, uint32_t page_id)
 		RERR(NULL, "Object %lu already contains page %d\n", page->object_id, page_id);
 
 	page = allocate_new_page(object->id, page_id);
-	HASH_ADD_INT(global_page_table, page_id, page); 
+	HASH_ADD_INT(global_page_table, page_id, page);
 	curr->next = page;
 	return curr->next;
 }

@@ -1,4 +1,4 @@
-// Copyright(c)2013 
+// Copyright(c)2013
 //
 // Hanyang University, Seoul, Korea
 // Embedded Software Systems Lab. All right reserved
@@ -88,15 +88,15 @@ void INIT_SSD_CONFIG(void)
 			else if (strcmp(szCommand, "SECTOR_SIZE") == 0){
 				if (fscanf(pfData, "%d", &SECTOR_SIZE) == EOF)
 					PERR("Wrong SECTOR_SIZE\n");
-			}	
+			}
 			else if (strcmp(szCommand, "FLASH_NB") == 0){
 				if (fscanf(pfData, "%d", &FLASH_NB) == EOF)
 					PERR("Wrong FLASH_NB\n");
-			}	
+			}
 			else if (strcmp(szCommand, "BLOCK_NB") == 0){
 				if (fscanf(pfData, "%d", &BLOCK_NB) == EOF)
 					PERR("Wrong BLOCK_NB\n");
-			}					
+			}
 			else if (strcmp(szCommand, "PLANES_PER_FLASH") == 0){
 				if (fscanf(pfData, "%d", &PLANES_PER_FLASH) == EOF)
 					PERR("Wrong PLANES_PER_FLASH\n");
@@ -104,7 +104,7 @@ void INIT_SSD_CONFIG(void)
 			else if (strcmp(szCommand, "REG_WRITE_DELAY") == 0){
 				if (fscanf(pfData, "%d", &REG_WRITE_DELAY) == EOF)
 					PERR("Wrong REG_WRITE_DELAY\n");
-			}	
+			}
 			else if (strcmp(szCommand, "CELL_PROGRAM_DELAY") == 0){
 				if (fscanf(pfData, "%d", &CELL_PROGRAM_DELAY) == EOF)
 					PERR("Wrong CELL_PROGRAM_DELAY\n");
@@ -154,7 +154,7 @@ void INIT_SSD_CONFIG(void)
 				if (fgets(STAT_PATH, PATH_MAX, pfData) == NULL)
 					PERR("Wrong STAT_PATH\n");
 			}
-#if defined FTL_MAP_CACHE 
+#if defined FTL_MAP_CACHE
 			else if (strcmp(szCommand, "CACHE_IDX_SIZE") == 0){
 				if (fscanf(pfData, "%d", &CACHE_IDX_SIZE) == EOF)
 					PERR("Wrong CACHE_IDX_SIZE\n");
@@ -170,20 +170,21 @@ void INIT_SSD_CONFIG(void)
 			else if (strcmp(szCommand, "LOG_RAND_BLOCK_NB") == 0){
 				if (fscanf(pfData, "%d", &LOG_RAND_BLOCK_NB) == EOF)
 					PERR("Wrong LOG_RAND_BLOCK_NB\n");
-			}	
+			}
 			else if (strcmp(szCommand, "LOG_SEQ_BLOCK_NB") == 0){
 				if (fscanf(pfData, "%d", &LOG_SEQ_BLOCK_NB) == EOF)
 					PERR("Wrong LOG_SEQ_BLOCK_NB\n");
-			}	
+			}
 #endif
 			else if (strcmp(szCommand, "STORAGE_STRATEGY") == 0){
 				if (fscanf(pfData, "%d", &STORAGE_STRATEGY) == EOF)
 					PERR("Wrong STORAGE_STRATEGY\n");
 			}
 			memset(szCommand, 0x00, 1024);
-		}	
+		}
 		fclose(pfData);
-	}else
+	}
+	else
 		PERR("cannot open file: ./data/ssd.conf\n");
 
 	/* Exception Handler */
@@ -210,7 +211,7 @@ void INIT_SSD_CONFIG(void)
 
 	DATA_BLOCK_NB = BLOCK_NB;
 #endif
-	
+
 	/* Garbage Collection */
 #ifdef PAGE_MAP
 	GC_THRESHOLD = 0.3; // 70%

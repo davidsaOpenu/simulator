@@ -1,4 +1,4 @@
-// Copyright(c)2013 
+// Copyright(c)2013
 //
 // Hanyang University, Seoul, Korea
 // Embedded Software Systems Lab. All right reserved
@@ -328,7 +328,7 @@ int64_t UPDATE_IO_REQUEST(int request_nb, int offset, int64_t time, int type)
 
 	if (type == UPDATE_START_TIME){
 		curr_request->start_time[offset] = time;
-		curr_request->start_count++;	
+		curr_request->start_count++;
 	}
 	else if (type == UPDATE_END_TIME){
 		curr_request->end_time[offset] = time;

@@ -1,4 +1,4 @@
-// Copyright(c)2013 
+// Copyright(c)2013
 //
 // Hanyang University, Seoul, Korea
 // Embedded Software Systems Lab. All right reserved
@@ -87,7 +87,7 @@ void THREAD_SERVER(void* arg)
 	serverAddr.sin_family = AF_INET;
 	serverAddr.sin_addr.s_addr = htonl(INADDR_ANY);
 	serverAddr.sin_port = htons(9999);
-	
+
 	if (bind(servSock, (struct sockaddr *)&serverAddr, sizeof(serverAddr)) < 0)
 		RDBG_MNT(, "Server Socket Bind Error!!!\n");
 

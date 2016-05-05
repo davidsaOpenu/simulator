@@ -1,4 +1,4 @@
-// Copyright(c)2013 
+// Copyright(c)2013
 //
 // Hanyang University, Seoul, Korea
 // Embedded Software Systems Lab. All right reserved
@@ -86,7 +86,7 @@ void INIT_VALID_ARRAY(void)
 			valid_array = (char*)calloc(PAGE_NB, sizeof(char));
 			curr_mapping_entry->valid_array = valid_array;
 			curr_mapping_entry += 1;
-		}			
+		}
 	}
 }
 
@@ -135,7 +135,7 @@ void INIT_EMPTY_BLOCK_LIST(void)
 		for (i = 0; i < PLANES_PER_FLASH; i++){
 			for (j = 0; j < FLASH_NB; j++, curr_root += 1){
 				for (k = i; k < BLOCK_NB; k += PLANES_PER_FLASH){
-					curr_entry = (empty_block_entry*)calloc(1, sizeof(empty_block_entry));	
+					curr_entry = (empty_block_entry*)calloc(1, sizeof(empty_block_entry));
 					if (curr_entry == NULL){
 						PERR("calloc fail\n");
 						break;
@@ -201,7 +201,7 @@ void INIT_VICTIM_BLOCK_LIST(void)
 		fclose(fp);
 	}
 	else{
-		curr_root = (victim_block_root*)victim_block_table_start;	
+		curr_root = (victim_block_root*)victim_block_table_start;
 		for (i = 0; i < PLANES_PER_FLASH; i++){
 			for (j = 0; j < FLASH_NB; j++, curr_root += 1){
 				curr_root->tail = curr_root->head = NULL;
@@ -439,7 +439,7 @@ empty_block_entry *GET_EMPTY_BLOCK(int mode, int mapping_index)
 				else
 					curr_empty_block = curr_root_entry->head;
 				return curr_empty_block;
-			}	
+			}
 		}
 	}
 	RERR(NULL, "There is no empty block\n");

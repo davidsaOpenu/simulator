@@ -2,8 +2,8 @@
  * QEMU SSD Emulator
  *
  * Copyright (c) 2009 Kim, Joo Hyun
- * Copyright (c) 2009 Hanyang Univ. 
- * Copyright (c) 2009 Samsung Electronics. 
+ * Copyright (c) 2009 Hanyang Univ.
+ * Copyright (c) 2009 Samsung Electronics.
  *
  */
 

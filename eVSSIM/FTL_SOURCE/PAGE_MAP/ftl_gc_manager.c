@@ -1,4 +1,4 @@
-// Copyright(c)2013 
+// Copyright(c)2013
 //
 // Hanyang University, Seoul, Korea
 // Embedded Software Systems Lab. All right reserved
@@ -40,7 +40,7 @@ int GARBAGE_COLLECTION(int mapping_index, int l2)
 		if (valid_array[i] == PAGE_VALID){
 
 
-// This is original vssim code without copyback            
+// This is original vssim code without copyback
 //            ret = GET_NEW_PAGE(VICTIM_OVERALL, mapping_index, &new_ppn);
 //            if(ret == FAIL){
 //                printf("ERROR[%s] Get new page fail\n",__FUNCTION__);
@@ -53,7 +53,7 @@ int GARBAGE_COLLECTION(int mapping_index, int l2)
 //
 //            lpn = GET_INVERSE_MAPPING_INFO(old_ppn);
 //            UPDATE_NEW_PAGE_MAPPING(lpn, new_ppn);
-// End of original vssim code without copyback            
+// End of original vssim code without copyback
 
 
 

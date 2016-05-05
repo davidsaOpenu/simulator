@@ -1,4 +1,4 @@
-// Copyright(c)2013 
+// Copyright(c)2013
 //
 // Hanyang University, Seoul, Korea
 // Embedded Software Systems Lab. All right reserved
@@ -23,8 +23,8 @@ void INIT_MAPPING_TABLE(void)
 			PERR("fread\n");
 		fclose(fp);
 	}
-	else{	
-		int i;	
+	else{
+		int i;
 		for (i = 0; i < PAGE_MAPPING_ENTRY_NB; i++)
 			mapping_table[i] = -1;
 	}

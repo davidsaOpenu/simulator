@@ -1,4 +1,4 @@
-// Copyright(c)2013 
+// Copyright(c)2013
 //
 // Hanyang University, Seoul, Korea
 // Embedded Software Systems Lab. All right reserved
@@ -98,7 +98,7 @@ int SSD_PAGE_WRITE(unsigned int flash_nb, unsigned int block_nb, unsigned int pa
 	int reg = flash_nb*PLANES_PER_FLASH + block_nb%PLANES_PER_FLASH;
 
 	/* Delay Operation */
-	SSD_CH_ENABLE(channel);	// channel enable	
+	SSD_CH_ENABLE(channel);	// channel enable
 
 	int delay_ret = IO_PARALLELISM_DELAY(flash_nb, reg);
 
@@ -165,7 +165,7 @@ int SSD_FLASH_ACCESS(unsigned int flash_nb, int reg)
 		if (r_num == reg || access_nb[r_num][0] != io_request_seq_nb)
 			ret = SSD_REG_ACCESS(r_num);
 		r_num++;
-	}	
+	}
 
 	return ret;
 }
@@ -296,7 +296,7 @@ int SSD_CH_ACCESS(int channel)
 	int r_num;
 
 	for (i = 0; i < WAY_NB; i++){
-		r_num = channel*PLANES_PER_FLASH + i*CHANNEL_NB*PLANES_PER_FLASH; 
+		r_num = channel*PLANES_PER_FLASH + i*CHANNEL_NB*PLANES_PER_FLASH;
 		for (j = 0; j < PLANES_PER_FLASH; j++, r_num++){
 			if (reg_io_time[r_num] <= get_usec() && reg_io_time[r_num] != -1){
 				if (reg_io_cmd[r_num] == READ){
@@ -407,7 +407,7 @@ int SSD_REG_READ_DELAY(int reg)
 	int64_t end = get_usec();
 	SEND_TO_PERF_CHECKER(reg_io_type[reg], end - start, CH_OP);
 	SSD_UPDATE_IO_REQUEST(reg);
-	
+
 	/* Update Time Stamp Struct */
 	reg_io_time[reg] = -1;
 	reg_io_cmd[reg] = NOOP;
@@ -526,7 +526,7 @@ int64_t SSD_GET_CH_ACCESS_TIME_FOR_READ(int channel, int reg)
 	int64_t temp_time = 0;
 
 	for (i = 0; i < WAY_NB; i++){
-		r_num = channel*PLANES_PER_FLASH + i*CHANNEL_NB*PLANES_PER_FLASH; 
+		r_num = channel*PLANES_PER_FLASH + i*CHANNEL_NB*PLANES_PER_FLASH;
 		for (j = 0; j < PLANES_PER_FLASH; j++){
 			temp_time = 0;
 
@@ -540,7 +540,7 @@ int64_t SSD_GET_CH_ACCESS_TIME_FOR_READ(int channel, int reg)
 			r_num++;
 		}
 	}
-	
+
 	return latest_time;
 }
 
@@ -550,11 +550,11 @@ void SSD_UPDATE_CH_ACCESS_TIME(int channel, int64_t current_time)
 	int r_num;
 
 	for (i = 0; i < WAY_NB; i++){
-		r_num = channel*PLANES_PER_FLASH + i*CHANNEL_NB*PLANES_PER_FLASH; 
+		r_num = channel*PLANES_PER_FLASH + i*CHANNEL_NB*PLANES_PER_FLASH;
 		for (j = 0; j < PLANES_PER_FLASH; j++){
 			if (reg_io_cmd[r_num] == READ && reg_io_time[r_num] > current_time )
 				reg_io_time[r_num] += REG_WRITE_DELAY;
-			r_num++;	
+			r_num++;
 		}
 	}
 }

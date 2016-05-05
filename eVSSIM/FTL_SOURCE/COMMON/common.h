@@ -1,7 +1,7 @@
-// Copyright(c)2013 
+// Copyright(c)2013
 //
 // Hanyang University, Seoul, Korea
-// Embedded Software Systems Lab. All right reserved 
+// Embedded Software Systems Lab. All right reserved
 
 #ifndef _COMMON_H_
 #define _COMMON_H_
