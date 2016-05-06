@@ -6,13 +6,6 @@
 #ifndef _MAPPING_MANAGER_H_
 #define _MAPPING_MANAGER_H_
 
-extern uint32_t *mapping_table;
-extern void *block_table_start;
-
-extern unsigned int flash_index;
-extern unsigned int *plane_index;
-extern unsigned int *block_index;
-
 void INIT_MAPPING_TABLE(void);
 void TERM_MAPPING_TABLE(void);
 

@@ -6,15 +6,10 @@
 #ifndef _INVERSE_MAPPING_MANAGER_H_
 #define _INVERSE_MAPPING_MANAGER_H_
 
-extern uint32_t *inverse_page_mapping_table;
-
 extern int64_t total_empty_block_nb;
 extern int64_t total_victim_block_nb;
 
-extern void *empty_block_table_start;
 extern void *victim_block_table_start;
-
-extern unsigned int empty_block_table_index;
 
 typedef struct inverse_block_mapping_entry
 {
@@ -54,9 +49,6 @@ typedef struct victim_block_entry
 	struct victim_block_entry *prev;
 	struct victim_block_entry *next;
 } victim_block_entry;
-
-extern victim_block_entry *victim_block_list_head;
-extern victim_block_entry *victim_block_list_tail;
 
 void INIT_INVERSE_PAGE_MAPPING(void);
 void INIT_INVERSE_BLOCK_MAPPING(void);

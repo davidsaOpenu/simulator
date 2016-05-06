@@ -20,18 +20,7 @@ typedef struct io_request
 }io_request;
 
 /* IO Latency */
-extern unsigned int io_request_nb;
 extern unsigned int io_request_seq_nb;
-
-extern struct io_request *io_request_start;
-extern struct io_request *io_request_end;
-
-/* GC Latency */
-extern unsigned int gc_request_nb;
-extern unsigned int gc_request_seq_nb;
-
-extern struct io_request *gc_request_start;
-extern struct io_request *gc_request_end;
 
 double GET_IO_BANDWIDTH(double delay);
 

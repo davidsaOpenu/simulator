@@ -6,7 +6,6 @@
 #include "common.h"
 
 uint32_t *mapping_table;
-void *block_table_start;
 
 void INIT_MAPPING_TABLE(void)
 {

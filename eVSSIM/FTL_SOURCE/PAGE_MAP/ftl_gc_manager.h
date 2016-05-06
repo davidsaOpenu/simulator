@@ -6,8 +6,6 @@
 #ifndef _GC_MANAGER_H_
 #define _GC_MANAGER_H_
 
-extern unsigned int gc_count;
-
 void GC_CHECK(unsigned int phy_flash_nb, unsigned int phy_block_nb, bool force);
 
 int GARBAGE_COLLECTION(int mapping_index, int l2);
