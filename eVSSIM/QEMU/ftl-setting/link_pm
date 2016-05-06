@@ -14,10 +14,8 @@ ln -s ../CONFIG/QEMU_MAKEFILE/Makefile_pm				../Makefile.target
 
 # SSD operation control header file "common.h"
 ln -s ../../FTL_SOURCE/COMMON/common.h					../hw/common.h
-ln -s ../../SSD_MODULE/ssd_util.h					../hw/ssd_util.h
 
 # HEADER FILE
-ln -s ../../FTL_SOURCE/PAGE_MAP/ftl_type.h				../hw/ftl_type.h
 ln -s ../../FTL_SOURCE/PAGE_MAP/ftl.h					../hw/ftl.h
 ln -s ../../FTL_SOURCE/PAGE_MAP/ftl_mapping_manager.h			../hw/ftl_mapping_manager.h
 ln -s ../../FTL_SOURCE/PAGE_MAP/ftl_inverse_mapping_manager.h		../hw/ftl_inverse_mapping_manager.h

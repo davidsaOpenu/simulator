@@ -186,10 +186,8 @@ distclean: clean
 	rm -f hw/ssd.{h,c}
 	rm -f hw/ssd_io_manager.{h,c}
 	rm -f hw/ssd_log_manager.{h,c}
-	rm -f hw/ssd_util.h
 	rm -f hw/common.h
 	rm -f hw/ftl.{h,c}
-	rm -f hw/ftl_type.h
 	rm -f hw/ftl_gc_manager.{h,c}
 	rm -f hw/ftl_inverse_mapping_manager.{h,c}
 	rm -f hw/ftl_mapping_manager.{h,c}

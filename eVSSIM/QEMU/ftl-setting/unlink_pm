@@ -11,8 +11,6 @@ unlink ../Makefile.target
 unlink ../hw/common.h
 
 # HEADER FILE
-unlink ../hw/ssd_util.h
-unlink ../hw/ftl_type.h
 unlink ../hw/ftl.h
 unlink ../hw/ftl_mapping_manager.h
 unlink ../hw/ftl_inverse_mapping_manager.h

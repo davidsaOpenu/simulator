@@ -15,6 +15,8 @@
 #include <string.h>
 #include <sys/time.h>
 
+#define PAGE_MAP
+
 #include "ftl.h"
 #include "ftl_gc_manager.h"
 #include "ftl_inverse_mapping_manager.h"
@@ -22,11 +24,9 @@
 #include "ftl_obj_strategy.h"
 #include "ftl_perf_manager.h"
 #include "ftl_sect_strategy.h"
-#include "ftl_type.h"
 #include "ssd.h"
 #include "ssd_io_manager.h"
 #include "ssd_log_manager.h"
-#include "ssd_util.h"
 #include "vssim_config_manager.h"
 
 /* FTL */
