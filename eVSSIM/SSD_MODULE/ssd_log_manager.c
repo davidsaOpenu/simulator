@@ -3,18 +3,13 @@
 // Hanyang University, Seoul, Korea
 // Embedded Software Systems Lab. All right reserved
 
-#include "ssd_log_manager.h"
-#include "common.h"
-
-#include <unistd.h>
-#include <pthread.h>
 #include <arpa/inet.h>
-#include <sys/socket.h>
-#include <memory.h>
 #include <errno.h>
-#include <sys/types.h>
 #include <fcntl.h>
 #include <stdarg.h>
+#include <sys/socket.h>
+#include <unistd.h>
+#include "common.h"
 
 int servSock;
 int clientSock;

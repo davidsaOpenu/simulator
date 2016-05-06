@@ -1,10 +1,4 @@
-#include "ssd.h"
 #include "common.h"
-
-#ifdef GET_WORKLOAD
-#include <time.h>
-#include <sys/time.h>
-#endif
 
 void SSD_INIT(void)
 {

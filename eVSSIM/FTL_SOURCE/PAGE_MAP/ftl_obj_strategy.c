@@ -1,4 +1,4 @@
-#include "ftl_obj_strategy.h"
+#include "common.h"
 
 stored_object *objects_table;
 page_node *global_page_table;

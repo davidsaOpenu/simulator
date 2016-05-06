@@ -9,13 +9,9 @@
 #ifndef _UTEST_
 	//#include "hw.h"
 #else
-
 	typedef signed long long int64_t;
 	#include <stdio.h>
 	#include <malloc.h>
 	#include <memory.h>
-
 #endif
-
 #endif
-

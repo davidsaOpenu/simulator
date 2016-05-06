@@ -3,13 +3,12 @@
 // Hanyang University, Seoul, Korea
 // Embedded Software Systems Lab. All right reserved
 
-#include "common.h"
-
 #include <arpa/inet.h>
+#include <pthread.h>
 #include <sys/socket.h>
 #include <sys/types.h>
-#include <pthread.h>
 #include <unistd.h>
+#include "common.h"
 
 int g_init = 0;
 extern double ssd_util;

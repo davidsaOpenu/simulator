@@ -6,9 +6,6 @@
 #ifndef _CONFIG_MANAGER_H_
 #define _CONFIG_MANAGER_H_
 
-#include "common.h"
-#include <limits.h>
-
 /* SSD Configuration */
 extern int SECTOR_SIZE;
 extern int PAGE_SIZE;

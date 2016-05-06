@@ -7,6 +7,7 @@
 #define _FTL_H_
 
 #include "common.h"
+
 extern uint32_t **mapping_stats_table;
 void FTL_INIT(void);
 void FTL_TERM(void);

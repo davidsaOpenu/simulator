@@ -1,4 +1,4 @@
-#include "ftl_sect_strategy.h"
+#include "common.h"
 
 int _FTL_READ(uint64_t sector_nb, unsigned int offset, unsigned int length)
 {

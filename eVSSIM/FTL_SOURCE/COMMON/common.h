@@ -6,14 +6,28 @@
 #ifndef _COMMON_H_
 #define _COMMON_H_
 
+#include <limits.h>
+#include <malloc.h>
+#include <stdbool.h>
+#include <stdint.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#include <malloc.h>
-#include <stdint.h>
 #include <sys/time.h>
-#include <stdbool.h>
+
+#include "ftl.h"
+#include "ftl_gc_manager.h"
+#include "ftl_inverse_mapping_manager.h"
+#include "ftl_mapping_manager.h"
+#include "ftl_obj_strategy.h"
+#include "ftl_perf_manager.h"
+#include "ftl_sect_strategy.h"
 #include "ftl_type.h"
+#include "ssd.h"
+#include "ssd_io_manager.h"
+#include "ssd_log_manager.h"
+#include "ssd_util.h"
+#include "vssim_config_manager.h"
 
 /* FTL */
 //#define FTL_DEBUG 1
@@ -25,23 +39,6 @@
 #endif
 #define DEL_QEMU_OVERHEAD
 //#define O_DIRECT_VSSIM			/* O_DIRECT IO mode */
-
-#include "vssim_config_manager.h"
-#include "ftl.h"
-#include "ftl_inverse_mapping_manager.h"
-#include "ftl_perf_manager.h"
-
-#include "ftl_sect_strategy.h"
-#include "ftl_obj_strategy.h"
-
-#include "ssd_util.h"
-#include "ssd_io_manager.h"
-#include "ssd_log_manager.h"
-
-#ifdef PAGE_MAP
-	#include "ftl_gc_manager.h"
-	#include "ftl_mapping_manager.h"
-#endif
 
 #define SUCCESS		1
 #define FAIL		0

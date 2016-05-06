@@ -6,8 +6,6 @@
 #ifndef _SSD_IO_MANAGER_H
 #define _SSD_IO_MANAGER_H
 
-#include "ssd_util.h"
-
 extern int old_channel_nb;
 extern int64_t io_alloc_overhead;
 extern int64_t io_update_overhead;

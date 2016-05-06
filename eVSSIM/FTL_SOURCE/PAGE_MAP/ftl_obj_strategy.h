@@ -1,7 +1,6 @@
 #ifndef _FTL_OBJ_H_
 #define _FTL_OBJ_H_
 
-#include <stdlib.h>
 #include "common.h"
 #include "uthash.h"
 
