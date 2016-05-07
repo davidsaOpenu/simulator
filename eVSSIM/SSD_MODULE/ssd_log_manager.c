@@ -12,10 +12,7 @@
 #include "common.h"
 
 int servSock;
-int clientSock;
-int clientSock2;
-
-int g_server_create = 0;
+int clientSock = 0;
 int g_init_log_server = 0;
 
 void INIT_LOG_MANAGER(void)
@@ -26,7 +23,7 @@ void INIT_LOG_MANAGER(void)
 			perror("popen");
 			PERR("fwrite\n");
 		}
-		THREAD_SERVER(NULL);
+		THREAD_SERVER();
 
 		g_init_log_server = 1;
 	}
@@ -38,14 +35,13 @@ void TERM_LOG_MANAGER(void)
 #ifdef MONITOR_ON
 	close(servSock);
 	close(clientSock);
-	close(clientSock2);
 #endif
 }
 
 void WRITE_LOG(const char *fmt, ...)
 {
 #ifdef MONITOR_ON
-	if (g_server_create == 0)
+	if (clientSock == 0)
 		RERR(, "write log is failed\n");
 
 	char szLog[1024];
@@ -58,49 +54,39 @@ void WRITE_LOG(const char *fmt, ...)
 #endif
 }
 
-void THREAD_SERVER(void* arg)
+void THREAD_SERVER(void)
 {
-	//int n;
-	//char buffer[256];
-	PDBG_MNT("SERVER THREAD CREATED!!!\n");
-
-	unsigned int len;
-	//unsigned int len2;
-	struct sockaddr_in serverAddr;
-	struct sockaddr_in clientAddr;
-	//struct sockaddr_in clientAddr2;
+	PDBG_MNT("Start\n");
 
 	if ((servSock = socket(AF_INET, SOCK_STREAM, IPPROTO_TCP)) < 0)
-		RDBG_MNT(, "Server Socket Creation error!!!\n");
-
-	int flags = fcntl(servSock, F_GETFL, 0);
-	fcntl(servSock, F_SETFL, flags | O_APPEND);
+		RDBG_MNT(, "socket failed: %s\n", strerror(errno));
 
 	int option = 1;
-	setsockopt(servSock, SOL_SOCKET, SO_REUSEADDR, &option, sizeof(option));
+	if (setsockopt(servSock, SOL_SOCKET, SO_REUSEADDR, &option, sizeof(option)) < 0)
+		RDBG_MNT(, "setsockopt SO_REUSEADDR failed: %s\n", strerror(errno));
+
+	struct sockaddr_in serverAddr;
 	memset(&serverAddr, 0x00, sizeof(serverAddr));
 	serverAddr.sin_family = AF_INET;
 	serverAddr.sin_addr.s_addr = htonl(INADDR_ANY);
 	serverAddr.sin_port = htons(9999);
 
 	if (bind(servSock, (struct sockaddr *)&serverAddr, sizeof(serverAddr)) < 0)
-		RDBG_MNT(, "Server Socket Bind Error!!!\n");
+		RDBG_MNT(, "bind failed: %s\n", strerror(errno));
 
 	if (listen(servSock, 100) < 0)
-		RDBG_MNT(, "Server Socket Listen Error!!!\n");
+		RDBG_MNT(, "listen failed: %s\n", strerror(errno));
 
 	PDBG_MNT("Wait for client....[%d]\n", servSock);
 
-	clientSock = accept(servSock, (struct sockaddr*) &clientAddr, &len);
+	if ((clientSock = accept(servSock, NULL, NULL)) < 0)
+		RDBG_MNT(, "accept failed: %s\n", strerror(errno));
 	PDBG_MNT("Connected![%d]\n", clientSock);
-	PDBG_MNT("Error No. [%d]\n", errno);
-
-	g_server_create = 1;
 }
 
 void THREAD_CLIENT(void *arg)
 {
-	int a = *(int*)arg;
-	PDBG_MNT("ClientSock[%d]\n", a);
-	send(a, "test\n", 5, 0);
+	int sock = *(int*)arg;
+	PDBG_MNT("ClientSock[%d]\n", sock);
+	send(sock, "test\n", 5, 0);
 }
