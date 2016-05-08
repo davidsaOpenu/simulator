@@ -66,126 +66,66 @@ int STORAGE_STRATEGY;
 char gFile_Name[PATH_MAX] = {0,};
 char STAT_PATH[PATH_MAX] = {0,};
 
+config_param options[] = {
+	{"FILE_NAME", "%s", gFile_Name},
+	{"PAGE_SIZE", "%d", &PAGE_SIZE},
+	{"PAGE_NB", "%d", &PAGE_NB},
+	{"SECTOR_SIZE", "%d", &SECTOR_SIZE},
+	{"FLASH_NB", "%d", &FLASH_NB},
+	{"BLOCK_NB", "%d", &BLOCK_NB},
+	{"PLANES_PER_FLASH", "%d", &PLANES_PER_FLASH},
+	{"REG_WRITE_DELAY", "%d", &REG_WRITE_DELAY},
+	{"CELL_PROGRAM_DELAY", "%d", &CELL_PROGRAM_DELAY},
+	{"REG_READ_DELAY", "%d", &REG_READ_DELAY},
+	{"CELL_READ_DELAY", "%d", &CELL_READ_DELAY},
+	{"BLOCK_ERASE_DELAY", "%d", &BLOCK_ERASE_DELAY},
+	{"CHANNEL_SWITCH_DELAY_R", "%d", &CHANNEL_SWITCH_DELAY_R},
+	{"CHANNEL_SWITCH_DELAY_W", "%d", &CHANNEL_SWITCH_DELAY_W},
+	{"DSM_TRIM_ENABLE", "%d", &DSM_TRIM_ENABLE},
+	{"IO_PARALLELISM", "%d", &IO_PARALLELISM},
+	{"CHANNEL_NB", "%d", &CHANNEL_NB},
+	{"STAT_TYPE", "%d", &STAT_TYPE},
+	{"STAT_SCOPE", "%d", &STAT_SCOPE},
+	{"STORAGE_STRATEGY", "%d", &STORAGE_STRATEGY},
+#if defined FTL_MAP_CACHE
+	{"CACHE_IDX_SIZE", "%d", &CACHE_IDX_SIZE},
+#endif
+#ifdef SSD_WRITE_BUFFER
+	{"WRITE_BUFFER_SIZE", "%u", &WRITE_BUFFER_SIZE},
+#endif
+#if defined FAST_FTL || defined LAST_FTL
+	{"LOG_RAND_BLOCK_NB", "%d", &LOG_RAND_BLOCK_NB},
+	{"LOG_SEQ_BLOCK_NB", "%d", &LOG_SEQ_BLOCK_NB},
+#endif
+	{NULL, NULL, NULL},
+};
+
 void INIT_SSD_CONFIG(void)
 {
 	FILE *pfData = fopen("./data/ssd.conf", "r");
+	if (pfData == NULL)
+		RERR(, "Can't open file: ./data/ssd.conf\n");
+
 	char *szCommand = (char*)malloc(1024);
+	int i;
 	memset(szCommand, 0x00, 1024);
-	if (pfData != NULL){
-		while (fscanf(pfData, "%s", szCommand)!=EOF){
-			if (strcmp(szCommand, "FILE_NAME") == 0){
-				if (fscanf(pfData, "%s", gFile_Name) == EOF)
-					PERR("Cannot read filename\n");
-			}
-			else if (strcmp(szCommand, "PAGE_SIZE") == 0){
-				if (fscanf(pfData, "%d", &PAGE_SIZE) == EOF)
-					PERR("Wrong PAGE_SIZE\n");
-			}
-			else if (strcmp(szCommand, "PAGE_NB") == 0){
-				if (fscanf(pfData, "%d", &PAGE_NB) == EOF)
-					PERR("Wrong PAGE_NB\n");
-			}
-			else if (strcmp(szCommand, "SECTOR_SIZE") == 0){
-				if (fscanf(pfData, "%d", &SECTOR_SIZE) == EOF)
-					PERR("Wrong SECTOR_SIZE\n");
-			}
-			else if (strcmp(szCommand, "FLASH_NB") == 0){
-				if (fscanf(pfData, "%d", &FLASH_NB) == EOF)
-					PERR("Wrong FLASH_NB\n");
-			}
-			else if (strcmp(szCommand, "BLOCK_NB") == 0){
-				if (fscanf(pfData, "%d", &BLOCK_NB) == EOF)
-					PERR("Wrong BLOCK_NB\n");
-			}
-			else if (strcmp(szCommand, "PLANES_PER_FLASH") == 0){
-				if (fscanf(pfData, "%d", &PLANES_PER_FLASH) == EOF)
-					PERR("Wrong PLANES_PER_FLASH\n");
-			}
-			else if (strcmp(szCommand, "REG_WRITE_DELAY") == 0){
-				if (fscanf(pfData, "%d", &REG_WRITE_DELAY) == EOF)
-					PERR("Wrong REG_WRITE_DELAY\n");
-			}
-			else if (strcmp(szCommand, "CELL_PROGRAM_DELAY") == 0){
-				if (fscanf(pfData, "%d", &CELL_PROGRAM_DELAY) == EOF)
-					PERR("Wrong CELL_PROGRAM_DELAY\n");
-			}
-			else if (strcmp(szCommand, "REG_READ_DELAY") == 0){
-				if (fscanf(pfData, "%d", &REG_READ_DELAY) == EOF)
-					PERR("Wrong REG_READ_DELAY\n");
-			}
-			else if (strcmp(szCommand, "CELL_READ_DELAY") == 0){
-				if (fscanf(pfData, "%d", &CELL_READ_DELAY) == EOF)
-					PERR("Wrong CELL_READ_DELAY\n");
-			}
-			else if (strcmp(szCommand, "BLOCK_ERASE_DELAY") == 0){
-				if (fscanf(pfData, "%d", &BLOCK_ERASE_DELAY) == EOF)
-					PERR("Wrong BLOCK_ERASE_DELAY\n");
-			}
-			else if (strcmp(szCommand, "CHANNEL_SWITCH_DELAY_R") == 0){
-				if (fscanf(pfData, "%d", &CHANNEL_SWITCH_DELAY_R) == EOF)
-					PERR("Wrong CHANNEL_SWITCH_DELAY_R\n");
-			}
-			else if (strcmp(szCommand, "CHANNEL_SWITCH_DELAY_W") == 0){
-				if (fscanf(pfData, "%d", &CHANNEL_SWITCH_DELAY_W) == EOF)
-					PERR("Wrong CHANNEL_SWITCH_DELAY_W\n");
-			}
-			else if (strcmp(szCommand, "DSM_TRIM_ENABLE") == 0){
-				if (fscanf(pfData, "%d", &DSM_TRIM_ENABLE) == EOF)
-					PERR("Wrong DSM_TRIM_ENABLE\n");
-			}
-			else if (strcmp(szCommand, "IO_PARALLELISM") == 0){
-				if (fscanf(pfData, "%d", &IO_PARALLELISM) == EOF)
-					PERR("Wrong IO_PARALLELISM\n");
-			}
-			else if (strcmp(szCommand, "CHANNEL_NB") == 0){
-				if (fscanf(pfData, "%d", &CHANNEL_NB) == EOF)
-					PERR("Wrong CHANNEL_NB\n");
-			}
-			else if (strcmp(szCommand, "STAT_TYPE") == 0){
-				if (fscanf(pfData, "%d", &STAT_TYPE) == EOF)
-					PERR("Wrong STAT_TYPE\n");
-			}
-			else if (strcmp(szCommand, "STAT_SCOPE") == 0){
-				if (fscanf(pfData, "%d", &STAT_SCOPE) == EOF)
-					PERR("Wrong STAT_SCOPE\n");
-			}
-			else if (strcmp(szCommand, "STAT_PATH") == 0){
-				//fscanf(pfData, "%s", &STAT_PATH);
-				if (fgets(STAT_PATH, PATH_MAX, pfData) == NULL)
-					PERR("Wrong STAT_PATH\n");
-			}
-#if defined FTL_MAP_CACHE
-			else if (strcmp(szCommand, "CACHE_IDX_SIZE") == 0){
-				if (fscanf(pfData, "%d", &CACHE_IDX_SIZE) == EOF)
-					PERR("Wrong CACHE_IDX_SIZE\n");
-			}
-#endif
-#ifdef SSD_WRITE_BUFFER
-			else if (strcmp(szCommand, "WRITE_BUFFER_SIZE") == 0){
-				if (fscanf(pfData, "%u", &WRITE_BUFFER_SIZE) == EOF)
-					PERR("Wrong WRITE_BUFFER_SIZE\n");
-			}
-#endif
-#if defined FAST_FTL || defined LAST_FTL
-			else if (strcmp(szCommand, "LOG_RAND_BLOCK_NB") == 0){
-				if (fscanf(pfData, "%d", &LOG_RAND_BLOCK_NB) == EOF)
-					PERR("Wrong LOG_RAND_BLOCK_NB\n");
-			}
-			else if (strcmp(szCommand, "LOG_SEQ_BLOCK_NB") == 0){
-				if (fscanf(pfData, "%d", &LOG_SEQ_BLOCK_NB) == EOF)
-					PERR("Wrong LOG_SEQ_BLOCK_NB\n");
-			}
-#endif
-			else if (strcmp(szCommand, "STORAGE_STRATEGY") == 0){
-				if (fscanf(pfData, "%d", &STORAGE_STRATEGY) == EOF)
-					PERR("Wrong STORAGE_STRATEGY\n");
-			}
-			memset(szCommand, 0x00, 1024);
+	while (fscanf(pfData, "%s", szCommand) != EOF){
+		if (strcmp(szCommand, "STAT_PATH") == 0){
+			if (fgets(STAT_PATH, PATH_MAX, pfData) == NULL)
+				RERR(, "Can't read STAT_PATH\n");
+			continue;
 		}
-		fclose(pfData);
+		for (i = 0; options[i].name != NULL; i++)
+			if (strcmp(szCommand, options[i].name) == 0)
+				break;
+		if (options[i].name == NULL)
+			RERR(, "Wrong option %s\n", szCommand);
+		if (fscanf(pfData, options[i].type, options[i].ptr) == EOF)
+			RERR(, "Can't read %s\n", szCommand);
+
+		memset(szCommand, 0x00, 1024);
 	}
-	else
-		PERR("cannot open file: ./data/ssd.conf\n");
+	fclose(pfData);
 
 	/* Exception Handler */
 	if (FLASH_NB < CHANNEL_NB)
