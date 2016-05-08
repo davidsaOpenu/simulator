@@ -14,17 +14,17 @@
 int servSock;
 int clientSock = 0;
 int g_init_log_server = 0;
+FILE *monitor = NULL;
 
 void INIT_LOG_MANAGER(void)
 {
 #ifdef MONITOR_ON
 	if (g_init_log_server == 0){
-		if (popen("./ssd_monitor", "r") == NULL){
+		if ((monitor = popen("./ssd_monitor", "r")) == NULL){
 			perror("popen");
 			PERR("fwrite\n");
 		}
 		THREAD_SERVER();
-
 		g_init_log_server = 1;
 	}
 #endif
@@ -35,6 +35,7 @@ void TERM_LOG_MANAGER(void)
 #ifdef MONITOR_ON
 	close(servSock);
 	close(clientSock);
+	pclose(monitor);
 #endif
 }
 
