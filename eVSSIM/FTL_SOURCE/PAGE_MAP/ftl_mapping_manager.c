@@ -12,10 +12,8 @@ void INIT_MAPPING_TABLE(void)
 {
 	/* Allocation Memory for Mapping Table */
 	mapping_table = (uint32_t*)calloc(PAGE_MAPPING_ENTRY_NB, sizeof(uint32_t));
-	if(mapping_table == NULL){
-		printf("ERROR[%s] Calloc mapping table fail\n",__FUNCTION__);
-		return;
-	}
+	if (mapping_table == NULL)
+		RERR(, "Calloc mapping table fail\n");
 
 	/* Initialization Mapping Table */
 	
@@ -23,7 +21,7 @@ void INIT_MAPPING_TABLE(void)
 	FILE* fp = fopen("./data/mapping_table.dat","r");
 	if(fp != NULL){
 		if(fread(mapping_table, sizeof(uint32_t), PAGE_MAPPING_ENTRY_NB, fp) <= 0)
-			printf("ERROR[%s]\n",__FUNCTION__);
+			PERR("fread\n");
 		fclose(fp);
 	}
 	else{	
@@ -37,14 +35,12 @@ void INIT_MAPPING_TABLE(void)
 void TERM_MAPPING_TABLE(void)
 {
 	FILE* fp = fopen("./data/mapping_table.dat","w");
-	if(fp==NULL){
-		printf("ERROR[%s] File open fail\n",__FUNCTION__);
-		return;
-	}
+	if (fp == NULL)
+		RERR(, "File open fail\n");
 
 	/* Write the mapping table to file */
 	if(fwrite(mapping_table, sizeof(uint32_t),PAGE_MAPPING_ENTRY_NB,fp) <= 0)
-		printf("ERROR[%s]\n",__FUNCTION__);
+		PERR("fwrite\n");
 
 	/* Free memory for mapping table */
 	free(mapping_table);
@@ -64,10 +60,8 @@ int GET_NEW_PAGE(int mode, int mapping_index, uint32_t* ppn)
 
 	curr_empty_block = GET_EMPTY_BLOCK(mode, mapping_index);
 
-	if(curr_empty_block == NULL){
-		printf("ERROR[%s] fail\n",__FUNCTION__);
-		return FAIL;
-	}
+	if (curr_empty_block == NULL)
+		RERR(FAIL, "GET_EMPTY_BLOCK fail\n");
 
 	*ppn = curr_empty_block->phy_flash_nb*BLOCK_NB*PAGE_NB \
 	       + curr_empty_block->phy_block_nb*PAGE_NB \
@@ -84,19 +78,13 @@ int UPDATE_OLD_PAGE_MAPPING(uint32_t lpn)
 
 	old_ppn = GET_MAPPING_INFO(lpn);
 
-	if(old_ppn == -1){
-#ifdef FTL_DEBUG
-		printf("[%s] New page \n",__FUNCTION__);
-#endif
-		return FAIL;
-	}
-    else{
-        UPDATE_INVERSE_BLOCK_VALIDITY(CALC_FLASH(old_ppn),
-                                      CALC_BLOCK(old_ppn),
-                                      CALC_PAGE(old_ppn),
-                                      PAGE_INVALID);
-        UPDATE_INVERSE_PAGE_MAPPING(old_ppn, -1);
-    }
+	if (old_ppn == -1)
+		RDBG_FTL(FAIL, "New page \n");
+    UPDATE_INVERSE_BLOCK_VALIDITY(CALC_FLASH(old_ppn),
+                                  CALC_BLOCK(old_ppn),
+                                  CALC_PAGE(old_ppn),
+                                  PAGE_INVALID);
+    UPDATE_INVERSE_PAGE_MAPPING(old_ppn, -1);
 
 	return SUCCESS;
 }
@@ -128,7 +116,7 @@ unsigned int CALC_FLASH(uint32_t ppn)
 	unsigned int flash_nb = (ppn/PAGE_NB)/BLOCK_NB;
 
 	if(flash_nb >= FLASH_NB){
-		printf("ERROR[%s] flash_nb %u\n", __FUNCTION__, flash_nb);
+		PERR("flash_nb %u\n", flash_nb);
 	}
 	return flash_nb;
 }
@@ -138,7 +126,7 @@ unsigned int CALC_BLOCK(uint32_t ppn)
 	unsigned int block_nb = (ppn/PAGE_NB)%BLOCK_NB;
 
 	if(block_nb >= BLOCK_NB){
-		printf("ERROR[%s] block_nb %u\n", __FUNCTION__, block_nb);
+		PERR("block_nb %u\n", block_nb);
 	}
 	return block_nb;
 }

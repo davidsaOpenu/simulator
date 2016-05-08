@@ -20,16 +20,14 @@ void INIT_INVERSE_PAGE_MAPPING(void)
 {
 	/* Allocation Memory for Inverse Page Mapping Table */
 	inverse_page_mapping_table = (void*)calloc(PAGE_MAPPING_ENTRY_NB, sizeof(uint32_t));
-	if(inverse_page_mapping_table == NULL){
-		printf("ERROR[%s] Calloc mapping table fail\n",__FUNCTION__);
-		return;
-	}
+	if (inverse_page_mapping_table == NULL)
+		RERR(, "Calloc mapping table fail\n");
 
 	/* Initialization Inverse Page Mapping Table */
 	FILE* fp = fopen("./data/inverse_page_mapping.dat","r");
 	if(fp != NULL){
 		if(fread(inverse_page_mapping_table, sizeof(uint32_t), PAGE_MAPPING_ENTRY_NB, fp) <= 0)
-			printf("ERROR[%s] fread\n",__FUNCTION__);
+			PERR("fread\n");
 		fclose(fp);
 	}
 	else{
@@ -44,16 +42,14 @@ void INIT_INVERSE_BLOCK_MAPPING(void)
 {
 	/* Allocation Memory for Inverse Block Mapping Table */
 	inverse_block_mapping_table_start = (void*)calloc(BLOCK_MAPPING_ENTRY_NB, sizeof(inverse_block_mapping_entry));
-	if(inverse_block_mapping_table_start == NULL){
-		printf("ERROR[%s] Calloc mapping table fail\n",__FUNCTION__);
-		return;
-	}
+	if (inverse_block_mapping_table_start == NULL)
+		RERR(, "Calloc mapping table fail\n");
 
 	/* Initialization Inverse Block Mapping Table */
 	FILE* fp = fopen("./data/inverse_block_mapping.dat","r");
 	if(fp != NULL){
 		if(fread(inverse_block_mapping_table_start, sizeof(inverse_block_mapping_entry), BLOCK_MAPPING_ENTRY_NB, fp) <= 0)
-			printf("ERROR[%s] fread\n",__FUNCTION__);
+			PERR("fread\n");
 		fclose(fp);
 	}
 	else{
@@ -80,7 +76,7 @@ void INIT_VALID_ARRAY(void)
 		for(i=0;i<BLOCK_MAPPING_ENTRY_NB;i++){
 			valid_array = (char*)calloc(PAGE_NB, sizeof(char));
 			if(fread(valid_array, sizeof(char), PAGE_NB, fp) <= 0)
-				printf("ERROR[%s] fread\n",__FUNCTION__);
+				PERR("fread\n");
 			curr_mapping_entry->valid_array = valid_array;
 
 			curr_mapping_entry += 1;
@@ -106,16 +102,14 @@ void INIT_EMPTY_BLOCK_LIST(void)
 	empty_block_root* curr_root;
 
 	empty_block_table_start = (void*)calloc(PLANES_PER_FLASH * FLASH_NB, sizeof(empty_block_root));
-	if(empty_block_table_start == NULL){
-		printf("ERROR[%s] Calloc mapping table fail\n",__FUNCTION__);
-		return;
-	}
+	if (empty_block_table_start == NULL)
+		RERR(, "Calloc mapping table fail\n");
 
 	FILE* fp = fopen("./data/empty_block_list.dat","r");
 	if(fp != NULL){
 		total_empty_block_nb = 0;
 		if(fread(empty_block_table_start,sizeof(empty_block_root),PLANES_PER_FLASH*FLASH_NB, fp) <= 0)
-			printf("ERROR[%s] fread\n",__FUNCTION__);
+			PERR("fread\n");
 		curr_root = (empty_block_root*)empty_block_table_start;
 
 		for(i=0;i<PLANES_PER_FLASH;i++){
@@ -127,12 +121,12 @@ void INIT_EMPTY_BLOCK_LIST(void)
 				while(k > 0){
 					curr_entry = (empty_block_entry*)calloc(1, sizeof(empty_block_entry));
 					if(curr_entry == NULL){
-						printf("ERROR[%s] Calloc fail\n",__FUNCTION__);
+						PERR("Calloc fail\n");
 						break;
 					}
 
 					if(fread(curr_entry, sizeof(empty_block_entry), 1, fp) <= 0)
-						printf("ERROR[%s] fread\n",__FUNCTION__);
+						PERR("fread\n");
 					curr_entry->next = NULL;
 
 					if(k == curr_root->empty_block_nb){
@@ -162,7 +156,7 @@ void INIT_EMPTY_BLOCK_LIST(void)
 
 					curr_entry = (empty_block_entry*)calloc(1, sizeof(empty_block_entry));	
 					if(curr_entry == NULL){
-						printf("ERROR[%s] Calloc fail\n",__FUNCTION__);
+						PERR("Calloc fail\n");
 						break;
 					}
 	
@@ -201,16 +195,14 @@ void INIT_VICTIM_BLOCK_LIST(void)
 	victim_block_root* curr_root;
 
 	victim_block_table_start = (void*)calloc(PLANES_PER_FLASH * FLASH_NB, sizeof(victim_block_root));
-	if(victim_block_table_start == NULL){
-		printf("ERROR[%s] Calloc mapping table fail\n",__FUNCTION__);
-		return;
-	}
+	if (victim_block_table_start == NULL)
+		RERR(, "Calloc mapping table fail\n");
 
 	FILE* fp = fopen("./data/victim_block_list.dat","r");
 	if(fp != NULL){
 		total_victim_block_nb = 0;
 		if(fread(victim_block_table_start, sizeof(victim_block_root), PLANES_PER_FLASH*FLASH_NB, fp) <= 0)
-			printf("ERROR[%s] fread\n",__FUNCTION__);
+			PERR("fread\n");
 		curr_root = (victim_block_root*)victim_block_table_start;
 
 		for(i=0;i<PLANES_PER_FLASH;i++){
@@ -222,12 +214,12 @@ void INIT_VICTIM_BLOCK_LIST(void)
 				while(k > 0){
 					curr_entry = (victim_block_entry*)calloc(1, sizeof(victim_block_entry));
 					if(curr_entry == NULL){
-						printf("ERROR[%s] Calloc fail\n", __FUNCTION__);
+						PERR("Calloc fail\n");
 						break;
 					}
 
 					if(fread(curr_entry, sizeof(victim_block_entry), 1, fp) <= 0)
-						printf("ERROR[%s] fread\n",__FUNCTION__);
+						PERR("fread\n");
 					curr_entry->next = NULL;
 					curr_entry->prev = NULL;
 
@@ -268,14 +260,12 @@ void INIT_VICTIM_BLOCK_LIST(void)
 void TERM_INVERSE_PAGE_MAPPING(void)
 {
 	FILE* fp = fopen("./data/inverse_page_mapping.dat", "w");
-	if(fp==NULL){
-		printf("ERROR[%s] File open fail\n",__FUNCTION__);
-		return;
-	}
+	if (fp == NULL)
+		RERR(, "File open fail\n");
 
 	/* Write The inverse page table to file */
 	if(fwrite(inverse_page_mapping_table, sizeof(uint32_t), PAGE_MAPPING_ENTRY_NB, fp) <= 0)
-		printf("ERROR[%s] fwrite\n",__FUNCTION__);
+		PERR("fwrite\n");
 	fclose(fp);
 
 	/* Free the inverse page table memory */
@@ -285,14 +275,12 @@ void TERM_INVERSE_PAGE_MAPPING(void)
 void TERM_INVERSE_BLOCK_MAPPING(void)
 {
 	FILE* fp = fopen("./data/inverse_block_mapping.dat","w");
-	if(fp==NULL){
-		printf("ERROR[%s] File open fail\n",__FUNCTION__);
-		return;
-	}
+	if (fp == NULL)
+		RERR(, "File open fail\n");
 
 	/* Write The inverse block table to file */
 	if(fwrite(inverse_block_mapping_table_start, sizeof(inverse_block_mapping_entry), BLOCK_MAPPING_ENTRY_NB, fp) <= 0)
-		printf("ERROR[%s] fwrite\n",__FUNCTION__);
+		PERR("fwrite\n");
 	fclose(fp);
 
 	/* Free The inverse block table memory */
@@ -306,15 +294,13 @@ void TERM_VALID_ARRAY(void)
 	char* valid_array;
 
 	FILE* fp = fopen("./data/valid_array.dat","w");
-        if(fp == NULL){
-		printf("ERROR[%s] File open fail\n",__FUNCTION__);
-		return;
-	}
+        if (fp == NULL)
+		RERR(, "File open fail\n");
  
 	for(i=0;i<BLOCK_MAPPING_ENTRY_NB;i++){
 		valid_array = curr_mapping_entry->valid_array;
 		if(fwrite(valid_array, sizeof(char), PAGE_NB, fp) <= 0)
-			printf("ERROR[%s] fwrite\n",__FUNCTION__);
+			PERR("fwrite\n");
 		curr_mapping_entry += 1;
 		free(valid_array);
 	}
@@ -329,12 +315,11 @@ void TERM_EMPTY_BLOCK_LIST(void)
 	empty_block_root* curr_root;
 
 	FILE* fp = fopen("./data/empty_block_list.dat","w");
-	if(fp==NULL){
-		printf("ERROR[%s] File open fail\n",__FUNCTION__);
-	}
+	if (fp == NULL)
+		RERR(, "File open fail\n");
 
 	if(fwrite(empty_block_table_start,sizeof(empty_block_root),PLANES_PER_FLASH*FLASH_NB, fp) <= 0)
-		printf("ERROR[%s] fwrite\n",__FUNCTION__);
+		PERR("fwrite\n");
 
 	curr_root = (empty_block_root*)empty_block_table_start;
 	for(i=0;i<PLANES_PER_FLASH;i++){
@@ -348,7 +333,7 @@ void TERM_EMPTY_BLOCK_LIST(void)
 			while(k > 0){
 
 				if(fwrite(curr_entry, sizeof(empty_block_entry), 1, fp) <= 0)
-					printf("ERROR[%s] fwrite\n",__FUNCTION__);
+					PERR("fwrite\n");
 
 				tmp_entry = curr_entry->next;
 				free(curr_entry);
@@ -370,12 +355,11 @@ void TERM_VICTIM_BLOCK_LIST(void)
 	victim_block_root* curr_root;
 
 	FILE* fp = fopen("./data/victim_block_list.dat","w");
-	if(fp==NULL){
-		printf("ERROR[%s] File open fail\n",__FUNCTION__);
-	}
+	if (fp == NULL)
+		RERR(, "File open fail\n");
 
 	if(fwrite(victim_block_table_start, sizeof(victim_block_root), PLANES_PER_FLASH*FLASH_NB, fp) <= 0)
-		printf("ERROR[%s] fwrite\n",__FUNCTION__);
+		PERR("fwrite\n");
 
 	curr_root = (victim_block_root*)victim_block_table_start;
 	for(i=0;i<PLANES_PER_FLASH;i++){
@@ -389,7 +373,7 @@ void TERM_VICTIM_BLOCK_LIST(void)
 			while(k > 0){
 
 				if(fwrite(curr_entry, sizeof(victim_block_entry), 1, fp) <= 0)
-					printf("ERROR[%s] fwrite\n",__FUNCTION__);
+					PERR("fwrite\n");
 
 				tmp_entry = curr_entry->next;
 				free(curr_entry);
@@ -405,10 +389,8 @@ void TERM_VICTIM_BLOCK_LIST(void)
 
 empty_block_entry* GET_EMPTY_BLOCK(int mode, int mapping_index)
 {
-	if(total_empty_block_nb == 0){
-		printf("ERROR[%s] There is no empty block\n",__FUNCTION__);
-		return NULL;
-	}
+	if (total_empty_block_nb == 0)
+		RERR(NULL, "There is no empty block\n");
 
 	int input_mapping_index = mapping_index;
 
@@ -468,10 +450,8 @@ empty_block_entry* GET_EMPTY_BLOCK(int mode, int mapping_index)
 				if(mapping_index % PLANES_PER_FLASH == 0){
 					mapping_index = mapping_index - (PLANES_PER_FLASH-1);
 				}
-				if(mapping_index == input_mapping_index){
-					printf("ERROR[%s] There is no empty block\n",__FUNCTION__);
-					return NULL;				
-				}
+				if (mapping_index == input_mapping_index)
+					RERR(NULL, "There is no empty block\n");
 
 				continue;
 			}
@@ -549,8 +529,7 @@ empty_block_entry* GET_EMPTY_BLOCK(int mode, int mapping_index)
 		}
 	}
 
-	printf("ERROR[%s] There is no empty block\n",__FUNCTION__);
-	return NULL;
+	RERR(NULL, "There is no empty block\n");
 }
 
 int INSERT_EMPTY_BLOCK(unsigned int phy_flash_nb, unsigned int phy_block_nb)
@@ -562,10 +541,8 @@ int INSERT_EMPTY_BLOCK(unsigned int phy_flash_nb, unsigned int phy_block_nb)
 	empty_block_entry* new_empty_block;
 
 	new_empty_block = (empty_block_entry*)calloc(1, sizeof(empty_block_entry));
-	if(new_empty_block == NULL){
-		printf("ERROR[%s] Alloc new empty block fail\n",__FUNCTION__);
-		return FAIL;
-	}
+	if (new_empty_block == NULL)
+		RERR(FAIL, "Alloc new empty block fail\n");
 
 	/* Init New empty block */
 	new_empty_block->phy_flash_nb = phy_flash_nb;
@@ -605,10 +582,8 @@ int INSERT_VICTIM_BLOCK(empty_block_entry* full_block){
 
 	/* Alloc New victim block entry */
 	new_victim_block = (victim_block_entry*)calloc(1, sizeof(victim_block_entry));
-	if(new_victim_block == NULL){
-		printf("ERROR[%s] Calloc fail\n",__FUNCTION__);
-		return FAIL;
-	}
+	if (new_victim_block == NULL)
+		RERR(FAIL, "Calloc fail\n");
 
 	/* Copy the full block address */
 	new_victim_block->phy_flash_nb = full_block->phy_flash_nb;
@@ -729,10 +704,8 @@ int UPDATE_INVERSE_BLOCK_VALIDITY(unsigned int phy_flash_nb,
                                   unsigned int phy_page_nb,
                                   char valid)
 {
-	if(phy_flash_nb >= FLASH_NB || phy_block_nb >= BLOCK_NB || phy_page_nb >= PAGE_NB){
-		printf("ERROR[%s] Wrong physical address\n",__FUNCTION__);
-		return FAIL;
-	}
+	if (phy_flash_nb >= FLASH_NB || phy_block_nb >= BLOCK_NB || phy_page_nb >= PAGE_NB)
+		RERR(FAIL, "Wrong physical address\n");
 
 	inverse_block_mapping_entry *mapping_entry = 
 		GET_INVERSE_BLOCK_MAPPING_ENTRY(phy_flash_nb, phy_block_nb);

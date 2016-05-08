@@ -21,7 +21,7 @@ storage_strategy_functions* storage_strategy;
 void FTL_INIT(void)
 {
 	if(g_init == 0){
-        	printf("[%s] start\n",__FUNCTION__);
+        	PINFO("start\n");
 
 		INIT_SSD_CONFIG();
 		INIT_MAPPING_TABLE();
@@ -39,13 +39,13 @@ void FTL_INIT(void)
 		g_init = 1;
 
 		SSD_IO_INIT();
-		printf("[%s] complete\n",__FUNCTION__);
+		PINFO("complete\n");
 	}
 }
 
 void FTL_TERM(void)
 {
-	printf("[%s] start\n",__FUNCTION__);
+	PINFO("start\n");
 
 	TERM_MAPPING_TABLE();
 	TERM_INVERSE_PAGE_MAPPING();
@@ -57,7 +57,7 @@ void FTL_TERM(void)
 	FTL_TERM_STRATEGY();
 	FTL_TERM_STATS();
 	SSD_IO_TERM();
-	printf("[%s] complete\n",__FUNCTION__);
+	PINFO("complete\n");
 }
 
 void FTL_INIT_STRATEGY(void)
@@ -279,10 +279,8 @@ void FTL_RECORD_STATISTICS(void){
 	int scopeRange , i , queryResult , scope , address;
 
 	FILE* fp = fopen(STAT_PATH,"w");
-	if(fp==NULL){
-		printf("ERROR[%s] File open fail\n",__FUNCTION__);
-		return;
-	}
+	if (fp == NULL)
+		RERR(, "File open fail\n");
 	//Print required titles
 	if (STAT_SCOPE & COLLECT_SSD){
 		fprintf(fp , "SSD,");

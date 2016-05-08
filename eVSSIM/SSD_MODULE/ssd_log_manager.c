@@ -25,10 +25,8 @@ void INIT_LOG_MANAGER(void)
 {
 #ifdef MONITOR_ON
 	if(g_init_log_server == 0){
-		if ((monitor = popen("./ssd_monitor", "r")) == NULL){
-			perror("popen");
-			printf("ERROR[%s] fwrite\n",__FUNCTION__);
-		}
+		if ((monitor = popen("./ssd_monitor", "r")) == NULL)
+			PERR("popen failed: %s\n", strerror(errno));
 		THREAD_SERVER();
 
 		g_init_log_server = 1;
