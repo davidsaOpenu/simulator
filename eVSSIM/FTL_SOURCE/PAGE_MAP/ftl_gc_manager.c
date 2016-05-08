@@ -45,12 +45,8 @@ int GARBAGE_COLLECTION(int mapping_index, int l2)
 	inverse_block_mapping_entry* inverse_block_entry;
 
 	ret = SELECT_VICTIM_BLOCK(&victim_phy_flash_nb, &victim_phy_block_nb);
-	if(ret == FAIL){
-#ifdef FTL_DEBUG
-		printf("[%s] There is no available victim block\n",__FUNCTION__);
-#endif //FTL_DEBUG
-		return FAIL;
-	}
+	if (ret == FAIL)
+		RDBG_FTL(FAIL, "There is no available victim block\n");
 
 	inverse_block_entry = GET_INVERSE_BLOCK_MAPPING_ENTRY(victim_phy_flash_nb, victim_phy_block_nb);
 	valid_array = inverse_block_entry->valid_array;
@@ -79,16 +75,12 @@ int GARBAGE_COLLECTION(int mapping_index, int l2)
 
 			ret = GET_NEW_PAGE(VICTIM_INCHIP, mapping_index, &new_ppn);
             if(ret == FAIL){
-                if(! l2){
-				    printf("ERROR[%s]: GET_NEW_PAGE(VICTIM_INCHIP, %d): failed\n",__FUNCTION__, mapping_index);
-                    return FAIL;
-                }
+                if (!l2)
+				    RERR(FAIL, "GET_NEW_PAGE(VICTIM_INCHIP, %d): failed\n", mapping_index);
                 // l2 threshold reached. let's re-write the page
                 ret = GET_NEW_PAGE(VICTIM_OVERALL, EMPTY_TABLE_ENTRY_NB, &new_ppn);
-                if(ret == FAIL){
-				    printf("ERROR[%s]: GET_NEW_PAGE(VICTIM_OVERALL, EMPTY_TABLE_ENTRY_NB): failed\n",__FUNCTION__);
-                    return FAIL;
-                }
+                if (ret == FAIL)
+				    RERR(FAIL, "GET_NEW_PAGE(VICTIM_OVERALL, EMPTY_TABLE_ENTRY_NB): failed\n");
                 SSD_PAGE_READ(victim_phy_flash_nb, victim_phy_block_nb, i, i, GC_READ, -1);
                 SSD_PAGE_WRITE(CALC_FLASH(new_ppn), CALC_BLOCK(new_ppn), CALC_PAGE(new_ppn), i, GC_WRITE, -1);
                 old_ppn = victim_phy_flash_nb*PAGES_PER_FLASH + victim_phy_block_nb*PAGE_NB + i;
@@ -98,9 +90,7 @@ int GARBAGE_COLLECTION(int mapping_index, int l2)
                 // Got new page on-chip, can do copy back
 			    ret = FTL_COPYBACK(victim_phy_flash_nb*PAGES_PER_FLASH + victim_phy_block_nb*PAGE_NB + i , new_ppn);
                 if(ret == FAIL){
-#ifdef FTL_DEBUG
-                    printf("ERROR[%s]: failed to copyback\n",__FUNCTION__);
-#endif //FTL_DEBUG
+                    PDBG_FTL("failed to copyback\n");
                     SSD_PAGE_READ(victim_phy_flash_nb, victim_phy_block_nb, i, i, GC_READ, -1);
                     SSD_PAGE_WRITE(CALC_FLASH(new_ppn), CALC_BLOCK(new_ppn), CALC_PAGE(new_ppn), i, GC_WRITE, -1);
                     old_ppn = victim_phy_flash_nb*PAGES_PER_FLASH + victim_phy_block_nb*PAGE_NB + i;
@@ -113,10 +103,8 @@ int GARBAGE_COLLECTION(int mapping_index, int l2)
 		}
 	}
 
-	if(copy_page_nb != valid_page_nb){
-		printf("ERROR[GARBAGE_COLLECTION] The number of valid page is not correct copy_page_nb (%d) != valid_page_nb (%d)\n", copy_page_nb, valid_page_nb);
-		return FAIL;
-	}
+	if (copy_page_nb != valid_page_nb)
+		RERR(FAIL, "The number of valid page is not correct copy_page_nb (%d) != valid_page_nb (%d)\n", copy_page_nb, valid_page_nb);
 
 	SSD_BLOCK_ERASE(victim_phy_flash_nb, victim_phy_block_nb);
 	UPDATE_INVERSE_BLOCK_MAPPING(victim_phy_flash_nb, victim_phy_block_nb, EMPTY_BLOCK);
@@ -139,12 +127,8 @@ int SELECT_VICTIM_BLOCK(unsigned int* phy_flash_nb, unsigned int* phy_block_nb)
 	victim_block_entry* curr_victim_entry;
 	victim_block_entry* victim_block = NULL;
 
-	if(total_victim_block_nb == 0){
-#ifdef FTL_DEBUG
-		printf("ERROR[SELECT_VICTIM_BLOCK] There is no victim block\n");
-#endif //FTL_DEBUG
-		return FAIL;
-	}
+	if (total_victim_block_nb == 0)
+		RDBG_FTL(FAIL, "There is no victim block\n");
 
 	/* if GC_TRIGGER_OVERALL is defined, then */
 	curr_root = (victim_block_root*)victim_block_table_start;

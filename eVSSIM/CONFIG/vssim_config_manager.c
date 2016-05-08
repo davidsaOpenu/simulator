@@ -126,15 +126,11 @@ void INIT_SSD_CONFIG(void)
     }
     fclose(pfData);
 
-	/* Exception Handler */
-	if(FLASH_NB < CHANNEL_NB){
-		printf("ERROR[%s] Wrong CHANNEL_NB %d\n",__FUNCTION__, CHANNEL_NB);
-		return;
-	}
-	if(PLANES_PER_FLASH != 1 && PLANES_PER_FLASH % 2 != 0){
-		printf("ERROR[%s] Wron PLANAES_PER_FLASH %d\n", __FUNCTION__, PLANES_PER_FLASH);
-		return;
-	}
+    /* Exception Handler */
+    if (FLASH_NB < CHANNEL_NB)
+        RERR(, "Wrong CHANNEL_NB %d\n", CHANNEL_NB);
+    if (PLANES_PER_FLASH != 1 && PLANES_PER_FLASH % 2 != 0)
+        RERR(, "Wrong PLANAES_PER_FLASH %d\n", PLANES_PER_FLASH);
 
 	/* SSD Configuration */
 	SECTORS_PER_PAGE = PAGE_SIZE / SECTOR_SIZE;

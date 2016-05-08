@@ -45,7 +45,7 @@ int SSD_IO_INIT(void){
 	int i= 0;
 
 	/* Print SSD version */
-	printf("[%s] SSD Emulator Version: %s ver. (%s)\n", __FUNCTION__, ssd_version, ssd_date);
+	PINFO("SSD Emulator Version: %s ver. (%s)\n", ssd_version, ssd_date);
 
 	/* Init Variable for Channel Switch Delay */
 	old_channel_nb = CHANNEL_NB;

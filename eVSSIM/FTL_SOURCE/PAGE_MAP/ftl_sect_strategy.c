@@ -7,15 +7,10 @@ int _FTL_READ(uint64_t sector_nb, unsigned int offset, unsigned int length)
 
 int _FTL_READ_SECT(uint64_t sector_nb, unsigned int length)
 {
-#ifdef FTL_DEBUG
-	printf("[%s] Start: sector_nb %ld length %u\n",__FUNCTION__, sector_nb, length);
-#endif
+	PDBG_FTL("Start: sector_nb %ld length %u\n", sector_nb, length);
 
 	if (sector_nb + length > SECTOR_NB)
-	{
-		printf("Error[FTL_READ] Exceed Sector number\n"); 
-		return FAIL;	
-	}
+		RERR(FAIL, "Exceed Sector number\n"); 
 
 	int32_t lpn;
 	int32_t ppn;
@@ -55,12 +50,8 @@ int _FTL_READ_SECT(uint64_t sector_nb, unsigned int length)
 
 		ppn = GET_MAPPING_INFO(lpn);
 
-		if(ppn == -1){
-#ifdef FTL_DEBUG
-			printf("Error[%s] No Mapping info\n",__FUNCTION__);
-#endif
-            return FAIL;
-		}
+		if (ppn == -1)
+			RDBG_FTL(FAIL, "No Mapping info\n");
 
 		ret = SSD_PAGE_READ(CALC_FLASH(ppn), CALC_BLOCK(ppn), CALC_PAGE(ppn), read_page_nb, READ, io_page_nb);
 		//Send a physical read action being done to the statistics gathering
@@ -71,9 +62,7 @@ int _FTL_READ_SECT(uint64_t sector_nb, unsigned int length)
 
 #ifdef FTL_DEBUG
 		if (ret == FAIL)
-		{
-			printf("Error[%s] %u page read fail \n", __FUNCTION__, ppn);
-		}
+			PERR("%u page read fail \n", ppn);
 #endif
 		read_page_nb++;
 
@@ -86,9 +75,7 @@ int _FTL_READ_SECT(uint64_t sector_nb, unsigned int length)
 
 	WRITE_LOG("READ PAGE %d ", length);
 
-#ifdef FTL_DEBUG
-	printf("[%s] Complete\n",__FUNCTION__);
-#endif
+	PDBG_FTL("Complete\n");
 
 	return ret;
 }
@@ -100,21 +87,13 @@ int _FTL_WRITE(uint64_t sector_nb, unsigned int offset, unsigned int length)
 
 int _FTL_WRITE_SECT(uint64_t sector_nb, unsigned int length)
 {
-#ifdef FTL_DEBUG
-	printf("[%s] Start: sector_nb %d length %u\n",__FUNCTION__, sector_nb, length);
-#endif
+	PDBG_FTL("Start: sector_nb %d length %u\n", sector_nb, length);
 
 	int io_page_nb;
 
 	if (sector_nb + length > SECTOR_NB)
-	{
-		printf("Error[FTL_WRITE] Exceed Sector number\n");
-        return FAIL;
-    }
-	else
-	{
-		io_alloc_overhead = ALLOC_IO_REQUEST(sector_nb, length, WRITE, &io_page_nb);
-	}
+		RERR(FAIL, "Exceed Sector number\n");
+	io_alloc_overhead = ALLOC_IO_REQUEST(sector_nb, length, WRITE, &io_page_nb);
 
 	uint32_t lba = sector_nb;
 	uint32_t lpn;
@@ -143,10 +122,7 @@ int _FTL_WRITE_SECT(uint64_t sector_nb, unsigned int length)
 
 		ret = GET_NEW_PAGE(VICTIM_OVERALL, EMPTY_TABLE_ENTRY_NB, &new_ppn);
 		if (ret == FAIL)
-		{
-			printf("ERROR[FTL_WRITE] Get new page fail \n");
-			return FAIL;
-		}
+			RERR(FAIL, "Get new page fail \n");
 
 		ret = SSD_PAGE_WRITE(CALC_FLASH(new_ppn), CALC_BLOCK(new_ppn), CALC_PAGE(new_ppn), write_page_nb, WRITE, io_page_nb);
 		//Send a physical write action being done to the statistics gathering
@@ -166,9 +142,7 @@ int _FTL_WRITE_SECT(uint64_t sector_nb, unsigned int length)
 
 #ifdef FTL_DEBUG
         if (ret == FAIL)
-        {
-            printf("Error[FTL_WRITE] %d page write fail \n", new_ppn);
-        }
+            PDBG_FTL("%d page write fail \n", new_ppn);
 #endif
 		lba += write_sects;
 		remain -= write_sects;
@@ -184,9 +158,7 @@ int _FTL_WRITE_SECT(uint64_t sector_nb, unsigned int length)
 	WRITE_LOG("WRITE PAGE %d ", length);
 	WRITE_LOG("WB CORRECT %d", write_page_nb);
 
-#ifdef FTL_DEBUG
-	printf("[%s] Complete\n",__FUNCTION__);
-#endif
+	PDBG_FTL("Complete\n");
 	return ret;
 }
 
@@ -206,13 +178,7 @@ int _FTL_COPYBACK(int32_t source, int32_t destination)
     UPDATE_NEW_PAGE_MAPPING(lpn, destination);*/
 
 	if (ret == FAIL)
-	{
-#ifdef FTL_DEBUG
-		printf("Error[%s] %u page copyback fail \n", __FUNCTION__, source);
-#endif
-
-        return FAIL;
-	}
+		RDBG_FTL(FAIL, "%u page copyback fail \n", source);
 
 	//Handle page map
 	lpn = GET_INVERSE_MAPPING_INFO(source);

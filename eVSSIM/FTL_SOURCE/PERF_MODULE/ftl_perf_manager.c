@@ -198,10 +198,8 @@ int64_t ALLOC_IO_REQUEST(uint32_t sector_nb, unsigned int length, int io_type, i
 	unsigned int sects;
 
 	io_request* curr_io_request = (io_request*)calloc(1, sizeof(io_request));
-	if(curr_io_request == NULL){
-		printf("ERROR[%s] Calloc io_request fail\n", __FUNCTION__);
-		return 0;
-	}
+	if (curr_io_request == NULL)
+		RERR(0, "Calloc io_request fail\n");
 
 	while(remain > 0){
 		if(remain > SECTORS_PER_PAGE - left_skip){
@@ -221,14 +219,10 @@ int64_t ALLOC_IO_REQUEST(uint32_t sector_nb, unsigned int length, int io_type, i
 	int64_t* start_time_arr = (int64_t*)calloc(io_page_nb, sizeof(int64_t));
 	int64_t* end_time_arr = (int64_t*)calloc(io_page_nb, sizeof(int64_t));
 
-	if(start_time_arr == NULL || end_time_arr == NULL){
-		printf("ERROR[%s] Calloc time array fail\n", __FUNCTION__);
-		return 0;
-	}
-	else{
-		memset(start_time_arr, 0, io_page_nb);
-		memset(end_time_arr, 0, io_page_nb);
-	}
+	if (start_time_arr == NULL || end_time_arr == NULL)
+		RERR(0, "Calloc time array fail\n");
+	memset(start_time_arr, 0, io_page_nb);
+	memset(end_time_arr, 0, io_page_nb);
 
 	curr_io_request->request_nb = io_request_seq_nb;
 	
@@ -292,10 +286,8 @@ void FREE_DUMMY_IO_REQUEST(int type)
 		}
 	}
 
-	if(success == 0){
-		printf("ERROR[%s] There is no such io request\n",__FUNCTION__);
-		return;
-	}
+	if (success == 0)
+		RERR(, "There is no such io request\n");
 
 	free(request->start_time);
 	free(request->end_time);
@@ -338,10 +330,8 @@ void FREE_IO_REQUEST(io_request* request)
 		}
 	}
 
-	if(success == 0){
-		printf("ERROR[%s] There is no such io request\n",__FUNCTION__);
-		return;
-	}
+	if (success == 0)
+		RERR(, "There is no such io request\n");
 
 	free(request->start_time);
 	free(request->end_time);
@@ -362,12 +352,8 @@ int64_t UPDATE_IO_REQUEST(int request_nb, int offset, int64_t time, int type)
 		return 0;
 
 	io_request* curr_request = LOOKUP_IO_REQUEST(request_nb, type);
-	if(curr_request == NULL){
-#ifdef FTL_DEBUG
-		printf("ERROR[%s] No such io request, nb %d\n",__FUNCTION__, request_nb);
-#endif //FTL_DEBUG
-		return 0;
-	}
+	if (curr_request == NULL)
+		RDBG_FTL(0, "No such io request, nb %d\n", request_nb);
 
 	if(type == UPDATE_START_TIME){
 		curr_request->start_time[offset] = time;
@@ -412,12 +398,8 @@ io_request* LOOKUP_IO_REQUEST(int request_nb, int type)
 		curr_request = io_request_start;
 		total_request = io_request_nb;
 	}
-	else{
-#ifdef FTL_DEBUG
-		printf("ERROR[%s] There is no request\n",__FUNCTION__);
-#endif //FTL_DEBUG
-		return NULL;
-	}
+	else
+		RDBG_FTL(FAIL, "There is no request\n");
 
 	for(i=0;i<total_request;i++){
 		if(curr_request->request_nb == request_nb){
