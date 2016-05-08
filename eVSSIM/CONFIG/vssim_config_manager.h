@@ -69,4 +69,11 @@ char* GET_FILE_NAME(void);
 /* Storage strategy (1 = address-based, 2 = object-based */
 extern int STORAGE_STRATEGY;
 
+typedef struct config_param
+{
+	const char *name;
+	const char *type;
+	void *ptr;
+} config_param;
+
 #endif
