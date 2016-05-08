@@ -225,32 +225,19 @@ int SSD_FLASH_ACCESS(unsigned int flash_nb, int reg)
 
 int SSD_REG_ACCESS(int reg)
 {
-	int reg_cmd = reg_io_cmd[reg];
-	int ret = 0;
-
-	if( reg_cmd == NOOP ){
-		/* That's OK */
-	}
-	else if( reg_cmd == READ ){
-		ret = SSD_CELL_READ_DELAY(reg);
-		ret = SSD_REG_READ_DELAY(reg);
-	}
-	else if( reg_cmd == WRITE ){
-		ret = SSD_REG_WRITE_DELAY(reg);
-		ret = SSD_CELL_WRITE_DELAY(reg);
-	}
-	else if( reg_cmd == ERASE ){
-		ret = SSD_BLOCK_ERASE_DELAY(reg);
-	}
-	else if( reg_cmd == COPYBACK){
-		ret = SSD_CELL_READ_DELAY(reg);
-		ret = SSD_CELL_WRITE_DELAY(reg);
-	}
-	else{
-		printf("ERROR[%s] Command Error! %d\n", __FUNCTION__, reg_io_cmd[reg]);
-	}
-
-	return ret;
+    switch (reg_io_cmd[reg]){
+        case READ:
+            return SSD_REG_READ_DELAY(reg) + SSD_CELL_READ_DELAY(reg);
+        case WRITE:
+            return SSD_REG_WRITE_DELAY(reg) + SSD_CELL_WRITE_DELAY(reg);
+        case ERASE:
+            return SSD_BLOCK_ERASE_DELAY(reg);
+        case COPYBACK:
+            return SSD_CELL_READ_DELAY(reg) + SSD_CELL_WRITE_DELAY(reg);
+        default:
+            PERR("Command Error! %d\n", reg_io_cmd[reg]);
+        case NOOP:
+            return 0;
 }
 
 int SSD_CH_ENABLE(int channel)
