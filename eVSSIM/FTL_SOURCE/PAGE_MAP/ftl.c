@@ -56,6 +56,7 @@ void FTL_TERM(void)
 	TERM_PERF_CHECKER();
 	FTL_TERM_STRATEGY();
 	FTL_TERM_STATS();
+	SSD_IO_TERM();
 	printf("[%s] complete\n",__FUNCTION__);
 }
 

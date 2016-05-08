@@ -24,6 +24,7 @@ void INIT_MAPPING_TABLE(void)
 	if(fp != NULL){
 		if(fread(mapping_table, sizeof(uint32_t), PAGE_MAPPING_ENTRY_NB, fp) <= 0)
 			printf("ERROR[%s]\n",__FUNCTION__);
+		fclose(fp);
 	}
 	else{	
 		int i;	
@@ -47,6 +48,7 @@ void TERM_MAPPING_TABLE(void)
 
 	/* Free memory for mapping table */
 	free(mapping_table);
+	fclose(fp);
 }
 
 uint32_t GET_MAPPING_INFO(uint32_t lpn)
