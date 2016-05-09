@@ -12,7 +12,7 @@
   when: false
 
 - name: run object tests
-  shell: ./object_tests --ci
+  shell: ./object_tests
   args:
       chdir: "{{ dest }}/eVSSIM/tests"
   register: object_tests
