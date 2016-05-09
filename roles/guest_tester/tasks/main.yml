@@ -9,6 +9,7 @@
 
 - name: delete previous fio_tests 
   file: "path=fio_tests state=absent"
+  become: true
  
 - name: unarchive fio_tests.tar 
   unarchive: "copy=no src=fio_tests.tar dest=."
@@ -35,21 +36,41 @@
   args:
     chdir: "fio_tests"
 
-- name: run fio job I
+- name: run fio job I <short>
   become: true
   shell: ./perf_test_rec_short.sh
   environment:
     PATH: "/usr/bin:/sbin:/bin:/home/esd"
   args:
     chdir: "fio_tests"
+  when: fio_short
 
-- name: run fio job II
+- name: run fio job II <short>
   become: true
   shell: ./perf_test_run_short.sh
   environment:
     PATH: "/usr/bin:/sbin:/bin:/home/esd"
   args:
     chdir: "fio_tests"
+  when: fio_short
+
+- name: run fio job I <long>
+  become: true
+  shell: ./perf_test_rec.sh
+  environment:
+    PATH: "/usr/bin:/sbin:/bin:/home/esd"
+  args:
+    chdir: "fio_tests"
+  when: not fio_short|bool 
+
+- name: run fio job II <long>
+  become: true
+  shell: ./perf_test_run.sh
+  environment:
+    PATH: "/usr/bin:/sbin:/bin:/home/esd"
+  args:
+    chdir: "fio_tests"
+  when: not fio_short|bool 
 
 - name: rmmod nvme
   become: true
