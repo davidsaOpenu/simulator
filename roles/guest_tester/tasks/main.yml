@@ -18,16 +18,66 @@
   args:
       path: "fio_tests/reference_results"
       state: directory
- 
-- name: disable sdb
-  shell: ./disable_sdb.sh
+
+# XXX: commit replacment into repo? 
+- name: remove comment sdb filename from files
+  shell: ./enable_sdb.sh
   args:
-    chdir: "fio_tests/"
+    chdir: "fio_tests"
  
-# XXX: do we need to install fio or use existing one?  
-# XXX: do we need to replace /dev/sdb with /dev/nvme0n1? 
+- name: replace sdb with nvme0n1
+  shell: sed -i 's/sdb/nvme0n1/g' *.fio
+  args:
+    chdir: "fio_tests/fio_jobs"
+ 
+- name: replace sdb with nvme0n1
+  shell: sed -i 's/sdb/nvme0n1/g' *.sh
+  args:
+    chdir: "fio_tests"
+
 - name: run fio job I
   become: true
-  shell: echo "Run FIO"
+  shell: ./perf_test_rec_short.sh
+  environment:
+    PATH: "/usr/bin:/sbin:/bin:/home/esd"
+  args:
+    chdir: "fio_tests"
+
+- name: run fio job II
+  become: true
+  shell: ./perf_test_run_short.sh
+  environment:
+    PATH: "/usr/bin:/sbin:/bin:/home/esd"
+  args:
+    chdir: "fio_tests"
+
+- name: rmmod nvme
+  become: true
+  shell: rmmod nvme
+
+- name: insmod dnvme
+  become: true
+  shell: insmod dnvme.ko
+  args:
+    chdir: "dnvme/"
+
+# XXX: run_tests.sh takes long time, instead - run manully first 3 tests.
+- name: run tnvme tests
+  become: true
+  shell: ./tnvme --test=1 > test1.txt
+  args:
+    chdir: "tnvme/"
+
+- name: run tnvme tests
+  become: true
+  shell: ./tnvme --test=2 > test2.txt
+  args:
+    chdir: "tnvme/"
+
+- name: run tnvme tests
+  become: true
+  shell: ./tnvme --test=3 > test3.txt
+  args:
+    chdir: "tnvme/"
 
 - debug: msg="Done running tests on guest"
