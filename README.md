@@ -22,36 +22,32 @@ and then run:
 ```sh
 ansible-playbook -i hosts site.yml
 ```
-To run only host/guest tests pass this as tags:
 
-```sh
-ansible-playbook -i hosts --tags guest site.yml
-```
+## Aditional arguments
 
-To do a re-run on an existing setup, you can skip the clean actions so there is no need to re-build the packages: 
+Here are some arguments you can add to `ansible-playbook` invocations:
 
-```sh
-ansible-playbook -i hosts --skip-tags clean --tags guest site.yml
-```
-
-To skip to QEMU execution tasks without running all the lengthy setup and build tasks, run:
-
-```sh
-ansible-playbook -i hosts --tags qemu site.yml
-```
+| Argument | Meaning |
+| --- | --- |
+| `--tags host` | Perform only host tests |
+| `--tags guest` | Perform only guest tests |
+| `--skip-tags clean` | When replaying, skip the clean actions so there is no need to re-build the packages |
+| `--tags qemu` | Perform only QEMU execution tasks (without running all the lengthy setup and build tasks) |
 
 ## Customizing
 
-It is possible to customize variables per host. For example, if your test machine has little disk space in your home directory but has ample disk space in /var/tmp, change your "hosts" file as follows:
+It is possible to customize variables per host. For example, if you prefer to store the hda.img in /tmp and to use KVM hardware acceleration:
 
 ```
-tester1.my-hosting.com hda_dir=/var/tmp
+tester1.my-hosting.com hda_dir=/tmp qemu_machine=accel=kvm
 ```
 
 ## Useful variables
 
-- `hda_dir` — specifies the directory to download the ~2GB `hda.zip` and unpack the ~6GB `hda.img`; defaults to the home directory on the host
-- `qemu_machine` — defaults to `accel=tcg` (no acceleration); can be set to `accel=kvm` or `accel=xen` on supporting hosts
+| Variable | Meaning |
+| --- | --- |
+| `hda_dir` | Host directory to download the ~2GB `hda.zip` and unpack the ~6GB `hda.img`; defaults to the home directory on the host. |
+| `qemu_machine` | Argument passed to `qemu --machine`. Defaults to `accel=tcg` (no acceleration); can be set to `accel=kvm` or `accel=xen` on supporting hosts. |
 
 ## TODO
 
