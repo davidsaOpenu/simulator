@@ -8,4 +8,4 @@ hda_zip: "{{hda_dir}}/hda.zip"
 kernel_image: vmlinuz-3.8.0-29-generic
 initrd_image: initrd.img-3.8.0-29-generic
 kernel_cmdline: "BOOT_IMAGE=/boot/{{kernel_image}} root=UUID=063018ec-674c-4c3e-a976-ac4fa950864f ro"
-qemu_machine: accel=tcg
+qemu_machine: accel=kvm

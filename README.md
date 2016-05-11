@@ -48,7 +48,7 @@ tester1.my-hosting.com hda_dir=/tmp qemu_machine=accel=kvm
 | Variable | Meaning |
 | --- | --- |
 | `hda_dir` | Host directory to download the ~2GB `hda.zip` and unpack the ~6GB `hda.img`; defaults to the home directory on the host. |
-| `qemu_machine` | Argument passed to `qemu --machine`. Defaults to `accel=tcg` (no acceleration); can be set to `accel=kvm` or `accel=xen` on supporting hosts. |
+| `qemu_machine` | Argument passed to `qemu --machine`. Defaults to `accel=kvm` ; can be set to `accel=tcg` (no acceleration) or `accel=xen` on supporting hosts. |
 
 ## TODO
 
