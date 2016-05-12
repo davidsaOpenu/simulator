@@ -75,6 +75,20 @@
     chdir: "fio_tests"
   when: not short_mode|bool
 
+- name: set size=500m to surface-scan <short>
+  shell: sed -i 's/#size/size/g' surface-scan.fio
+  args:
+    chdir: "fio_tests/fio_jobs"
+  when: short_mode
+ 
+- name: run fio surface-scan job
+  become: true
+  shell: fio fio_jobs/surface-scan.fio
+  environment:
+    PATH: "/usr/bin:/sbin:/bin:/home/esd"
+  args:
+    chdir: "fio_tests"
+
 # Prepare for nvme compliance tests 
 - name: rmmod nvme
   become: true
