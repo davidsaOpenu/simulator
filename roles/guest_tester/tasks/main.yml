@@ -1,3 +1,4 @@
+# Prepare for fio_tests
 - name: rmmod dnvme
   become: true
   shell: rmmod dnvme
@@ -20,17 +21,19 @@
       path: "fio_tests/reference_results"
       state: directory
 
-# XXX: commit replacment into repo? 
+# XXX: can be removed later - pending David's change
 - name: remove comment sdb filename from files
   shell: ./enable_sdb.sh
   args:
     chdir: "fio_tests"
  
+# XXX: can be removed later - pending David's change
 - name: replace sdb with nvme0n1
   shell: sed -i 's/sdb/nvme0n1/g' *.fio
   args:
     chdir: "fio_tests/fio_jobs"
  
+# XXX: can be removed later - pending David's change
 - name: replace sdb with nvme0n1
   shell: sed -i 's/sdb/nvme0n1/g' *.sh
   args:
@@ -43,7 +46,7 @@
     PATH: "/usr/bin:/sbin:/bin:/home/esd"
   args:
     chdir: "fio_tests"
-  when: fio_short
+  when: short_mode
 
 - name: run fio job II <short>
   become: true
@@ -52,7 +55,7 @@
     PATH: "/usr/bin:/sbin:/bin:/home/esd"
   args:
     chdir: "fio_tests"
-  when: fio_short
+  when: short_mode
 
 - name: run fio job I <long>
   become: true
@@ -61,7 +64,7 @@
     PATH: "/usr/bin:/sbin:/bin:/home/esd"
   args:
     chdir: "fio_tests"
-  when: not fio_short|bool 
+  when: not short_mode|bool
 
 - name: run fio job II <long>
   become: true
@@ -70,8 +73,9 @@
     PATH: "/usr/bin:/sbin:/bin:/home/esd"
   args:
     chdir: "fio_tests"
-  when: not fio_short|bool 
+  when: not short_mode|bool
 
+# Prepare for nvme compliance tests 
 - name: rmmod nvme
   become: true
   shell: rmmod nvme
@@ -82,23 +86,33 @@
   args:
     chdir: "dnvme/"
 
-# XXX: run_tests.sh takes long time, instead - run manully first 3 tests.
-- name: run tnvme tests
+# short mode: run manully first 3 tests.
+- name: run tnvme test1
   become: true
   shell: ./tnvme --test=1 > test1.txt
   args:
     chdir: "tnvme/"
+  when: short_mode 
 
-- name: run tnvme tests
+- name: run tnvme test2
   become: true
   shell: ./tnvme --test=2 > test2.txt
   args:
     chdir: "tnvme/"
+  when: short_mode
 
-- name: run tnvme tests
+- name: run tnvme test3
   become: true
   shell: ./tnvme --test=3 > test3.txt
   args:
     chdir: "tnvme/"
+  when: short_mode
+
+- name: run tnvme tests <long>
+  become: true
+  shell: ./run_tests.sh
+  args:
+    chdir: "tnvme/"
+  when: not short_mode|bool
 
 - debug: msg="Done running tests on guest"
