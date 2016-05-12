@@ -33,7 +33,7 @@ Here are some arguments you can add to `ansible-playbook` invocations:
 | `--tags guest` | Perform only guest tests |
 | `--skip-tags clean` | When replaying, skip the clean actions so there is no need to re-build the packages |
 | `--tags qemu` | Perform only QEMU execution tasks (without running all the lengthy setup and build tasks) |
-| `-e 'fio_short=true'` | Perform fio tests in short mode (default: false) |
+| `-e 'short_mode=true'` | Perform tests in short/long mode (default: true) |
 
 ## Customizing
 
