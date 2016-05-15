@@ -1,4 +1,7 @@
+[host_testers]
+local_host ansible_host=localhost ansible_sudo=True ansible_sudo_pass='root' ansible_connection=local
 
+[guest_testers]
 local_host ansible_host=localhost ansible_sudo=True ansible_sudo_pass='root' ansible_connection=local
 
 [guests]

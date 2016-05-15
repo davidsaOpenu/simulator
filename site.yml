@@ -1,5 +1,5 @@
 - name: configure prerequisites
-  hosts: local_host
+  hosts: [host_testers, guest_testers]
   roles:
     - common
   environment:
@@ -8,26 +8,25 @@
   tags: [host, guest]
 
 - name: perform host tests
-  hosts: local_host 
+  hosts: host_testers
   roles:
     - host_tester
   tags: host
 
 - name: perform guest tests setup
-  hosts: local_host
+  hosts: guest_testers
   roles:
     - guest_tester_pre
   tags: guest
 
 - name: perform guest tests
-  hosts: guest_host
+  hosts: guests
   roles:
     - guest_tester
   tags: guest
 
 - name: perform guest tests cleanup
-  hosts: local_host
+  hosts: guest_testers
   roles:
     - { role: simulator, cleanup_only: true} 
   tags: guest
-
