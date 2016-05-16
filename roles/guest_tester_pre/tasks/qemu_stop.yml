@@ -30,4 +30,3 @@
       fstype: tmpfs
       name: "{{ dest }}/eVSSIM/QEMU/hw/data"
   tags: qemu
-

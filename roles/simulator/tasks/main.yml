@@ -1,5 +1,1 @@
-# Cleanup previous executions on this host
-- include: qemu_stop.yml
-
 - include: prepare_simulator.yml
-  when: cleanup_only == false

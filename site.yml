@@ -13,20 +13,32 @@
     - host_tester
   tags: host
 
-- name: perform guest tests setup
+- name: prepare for guest tests with STORAGE_STRATEGY_SECTOR
   hosts: guest_testers
   roles:
-    - guest_tester_pre
+    - { role: guest_tester_pre, ssd_storage_strategy: 1 }
   tags: guest
 
-- name: perform guest tests
+- name: perform guest tests with STORAGE_STRATEGY_SECTOR
   hosts: guests
   roles:
     - guest_tester
   tags: guest
 
-- name: perform guest tests cleanup
+- name: prepare for guest tests with STORAGE_STRATEGY_OBJECT
   hosts: guest_testers
   roles:
-    - { role: simulator, cleanup_only: true} 
+    - { role: guest_tester_pre, ssd_storage_strategy: 2 }
+  tags: guest
+
+- name: perform guest tests with STORAGE_STRATEGY_OBJECT
+  hosts: guests
+  roles:
+    - guest_tester
+  tags: guest
+
+- name: clean up after guest tests
+  hosts: guest_testers
+  roles:
+    - { role: guest_tester_pre, cleanup_only: true }
   tags: guest

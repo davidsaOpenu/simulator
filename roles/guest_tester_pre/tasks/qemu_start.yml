@@ -1,40 +1,8 @@
-
-- name: build qemu
-  shell: chdir={{ dest }}/eVSSIM/QEMU
-      ./configure --enable-io-thread --enable-linux-aio --target-list=x86_64-softmmu --enable-sdl --enable-vssim --extra-cflags='-Wno-error=unused-but-set-variable -Wno-error=deprecated-declarations -Wno-error=cpp' --cc={{ gcc }} --enable-xen && make
-
-- name: ensure QEMU/hw/data exists
-  file: path={{ dest }}/eVSSIM/QEMU/hw/data state=directory
-
-- name: mount tmpfs data
-  become: true
-  mount: fstype=tmpfs opts="size=16g" state=mounted src=tmpfs name={{ dest }}/eVSSIM/QEMU/hw/data
+- name: create ssd.conf
+  template:
+    src: "ssd.conf"
+    dest: "{{ dest }}/eVSSIM/QEMU/hw/data/ssd.conf"
   tags: qemu
-
-- name: link SSD configuration
-  file: path={{ dest }}/eVSSIM/QEMU/hw/data/ssd.conf src=../../../CONFIG/ssd.conf force=yes state=link
-  tags: qemu
-
-# Newer version of SeaBIOS is required to allow booting directly with a Linux kernel image.
-- name: overwrite bios.bin
-  copy:
-  args:
-    src: bios.bin
-    dest: "{{ dest }}/eVSSIM/QEMU/pc-bios/bios.bin"
-
-- name: copy kernel
-  copy:
-  args:
-    src: "{{kernel_image}}"
-    dest: "{{ dest }}/{{kernel_image}}"
-
-- name: copy initrd
-  copy:
-  args:
-    src: "{{initrd_image}}"
-    dest: "{{ dest }}/{{initrd_image}}"
-
-# Start new qemu process
 
 - name: start guest
   shell: "../x86_64-softmmu/qemu-system-x86_64 -m {{memory}} -smp {{smp}} -hda '{{hda_img}}' -device nvme -redir tcp:{{guest_ssh_port}}::22 -nographic -vnc :0 -kernel '{{dest}}/{{kernel_image}}' -initrd '{{dest}}/{{initrd_image}}' -append '{{kernel_cmdline}}' -daemonize -pidfile '{{qemu_pid_file}}' -machine {{qemu_machine}}"
@@ -55,9 +23,16 @@
   register: guest_uname
   tags: qemu
 
-# Should display "Linux"
-
 - debug:
   args:
     msg: "Output of 'ssh uname' to guest: {{ guest_uname.stdout }}"
+  tags: qemu
+
+# XXX: change to be generic
+- name: Transfer file from local_host to guest_host
+  shell: sshpass -p esd scp -o "StrictHostKeyChecking=no" -P 2222 fio_tests.tar esd@127.0.0.1:~
+  args:
+    chdir: "{{ dest }}/eVSSIM"
+
+- debug: msg="Done starting and preparing guest machine"
   tags: qemu
