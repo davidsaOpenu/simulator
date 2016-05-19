@@ -1,0 +1,367 @@
+Script started on Saturday, May 14, 2016 AM10:52:46 IDT
+]0;datos@datos-ThinkPad-T410: ~/projects/simulator/eVSSIM/tests/hostdatos@datos-ThinkPad-T410:~/projects/simulator/eVSSIM/tests/host$ time[Ke val
+valgrind           valgrind.bin       valgrind-listener  validlocale        
+]0;datos@datos-ThinkPad-T410: ~/projects/simulator/eVSSIM/tests/hostdatos@datos-ThinkPad-T410:~/projects/simulator/eVSSIM/tests/host$ time valgrind ./sector_tests
+==4646== Memcheck, a memory error detector
+==4646== Copyright (C) 2002-2011, and GNU GPL'd, by Julian Seward et al.
+==4646== Using Valgrind-3.7.0 and LibVEX; rerun with -h for copyright info
+==4646== Command: ./sector_tests
+==4646== 
+Running main() from gtest_main.cc
+[0;32m[==========] [mRunning 6 tests from 1 test case.
+[0;32m[----------] [mGlobal test environment set-up.
+[0;32m[----------] [m6 tests from DiskSize/SectorUnitTest
+[0;32m[ RUN      ] [mDiskSize/SectorUnitTest.SequentialOnePageAtTimeWrite/0
+[FTL_INIT] start
+[SSD_IO_INIT] SSD Emulator Version: 1.0 ver. (13.04.11)
+[FTL_INIT] complete
+==4646== Syscall param socketcall.accept(addrlen_in) points to uninitialised byte(s)
+==4646==    at 0x4E41030: __accept_nocancel (syscall-template.S:82)
+==4646==    by 0x411091: THREAD_SERVER (ssd_log_manager.c:103)
+==4646==    by 0x410ECC: INIT_LOG_MANAGER (ssd_log_manager.c:34)
+==4646==    by 0x405D1C: (anonymous namespace)::SectorUnitTest::SetUp() (sector_tests.cc:63)
+==4646==    by 0x43E30E: void testing::internal::HandleSehExceptionsInMethodIfSupported<testing::Test, void>(testing::Test*, void (testing::Test::*)(), char const*) (in /home/datos/projects/simulator/eVSSIM/tests/host/sector_tests)
+==4646==    by 0x439583: void testing::internal::HandleExceptionsInMethodIfSupported<testing::Test, void>(testing::Test*, void (testing::Test::*)(), char const*) (in /home/datos/projects/simulator/eVSSIM/tests/host/sector_tests)
+==4646==    by 0x420FF2: testing::Test::Run() (in /home/datos/projects/simulator/eVSSIM/tests/host/sector_tests)
+==4646==    by 0x4217F9: testing::TestInfo::Run() (in /home/datos/projects/simulator/eVSSIM/tests/host/sector_tests)
+==4646==    by 0x421E70: testing::TestCase::Run() (in /home/datos/projects/simulator/eVSSIM/tests/host/sector_tests)
+==4646==    by 0x428551: testing::internal::UnitTestImpl::RunAllTests() (in /home/datos/projects/simulator/eVSSIM/tests/host/sector_tests)
+==4646==    by 0x43F690: bool testing::internal::HandleSehExceptionsInMethodIfSupported<testing::internal::UnitTestImpl, bool>(testing::internal::UnitTestImpl*, bool (testing::internal::UnitTestImpl::*)(), char const*) (in /home/datos/projects/simulator/eVSSIM/tests/host/sector_tests)
+==4646==    by 0x43A3A3: bool testing::internal::HandleExceptionsInMethodIfSupported<testing::internal::UnitTestImpl, bool>(testing::internal::UnitTestImpl*, bool (testing::internal::UnitTestImpl::*)(), char const*) (in /home/datos/projects/simulator/eVSSIM/tests/host/sector_tests)
+==4646==  Address 0x7fefff99c is on thread 1's stack
+==4646== 
+==4646== Syscall param socketcall.accept(addrlen_out) points to uninitialised byte(s)
+==4646==    at 0x4E41030: __accept_nocancel (syscall-template.S:82)
+==4646==    by 0x411091: THREAD_SERVER (ssd_log_manager.c:103)
+==4646==    by 0x410ECC: INIT_LOG_MANAGER (ssd_log_manager.c:34)
+==4646==    by 0x405D1C: (anonymous namespace)::SectorUnitTest::SetUp() (sector_tests.cc:63)
+==4646==    by 0x43E30E: void testing::internal::HandleSehExceptionsInMethodIfSupported<testing::Test, void>(testing::Test*, void (testing::Test::*)(), char const*) (in /home/datos/projects/simulator/eVSSIM/tests/host/sector_tests)
+==4646==    by 0x439583: void testing::internal::HandleExceptionsInMethodIfSupported<testing::Test, void>(testing::Test*, void (testing::Test::*)(), char const*) (in /home/datos/projects/simulator/eVSSIM/tests/host/sector_tests)
+==4646==    by 0x420FF2: testing::Test::Run() (in /home/datos/projects/simulator/eVSSIM/tests/host/sector_tests)
+==4646==    by 0x4217F9: testing::TestInfo::Run() (in /home/datos/projects/simulator/eVSSIM/tests/host/sector_tests)
+==4646==    by 0x421E70: testing::TestCase::Run() (in /home/datos/projects/simulator/eVSSIM/tests/host/sector_tests)
+==4646==    by 0x428551: testing::internal::UnitTestImpl::RunAllTests() (in /home/datos/projects/simulator/eVSSIM/tests/host/sector_tests)
+==4646==    by 0x43F690: bool testing::internal::HandleSehExceptionsInMethodIfSupported<testing::internal::UnitTestImpl, bool>(testing::internal::UnitTestImpl*, bool (testing::internal::UnitTestImpl::*)(), char const*) (in /home/datos/projects/simulator/eVSSIM/tests/host/sector_tests)
+==4646==    by 0x43A3A3: bool testing::internal::HandleExceptionsInMethodIfSupported<testing::internal::UnitTestImpl, bool>(testing::internal::UnitTestImpl*, bool (testing::internal::UnitTestImpl::*)(), char const*) (in /home/datos/projects/simulator/eVSSIM/tests/host/sector_tests)
+==4646==  Address 0x7fefff99c is on thread 1's stack
+==4646== 
+[FTL_TERM] start
+Average Read Latency	0.000 us
+Average Write Latency	2906.993 us
+[FTL_TERM] complete
+[0;32m[       OK ] [mDiskSize/SectorUnitTest.SequentialOnePageAtTimeWrite/0 (3803916 ms)
+[0;32m[ RUN      ] [mDiskSize/SectorUnitTest.SequentialOnePageAtTimeWrite/1
+[FTL_INIT] start
+[SSD_IO_INIT] SSD Emulator Version: 1.0 ver. (13.04.11)
+[FTL_INIT] complete
+[FTL_TERM] start
+Average Read Latency	0.000 us
+Average Write Latency	3537.453 us
+[FTL_TERM] complete
+[0;32m[       OK ] [mDiskSize/SectorUnitTest.SequentialOnePageAtTimeWrite/1 (4097507 ms)
+[0;32m[ RUN      ] [mDiskSize/SectorUnitTest.RandomOnePageAtTimeWrite/0
+[FTL_INIT] start
+[SSD_IO_INIT] SSD Emulator Version: 1.0 ver. (13.04.11)
+[FTL_INIT] complete
+[FTL_TERM] start
+Average Read Latency	0.000 us
+Average Write Latency	2864.775 us
+[FTL_TERM] complete
+[0;32m[       OK ] [mDiskSize/SectorUnitTest.RandomOnePageAtTimeWrite/0 (4281034 ms)
+[0;32m[ RUN      ] [mDiskSize/SectorUnitTest.RandomOnePageAtTimeWrite/1
+[FTL_INIT] start
+[SSD_IO_INIT] SSD Emulator Version: 1.0 ver. (13.04.11)
+[FTL_INIT] complete
+==4646== Invalid read of size 4
+==4646==    at 0x40EFE0: GET_EMPTY_BLOCK (ftl_inverse_mapping_manager.c:466)
+==4646==    by 0x40DBE8: GET_NEW_PAGE (ftl_mapping_manager.c:63)
+==4646==    by 0x40F9BE: GARBAGE_COLLECTION (ftl_gc_manager.c:85)
+==4646==    by 0x40F89F: GC_CHECK (ftl_gc_manager.c:27)
+==4646==    by 0x4132D0: _FTL_WRITE_SECT (ftl_sect_strategy.c:185)
+==4646==    by 0x4061E0: (anonymous namespace)::SectorUnitTest_RandomOnePageAtTimeWrite_Test::TestBody() (sector_tests.cc:101)
+==4646==    by 0x43E30E: void testing::internal::HandleSehExceptionsInMethodIfSupported<testing::Test, void>(testing::Test*, void (testing::Test::*)(), char const*) (in /home/datos/projects/simulator/eVSSIM/tests/host/sector_tests)
+==4646==    by 0x439583: void testing::internal::HandleExceptionsInMethodIfSupported<testing::Test, void>(testing::Test*, void (testing::Test::*)(), char const*) (in /home/datos/projects/simulator/eVSSIM/tests/host/sector_tests)
+==4646==    by 0x421042: testing::Test::Run() (in /home/datos/projects/simulator/eVSSIM/tests/host/sector_tests)
+==4646==    by 0x4217F9: testing::TestInfo::Run() (in /home/datos/projects/simulator/eVSSIM/tests/host/sector_tests)
+==4646==    by 0x421E70: testing::TestCase::Run() (in /home/datos/projects/simulator/eVSSIM/tests/host/sector_tests)
+==4646==    by 0x428551: testing::internal::UnitTestImpl::RunAllTests() (in /home/datos/projects/simulator/eVSSIM/tests/host/sector_tests)
+==4646==  Address 0x662c4c0 is not stack'd, malloc'd or (recently) free'd
+==4646== 
+==4646== Invalid read of size 4
+==4646==    at 0x40F051: GET_EMPTY_BLOCK (ftl_inverse_mapping_manager.c:481)
+==4646==    by 0x40DBE8: GET_NEW_PAGE (ftl_mapping_manager.c:63)
+==4646==    by 0x40F9BE: GARBAGE_COLLECTION (ftl_gc_manager.c:85)
+==4646==    by 0x40F89F: GC_CHECK (ftl_gc_manager.c:27)
+==4646==    by 0x4132D0: _FTL_WRITE_SECT (ftl_sect_strategy.c:185)
+==4646==    by 0x4061E0: (anonymous namespace)::SectorUnitTest_RandomOnePageAtTimeWrite_Test::TestBody() (sector_tests.cc:101)
+==4646==    by 0x43E30E: void testing::internal::HandleSehExceptionsInMethodIfSupported<testing::Test, void>(testing::Test*, void (testing::Test::*)(), char const*) (in /home/datos/projects/simulator/eVSSIM/tests/host/sector_tests)
+==4646==    by 0x439583: void testing::internal::HandleExceptionsInMethodIfSupported<testing::Test, void>(testing::Test*, void (testing::Test::*)(), char const*) (in /home/datos/projects/simulator/eVSSIM/tests/host/sector_tests)
+==4646==    by 0x421042: testing::Test::Run() (in /home/datos/projects/simulator/eVSSIM/tests/host/sector_tests)
+==4646==    by 0x4217F9: testing::TestInfo::Run() (in /home/datos/projects/simulator/eVSSIM/tests/host/sector_tests)
+==4646==    by 0x421E70: testing::TestCase::Run() (in /home/datos/projects/simulator/eVSSIM/tests/host/sector_tests)
+==4646==    by 0x428551: testing::internal::UnitTestImpl::RunAllTests() (in /home/datos/projects/simulator/eVSSIM/tests/host/sector_tests)
+==4646==  Address 0x6184458 is 0 bytes after a block of size 8 free'd
+==4646==    at 0x4C2A82E: free (in /usr/lib/valgrind/vgpreload_memcheck-amd64-linux.so)
+==4646==    by 0x410A83: FREE_IO_REQUEST (ftl_perf_manager.c:360)
+==4646==    by 0x410BED: UPDATE_IO_REQUEST (ftl_perf_manager.c:401)
+==4646==    by 0x412A22: SSD_UPDATE_IO_REQUEST (ssd_io_manager.c:665)
+==4646==    by 0x41245C: SSD_CELL_WRITE_DELAY (ssd_io_manager.c:527)
+==4646==    by 0x4117A0: SSD_REG_ACCESS (ssd_io_manager.c:226)
+==4646==    by 0x411705: SSD_FLASH_ACCESS (ssd_io_manager.c:203)
+==4646==    by 0x4114AC: SSD_PAGE_WRITE (ssd_io_manager.c:110)
+==4646==    by 0x40FC35: GARBAGE_COLLECTION (ftl_gc_manager.c:114)
+==4646==    by 0x40F89F: GC_CHECK (ftl_gc_manager.c:27)
+==4646==    by 0x4132D0: _FTL_WRITE_SECT (ftl_sect_strategy.c:185)
+==4646==    by 0x4061E0: (anonymous namespace)::SectorUnitTest_RandomOnePageAtTimeWrite_Test::TestBody() (sector_tests.cc:101)
+==4646== 
+==4646== Invalid read of size 8
+==4646==    at 0x40F086: GET_EMPTY_BLOCK (ftl_inverse_mapping_manager.c:489)
+==4646==    by 0x40DBE8: GET_NEW_PAGE (ftl_mapping_manager.c:63)
+==4646==    by 0x40F9BE: GARBAGE_COLLECTION (ftl_gc_manager.c:85)
+==4646==    by 0x40F89F: GC_CHECK (ftl_gc_manager.c:27)
+==4646==    by 0x4132D0: _FTL_WRITE_SECT (ftl_sect_strategy.c:185)
+==4646==    by 0x4061E0: (anonymous namespace)::SectorUnitTest_RandomOnePageAtTimeWrite_Test::TestBody() (sector_tests.cc:101)
+==4646==    by 0x43E30E: void testing::internal::HandleSehExceptionsInMethodIfSupported<testing::Test, void>(testing::Test*, void (testing::Test::*)(), char const*) (in /home/datos/projects/simulator/eVSSIM/tests/host/sector_tests)
+==4646==    by 0x439583: void testing::internal::HandleExceptionsInMethodIfSupported<testing::Test, void>(testing::Test*, void (testing::Test::*)(), char const*) (in /home/datos/projects/simulator/eVSSIM/tests/host/sector_tests)
+==4646==    by 0x421042: testing::Test::Run() (in /home/datos/projects/simulator/eVSSIM/tests/host/sector_tests)
+==4646==    by 0x4217F9: testing::TestInfo::Run() (in /home/datos/projects/simulator/eVSSIM/tests/host/sector_tests)
+==4646==    by 0x421E70: testing::TestCase::Run() (in /home/datos/projects/simulator/eVSSIM/tests/host/sector_tests)
+==4646==    by 0x428551: testing::internal::UnitTestImpl::RunAllTests() (in /home/datos/projects/simulator/eVSSIM/tests/host/sector_tests)
+==4646==  Address 0x6184460 is 8 bytes after a block of size 8 free'd
+==4646==    at 0x4C2A82E: free (in /usr/lib/valgrind/vgpreload_memcheck-amd64-linux.so)
+==4646==    by 0x410A83: FREE_IO_REQUEST (ftl_perf_manager.c:360)
+==4646==    by 0x410BED: UPDATE_IO_REQUEST (ftl_perf_manager.c:401)
+==4646==    by 0x412A22: SSD_UPDATE_IO_REQUEST (ssd_io_manager.c:665)
+==4646==    by 0x41245C: SSD_CELL_WRITE_DELAY (ssd_io_manager.c:527)
+==4646==    by 0x4117A0: SSD_REG_ACCESS (ssd_io_manager.c:226)
+==4646==    by 0x411705: SSD_FLASH_ACCESS (ssd_io_manager.c:203)
+==4646==    by 0x4114AC: SSD_PAGE_WRITE (ssd_io_manager.c:110)
+==4646==    by 0x40FC35: GARBAGE_COLLECTION (ftl_gc_manager.c:114)
+==4646==    by 0x40F89F: GC_CHECK (ftl_gc_manager.c:27)
+==4646==    by 0x4132D0: _FTL_WRITE_SECT (ftl_sect_strategy.c:185)
+==4646==    by 0x4061E0: (anonymous namespace)::SectorUnitTest_RandomOnePageAtTimeWrite_Test::TestBody() (sector_tests.cc:101)
+==4646== 
+==4646== Invalid read of size 4
+==4646==    at 0x40F34D: INSERT_VICTIM_BLOCK (ftl_inverse_mapping_manager.c:605)
+==4646==    by 0x40F0AD: GET_EMPTY_BLOCK (ftl_inverse_mapping_manager.c:494)
+==4646==    by 0x40DBE8: GET_NEW_PAGE (ftl_mapping_manager.c:63)
+==4646==    by 0x40F9BE: GARBAGE_COLLECTION (ftl_gc_manager.c:85)
+==4646==    by 0x40F89F: GC_CHECK (ftl_gc_manager.c:27)
+==4646==    by 0x4132D0: _FTL_WRITE_SECT (ftl_sect_strategy.c:185)
+==4646==    by 0x4061E0: (anonymous namespace)::SectorUnitTest_RandomOnePageAtTimeWrite_Test::TestBody() (sector_tests.cc:101)
+==4646==    by 0x43E30E: void testing::internal::HandleSehExceptionsInMethodIfSupported<testing::Test, void>(testing::Test*, void (testing::Test::*)(), char const*) (in /home/datos/projects/simulator/eVSSIM/tests/host/sector_tests)
+==4646==    by 0x439583: void testing::internal::HandleExceptionsInMethodIfSupported<testing::Test, void>(testing::Test*, void (testing::Test::*)(), char const*) (in /home/datos/projects/simulator/eVSSIM/tests/host/sector_tests)
+==4646==    by 0x421042: testing::Test::Run() (in /home/datos/projects/simulator/eVSSIM/tests/host/sector_tests)
+==4646==    by 0x4217F9: testing::TestInfo::Run() (in /home/datos/projects/simulator/eVSSIM/tests/host/sector_tests)
+==4646==    by 0x421E70: testing::TestCase::Run() (in /home/datos/projects/simulator/eVSSIM/tests/host/sector_tests)
+==4646==  Address 0x6184454 is 4 bytes inside a block of size 8 free'd
+==4646==    at 0x4C2A82E: free (in /usr/lib/valgrind/vgpreload_memcheck-amd64-linux.so)
+==4646==    by 0x410A83: FREE_IO_REQUEST (ftl_perf_manager.c:360)
+==4646==    by 0x410BED: UPDATE_IO_REQUEST (ftl_perf_manager.c:401)
+==4646==    by 0x412A22: SSD_UPDATE_IO_REQUEST (ssd_io_manager.c:665)
+==4646==    by 0x41245C: SSD_CELL_WRITE_DELAY (ssd_io_manager.c:527)
+==4646==    by 0x4117A0: SSD_REG_ACCESS (ssd_io_manager.c:226)
+==4646==    by 0x411705: SSD_FLASH_ACCESS (ssd_io_manager.c:203)
+==4646==    by 0x4114AC: SSD_PAGE_WRITE (ssd_io_manager.c:110)
+==4646==    by 0x40FC35: GARBAGE_COLLECTION (ftl_gc_manager.c:114)
+==4646==    by 0x40F89F: GC_CHECK (ftl_gc_manager.c:27)
+==4646==    by 0x4132D0: _FTL_WRITE_SECT (ftl_sect_strategy.c:185)
+==4646==    by 0x4061E0: (anonymous namespace)::SectorUnitTest_RandomOnePageAtTimeWrite_Test::TestBody() (sector_tests.cc:101)
+==4646== 
+==4646== Invalid read of size 4
+==4646==    at 0x40F354: INSERT_VICTIM_BLOCK (ftl_inverse_mapping_manager.c:605)
+==4646==    by 0x40F0AD: GET_EMPTY_BLOCK (ftl_inverse_mapping_manager.c:494)
+==4646==    by 0x40DBE8: GET_NEW_PAGE (ftl_mapping_manager.c:63)
+==4646==    by 0x40F9BE: GARBAGE_COLLECTION (ftl_gc_manager.c:85)
+==4646==    by 0x40F89F: GC_CHECK (ftl_gc_manager.c:27)
+==4646==    by 0x4132D0: _FTL_WRITE_SECT (ftl_sect_strategy.c:185)
+==4646==    by 0x4061E0: (anonymous namespace)::SectorUnitTest_RandomOnePageAtTimeWrite_Test::TestBody() (sector_tests.cc:101)
+==4646==    by 0x43E30E: void testing::internal::HandleSehExceptionsInMethodIfSupported<testing::Test, void>(testing::Test*, void (testing::Test::*)(), char const*) (in /home/datos/projects/simulator/eVSSIM/tests/host/sector_tests)
+==4646==    by 0x439583: void testing::internal::HandleExceptionsInMethodIfSupported<testing::Test, void>(testing::Test*, void (testing::Test::*)(), char const*) (in /home/datos/projects/simulator/eVSSIM/tests/host/sector_tests)
+==4646==    by 0x421042: testing::Test::Run() (in /home/datos/projects/simulator/eVSSIM/tests/host/sector_tests)
+==4646==    by 0x4217F9: testing::TestInfo::Run() (in /home/datos/projects/simulator/eVSSIM/tests/host/sector_tests)
+==4646==    by 0x421E70: testing::TestCase::Run() (in /home/datos/projects/simulator/eVSSIM/tests/host/sector_tests)
+==4646==  Address 0x6184450 is 0 bytes inside a block of size 8 free'd
+==4646==    at 0x4C2A82E: free (in /usr/lib/valgrind/vgpreload_memcheck-amd64-linux.so)
+==4646==    by 0x410A83: FREE_IO_REQUEST (ftl_perf_manager.c:360)
+==4646==    by 0x410BED: UPDATE_IO_REQUEST (ftl_perf_manager.c:401)
+==4646==    by 0x412A22: SSD_UPDATE_IO_REQUEST (ssd_io_manager.c:665)
+==4646==    by 0x41245C: SSD_CELL_WRITE_DELAY (ssd_io_manager.c:527)
+==4646==    by 0x4117A0: SSD_REG_ACCESS (ssd_io_manager.c:226)
+==4646==    by 0x411705: SSD_FLASH_ACCESS (ssd_io_manager.c:203)
+==4646==    by 0x4114AC: SSD_PAGE_WRITE (ssd_io_manager.c:110)
+==4646==    by 0x40FC35: GARBAGE_COLLECTION (ftl_gc_manager.c:114)
+==4646==    by 0x40F89F: GC_CHECK (ftl_gc_manager.c:27)
+==4646==    by 0x4132D0: _FTL_WRITE_SECT (ftl_sect_strategy.c:185)
+==4646==    by 0x4061E0: (anonymous namespace)::SectorUnitTest_RandomOnePageAtTimeWrite_Test::TestBody() (sector_tests.cc:101)
+==4646== 
+==4646== Invalid read of size 4
+==4646==    at 0x40F3A2: INSERT_VICTIM_BLOCK (ftl_inverse_mapping_manager.c:615)
+==4646==    by 0x40F0AD: GET_EMPTY_BLOCK (ftl_inverse_mapping_manager.c:494)
+==4646==    by 0x40DBE8: GET_NEW_PAGE (ftl_mapping_manager.c:63)
+==4646==    by 0x40F9BE: GARBAGE_COLLECTION (ftl_gc_manager.c:85)
+==4646==    by 0x40F89F: GC_CHECK (ftl_gc_manager.c:27)
+==4646==    by 0x4132D0: _FTL_WRITE_SECT (ftl_sect_strategy.c:185)
+==4646==    by 0x4061E0: (anonymous namespace)::SectorUnitTest_RandomOnePageAtTimeWrite_Test::TestBody() (sector_tests.cc:101)
+==4646==    by 0x43E30E: void testing::internal::HandleSehExceptionsInMethodIfSupported<testing::Test, void>(testing::Test*, void (testing::Test::*)(), char const*) (in /home/datos/projects/simulator/eVSSIM/tests/host/sector_tests)
+==4646==    by 0x439583: void testing::internal::HandleExceptionsInMethodIfSupported<testing::Test, void>(testing::Test*, void (testing::Test::*)(), char const*) (in /home/datos/projects/simulator/eVSSIM/tests/host/sector_tests)
+==4646==    by 0x421042: testing::Test::Run() (in /home/datos/projects/simulator/eVSSIM/tests/host/sector_tests)
+==4646==    by 0x4217F9: testing::TestInfo::Run() (in /home/datos/projects/simulator/eVSSIM/tests/host/sector_tests)
+==4646==    by 0x421E70: testing::TestCase::Run() (in /home/datos/projects/simulator/eVSSIM/tests/host/sector_tests)
+==4646==  Address 0x6184450 is 0 bytes inside a block of size 8 free'd
+==4646==    at 0x4C2A82E: free (in /usr/lib/valgrind/vgpreload_memcheck-amd64-linux.so)
+==4646==    by 0x410A83: FREE_IO_REQUEST (ftl_perf_manager.c:360)
+==4646==    by 0x410BED: UPDATE_IO_REQUEST (ftl_perf_manager.c:401)
+==4646==    by 0x412A22: SSD_UPDATE_IO_REQUEST (ssd_io_manager.c:665)
+==4646==    by 0x41245C: SSD_CELL_WRITE_DELAY (ssd_io_manager.c:527)
+==4646==    by 0x4117A0: SSD_REG_ACCESS (ssd_io_manager.c:226)
+==4646==    by 0x411705: SSD_FLASH_ACCESS (ssd_io_manager.c:203)
+==4646==    by 0x4114AC: SSD_PAGE_WRITE (ssd_io_manager.c:110)
+==4646==    by 0x40FC35: GARBAGE_COLLECTION (ftl_gc_manager.c:114)
+==4646==    by 0x40F89F: GC_CHECK (ftl_gc_manager.c:27)
+==4646==    by 0x4132D0: _FTL_WRITE_SECT (ftl_sect_strategy.c:185)
+==4646==    by 0x4061E0: (anonymous namespace)::SectorUnitTest_RandomOnePageAtTimeWrite_Test::TestBody() (sector_tests.cc:101)
+==4646== 
+==4646== Invalid read of size 4
+==4646==    at 0x40F3AE: INSERT_VICTIM_BLOCK (ftl_inverse_mapping_manager.c:616)
+==4646==    by 0x40F0AD: GET_EMPTY_BLOCK (ftl_inverse_mapping_manager.c:494)
+==4646==    by 0x40DBE8: GET_NEW_PAGE (ftl_mapping_manager.c:63)
+==4646==    by 0x40F9BE: GARBAGE_COLLECTION (ftl_gc_manager.c:85)
+==4646==    by 0x40F89F: GC_CHECK (ftl_gc_manager.c:27)
+==4646==    by 0x4132D0: _FTL_WRITE_SECT (ftl_sect_strategy.c:185)
+==4646==    by 0x4061E0: (anonymous namespace)::SectorUnitTest_RandomOnePageAtTimeWrite_Test::TestBody() (sector_tests.cc:101)
+==4646==    by 0x43E30E: void testing::internal::HandleSehExceptionsInMethodIfSupported<testing::Test, void>(testing::Test*, void (testing::Test::*)(), char const*) (in /home/datos/projects/simulator/eVSSIM/tests/host/sector_tests)
+==4646==    by 0x439583: void testing::internal::HandleExceptionsInMethodIfSupported<testing::Test, void>(testing::Test*, void (testing::Test::*)(), char const*) (in /home/datos/projects/simulator/eVSSIM/tests/host/sector_tests)
+==4646==    by 0x421042: testing::Test::Run() (in /home/datos/projects/simulator/eVSSIM/tests/host/sector_tests)
+==4646==    by 0x4217F9: testing::TestInfo::Run() (in /home/datos/projects/simulator/eVSSIM/tests/host/sector_tests)
+==4646==    by 0x421E70: testing::TestCase::Run() (in /home/datos/projects/simulator/eVSSIM/tests/host/sector_tests)
+==4646==  Address 0x6184454 is 4 bytes inside a block of size 8 free'd
+==4646==    at 0x4C2A82E: free (in /usr/lib/valgrind/vgpreload_memcheck-amd64-linux.so)
+==4646==    by 0x410A83: FREE_IO_REQUEST (ftl_perf_manager.c:360)
+==4646==    by 0x410BED: UPDATE_IO_REQUEST (ftl_perf_manager.c:401)
+==4646==    by 0x412A22: SSD_UPDATE_IO_REQUEST (ssd_io_manager.c:665)
+==4646==    by 0x41245C: SSD_CELL_WRITE_DELAY (ssd_io_manager.c:527)
+==4646==    by 0x4117A0: SSD_REG_ACCESS (ssd_io_manager.c:226)
+==4646==    by 0x411705: SSD_FLASH_ACCESS (ssd_io_manager.c:203)
+==4646==    by 0x4114AC: SSD_PAGE_WRITE (ssd_io_manager.c:110)
+==4646==    by 0x40FC35: GARBAGE_COLLECTION (ftl_gc_manager.c:114)
+==4646==    by 0x40F89F: GC_CHECK (ftl_gc_manager.c:27)
+==4646==    by 0x4132D0: _FTL_WRITE_SECT (ftl_sect_strategy.c:185)
+==4646==    by 0x4061E0: (anonymous namespace)::SectorUnitTest_RandomOnePageAtTimeWrite_Test::TestBody() (sector_tests.cc:101)
+==4646== 
+==4646== Invalid read of size 4
+==4646==    at 0x40F3E0: INSERT_VICTIM_BLOCK (ftl_inverse_mapping_manager.c:621)
+==4646==    by 0x40F0AD: GET_EMPTY_BLOCK (ftl_inverse_mapping_manager.c:494)
+==4646==    by 0x40DBE8: GET_NEW_PAGE (ftl_mapping_manager.c:63)
+==4646==    by 0x40F9BE: GARBAGE_COLLECTION (ftl_gc_manager.c:85)
+==4646==    by 0x40F89F: GC_CHECK (ftl_gc_manager.c:27)
+==4646==    by 0x4132D0: _FTL_WRITE_SECT (ftl_sect_strategy.c:185)
+==4646==    by 0x4061E0: (anonymous namespace)::SectorUnitTest_RandomOnePageAtTimeWrite_Test::TestBody() (sector_tests.cc:101)
+==4646==    by 0x43E30E: void testing::internal::HandleSehExceptionsInMethodIfSupported<testing::Test, void>(testing::Test*, void (testing::Test::*)(), char const*) (in /home/datos/projects/simulator/eVSSIM/tests/host/sector_tests)
+==4646==    by 0x439583: void testing::internal::HandleExceptionsInMethodIfSupported<testing::Test, void>(testing::Test*, void (testing::Test::*)(), char const*) (in /home/datos/projects/simulator/eVSSIM/tests/host/sector_tests)
+==4646==    by 0x421042: testing::Test::Run() (in /home/datos/projects/simulator/eVSSIM/tests/host/sector_tests)
+==4646==    by 0x4217F9: testing::TestInfo::Run() (in /home/datos/projects/simulator/eVSSIM/tests/host/sector_tests)
+==4646==    by 0x421E70: testing::TestCase::Run() (in /home/datos/projects/simulator/eVSSIM/tests/host/sector_tests)
+==4646==  Address 0x6184454 is 4 bytes inside a block of size 8 free'd
+==4646==    at 0x4C2A82E: free (in /usr/lib/valgrind/vgpreload_memcheck-amd64-linux.so)
+==4646==    by 0x410A83: FREE_IO_REQUEST (ftl_perf_manager.c:360)
+==4646==    by 0x410BED: UPDATE_IO_REQUEST (ftl_perf_manager.c:401)
+==4646==    by 0x412A22: SSD_UPDATE_IO_REQUEST (ssd_io_manager.c:665)
+==4646==    by 0x41245C: SSD_CELL_WRITE_DELAY (ssd_io_manager.c:527)
+==4646==    by 0x4117A0: SSD_REG_ACCESS (ssd_io_manager.c:226)
+==4646==    by 0x411705: SSD_FLASH_ACCESS (ssd_io_manager.c:203)
+==4646==    by 0x4114AC: SSD_PAGE_WRITE (ssd_io_manager.c:110)
+==4646==    by 0x40FC35: GARBAGE_COLLECTION (ftl_gc_manager.c:114)
+==4646==    by 0x40F89F: GC_CHECK (ftl_gc_manager.c:27)
+==4646==    by 0x4132D0: _FTL_WRITE_SECT (ftl_sect_strategy.c:185)
+==4646==    by 0x4061E0: (anonymous namespace)::SectorUnitTest_RandomOnePageAtTimeWrite_Test::TestBody() (sector_tests.cc:101)
+==4646== 
+==4646== Invalid read of size 4
+==4646==    at 0x40F407: INSERT_VICTIM_BLOCK (ftl_inverse_mapping_manager.c:622)
+==4646==    by 0x40F0AD: GET_EMPTY_BLOCK (ftl_inverse_mapping_manager.c:494)
+==4646==    by 0x40DBE8: GET_NEW_PAGE (ftl_mapping_manager.c:63)
+==4646==    by 0x40F9BE: GARBAGE_COLLECTION (ftl_gc_manager.c:85)
+==4646==    by 0x40F89F: GC_CHECK (ftl_gc_manager.c:27)
+==4646==    by 0x4132D0: _FTL_WRITE_SECT (ftl_sect_strategy.c:185)
+==4646==    by 0x4061E0: (anonymous namespace)::SectorUnitTest_RandomOnePageAtTimeWrite_Test::TestBody() (sector_tests.cc:101)
+==4646==    by 0x43E30E: void testing::internal::HandleSehExceptionsInMethodIfSupported<testing::Test, void>(testing::Test*, void (testing::Test::*)(), char const*) (in /home/datos/projects/simulator/eVSSIM/tests/host/sector_tests)
+==4646==    by 0x439583: void testing::internal::HandleExceptionsInMethodIfSupported<testing::Test, void>(testing::Test*, void (testing::Test::*)(), char const*) (in /home/datos/projects/simulator/eVSSIM/tests/host/sector_tests)
+==4646==    by 0x421042: testing::Test::Run() (in /home/datos/projects/simulator/eVSSIM/tests/host/sector_tests)
+==4646==    by 0x4217F9: testing::TestInfo::Run() (in /home/datos/projects/simulator/eVSSIM/tests/host/sector_tests)
+==4646==    by 0x421E70: testing::TestCase::Run() (in /home/datos/projects/simulator/eVSSIM/tests/host/sector_tests)
+==4646==  Address 0x6184450 is 0 bytes inside a block of size 8 free'd
+==4646==    at 0x4C2A82E: free (in /usr/lib/valgrind/vgpreload_memcheck-amd64-linux.so)
+==4646==    by 0x410A83: FREE_IO_REQUEST (ftl_perf_manager.c:360)
+==4646==    by 0x410BED: UPDATE_IO_REQUEST (ftl_perf_manager.c:401)
+==4646==    by 0x412A22: SSD_UPDATE_IO_REQUEST (ssd_io_manager.c:665)
+==4646==    by 0x41245C: SSD_CELL_WRITE_DELAY (ssd_io_manager.c:527)
+==4646==    by 0x4117A0: SSD_REG_ACCESS (ssd_io_manager.c:226)
+==4646==    by 0x411705: SSD_FLASH_ACCESS (ssd_io_manager.c:203)
+==4646==    by 0x4114AC: SSD_PAGE_WRITE (ssd_io_manager.c:110)
+==4646==    by 0x40FC35: GARBAGE_COLLECTION (ftl_gc_manager.c:114)
+==4646==    by 0x40F89F: GC_CHECK (ftl_gc_manager.c:27)
+==4646==    by 0x4132D0: _FTL_WRITE_SECT (ftl_sect_strategy.c:185)
+==4646==    by 0x4061E0: (anonymous namespace)::SectorUnitTest_RandomOnePageAtTimeWrite_Test::TestBody() (sector_tests.cc:101)
+==4646== 
+==4646== Invalid read of size 4
+==4646==    at 0x40F438: INSERT_VICTIM_BLOCK (ftl_inverse_mapping_manager.c:627)
+==4646==    by 0x40F0AD: GET_EMPTY_BLOCK (ftl_inverse_mapping_manager.c:494)
+==4646==    by 0x40DBE8: GET_NEW_PAGE (ftl_mapping_manager.c:63)
+==4646==    by 0x40F9BE: GARBAGE_COLLECTION (ftl_gc_manager.c:85)
+==4646==    by 0x40F89F: GC_CHECK (ftl_gc_manager.c:27)
+==4646==    by 0x4132D0: _FTL_WRITE_SECT (ftl_sect_strategy.c:185)
+==4646==    by 0x4061E0: (anonymous namespace)::SectorUnitTest_RandomOnePageAtTimeWrite_Test::TestBody() (sector_tests.cc:101)
+==4646==    by 0x43E30E: void testing::internal::HandleSehExceptionsInMethodIfSupported<testing::Test, void>(testing::Test*, void (testing::Test::*)(), char const*) (in /home/datos/projects/simulator/eVSSIM/tests/host/sector_tests)
+==4646==    by 0x439583: void testing::internal::HandleExceptionsInMethodIfSupported<testing::Test, void>(testing::Test*, void (testing::Test::*)(), char const*) (in /home/datos/projects/simulator/eVSSIM/tests/host/sector_tests)
+==4646==    by 0x421042: testing::Test::Run() (in /home/datos/projects/simulator/eVSSIM/tests/host/sector_tests)
+==4646==    by 0x4217F9: testing::TestInfo::Run() (in /home/datos/projects/simulator/eVSSIM/tests/host/sector_tests)
+==4646==    by 0x421E70: testing::TestCase::Run() (in /home/datos/projects/simulator/eVSSIM/tests/host/sector_tests)
+==4646==  Address 0xfffffff688d9d558 is not stack'd, malloc'd or (recently) free'd
+==4646== 
+==4646== 
+==4646== Process terminating with default action of signal 11 (SIGSEGV)
+==4646==  Access not within mapped region at address 0xFFFFFFF688D9D558
+==4646==    at 0x40F438: INSERT_VICTIM_BLOCK (ftl_inverse_mapping_manager.c:627)
+==4646==    by 0x40F0AD: GET_EMPTY_BLOCK (ftl_inverse_mapping_manager.c:494)
+==4646==    by 0x40DBE8: GET_NEW_PAGE (ftl_mapping_manager.c:63)
+==4646==    by 0x40F9BE: GARBAGE_COLLECTION (ftl_gc_manager.c:85)
+==4646==    by 0x40F89F: GC_CHECK (ftl_gc_manager.c:27)
+==4646==    by 0x4132D0: _FTL_WRITE_SECT (ftl_sect_strategy.c:185)
+==4646==    by 0x4061E0: (anonymous namespace)::SectorUnitTest_RandomOnePageAtTimeWrite_Test::TestBody() (sector_tests.cc:101)
+==4646==    by 0x43E30E: void testing::internal::HandleSehExceptionsInMethodIfSupported<testing::Test, void>(testing::Test*, void (testing::Test::*)(), char const*) (in /home/datos/projects/simulator/eVSSIM/tests/host/sector_tests)
+==4646==    by 0x439583: void testing::internal::HandleExceptionsInMethodIfSupported<testing::Test, void>(testing::Test*, void (testing::Test::*)(), char const*) (in /home/datos/projects/simulator/eVSSIM/tests/host/sector_tests)
+==4646==    by 0x421042: testing::Test::Run() (in /home/datos/projects/simulator/eVSSIM/tests/host/sector_tests)
+==4646==    by 0x4217F9: testing::TestInfo::Run() (in /home/datos/projects/simulator/eVSSIM/tests/host/sector_tests)
+==4646==    by 0x421E70: testing::TestCase::Run() (in /home/datos/projects/simulator/eVSSIM/tests/host/sector_tests)
+==4646==  If you believe this happened as a result of a stack
+==4646==  overflow in your program's main thread (unlikely but
+==4646==  possible), you can try to increase the size of the
+==4646==  main thread stack using the --main-stacksize= flag.
+==4646==  The main thread stack size used in this run was 8388608.
+==4646== 
+==4646== HEAP SUMMARY:
+==4646==     in use at exit: 2,183,985 bytes in 65,669 blocks
+==4646==   total heap usage: 9,911,471 allocs, 9,845,802 frees, 221,715,912 bytes allocated
+==4646== 
+==4646== LEAK SUMMARY:
+==4646==    definitely lost: 247,104 bytes in 24,609 blocks
+==4646==    indirectly lost: 660,752 bytes in 21,889 blocks
+==4646==      possibly lost: 87,549 bytes in 2,723 blocks
+==4646==    still reachable: 1,188,580 bytes in 16,448 blocks
+==4646==         suppressed: 0 bytes in 0 blocks
+==4646== Rerun with --leak-check=full to see details of leaked memory
+==4646== 
+==4646== For counts of detected and suppressed errors, rerun with: -v
+==4646== Use --track-origins=yes to see where uninitialised values come from
+==4646== ERROR SUMMARY: 19 errors from 12 contexts (suppressed: 2 from 2)
+Segmentation fault (core dumped)
+
+real	289m53.204s
+user	259m32.496s
+sys	18m34.732s
+]0;datos@datos-ThinkPad-T410: ~/projects/simulator/eVSSIM/tests/hostdatos@datos-ThinkPad-T410:~/projects/simulator/eVSSIM/tests/host$ [K]0;datos@datos-ThinkPad-T410: ~/projects/simulator/eVSSIM/tests/hostdatos@datos-ThinkPad-T410:~/projects/simulator/eVSSIM/tests/host$ 
+]0;datos@datos-ThinkPad-T410: ~/projects/simulator/eVSSIM/tests/hostdatos@datos-ThinkPad-T410:~/projects/simulator/eVSSIM/tests/host$ 
+]0;datos@datos-ThinkPad-T410: ~/projects/simulator/eVSSIM/tests/hostdatos@datos-ThinkPad-T410:~/projects/simulator/eVSSIM/tests/host$ exit
+exit
+
+Script done on Sunday, May 15, 2016 PM06:04:19 IDT

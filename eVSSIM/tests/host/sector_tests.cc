@@ -1,7 +1,8 @@
 
 extern "C" {
-#include "ssd.h"
-#include "ftl.h"
+
+#include "common.h"
+#include "ftl_sect_strategy.h"
 }
 extern "C" int g_init;
 extern "C" int g_server_create;
@@ -36,8 +37,8 @@ namespace {
                 size_t block_x_flash = pages_ / CONST_PAGES_PER_BLOCK; // all_blocks_on_all_flashes = number_of_pages / pages_in_block
                 //size_t flash = block_x_flash / CONST_BLOCK_NB_PER_FLASH; // number_of_flashes = all_blocks_on_all_flashes / number_of_blocks_in_flash
                 size_t blocks_per_flash = block_x_flash / CONST_FLASH_NUMBER; // number_of_flashes = all_blocks_on_all_flashes / number_of_blocks_in_flash
-
-                ofstream ssd_conf("data/ssd.conf", ios_base::out | ios_base::trunc);
+                system("mkdir data");
+                ofstream ssd_conf("data/ssd.conf",  ios_base::out | ios_base::trunc);
                 ssd_conf << "FILE_NAME ./data/ssd.img\n"
                     "PAGE_SIZE " << CONST_PAGE_SIZE_IN_BYTES << "\n"
                     "PAGE_NB " << (CONST_PAGES_PER_BLOCK + CONST_PAGES_PER_BLOCK_OVERPROV) << "\n"
@@ -58,10 +59,16 @@ namespace {
                     "STAT_PATH /tmp/stat.csv\n"
                     "STORAGE_STRATEGY 1\n"; // sector strategy
                 ssd_conf.close();
-                SSD_INIT();
+            	FTL_INIT();
+            #ifdef MONITOR_ON
+            	INIT_LOG_MANAGER();
+            #endif
             }
             virtual void TearDown() {
-                SSD_TERM();
+            	FTL_TERM();
+            #ifdef MONITOR_ON
+            	TERM_LOG_MANAGER();
+            #endif
                 remove("data/empty_block_list.dat");
                 remove("data/inverse_block_mapping.dat");
                 remove("data/inverse_page_mapping.dat");
@@ -78,13 +85,13 @@ namespace {
     }; // OccupySpaceStressTest
 
 
-    INSTANTIATE_TEST_CASE_P(DiskSize, SectorUnitTest, ::testing::Values(256, 256)); //512 /*MB */, 1024 /*1G*/, 4096 /*4G*/)); //Values are in MB
+    INSTANTIATE_TEST_CASE_P(DiskSize, SectorUnitTest, ::testing::Values(8,8)); //512 /*MB */, 1024 /*1G*/, 4096 /*4G*/)); //Values are in MB
 
     TEST_P(SectorUnitTest, SequentialOnePageAtTimeWrite) {
         for(int x=0; x<8; x++){
             for(size_t p=0; p < pages_; p++){
+                ASSERT_EQ(FTL_SUCCESS, _FTL_WRITE_SECT(p * 4096, 1));
                 //std::cout << "hello"  << p << "\n";
-                ASSERT_EQ(SUCCESS, _FTL_WRITE_SECT(p * 4096, 1));
             }
         }
     }
@@ -92,7 +99,7 @@ namespace {
     TEST_P(SectorUnitTest, RandomOnePageAtTimeWrite) {
         for(int x=0; x<8; x++){
             for(size_t p=0; p < pages_; p++){
-                ASSERT_EQ(SUCCESS, _FTL_WRITE_SECT((rand() % pages_) * 4096, 1));
+                ASSERT_EQ(FTL_SUCCESS, _FTL_WRITE_SECT((rand() % pages_) * 4096, 1));
             }
         }
     }
@@ -100,10 +107,10 @@ namespace {
     TEST_P(SectorUnitTest, MixSequentialAndRandomOnePageAtTimeWrite) {
         for(int x=0; x<2; x++){
             for(size_t p=0; p < pages_; p++){
-                ASSERT_EQ(SUCCESS, _FTL_WRITE_SECT((rand() % pages_) * 4096, 1));
+                ASSERT_EQ(FTL_SUCCESS, _FTL_WRITE_SECT((rand() % pages_) * 4096, 1));
             }
             for(size_t p=0; p < pages_; p++){
-                ASSERT_EQ(SUCCESS, _FTL_WRITE_SECT(p * 4096, 1));
+                ASSERT_EQ(FTL_SUCCESS, _FTL_WRITE_SECT(p * 4096, 1));
             }
         }
     }

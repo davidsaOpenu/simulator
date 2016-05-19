@@ -59,17 +59,23 @@ double GC_L2_THRESHOLD;
 int GC_L2_THRESHOLD_BLOCK_NB;
 #endif
 
-/* Storage strategy (1 = address-based, 2 = object-based */
+/* Storage strategy (1 = sector-based, 2 = object-based */
 int STORAGE_STRATEGY;
 
 char gFile_Name[PATH_MAX] = {0,};
+char OSD_PATH[PATH_MAX] = {0,};
 char STAT_PATH[PATH_MAX] = {0,};
 
 void INIT_SSD_CONFIG(void)
 {
 	FILE* pfData;
 	pfData = fopen("./data/ssd.conf", "r");
-	
+	if (pfData == NULL)
+	{
+		printf("ERROR[%s] Cannot open filename %s\n",__FUNCTION__,"ssd.conf");
+		exit(1);
+	}
+
 	char* szCommand = NULL;
 	
 	szCommand = (char*)malloc(1024);
@@ -83,6 +89,11 @@ void INIT_SSD_CONFIG(void)
 				if(fscanf(pfData, "%s", gFile_Name) == EOF)
 					printf("ERROR[%s] Cannot read filename\n",__FUNCTION__);
 
+			}
+			else if(strcmp(szCommand, "OSD_PATH") == 0)
+			{
+				if(fscanf(pfData, "%s", OSD_PATH) == EOF)
+					printf("ERROR[%s] Cannot read temp OSD path\n",__FUNCTION__);
 			}
 			else if(strcmp(szCommand, "PAGE_SIZE") == 0)
 			{
@@ -207,12 +218,10 @@ void INIT_SSD_CONFIG(void)
 			}	
 #endif
             else if(strcmp(szCommand, "STORAGE_STRATEGY") == 0)
-			{
-				if(fscanf(pfData, "%d", &STORAGE_STRATEGY) == EOF)
-					printf("ERROR[%s] Wrong STORAGE_STRATEGY\n",__FUNCTION__);
-
-				
-			}
+            {
+            	if(fscanf(pfData, "%d", &STORAGE_STRATEGY) == EOF)
+            		printf("ERROR[%s] Wrong STORAGE_STRATEGY\n",__FUNCTION__);
+            }
 			memset(szCommand, 0x00, 1024);
 		}	
 		fclose(pfData);
@@ -267,3 +276,12 @@ void INIT_SSD_CONFIG(void)
 char* GET_FILE_NAME(void){
 	return gFile_Name;
 }
+
+int GET_SECTOR_SIZE(void){
+        return SECTOR_SIZE;
+}
+
+int GET_PAGE_SIZE(void){
+        return SECTOR_SIZE;
+}
+

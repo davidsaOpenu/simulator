@@ -24,21 +24,21 @@ extract_iops(){
 
 for test_type in 'write' 'read' ; do 
 extract_iops $reference_res_filename $test_type reference_result
-#echo "iops reference res = $reference_result"
+echo "iops reference res = $reference_result"
 if [ $reference_result -eq -1 ]; then
 	# test_type not applicable
-	#echo "skipping $test_type test"
+	echo "skipping $test_type test"
 	continue
 fi
 
 #zero the device
-if [ 1 -eq `grep -v '#filename' $curr_fio_test_filename | grep -c filename=/dev/sdb` ]; 
+if [ 1 -eq `grep -v '#filename' $curr_fio_test_filename | grep -c filename=/dev/nvme0n1` ]; 
 then
 	# find test size and device
 	test_size=`grep size= $curr_fio_test_filename`
 	test_size=${test_size//[!0-9]/} #remove non digits
 
-	device=/dev/sdb #todo parse from file
+	device=/dev/nvme0n1 #todo parse from file
 	echo "zeroing "$test_size"m on $device "
 	echo time dd if=/dev/zero of=$device bs=1M count=$test_size
 else
@@ -50,7 +50,7 @@ fi
 fio $curr_fio_test_filename > $curr_res_filename
 
 extract_iops $curr_res_filename $test_type curr_result
-#echo "extract_iops curr res = $curr_result"
+echo "extract_iops curr res = $curr_result"
 
 if [ $reference_result -lt 1 ]; then
 	echo "ERROR failed to find reference result"

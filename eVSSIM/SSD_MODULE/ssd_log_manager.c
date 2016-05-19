@@ -93,9 +93,9 @@ void THREAD_SERVER(void* arg)
 	}
 
 	if(listen(servSock, 100)<0){
-#ifdef MNT_DEBUG
-		printf("[%s] Server Socket Listen Error!!!\n",__FUNCTION__);
-#endif
+        printf("[%s] Server Socket Listen Error!!!\n",__FUNCTION__);
+        perror(NULL);
+        exit(1);
 	}
 #ifdef MNT_DEBUG
 	printf("[%s] Wait for client....[%d]\n", __FUNCTION__, servSock);

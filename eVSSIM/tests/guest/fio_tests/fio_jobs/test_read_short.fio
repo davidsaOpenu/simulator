@@ -1,13 +1,13 @@
 [test_rw_short]
-group_reporting
-#filename=/dev/sdb
+group_reporting=1
+filename=/dev/nvme0n1
 direct=1
 randrepeat=1	 
 ioengine=libaio
 bs=8k
-rw=randrw
+rw=randread
 iodepth=8
 numjobs=8
 runtime=2
-group_reporting
+group_reporting=1
 size=80m
