@@ -16,13 +16,13 @@ if [ ! -f $curr_fio_test_filename ]; then
 fi
 
 #zero the device
-if [ 1 -eq `grep -v '#filename' $curr_fio_test_filename | grep -c filename=/dev/sdb` ]; 
+if [ 1 -eq `grep -v '#filename' $curr_fio_test_filename | grep -c filename=/dev/nvme0n1` ]; 
 then
 	# find test size and device
 	test_size=`grep size= $curr_fio_test_filename`
 	test_size=${test_size//[!0-9]/} #remove non digits
 
-	device=/dev/sdb #todo parse from file
+	device=/dev/nvme0n1 #todo parse from file
 	echo "zeroing "$test_size"m on $device "
 	echo time dd if=/dev/zero of=$device bs=1M count=$test_size
 else

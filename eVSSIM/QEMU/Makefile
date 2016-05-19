@@ -183,7 +183,7 @@ clean:
         done
 
 distclean: clean
-	rm -f hw/ssd.{h,c}
+#	rm -f hw/ssd.{h,c}
 	rm -f hw/ssd_io_manager.{h,c}
 	rm -f hw/ssd_log_manager.{h,c}
 	rm -f hw/ssd_util.h
