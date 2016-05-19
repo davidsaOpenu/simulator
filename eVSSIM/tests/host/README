@@ -17,13 +17,13 @@ VSSIM unit tests
        a.2 mkdir /opt/gtest/lib; cd /opt/gtest/lib
        a.3 cmake .. (if needed: yum install cmake (for CENTOS); apt-get install cmake (for ubuntu)
        a.4 make 
-    b. cd tests/; mkdir data; cd data; ln -s ../../CONFIG/ssd.conf 
+    b. cd tests/host; mkdir data; cd data; ln -s ../../../CONFIG/ssd.conf 
     c. compile osc-osd (cd osc-osd/; make target_clean; make target)
     d. install sqlite (yum install sqlite-devel for CENTOS; apt-get install libsqlite3-dev) 
 
 2. Build
     a. Make links:
-        cd tests/; make mklink
+        cd tests/host; make mklink
 
     b. Build unit tests:
         make

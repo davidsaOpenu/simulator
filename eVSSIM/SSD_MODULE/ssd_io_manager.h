@@ -19,10 +19,10 @@ int64_t get_usec(void);
 int SSD_IO_INIT(void);
 
 /* GET IO from FTL */
-int SSD_PAGE_READ(unsigned int flash_nb, unsigned int block_nb, unsigned int page_nb, int offset, int type, int io_page_nb);
-int SSD_PAGE_WRITE(unsigned int flash_nb, unsigned int block_nb, unsigned int page_nb, int offset, int type, int io_page_nb);
-int SSD_BLOCK_ERASE(unsigned int flash_nb, unsigned int block_nb);
-int SSD_PAGE_COPYBACK(uint32_t source, uint32_t destination, int type);
+ftl_ret_val SSD_PAGE_READ(unsigned int flash_nb, unsigned int block_nb, unsigned int page_nb, int offset, int type, int io_page_nb);
+ftl_ret_val SSD_PAGE_WRITE(unsigned int flash_nb, unsigned int block_nb, unsigned int page_nb, int offset, int type, int io_page_nb);
+ftl_ret_val SSD_BLOCK_ERASE(unsigned int flash_nb, unsigned int block_nb);
+ftl_ret_val SSD_PAGE_COPYBACK(uint32_t source, uint32_t destination, int type);
 
 /* Channel Access Delay */
 int SSD_CH_ENABLE(int channel);
