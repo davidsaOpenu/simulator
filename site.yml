@@ -2,6 +2,9 @@
   hosts: local_host
   roles:
     - common
+  environment:
+    http_proxy: "{{ lookup('env','http_proxy') }}"
+    https_proxy: "{{ lookup('env','http_proxy') }}"
   tags: [host, guest]
 
 - name: perform host tests
