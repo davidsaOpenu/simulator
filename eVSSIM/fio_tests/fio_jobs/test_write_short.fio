@@ -1,5 +1,5 @@
 [test_write_short]
-group_reporting
+group_reporting=1
 #filename=/dev/sdb
 direct=1
 randrepeat=1	 
@@ -9,5 +9,5 @@ rw=randwrite
 iodepth=8
 numjobs=8
 runtime=2
-group_reporting
+group_reporting=1
 size=80m
