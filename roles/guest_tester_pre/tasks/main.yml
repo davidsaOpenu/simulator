@@ -18,7 +18,7 @@
 
 # XXX: change to be generic
 - name: Transfer file from local_host to guest_host
-  shell: sshpass -p esd scp -P 2222 fio_tests.tar esd@127.0.0.1:~ 
+  shell: sshpass -p esd scp -o "StrictHostKeyChecking=no" -P 2222 fio_tests.tar esd@127.0.0.1:~ 
   args:
     chdir: "{{ dest }}/eVSSIM"
 
