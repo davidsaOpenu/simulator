@@ -11,7 +11,7 @@
   register: fio_file
 
 - name: Compress fio_tests
-  shell: tar -cvf fio_tests.tar fio_tests 
+  shell: tar -cvf fio_tests.tar fio_tests
   args:
     chdir: "{{ dest }}/eVSSIM"
   when: fio_file.stat.exists == false

@@ -61,4 +61,3 @@
   args:
     msg: "Output of 'ssh uname' to guest: {{ guest_uname.stdout }}"
   tags: qemu
-
