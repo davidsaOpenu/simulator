@@ -64,3 +64,20 @@
   args:
     chdir: "{{ ansible_env.HOME }}/gtest/lib"
   when: libgtest_file.stat.exists == false
+
+- name: ensure QEMU/hw/data exists
+  become: true
+  file:
+  args:
+    path: "{{tmpfs_mountpoint}}"
+    state: directory
+
+- name: mount tmpfs
+  become: true
+  mount:
+  args:
+    fstype: tmpfs
+    opts: "size=16g"
+    state: mounted
+    src: tmpfs
+    name: "{{tmpfs_mountpoint}}"

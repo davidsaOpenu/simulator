@@ -21,12 +21,9 @@
   when: qemu_pid_task.stdout != ""
   tags: qemu
 
-- name: unmount tmpfs data
-  become: true
-  mount:
+- name: delete per-test-instance directory
+  file:
   args:
-      state: unmounted
-      src: tmpfs
-      fstype: tmpfs
-      name: "{{ dest }}/eVSSIM/QEMU/hw/data"
+    name: "{{ tmpfs_mountpoint }}/{{ test_instance_id }}"
+    state: absent
   tags: qemu

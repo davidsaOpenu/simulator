@@ -1,1 +1,2 @@
 gcc: gcc-4.6
+tmpfs_mountpoint: /mnt/simulator_ci_tmp

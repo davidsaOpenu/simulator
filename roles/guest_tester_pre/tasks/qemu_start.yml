@@ -1,3 +1,19 @@
+- name: ensure unique directory exists
+  file:
+  args:
+    path: "{{ tmpfs_mountpoint }}/{{ test_instance_id }}"
+    state: directory
+  tags: qemu
+
+- name: ensure hw/data symlink points to unique directory
+  file:
+  args:
+    name: "{{ dest }}/eVSSIM/QEMU/hw/data"
+    src: "{{ tmpfs_mountpoint }}/{{ test_instance_id }}"
+    state: link
+    force: yes
+  tags: qemu
+
 - name: create ssd.conf
   template:
     src: "ssd.conf"

@@ -1,12 +1,10 @@
 # Cleanup previous executions on this host
 - include: qemu_stop.yml
 
-- include: hda_image.yml
-  when: not cleanup_only
+- block:
 
-- include: qemu_prepare.yml
-  when: not cleanup_only
-
-# Start Guest machine and confirm it is up
-- include: qemu_start.yml
+  - include: hda_image.yml
+  - include: qemu_prepare.yml
+  - include: qemu_start.yml
+  
   when: not cleanup_only
