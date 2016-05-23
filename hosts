@@ -1,8 +1,8 @@
 [host_testers]
-local_host ansible_host=localhost ansible_sudo=True ansible_sudo_pass='root' ansible_connection=local
+local_host ansible_host=localhost ansible_connection=local
 
 [guest_testers]
-local_host ansible_host=localhost ansible_sudo=True ansible_sudo_pass='root' ansible_connection=local
+local_host ansible_host=localhost ansible_connection=local
 
 [guests]
 guest_host ansible_connection=ssh ansible_sudo=True ansible_sudo_pass=esd ssh_proxy="" ansible_port=2222 ansible_host=localhost

@@ -1,0 +1,5 @@
+- name: configure prerequisites
+  hosts: [host_testers, guest_testers]
+  roles:
+    - prepare
+  tags: [host, guest, common]

@@ -1,0 +1,52 @@
+- name: install required packages
+  apt:
+  args:
+      pkg: "{{ item }}"
+      state: installed
+  become: true
+  with_items:
+      - git
+      - "{{ gcc }}"
+      # to build gtest
+      - cmake
+      - g++
+      # to unzip hda.img.zip
+      - unzip
+      # to build osc-osd
+      - libsqlite3-dev
+      # to build qemu with XEN acceleration support
+      - libxen-dev
+      - zlib1g-dev
+      - libsdl-image1.2-dev
+      - libgnutls-dev
+      - libvncserver-dev
+      - libpci-dev
+      - libaio-dev
+      - sshpass
+
+- name: install packages for SSD monitor
+  apt:
+  args:
+    pkg: "{{ item }}"
+    state: installed
+  become: true
+  with_items:
+      - libqt3-mt-dev
+  when: build_ssd_monitor
+
+- name: ensure tmpfs dir exists
+  become: true
+  file:
+  args:
+    path: "{{tmpfs_mountpoint}}"
+    state: directory
+
+- name: mount tmpfs
+  become: true
+  mount:
+  args:
+    fstype: tmpfs
+    opts: "size=16g"
+    state: mounted
+    src: tmpfs
+    name: "{{tmpfs_mountpoint}}"

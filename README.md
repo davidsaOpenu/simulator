@@ -10,12 +10,19 @@ brew install https://raw.githubusercontent.com/kadwanev/bigboybrew/master/Librar
 
 - On Ubuntu 12.04, run `sudo ./ansible_install.sh`
 
+## Preparing 
+To configure all prerequisites needed for running the tests, run this command:
+
+```sh
+ansible-playbook -K -i hosts prepare.yml
+```
+
+Note: you must specify sudo password for this command
+
 ## Running
 
 Modify 'hosts' file to containing your hosts configuration. 
 It is currently configured to run on localhost.
-
-Note: you must configure the default host file to include the sudo password of your localhost.
 
 and then run:
 
@@ -23,7 +30,7 @@ and then run:
 ansible-playbook -i hosts site.yml
 ```
 
-## Aditional arguments
+## Additional arguments
 
 Here are some arguments you can add to `ansible-playbook` invocations:
 
