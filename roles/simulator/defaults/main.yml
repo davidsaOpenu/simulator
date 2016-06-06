@@ -1,3 +1,4 @@
+git_in_ansible: false
 dest: "{{ ansible_env.HOME }}/simulator"
 ref: refs/heads/master
 build_ssd_monitor: false

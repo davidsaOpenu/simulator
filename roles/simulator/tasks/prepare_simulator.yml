@@ -8,6 +8,7 @@
       refspec={{ ref }}
       dest={{ dest }}
   tags: clean
+  when: git_in_ansible
 
 - name: clean untracked files from repository
   shell: git clean -x -f -d -q
@@ -16,6 +17,7 @@
     # git clean is not available through 'git' module
     warn: no
   tags: clean
+  when: git_in_ansible
 
 - name: apply all patches to simulator
   patch: "src={{ item }} basedir={{ dest }} strip=1"
