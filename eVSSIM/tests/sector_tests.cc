@@ -84,7 +84,7 @@ namespace {
         for(int x=0; x<8; x++){
             for(size_t p=0; p < pages_; p++){
                 //std::cout << "hello"  << p << "\n";
-                ASSERT_EQ(SUCCESS, _FTL_WRITE_SECT(p * 4096, 1));
+                ASSERT_EQ(SUCCESS, _FTL_WRITE_SECT(p * CONST_PAGE_SIZE_IN_BYTES, 1));
             }
         }
     }
@@ -92,7 +92,7 @@ namespace {
     TEST_P(SectorUnitTest, RandomOnePageAtTimeWrite) {
         for(int x=0; x<8; x++){
             for(size_t p=0; p < pages_; p++){
-                ASSERT_EQ(SUCCESS, _FTL_WRITE_SECT((rand() % pages_) * 4096, 1));
+                ASSERT_EQ(SUCCESS, _FTL_WRITE_SECT((rand() % pages_) * CONST_PAGE_SIZE_IN_BYTES, 1));
             }
         }
     }
@@ -100,10 +100,10 @@ namespace {
     TEST_P(SectorUnitTest, MixSequentialAndRandomOnePageAtTimeWrite) {
         for(int x=0; x<2; x++){
             for(size_t p=0; p < pages_; p++){
-                ASSERT_EQ(SUCCESS, _FTL_WRITE_SECT((rand() % pages_) * 4096, 1));
+                ASSERT_EQ(SUCCESS, _FTL_WRITE_SECT((rand() % pages_) * CONST_PAGE_SIZE_IN_BYTES, 1));
             }
             for(size_t p=0; p < pages_; p++){
-                ASSERT_EQ(SUCCESS, _FTL_WRITE_SECT(p * 4096, 1));
+                ASSERT_EQ(SUCCESS, _FTL_WRITE_SECT(p * CONST_PAGE_SIZE_IN_BYTES, 1));
             }
         }
     }
