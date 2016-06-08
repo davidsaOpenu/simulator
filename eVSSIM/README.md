@@ -1,17 +1,17 @@
-VSSIM talking NVMe
+VSSIM talking NVMe:
 ==================
 
 Building
 --------
 
-1. cd to root folder (cd ..)
-2. run compile.sh script (./compile.sh)
+1. cd to root folder (cd .eVSSIM)
+2. run scripts/compile.sh
 
 Setting up VSSIM and run QEMU
 ------------------------
 
-1. cd to root folder (cd ..)
-2. run run_simulator.sh script (sudo ./run_simulator.sh <PATH-TO-IMAGE>)
+1. cd to root folder (cd eVSSIM)
+2. run sudo scripts/run_simulator.sh <PATH-TO-IMAGE>
    the script needs root permission in order to mount a tmpfs for the simulator.
 
 QEMU distclean
