@@ -78,12 +78,11 @@ namespace {
     }; // OccupySpaceStressTest
 
 
-    INSTANTIATE_TEST_CASE_P(DiskSize, SectorUnitTest, ::testing::Values(256, 256)); //512 /*MB */, 1024 /*1G*/, 4096 /*4G*/)); //Values are in MB
+    INSTANTIATE_TEST_CASE_P(DiskSize, SectorUnitTest, ::testing::Values(1, 1)); //512 /*MB */, 1024 /*1G*/, 4096 /*4G*/)); //Values are in MB
 
     TEST_P(SectorUnitTest, SequentialOnePageAtTimeWrite) {
         for(int x=0; x<8; x++){
             for(size_t p=0; p < pages_; p++){
-                //std::cout << "hello"  << p << "\n";
                 ASSERT_EQ(SUCCESS, _FTL_WRITE_SECT(p * 4096, 1));
             }
         }

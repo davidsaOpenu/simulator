@@ -79,7 +79,7 @@ int SSD_IO_INIT(void){
 	/* Init Access sequence_nb */
 	access_nb = (int **)malloc(sizeof(int*) * FLASH_NB * PLANES_PER_FLASH);
 	for(i=0; i< FLASH_NB*PLANES_PER_FLASH; i++){
-		*(access_nb + i) = (int*)malloc(sizeof(int)*2);
+		access_nb[i] = (int*)malloc(sizeof(int)*2);
 		access_nb[i][0] = -1;
 		access_nb[i][1] = -1;
 	}
@@ -93,18 +93,17 @@ int SSD_IO_INIT(void){
 	return 0;
 }
 
-int SSD_IO_TERM(void)
+void SSD_IO_DESTRUCT(void)
 {
-	free(reg_io_cmd);
-	free(reg_io_type);
-	free(reg_io_time);
-	free(cell_io_time);
-	int i;
-	for(i=0; i< FLASH_NB*PLANES_PER_FLASH; i++)
-		free(access_nb[i]);
-	free(access_nb);
 	free(io_overhead);
-	return 0;
+	for (int i = 0; i < FLASH_NB * PLANES_PER_FLASH; i++) {
+		free(access_nb[i]);
+	}
+	free(access_nb);
+	free(cell_io_time);
+	free(reg_io_time);
+	free(reg_io_type);
+	free(reg_io_cmd);
 }
 
 int SSD_PAGE_WRITE(unsigned int flash_nb, unsigned int block_nb, unsigned int page_nb, int offset, int type, int io_page_nb)
@@ -255,13 +254,11 @@ int SSD_REG_ACCESS(int reg)
 
 int SSD_CH_ENABLE(int channel)
 {
-	int64_t do_delay = 0;
-
 	if(CHANNEL_SWITCH_DELAY_R == 0 && CHANNEL_SWITCH_DELAY_W == 0)
 		return SUCCESS;
 
 	if(old_channel_nb != channel){
-		do_delay = SSD_CH_SWITCH_DELAY(channel);
+		SSD_CH_SWITCH_DELAY(channel);
 	}
 	
 	return SUCCESS;
@@ -296,6 +293,7 @@ int SSD_REG_RECORD(int reg, int cmd, int type, int offset, int channel)
 
 		/* Update SATA request Info */
 		if(type == WRITE || type == SEQ_WRITE || type == RAN_WRITE || type == RAN_COLD_WRITE || type == RAN_HOT_WRITE){
+			printf("[%s]: IO request sequence number is %d. \n", __FUNCTION__, io_request_seq_nb);
 			access_nb[reg][0] = io_request_seq_nb;
 			access_nb[reg][1] = offset;
 			io_update_overhead = UPDATE_IO_REQUEST(io_request_seq_nb, offset, old_channel_time, UPDATE_START_TIME);
@@ -600,16 +598,12 @@ int SSD_CELL_READ_DELAY(int reg)
 int SSD_BLOCK_ERASE_DELAY(int reg)
 {
 	int ret = 0;
-	int64_t start = 0;
-	int64_t end = 0;
 	int64_t diff;
 	int64_t time_stamp = cell_io_time[reg];
 
 	if( time_stamp == -1)
 		return 0;
 
-	/* Block Erase Delay */
-	start = get_usec();
 	diff = get_usec() - cell_io_time[reg];
 	if( diff < BLOCK_ERASE_DELAY){
 		while(diff < BLOCK_ERASE_DELAY){
@@ -617,7 +611,6 @@ int SSD_BLOCK_ERASE_DELAY(int reg)
 	  	}
 		ret = 1;
 	}
-	end = get_usec();
 
 	/* Update IO Overhead */
 	cell_io_time[reg] = -1;

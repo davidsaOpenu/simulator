@@ -44,6 +44,8 @@ int GARBAGE_COLLECTION(int mapping_index, int l2)
 
 	inverse_block_mapping_entry* inverse_block_entry;
 
+	printf("performing garbage collection. \n");
+
 	ret = SELECT_VICTIM_BLOCK(&victim_phy_flash_nb, &victim_phy_block_nb);
 	if(ret == FAIL){
 #ifdef FTL_DEBUG
@@ -176,7 +178,9 @@ int SELECT_VICTIM_BLOCK(unsigned int* phy_flash_nb, unsigned int* phy_block_nb)
 		}
 		curr_root += 1;
 	}
-	if(*(victim_block->valid_page_nb) == PAGE_NB){
+
+	int valid_pages = *(victim_block->valid_page_nb);
+	if(valid_pages == PAGE_NB) {
 		fail_cnt++;
 		return FAIL;
 	}

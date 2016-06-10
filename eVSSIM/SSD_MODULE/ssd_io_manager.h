@@ -17,7 +17,9 @@ int64_t get_usec(void);
 
 /* Initialize SSD Module */
 int SSD_IO_INIT(void);
-int SSD_IO_TERM(void);
+
+/* Destroy SSD Module */
+void SSD_IO_DESTRUCT(void);
 
 /* GET IO from FTL */
 int SSD_PAGE_READ(unsigned int flash_nb, unsigned int block_nb, unsigned int page_nb, int offset, int type, int io_page_nb);
