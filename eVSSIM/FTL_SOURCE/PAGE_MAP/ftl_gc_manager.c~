@@ -44,9 +44,7 @@ int GARBAGE_COLLECTION(int mapping_index, int l2)
 
 	inverse_block_mapping_entry* inverse_block_entry;
 
-	printf("performing garbage collection. \n");
-
-	ret = SELECT_VICTIM_BLOCK(&victim_phy_flash_nb, &victim_phy_block_nb);
+	ret = SELECT_VICTIM_BLOCK(&victim_phy_flash_nb, &victim_phy_block_nb, l2);
 	if(ret == FAIL){
 #ifdef FTL_DEBUG
 		printf("[%s] There is no available victim block\n",__FUNCTION__);
@@ -127,6 +125,7 @@ int GARBAGE_COLLECTION(int mapping_index, int l2)
 	gc_count++;
 
 #ifdef MONITOR_ON
+	printf("write amplification for writing logical page %d is %d \n", lpn, copy_page_nb);
 	char szTemp[1024];
 	sprintf(szTemp, "GC ");
 	WRITE_LOG(szTemp);
@@ -138,7 +137,7 @@ int GARBAGE_COLLECTION(int mapping_index, int l2)
 }
 
 /* Greedy Garbage Collection Algorithm */
-int SELECT_VICTIM_BLOCK(unsigned int* phy_flash_nb, unsigned int* phy_block_nb)
+int SELECT_VICTIM_BLOCK(unsigned int* phy_flash_nb, unsigned int* phy_block_nb, int force)
 {
 	int i, j;
 	int entry_nb = 0;
@@ -180,7 +179,7 @@ int SELECT_VICTIM_BLOCK(unsigned int* phy_flash_nb, unsigned int* phy_block_nb)
 	}
 
 	int valid_pages = *(victim_block->valid_page_nb);
-	if(valid_pages == PAGE_NB) {
+	if(valid_pages >= PAGE_NB - 1 || (force && valid_pages == PAGE_NB)){
 		fail_cnt++;
 		return FAIL;
 	}

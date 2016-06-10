@@ -306,7 +306,7 @@ void TERM_VALID_ARRAY(void)
 	char* valid_array;
 
 	FILE* fp = fopen("./data/valid_array.dat","w");
-        if(fp == NULL){
+    if(fp == NULL) {
 		printf("ERROR[%s] File open fail\n",__FUNCTION__);
 		return;
 	}
@@ -315,6 +315,7 @@ void TERM_VALID_ARRAY(void)
 		valid_array = curr_mapping_entry->valid_array;
 		if(fwrite(valid_array, sizeof(char), PAGE_NB, fp) <= 0)
 			printf("ERROR[%s] fwrite\n",__FUNCTION__);
+		free(valid_array);
 		curr_mapping_entry += 1;
 	}
 	fclose(fp);
@@ -349,15 +350,18 @@ void TERM_EMPTY_BLOCK_LIST(void)
 				if(fwrite(curr_entry, sizeof(empty_block_entry), 1, fp) <= 0)
 					printf("ERROR[%s] fwrite\n",__FUNCTION__);
 
-				if(k != 1){
+				empty_block_entry * old = curr_entry;
+				if(k != 1) {
 					curr_entry = curr_entry->next;
 				}
+				free(old);
 				k--;
 			}
 			curr_root += 1;
 		}
 	}
 	fclose(fp);
+	free(empty_block_table_start);
 }
 
 void TERM_VICTIM_BLOCK_LIST(void)
@@ -389,14 +393,17 @@ void TERM_VICTIM_BLOCK_LIST(void)
 				if(fwrite(curr_entry, sizeof(victim_block_entry), 1, fp) <= 0)
 					printf("ERROR[%s] fwrite\n",__FUNCTION__);
 
+				victim_block_entry * old = curr_entry;
 				if(k != 1){
 					curr_entry = curr_entry->next;
 				}
+				free(old);
 				k--;
 			}
 			curr_root += 1;
 		}
 	}
+	free(victim_block_table_start);
 	fclose(fp);
 }
 
@@ -458,12 +465,12 @@ empty_block_entry* GET_EMPTY_BLOCK(int mode, int mapping_index)
 			}
 		}
 		else if(mode == VICTIM_INCHIP){
-			curr_root_entry = (empty_block_root*)empty_block_table_start + mapping_index;
+			curr_root_entry = (empty_block_root *)empty_block_table_start + mapping_index;
 			if(curr_root_entry->empty_block_nb == 0){
 
 				mapping_index++;
 				if(mapping_index % PLANES_PER_FLASH == 0){
-					mapping_index = mapping_index - (PLANES_PER_FLASH-1);
+					mapping_index = mapping_index - PLANES_PER_FLASH;
 				}
 				if(mapping_index == input_mapping_index){
 					printf("ERROR[%s] There is no empty block\n",__FUNCTION__);
@@ -558,6 +565,8 @@ int INSERT_EMPTY_BLOCK(unsigned int phy_flash_nb, unsigned int phy_block_nb)
 	empty_block_root* curr_root_entry;
 	empty_block_entry* new_empty_block;
 
+	printf("adding block %d to list of empty blocks \n", phy_block_nb);
+
 	new_empty_block = (empty_block_entry*)calloc(1, sizeof(empty_block_entry));
 	if(new_empty_block == NULL){
 		printf("ERROR[%s] Alloc new empty block fail\n",__FUNCTION__);
@@ -606,6 +615,8 @@ int INSERT_VICTIM_BLOCK(empty_block_entry* full_block){
 		printf("ERROR[%s] Calloc fail\n",__FUNCTION__);
 		return FAIL;
 	}
+
+	printf("added block %d to the victim list \n", full_block->phy_block_nb);
 
 	/* Copy the full block address */
 	new_victim_block->phy_flash_nb = full_block->phy_flash_nb;
@@ -714,7 +725,8 @@ int UPDATE_INVERSE_BLOCK_MAPPING(unsigned int phy_flash_nb, unsigned int phy_blo
 	
         if(type == EMPTY_BLOCK){
                 for(i=0;i<PAGE_NB;i++){
-                        UPDATE_INVERSE_BLOCK_VALIDITY(phy_flash_nb, phy_block_nb, i, 0);
+                	printf("[%s] updating inverse block validity. \n", __FUNCTION__);
+                    UPDATE_INVERSE_BLOCK_VALIDITY(phy_flash_nb, phy_block_nb, i, 0);
                 }
         }
 
@@ -753,6 +765,8 @@ int UPDATE_INVERSE_BLOCK_VALIDITY(unsigned int phy_flash_nb, unsigned int phy_bl
 			valid_count++;
 		}
 	}
+
+	printf("block %d has %d valid pages. \n", phy_block_nb, valid_count);
 	mapping_entry->valid_page_nb = valid_count;
 
 	return SUCCESS;

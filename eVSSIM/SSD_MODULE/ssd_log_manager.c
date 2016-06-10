@@ -61,11 +61,7 @@ void THREAD_SERVER(void* arg)
 #ifdef MNT_DEBUG
 	printf("[%s] SERVER THREAD CREATED!!!\n",__FUNCTION__);
 #endif
-	unsigned int len;
-	//unsigned int len2;
 	struct sockaddr_in serverAddr;
-	struct sockaddr_in clientAddr;
-	//struct sockaddr_in clientAddr2;
 
 	if((servSock = socket(AF_INET, SOCK_STREAM, IPPROTO_TCP)) < 0){
 #ifdef MNT_DEBUG
@@ -100,7 +96,7 @@ void THREAD_SERVER(void* arg)
 #ifdef MNT_DEBUG
 	printf("[%s] Wait for client....[%d]\n", __FUNCTION__, servSock);
 #endif
-	clientSock = accept(servSock, (struct sockaddr*) &clientAddr, &len);
+	clientSock = accept(servSock, (struct sockaddr*) NULL, NULL);
 #ifdef MNT_DEBUG
 	printf("[%s] Connected![%d]\n",__FUNCTION__, clientSock);
 	printf("[%s] Error No. [%d]\n",__FUNCTION__, errno);

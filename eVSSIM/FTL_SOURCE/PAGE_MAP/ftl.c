@@ -47,15 +47,17 @@ void FTL_TERM(void)
 {
 	printf("[%s] start\n",__FUNCTION__);
 
-	TERM_MAPPING_TABLE();
-	TERM_INVERSE_PAGE_MAPPING();
+	SSD_IO_DESTRUCT();
+	FTL_TERM_STATS();
+	FTL_TERM_STRATEGY();
+	TERM_PERF_CHECKER();
+	TERM_VICTIM_BLOCK_LIST();
+	TERM_EMPTY_BLOCK_LIST();
 	TERM_VALID_ARRAY();
 	TERM_INVERSE_BLOCK_MAPPING();
-	TERM_EMPTY_BLOCK_LIST();
-	TERM_VICTIM_BLOCK_LIST();
-	TERM_PERF_CHECKER();
-	FTL_TERM_STRATEGY();
-	FTL_TERM_STATS();
+	TERM_INVERSE_PAGE_MAPPING();
+	TERM_MAPPING_TABLE();
+
 	printf("[%s] complete\n",__FUNCTION__);
 }
 
@@ -107,6 +109,7 @@ void FTL_WRITE(uint64_t id, unsigned int offset, unsigned int length)
 
 int FTL_COPYBACK(uint32_t source, uint32_t destination)
 {
+	printf("copying physical page %d to physical page %d \n", source, destination);
 	return storage_strategy->FTL_COPYBACK(source, destination);
 }
 
