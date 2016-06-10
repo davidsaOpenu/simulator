@@ -76,10 +76,19 @@ void INIT_PERF_CHECKER(void){
 	written_page_nb = 0;
 }
 
-void TERM_PERF_CHECKER(void){
+void TERM_PERF_CHECKER(void) {
+    struct io_request * next, *iter = io_request_start;
+    while (iter) {
+        printf("freeing io request @%p. \n", (void *) iter);
+        next = iter->next;
+        free(iter->start_time);
+        free(iter->end_time);
+        free(iter);
+        iter = next;
+    }
 
-	printf("Average Read Latency	%.3lf us\n", avg_read_latency);
-	printf("Average Write Latency	%.3lf us\n", avg_write_latency);
+    printf("Average Read Latency	%.3lf us\n", avg_read_latency);
+    printf("Average Write Latency	%.3lf us\n", avg_write_latency);
 }
 
 void SEND_TO_PERF_CHECKER(int op_type, int64_t op_delay, int type){
@@ -197,7 +206,7 @@ int64_t ALLOC_IO_REQUEST(uint32_t sector_nb, unsigned int length, int io_type, i
 	unsigned int right_skip;
 	unsigned int sects;
 
-	io_request* curr_io_request = (io_request*)calloc(1, sizeof(io_request));
+	struct io_request * curr_io_request = (struct io_request *)calloc(1, sizeof(struct io_request));
 	if(curr_io_request == NULL){
 		printf("ERROR[%s] Calloc io_request fail\n", __FUNCTION__);
 		return 0;
@@ -304,11 +313,11 @@ void FREE_DUMMY_IO_REQUEST(int type)
 	io_request_nb--;
 }
 
-void FREE_IO_REQUEST(io_request* request)
+void FREE_IO_REQUEST(struct io_request * request)
 {
 	int i;
 	int success = 0;
-	io_request* prev_request = io_request_start;
+	struct io_request * prev_request = io_request_start;
 
 	if(io_request_nb == 1){
 		io_request_start = NULL;
@@ -356,7 +365,6 @@ int64_t UPDATE_IO_REQUEST(int request_nb, int offset, int64_t time, int type)
 
 	int io_type;
 	int64_t latency=0;
-	int flag = 0;
 
 	if(request_nb == -1)
 		return 0;
@@ -385,7 +393,6 @@ int64_t UPDATE_IO_REQUEST(int request_nb, int offset, int64_t time, int type)
 		SEND_TO_PERF_CHECKER(io_type, latency, LATENCY_OP);
 
 		FREE_IO_REQUEST(curr_request);
-		flag = 1;
 	}
 	int64_t end = get_usec();
 

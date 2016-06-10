@@ -45,19 +45,20 @@ void FTL_INIT(void)
 
 void FTL_TERM(void)
 {
-	printf("[%s] start\n",__FUNCTION__);
+    printf("[%s] start\n", __FUNCTION__);
 
-	TERM_MAPPING_TABLE();
-	TERM_INVERSE_PAGE_MAPPING();
-	TERM_VALID_ARRAY();
-	TERM_INVERSE_BLOCK_MAPPING();
-	TERM_EMPTY_BLOCK_LIST();
-	TERM_VICTIM_BLOCK_LIST();
-	TERM_PERF_CHECKER();
-	FTL_TERM_STRATEGY();
-	FTL_TERM_STATS();
-	SSD_IO_TERM();
-	printf("[%s] complete\n",__FUNCTION__);
+    TERM_MAPPING_TABLE();
+    TERM_INVERSE_PAGE_MAPPING();
+    TERM_VALID_ARRAY();
+    TERM_INVERSE_BLOCK_MAPPING();
+    TERM_EMPTY_BLOCK_LIST();
+    TERM_VICTIM_BLOCK_LIST();
+    TERM_PERF_CHECKER();
+    FTL_TERM_STRATEGY();
+    FTL_TERM_STATS();
+    SSD_IO_TERM();
+
+    printf("[%s] complete\n", __FUNCTION__);
 }
 
 void FTL_INIT_STRATEGY(void)
@@ -94,35 +95,28 @@ void FTL_TERM_STRATEGY(void)
 
 void FTL_READ(uint64_t id, unsigned int offset, unsigned int length)
 {
-	int ret;
-
-	ret = storage_strategy->FTL_READ(id, offset, length);
+	storage_strategy->FTL_READ(id, offset, length);
 }
 
 void FTL_WRITE(uint64_t id, unsigned int offset, unsigned int length)
 {
-	int ret;
-
-	ret = storage_strategy->FTL_WRITE(id, offset, length);
+	storage_strategy->FTL_WRITE(id, offset, length);
 }
 
 int FTL_COPYBACK(uint32_t source, uint32_t destination)
 {
+	PDBG_FTL("copying physical page %d to physical page %d \n", source, destination);
 	return storage_strategy->FTL_COPYBACK(source, destination);
 }
 
 void FTL_CREATE(size_t size)
 {
-	int ret;
-	
-	ret = storage_strategy->FTL_CREATE(size);
+	storage_strategy->FTL_CREATE(size);
 }
 
 void FTL_DELETE(uint64_t id)
 {
-	int ret;
-	
-	ret = storage_strategy->FTL_DELETE(id);
+	storage_strategy->FTL_DELETE(id);
 }
 
 void FTL_INIT_STATS(void)
