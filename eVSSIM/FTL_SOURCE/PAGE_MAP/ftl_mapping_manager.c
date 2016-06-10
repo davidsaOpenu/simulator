@@ -73,6 +73,8 @@ int GET_NEW_PAGE(int mode, int mapping_index, uint32_t* ppn)
 
 	curr_empty_block->curr_phy_page_nb += 1;
 
+	printf("allocated page %d \n", *ppn);
+
 	return SUCCESS;
 }
 
@@ -89,10 +91,12 @@ int UPDATE_OLD_PAGE_MAPPING(uint32_t lpn)
 		return FAIL;
 	}
     else{
-        UPDATE_INVERSE_BLOCK_VALIDITY(CALC_FLASH(old_ppn),
-                                      CALC_BLOCK(old_ppn),
-                                      CALC_PAGE(old_ppn),
-                                      PAGE_INVALID);
+    	UPDATE_INVERSE_BLOCK_VALIDITY(
+    			CALC_FLASH(old_ppn),
+				CALC_BLOCK(old_ppn),
+				CALC_PAGE(old_ppn),
+				PAGE_INVALID
+		);
         UPDATE_INVERSE_PAGE_MAPPING(old_ppn, -1);
     }
 
@@ -105,7 +109,6 @@ int UPDATE_NEW_PAGE_MAPPING(uint32_t lpn, uint32_t ppn)
 	mapping_table[lpn] = ppn;
 
 	/* Update Inverse Page Mapping Table */
-	UPDATE_INVERSE_BLOCK_VALIDITY(CALC_FLASH(ppn), CALC_BLOCK(ppn), CALC_PAGE(ppn), PAGE_VALID);
 	UPDATE_INVERSE_BLOCK_MAPPING(CALC_FLASH(ppn), CALC_BLOCK(ppn), DATA_BLOCK);
 	UPDATE_INVERSE_PAGE_MAPPING(ppn, lpn);
 
