@@ -1,0 +1,344 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "baa041b7_38084f91",
+        "filename": "eVSSIM/CONFIG/vssim_config_manager.c",
+        "patchSetId": 2
+      },
+      "lineNbr": 260,
+      "author": {
+        "id": 1007990
+      },
+      "writtenOn": "2016-06-14T05:25:17Z",
+      "side": 1,
+      "message": "no need in this change",
+      "revId": "763bc4a3dfde24ad204a90a01b5a7cad7970f242",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "baa041b7_18fd8b6e",
+        "filename": "eVSSIM/FTL_SOURCE/PAGE_MAP/ftl.c",
+        "patchSetId": 2
+      },
+      "lineNbr": 50,
+      "author": {
+        "id": 1007990
+      },
+      "writtenOn": "2016-06-14T05:25:17Z",
+      "side": 1,
+      "message": "Which impact is achieved by reordering? \nIf no impact, please, revert.",
+      "revId": "763bc4a3dfde24ad204a90a01b5a7cad7970f242",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "baa041b7_98f19b98",
+        "filename": "eVSSIM/FTL_SOURCE/PAGE_MAP/ftl_gc_manager.c",
+        "patchSetId": 2
+      },
+      "lineNbr": 47,
+      "author": {
+        "id": 1007990
+      },
+      "writtenOn": "2016-06-14T05:25:17Z",
+      "side": 1,
+      "message": "please enclose by #ifndef FTL_DEBUG",
+      "revId": "763bc4a3dfde24ad204a90a01b5a7cad7970f242",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "baa041b7_582af3e8",
+        "filename": "eVSSIM/FTL_SOURCE/PAGE_MAP/ftl_gc_manager.c",
+        "patchSetId": 2
+      },
+      "lineNbr": 181,
+      "author": {
+        "id": 1007990
+      },
+      "writtenOn": "2016-06-14T05:25:17Z",
+      "side": 1,
+      "message": "why we need this change?",
+      "revId": "763bc4a3dfde24ad204a90a01b5a7cad7970f242",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "baa041b7_382f2ff8",
+        "filename": "eVSSIM/FTL_SOURCE/PAGE_MAP/ftl_inverse_mapping_manager.c",
+        "patchSetId": 2
+      },
+      "lineNbr": 313,
+      "author": {
+        "id": 1007990
+      },
+      "writtenOn": "2016-06-14T05:25:17Z",
+      "side": 1,
+      "message": "please remove this whitechar.\nIf block is touched, then the rule of \"leave it better then received\" is applied.",
+      "revId": "763bc4a3dfde24ad204a90a01b5a7cad7970f242",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "baa041b7_d83e0329",
+        "filename": "eVSSIM/FTL_SOURCE/PAGE_MAP/ftl_inverse_mapping_manager.c",
+        "patchSetId": 2
+      },
+      "lineNbr": 357,
+      "author": {
+        "id": 1007990
+      },
+      "writtenOn": "2016-06-14T05:25:17Z",
+      "side": 1,
+      "message": "In case of long list (k\u003e1) curr_entry s moved, to next. But only old is freed.",
+      "revId": "763bc4a3dfde24ad204a90a01b5a7cad7970f242",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "baa041b7_b83b3f38",
+        "filename": "eVSSIM/FTL_SOURCE/PAGE_MAP/ftl_inverse_mapping_manager.c",
+        "patchSetId": 2
+      },
+      "lineNbr": 396,
+      "author": {
+        "id": 1007990
+      },
+      "writtenOn": "2016-06-14T05:25:17Z",
+      "side": 1,
+      "message": "same as above",
+      "revId": "763bc4a3dfde24ad204a90a01b5a7cad7970f242",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "baa041b7_98487bce",
+        "filename": "eVSSIM/FTL_SOURCE/PAGE_MAP/ftl_inverse_mapping_manager.c",
+        "patchSetId": 2
+      },
+      "lineNbr": 568,
+      "author": {
+        "id": 1007990
+      },
+      "writtenOn": "2016-06-14T05:25:17Z",
+      "side": 1,
+      "message": "please embrace with FTL_DEBUG directive",
+      "revId": "763bc4a3dfde24ad204a90a01b5a7cad7970f242",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "baa041b7_7845b7b1",
+        "filename": "eVSSIM/FTL_SOURCE/PAGE_MAP/ftl_inverse_mapping_manager.c",
+        "patchSetId": 2
+      },
+      "lineNbr": 619,
+      "author": {
+        "id": 1007990
+      },
+      "writtenOn": "2016-06-14T05:25:17Z",
+      "side": 1,
+      "message": "same as above",
+      "revId": "763bc4a3dfde24ad204a90a01b5a7cad7970f242",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "baa041b7_5811d3ae",
+        "filename": "eVSSIM/FTL_SOURCE/PAGE_MAP/ftl_inverse_mapping_manager.c",
+        "patchSetId": 2
+      },
+      "lineNbr": 725,
+      "author": {
+        "id": 1007990
+      },
+      "writtenOn": "2016-06-14T05:25:17Z",
+      "side": 1,
+      "message": "please remove this",
+      "revId": "763bc4a3dfde24ad204a90a01b5a7cad7970f242",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "baa041b7_180b4b7f",
+        "filename": "eVSSIM/FTL_SOURCE/PAGE_MAP/ftl_inverse_mapping_manager.c",
+        "patchSetId": 2
+      },
+      "lineNbr": 728,
+      "author": {
+        "id": 1007990
+      },
+      "writtenOn": "2016-06-14T05:25:17Z",
+      "side": 1,
+      "message": "same as above",
+      "revId": "763bc4a3dfde24ad204a90a01b5a7cad7970f242",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "baa041b7_38160fa8",
+        "filename": "eVSSIM/FTL_SOURCE/PAGE_MAP/ftl_inverse_mapping_manager.c",
+        "patchSetId": 2
+      },
+      "lineNbr": 769,
+      "author": {
+        "id": 1007990
+      },
+      "writtenOn": "2016-06-14T05:25:17Z",
+      "side": 1,
+      "message": "please embrace with FTL_DEBUG",
+      "revId": "763bc4a3dfde24ad204a90a01b5a7cad7970f242",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "baa041b7_d825e30a",
+        "filename": "eVSSIM/FTL_SOURCE/PAGE_MAP/ftl_mapping_manager.c",
+        "patchSetId": 2
+      },
+      "lineNbr": 76,
+      "author": {
+        "id": 1007990
+      },
+      "writtenOn": "2016-06-14T05:25:17Z",
+      "side": 1,
+      "message": "1. please make this print more informative or remove\n2. embrace with FTL_DEBUG directive if leaved,",
+      "revId": "763bc4a3dfde24ad204a90a01b5a7cad7970f242",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "baa041b7_b8221f00",
+        "filename": "eVSSIM/FTL_SOURCE/PAGE_MAP/ftl_mapping_manager.c",
+        "patchSetId": 2
+      },
+      "lineNbr": 94,
+      "author": {
+        "id": 1007990
+      },
+      "writtenOn": "2016-06-14T05:25:17Z",
+      "side": 1,
+      "message": "embrace with FTL_DEBUG directive if leaved,",
+      "revId": "763bc4a3dfde24ad204a90a01b5a7cad7970f242",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "baa041b7_981f5bb7",
+        "filename": "eVSSIM/FTL_SOURCE/PAGE_MAP/ftl_mapping_manager.c",
+        "patchSetId": 2
+      },
+      "lineNbr": 108,
+      "author": {
+        "id": 1007990
+      },
+      "writtenOn": "2016-06-14T05:25:17Z",
+      "side": 1,
+      "message": "embrace with FTL_DEBUG directive if leaved,\nthis message is the same as in previous function. Please add function name in both outputs",
+      "revId": "763bc4a3dfde24ad204a90a01b5a7cad7970f242",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "baa041b7_5878b3f8",
+        "filename": "eVSSIM/FTL_SOURCE/PAGE_MAP/ftl_mapping_manager.c",
+        "patchSetId": 2
+      },
+      "lineNbr": 119,
+      "author": {
+        "id": 1007990
+      },
+      "writtenOn": "2016-06-14T05:25:17Z",
+      "side": 1,
+      "message": "same as above",
+      "revId": "763bc4a3dfde24ad204a90a01b5a7cad7970f242",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "baa041b7_387defe7",
+        "filename": "eVSSIM/FTL_SOURCE/PERF_MODULE/ftl_perf_manager.c",
+        "patchSetId": 2
+      },
+      "lineNbr": 81,
+      "author": {
+        "id": 1007990
+      },
+      "writtenOn": "2016-06-14T05:25:17Z",
+      "side": 1,
+      "message": "please substitute tabs with spaces in all lines of this bloack",
+      "revId": "763bc4a3dfde24ad204a90a01b5a7cad7970f242",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "baa041b7_98763b05",
+        "filename": "eVSSIM/SSD_MODULE/ssd_io_manager.c",
+        "patchSetId": 2
+      },
+      "lineNbr": 97,
+      "author": {
+        "id": 1007990
+      },
+      "writtenOn": "2016-06-14T05:25:17Z",
+      "side": 1,
+      "message": "is this reordering is necessary? why?",
+      "revId": "763bc4a3dfde24ad204a90a01b5a7cad7970f242",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "baa041b7_f88667da",
+        "filename": "eVSSIM/SSD_MODULE/ssd_io_manager.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 22,
+      "author": {
+        "id": 1007990
+      },
+      "writtenOn": "2016-06-14T05:25:17Z",
+      "side": 1,
+      "message": "do you think that destroy is better then term?",
+      "revId": "763bc4a3dfde24ad204a90a01b5a7cad7970f242",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "baa041b7_18590b8f",
+        "filename": "eVSSIM/SSD_MODULE/ssd_log_manager.c",
+        "patchSetId": 2
+      },
+      "lineNbr": 48,
+      "author": {
+        "id": 1007990
+      },
+      "writtenOn": "2016-06-14T05:25:17Z",
+      "side": 1,
+      "message": "those changes were already done in\nhttps://review.gerrithub.io/#/c/279906/",
+      "revId": "763bc4a3dfde24ad204a90a01b5a7cad7970f242",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    }
+  ]
+}
