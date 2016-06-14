@@ -1,0 +1,140 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "baa041b7_5862f317",
+        "filename": "eVSSIM/FTL_SOURCE/PAGE_MAP/ftl_inverse_mapping_manager.c",
+        "patchSetId": 2
+      },
+      "lineNbr": 725,
+      "author": {
+        "id": 1007990
+      },
+      "writtenOn": "2016-06-14T06:04:09Z",
+      "side": 1,
+      "message": "let\u0027s breack the line here",
+      "revId": "6dd17593b0d3065f23cae8644a1e60b510848993",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "baa041b7_186c6b07",
+        "filename": "eVSSIM/FTL_SOURCE/PAGE_MAP/ftl_inverse_mapping_manager.c",
+        "patchSetId": 2
+      },
+      "lineNbr": 730,
+      "author": {
+        "id": 1007990
+      },
+      "writtenOn": "2016-06-14T06:04:09Z",
+      "side": 1,
+      "message": "lets break this line?",
+      "revId": "6dd17593b0d3065f23cae8644a1e60b510848993",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "baa041b7_38672f27",
+        "filename": "eVSSIM/FTL_SOURCE/PAGE_MAP/ftl_inverse_mapping_manager.c",
+        "patchSetId": 2
+      },
+      "lineNbr": 731,
+      "author": {
+        "id": 1007990
+      },
+      "writtenOn": "2016-06-14T06:04:09Z",
+      "side": 1,
+      "message": "The code looks much better! :-)",
+      "revId": "6dd17593b0d3065f23cae8644a1e60b510848993",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "baa041b7_78a6d754",
+        "filename": "eVSSIM/FTL_SOURCE/PAGE_MAP/ftl_inverse_mapping_manager.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 81,
+      "author": {
+        "id": 1007990
+      },
+      "writtenOn": "2016-06-14T06:04:09Z",
+      "side": 1,
+      "message": "let\u0027s break long lines here by writing params one at a line",
+      "revId": "6dd17593b0d3065f23cae8644a1e60b510848993",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "baa041b7_98a99b27",
+        "filename": "eVSSIM/FTL_SOURCE/PAGE_MAP/ftl_inverse_mapping_manager.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 86,
+      "author": {
+        "id": 1007990
+      },
+      "writtenOn": "2016-06-14T06:04:09Z",
+      "side": 1,
+      "message": "let\u0027s break long lines here by writing params one at a line",
+      "revId": "6dd17593b0d3065f23cae8644a1e60b510848993",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "baa041b7_f870a7de",
+        "filename": "eVSSIM/FTL_SOURCE/PAGE_MAP/ftl_mapping_manager.c",
+        "patchSetId": 2
+      },
+      "lineNbr": 89,
+      "author": {
+        "id": 1007990
+      },
+      "writtenOn": "2016-06-14T06:04:09Z",
+      "side": 1,
+      "message": "wow :-)",
+      "revId": "6dd17593b0d3065f23cae8644a1e60b510848993",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "baa041b7_d87603d8",
+        "filename": "eVSSIM/FTL_SOURCE/PAGE_MAP/ftl_mapping_manager.c",
+        "patchSetId": 2
+      },
+      "lineNbr": 92,
+      "author": {
+        "id": 1007990
+      },
+      "writtenOn": "2016-06-14T06:04:09Z",
+      "side": 1,
+      "message": "lets breack this line and if nitpicking then let\u0027s remove tabs and replace them by spaces. \nI suggest as a rule of tumb to   apply the rule \"if block is touched (block \u003d code inside {} ) then leave it better\". I guess this will be a right tradeoff between totally chaning the style or leaving it untouched. What do you think?",
+      "revId": "6dd17593b0d3065f23cae8644a1e60b510848993",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "baa041b7_b8733fe7",
+        "filename": "eVSSIM/FTL_SOURCE/PAGE_MAP/ftl_obj_strategy.c",
+        "patchSetId": 2
+      },
+      "lineNbr": 157,
+      "author": {
+        "id": 1007990
+      },
+      "writtenOn": "2016-06-14T06:04:09Z",
+      "side": 1,
+      "message": "Please remove the writespaed in the blocks that were  touched",
+      "revId": "6dd17593b0d3065f23cae8644a1e60b510848993",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    }
+  ]
+}
