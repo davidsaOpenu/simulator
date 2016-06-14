@@ -23,11 +23,12 @@ pthread_t thread_ID;
 
 int g_server_create = 0;
 int g_init_log_server = 0;
+FILE *monitor = NULL;
 
 void INIT_LOG_MANAGER(void)
 {
 	if(g_init_log_server == 0){
-		if(popen("./ssd_monitor", "r") == NULL){
+		if ((monitor = popen("./ssd_monitor", "r")) == NULL){
 			perror("popen");
 			printf("ERROR[%s] fwrite\n",__FUNCTION__);
 		}
@@ -41,6 +42,7 @@ void TERM_LOG_MANAGER(void)
 	close(servSock);
 	close(clientSock);
 	close(clientSock2);
+	pclose(monitor);
 }
 
 void WRITE_LOG(char* szLog)
