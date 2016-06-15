@@ -19,6 +19,24 @@
     },
     {
       "key": {
+        "uuid": "baa041b7_4cc6b517",
+        "filename": "eVSSIM/CONFIG/vssim_config_manager.c",
+        "patchSetId": 2
+      },
+      "lineNbr": 260,
+      "author": {
+        "id": 1008354
+      },
+      "writtenOn": "2016-06-15T04:07:04Z",
+      "side": 1,
+      "message": "No reason not to include it, unless you just don\u0027t want unrelated changes in the patch?",
+      "parentUuid": "baa041b7_38084f91",
+      "revId": "763bc4a3dfde24ad204a90a01b5a7cad7970f242",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "baa041b7_18fd8b6e",
         "filename": "eVSSIM/FTL_SOURCE/PAGE_MAP/ftl.c",
         "patchSetId": 2
@@ -30,6 +48,24 @@
       "writtenOn": "2016-06-14T05:25:17Z",
       "side": 1,
       "message": "Which impact is achieved by reordering? \nIf no impact, please, revert.",
+      "revId": "763bc4a3dfde24ad204a90a01b5a7cad7970f242",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "baa041b7_6ce1799a",
+        "filename": "eVSSIM/FTL_SOURCE/PAGE_MAP/ftl.c",
+        "patchSetId": 2
+      },
+      "lineNbr": 50,
+      "author": {
+        "id": 1008354
+      },
+      "writtenOn": "2016-06-15T04:07:04Z",
+      "side": 1,
+      "message": "Order of initialization should be opposite of destruction (see dustructors in c++). I believe that one of the destructors here calls a function that allocates memory in a global list that was freed in a previous destructor, causing a memory leak. This is one of the reasons the code needs to be refactored. (If the list head were not a global variable this would not be possible, if c++ and RAII were utilized the order would have been fine.)",
+      "parentUuid": "baa041b7_18fd8b6e",
       "revId": "763bc4a3dfde24ad204a90a01b5a7cad7970f242",
       "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
       "unresolved": false
@@ -70,6 +106,24 @@
     },
     {
       "key": {
+        "uuid": "baa041b7_4ced958d",
+        "filename": "eVSSIM/FTL_SOURCE/PAGE_MAP/ftl_gc_manager.c",
+        "patchSetId": 2
+      },
+      "lineNbr": 181,
+      "author": {
+        "id": 1008354
+      },
+      "writtenOn": "2016-06-15T04:07:04Z",
+      "side": 1,
+      "message": "Used to debug an issue, didn\u0027t seem like a bad change.",
+      "parentUuid": "baa041b7_582af3e8",
+      "revId": "763bc4a3dfde24ad204a90a01b5a7cad7970f242",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "baa041b7_382f2ff8",
         "filename": "eVSSIM/FTL_SOURCE/PAGE_MAP/ftl_inverse_mapping_manager.c",
         "patchSetId": 2
@@ -81,6 +135,24 @@
       "writtenOn": "2016-06-14T05:25:17Z",
       "side": 1,
       "message": "please remove this whitechar.\nIf block is touched, then the rule of \"leave it better then received\" is applied.",
+      "revId": "763bc4a3dfde24ad204a90a01b5a7cad7970f242",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "baa041b7_cc53e56b",
+        "filename": "eVSSIM/FTL_SOURCE/PAGE_MAP/ftl_inverse_mapping_manager.c",
+        "patchSetId": 2
+      },
+      "lineNbr": 313,
+      "author": {
+        "id": 1008354
+      },
+      "writtenOn": "2016-06-15T04:07:04Z",
+      "side": 1,
+      "message": "Sorry, mixed conventions. Will do.",
+      "parentUuid": "baa041b7_382f2ff8",
       "revId": "763bc4a3dfde24ad204a90a01b5a7cad7970f242",
       "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
       "unresolved": false
@@ -104,6 +176,24 @@
     },
     {
       "key": {
+        "uuid": "baa041b7_0c59cd8e",
+        "filename": "eVSSIM/FTL_SOURCE/PAGE_MAP/ftl_inverse_mapping_manager.c",
+        "patchSetId": 2
+      },
+      "lineNbr": 357,
+      "author": {
+        "id": 1008354
+      },
+      "writtenOn": "2016-06-15T04:07:04Z",
+      "side": 1,
+      "message": "That\u0027s the point. If curr_entry were freed it would be illegal to dereference it to acquire next. So it is advanced and the remaining reference to it is freed.",
+      "parentUuid": "baa041b7_d83e0329",
+      "revId": "763bc4a3dfde24ad204a90a01b5a7cad7970f242",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "baa041b7_b83b3f38",
         "filename": "eVSSIM/FTL_SOURCE/PAGE_MAP/ftl_inverse_mapping_manager.c",
         "patchSetId": 2
@@ -115,6 +205,41 @@
       "writtenOn": "2016-06-14T05:25:17Z",
       "side": 1,
       "message": "same as above",
+      "revId": "763bc4a3dfde24ad204a90a01b5a7cad7970f242",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "baa041b7_ec5d897a",
+        "filename": "eVSSIM/FTL_SOURCE/PAGE_MAP/ftl_inverse_mapping_manager.c",
+        "patchSetId": 2
+      },
+      "lineNbr": 396,
+      "author": {
+        "id": 1008354
+      },
+      "writtenOn": "2016-06-15T04:07:04Z",
+      "side": 1,
+      "message": "Here too.",
+      "parentUuid": "baa041b7_b83b3f38",
+      "revId": "763bc4a3dfde24ad204a90a01b5a7cad7970f242",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "baa041b7_4c9475e7",
+        "filename": "eVSSIM/FTL_SOURCE/PAGE_MAP/ftl_inverse_mapping_manager.c",
+        "patchSetId": 2
+      },
+      "lineNbr": 473,
+      "author": {
+        "id": 1008354
+      },
+      "writtenOn": "2016-06-15T04:07:04Z",
+      "side": 1,
+      "message": "This fixes the crash. The error here is an off by one. If there was one plane per flash this would be critical because the mapping_index advances but mapping_index -\u003d (PLANES_PER_FLASH - 1) does not change the index, there is a buffer overrun and an access violation occurs.\n\nIf there is more then one plane per flash then this should result in repeating the loop over and over. I didn\u0027t look into this because things seemed to work.",
       "revId": "763bc4a3dfde24ad204a90a01b5a7cad7970f242",
       "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
       "unresolved": false
@@ -291,6 +416,24 @@
     },
     {
       "key": {
+        "uuid": "baa041b7_eceb4977",
+        "filename": "eVSSIM/FTL_SOURCE/PERF_MODULE/ftl_perf_manager.c",
+        "patchSetId": 2
+      },
+      "lineNbr": 81,
+      "author": {
+        "id": 1008354
+      },
+      "writtenOn": "2016-06-15T04:07:04Z",
+      "side": 1,
+      "message": "Will do.",
+      "parentUuid": "baa041b7_387defe7",
+      "revId": "763bc4a3dfde24ad204a90a01b5a7cad7970f242",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "baa041b7_98763b05",
         "filename": "eVSSIM/SSD_MODULE/ssd_io_manager.c",
         "patchSetId": 2
@@ -308,6 +451,24 @@
     },
     {
       "key": {
+        "uuid": "baa041b7_4c5fd575",
+        "filename": "eVSSIM/SSD_MODULE/ssd_io_manager.c",
+        "patchSetId": 2
+      },
+      "lineNbr": 97,
+      "author": {
+        "id": 1008354
+      },
+      "writtenOn": "2016-06-15T04:07:04Z",
+      "side": 1,
+      "message": "In general the order of destruction should be the opposite of initialization. I am not sure if it was here but there was a place where after destroying a list I believe that a later destructor called a function that allocated memory that was not freed (because it\u0027s destructor had already been called).",
+      "parentUuid": "baa041b7_98763b05",
+      "revId": "763bc4a3dfde24ad204a90a01b5a7cad7970f242",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "baa041b7_f88667da",
         "filename": "eVSSIM/SSD_MODULE/ssd_io_manager.h",
         "patchSetId": 2
@@ -319,6 +480,24 @@
       "writtenOn": "2016-06-14T05:25:17Z",
       "side": 1,
       "message": "do you think that destroy is better then term?",
+      "revId": "763bc4a3dfde24ad204a90a01b5a7cad7970f242",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "baa041b7_cc01a53b",
+        "filename": "eVSSIM/SSD_MODULE/ssd_io_manager.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 22,
+      "author": {
+        "id": 1008354
+      },
+      "writtenOn": "2016-06-15T04:07:04Z",
+      "side": 1,
+      "message": "When I added the function I believe it did not exist. And the opposite of initialization is destruction.",
+      "parentUuid": "baa041b7_f88667da",
       "revId": "763bc4a3dfde24ad204a90a01b5a7cad7970f242",
       "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
       "unresolved": false
