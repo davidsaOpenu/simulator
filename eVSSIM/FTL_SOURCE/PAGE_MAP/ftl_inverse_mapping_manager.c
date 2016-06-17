@@ -316,6 +316,7 @@ void TERM_VALID_ARRAY(void)
 		if(fwrite(valid_array, sizeof(char), PAGE_NB, fp) <= 0)
 			printf("ERROR[%s] fwrite\n",__FUNCTION__);
 		curr_mapping_entry += 1;
+		free(valid_array);
 	}
 	fclose(fp);
 }
@@ -324,7 +325,7 @@ void TERM_EMPTY_BLOCK_LIST(void)
 {
 	int i, j, k;
 
-	empty_block_entry* curr_entry;
+	empty_block_entry* curr_entry, *tmp_entry;
 	empty_block_root* curr_root;
 
 	FILE* fp = fopen("./data/empty_block_list.dat","w");
@@ -349,22 +350,23 @@ void TERM_EMPTY_BLOCK_LIST(void)
 				if(fwrite(curr_entry, sizeof(empty_block_entry), 1, fp) <= 0)
 					printf("ERROR[%s] fwrite\n",__FUNCTION__);
 
-				if(k != 1){
-					curr_entry = curr_entry->next;
-				}
+				tmp_entry = curr_entry->next;
+				free(curr_entry);
+				curr_entry = tmp_entry;
 				k--;
 			}
 			curr_root += 1;
 		}
 	}
 	fclose(fp);
+	free(empty_block_table_start);
 }
 
 void TERM_VICTIM_BLOCK_LIST(void)
 {
 	int i, j, k;
 
-	victim_block_entry* curr_entry;
+	victim_block_entry* curr_entry, *tmp_entry;
 	victim_block_root* curr_root;
 
 	FILE* fp = fopen("./data/victim_block_list.dat","w");
@@ -389,15 +391,16 @@ void TERM_VICTIM_BLOCK_LIST(void)
 				if(fwrite(curr_entry, sizeof(victim_block_entry), 1, fp) <= 0)
 					printf("ERROR[%s] fwrite\n",__FUNCTION__);
 
-				if(k != 1){
-					curr_entry = curr_entry->next;
-				}
+				tmp_entry = curr_entry->next;
+				free(curr_entry);
+				curr_entry = tmp_entry;
 				k--;
 			}
 			curr_root += 1;
 		}
 	}
 	fclose(fp);
+	free(victim_block_table_start);
 }
 
 empty_block_entry* GET_EMPTY_BLOCK(int mode, int mapping_index)
