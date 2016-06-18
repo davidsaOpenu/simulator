@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "baa041b7_91ba82bf",
+        "filename": "eVSSIM/FTL_SOURCE/PAGE_MAP/ftl_inverse_mapping_manager.c",
+        "patchSetId": 2
+      },
+      "lineNbr": 718,
+      "author": {
+        "id": 1007990
+      },
+      "writtenOn": "2016-06-18T19:11:44Z",
+      "side": 1,
+      "message": "UPDATE_INVERSE_BLOCK_VALIDITY is a generic method that is aware of how validity information is maintained. This change violates \"One place, one change\" principle.",
+      "revId": "928dc650307cf9b87d26a391d7e23f7569168a2f",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    }
+  ]
+}
