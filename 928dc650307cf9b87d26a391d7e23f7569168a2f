@@ -16,6 +16,24 @@
       "revId": "928dc650307cf9b87d26a391d7e23f7569168a2f",
       "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "baa041b7_31ca9650",
+        "filename": "eVSSIM/FTL_SOURCE/PAGE_MAP/ftl_inverse_mapping_manager.c",
+        "patchSetId": 2
+      },
+      "lineNbr": 718,
+      "author": {
+        "id": 1008228
+      },
+      "writtenOn": "2016-06-18T19:37:34Z",
+      "side": 1,
+      "message": "While I agree with the principle, I think we should change this function.\nThere is no reason to call UPDATE_INVERSE_BLOCK_VALIDITY for each page when we know what will be the result.\nWhen we start using many pages, this will have real impact on performance.\nDo you prefer a new function?",
+      "parentUuid": "baa041b7_91ba82bf",
+      "revId": "928dc650307cf9b87d26a391d7e23f7569168a2f",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
     }
   ]
 }
