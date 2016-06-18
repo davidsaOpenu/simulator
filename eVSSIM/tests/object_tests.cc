@@ -11,7 +11,7 @@ extern "C" {
 #include "osd-util/osd-defs.h"
 }
 extern "C" int g_init;
-extern "C" int g_server_create;
+extern "C" int clientSock;
 extern "C" int g_init_log_server;
 
 #define GTEST_DONT_DEFINE_FAIL 1
@@ -69,7 +69,7 @@ namespace {
                 remove("data/victim_block_list.dat");
                 remove("data/ssd.conf");
                 g_init = 0;
-                g_server_create = 0;
+                clientSock = 0;
                 g_init_log_server = 0;
 #ifndef NO_OSD
                 osd_term();
