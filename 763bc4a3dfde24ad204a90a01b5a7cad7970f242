@@ -37,6 +37,24 @@
     },
     {
       "key": {
+        "uuid": "baa041b7_31a3b6a0",
+        "filename": "eVSSIM/CONFIG/vssim_config_manager.c",
+        "patchSetId": 2
+      },
+      "lineNbr": 260,
+      "author": {
+        "id": 1007990
+      },
+      "writtenOn": "2016-06-21T20:02:03Z",
+      "side": 1,
+      "message": "no reason for that change. so why to change?",
+      "parentUuid": "baa041b7_4cc6b517",
+      "revId": "763bc4a3dfde24ad204a90a01b5a7cad7970f242",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "baa041b7_18fd8b6e",
         "filename": "eVSSIM/FTL_SOURCE/PAGE_MAP/ftl.c",
         "patchSetId": 2
