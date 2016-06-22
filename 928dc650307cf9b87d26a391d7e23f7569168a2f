@@ -34,6 +34,24 @@
       "revId": "928dc650307cf9b87d26a391d7e23f7569168a2f",
       "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "baa041b7_3dcb7d74",
+        "filename": "eVSSIM/FTL_SOURCE/PAGE_MAP/ftl_inverse_mapping_manager.c",
+        "patchSetId": 2
+      },
+      "lineNbr": 718,
+      "author": {
+        "id": 1007990
+      },
+      "writtenOn": "2016-06-22T06:21:56Z",
+      "side": 1,
+      "message": "We have 6 additional invocations of this function in ftl_mapping_manager.c and ftl_obj_strategy.c. So if treated these calls should be treated as well in order to keep in one place the page validity update. \nDefinitely, we have an overhead. Ideally the updates of the pages in block may be redesigned to be updated at once without. We can do it as a part of a blueprint for big SSD.",
+      "parentUuid": "baa041b7_31ca9650",
+      "revId": "928dc650307cf9b87d26a391d7e23f7569168a2f",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
     }
   ]
 }
