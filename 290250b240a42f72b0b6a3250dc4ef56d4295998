@@ -1,0 +1,140 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "baa041b7_fba4f308",
+        "filename": "eVSSIM/FTL_SOURCE/PAGE_MAP/ftl.c",
+        "patchSetId": 4
+      },
+      "lineNbr": 48,
+      "author": {
+        "id": 1007990
+      },
+      "writtenOn": "2016-06-24T09:38:50Z",
+      "side": 1,
+      "message": "Please remove dbg outputs",
+      "revId": "290250b240a42f72b0b6a3250dc4ef56d4295998",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "baa041b7_dba7ef09",
+        "filename": "eVSSIM/FTL_SOURCE/PAGE_MAP/ftl.c",
+        "patchSetId": 4
+      },
+      "lineNbr": 61,
+      "author": {
+        "id": 1007990
+      },
+      "writtenOn": "2016-06-24T09:38:50Z",
+      "side": 1,
+      "message": "same",
+      "revId": "290250b240a42f72b0b6a3250dc4ef56d4295998",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "baa041b7_5bb4ff33",
+        "filename": "eVSSIM/FTL_SOURCE/PAGE_MAP/ftl.c",
+        "patchSetId": 4
+      },
+      "lineNbr": 98,
+      "author": {
+        "id": 1007990
+      },
+      "writtenOn": "2016-06-24T09:38:50Z",
+      "side": 1,
+      "message": "already proposed here https://review.gerrithub.io/#/c/274644/",
+      "revId": "290250b240a42f72b0b6a3250dc4ef56d4295998",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "baa041b7_3b825b53",
+        "filename": "eVSSIM/FTL_SOURCE/PAGE_MAP/ftl.c",
+        "patchSetId": 4
+      },
+      "lineNbr": 103,
+      "author": {
+        "id": 1007990
+      },
+      "writtenOn": "2016-06-24T09:38:50Z",
+      "side": 1,
+      "message": "same",
+      "revId": "290250b240a42f72b0b6a3250dc4ef56d4295998",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "baa041b7_1b855758",
+        "filename": "eVSSIM/FTL_SOURCE/PAGE_MAP/ftl.c",
+        "patchSetId": 4
+      },
+      "lineNbr": 108,
+      "author": {
+        "id": 1007990
+      },
+      "writtenOn": "2016-06-24T09:38:50Z",
+      "side": 1,
+      "message": "dbg output",
+      "revId": "290250b240a42f72b0b6a3250dc4ef56d4295998",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "baa041b7_db7ecf69",
+        "filename": "eVSSIM/FTL_SOURCE/PAGE_MAP/ftl.c",
+        "patchSetId": 4
+      },
+      "lineNbr": 114,
+      "author": {
+        "id": 1007990
+      },
+      "writtenOn": "2016-06-24T09:38:50Z",
+      "side": 1,
+      "message": "https://review.gerrithub.io/#/c/274644/",
+      "revId": "290250b240a42f72b0b6a3250dc4ef56d4295998",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "baa041b7_bb966b92",
+        "filename": "eVSSIM/FTL_SOURCE/PAGE_MAP/ftl.c",
+        "patchSetId": 4
+      },
+      "lineNbr": 119,
+      "author": {
+        "id": 1007990
+      },
+      "writtenOn": "2016-06-24T09:38:50Z",
+      "side": 1,
+      "message": "https://review.gerrithub.io/#/c/274644/",
+      "revId": "290250b240a42f72b0b6a3250dc4ef56d4295998",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "baa041b7_7be7c340",
+        "filename": "eVSSIM/SSD_MODULE/ssd_io_manager.c",
+        "patchSetId": 4
+      },
+      "lineNbr": 286,
+      "author": {
+        "id": 1007990
+      },
+      "writtenOn": "2016-06-24T09:38:50Z",
+      "side": 1,
+      "message": "dbg output",
+      "revId": "290250b240a42f72b0b6a3250dc4ef56d4295998",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    }
+  ]
+}
