@@ -39,12 +39,6 @@
   args:
     chdir: "fio_tests"
 
-# XXX: can be removed later - when commited into sim repo
-- name: set group_reporting=1
-  shell: sed -i 's/group_reporting/group_reporting=1/g' *.fio
-  args:
-    chdir: "fio_tests/fio_jobs"
-
 - name: run fio job I <short>
   become: true
   shell: ./perf_test_rec_short.sh
