@@ -9,7 +9,6 @@
   args:
       chdir: "{{ dest }}/eVSSIM/tests"
   register: sector_tests
-  when: not short_mode|bool
 
 - name: run object tests
   shell: valgrind --leak-check=full --error-exitcode=2 ./object_tests
