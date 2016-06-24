@@ -78,7 +78,6 @@ eVSSIM/tests/test_*.txt
 eVSSIM/tests/unit_tests
 eVSSIM/tests/sector_tests
 eVSSIM/tests/object_tests
-eVSSIM/tests/data
 eVSSIM/tests/common.h
 eVSSIM/tests/ftl.h
 eVSSIM/tests/ftl.c
