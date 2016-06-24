@@ -62,6 +62,7 @@ void WRITE_LOG(const char *fmt, ...)
 
 void THREAD_SERVER(void)
 {
+#ifdef MONITOR_ON
     PDBG_MNT("Start\n");
 
     if ((servSock = socket(AF_INET, SOCK_STREAM, IPPROTO_TCP)) < 0)
@@ -88,12 +89,15 @@ void THREAD_SERVER(void)
     if ((clientSock = accept(servSock, NULL, NULL)) < 0)
         RDBG_MNT(, "accept failed: %s\n", strerror(errno));
     PDBG_MNT("Connected![%d]\n", clientSock);
+#endif
 }
 
 void THREAD_CLIENT(void *arg)
 {
+#ifdef MONITOR_ON
     int sock = *(int*)arg;
     PDBG_MNT("ClientSock[%d]\n", sock);
     send(sock, "test\n", 5, 0);
+#endif
 }
 
