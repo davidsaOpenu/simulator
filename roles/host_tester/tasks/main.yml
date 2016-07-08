@@ -1,8 +1,16 @@
-- name: build unit tests
-  shell: "make mklink && make all"
-  args:
-      chdir: "{{ dest }}/eVSSIM/tests"
-  register: build_unit_tests
+- name: build unit tests - make mklink
+  make: 
+    chdir: "{{ dest }}/eVSSIM/tests"
+    target: mklink
+  register: build_unit_tests_mklink
+
+- name: build unit tests - make all
+  make:
+    chdir: "{{ dest }}/eVSSIM/tests"
+    target: all
+  register: build_unit_tests_all
+
+- debug: msg="Done  build unit tests"
 
 - name: run sector tests
   shell: valgrind --leak-check=full --error-exitcode=2 ./sector_tests --ci
