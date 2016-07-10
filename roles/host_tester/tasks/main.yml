@@ -9,17 +9,17 @@
   args:
       chdir: "{{ dest }}/eVSSIM/tests"
   register: sector_tests
-  async: 7200 #secs = 2 hours
-  poll: 60 #secs
+
+- debug: msg="Sector tests stdout\n{{ sector_tests.stdout }}"
+- debug: msg="Sector tests stderr\n{{ sector_tests.stderr }}"
 
 - name: run object tests
   shell: valgrind --leak-check=full --error-exitcode=2 ./object_tests
   args:
       chdir: "{{ dest }}/eVSSIM/tests"
   register: object_tests
-  async: 1200 #secs = 20 min
-  poll: 60 #secs
 
-
+- debug: msg="Object tests stdout\n{{ object_tests.stdout }}"
+- debug: msg="Object tests stderr\n{{ object_tests.stderr }}"
 
 - debug: msg="Done running tests on {{ ref }}, target is in {{ dest }}"
