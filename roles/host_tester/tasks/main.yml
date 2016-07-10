@@ -9,16 +9,16 @@
   args:
       chdir: "{{ dest }}/eVSSIM/tests"
   register: sector_tests
-  async: 3600 #secs = 1 hour
-  poll: 30 #secs
+  async: 7200 #secs = 2 hours
+  poll: 60 #secs
 
 - name: run object tests
   shell: valgrind --leak-check=full --error-exitcode=2 ./object_tests
   args:
       chdir: "{{ dest }}/eVSSIM/tests"
   register: object_tests
-  async: 600 #secs = 10 min
-  poll: 30 #secs
+  async: 1200 #secs = 20 min
+  poll: 60 #secs
 
 
 
