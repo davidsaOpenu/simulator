@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "baa041b7_47a152f7",
+        "filename": "eVSSIM/FTL_SOURCE/PAGE_MAP/ftl_inverse_mapping_manager.c",
+        "patchSetId": 1
+      },
+      "lineNbr": 471,
+      "author": {
+        "id": 1008354
+      },
+      "writtenOn": "2016-07-24T18:46:39Z",
+      "side": 0,
+      "message": "Note, this flow was never reached because of the previous bug.\nIf these error messages appear in code that used to work, it is OK, it means we unearthed a bug that we had been hiding until now.",
+      "revId": "a4b08e83b6fcc923cf5cd2b1c4bbf632cde83693",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    }
+  ]
+}
