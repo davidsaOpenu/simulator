@@ -13,19 +13,21 @@ void INIT_OBJ_STRATEGY(void)
 
 void free_obj_table(void)
 {
-    stored_object *curr,*next;
-    for (curr = objects_table; curr; curr=next) {
-        next=curr->hh.next;
-        free(curr);
+    struct stored_object *current_object, *tmp;
+
+    HASH_ITER(hh, objects_table, current_object, tmp) {
+        HASH_DEL(objects_table, current_object);
+        free(current_object);
     }
 }
 
 void free_page_table(void)
 {
-    page_node *curr,*next;
-    for (curr = global_page_table; curr; curr=next) {
-        next=curr->next;
-        free(curr);
+    struct page_node *current_page, *tmp;
+
+    HASH_ITER(hh, global_page_table, current_page, tmp) {
+        HASH_DEL(global_page_table, current_page);
+        free(current_page);
     }
 }
 
