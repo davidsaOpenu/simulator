@@ -448,7 +448,7 @@ empty_block_entry* GET_EMPTY_BLOCK(int mode, int mapping_index)
 
 				mapping_index++;
 				if(mapping_index % PLANES_PER_FLASH == 0){
-					mapping_index = mapping_index - (PLANES_PER_FLASH-1);
+					mapping_index -= PLANES_PER_FLASH;
 				}
 				if (mapping_index == input_mapping_index)
 					RERR(NULL, "There is no empty block\n");
