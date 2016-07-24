@@ -21,7 +21,7 @@ object_tests: object_tests.o $(VSSIM_OBJ)
 	g++ -Wall $(CFLAGS) -c $<
 
 %.o: %.c
-	gcc -Wall $(CFLAGS) -c $<
+	gcc -Wall $(CFLAGS) -c -std=gnu99 $<
 
 .PHONY: clean distclean mklink
 
