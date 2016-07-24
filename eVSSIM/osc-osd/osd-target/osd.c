@@ -91,6 +91,7 @@ static const char *md = "md";
 static const char *dbname = "osd.db";
 static const char *dfiles = "dfiles";
 static const char *stranded = "stranded";
+static char * const argv[] = { "osd-target", NULL };
 
 static inline uint8_t get_obj_type(struct osd_device *osd,
 				   uint64_t pid, uint64_t oid)
@@ -999,7 +1000,6 @@ int osd_open(const char *root, struct osd_device *osd)
 	int i = 0;
 	int ret = 0;
 	char path[MAXNAMELEN];
-	char *argv[] = { strdup("osd-target"), NULL };
 
 	osd_set_progname(1, argv);  /* for debug messages from libosdutil */
 	mhz = get_mhz(); /* XXX: find a better way of profiling */

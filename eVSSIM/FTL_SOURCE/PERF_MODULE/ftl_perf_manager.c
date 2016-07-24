@@ -78,6 +78,10 @@ void INIT_PERF_CHECKER(void){
 
 void TERM_PERF_CHECKER(void){
 
+	while (io_request_nb) {
+		FREE_IO_REQUEST(io_request_start);
+	}
+
 	printf("Average Read Latency	%.3lf us\n", avg_read_latency);
 	printf("Average Write Latency	%.3lf us\n", avg_write_latency);
 }
