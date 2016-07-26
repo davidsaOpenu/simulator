@@ -40,7 +40,6 @@ Here are some arguments you can add to `ansible-playbook` invocations:
 | `--tags guest` | Perform only guest tests |
 | `--skip-tags clean` | When replaying, skip the clean actions so there is no need to re-build the packages |
 | `--tags qemu` | Perform only QEMU execution tasks (without running all the lengthy setup and build tasks) |
-| `-e 'short_mode=true'` | Perform tests in short/long mode (default: true) |
 
 ## Customizing
 
@@ -51,11 +50,47 @@ tester1.my-hosting.com hda_dir=/tmp qemu_machine=accel=kvm
 ```
 
 ## Useful variables
+Here are some arguments you can add to `site.yml` invocations (with '-e' or '--extra-vars')
 
+Simulator role arguments:
 | Variable | Meaning |
 | --- | --- |
-| `hda_dir` | Host directory to download the ~2GB `hda.zip` and unpack the ~6GB `hda.img`; defaults to the home directory on the host. |
-| `qemu_machine` | Argument passed to `qemu --machine`. Defaults to `accel=kvm` ; can be set to `accel=tcg` (no acceleration) or `accel=xen` on supporting hosts. |
+| `git_in_ansible`| Determines whether ansible playbook should pull simulator repo. Defaults to git_in_ansible=false |
+| `dest` | Simulator output directory. Defaults to dest={{ ansible_env.HOME }}/simulator |
+| `ref` | Used where git_in_ansible=true, determines which ref to pull from repo. Defaults to ref=refs/heads/master |
+| `build_ssd_monitor` | Determines whether to build ssd_monitor. Defaults to build_ssd_monitor=false |
+| `qemu_pid_file` | Location of pid_file. Defaults to "{{ ansible_env.HOME }}/simulator_qemu.pid" |
+| `cleanup_only` | This argument is used internally. Determines if to skip test's preparations steps and to perform cleanup steps only. Defaults to cleanup_only=false |
+
+Guest tester role arguments:
+| Variable | Meaning |
+| --- | --- |
+| `short_mode` | Perform tests in short/long mode (default: true) |
+
+Guest tester pre (preparation) role arguments:
+| Variable | Meaning |
+| --- | --- |
+| `memory`| Parameter to qemu. Default: 2048 |
+| `smp`| Parameter to qemu. Default: 4 |
+| `hda_dir` | Where to store hda image if downloaded. This has to be a directory with ~ 9GB free space. Default: {{ ansible_env.HOME }} |
+| `hda_zip` | hda zip filename. Default: {{hda_dir}}/hda.zip |
+| `hda_img` | hda filename. Default: {{hda_dir}}/hda.img |
+| `guest_ssh_port` | Port to guest machine, passed to qemu. Default: 2222 |
+| `kernel_image` | filename of kernel image. Default: vmlinuz-3.8.0-29-generic |
+| `initrd_image` | filename of initrd image. Default: initrd.img-3.8.0-29-generic |
+| `kernel_cmdline` | kernel cmdline. Default: "BOOT_IMAGE=/boot/{{kernel_image}} root=UUID=063018ec-674c-4c3e-a976-ac4fa950864f ro" |
+| `qemu_machine` | Default: accel=kvm |
+| `test_instance_id` | For future use. This is intended to be passed from e.g. Jenkins to allow multiple tests to run simultaneously. Default: some_unique_id |
+
+Host tester role arguments:
+| Variable | Meaning |
+| --- | --- |
+| `short_mode` | Perform tests in short/long mode (default: true) |
+
+Prepare role arguments:
+| Variable | Meaning |
+| --- | --- |
+| `build_ssd_monitor` | Determines whether to build ssd_monitor. Defaults to build_ssd_monitor=false |
 
 ## TODO
 
