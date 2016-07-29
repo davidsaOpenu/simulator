@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "baa041b7_8f551efb",
+        "filename": "eVSSIM/tests/Makefile",
+        "patchSetId": 1
+      },
+      "lineNbr": 25,
+      "author": {
+        "id": 1007990
+      },
+      "writtenOn": "2016-07-29T09:00:20Z",
+      "side": 1,
+      "message": "is this patch contains something that requires gnu99?",
+      "revId": "82abb5a4a5b6461a06b85aec82ecb1eeace7fdef",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    }
+  ]
+}
