@@ -1,0 +1,17 @@
+[test_rw]
+group_reporting=1
+<<<<<<< HEAD:eVSSIM/fio_tests/fio_jobs/test_rw.fio
+#filename=/dev/sdb
+=======
+filename=/dev/nvme0n1
+>>>>>>> afd5f7b... Object pass-through – simulator:eVSSIM/tests/guest/fio_tests/fio_jobs/test_rw.fio
+direct=1
+randrepeat=1 
+ioengine=libaio
+bs=8k
+rw=randrw
+iodepth=8
+numjobs=8
+runtime=180
+group_reporting=1
+size=500m

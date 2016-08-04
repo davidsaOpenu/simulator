@@ -73,9 +73,9 @@ void TERM_VICTIM_BLOCK_LIST(void);
 void TERM_VALID_ARRAY(void);
 
 empty_block_entry* GET_EMPTY_BLOCK(int mode, int mapping_index);
-int INSERT_EMPTY_BLOCK(unsigned int phy_flash_nb, unsigned int phy_block_nb);
+ftl_ret_val INSERT_EMPTY_BLOCK(unsigned int phy_flash_nb, unsigned int phy_block_nb);
 
-int INSERT_VICTIM_BLOCK(empty_block_entry* full_block);
+ftl_ret_val INSERT_VICTIM_BLOCK(empty_block_entry* full_block);
 int EJECT_VICTIM_BLOCK(victim_block_entry* victim_block);
 
 inverse_block_mapping_entry* GET_INVERSE_BLOCK_MAPPING_ENTRY(unsigned int phy_flash_nb, unsigned int phy_block_nb);
@@ -84,10 +84,18 @@ uint32_t GET_INVERSE_MAPPING_INFO(uint32_t lpn);
 int UPDATE_INVERSE_PAGE_MAPPING(uint32_t ppn, uint32_t lpn);
 int UPDATE_INVERSE_BLOCK_MAPPING(unsigned int phy_flash_nb,
                                  unsigned int phy_block_nb,
+<<<<<<< HEAD
                                  int type);
 int UPDATE_INVERSE_BLOCK_VALIDITY(unsigned int phy_flash_nb,
                                   unsigned int phy_block_nb,
                                   unsigned int phy_page_nb,
                                   char valid);
+=======
+								 int type);
+ftl_ret_val UPDATE_INVERSE_BLOCK_VALIDITY(unsigned int phy_flash_nb,
+                                          unsigned int phy_block_nb,
+										  unsigned int phy_page_nb,
+										  char valid);
+>>>>>>> afd5f7b... Object pass-through – simulator
 
 #endif

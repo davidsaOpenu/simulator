@@ -6,6 +6,8 @@
 #ifndef _PERF_MANAGER_H_
 #define _PERF_MANAGER_H_
 
+#define MEGABYTE_IN_BYTES 1024*1024
+#define SECOND_IN_USEC 1000000
 /* IO Latency */
 typedef struct io_request
 {
