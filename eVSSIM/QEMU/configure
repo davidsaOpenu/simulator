@@ -233,8 +233,9 @@ QEMU_CFLAGS="-Wall -Wundef -Wwrite-strings -Wmissing-prototypes $QEMU_CFLAGS"
 QEMU_CFLAGS="-Wstrict-prototypes -Wredundant-decls $QEMU_CFLAGS"
 QEMU_CFLAGS="-D_GNU_SOURCE -D_FILE_OFFSET_BITS=64 -D_LARGEFILE_SOURCE $QEMU_CFLAGS"
 QEMU_CFLAGS="-D_FORTIFY_SOURCE=2 $QEMU_CFLAGS"
-QEMU_INCLUDES="-I. -I\$(SRC_PATH)"
-LDFLAGS="-g $LDFLAGS"
+QEMU_INCLUDES="-I. -I\$(SRC_PATH) -I\$(SRC_PATH)/../osc-osd -I\$(SRC_PATH)/../osc-osd/osd-target"
+LDFLAGS="-g $LDFLAGS -L\$(SRC_PATH)/../osc-osd/osd-util -L\$(SRC_PATH)/../osc-osd/osd-target"
+LIBS="-losdutil -losdtgt -lsqlite3 $LIBS"
 
 # make source path absolute
 source_path=`cd "$source_path"; pwd`
@@ -3524,8 +3525,8 @@ if [ "$source_path" != `pwd` ]; then
 fi
 
 if test "$vssim" = "yes" ; then
-    symlink "$source_path/../SSD_MODULE/ssd.h" "$source_path/hw/ssd.h"
-    symlink "$source_path/../SSD_MODULE/ssd.c" "$source_path/hw/ssd.c"
+#    symlink "$source_path/../SSD_MODULE/ssd.h" "$source_path/hw/ssd.h"
+#    symlink "$source_path/../SSD_MODULE/ssd.c" "$source_path/hw/ssd.c"
     symlink "$source_path/../SSD_MODULE/ssd_io_manager.h" "$source_path/hw/ssd_io_manager.h"
     symlink "$source_path/../SSD_MODULE/ssd_io_manager.c" "$source_path/hw/ssd_io_manager.c"
     symlink "$source_path/../SSD_MODULE/ssd_log_manager.h" "$source_path/hw/ssd_log_manager.h"

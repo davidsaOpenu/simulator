@@ -59,10 +59,11 @@ double GC_L2_THRESHOLD;
 int GC_L2_THRESHOLD_BLOCK_NB;
 #endif
 
-/* Storage strategy (1 = address-based, 2 = object-based */
+/* Storage strategy (1 = sector-based, 2 = object-based */
 int STORAGE_STRATEGY;
 
 char gFile_Name[PATH_MAX] = {0,};
+char OSD_PATH[PATH_MAX] = {0,};
 char STAT_PATH[PATH_MAX] = {0,};
 
 config_param options[] = {
@@ -102,8 +103,10 @@ config_param options[] = {
 void INIT_SSD_CONFIG(void)
 {
     FILE *pfData = fopen("./data/ssd.conf", "r");
-    if (pfData == NULL)
-        RERR(, "Can't open file: ./data/ssd.conf\n");
+    if (pfData == NULL){
+        PERR("Can't open file: ./data/ssd.conf\n");
+        exit(1);
+    }
 
     char *szCommand = (char*)malloc(1024);
     int i;
@@ -114,6 +117,11 @@ void INIT_SSD_CONFIG(void)
                 RERR(, "Can't read STAT_PATH\n");
             continue;
         }
+        if (strcmp(szCommand, "OSD_PATH") == 0){
+            if (fgets(OSD_PATH, PATH_MAX, pfData) == NULL)
+                RERR(, "Can't read OSD_PATH\n");
+            continue;
+        }		
         for (i = 0; options[i].name != NULL; i++)
             if (strcmp(szCommand, options[i].name) == 0)
                 break;
@@ -168,3 +176,12 @@ void INIT_SSD_CONFIG(void)
 char* GET_FILE_NAME(void){
 	return gFile_Name;
 }
+
+int GET_SECTOR_SIZE(void){
+        return SECTOR_SIZE;
+}
+
+int GET_PAGE_SIZE(void){
+        return SECTOR_SIZE;
+}
+
