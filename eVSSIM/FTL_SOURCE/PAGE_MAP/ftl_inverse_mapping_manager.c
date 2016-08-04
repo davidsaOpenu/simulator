@@ -387,6 +387,10 @@ void TERM_VICTIM_BLOCK_LIST(void)
 	free(victim_block_table_start);
 }
 
+//If we're using the VICTIM_OVERALL option, then a candidate block
+// (one with an empty page available) is returned from a different
+// flash plane each time, sequentially (wraps at the end and starts
+// all over again)
 empty_block_entry* GET_EMPTY_BLOCK(int mode, int mapping_index)
 {
 	if (total_empty_block_nb == 0)
@@ -532,7 +536,7 @@ empty_block_entry* GET_EMPTY_BLOCK(int mode, int mapping_index)
 	RERR(NULL, "There is no empty block\n");
 }
 
-int INSERT_EMPTY_BLOCK(unsigned int phy_flash_nb, unsigned int phy_block_nb)
+ftl_ret_val INSERT_EMPTY_BLOCK(unsigned int phy_flash_nb, unsigned int phy_block_nb)
 {
 	int mapping_index;
 	int plane_nb;
@@ -542,7 +546,11 @@ int INSERT_EMPTY_BLOCK(unsigned int phy_flash_nb, unsigned int phy_block_nb)
 
 	new_empty_block = (empty_block_entry*)calloc(1, sizeof(empty_block_entry));
 	if (new_empty_block == NULL)
+<<<<<<< HEAD
 		RERR(FAIL, "Alloc new empty block fail\n");
+=======
+		RERR(FTL_FAILURE, "Alloc new empty block fail\n");
+>>>>>>> afd5f7b... Object pass-through – simulator
 
 	/* Init New empty block */
 	new_empty_block->phy_flash_nb = phy_flash_nb;
@@ -566,10 +574,10 @@ int INSERT_EMPTY_BLOCK(unsigned int phy_flash_nb, unsigned int phy_block_nb)
 	}
 	total_empty_block_nb++;
 
-	return SUCCESS;
+	return FTL_SUCCESS;
 }
 
-int INSERT_VICTIM_BLOCK(empty_block_entry* full_block){
+ftl_ret_val INSERT_VICTIM_BLOCK(empty_block_entry* full_block){
 
 	int mapping_index;
 	int plane_nb;
@@ -583,7 +591,11 @@ int INSERT_VICTIM_BLOCK(empty_block_entry* full_block){
 	/* Alloc New victim block entry */
 	new_victim_block = (victim_block_entry*)calloc(1, sizeof(victim_block_entry));
 	if (new_victim_block == NULL)
+<<<<<<< HEAD
 		RERR(FAIL, "Calloc fail\n");
+=======
+		RERR(FTL_FAILURE, "Calloc fail\n");
+>>>>>>> afd5f7b... Object pass-through – simulator
 
 	/* Copy the full block address */
 	new_victim_block->phy_flash_nb = full_block->phy_flash_nb;
@@ -616,7 +628,7 @@ int INSERT_VICTIM_BLOCK(empty_block_entry* full_block){
 	/* Update the total number of victim block */
 	total_victim_block_nb++;
 
-	return SUCCESS;
+	return FTL_SUCCESS;
 }
 
 int EJECT_VICTIM_BLOCK(victim_block_entry* victim_block){
@@ -657,7 +669,7 @@ int EJECT_VICTIM_BLOCK(victim_block_entry* victim_block){
 	/* Free the victim block */
 	free(victim_block);
 
-	return SUCCESS;
+	return FTL_SUCCESS;
 }
 
 inverse_block_mapping_entry* GET_INVERSE_BLOCK_MAPPING_ENTRY(unsigned int phy_flash_nb, unsigned int phy_block_nb){
@@ -680,7 +692,7 @@ int UPDATE_INVERSE_PAGE_MAPPING(uint32_t ppn,  uint32_t lpn)
 {
 	inverse_page_mapping_table[ppn] = lpn;
 
-	return SUCCESS;
+	return FTL_SUCCESS;
 }
 
 int UPDATE_INVERSE_BLOCK_MAPPING(unsigned int phy_flash_nb, unsigned int phy_block_nb, int type)
@@ -696,9 +708,10 @@ int UPDATE_INVERSE_BLOCK_MAPPING(unsigned int phy_flash_nb, unsigned int phy_blo
                 }
         }
 
-        return SUCCESS;
+        return FTL_SUCCESS;
 }
 
+<<<<<<< HEAD
 int UPDATE_INVERSE_BLOCK_VALIDITY(unsigned int phy_flash_nb,
                                   unsigned int phy_block_nb,
                                   unsigned int phy_page_nb,
@@ -706,6 +719,15 @@ int UPDATE_INVERSE_BLOCK_VALIDITY(unsigned int phy_flash_nb,
 {
 	if (phy_flash_nb >= FLASH_NB || phy_block_nb >= BLOCK_NB || phy_page_nb >= PAGE_NB)
 		RERR(FAIL, "Wrong physical address\n");
+=======
+ftl_ret_val UPDATE_INVERSE_BLOCK_VALIDITY(unsigned int phy_flash_nb,
+                                          unsigned int phy_block_nb,
+										  unsigned int phy_page_nb, 
+										  char valid)
+{
+	if (phy_flash_nb >= FLASH_NB || phy_block_nb >= BLOCK_NB || phy_page_nb >= PAGE_NB)
+		RERR(FTL_FAILURE, "Wrong physical address\n");
+>>>>>>> afd5f7b... Object pass-through – simulator
 
 	inverse_block_mapping_entry *mapping_entry = 
 		GET_INVERSE_BLOCK_MAPPING_ENTRY(phy_flash_nb, phy_block_nb);
@@ -715,5 +737,9 @@ int UPDATE_INVERSE_BLOCK_VALIDITY(unsigned int phy_flash_nb,
 	else if ((valid != PAGE_VALID) && (old_state == PAGE_VALID))
 		mapping_entry->valid_page_nb--;
 	mapping_entry->valid_array[phy_page_nb] = valid;
+<<<<<<< HEAD
 	return SUCCESS;
+=======
+	return FTL_SUCCESS;
+>>>>>>> afd5f7b... Object pass-through – simulator
 }

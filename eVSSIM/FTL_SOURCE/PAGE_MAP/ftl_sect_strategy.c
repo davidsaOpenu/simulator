@@ -1,7 +1,8 @@
 #include "ftl_sect_strategy.h"
 
-int _FTL_READ(uint64_t sector_nb, unsigned int offset, unsigned int length)
+ftl_ret_val _FTL_READ_SECT(uint64_t sector_nb, unsigned int length)
 {
+<<<<<<< HEAD
     return _FTL_READ_SECT(sector_nb, length);
 }
 
@@ -11,6 +12,12 @@ int _FTL_READ_SECT(uint64_t sector_nb, unsigned int length)
 
 	if (sector_nb + length > SECTOR_NB)
 		RERR(FAIL, "Exceed Sector number\n"); 
+=======
+	PDBG_FTL("Start: sector_nb %ld length %u\n", sector_nb, length);
+
+	if (sector_nb + length > SECTOR_NB)
+		RERR(FTL_FAILURE, "[FTL_READ] Exceed Sector number\n"); 
+>>>>>>> afd5f7b... Object pass-through – simulator
 
 	int32_t lpn;
 	int32_t ppn;
@@ -20,7 +27,7 @@ int _FTL_READ_SECT(uint64_t sector_nb, unsigned int length)
 	unsigned long right_skip;
 	unsigned int read_sects;
 
-	unsigned int ret = FAIL;
+	unsigned int ret = FTL_FAILURE;
 	int read_page_nb = 0;
 	int io_page_nb;
 
@@ -51,11 +58,15 @@ int _FTL_READ_SECT(uint64_t sector_nb, unsigned int length)
 		ppn = GET_MAPPING_INFO(lpn);
 
 		if (ppn == -1)
+<<<<<<< HEAD
 			RDBG_FTL(FAIL, "No Mapping info\n");
+=======
+			RDBG_FTL(FTL_FAILURE, "No Mapping info\n");
+>>>>>>> afd5f7b... Object pass-through – simulator
 
 		ret = SSD_PAGE_READ(CALC_FLASH(ppn), CALC_BLOCK(ppn), CALC_PAGE(ppn), read_page_nb, READ, io_page_nb);
 		//Send a physical read action being done to the statistics gathering
-		if (ret == SUCCESS)
+		if (ret == FTL_SUCCESS)
 		{
 			FTL_STATISTICS_GATHERING(ppn , PHYSICAL_READ);
 		}
@@ -80,19 +91,27 @@ int _FTL_READ_SECT(uint64_t sector_nb, unsigned int length)
 	return ret;
 }
 
-int _FTL_WRITE(uint64_t sector_nb, unsigned int offset, unsigned int length)
+ftl_ret_val _FTL_WRITE(uint64_t sector_nb, unsigned int offset, unsigned int length)
 {
     return _FTL_WRITE_SECT(sector_nb, length);
 }
 
-int _FTL_WRITE_SECT(uint64_t sector_nb, unsigned int length)
+ftl_ret_val _FTL_WRITE_SECT(uint64_t sector_nb, unsigned int length)
 {
+<<<<<<< HEAD
 	PDBG_FTL("Start: sector_nb %d length %u\n", sector_nb, length);
+=======
+	PDBG_FTL("Start: sector_nb %" PRIu64 "length %u\n", sector_nb, length);
+>>>>>>> afd5f7b... Object pass-through – simulator
 
 	int io_page_nb;
 
 	if (sector_nb + length > SECTOR_NB)
+<<<<<<< HEAD
 		RERR(FAIL, "Exceed Sector number\n");
+=======
+		RERR(FTL_FAILURE, "Exceed Sector number\n");
+>>>>>>> afd5f7b... Object pass-through – simulator
 	io_alloc_overhead = ALLOC_IO_REQUEST(sector_nb, length, WRITE, &io_page_nb);
 
 	uint32_t lba = sector_nb;
@@ -104,7 +123,7 @@ int _FTL_WRITE_SECT(uint64_t sector_nb, unsigned int length)
 	unsigned int right_skip;
 	unsigned int write_sects;
 
-	unsigned int ret = FAIL;
+	unsigned int ret = FTL_FAILURE;
 	int write_page_nb=0;
 
 	while (remain > 0)
@@ -121,17 +140,27 @@ int _FTL_WRITE_SECT(uint64_t sector_nb, unsigned int length)
 		write_sects = SECTORS_PER_PAGE - left_skip - right_skip;
 
 		ret = GET_NEW_PAGE(VICTIM_OVERALL, EMPTY_TABLE_ENTRY_NB, &new_ppn);
+<<<<<<< HEAD
 		if (ret == FAIL)
 			RERR(FAIL, "Get new page fail \n");
+=======
+		if (ret == FTL_FAILURE)
+			RERR(FTL_FAILURE, "[FTL_WRITE] Get new page fail \n"); 
+>>>>>>> afd5f7b... Object pass-through – simulator
 
 		ret = SSD_PAGE_WRITE(CALC_FLASH(new_ppn), CALC_BLOCK(new_ppn), CALC_PAGE(new_ppn), write_page_nb, WRITE, io_page_nb);
+
+		//we caused a block write -> update the logical block_write counter + update the physical block write counter
+		wa_counters.logical_block_write_counter++;
+		wa_counters.physical_block_write_counter++;
 		//Send a physical write action being done to the statistics gathering
-		if (ret == SUCCESS)
+		if (ret == FTL_SUCCESS)
 		{
 			FTL_STATISTICS_GATHERING(new_ppn , PHYSICAL_WRITE);
 		}
 		write_page_nb++;
 
+		//Calculate the logical page number -> the current sector_number / amount_of_sectors_per_page
 		lpn = lba / (int32_t)SECTORS_PER_PAGE;
 		//Send a logical write action being done to the statistics gathering
 		FTL_STATISTICS_GATHERING(lpn , LOGICAL_WRITE);
@@ -140,10 +169,15 @@ int _FTL_WRITE_SECT(uint64_t sector_nb, unsigned int length)
 		UPDATE_OLD_PAGE_MAPPING(lpn);
 		UPDATE_NEW_PAGE_MAPPING(lpn, new_ppn);
 
+<<<<<<< HEAD
 #ifdef FTL_DEBUG
         if (ret == FAIL)
             PDBG_FTL("%d page write fail \n", new_ppn);
 #endif
+=======
+        if (ret == FTL_FAILURE)
+            PDBG_FTL("Error[FTL_WRITE] %d page write fail \n", new_ppn);
+>>>>>>> afd5f7b... Object pass-through – simulator
 		lba += write_sects;
 		remain -= write_sects;
 		left_skip = 0;
@@ -152,21 +186,29 @@ int _FTL_WRITE_SECT(uint64_t sector_nb, unsigned int length)
 	INCREASE_IO_REQUEST_SEQ_NB();
 
 #ifdef GC_ON
-	GC_CHECK(CALC_FLASH(new_ppn), CALC_BLOCK(new_ppn), false); // is this a bug? gc will only happen on the last page's flash and block
+	GC_CHECK(CALC_FLASH(new_ppn), CALC_BLOCK(new_ppn), false, false); // is this a bug? gc will only happen on the last page's flash and block
 #endif
+    WRITE_LOG("WRITE PAGE %d ", length);
+    WRITE_LOG("WB CORRECT %d", write_page_nb);
+	//also update the write amplifications status here
+	WRITE_LOG("WB AMP %f", (float)wa_counters.physical_block_write_counter / (float)wa_counters.logical_block_write_counter);
+    PDBG_FTL("Complete\n");
 
+<<<<<<< HEAD
 	WRITE_LOG("WRITE PAGE %d ", length);
 	WRITE_LOG("WB CORRECT %d", write_page_nb);
 
 	PDBG_FTL("Complete\n");
+=======
+>>>>>>> afd5f7b... Object pass-through – simulator
 	return ret;
 }
 
 //Get 2 physical page address, the source page which need to be moved to the destination page
-int _FTL_COPYBACK(int32_t source, int32_t destination)
+ftl_ret_val _FTL_COPYBACK(int32_t source, int32_t destination)
 {
 	int32_t lpn; //The logical page address, the page that being moved.
-	unsigned int ret = FAIL;
+	unsigned int ret = FTL_FAILURE;
 
 	//Handle copyback delays
 	ret = SSD_PAGE_COPYBACK(source, destination, COPYBACK);
@@ -177,8 +219,14 @@ int _FTL_COPYBACK(int32_t source, int32_t destination)
     lpn = GET_INVERSE_MAPPING_INFO(source);
     UPDATE_NEW_PAGE_MAPPING(lpn, destination);*/
 
+<<<<<<< HEAD
 	if (ret == FAIL)
 		RDBG_FTL(FAIL, "%u page copyback fail \n", source);
+=======
+	if (ret == FTL_FAILURE)
+        RDBG_FTL(FTL_FAILURE, "%u page copyback fail \n", source);
+
+>>>>>>> afd5f7b... Object pass-through – simulator
 
 	//Handle page map
 	lpn = GET_INVERSE_MAPPING_INFO(source);
@@ -192,14 +240,14 @@ int _FTL_COPYBACK(int32_t source, int32_t destination)
 	return ret;
 }
 
-int _FTL_CREATE(size_t size)
+ftl_ret_val _FTL_CREATE(size_t size)
 {
     // no "creation" in address-based storage
-    return SUCCESS;
+    return FTL_SUCCESS;
 }
 
-int _FTL_DELETE(uint64_t id)
+ftl_ret_val _FTL_DELETE(uint64_t id)
 {
     // no "deletion" in address-based storage
-    return SUCCESS;
+    return FTL_SUCCESS;
 }
