@@ -8,13 +8,10 @@ ftl_ret_val _FTL_READ_SECT(uint64_t sector_nb, unsigned int length)
 	if (sector_nb + length > SECTOR_NB)
 		RERR(FTL_FAILURE, "[FTL_READ] Exceed Sector number\n"); 
 
-	int32_t lpn;
-	int32_t ppn;
 	uint64_t lba = sector_nb;
 	unsigned int remain = length;
 	unsigned long left_skip = sector_nb % SECTORS_PER_PAGE;
 	unsigned long right_skip;
-	unsigned int read_sects;
 
 	unsigned int ret = FTL_FAILURE;
 	int read_page_nb = 0;
@@ -23,28 +20,18 @@ ftl_ret_val _FTL_READ_SECT(uint64_t sector_nb, unsigned int length)
 	// just calculate the overhead of allocating the request. io_page_nb will be the total number of pages we're gonna read
 	io_alloc_overhead = ALLOC_IO_REQUEST(sector_nb, length, READ, &io_page_nb);
 
-	remain = length;
-	lba = sector_nb;
-	left_skip = sector_nb % SECTORS_PER_PAGE;
-
-	while (remain > 0)
-	{
+	while (remain > 0){
 		if (remain > SECTORS_PER_PAGE - left_skip)
-		{
 			right_skip = 0;
-		}
 		else
-		{
 			right_skip = SECTORS_PER_PAGE - left_skip - remain;
-		}
 		
-		read_sects = SECTORS_PER_PAGE - left_skip - right_skip;
-
-		lpn = lba / (int32_t)SECTORS_PER_PAGE;
+		unsigned int read_sects = SECTORS_PER_PAGE - left_skip - right_skip;
+		int32_t lpn = lba / (int32_t)SECTORS_PER_PAGE;
 		//Send a logical read action being done to the statistics gathering
 		FTL_STATISTICS_GATHERING(lpn , LOGICAL_READ);
 
-		ppn = GET_MAPPING_INFO(lpn);
+		int32_t ppn = GET_MAPPING_INFO(lpn);
 
 		if (ppn == -1)
 			RDBG_FTL(FTL_FAILURE, "No Mapping info\n");
@@ -52,9 +39,7 @@ ftl_ret_val _FTL_READ_SECT(uint64_t sector_nb, unsigned int length)
 		ret = SSD_PAGE_READ(CALC_FLASH(ppn), CALC_BLOCK(ppn), CALC_PAGE(ppn), read_page_nb, READ, io_page_nb);
 		//Send a physical read action being done to the statistics gathering
 		if (ret == FTL_SUCCESS)
-		{
 			FTL_STATISTICS_GATHERING(ppn , PHYSICAL_READ);
-		}
 
 #ifdef FTL_DEBUG
 		if (ret == FAIL)
@@ -70,9 +55,7 @@ ftl_ret_val _FTL_READ_SECT(uint64_t sector_nb, unsigned int length)
 	INCREASE_IO_REQUEST_SEQ_NB();
 
 	WRITE_LOG("READ PAGE %d ", length);
-
 	PDBG_FTL("Complete\n");
-
 	return ret;
 }
 
@@ -93,29 +76,22 @@ ftl_ret_val _FTL_WRITE_SECT(uint64_t sector_nb, unsigned int length)
 	io_alloc_overhead = ALLOC_IO_REQUEST(sector_nb, length, WRITE, &io_page_nb);
 
 	uint32_t lba = sector_nb;
-	uint32_t lpn;
 	uint32_t new_ppn;
 
 	unsigned int remain = length;
 	unsigned int left_skip = sector_nb % SECTORS_PER_PAGE;
 	unsigned int right_skip;
-	unsigned int write_sects;
 
 	unsigned int ret = FTL_FAILURE;
 	int write_page_nb=0;
 
-	while (remain > 0)
-	{
+	while (remain > 0){
 		if (remain > SECTORS_PER_PAGE - left_skip)
-		{
 			right_skip = 0;
-		}
 		else
-		{
 			right_skip = SECTORS_PER_PAGE - left_skip - remain;
-		}
 
-		write_sects = SECTORS_PER_PAGE - left_skip - right_skip;
+		unsigned int write_sects = SECTORS_PER_PAGE - left_skip - right_skip;
 
 		ret = GET_NEW_PAGE(VICTIM_OVERALL, EMPTY_TABLE_ENTRY_NB, &new_ppn);
 		if (ret == FTL_FAILURE)
@@ -128,13 +104,11 @@ ftl_ret_val _FTL_WRITE_SECT(uint64_t sector_nb, unsigned int length)
 		wa_counters.physical_block_write_counter++;
 		//Send a physical write action being done to the statistics gathering
 		if (ret == FTL_SUCCESS)
-		{
 			FTL_STATISTICS_GATHERING(new_ppn , PHYSICAL_WRITE);
-		}
 		write_page_nb++;
 
 		//Calculate the logical page number -> the current sector_number / amount_of_sectors_per_page
-		lpn = lba / (int32_t)SECTORS_PER_PAGE;
+		uint32_t lpn = lba / (int32_t)SECTORS_PER_PAGE;
 		//Send a logical write action being done to the statistics gathering
 		FTL_STATISTICS_GATHERING(lpn , LOGICAL_WRITE);
 		
