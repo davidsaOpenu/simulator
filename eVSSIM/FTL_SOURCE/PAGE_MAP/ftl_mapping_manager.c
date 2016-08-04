@@ -73,8 +73,7 @@ ftl_ret_val GET_NEW_PAGE(int mode, int mapping_index, uint32_t* ppn)
 	//We count the number of pages in all flash chips before us
 	//We add to it the number of pages in all blocks before our current block (which was returned by the GET_EMPTY_BLOCK method)
 	//and then we add to it the amount of blocks which are already used in our current block
-	*ppn = curr_empty_block->phy_flash_nb*BLOCK_NB*PAGE_NB \
-	       + curr_empty_block->phy_block_nb*PAGE_NB \
+	*ppn = (curr_empty_block->phy_flash_nb*BLOCK_NB + curr_empty_block->phy_block_nb) * PAGE_NB \
 	       + curr_empty_block->curr_phy_page_nb;
 
 	curr_empty_block->curr_phy_page_nb += 1;
@@ -84,21 +83,17 @@ ftl_ret_val GET_NEW_PAGE(int mode, int mapping_index, uint32_t* ppn)
 
 int UPDATE_OLD_PAGE_MAPPING(uint32_t lpn)
 {
-	uint32_t old_ppn;
+    uint32_t old_ppn = GET_MAPPING_INFO(lpn);
 
-	old_ppn = GET_MAPPING_INFO(lpn);
-
-	if (old_ppn == -1)
-
-		RDBG_FTL(FTL_FAILURE, "New page \n");
-
+    if (old_ppn == -1)
+        RDBG_FTL(FTL_FAILURE, "New page \n");
     UPDATE_INVERSE_BLOCK_VALIDITY(CALC_FLASH(old_ppn),
                                   CALC_BLOCK(old_ppn),
                                   CALC_PAGE(old_ppn),
                                   PAGE_INVALID);
     UPDATE_INVERSE_PAGE_MAPPING(old_ppn, -1);
 
-	return FTL_SUCCESS;
+    return FTL_SUCCESS;
 }
 
 int UPDATE_NEW_PAGE_MAPPING(uint32_t lpn, uint32_t ppn)
@@ -126,49 +121,35 @@ int UPDATE_NEW_PAGE_MAPPING_NO_LOGICAL(uint32_t ppn)
 unsigned int CALC_FLASH(uint32_t ppn)
 {
 	unsigned int flash_nb = (ppn/PAGE_NB)/BLOCK_NB;
-
-	if(flash_nb >= FLASH_NB){
+	if (flash_nb >= FLASH_NB)
 		PERR("flash_nb %u\n", flash_nb);
-	}
 	return flash_nb;
 }
 
 unsigned int CALC_BLOCK(uint32_t ppn)
 {
 	unsigned int block_nb = (ppn/PAGE_NB)%BLOCK_NB;
-
-	if(block_nb >= BLOCK_NB){
+	if (block_nb >= BLOCK_NB)
 		PERR("block_nb %u\n", block_nb);
-	}
 	return block_nb;
 }
 
 unsigned int CALC_PAGE(uint32_t ppn)
 {
-	unsigned int page_nb = ppn%PAGE_NB;
-
-	return page_nb;
+	return ppn % PAGE_NB;
 }
 
 unsigned int CALC_PLANE(uint32_t ppn)
 {
 	int flash_nb = CALC_FLASH(ppn);
 	int block_nb = CALC_BLOCK(ppn);
-	int plane;
 
-	plane = flash_nb*PLANES_PER_FLASH + block_nb%PLANES_PER_FLASH;
-
-	return plane;
+	return (flash_nb*PLANES_PER_FLASH + block_nb%PLANES_PER_FLASH);
 }
 
 unsigned int CALC_CHANNEL(uint32_t ppn)
 {
-	int flash_nb = CALC_FLASH(ppn);
-	int channel;
-
-	channel = flash_nb % CHANNEL_NB;
-
-	return channel;
+	return CALC_FLASH(ppn) % CHANNEL_NB;
 }
 
 unsigned int CALC_SCOPE_FIRST_PAGE(uint32_t address, int scope)

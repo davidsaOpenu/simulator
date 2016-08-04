@@ -101,90 +101,69 @@ void INIT_EMPTY_BLOCK_LIST(void)
 	empty_block_entry* curr_entry;
 	empty_block_root* curr_root;
 
-	empty_block_table_start = (void*)calloc(PLANES_PER_FLASH * FLASH_NB, sizeof(empty_block_root));
+	empty_block_table_start = (void*)calloc(PLANES_NB, sizeof(empty_block_root));
 	if (empty_block_table_start == NULL)
 		RERR(, "Calloc mapping table fail\n");
 
 	FILE* fp = fopen("./data/empty_block_list.dat","r");
 	if(fp != NULL){
 		total_empty_block_nb = 0;
-		if(fread(empty_block_table_start,sizeof(empty_block_root),PLANES_PER_FLASH*FLASH_NB, fp) <= 0)
+		if(fread(empty_block_table_start,sizeof(empty_block_root),PLANES_NB, fp) <= 0)
 			PERR("fread\n");
 		curr_root = (empty_block_root*)empty_block_table_start;
 
-		for(i=0;i<PLANES_PER_FLASH;i++){
-
-			for(j=0;j<FLASH_NB;j++){
-
+		for (i = 0; i < PLANES_PER_FLASH; i++){
+			for (j = 0; j < FLASH_NB; j++, curr_root++){
 				total_empty_block_nb += curr_root->empty_block_nb;
-				k = curr_root->empty_block_nb;
-				while(k > 0){
+				for (k = curr_root->empty_block_nb; k > 0; k--){
 					curr_entry = (empty_block_entry*)calloc(1, sizeof(empty_block_entry));
-					if(curr_entry == NULL){
+					if (curr_entry == NULL){
 						PERR("Calloc fail\n");
 						break;
 					}
 
-					if(fread(curr_entry, sizeof(empty_block_entry), 1, fp) <= 0)
+					if (fread(curr_entry, sizeof(empty_block_entry), 1, fp) <= 0)
 						PERR("fread\n");
 					curr_entry->next = NULL;
 
-					if(k == curr_root->empty_block_nb){
+					if (k == curr_root->empty_block_nb)
 						curr_root->next = curr_entry;
-						curr_root->tail = curr_entry;
-					}					
-					else{
+					else
 						curr_root->tail->next = curr_entry;
-						curr_root->tail = curr_entry;
-					}
-					k--;
+					curr_root->tail = curr_entry;
 				}
-				curr_root += 1;
 			}
 		}
-		empty_block_table_index = 0;
 		fclose(fp);
 	}
 	else{
-		curr_root = (empty_block_root*)empty_block_table_start;		
-
-		for(i=0;i<PLANES_PER_FLASH;i++){
-
-			for(j=0;j<FLASH_NB;j++){
-
-				for(k=i;k<BLOCK_NB;k+=PLANES_PER_FLASH){
-
+		curr_root = (empty_block_root*)empty_block_table_start;
+		for (i = 0; i < PLANES_PER_FLASH; i++){
+			for (j = 0; j < FLASH_NB; j++, curr_root++){
+				for (k = i; k < BLOCK_NB; k += PLANES_PER_FLASH){
 					curr_entry = (empty_block_entry*)calloc(1, sizeof(empty_block_entry));	
 					if(curr_entry == NULL){
 						PERR("Calloc fail\n");
 						break;
 					}
 	
-					if(k==i){
+					if (k == i)
 						curr_root->next = curr_entry;
-						curr_root->tail = curr_entry;
-
-						curr_root->tail->phy_flash_nb = j;
-						curr_root->tail->phy_block_nb = k;
-						curr_root->tail->curr_phy_page_nb = 0;
-					}
-					else{
+					else
 						curr_root->tail->next = curr_entry;
-						curr_root->tail = curr_entry;
+					curr_root->tail = curr_entry;
+					curr_root->tail->phy_flash_nb = j;
+					curr_root->tail->phy_block_nb = k;
+					curr_root->tail->curr_phy_page_nb = 0;
 
-						curr_root->tail->phy_flash_nb = j;
-						curr_root->tail->phy_block_nb = k;
-						curr_root->tail->curr_phy_page_nb = 0;
-					}
 					UPDATE_INVERSE_BLOCK_MAPPING(j, k, EMPTY_BLOCK);
 				}
 				curr_root->empty_block_nb = (unsigned int)EACH_EMPTY_TABLE_ENTRY_NB;
-				curr_root += 1;
 			}
 		}
 		total_empty_block_nb = (int64_t)BLOCK_MAPPING_ENTRY_NB;
-		empty_block_table_index = 0;
-	}
+		}
+	empty_block_table_index = 0;
 }
 
 void INIT_VICTIM_BLOCK_LIST(void)
@@ -194,47 +173,40 @@ void INIT_VICTIM_BLOCK_LIST(void)
 	victim_block_entry* curr_entry;
 	victim_block_root* curr_root;
 
-	victim_block_table_start = (void*)calloc(PLANES_PER_FLASH * FLASH_NB, sizeof(victim_block_root));
+	victim_block_table_start = (void*)calloc(PLANES_NB, sizeof(victim_block_root));
 	if (victim_block_table_start == NULL)
 		RERR(, "Calloc mapping table fail\n");
 
 	FILE* fp = fopen("./data/victim_block_list.dat","r");
 	if(fp != NULL){
 		total_victim_block_nb = 0;
-		if(fread(victim_block_table_start, sizeof(victim_block_root), PLANES_PER_FLASH*FLASH_NB, fp) <= 0)
+		if(fread(victim_block_table_start, sizeof(victim_block_root), PLANES_NB, fp) <= 0)
 			PERR("fread\n");
 		curr_root = (victim_block_root*)victim_block_table_start;
 
-		for(i=0;i<PLANES_PER_FLASH;i++){
-
-			for(j=0;j<FLASH_NB;j++){
-
+		for (i = 0; i < PLANES_PER_FLASH; i++){
+			for (j = 0; j < FLASH_NB; j++, curr_root++){
 				total_victim_block_nb += curr_root->victim_block_nb;
-				k = curr_root->victim_block_nb;
-				while(k > 0){
+				for (k = curr_root->victim_block_nb; k > 0; k--){
 					curr_entry = (victim_block_entry*)calloc(1, sizeof(victim_block_entry));
-					if(curr_entry == NULL){
+					if (curr_entry == NULL){
 						PERR("Calloc fail\n");
 						break;
 					}
 
-					if(fread(curr_entry, sizeof(victim_block_entry), 1, fp) <= 0)
+					if (fread(curr_entry, sizeof(victim_block_entry), 1, fp) <= 0)
 						PERR("fread\n");
 					curr_entry->next = NULL;
 					curr_entry->prev = NULL;
 
-					if(k == curr_root->victim_block_nb){
+					if (k == curr_root->victim_block_nb)
 						curr_root->next = curr_entry;
-						curr_root->tail = curr_entry;
-					}					
 					else{
 						curr_root->tail->next = curr_entry;
 						curr_entry->prev = curr_root->tail;
-						curr_root->tail = curr_entry;
 					}
-					k--;
+					curr_root->tail = curr_entry;
 				}
-				curr_root += 1;
 			}
 		}
 		fclose(fp);
@@ -242,15 +214,11 @@ void INIT_VICTIM_BLOCK_LIST(void)
 	else{
 		curr_root = (victim_block_root*)victim_block_table_start;		
 
-		for(i=0;i<PLANES_PER_FLASH;i++){
-
-			for(j=0;j<FLASH_NB;j++){
-
+		for (i = 0; i < PLANES_PER_FLASH; i++){
+			for (j = 0; j < FLASH_NB; j++, curr_root++){
 				curr_root->next = NULL;
 				curr_root->tail = NULL;
 				curr_root->victim_block_nb = 0;
-
-				curr_root += 1;
 			}
 		}
 		total_victim_block_nb = 0;
@@ -297,11 +265,10 @@ void TERM_VALID_ARRAY(void)
         if (fp == NULL)
 		RERR(, "File open fail\n");
  
-	for(i=0;i<BLOCK_MAPPING_ENTRY_NB;i++){
+	for (i = 0; i < BLOCK_MAPPING_ENTRY_NB; i++, curr_mapping_entry++){
 		valid_array = curr_mapping_entry->valid_array;
-		if(fwrite(valid_array, sizeof(char), PAGE_NB, fp) <= 0)
+		if (fwrite(valid_array, sizeof(char), PAGE_NB, fp) <= 0)
 			PERR("fwrite\n");
-		curr_mapping_entry += 1;
 		free(valid_array);
 	}
 	fclose(fp);
@@ -318,29 +285,23 @@ void TERM_EMPTY_BLOCK_LIST(void)
 	if (fp == NULL)
 		RERR(, "File open fail\n");
 
-	if(fwrite(empty_block_table_start,sizeof(empty_block_root),PLANES_PER_FLASH*FLASH_NB, fp) <= 0)
+	if(fwrite(empty_block_table_start,sizeof(empty_block_root),PLANES_NB, fp) <= 0)
 		PERR("fwrite\n");
 
 	curr_root = (empty_block_root*)empty_block_table_start;
-	for(i=0;i<PLANES_PER_FLASH;i++){
-
-		for(j=0;j<FLASH_NB;j++){
-
+	for (i = 0; i < PLANES_PER_FLASH; i++){
+		for (j = 0; j < FLASH_NB; j++, curr_root++){
 			k = curr_root->empty_block_nb;
-			if(k != 0){
+			if (k != 0)
 				curr_entry = (empty_block_entry*)curr_root->next;
-			}
-			while(k > 0){
-
-				if(fwrite(curr_entry, sizeof(empty_block_entry), 1, fp) <= 0)
+			for (; k > 0; k--){
+				if (fwrite(curr_entry, sizeof(empty_block_entry), 1, fp) <= 0)
 					PERR("fwrite\n");
 
 				tmp_entry = curr_entry->next;
 				free(curr_entry);
 				curr_entry = tmp_entry;
-				k--;
 			}
-			curr_root += 1;
 		}
 	}
 	fclose(fp);
@@ -358,29 +319,23 @@ void TERM_VICTIM_BLOCK_LIST(void)
 	if (fp == NULL)
 		RERR(, "File open fail\n");
 
-	if(fwrite(victim_block_table_start, sizeof(victim_block_root), PLANES_PER_FLASH*FLASH_NB, fp) <= 0)
+	if(fwrite(victim_block_table_start, sizeof(victim_block_root), PLANES_NB, fp) <= 0)
 		PERR("fwrite\n");
 
 	curr_root = (victim_block_root*)victim_block_table_start;
-	for(i=0;i<PLANES_PER_FLASH;i++){
-
-		for(j=0;j<FLASH_NB;j++){
-
+	for (i = 0; i < PLANES_PER_FLASH; i++){
+		for (j = 0; j < FLASH_NB; j++, curr_root++){
 			k = curr_root->victim_block_nb;
-			if(k != 0){
+			if (k != 0)
 				curr_entry = (victim_block_entry*)curr_root->next;
-			}
-			while(k > 0){
-
-				if(fwrite(curr_entry, sizeof(victim_block_entry), 1, fp) <= 0)
+			for (; k > 0; k--){
+				if (fwrite(curr_entry, sizeof(victim_block_entry), 1, fp) <= 0)
 					PERR("fwrite\n");
 
 				tmp_entry = curr_entry->next;
 				free(curr_entry);
 				curr_entry = tmp_entry;
-				k--;
 			}
-			curr_root += 1;
 		}
 	}
 	fclose(fp);
@@ -560,26 +515,19 @@ ftl_ret_val INSERT_EMPTY_BLOCK(unsigned int phy_flash_nb, unsigned int phy_block
 
 	curr_root_entry = (empty_block_root*)empty_block_table_start + mapping_index;
 
-	if(curr_root_entry->empty_block_nb == 0){
+	if (curr_root_entry->empty_block_nb == 0)
 		curr_root_entry->next = new_empty_block;
-		curr_root_entry->tail = new_empty_block;
-		curr_root_entry->empty_block_nb = 1;
-	}
-	else{
+	else
 		curr_root_entry->tail->next = new_empty_block;
-		curr_root_entry->tail = new_empty_block;
-		curr_root_entry->empty_block_nb++;
-	}
+	curr_root_entry->tail = new_empty_block;
+	curr_root_entry->empty_block_nb++;
 	total_empty_block_nb++;
 
 	return FTL_SUCCESS;
 }
 
-ftl_ret_val INSERT_VICTIM_BLOCK(empty_block_entry* full_block){
-
-	int mapping_index;
-	int plane_nb;
-
+ftl_ret_val INSERT_VICTIM_BLOCK(empty_block_entry* full_block)
+{
 	victim_block_root* curr_root_entry;
 	victim_block_entry* new_victim_block;
 
@@ -599,23 +547,20 @@ ftl_ret_val INSERT_VICTIM_BLOCK(empty_block_entry* full_block){
 	new_victim_block->prev = NULL;
 	new_victim_block->next = NULL;
 
-	plane_nb = full_block->phy_block_nb % PLANES_PER_FLASH;
-	mapping_index = plane_nb * FLASH_NB + full_block->phy_flash_nb;
+	int plane_nb = full_block->phy_block_nb % PLANES_PER_FLASH;
+	int mapping_index = plane_nb * FLASH_NB + full_block->phy_flash_nb;
 
 	curr_root_entry = (victim_block_root*)victim_block_table_start + mapping_index;
 
 	/* Update victim block list */
-	if(curr_root_entry->victim_block_nb == 0){
+	if (curr_root_entry->victim_block_nb == 0)
 		curr_root_entry->next = new_victim_block;
-		curr_root_entry->tail = new_victim_block;
-		curr_root_entry->victim_block_nb = 1;
-	}
 	else{
 		curr_root_entry->tail->next = new_victim_block;
 		new_victim_block->prev = curr_root_entry->tail;
-		curr_root_entry->tail = new_victim_block;
-		curr_root_entry->victim_block_nb++;
 	}
+	curr_root_entry->tail = new_victim_block;
+	curr_root_entry->victim_block_nb++;
 
 	/* Free the full empty block entry */
 	free(full_block);
@@ -626,15 +571,11 @@ ftl_ret_val INSERT_VICTIM_BLOCK(empty_block_entry* full_block){
 	return FTL_SUCCESS;
 }
 
-int EJECT_VICTIM_BLOCK(victim_block_entry* victim_block){
-
-	int mapping_index;
-	int plane_nb;
-
+int EJECT_VICTIM_BLOCK(victim_block_entry* victim_block)
+{
 	victim_block_root* curr_root_entry;
-
-	plane_nb = victim_block->phy_block_nb % PLANES_PER_FLASH;
-	mapping_index = plane_nb * FLASH_NB + victim_block->phy_flash_nb;
+	int plane_nb = victim_block->phy_block_nb % PLANES_PER_FLASH;
+	int mapping_index = plane_nb * FLASH_NB + victim_block->phy_flash_nb;
 
 	curr_root_entry = (victim_block_root*)victim_block_table_start + mapping_index;
 
@@ -678,15 +619,12 @@ inverse_block_mapping_entry* GET_INVERSE_BLOCK_MAPPING_ENTRY(unsigned int phy_fl
 
 uint32_t GET_INVERSE_MAPPING_INFO(uint32_t ppn)
 {
-	uint32_t lpn = inverse_page_mapping_table[ppn];
-
-	return lpn;
+	return inverse_page_mapping_table[ppn];
 }
 
 int UPDATE_INVERSE_PAGE_MAPPING(uint32_t ppn,  uint32_t lpn)
 {
 	inverse_page_mapping_table[ppn] = lpn;
-
 	return FTL_SUCCESS;
 }
 

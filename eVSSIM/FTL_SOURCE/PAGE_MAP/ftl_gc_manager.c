@@ -7,44 +7,30 @@
 #include "ftl_sect_strategy.h"
 #include "ftl_obj_strategy.h"
 
-unsigned int gc_count = 0;
-
-int fail_cnt = 0;
-extern double ssd_util;
-
 write_amplification_counters wa_counters;
-
 
 void GC_CHECK(unsigned int phy_flash_nb, unsigned int phy_block_nb, bool force, bool isObjectStrategy)
 {
-	int i, ret;
+	int i;
 	int plane_nb = phy_block_nb % PLANES_PER_FLASH;
 	int mapping_index = plane_nb * FLASH_NB + phy_flash_nb;
 	
 	if(force || total_empty_block_nb < GC_THRESHOLD_BLOCK_NB){
-        int l2 = total_empty_block_nb < GC_L2_THRESHOLD_BLOCK_NB;
-		for(i=0; i<GC_VICTIM_NB; i++){
-			ret = GARBAGE_COLLECTION(mapping_index, l2, isObjectStrategy);
-			if(ret == FTL_FAILURE){
+		int l2 = total_empty_block_nb < GC_L2_THRESHOLD_BLOCK_NB;
+		for (i = 0; i < GC_VICTIM_NB; i++)
+			if (GARBAGE_COLLECTION(mapping_index, l2, isObjectStrategy) == FTL_FAILURE)
 				break;
-			}
-		}
 	}
 }
 
 ftl_ret_val GARBAGE_COLLECTION(int mapping_index, int l2, bool isObjectStrategy)
 {
-	int i;
-	int ret;
-	uint32_t lpn;
-	uint32_t old_ppn;
-	uint32_t new_ppn;
+	int i, ret;
+	uint32_t lpn, old_ppn, new_ppn;
 
 	unsigned int victim_phy_flash_nb = FLASH_NB;
 	unsigned int victim_phy_block_nb = 0;
 
-	char* valid_array;
-    int valid_page_nb;
 	int copy_page_nb = 0;
 
 	inverse_block_mapping_entry* inverse_block_entry;
@@ -56,8 +42,8 @@ ftl_ret_val GARBAGE_COLLECTION(int mapping_index, int l2, bool isObjectStrategy)
 
 
 	inverse_block_entry = GET_INVERSE_BLOCK_MAPPING_ENTRY(victim_phy_flash_nb, victim_phy_block_nb);
-	valid_array = inverse_block_entry->valid_array;
-    valid_page_nb = inverse_block_entry->valid_page_nb;
+	char *valid_array = inverse_block_entry->valid_array;
+	int valid_page_nb = inverse_block_entry->valid_page_nb;
 
 	for (i = 0; i < PAGE_NB; i++){
 		if (valid_array[i] == PAGE_VALID){
@@ -131,7 +117,6 @@ ftl_ret_val GARBAGE_COLLECTION(int mapping_index, int l2, bool isObjectStrategy)
 	UPDATE_INVERSE_BLOCK_MAPPING(victim_phy_flash_nb, victim_phy_block_nb, EMPTY_BLOCK);
 	INSERT_EMPTY_BLOCK(victim_phy_flash_nb, victim_phy_block_nb);
 
-	gc_count++;
 	WRITE_LOG("GC ");
 
 //	WRITE_LOG("WB AMP %d", copy_page_nb);
@@ -181,10 +166,8 @@ ftl_ret_val SELECT_VICTIM_BLOCK(unsigned int* phy_flash_nb, unsigned int* phy_bl
 		}
 		curr_root += 1;
 	}
-	if(*(victim_block->valid_page_nb) == PAGE_NB){
-		fail_cnt++;
+	if (*(victim_block->valid_page_nb) == PAGE_NB)
 		return FTL_FAILURE;
-	}
 
 	*phy_flash_nb = victim_block->phy_flash_nb;
 	*phy_block_nb = victim_block->phy_block_nb;
