@@ -78,6 +78,10 @@ void INIT_PERF_CHECKER(void){
 
 void TERM_PERF_CHECKER(void){
 
+	while (io_request_nb) {
+		FREE_IO_REQUEST(io_request_start);
+	}
+
 	printf("Average Read Latency	%.3lf us\n", avg_read_latency);
 	printf("Average Write Latency	%.3lf us\n", avg_write_latency);
 }
@@ -180,7 +184,7 @@ double GET_IO_BANDWIDTH(double delay)
 	double bw;
 
 	if(delay != 0)
-		bw = ((double)PAGE_SIZE*1000000)/(delay*1024*1024);
+		bw = ((double)GET_PAGE_SIZE()*MEGABYTE_IN_BYTES)/(delay*SECOND_IN_USEC);
 	else
 		bw = 0;
 
@@ -399,7 +403,7 @@ io_request* LOOKUP_IO_REQUEST(int request_nb, int type)
 		total_request = io_request_nb;
 	}
 	else
-		RDBG_FTL(FAIL, "There is no request\n");
+		RDBG_FTL(NULL, "There is no request\n");
 
 	for(i=0;i<total_request;i++){
 		if(curr_request->request_nb == request_nb){

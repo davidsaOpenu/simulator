@@ -92,6 +92,8 @@ static const char *dbname = "osd.db";
 static const char *dfiles = "dfiles";
 static const char *stranded = "stranded";
 
+static char * const argv[] = { "osd-target", NULL };
+
 static inline uint8_t get_obj_type(struct osd_device *osd,
 				   uint64_t pid, uint64_t oid)
 {
@@ -999,7 +1001,6 @@ int osd_open(const char *root, struct osd_device *osd)
 	int i = 0;
 	int ret = 0;
 	char path[MAXNAMELEN];
-	char *argv[] = { strdup("osd-target"), NULL };
 
 	osd_set_progname(1, argv);  /* for debug messages from libosdutil */
 	mhz = get_mhz(); /* XXX: find a better way of profiling */
@@ -1626,10 +1627,8 @@ int osd_create(struct osd_device *osd, uint64_t pid, uint64_t requested_oid,
 	ret = obj_ispresent(osd->dbc, pid, PARTITION_OID, &present);
 	if (ret != OSD_OK || !present)
 		goto out_illegal_req;
-
 	if (numoid > 1 && requested_oid != 0)
 		goto out_illegal_req;
-
 	if (requested_oid == 0) {
 		/*
 		 * XXX: there should be a better way of getting next maximum
@@ -1651,6 +1650,7 @@ int osd_create(struct osd_device *osd, uint64_t pid, uint64_t requested_oid,
 		}
 	} else {
 		ret = obj_ispresent(osd->dbc, pid, requested_oid, &present);
+		osd_debug("ret: %d, present: %d", ret, present);
 		if (ret != OSD_OK || present)
 			goto out_illegal_req; /* requested_oid exists! */
 		oid = requested_oid; /* requested_oid works! */
