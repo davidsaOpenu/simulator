@@ -299,7 +299,7 @@ void FTL_RECORD_STATISTICS(void){
 	}
 	if (STAT_SCOPE & COLLECT_PLANE){
 		fprintf(fp , "Plane,");
-		scopeRange =  FLASH_NB * PLANES_PER_FLASH;
+		scopeRange = PLANES_NB;
 		scope = PLANE;
 	}
 	if (STAT_SCOPE & COLLECT_BLOCK){
