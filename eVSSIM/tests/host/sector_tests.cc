@@ -1,7 +1,8 @@
 
 extern "C" {
-#include "ssd.h"
-#include "ftl.h"
+
+#include "common.h"
+#include "ftl_sect_strategy.h"
 }
 extern "C" int g_init;
 extern "C" int clientSock;
@@ -69,10 +70,16 @@ namespace {
                     "STAT_PATH /tmp/stat.csv\n"
                     "STORAGE_STRATEGY 1\n"; // sector strategy
                 ssd_conf.close();
-                SSD_INIT();
+            	FTL_INIT();
+            #ifdef MONITOR_ON
+            	INIT_LOG_MANAGER();
+            #endif
             }
             virtual void TearDown() {
-                SSD_TERM();
+            	FTL_TERM();
+            #ifdef MONITOR_ON
+            	TERM_LOG_MANAGER();
+            #endif
                 remove("data/empty_block_list.dat");
                 remove("data/inverse_block_mapping.dat");
                 remove("data/inverse_page_mapping.dat");
@@ -91,6 +98,7 @@ namespace {
     std::vector<size_t> GetParams() {
         std::vector<size_t> list;
 
+
         if (g_ci_mode) {
             printf("Running in CI mode\n");
             // TODO: use smaller size
@@ -98,24 +106,25 @@ namespace {
             return list;
         }
 
+
         list.push_back(256);
         return list;
     }
 
     INSTANTIATE_TEST_CASE_P(DiskSize, SectorUnitTest, ::testing::ValuesIn(GetParams()));
     TEST_P(SectorUnitTest, SequentialOnePageAtTimeWrite) {
-        for(int x=0; x<8; x++){
+        for(int x=0; x<2 /*8*/; x++){
             for(size_t p=0; p < pages_; p++){
                 //std::cout << "hello"  << p << "\n";
-                ASSERT_EQ(SUCCESS, _FTL_WRITE_SECT(p * CONST_PAGE_SIZE_IN_BYTES, 1));
+                ASSERT_EQ(FTL_SUCCESS, _FTL_WRITE_SECT(p * CONST_PAGE_SIZE_IN_BYTES, 1));
             }
         }
     }
 
     TEST_P(SectorUnitTest, RandomOnePageAtTimeWrite) {
-        for(int x=0; x<8; x++){
+        for(int x=0; x<2 /*8*/; x++){
             for(size_t p=0; p < pages_; p++){
-                ASSERT_EQ(SUCCESS, _FTL_WRITE_SECT((rand() % pages_) * CONST_PAGE_SIZE_IN_BYTES, 1));
+                ASSERT_EQ(FTL_SUCCESS, _FTL_WRITE_SECT((rand() % pages_) * CONST_PAGE_SIZE_IN_BYTES, 1));
             }
         }
     }
@@ -123,10 +132,10 @@ namespace {
     TEST_P(SectorUnitTest, MixSequentialAndRandomOnePageAtTimeWrite) {
         for(int x=0; x<2; x++){
             for(size_t p=0; p < pages_; p++){
-                ASSERT_EQ(SUCCESS, _FTL_WRITE_SECT((rand() % pages_) * CONST_PAGE_SIZE_IN_BYTES, 1));
+                ASSERT_EQ(FTL_SUCCESS, _FTL_WRITE_SECT((rand() % pages_) * CONST_PAGE_SIZE_IN_BYTES, 1));
             }
             for(size_t p=0; p < pages_; p++){
-                ASSERT_EQ(SUCCESS, _FTL_WRITE_SECT(p * CONST_PAGE_SIZE_IN_BYTES, 1));
+                ASSERT_EQ(FTL_SUCCESS, _FTL_WRITE_SECT(p * CONST_PAGE_SIZE_IN_BYTES, 1));
             }
         }
     }
