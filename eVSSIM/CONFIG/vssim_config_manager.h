@@ -10,9 +10,6 @@
 #include <limits.h>
 
 /* SSD Configuration */
-extern int SECTOR_SIZE;
-extern int PAGE_SIZE;
-
 extern int64_t SECTOR_NB;
 extern int PAGE_NB;
 extern int FLASH_NB;
@@ -63,10 +60,11 @@ extern int GC_L2_THRESHOLD_BLOCK_NB;
 extern int STAT_TYPE;
 extern int STAT_SCOPE;
 extern char STAT_PATH[PATH_MAX];
+extern char OSD_PATH[PATH_MAX];
 void INIT_SSD_CONFIG(void);
 char* GET_FILE_NAME(void);
 
-/* Storage strategy (1 = address-based, 2 = object-based */
+/* Storage strategy (1 = sector-based, 2 = object-based */
 extern int STORAGE_STRATEGY;
 
 typedef struct config_param
@@ -76,4 +74,11 @@ typedef struct config_param
 	void *ptr;
 } config_param;
 
+<<<<<<< HEAD
+=======
+/* SSD Configuration - functions */
+int GET_SECTOR_SIZE(void);
+int GET_PAGE_SIZE(void);
+
+>>>>>>> afd5f7b... Object pass-through – simulator
 #endif
