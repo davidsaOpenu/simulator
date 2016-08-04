@@ -19,6 +19,7 @@ extern int FLASH_NB;
 extern int BLOCK_NB;
 extern int CHANNEL_NB;
 extern int PLANES_PER_FLASH;
+extern int PLANES_NB;
 
 extern int SECTORS_PER_PAGE;
 extern int PAGES_PER_FLASH;

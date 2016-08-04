@@ -181,15 +181,10 @@ void SEND_TO_PERF_CHECKER(int op_type, int64_t op_delay, int type){
 
 double GET_IO_BANDWIDTH(double delay)
 {
-	double bw;
-
-	if(delay != 0)
-		bw = ((double)PAGE_SIZE*1000000)/(delay*1024*1024);
-	else
-		bw = 0;
-
+	double bw = 0;
+	if (delay != 0)
+		bw = ((double)PAGE_SIZE*1000000) / (delay*1024*1024);
 	return bw;
-
 }
 
 int64_t ALLOC_IO_REQUEST(uint32_t sector_nb, unsigned int length, int io_type, int* page_nb)
@@ -238,19 +233,13 @@ int64_t ALLOC_IO_REQUEST(uint32_t sector_nb, unsigned int length, int io_type, i
 	curr_io_request->end_time = end_time_arr;
 	curr_io_request->next = NULL;
 
-	if(io_request_start == NULL && io_request_nb == 0){
+	if (io_request_start == NULL && io_request_nb == 0)
 		io_request_start = curr_io_request;
-		io_request_end = curr_io_request;
-	}
-	else{
+	else
 		io_request_end->next = curr_io_request;
-		io_request_end = curr_io_request;
-	}
+	io_request_end = curr_io_request;
 	io_request_nb++;
-	
-	int64_t end = get_usec();
-
-	return (end - start);
+	return (get_usec() - start);
 }
 
 void FREE_DUMMY_IO_REQUEST(int type)
@@ -258,9 +247,7 @@ void FREE_DUMMY_IO_REQUEST(int type)
 	int i;
 	int success = 0;
 	io_request* prev_request = io_request_start;
-
 	io_request* request = LOOKUP_IO_REQUEST(io_request_seq_nb, type);
-
 
 	if(io_request_nb == 1){
 		io_request_start = NULL;
@@ -348,10 +335,6 @@ int64_t UPDATE_IO_REQUEST(int request_nb, int offset, int64_t time, int type)
 {
 	int64_t start = get_usec();
 
-	int io_type;
-	int64_t latency=0;
-	int flag = 0;
-
 	if(request_nb == -1)
 		return 0;
 
@@ -369,17 +352,13 @@ int64_t UPDATE_IO_REQUEST(int request_nb, int offset, int64_t time, int type)
 	}
 
 	if(curr_request->start_count == curr_request->request_size && curr_request->end_count == curr_request->request_size){
-		latency = CALC_IO_LATENCY(curr_request);
-		io_type = curr_request->request_type;
+		int64_t latency = CALC_IO_LATENCY(curr_request);
+		int io_type = curr_request->request_type;
 
 		SEND_TO_PERF_CHECKER(io_type, latency, LATENCY_OP);
-
 		FREE_IO_REQUEST(curr_request);
-		flag = 1;
 	}
-	int64_t end = get_usec();
-
-	return (end - start);
+	return (get_usec() - start);
 }
 
 void INCREASE_IO_REQUEST_SEQ_NB(void)
@@ -403,7 +382,7 @@ io_request* LOOKUP_IO_REQUEST(int request_nb, int type)
 		total_request = io_request_nb;
 	}
 	else
-		RDBG_FTL(FAIL, "There is no request\n");
+		RDBG_FTL(NULL, "There is no request\n");
 
 	for(i=0;i<total_request;i++){
 		if(curr_request->request_nb == request_nb){
@@ -423,7 +402,6 @@ io_request* LOOKUP_IO_REQUEST(int request_nb, int type)
 
 int64_t CALC_IO_LATENCY(io_request* request)
 {
-	int64_t latency;
 	int64_t* start_time_arr = request->start_time;
 	int64_t* end_time_arr = request->end_time;
 
@@ -459,8 +437,6 @@ int64_t CALC_IO_LATENCY(io_request* request)
 		}
 	}
 	
-	latency = (max_end_time - min_start_time)/(request->request_size);
-	
-	return latency;
+	return (max_end_time - min_start_time) / (request->request_size);
 }
 
