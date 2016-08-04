@@ -180,7 +180,7 @@ double GET_IO_BANDWIDTH(double delay)
 	double bw;
 
 	if(delay != 0)
-		bw = ((double)PAGE_SIZE*1000000)/(delay*1024*1024);
+		bw = ((double)GET_PAGE_SIZE()*MEGABYTE_IN_BYTES)/(delay*SECOND_IN_USEC);
 	else
 		bw = 0;
 
@@ -399,7 +399,7 @@ io_request* LOOKUP_IO_REQUEST(int request_nb, int type)
 		total_request = io_request_nb;
 	}
 	else
-		RDBG_FTL(FAIL, "There is no request\n");
+		RDBG_FTL(NULL, "There is no request\n");
 
 	for(i=0;i<total_request;i++){
 		if(curr_request->request_nb == request_nb){

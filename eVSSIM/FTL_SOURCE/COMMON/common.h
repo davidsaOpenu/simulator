@@ -19,7 +19,7 @@
 //#define FTL_DEBUG 1
 
 /* VSSIM Function */
-#define MONITOR_ON
+// #define MONITOR_ON
 #ifdef PAGE_MAP
 #define GC_ON 1			/* Garbage Collection for PAGE MAP */
 #endif
@@ -42,9 +42,6 @@
 	#include "ftl_gc_manager.h"
 	#include "ftl_mapping_manager.h"
 #endif
-
-#define SUCCESS		1
-#define FAIL		0
 
 /* Block Type */
 #define EMPTY_BLOCK             30
