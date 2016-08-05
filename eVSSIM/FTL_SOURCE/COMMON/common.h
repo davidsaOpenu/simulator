@@ -142,8 +142,10 @@
 /* SSD Debugging */
 //#define SSD_DEBUG
 
-#define print_wrapper(prefix, msg, args...) \
-	printf(prefix "[%s][%s][%d]: " msg, __FILE__, __FUNCTION__, __LINE__, ##args)
+#define print_wrapper(prefix, msg, args...){\
+	printf("%s[%s][%s][%d]: ", prefix, __FILE__, __FUNCTION__, __LINE__);\
+	printf(msg, ##args);\
+}
 
 #define print_and_ret(ret, prefix, msg, args...){\
         print_wrapper(prefix, msg, ##args);\
