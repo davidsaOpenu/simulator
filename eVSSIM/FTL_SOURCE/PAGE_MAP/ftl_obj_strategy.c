@@ -625,7 +625,7 @@ void OSD_READ_OBJ(object_location obj_loc, unsigned int length, uint64_t addr, u
 	//we should also get the offset here, for cases where there's more than one prp
 
 	if(osd_read(&osd, part_id, obj_id, length, offset, NULL, rdbuf, &len, 0, osd_sense, DDT_CONTIG))
-		PINFO("failed in osd_read()\n");
+		PINFO("failed in osd_read()\n")
 	else
 	{
 		PINFO("osd_read() was successful. %lu bytes were read !\n", len);
