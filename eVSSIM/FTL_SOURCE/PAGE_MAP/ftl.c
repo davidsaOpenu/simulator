@@ -276,16 +276,16 @@ void FTL_RECORD_STATISTICS(void){
 			fprintf(fp , "1,");
 		}
 		if (STAT_SCOPE & COLLECT_CHANNEL){
-			fprintf(fp , "%d," , CALC_CHANNEL(address));
+			fprintf(fp , "%u," , CALC_CHANNEL(address));
 		}
 		if (STAT_SCOPE & COLLECT_FLASH){
-			fprintf(fp , "%d," , CALC_FLASH(address));
+			fprintf(fp , "%u," , CALC_FLASH(address));
 		}
 		if (STAT_SCOPE & COLLECT_PLANE){
-			fprintf(fp , "%d," , CALC_PLANE(address));
+			fprintf(fp , "%u," , CALC_PLANE(address));
 		}
 		if (STAT_SCOPE & COLLECT_BLOCK){
-			fprintf(fp , "%d,", CALC_BLOCK(address));
+			fprintf(fp , "%u,", CALC_BLOCK(address));
 		}
 		if (STAT_SCOPE & COLLECT_PAGE){
 			fprintf(fp , "%d," , address);

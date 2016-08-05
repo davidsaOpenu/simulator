@@ -462,7 +462,7 @@ page_node *add_page(stored_object *object, uint32_t page_id)
 	//If that's the first prp, we need to create the object
 	if (obj_loc.create_object)
 	{
-		PINFO("About to create an object in the SIMULATOR -> obj id: %lu size: %lu\n", obj_loc.object_id, size);
+		PINFO("About to create an object in the SIMULATOR -> obj id: %lu size: %zu\n", obj_loc.object_id, size);
 		bool created = _FTL_OBJ_CREATE(obj_loc.object_id, size);
 		PINFO("Created the SIMULATOR object !\n");
 
@@ -472,7 +472,7 @@ page_node *add_page(stored_object *object, uint32_t page_id)
 		}
 	}
 
-	PINFO("About to write an object to the SIMULATOR -> obj id: %lu size: %lu\n", obj_loc.object_id, size);
+	PINFO("About to write an object to the SIMULATOR -> obj id: %lu size: %zu\n", obj_loc.object_id, size);
 	_FTL_OBJ_WRITE(obj_loc.object_id, 0, size);
 	//PINFO("Object written to the SIMULATOR with res:%d\n", res);
 
@@ -552,7 +552,7 @@ void OSD_WRITE_OBJ(object_location obj_loc, unsigned int length, uint8_t *buf)
 	    	PINFO("partition %lu already exists, no need to create it !\n", part_id);
 	    }
 
-		PINFO("Creating an writing object to OSD with partition id: %lu and object id: %lu of size: %d\n", part_id, obj_id, length);
+		PINFO("Creating an writing object to OSD with partition id: %lu and object id: %lu of size: %u\n", part_id, obj_id, length);
 		ret = osd_create_and_write(&osd, part_id, obj_id, length, 0, buf, cdb_cont_len, 0, osd_sense, DDT_CONTIG);
 		if (ret) {
 			RERR(, "FAILED ! ret for osd_create_and_write() is: %d\n", ret);
@@ -561,7 +561,7 @@ void OSD_WRITE_OBJ(object_location obj_loc, unsigned int length, uint8_t *buf)
 	}
 
 	else{
-		PINFO("Updating OSD object id: %lu of size: %d\n", obj_id, length);
+		PINFO("Updating OSD object id: %lu of size: %u\n", obj_id, length);
 		ret = osd_append(&osd,part_id, obj_id, length, buf, cdb_cont_len, osd_sense, DDT_CONTIG);
 		if (ret) {
 			RERR(, "FAIL! ret for osd_append() is: %d\n",ret);
@@ -576,7 +576,7 @@ void printMemoryDump(uint8_t *buffer, unsigned int bufferLength)
 {
 	unsigned int* start_p = (unsigned int*)buffer;
 	unsigned int* end_p = (unsigned int*)buffer + bufferLength / sizeof(unsigned int);
-	PINFO("code dump length: %ld\n", end_p - start_p);
+	PINFO("code dump length: %tu\n", end_p - start_p);
 	int i =0,iall = 0;
 	char msgBuf[512];
 	char* msg = (char*)msgBuf;
@@ -617,7 +617,7 @@ void OSD_READ_OBJ(object_location obj_loc, unsigned int length, uint64_t addr, u
 	partition_id_t part_id = USEROBJECT_PID_LB + obj_loc.partition_id;
 
 
-	PINFO("READING %d bytes from OSD OBJECT: %lu %lu\n", length, part_id, obj_id);
+	PINFO("READING %u bytes from OSD OBJECT: %lu %lu\n", length, part_id, obj_id);
 	uint64_t len;
 
 	uint8_t *rdbuf = malloc(length);
@@ -625,7 +625,7 @@ void OSD_READ_OBJ(object_location obj_loc, unsigned int length, uint64_t addr, u
 	//we should also get the offset here, for cases where there's more than one prp
 
 	if(osd_read(&osd, part_id, obj_id, length, offset, NULL, rdbuf, &len, 0, osd_sense, DDT_CONTIG))
-		PINFO("failed in osd_read()\n");
+		PINFO("failed in osd_read()\n")
 	else
 	{
 		PINFO("osd_read() was successful. %lu bytes were read !\n", len);
