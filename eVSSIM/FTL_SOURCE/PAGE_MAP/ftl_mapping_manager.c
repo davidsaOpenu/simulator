@@ -60,8 +60,11 @@ int GET_NEW_PAGE(int mode, int mapping_index, uint32_t* ppn)
 
 	curr_empty_block = GET_EMPTY_BLOCK(mode, mapping_index);
 
-	if (curr_empty_block == NULL)
-		RERR(FAIL, "GET_EMPTY_BLOCK fail\n");
+	if (curr_empty_block == NULL){
+		if (VICTIM_INCHIP == mode)
+			RINFO(FAIL, "GET_EMPTY_BLOCK fail in VICTIM_INCHIP mode\n")
+		else
+			RERR(FAIL, "GET_EMPTY_BLOCK fail\n");
 
 	*ppn = curr_empty_block->phy_flash_nb*BLOCK_NB*PAGE_NB \
 	       + curr_empty_block->phy_block_nb*PAGE_NB \
