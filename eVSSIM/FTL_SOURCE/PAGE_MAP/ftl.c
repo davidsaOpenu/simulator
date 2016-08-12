@@ -4,6 +4,8 @@
 // Embedded Software Systems Lab. All right reserved
 
 #include "common.h"
+#include "ftl_sect_strategy.h"
+#include "ftl_obj_strategy.h"
 
 #include <arpa/inet.h>
 #include <sys/socket.h>
@@ -16,7 +18,6 @@ extern double ssd_util;
 int gatherStats = 0;
 //Hold statistics information
 uint32_t** mapping_stats_table;
-storage_strategy_functions* storage_strategy;
 
 void FTL_INIT(void)
 {
@@ -31,7 +32,6 @@ void FTL_INIT(void)
 		INIT_EMPTY_BLOCK_LIST();
 		INIT_VICTIM_BLOCK_LIST();
 		INIT_PERF_CHECKER();
-		FTL_INIT_STRATEGY();
 		
 		//Initialize The Statistics gathering component.
 		FTL_INIT_STATS();
@@ -60,69 +60,13 @@ void FTL_TERM(void)
 	PINFO("complete\n");
 }
 
-void FTL_INIT_STRATEGY(void)
-{
-	storage_strategy = malloc(sizeof(storage_strategy_functions));
-	
-	if (STORAGE_STRATEGY == STORAGE_STRATEGY_OBJECT)
-	{
-		storage_strategy->FTL_READ = _FTL_OBJ_READ;
-		storage_strategy->FTL_WRITE = _FTL_OBJ_WRITE;
-		storage_strategy->FTL_COPYBACK = _FTL_OBJ_COPYBACK;
-		storage_strategy->FTL_CREATE = _FTL_OBJ_CREATE;
-		storage_strategy->FTL_DELETE = _FTL_OBJ_DELETE;
-        
-        // object strategy needs initializing, unlike current other strategies
-        INIT_OBJ_STRATEGY();
-	}
-	else // default behaviour, if strategy was not defined or is invalid or whatever
-	{
-		storage_strategy->FTL_READ = _FTL_READ;
-		storage_strategy->FTL_WRITE = _FTL_WRITE;
-		storage_strategy->FTL_COPYBACK = _FTL_COPYBACK;
-		storage_strategy->FTL_CREATE = _FTL_CREATE;
-		storage_strategy->FTL_DELETE = _FTL_DELETE;
-	}
-}
-
 void FTL_TERM_STRATEGY(void)
 {
-        if(STORAGE_STRATEGY == STORAGE_STRATEGY_OBJECT)
-            TERM_OBJ_STRATEGY();
-	free(storage_strategy);
-}
-
-void FTL_READ(uint64_t id, unsigned int offset, unsigned int length)
-{
-	int ret;
-
-	ret = storage_strategy->FTL_READ(id, offset, length);
-}
-
-void FTL_WRITE(uint64_t id, unsigned int offset, unsigned int length)
-{
-	int ret;
-
-	ret = storage_strategy->FTL_WRITE(id, offset, length);
-}
-
-int FTL_COPYBACK(uint32_t source, uint32_t destination)
-{
-	return storage_strategy->FTL_COPYBACK(source, destination);
-}
-
-void FTL_CREATE(size_t size)
-{
-	int ret;
-	
-	ret = storage_strategy->FTL_CREATE(size);
-}
-
-void FTL_DELETE(uint64_t id)
-{
-	int ret;
-	
-	ret = storage_strategy->FTL_DELETE(id);
+	// As we can't figure out the storage strategy at this point, 
+	// We can terminate the object strategy anyway... at the worst 
+	// case where we're actually using the sector strtegy, it won't do
+	// anything and return
+	TERM_OBJ_STRATEGY();
 }
 
 void FTL_INIT_STATS(void)
@@ -198,21 +142,21 @@ void FTL_TERM_STATS(void){
 #endif
 }
 
-int FTL_STATISTICS_GATHERING(uint32_t address , int type){
+ftl_ret_val FTL_STATISTICS_GATHERING(uint32_t address , int type){
 
 	if (gatherStats == 0)
 	{
-		return SUCCESS;
+		return FTL_SUCCESS;
 	}
 	if (address > PAGE_MAPPING_ENTRY_NB){
-		return FAIL;
+		return FTL_FAILURE;
 	}
 
 	//Increase the count of the action that was done.
 	mapping_stats_table[type][address] = mapping_stats_table[type][address] + 1;
 
 
-	return SUCCESS;
+	return FTL_SUCCESS;
 }
 
 uint32_t FTL_STATISTICS_QUERY	(uint32_t address, int scope , int type){
