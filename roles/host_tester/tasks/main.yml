@@ -1,13 +1,13 @@
 - name: build unit tests
   shell: "make mklink && make all"
   args:
-      chdir: "{{ dest }}/eVSSIM/tests"
+      chdir: "{{ dest }}/eVSSIM/tests/host"
   register: build_unit_tests
 
 - name: run sector tests
   shell: valgrind --leak-check=full --error-exitcode=2 ./sector_tests --ci
   args:
-      chdir: "{{ dest }}/eVSSIM/tests"
+      chdir: "{{ dest }}/eVSSIM/tests/host"
   register: sector_tests
 
 - debug: msg="Sector tests stdout\n{{ sector_tests.stdout }}"
@@ -16,7 +16,7 @@
 - name: run object tests
   shell: valgrind --leak-check=full --error-exitcode=2 ./object_tests
   args:
-      chdir: "{{ dest }}/eVSSIM/tests"
+      chdir: "{{ dest }}/eVSSIM/tests/host"
   register: object_tests
 
 - debug: msg="Object tests stdout\n{{ object_tests.stdout }}"

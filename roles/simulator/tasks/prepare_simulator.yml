@@ -27,16 +27,11 @@
 - name: create data directory
   file:
   args:
-      path: "{{ dest }}/eVSSIM/tests/data"
+      path: "{{ dest }}/eVSSIM/tests/host/data"
       state: directory
  
-- name: link SSD configuration into eVSSIM/tests/data
-  file:
-  args:
-      state: link
-      src: "../../CONFIG/ssd.conf"
-      path: "{{ dest }}/eVSSIM/tests/data/ssd.conf"
-      force: yes
+- name: create SSD configuration file into eVSSIM/tests/host/data
+  file: path="{{ dest }}/eVSSIM/tests/host/data/ssd.conf" state=touch
 
 - name: build ssd_monitor
   shell: "qmake -o Makefile ssd_monitor_p.pro && make"
