@@ -164,18 +164,16 @@ void Form1::onReceive()
 		/* WB인 소켓을 받았을 경우 */
 		else if(szCmdList[0] == "WB")
 	    	{
-			long long int wb = 0;
-			sscanf(szCmdList[2], "%lld", &wb);
+			sscanf(szCmdList[2], "%f", &WriteAmpCount);
 			if(szCmdList[1] == "CORRECT")
 			{
-	      			WrittenCorrectCount += wb;
+	      			WrittenCorrectCount += WriteAmpCount;
 	      			sprintf(szTemp, "%ld", WrittenCorrectCount);
 	      			txtWrittenBlockCount->setText(szTemp);
 			}
 			else
 			{
-	      			WriteAmpCount += wb;
-	      			sprintf(szTemp, "%ld", WriteAmpCount);
+	      			sprintf(szTemp, "%f", WriteAmpCount);
 	      			txtWriteAmpCount->setText(szTemp);
 			}
 		}	

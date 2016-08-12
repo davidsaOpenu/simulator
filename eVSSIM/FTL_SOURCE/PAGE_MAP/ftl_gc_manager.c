@@ -4,13 +4,18 @@
 // Embedded Software Systems Lab. All right reserved
 
 #include "common.h"
+#include "ftl_sect_strategy.h"
+#include "ftl_obj_strategy.h"
 
 unsigned int gc_count = 0;
 
 int fail_cnt = 0;
 extern double ssd_util;
 
-void GC_CHECK(unsigned int phy_flash_nb, unsigned int phy_block_nb, bool force)
+write_amplification_counters wa_counters;
+
+
+void GC_CHECK(unsigned int phy_flash_nb, unsigned int phy_block_nb, bool force, bool isObjectStrategy)
 {
 	int i, ret;
 	int plane_nb = phy_block_nb % PLANES_PER_FLASH;
@@ -19,15 +24,15 @@ void GC_CHECK(unsigned int phy_flash_nb, unsigned int phy_block_nb, bool force)
 	if(force || total_empty_block_nb < GC_THRESHOLD_BLOCK_NB){
         int l2 = total_empty_block_nb < GC_L2_THRESHOLD_BLOCK_NB;
 		for(i=0; i<GC_VICTIM_NB; i++){
-			ret = GARBAGE_COLLECTION(mapping_index, l2);
-			if(ret == FAIL){
+			ret = GARBAGE_COLLECTION(mapping_index, l2, isObjectStrategy);
+			if(ret == FTL_FAILURE){
 				break;
 			}
 		}
 	}
 }
 
-int GARBAGE_COLLECTION(int mapping_index, int l2)
+ftl_ret_val GARBAGE_COLLECTION(int mapping_index, int l2, bool isObjectStrategy)
 {
 	int i;
 	int ret;
@@ -45,8 +50,10 @@ int GARBAGE_COLLECTION(int mapping_index, int l2)
 	inverse_block_mapping_entry* inverse_block_entry;
 
 	ret = SELECT_VICTIM_BLOCK(&victim_phy_flash_nb, &victim_phy_block_nb);
-	if (ret == FAIL)
-		RDBG_FTL(FAIL, "There is no available victim block\n");
+
+	if (ret == FTL_FAILURE)
+		RDBG_FTL(FTL_FAILURE, "There is no available victim block\n");
+
 
 	inverse_block_entry = GET_INVERSE_BLOCK_MAPPING_ENTRY(victim_phy_flash_nb, victim_phy_block_nb);
 	valid_array = inverse_block_entry->valid_array;
@@ -74,13 +81,15 @@ int GARBAGE_COLLECTION(int mapping_index, int l2)
 
 
 			ret = GET_NEW_PAGE(VICTIM_INCHIP, mapping_index, &new_ppn);
-            if(ret == FAIL){
+
+            if(ret == FTL_FAILURE){
                 if (!l2)
-				    RERR(FAIL, "GET_NEW_PAGE(VICTIM_INCHIP, %d): failed\n", mapping_index);
+				    RERR(FTL_FAILURE, "GET_NEW_PAGE(VICTIM_INCHIP, %d): failed\n", mapping_index);
                 // l2 threshold reached. let's re-write the page
                 ret = GET_NEW_PAGE(VICTIM_OVERALL, EMPTY_TABLE_ENTRY_NB, &new_ppn);
-                if (ret == FAIL)
-				    RERR(FAIL, "GET_NEW_PAGE(VICTIM_OVERALL, EMPTY_TABLE_ENTRY_NB): failed\n");
+                if(ret == FTL_FAILURE)
+				    RERR(FTL_FAILURE, "GET_NEW_PAGE(VICTIM_OVERALL, EMPTY_TABLE_ENTRY_NB): failed\n");
+
                 SSD_PAGE_READ(victim_phy_flash_nb, victim_phy_block_nb, i, i, GC_READ, -1);
                 SSD_PAGE_WRITE(CALC_FLASH(new_ppn), CALC_BLOCK(new_ppn), CALC_PAGE(new_ppn), i, GC_WRITE, -1);
                 old_ppn = victim_phy_flash_nb*PAGES_PER_FLASH + victim_phy_block_nb*PAGE_NB + i;
@@ -88,8 +97,13 @@ int GARBAGE_COLLECTION(int mapping_index, int l2)
                 UPDATE_NEW_PAGE_MAPPING(lpn, new_ppn);
             }else{
                 // Got new page on-chip, can do copy back
-			    ret = FTL_COPYBACK(victim_phy_flash_nb*PAGES_PER_FLASH + victim_phy_block_nb*PAGE_NB + i , new_ppn);
-                if(ret == FAIL){
+
+            	if (!isObjectStrategy)
+            		ret = _FTL_COPYBACK(victim_phy_flash_nb*PAGES_PER_FLASH + victim_phy_block_nb*PAGE_NB + i , new_ppn);
+            	else
+            		ret = _FTL_OBJ_COPYBACK(victim_phy_flash_nb*PAGES_PER_FLASH + victim_phy_block_nb*PAGE_NB + i , new_ppn);
+
+                if(ret == FTL_FAILURE){
                     PDBG_FTL("failed to copyback\n");
                     SSD_PAGE_READ(victim_phy_flash_nb, victim_phy_block_nb, i, i, GC_READ, -1);
                     SSD_PAGE_WRITE(CALC_FLASH(new_ppn), CALC_BLOCK(new_ppn), CALC_PAGE(new_ppn), i, GC_WRITE, -1);
@@ -100,25 +114,36 @@ int GARBAGE_COLLECTION(int mapping_index, int l2)
             }
 
 			copy_page_nb++;
+			//if we got this far, it means we copied the page from the victim block to a new one -> meaning, we wrote to that new block so we need to update the relevant counter
+			wa_counters.physical_block_write_counter++;
+
 		}
 	}
 
 	if (copy_page_nb != valid_page_nb)
-		RERR(FAIL, "The number of valid page is not correct copy_page_nb (%d) != valid_page_nb (%d)\n", copy_page_nb, valid_page_nb);
+
+		RERR(FTL_FAILURE, "The number of valid page is not correct copy_page_nb (%d) != valid_page_nb (%d)\n", copy_page_nb, valid_page_nb);
+
 
 	SSD_BLOCK_ERASE(victim_phy_flash_nb, victim_phy_block_nb);
+	//update the physical block write counter as we're deleting the victim block which we're freeing during the GC procedure
+	wa_counters.physical_block_write_counter++;
 	UPDATE_INVERSE_BLOCK_MAPPING(victim_phy_flash_nb, victim_phy_block_nb, EMPTY_BLOCK);
 	INSERT_EMPTY_BLOCK(victim_phy_flash_nb, victim_phy_block_nb);
 
 	gc_count++;
 	WRITE_LOG("GC ");
-	WRITE_LOG("WB AMP %d", copy_page_nb);
 
-	return SUCCESS;
+//	WRITE_LOG("WB AMP %d", copy_page_nb);
+	WRITE_LOG("WB AMP %f", (float)wa_counters.physical_block_write_counter / (float)wa_counters.logical_block_write_counter);
+
+
+	return FTL_SUCCESS;
 }
 
+
 /* Greedy Garbage Collection Algorithm */
-int SELECT_VICTIM_BLOCK(unsigned int* phy_flash_nb, unsigned int* phy_block_nb)
+ftl_ret_val SELECT_VICTIM_BLOCK(unsigned int* phy_flash_nb, unsigned int* phy_block_nb)
 {
 	int i, j;
 	int entry_nb = 0;
@@ -128,7 +153,9 @@ int SELECT_VICTIM_BLOCK(unsigned int* phy_flash_nb, unsigned int* phy_block_nb)
 	victim_block_entry* victim_block = NULL;
 
 	if (total_victim_block_nb == 0)
-		RDBG_FTL(FAIL, "There is no victim block\n");
+
+		RDBG_FTL(FTL_FAILURE, "[SELECT_VICTIM_BLOCK] There is no victim block\n");
+
 
 	/* if GC_TRIGGER_OVERALL is defined, then */
 	curr_root = (victim_block_root*)victim_block_table_start;
@@ -156,12 +183,12 @@ int SELECT_VICTIM_BLOCK(unsigned int* phy_flash_nb, unsigned int* phy_block_nb)
 	}
 	if(*(victim_block->valid_page_nb) == PAGE_NB){
 		fail_cnt++;
-		return FAIL;
+		return FTL_FAILURE;
 	}
 
 	*phy_flash_nb = victim_block->phy_flash_nb;
 	*phy_block_nb = victim_block->phy_block_nb;
 	EJECT_VICTIM_BLOCK(victim_block);
 
-	return SUCCESS;
+	return FTL_SUCCESS;
 }

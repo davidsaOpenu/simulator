@@ -733,7 +733,7 @@
     <variable access="private">long int GC_NB;</variable>
     <variable access="private">int GCStarted;</variable>
     <variable access="private">long int ReadSectorCount;</variable>
-    <variable access="private">long int WriteAmpCount;</variable>
+    <variable access="private">float WriteAmpCount;</variable>
     <variable access="private">long int WrittenCorrectCount;</variable>
     <variable access="private">long int WriteSectorCount;</variable>
     <variable access="private">int TrimEffect;</variable>

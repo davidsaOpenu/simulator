@@ -1626,10 +1626,8 @@ int osd_create(struct osd_device *osd, uint64_t pid, uint64_t requested_oid,
 	ret = obj_ispresent(osd->dbc, pid, PARTITION_OID, &present);
 	if (ret != OSD_OK || !present)
 		goto out_illegal_req;
-
 	if (numoid > 1 && requested_oid != 0)
 		goto out_illegal_req;
-
 	if (requested_oid == 0) {
 		/*
 		 * XXX: there should be a better way of getting next maximum
@@ -1651,6 +1649,7 @@ int osd_create(struct osd_device *osd, uint64_t pid, uint64_t requested_oid,
 		}
 	} else {
 		ret = obj_ispresent(osd->dbc, pid, requested_oid, &present);
+		osd_debug("ret: %d, present: %d", ret, present);
 		if (ret != OSD_OK || present)
 			goto out_illegal_req; /* requested_oid exists! */
 		oid = requested_oid; /* requested_oid works! */
