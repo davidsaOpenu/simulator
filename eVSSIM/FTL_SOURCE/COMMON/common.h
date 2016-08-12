@@ -43,9 +43,6 @@
 	#include "ftl_mapping_manager.h"
 #endif
 
-#define SUCCESS		1
-#define FAIL		0
-
 /* Block Type */
 #define EMPTY_BLOCK             30
 #define SEQ_BLOCK               31
@@ -146,7 +143,7 @@
 //#define SSD_DEBUG
 
 #define print_wrapper(prefix, msg, args...) \
-	printf(prefix "[%s]: " msg, __FUNCTION__, ##args)
+	printf(prefix "[%s][%s][%d]: " msg, __FILE__, __FUNCTION__, __LINE__, ##args)
 
 #define print_and_ret(ret, prefix, msg, args...){\
         print_wrapper(prefix, msg, ##args);\
@@ -155,11 +152,11 @@
 
 #define PDBG(msg, args...) print_wrapper("DEBUG", msg, ##args)
 #define PERR(msg, args...) print_wrapper("ERROR", msg, ##args)
-#define PINFO(msg, args...) print_wrapper("", msg, ##args)
+#define PINFO(msg, args...) print_wrapper("INFO", msg, ##args)
 
 #define RDBG(ret, msg, args...) print_and_ret(ret, "DEBUG", msg, ##args)
 #define RERR(ret, msg, args...) print_and_ret(ret, "ERROR", msg, ##args)
-#define RINFO(ret, msg, args...) print_and_ret(ret, "", msg, ##args)
+#define RINFO(ret, msg, args...) print_and_ret(ret, "INFO", msg, ##args)
 
 #ifdef FTL_DEBUG
 #define PDBG_FTL(msg, args...) PDBG(msg, ##args)

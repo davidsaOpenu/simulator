@@ -65,7 +65,9 @@ void THREAD_SERVER(void)
 
     if ((servSock = socket(AF_INET, SOCK_STREAM, IPPROTO_TCP)) < 0)
         RDBG_MNT(, "socket failed: %s\n", strerror(errno));
+	int flags = fcntl(servSock, F_GETFL, 0);
 
+	fcntl(servSock, F_SETFL, flags | O_APPEND);
     int option = 1;
     if (setsockopt(servSock, SOL_SOCKET, SO_REUSEADDR, &option, sizeof(option)) < 0)
         RDBG_MNT(, "setsockopt SO_REUSEADDR failed: %s\n", strerror(errno));
