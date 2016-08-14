@@ -1,0 +1,89 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "baa041b7_d3627dac",
+        "filename": "eVSSIM/CONFIG/vssim_config_manager.c",
+        "patchSetId": 3
+      },
+      "lineNbr": 158,
+      "author": {
+        "id": 1007990
+      },
+      "writtenOn": "2016-08-14T06:22:33Z",
+      "side": 1,
+      "message": "how about VICTIM_TABLE_ENTRY_NB \u003d VICTIM_TABLE_ENTRY_NB \u003d VICTIM_TABLE_ENTRY_NB? Introducing PLANES_NB under SSD conf is confusing somewhat. PLANES_NB is a computed value. SSD configuration values are obtained from ssd.conf",
+      "revId": "fb33d4bdd47241d0367a3b350085b90ff88f2060",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "baa041b7_7374d166",
+        "filename": "eVSSIM/FTL_SOURCE/PAGE_MAP/ftl_gc_manager.c",
+        "patchSetId": 3
+      },
+      "lineNbr": 120,
+      "author": {
+        "id": 1007990
+      },
+      "writtenOn": "2016-08-14T06:22:33Z",
+      "side": 1,
+      "message": "How about logging gc_count rather then removing it?",
+      "revId": "fb33d4bdd47241d0367a3b350085b90ff88f2060",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "baa041b7_536f8d91",
+        "filename": "eVSSIM/FTL_SOURCE/PAGE_MAP/ftl_gc_manager.c",
+        "patchSetId": 3
+      },
+      "lineNbr": 169,
+      "author": {
+        "id": 1007990
+      },
+      "writtenOn": "2016-08-14T06:22:33Z",
+      "side": 1,
+      "message": "How about logging fail_cnt rather then removing it?",
+      "revId": "fb33d4bdd47241d0367a3b350085b90ff88f2060",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "baa041b7_13eb45a5",
+        "filename": "eVSSIM/FTL_SOURCE/PAGE_MAP/ftl_inverse_mapping_manager.c",
+        "patchSetId": 3
+      },
+      "lineNbr": 104,
+      "author": {
+        "id": 1007990
+      },
+      "writtenOn": "2016-08-14T06:22:33Z",
+      "side": 1,
+      "message": "Are you sure we need all these changes? They look purely cosmetic: changing while loops to for loops, tail update outside of if - all these are handled by the compiler optimizations. So they are not really solving any real issue.",
+      "revId": "fb33d4bdd47241d0367a3b350085b90ff88f2060",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "baa041b7_f32c6103",
+        "filename": "eVSSIM/SSD_MODULE/ssd_io_manager.c",
+        "patchSetId": 3
+      },
+      "lineNbr": 64,
+      "author": {
+        "id": 1007990
+      },
+      "writtenOn": "2016-08-14T06:22:33Z",
+      "side": 1,
+      "message": "it terms of efficiency the old version is more cache-friendly.",
+      "revId": "fb33d4bdd47241d0367a3b350085b90ff88f2060",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    }
+  ]
+}
