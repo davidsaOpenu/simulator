@@ -1,6 +1,6 @@
 - name: build qemu
   shell: >
-      ./configure --enable-io-thread --enable-linux-aio --target-list=x86_64-softmmu --enable-sdl --enable-vssim --extra-cflags='-Wno-error=unused-but-set-variable -Wno-error=deprecated-declarations -Wno-error=cpp' --cc={{ gcc }} --enable-xen && make
+      ./configure --enable-io-thread --enable-linux-aio --target-list=x86_64-softmmu --enable-sdl --enable-vssim --extra-cflags='-Wno-error=unused-but-set-variable -Wno-error=deprecated-declarations -Wno-error=cpp' --cc={{ gcc }} --enable-xen && bear make
   args:
     chdir: "{{ dest }}/eVSSIM/QEMU"
     creates: "{{ dest }}/eVSSIM/QEMU/x86_64-softmmu/qemu-system-x86_64"

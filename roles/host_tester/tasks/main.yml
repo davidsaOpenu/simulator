@@ -1,5 +1,5 @@
 - name: build unit tests
-  shell: "make mklink && make all"
+  shell: "make distclean && make mklink && bear make"
   args:
       chdir: "{{ dest }}/eVSSIM/tests/host"
   register: build_unit_tests
