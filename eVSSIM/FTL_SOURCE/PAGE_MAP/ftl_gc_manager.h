@@ -6,6 +6,8 @@
 #ifndef _GC_MANAGER_H_
 #define _GC_MANAGER_H_
 
+#include "ftl.h"
+
 extern unsigned int gc_count;
 
 void GC_CHECK(unsigned int phy_flash_nb, unsigned int phy_block_nb, bool force, bool isObjectStrategy);

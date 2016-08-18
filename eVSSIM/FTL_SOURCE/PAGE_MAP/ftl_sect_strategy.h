@@ -1,7 +1,7 @@
 #ifndef _FTL_SECT_H_
 #define _FTL_SECT_H_
 
-#include "common.h"
+#include "ftl.h"
 
 ftl_ret_val _FTL_READ_SECT(uint64_t sector_nb, unsigned int length);
 ftl_ret_val _FTL_WRITE_SECT(uint64_t sector_nb, unsigned int length);

@@ -1,3 +1,4 @@
+#include "common.h"
 #include "ftl_sect_strategy.h"
 
 ftl_ret_val _FTL_READ_SECT(uint64_t sector_nb, unsigned int length)
@@ -143,8 +144,8 @@ ftl_ret_val _FTL_WRITE_SECT(uint64_t sector_nb, unsigned int length)
 		UPDATE_NEW_PAGE_MAPPING(lpn, new_ppn);
 
 
-        if (ret == FTL_FAILURE)
-            PDBG_FTL("Error[FTL_WRITE] %d page write fail \n", new_ppn);
+                if (ret == FTL_FAILURE)
+                   PDBG_FTL("Error[FTL_WRITE] %d page write fail \n", new_ppn)
 
 		lba += write_sects;
 		remain -= write_sects;

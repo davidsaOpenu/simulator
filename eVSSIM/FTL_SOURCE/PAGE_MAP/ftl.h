@@ -6,7 +6,8 @@
 #ifndef _FTL_H_
 #define _FTL_H_
 
-#include "common.h"
+#include <stdint.h>
+#include <stdio.h>
 
 typedef enum {FTL_FAILURE, FTL_SUCCESS} ftl_ret_val;
 

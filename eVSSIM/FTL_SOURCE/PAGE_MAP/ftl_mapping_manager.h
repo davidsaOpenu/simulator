@@ -6,6 +6,8 @@
 #ifndef _MAPPING_MANAGER_H_
 #define _MAPPING_MANAGER_H_
 
+#include "ftl.h"
+
 extern uint32_t* mapping_table;
 extern void* block_table_start;
 

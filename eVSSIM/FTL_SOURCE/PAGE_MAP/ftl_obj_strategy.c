@@ -1,3 +1,4 @@
+#include "common.h"
 #include "ftl_obj_strategy.h"
 
 #include "osd.h"

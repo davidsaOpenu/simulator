@@ -6,6 +6,8 @@
 #ifndef _INVERSE_MAPPING_MANAGER_H_
 #define _INVERSE_MAPPING_MANAGER_H_
 
+#include "ftl.h"
+
 extern uint32_t* inverse_page_mapping_table;
 
 extern int64_t total_empty_block_nb;
@@ -87,8 +89,8 @@ int UPDATE_INVERSE_BLOCK_MAPPING(unsigned int phy_flash_nb,
 								 int type);
 ftl_ret_val UPDATE_INVERSE_BLOCK_VALIDITY(unsigned int phy_flash_nb,
                                           unsigned int phy_block_nb,
-										  unsigned int phy_page_nb,
-										  char valid);
+					  unsigned int phy_page_nb,
+					  char valid);
 
 
 #endif

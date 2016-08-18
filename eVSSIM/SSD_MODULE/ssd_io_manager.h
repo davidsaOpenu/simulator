@@ -6,7 +6,9 @@
 #ifndef _SSD_IO_MANAGER_H
 #define _SSD_IO_MANAGER_H
 
-#include "ssd_util.h"
+//#include "ssd_util.h"
+#include "ftl.h"
+
 
 extern int old_channel_nb;
 extern int64_t io_alloc_overhead;
@@ -60,7 +62,7 @@ void SSD_UPDATE_CH_ACCESS_TIME(int channel, int64_t current_time);
 void SSD_UPDATE_IO_REQUEST(int reg);
 void SSD_UPDATE_IO_OVERHEAD(int reg, int64_t overhead_time);
 void SSD_REMAIN_IO_DELAY(int reg);
-void SSD_UPDATE_QEMU_OVERHEAD( int64_t delay);
+void SSD_UPDATE_QEMU_OVERHEAD(int64_t delay);
 
 /* SSD Module Debugging */
 void SSD_PRINT_STAMP(void);

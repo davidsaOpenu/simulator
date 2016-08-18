@@ -2,7 +2,7 @@
 #define _FTL_OBJ_H_
 
 #include <stdlib.h>
-#include "common.h"
+#include "ftl.h"
 #include "uthash.h"
 
 typedef uint64_t object_id_t;
