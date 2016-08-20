@@ -10,7 +10,7 @@
       # to build gtest
       - cmake
       - g++
-      # to unzip hda.img.zip
+      - libxen-dev
       - unzip
       # to build osc-osd
       - libsqlite3-dev
@@ -23,6 +23,11 @@
       - libpci-dev
       - libaio-dev
       - sshpass
+      # to edit cow2 images
+      - libguestfs-tools
+      # to compile nvme compl tests
+      - libboost-all-dev
+      - libxml++2.6-dev
 
 - name: install packages for SSD monitor
   apt:

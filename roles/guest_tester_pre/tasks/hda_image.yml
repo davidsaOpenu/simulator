@@ -1,4 +1,4 @@
-- name: test whether hda.img exists
+- name: test whether hda image exists
   stat:
   args:
     path: "{{hda_img}}"
@@ -6,18 +6,18 @@
     get_md5: False
   register: hda_file
 
-- name: download hda.img
-  shell: "test -e {{hda_zip}} || curl -L -o {{hda_zip}} 'https://www.dropbox.com/s/6v13efgzmcidgao/hda.zip'"
+- name: download hda image
+  shell: "test -e {{hda_cmpr}} || curl -L -o {{hda_cmpr}} 'https://drive.google.com/open?id=0B1JAKGv3cL1oVExydnFrVUNxV2c'"
   args:
     # get_url module doesn't seem to follow redirects, curl just works
     warn: no
   when: hda_file.stat.exists == false
 
-- name: unarchive hda.img
-  unarchive: "copy=no src={{hda_zip}} dest={{hda_dir}}"
+- name: unarchive hda image
+  shell: "bunzip2 -ks {{hda_cmpr}}"
   when: hda_file.stat.exists == false
 
 - name: delete hda archive
-  file: "path={{hda_zip}} state=absent"
+  file: "path={{hda_cmpr}} state=absent"
   when: hda_file.stat.exists == false
 

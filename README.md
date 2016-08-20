@@ -27,7 +27,7 @@ It is currently configured to run on localhost.
 and then run:
 
 ```sh
-ansible-playbook -i hosts site.yml
+ansible-playbook -i hosts playbooks/<some_playbook>.yml
 ```
 
 ## Additional arguments
@@ -50,13 +50,14 @@ tester1.my-hosting.com hda_dir=/tmp qemu_machine=accel=kvm
 ```
 
 ## Useful variables
-Here are some arguments you can add to `site.yml` invocations (with '-e' or '--extra-vars')
+Here are some arguments you can add to `run_full_setup.yml` invocations (with '-e' or '--extra-vars')
 
 Simulator role arguments:
 | Variable | Meaning |
 | --- | --- |
 | `git_in_ansible`| Determines whether ansible playbook should pull simulator repo. Defaults to git_in_ansible=false |
-| `dest` | Simulator output directory. Defaults to dest={{ ansible_env.HOME }}/simulator |
+| `workspace` | Directory where all related projects are located. Defaults to workspace={{ ansible_env.HOME }}|
+| `dest` | Simulator output directory. Defaults to dest={{ workspace }}/simulator |
 | `ref` | Used where git_in_ansible=true, determines which ref to pull from repo. Defaults to ref=refs/heads/master |
 | `build_ssd_monitor` | Determines whether to build ssd_monitor. Defaults to build_ssd_monitor=false |
 | `qemu_pid_file` | Location of pid_file. Defaults to "{{ ansible_env.HOME }}/simulator_qemu.pid" |
@@ -73,8 +74,8 @@ Guest tester pre (preparation) role arguments:
 | `memory`| Parameter to qemu. Default: 2048 |
 | `smp`| Parameter to qemu. Default: 4 |
 | `hda_dir` | Where to store hda image if downloaded. This has to be a directory with ~ 9GB free space. Default: {{ ansible_env.HOME }} |
-| `hda_zip` | hda zip filename. Default: {{hda_dir}}/hda.zip |
-| `hda_img` | hda filename. Default: {{hda_dir}}/hda.img |
+| `hda_cmpr` | compressed hda image filename. Default: {{hda_dir}}/hda_clean.qcow2.bz2 |
+| `hda_img` | hda image filename. Default: {{hda_dir}}/hda_clean.qcow2 |
 | `guest_ssh_port` | Port to guest machine, passed to qemu. Default: 2222 |
 | `kernel_image` | filename of kernel image. Default: vmlinuz-3.8.0-29-generic |
 | `initrd_image` | filename of initrd image. Default: initrd.img-3.8.0-29-generic |

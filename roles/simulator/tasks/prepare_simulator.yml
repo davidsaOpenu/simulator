@@ -1,35 +1,9 @@
-- name: clone simulator repo 
-  git:
-      repo=https://review.gerrithub.io/davidsaOpenu/simulator
-      accept_hostkey=yes
-      recursive=no
-      force=yes
-      version=FETCH_HEAD
-      refspec={{ ref }}
-      dest={{ dest }}
-  tags: clean
-  when: git_in_ansible
-
-- name: clean untracked files from repository
-  shell: git clean -x -f -d -q
-  args:
-    chdir: "{{dest}}"
-    # git clean is not available through 'git' module
-    warn: no
-  tags: clean
-  when: git_in_ansible
-
-- name: apply all patches to simulator
-  patch: "src={{ item }} basedir={{ dest }} strip=1"
-  with_fileglob:
-      - "*.patch"
-
 - name: create data directory
   file:
   args:
       path: "{{ dest }}/eVSSIM/tests/host/data"
       state: directory
- 
+
 - name: create SSD configuration file into eVSSIM/tests/host/data
   file: path="{{ dest }}/eVSSIM/tests/host/data/ssd.conf" state=touch
 

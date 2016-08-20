@@ -1,31 +1,4 @@
-- name: check whether gtest was built
-  stat: "path={{ ansible_env.HOME }}/gtest/lib/libgtest.a"
-  register: libgtest_file
-
-- name: get gtest
-  unarchive:
-  args:
-      src: https://github.com/google/googletest/archive/release-1.7.0.tar.gz
-      dest: "{{ ansible_env.HOME }}"
-      copy: no
-  when: libgtest_file.stat.exists == false
-
-- name: move googletest to gtest
-  command: "mv googletest-release-1.7.0 gtest"
-  args:
-    chdir: "{{ ansible_env.HOME }}"
-    creates: "{{ ansible_env.HOME }}/gtest"
-  when: libgtest_file.stat.exists == false
-
-- name: create gtest/lib
-  file:
-  args:
-      path: "{{ ansible_env.HOME }}/gtest/lib"
-      state: directory
-  when: libgtest_file.stat.exists == false
-
-- name: build gtest
-  shell: "cmake .. && make"
-  args:
-    chdir: "{{ ansible_env.HOME }}/gtest/lib"
-  when: libgtest_file.stat.exists == false
+# Download and build gtest if not existing
+- include: gtest.yml
+# Download and build bear if not existing
+- include: bear.yml

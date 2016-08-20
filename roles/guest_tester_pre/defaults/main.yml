@@ -2,11 +2,12 @@ memory: 2048
 smp: 4
 # This has to be a directory with ~ 9GB free space
 hda_dir: "{{ ansible_env.HOME }}"
-guest_ssh_port: 2222
-hda_img: "{{hda_dir}}/hda.img"
-hda_zip: "{{hda_dir}}/hda.zip"
-kernel_image: vmlinuz-3.8.0-29-generic
-initrd_image: initrd.img-3.8.0-29-generic
+hda_img: "{{hda_dir}}/hda_clean.qcow2"
+hda_cmpr: "{{hda_dir}}/hda_clean.qcow2.bz2"
+#this is a kernel version we start qemu with to ensure the vm is always properly started
+kernel_version: 3.8.0-29-generic
+kernel_image: "vmlinuz-{{ kernel_version }}"
+initrd_image: "initrd.img-{{ kernel_version }}"
 kernel_cmdline: "BOOT_IMAGE=/boot/{{kernel_image}} root=UUID=063018ec-674c-4c3e-a976-ac4fa950864f ro"
 qemu_machine: accel=kvm
 

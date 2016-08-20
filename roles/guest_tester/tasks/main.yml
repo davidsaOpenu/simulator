@@ -1,132 +1,42 @@
-# Prepare for fio_tests
-- name: rmmod dnvme
+
+#TODO move tnvme, dvme compilation to pre state (togather with kernel compilation)
+
+# shell instead of command (prevents failure on server. NP locally)
+- name: compile dnvme against the built kernel
+  shell: "{{ item }}"
+  with_items:
+    - make clean
+    - make
+  args:
+     chdir: "nvmeCompl/dnvme"
+
+- name: compile tnvme
+  command: "{{ item }}"
+  with_items:
+    - make clean
+    - make -j4
+  args:
+     chdir: "nvmeCompl/tnvme"
+
+
+- name: install required packages
+  apt:
+  args:
+      pkg: "{{ item }}"
+      state: installed
   become: true
-  shell: rmmod dnvme
-  ignore_errors: True
+  with_items:
+      - python-pip
+      - python-setuptools
 
-- name: insmod nvme
+- name: run all guest tests
   become: true
-  shell: modprobe nvme
-
-- name: delete previous fio_tests 
-  file: "path=fio_tests state=absent"
-  become: true
- 
-- name: unarchive fio_tests.tar 
-  unarchive: "copy=no src=fio_tests.tar dest=."
-
-- name: create results directory
-  file:
+  command: "{{ item }}"
+  with_items:
+    - pwd
+    - ls -all
+    - pip install pytest
+    - ./run_all_guest_tests.sh
   args:
-      path: "fio_tests/reference_results"
-      state: directory
+     chdir: guest
 
-# XXX: can be removed later - pending David's change
-- name: remove comment sdb filename from files
-  shell: ./enable_sdb.sh
-  args:
-    chdir: "fio_tests"
- 
-# XXX: can be removed later - pending David's change
-- name: replace sdb with nvme0n1
-  shell: sed -i 's/sdb/nvme0n1/g' *.fio
-  args:
-    chdir: "fio_tests/fio_jobs"
- 
-# XXX: can be removed later - pending David's change
-- name: replace sdb with nvme0n1
-  shell: sed -i 's/sdb/nvme0n1/g' *.sh
-  args:
-    chdir: "fio_tests"
-
-- name: run fio job I <short>
-  become: true
-  shell: ./perf_test_rec_short.sh
-  environment:
-    PATH: "/usr/bin:/sbin:/bin:/home/esd"
-  args:
-    chdir: "fio_tests"
-  when: short_mode
-
-- name: run fio job II <short>
-  become: true
-  shell: ./perf_test_run_short.sh
-  environment:
-    PATH: "/usr/bin:/sbin:/bin:/home/esd"
-  args:
-    chdir: "fio_tests"
-  when: short_mode
-
-- name: run fio job I <long>
-  become: true
-  shell: ./perf_test_rec.sh
-  environment:
-    PATH: "/usr/bin:/sbin:/bin:/home/esd"
-  args:
-    chdir: "fio_tests"
-  when: not short_mode|bool
-
-- name: run fio job II <long>
-  become: true
-  shell: ./perf_test_run.sh
-  environment:
-    PATH: "/usr/bin:/sbin:/bin:/home/esd"
-  args:
-    chdir: "fio_tests"
-  when: not short_mode|bool
-
-- name: set size=500m to surface-scan <short>
-  shell: sed -i 's/#size=500m/size=50m/g' surface-scan.fio
-  args:
-    chdir: "fio_tests/fio_jobs"
-  when: short_mode
- 
-- name: run fio surface-scan job
-  become: true
-  shell: fio fio_jobs/surface-scan.fio
-  environment:
-    PATH: "/usr/bin:/sbin:/bin:/home/esd"
-  args:
-    chdir: "fio_tests"
-
-# Prepare for nvme compliance tests 
-- name: rmmod nvme
-  become: true
-  shell: rmmod nvme
-
-- name: insmod dnvme
-  become: true
-  shell: insmod dnvme.ko
-  args:
-    chdir: "dnvme/"
-
-# short mode: run manully first 3 tests.
-- name: run tnvme test1
-  become: true
-  shell: ./tnvme --test=1 > test1.txt
-  args:
-    chdir: "tnvme/"
-  when: short_mode 
-
-- name: run tnvme test2
-  become: true
-  shell: ./tnvme --test=2 > test2.txt
-  args:
-    chdir: "tnvme/"
-  when: short_mode
-
-- name: run tnvme test3
-  become: true
-  shell: ./tnvme --test=3 > test3.txt
-  args:
-    chdir: "tnvme/"
-  when: short_mode
-
-- name: run tnvme tests <long>
-  become: true
-  shell: ./run_tests.sh
-  args:
-    chdir: "tnvme/"
-  when: not short_mode|bool
-
-- debug: msg="Done running tests on guest"

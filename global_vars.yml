@@ -1,0 +1,15 @@
+# This file defines variables common to the simulator-ci playbooks (aka global vars)
+
+---
+
+# define port number for ssh connection to the guest vm
+guest_ssh_port: 2222
+
+########################################################
+# define variables that switch debugging mode
+########################################################
+# turns on/off guest_tester_pre role debugging
+debug_guest_tester_pre: False
+
+
+

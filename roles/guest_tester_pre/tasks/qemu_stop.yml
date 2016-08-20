@@ -21,6 +21,7 @@
   when: qemu_pid_task.stdout != ""
   tags: qemu
 
+#TODO: ability to run un parallel several jobs
 - name: delete per-test-instance directory
   file:
   args:

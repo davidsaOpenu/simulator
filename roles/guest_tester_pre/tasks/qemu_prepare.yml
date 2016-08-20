@@ -1,6 +1,6 @@
 - name: build qemu
   shell: >
-      ./configure --enable-io-thread --enable-linux-aio --target-list=x86_64-softmmu --enable-sdl --enable-vssim --extra-cflags='-Wno-error=unused-but-set-variable -Wno-error=deprecated-declarations -Wno-error=cpp' --cc={{ gcc }} --enable-xen && bear make
+      ./configure --enable-io-thread --enable-linux-aio --target-list=x86_64-softmmu --enable-sdl --enable-vssim --extra-cflags='-Wno-error=unused-but-set-variable -Wno-error=deprecated-declarations -Wno-error=cpp' --cc={{ gcc }} --enable-xen --disable-docs && bear make
   args:
     chdir: "{{ dest }}/eVSSIM/QEMU"
     creates: "{{ dest }}/eVSSIM/QEMU/x86_64-softmmu/qemu-system-x86_64"
@@ -12,20 +12,23 @@
     src: bios.bin
     dest: "{{ dest }}/eVSSIM/QEMU/pc-bios/bios.bin"
 
-- name: copy kernel
+
+- name: copy kernel to simulator directory
   copy:
   args:
     src: "{{kernel_image}}"
     dest: "{{ dest }}/{{kernel_image}}"
 
-- name: copy initrd
+- name: copy initrd to simulator directory
   copy:
   args:
     src: "{{initrd_image}}"
     dest: "{{ dest }}/{{initrd_image}}"
 
-- name: prepare fio_tests.tar
-  shell: tar -cvf fio_tests.tar fio_tests
-  args:
-    chdir: "{{ dest }}/eVSSIM"
-    creates: "{{ dest }}/eVSSIM/fio_tests.tar"
+
+# Now let's copy everything to the image
+#- name: copy kernel and initrd images
+#$  become: yes
+#  shell: >
+#    virt-copy-in "{{ workspace }}/3.16.2/linux-3.16.2/arch/x86/boot/bzImage" "/boot/{{kernel_image}}" -a "{{hda_img}}";
+#    virt-copy-in "{{ workspace }}/3.16.2/linux-3.16.2/initrd.img-3.16.2-guest" "/boot/{{initrd_image}}" -a "{{hda_img}}"; 

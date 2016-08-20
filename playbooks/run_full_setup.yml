@@ -25,6 +25,14 @@
     - guest_tester
   tags: guest
 
+- name: Propely shutting down guest OS
+  gather_facts: False
+  max_fail_percentage: 100
+  hosts: guests
+  roles:
+    - guest_halt
+  tags: guest
+
 - name: prepare for guest tests with STORAGE_STRATEGY_OBJECT
   hosts: guest_testers
   roles:
@@ -37,9 +45,3 @@
     - guest_tester
   tags: guest
 
-- name: clean up after guest tests
-  hosts: guest_testers
-  roles:
-    - { role: guest_tester_pre, cleanup_only: true }
-  tags: guest
-  ignore_errors: yes
