@@ -103,17 +103,19 @@ namespace {
             printf("Running in CI mode\n");
             // TODO: use smaller size
             list.push_back(2);
-/*
+
             // TODO: fix memory leaks
             list.push_back(1);
             list.push_back(4);
             list.push_back(8);
-*/
+
             return list;
         }
 
 
-        list.push_back(256);
+        list.push_back(1);
+        list.push_back(4);
+        list.push_back(8);
         return list;
     }
 
