@@ -1,0 +1,208 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "baa041b7_bd193b8a",
+        "filename": "eVSSIM/tests/guest/objects_via_ioctl/test_nvme_cli.py",
+        "patchSetId": 1
+      },
+      "lineNbr": 28,
+      "author": {
+        "id": 1007990
+      },
+      "writtenOn": "2016-10-14T06:41:31Z",
+      "side": 1,
+      "message": "nitpicking: spaces",
+      "revId": "76560686bbea6c68e9fe629c1dd4c6993584a249",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "baa041b7_9d1c3778",
+        "filename": "eVSSIM/tests/guest/objects_via_ioctl/test_nvme_cli.py",
+        "patchSetId": 1
+      },
+      "lineNbr": 29,
+      "author": {
+        "id": 1007990
+      },
+      "writtenOn": "2016-10-14T06:41:31Z",
+      "side": 1,
+      "message": "nitpicking: spaces",
+      "revId": "76560686bbea6c68e9fe629c1dd4c6993584a249",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "baa041b7_7d0f3339",
+        "filename": "eVSSIM/tests/guest/objects_via_ioctl/test_nvme_cli.py",
+        "patchSetId": 1
+      },
+      "lineNbr": 44,
+      "author": {
+        "id": 1007990
+      },
+      "writtenOn": "2016-10-14T06:41:31Z",
+      "side": 1,
+      "message": "nitpicking: spaces",
+      "revId": "76560686bbea6c68e9fe629c1dd4c6993584a249",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "baa041b7_5d122f62",
+        "filename": "eVSSIM/tests/guest/objects_via_ioctl/test_nvme_cli.py",
+        "patchSetId": 1
+      },
+      "lineNbr": 55,
+      "author": {
+        "id": 1007990
+      },
+      "writtenOn": "2016-10-14T06:41:31Z",
+      "side": 1,
+      "message": "nitpicking: spaces",
+      "revId": "76560686bbea6c68e9fe629c1dd4c6993584a249",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "baa041b7_3d0e4b3b",
+        "filename": "eVSSIM/tests/guest/objects_via_ioctl/test_nvme_cli.py",
+        "patchSetId": 1
+      },
+      "lineNbr": 57,
+      "author": {
+        "id": 1007990
+      },
+      "writtenOn": "2016-10-14T06:41:31Z",
+      "side": 1,
+      "message": "nitpicking: spaces",
+      "revId": "76560686bbea6c68e9fe629c1dd4c6993584a249",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "baa041b7_1d094731",
+        "filename": "eVSSIM/tests/guest/objects_via_ioctl/test_nvme_cli.py",
+        "patchSetId": 1
+      },
+      "lineNbr": 60,
+      "author": {
+        "id": 1007990
+      },
+      "writtenOn": "2016-10-14T06:41:31Z",
+      "side": 1,
+      "message": "nitpicking: spaces",
+      "revId": "76560686bbea6c68e9fe629c1dd4c6993584a249",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "baa041b7_ddfe3f05",
+        "filename": "eVSSIM/tests/guest/objects_via_ioctl/test_nvme_cli.py",
+        "patchSetId": 1
+      },
+      "lineNbr": 71,
+      "author": {
+        "id": 1007990
+      },
+      "writtenOn": "2016-10-14T06:41:31Z",
+      "side": 1,
+      "message": "nitpicking: spaces",
+      "revId": "76560686bbea6c68e9fe629c1dd4c6993584a249",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "baa041b7_cf00c603",
+        "filename": "eVSSIM/tests/guest/objects_via_ioctl/test_nvme_cli.py",
+        "patchSetId": 1
+      },
+      "lineNbr": 76,
+      "author": {
+        "id": 1007990
+      },
+      "writtenOn": "2016-10-14T06:41:31Z",
+      "side": 1,
+      "message": "nitpicking: spaces",
+      "revId": "76560686bbea6c68e9fe629c1dd4c6993584a249",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "baa041b7_6f09ba2a",
+        "filename": "eVSSIM/tests/guest/objects_via_ioctl/test_nvme_cli.py",
+        "patchSetId": 1
+      },
+      "lineNbr": 83,
+      "author": {
+        "id": 1007990
+      },
+      "writtenOn": "2016-10-14T06:41:31Z",
+      "side": 1,
+      "message": "let\u0027s specify the location of nvme if the location of the nvme-cli changes. E.g as a param passed in command line or read from config file",
+      "revId": "76560686bbea6c68e9fe629c1dd4c6993584a249",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "baa041b7_af03420c",
+        "filename": "eVSSIM/tests/guest/objects_via_ioctl/test_nvme_cli.py",
+        "patchSetId": 1
+      },
+      "lineNbr": 91,
+      "author": {
+        "id": 1007990
+      },
+      "writtenOn": "2016-10-14T06:41:31Z",
+      "side": 1,
+      "message": "nitpicking: spaces",
+      "revId": "76560686bbea6c68e9fe629c1dd4c6993584a249",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "baa041b7_8f063e1a",
+        "filename": "eVSSIM/tests/guest/objects_via_ioctl/test_nvme_cli.py",
+        "patchSetId": 1
+      },
+      "lineNbr": 97,
+      "author": {
+        "id": 1007990
+      },
+      "writtenOn": "2016-10-14T06:41:31Z",
+      "side": 1,
+      "message": "nitpicking: please remove  the spaces. thanks.",
+      "revId": "76560686bbea6c68e9fe629c1dd4c6993584a249",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "baa041b7_4f15d63d",
+        "filename": "eVSSIM/tests/guest/objects_via_ioctl/test_nvme_cli.py",
+        "patchSetId": 1
+      },
+      "lineNbr": 105,
+      "author": {
+        "id": 1007990
+      },
+      "writtenOn": "2016-10-14T06:41:31Z",
+      "side": 1,
+      "message": "let\u0027s specify the location of nvme if the location of the nvme-cli changes. E.g as a param passed in command line or read from config file",
+      "revId": "76560686bbea6c68e9fe629c1dd4c6993584a249",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    }
+  ]
+}
