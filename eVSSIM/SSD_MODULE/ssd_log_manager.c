@@ -23,29 +23,34 @@ FILE *monitor = NULL;
 
 void INIT_LOG_MANAGER(void)
 {
-#ifdef MONITOR_ON
-	if(g_init_log_server == 0){
+
+	if(MONITOR_ON && g_init_log_server == 0)
+    {
 		if ((monitor = popen("./ssd_monitor", "r")) == NULL)
 			PERR("popen failed: %s\n", strerror(errno));
 		THREAD_SERVER();
 
 		g_init_log_server = 1;
 	}
-#endif
 }
 void TERM_LOG_MANAGER(void)
 {
-#ifdef MONITOR_ON
-	close(servSock);
-	close(clientSock);
-	pclose(monitor);
-#endif
+    if (MONITOR_ON)
+    {
+        close(servSock);
+        close(clientSock);
+        pclose(monitor);   
+    }
 }
 
 void WRITE_LOG(const char *fmt, ...)
 {
-#ifdef MONITOR_ON
-	if (clientSock == 0)
+    if (!MONITOR_ON)
+    {
+        return;
+    }
+    	
+    if (clientSock == 0)
 		RERR(, "write log is failed\n");
 
 	char szLog[1024];
@@ -55,12 +60,13 @@ void WRITE_LOG(const char *fmt, ...)
 	send(clientSock, szLog, strlen(szLog), 0);
 	send(clientSock, "\n", 1, MSG_DONTWAIT);
 	va_end(argp);
-#endif
 }
 
 void THREAD_SERVER(void)
 {
-#ifdef MONITOR_ON
+    if (!MONITOR_ON)
+        return;
+
     PDBG_MNT("Start\n");
 
     if ((servSock = socket(AF_INET, SOCK_STREAM, IPPROTO_TCP)) < 0)
@@ -89,15 +95,16 @@ void THREAD_SERVER(void)
     if ((clientSock = accept(servSock, NULL, NULL)) < 0)
         RDBG_MNT(, "accept failed: %s\n", strerror(errno));
     PDBG_MNT("Connected![%d]\n", clientSock);
-#endif
+
 }
 
 void THREAD_CLIENT(void *arg)
 {
-#ifdef MONITOR_ON
+    if (!MONITOR_ON)
+        return;
+
     int sock = *(int*)arg;
     PDBG_MNT("ClientSock[%d]\n", sock);
     send(sock, "test\n", 5, 0);
-#endif
 }
 

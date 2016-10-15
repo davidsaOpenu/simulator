@@ -163,6 +163,7 @@ int main(int argc, char **argv)
 #include "arch_init.h"
 
 #include "ui/qemu-spice.h"
+#include "hw/vssim_config_manager.h"
 
 //#define DEBUG_NET
 //#define DEBUG_SLIRP
@@ -3323,10 +3324,8 @@ int main(int argc, char **argv, char **envp)
 #ifdef CONFIG_VSSIM    //TODO: this should be called from nvme_close_storage_disks()
 	FTL_TERM();  
 
-#ifdef MONITOR_ON
-	TERM_LOG_MANAGER();
-#endif
-
+    if (MONITOR_ON)
+	   TERM_LOG_MANAGER();
 #endif
 
     return 0;

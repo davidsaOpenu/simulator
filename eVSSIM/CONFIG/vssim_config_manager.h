@@ -67,6 +67,15 @@ char* GET_FILE_NAME(void);
 /* Storage strategy (1 = sector-based, 2 = object-based */
 extern int STORAGE_STRATEGY;
 
+/* Various Global Flags*/
+extern int GTEST_ENABLED;
+extern int NO_OSD;
+extern int COMPLIANCE_TESTS;
+extern int MONITOR_ON;
+extern int O_DIRECT_VSSIM;
+extern int DEL_QEMU_OVERHEAD;
+
+
 typedef struct config_param
 {
 	const char *name;

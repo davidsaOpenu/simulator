@@ -62,6 +62,13 @@ int GC_L2_THRESHOLD_BLOCK_NB;
 /* Storage strategy (1 = sector-based, 2 = object-based */
 int STORAGE_STRATEGY;
 
+int GTEST_ENABLED;
+int NO_OSD;
+int COMPLIANCE_TESTS;
+int MONITOR_ON;
+int O_DIRECT_VSSIM;
+int DEL_QEMU_OVERHEAD;
+
 char gFile_Name[PATH_MAX] = {0,};
 char OSD_PATH[PATH_MAX] = {0,};
 char STAT_PATH[PATH_MAX] = {0,};
@@ -97,6 +104,12 @@ config_param options[] = {
     {"LOG_RAND_BLOCK_NB", "%d", &LOG_RAND_BLOCK_NB},
     {"LOG_SEQ_BLOCK_NB", "%d", &LOG_SEQ_BLOCK_NB},
 #endif
+    {"GTEST_ENABLED", "%d", &GTEST_ENABLED},
+    {"NO_OSD", "%d", &NO_OSD},
+    {"COMPLIANCE_TESTS", "%d", &COMPLIANCE_TESTS},
+    {"MONITOR_ON", "%d", &MONITOR_ON},
+    {"O_DIRECT_VSSIM", "%d", &O_DIRECT_VSSIM},
+    {"DEL_QEMU_OVERHEAD", "%d", &DEL_QEMU_OVERHEAD},
     {NULL, NULL, NULL},
 };
 

@@ -23,7 +23,6 @@
 #ifdef PAGE_MAP
 #define GC_ON 1			/* Garbage Collection for PAGE MAP */
 #endif
-#define DEL_QEMU_OVERHEAD
 //#define O_DIRECT_VSSIM			/* O_DIRECT IO mode */
 
 #include "vssim_config_manager.h"

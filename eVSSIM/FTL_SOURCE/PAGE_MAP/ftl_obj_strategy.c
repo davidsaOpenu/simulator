@@ -5,9 +5,10 @@
 #include "osd-util/osd-util.h"
 #include "osd-util/osd-defs.h"
 
-#ifndef COMPLIANCE_TESTS
+/* #ifndef COMPLIANCE_TESTS 
+    [moved to variable] */
 #include "hw.h"
-#endif
+/* #endif */
 
 uint8_t *osd_sense;
 static const uint32_t cdb_cont_len = 0;
@@ -630,9 +631,8 @@ void OSD_READ_OBJ(object_location obj_loc, unsigned int length, uint64_t addr, u
 	{
 		PINFO("osd_read() was successful. %lu bytes were read !\n", len);
 
-#ifndef COMPLIANCE_TESTS
-		cpu_physical_memory_rw(addr, rdbuf, len, 1);
-#endif
+        if (!COMPLIANCE_TESTS)
+		  cpu_physical_memory_rw(addr, rdbuf, len, 1);
 
 		printMemoryDump(rdbuf, length);
 

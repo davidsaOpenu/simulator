@@ -820,9 +820,10 @@ int nvme_create_storage_disks(NVMEState *n)
 	{
 		LOG_DBG("Could not init osd !\n");
 	}
-	#ifdef MONITOR_ON
+	
+    if (MONITOR_ON)
 		INIT_LOG_MANAGER();
-	#endif
+	
 #endif
 
     for (i = 0; i < n->num_namespaces; i++) {

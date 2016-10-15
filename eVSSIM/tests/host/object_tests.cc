@@ -51,21 +51,22 @@ namespace {
                 ssd_conf.close();
             	FTL_INIT();
                 INIT_OBJ_STRATEGY();
-            #ifdef MONITOR_ON
-            	INIT_LOG_MANAGER();
-            #endif
+            
+                if (MONITOR_ON)
+            	   INIT_LOG_MANAGER();
+            
                 object_size_ = GetParam();
                 int object_pages = (int)ceil(1.0 * object_size_ / GET_PAGE_SIZE()); // ceil because we can't have a page belong to 2 objects
                 objects_in_ssd_ = (unsigned int)((PAGES_IN_SSD - BLOCK_NB)/ object_pages); //over-provisioning of exactly one block
-#ifndef NO_OSD
-                osd_init();
-#endif
+                if (!NO_OSD)
+                    osd_init();
             }
             virtual void TearDown() {
             	FTL_TERM();
-            #ifdef MONITOR_ON
-            	TERM_LOG_MANAGER();
-            #endif
+            
+                if (MONITOR_ON)
+                	TERM_LOG_MANAGER();
+            
                 remove("data/empty_block_list.dat");
                 remove("data/inverse_block_mapping.dat");
                 remove("data/inverse_page_mapping.dat");
@@ -76,9 +77,9 @@ namespace {
                 g_init = 0;
                 clientSock = 0;
                 g_init_log_server = 0;
-#ifndef NO_OSD
-                osd_term();
-#endif
+                
+                if (!NO_OSD)
+                    osd_term();
             }
             virtual void osd_init() {
                 const char *root = "/tmp/osd/";
@@ -110,23 +111,25 @@ namespace {
         printf("SimpleObjectCreate test started\n");
         printf("Page no.:%ld\nPage size:%d\n",PAGES_IN_SSD,GET_PAGE_SIZE());
         printf("Object size: %d bytes\n",object_size_);
-#ifndef NO_OSD
-        char *wrbuf = (char *)Calloc(1, object_size_);
-#endif
+
+        char *wrbuf = NULL;
+        if (!NO_OSD)
+            char *wrbuf = (char *)Calloc(1, object_size_);
 
         // Fill the disk with objects
-        for(unsigned long p=1; p < objects_in_ssd_; p++){
+        for(unsigned long p=1; p < objects_in_ssd_; p++)
+        {
             bool res = _FTL_OBJ_CREATE(p, object_size_);
             ASSERT_TRUE(res);
-#ifndef NO_OSD
-            ASSERT_EQ(0, osd_create_and_write(&osd, USEROBJECT_PID_LB, USEROBJECT_OID_LB + p, object_size_, 0,
-                (uint8_t *)wrbuf, cdb_cont_len, 0, osd_sense, DDT_CONTIG));
-#endif
+            if (!NO_OSD)
+            {
+                ASSERT_EQ(0, osd_create_and_write(&osd, USEROBJECT_PID_LB, USEROBJECT_OID_LB + p, object_size_, 0,
+                    (uint8_t *)wrbuf, cdb_cont_len, 0, osd_sense, DDT_CONTIG));
+            }
         }
 
-#ifndef NO_OSD
-        free(wrbuf);
-#endif
+        if (!NO_OSD && wrbuf != NULL)
+            free(wrbuf);
 
         // At this step there shouldn't be any free page
         //ASSERT_EQ(FAIL, _FTL_OBJ_CREATE(object_size_));
@@ -141,39 +144,46 @@ namespace {
 
         // used to keep all the assigned ids
         int objects[objects_in_ssd_];
-
-#ifndef NO_OSD
-        char *wrbuf = (char *)Calloc(1, object_size_);
-#endif
+        char *wrbuf = NULL;
+        
+        if (!NO_OSD)
+            *wrbuf = (char *)Calloc(1, object_size_);
 
         // Fill 50% of the disk with objects
-        for(unsigned long p=1; p < objects_in_ssd_ / 2; p++){
+        for(unsigned long p=1; p < objects_in_ssd_ / 2; p++)
+        {
             bool res = _FTL_OBJ_CREATE(p, object_size_);
             ASSERT_TRUE(res);
             objects[p] = p;
-#ifndef NO_OSD
-            ASSERT_EQ(0, osd_create_and_write(&osd, USEROBJECT_PID_LB, USEROBJECT_OID_LB + p, object_size_, 0,
-                (uint8_t *)wrbuf, cdb_cont_len, 0, osd_sense, DDT_CONTIG));
-#endif
+
+            if (!NO_OSD)
+            {
+                ASSERT_EQ(0, osd_create_and_write(&osd, USEROBJECT_PID_LB, USEROBJECT_OID_LB + p, object_size_, 0,
+                    (uint8_t *)wrbuf, cdb_cont_len, 0, osd_sense, DDT_CONTIG));
+            }
         }
 
-#ifndef NO_OSD
-        free(wrbuf);
-        wrbuf = (char *)Calloc(1, GET_PAGE_SIZE());
-#endif
+        if (!NO_OSD)
+        {
+            free(wrbuf);
+            wrbuf = (char *)Calloc(1, GET_PAGE_SIZE());
+        }
 
         // Write GET_PAGE_SIZE() data to each one
         for(unsigned long p=1; p < objects_in_ssd_/2; p++){
             ASSERT_EQ(FTL_SUCCESS, _FTL_OBJ_WRITE(objects[p],0,GET_PAGE_SIZE()));
-#ifndef NO_OSD
-            ASSERT_EQ(0, osd_write(&osd, USEROBJECT_PID_LB, USEROBJECT_OID_LB + objects[p],
-            		GET_PAGE_SIZE(), 0, (uint8_t *)wrbuf, 0, osd_sense, DDT_CONTIG));
-#endif
+
+            if (!NO_OSD)
+            {
+                ASSERT_EQ(0, osd_write(&osd, USEROBJECT_PID_LB, USEROBJECT_OID_LB + objects[p],
+                		GET_PAGE_SIZE(), 0, (uint8_t *)wrbuf, 0, osd_sense, DDT_CONTIG));
+            }
         }
 
-#ifndef NO_OSD
-        free(wrbuf);
-#endif
+        if (!NO_OSD)
+        {
+            free(wrbuf);
+        }
 
         printf("SimpleObjectCreateWrite test ended\n");
     }
@@ -185,45 +195,59 @@ namespace {
 
         // used to keep all the assigned ids
         int objects[objects_in_ssd_];
+        char *wrbuf = NULL;
+        if (!NO_OSD)
+        {
+            *wrbuf = (char *)Calloc(1, object_size_);    
+        }
+        
 
-#ifndef NO_OSD
-        char *wrbuf = (char *)Calloc(1, object_size_);
-#endif
         // Fill 50% of the disk with objects
-        for(unsigned long p=1; p < objects_in_ssd_/2; p++){
+        for(unsigned long p=1; p < objects_in_ssd_/2; p++)
+        {
             bool res = _FTL_OBJ_CREATE(p, object_size_);
             ASSERT_TRUE(res);
             objects[p] = p;
-#ifndef NO_OSD
-            // insert unique data to the object
-            sprintf(wrbuf,"%lu", p);
-            ASSERT_EQ(0 ,osd_create_and_write(&osd, USEROBJECT_PID_LB, USEROBJECT_OID_LB + p, object_size_, 0,
-                (uint8_t *)wrbuf,cdb_cont_len, 0, osd_sense, DDT_CONTIG));
-#endif
+            if (!NO_OSD)
+            {
+                // insert unique data to the object
+                sprintf(wrbuf,"%lu", p);
+                ASSERT_EQ(0 ,osd_create_and_write(&osd, USEROBJECT_PID_LB, USEROBJECT_OID_LB + p, object_size_, 0,
+                    (uint8_t *)wrbuf,cdb_cont_len, 0, osd_sense, DDT_CONTIG));
+            }
         }
 
-#ifndef NO_OSD
-        // length and read buffer
-        uint64_t len;
-        char *rdbuf = (char *)Calloc(1, GET_PAGE_SIZE()/2);
-#endif
+        char *rdbuf = NULL;
+        if (!NO_OSD)
+        {
+            // length and read buffer
+            uint64_t len;
+            *rdbuf = (char *)Calloc(1, GET_PAGE_SIZE()/2);
+        }
 
         // Read GET_PAGE_SIZE()/2 data from each one
-        for(unsigned long p=1; p < objects_in_ssd_/2; p++){
+        for(unsigned long p=1; p < objects_in_ssd_/2; p++)
+        {
             ASSERT_EQ(FTL_SUCCESS, _FTL_OBJ_READ(objects[p],0,GET_PAGE_SIZE()));
-#ifndef NO_OSD
-            // read and compare with the expected unique data
-            ASSERT_EQ(0, osd_read(&osd, USEROBJECT_PID_LB, USEROBJECT_OID_LB + objects[p],
-            		GET_PAGE_SIZE()/2, 0, NULL, (uint8_t *)rdbuf, &len, 0, osd_sense, DDT_CONTIG));
-            sprintf(wrbuf, "%u", objects[p]);
-            ASSERT_EQ(0, strcmp(rdbuf, wrbuf));
-#endif
+
+            if (!NO_OSD)
+            {
+                // read and compare with the expected unique data
+                ASSERT_EQ(0, osd_read(&osd, USEROBJECT_PID_LB, USEROBJECT_OID_LB + objects[p],
+                		GET_PAGE_SIZE()/2, 0, NULL, (uint8_t *)rdbuf, &len, 0, osd_sense, DDT_CONTIG));
+                sprintf(wrbuf, "%u", objects[p]);
+                ASSERT_EQ(0, strcmp(rdbuf, wrbuf));
+            }
         }
 
-#ifndef NO_OSD
-        free(rdbuf);
-        free(wrbuf);
-#endif
+        if (!NO_OSD)
+        {
+            if (rdbuf != NULL)
+                free(rdbuf);
+
+            if (wrbuf != NULL)
+                free(wrbuf);
+        }
 
         printf("SimpleObjectCreateRead test ended\n");
     }
@@ -236,19 +260,21 @@ namespace {
         // used to keep all the assigned ids
         int objects[objects_in_ssd_];
 
-#ifndef NO_OSD
-        char *wrbuf = (char *)Calloc(1, object_size_);
-#endif
+        char *wrbuf = NULL;
+        if (!NO_OSD)
+            *wrbuf = (char *)Calloc(1, object_size_);
 
         // Fill the disk with objects
         for(unsigned long p=1; p < objects_in_ssd_; p++){
             bool res = _FTL_OBJ_CREATE(p, object_size_);
             ASSERT_TRUE(res);
             objects[p] = p;
-#ifndef NO_OSD
+
+            if (!NO_OSD)
+            {
             ASSERT_EQ(0, osd_create_and_write(&osd, USEROBJECT_PID_LB, USEROBJECT_OID_LB + p, object_size_, 0,
                 (uint8_t *)wrbuf, cdb_cont_len, 0, osd_sense, DDT_CONTIG));
-#endif
+            }
         }
         // Now make sure we can't create a new object, aka the disk is full
         // ASSERT_EQ(FAIL, _FTL_OBJ_CREATE(object_size_));
@@ -256,24 +282,25 @@ namespace {
         // Delete all objects
         for (unsigned long p=1; p < objects_in_ssd_; p++) {
             ASSERT_EQ(FTL_SUCCESS, _FTL_OBJ_DELETE(objects[p]));
-#ifndef NO_OSD
-            ASSERT_EQ(0, osd_remove(&osd, USEROBJECT_PID_LB, USEROBJECT_OID_LB + objects[p], cdb_cont_len, osd_sense));
-#endif
+            if (!NO_OSD)
+            {
+                ASSERT_EQ(0, osd_remove(&osd, USEROBJECT_PID_LB, USEROBJECT_OID_LB + objects[p], cdb_cont_len, osd_sense));
+            }
         }
 
         // And try to fill the disk again with the same number of sized objects
         for(unsigned long p=1; p < objects_in_ssd_; p++){
             bool res = _FTL_OBJ_CREATE(p, object_size_);
             ASSERT_TRUE(res);
-#ifndef NO_OSD
-            ASSERT_EQ(0, osd_create_and_write(&osd, USEROBJECT_PID_LB, USEROBJECT_OID_LB + p, object_size_, 0,
-                (uint8_t *)wrbuf, cdb_cont_len, 0, osd_sense, DDT_CONTIG));
-#endif
+            if (!NO_OSD)
+            {
+               ASSERT_EQ(0, osd_create_and_write(&osd, USEROBJECT_PID_LB, USEROBJECT_OID_LB + p, object_size_, 0,
+                    (uint8_t *)wrbuf, cdb_cont_len, 0, osd_sense, DDT_CONTIG));
+            }
         }
 
-#ifndef NO_OSD
-        free(wrbuf);
-#endif
+        if (!NO_OSD && wrbuf != NULL)
+            free(wrbuf);
 
         printf("SimpleObjectCreateDelete test ended\n");
     }
@@ -290,28 +317,32 @@ namespace {
         bool res = _FTL_OBJ_CREATE(tempObj, object_size_);
         ASSERT_TRUE(res);
 
-#ifndef NO_OSD
-        char *wrbuf = (char *)Calloc(1, object_size_);
-        ASSERT_EQ(0, osd_create_and_write(&osd, USEROBJECT_PID_LB, USEROBJECT_OID_LB + tempObj, object_size_, 0,
-            (uint8_t *)wrbuf, cdb_cont_len, 0, osd_sense, DDT_CONTIG));
-#endif
+        char *wrbuf = NULL;
+        if (!NO_OSD)
+        {
+            wrbuf = (char *)Calloc(1, object_size_);
+        
+            ASSERT_EQ(0, osd_create_and_write(&osd, USEROBJECT_PID_LB, USEROBJECT_OID_LB + tempObj, object_size_, 0,
+                (uint8_t *)wrbuf, cdb_cont_len, 0, osd_sense, DDT_CONTIG));
+        }
         
         unsigned int size = object_size_;
         // continuously extend it with object_size_bytes_ chunks
         while (size < final_object_size) {
             ASSERT_EQ(FTL_SUCCESS, _FTL_OBJ_WRITE(tempObj, size, object_size_));
             size += object_size_;
-#ifndef NO_OSD
-            ASSERT_EQ(0, osd_write(&osd, USEROBJECT_PID_LB, USEROBJECT_OID_LB + tempObj,
-                object_size_, size, (uint8_t *)wrbuf, 0, osd_sense, DDT_CONTIG));
-#endif
+            
+            if (!NO_OSD)
+            {
+                ASSERT_EQ(0, osd_write(&osd, USEROBJECT_PID_LB, USEROBJECT_OID_LB + tempObj,
+                    object_size_, size, (uint8_t *)wrbuf, 0, osd_sense, DDT_CONTIG));
+            }
         }
 
         // we should've covered the whole disk by now, so another write should fail
         //ASSERT_EQ(FAIL, _FTL_OBJ_WRITE(obj_id, size, object_size_)); 
-#ifndef NO_OSD
-        free(wrbuf);
-#endif
+        if (!NO_OSD && wtbuf != NULL)
+            free(wrbuf);
         
         printf("ObjectGrowth test ended\n");
     }
@@ -319,3 +350,4 @@ namespace {
 } //namespace
 
 
+eVSSIM/tests/host/object_tests.cc

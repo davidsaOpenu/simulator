@@ -137,11 +137,10 @@ ftl_ret_val SSD_PAGE_WRITE(unsigned int flash_nb, unsigned int block_nb, unsigne
 	SSD_REG_RECORD(reg, WRITE, type, offset, channel);
 	SSD_CELL_RECORD(reg, WRITE);
 
-#ifdef O_DIRECT_VSSIM
-	if(offset == io_page_nb-1){
+	if(O_DIRECT_VSSIM && offset == io_page_nb-1)
+	{
 		SSD_REMAIN_IO_DELAY(reg);
 	}
-#endif
 
 	return FTL_SUCCESS;
 }
@@ -171,11 +170,11 @@ ftl_ret_val SSD_PAGE_READ(unsigned int flash_nb, unsigned int block_nb, unsigned
 	SSD_CELL_RECORD(reg, READ);
 	SSD_REG_RECORD(reg, READ, type, offset, channel);
 
-#ifdef O_DIRECT_VSSIM
-	if(offset == io_page_nb - 1){
+	if(O_DIRECT_VSSIM && offset == io_page_nb - 1)
+	{
 		SSD_REMAIN_IO_DELAY(reg);
 	}
-#endif
+
 	return FTL_SUCCESS;
 }
 
@@ -394,12 +393,12 @@ int64_t SSD_CH_SWITCH_DELAY(int channel)
 	start = get_usec();
 	diff = start - old_channel_time;
 
-#ifdef DEL_QEMU_OVERHEAD
-	if(diff < switch_delay){
+
+	if(DEL_QEMU_OVERHEAD && diff < switch_delay)
+	{
 		SSD_UPDATE_QEMU_OVERHEAD(switch_delay-diff);
 	}
 	diff = start - old_channel_time;
-#endif
 
 	if (diff < switch_delay){
 		while( diff < switch_delay ){
@@ -426,12 +425,13 @@ int SSD_REG_WRITE_DELAY(int reg)
 	start = get_usec();
 	diff = start - time_stamp;
 
-#ifdef DEL_QEMU_OVERHEAD
-	if(diff < REG_WRITE_DELAY){
+
+	if(DEL_QEMU_OVERHEAD && diff < REG_WRITE_DELAY)
+	{
 		SSD_UPDATE_QEMU_OVERHEAD(REG_WRITE_DELAY-diff);
 	}
 	diff = start - reg_io_time[reg];
-#endif
+
 
 	if (diff < REG_WRITE_DELAY){
 		while( diff < REG_WRITE_DELAY ){
@@ -465,12 +465,11 @@ int SSD_REG_READ_DELAY(int reg)
 	start = get_usec();
 	diff = start - time_stamp;
 
-#ifdef DEL_QEMU_OVERHEAD
-	if(diff < REG_READ_DELAY){
+	if(DEL_QEMU_OVERHEAD && diff < REG_READ_DELAY)
+	{
 		SSD_UPDATE_QEMU_OVERHEAD(REG_READ_DELAY-diff);
 	}
 	diff = start - reg_io_time[reg];
-#endif
 
 	if(diff < REG_READ_DELAY){
 		while(diff < REG_READ_DELAY){
@@ -508,12 +507,11 @@ int SSD_CELL_WRITE_DELAY(int reg)
 	start = get_usec();
 	diff = start - time_stamp + io_overhead[reg];
 
-#ifdef DEL_QEMU_OVERHEAD
-	if(diff < CELL_PROGRAM_DELAY){
+	if(DEL_QEMU_OVERHEAD && diff < CELL_PROGRAM_DELAY)
+	{
 		SSD_UPDATE_QEMU_OVERHEAD(CELL_PROGRAM_DELAY-diff);
 	}
 	diff = start - cell_io_time[reg] + io_overhead[reg];
-#endif
 
 	if( diff < CELL_PROGRAM_DELAY){
 		init_diff_reg = diff;
@@ -556,12 +554,11 @@ int SSD_CELL_READ_DELAY(int reg)
 	start = get_usec();
 	diff = start - time_stamp + io_overhead[reg];
 
-#ifdef DEL_QEMU_OVERHEAD
-	if( diff < REG_DELAY){
+	if(DEL_QEMU_OVERHEAD && diff < REG_DELAY)
+	{
 		SSD_UPDATE_QEMU_OVERHEAD(REG_DELAY-diff);
 	}
 	diff = start - cell_io_time[reg] + io_overhead[reg];
-#endif
 
 	if( diff < REG_DELAY){
 		init_diff_reg = diff;
