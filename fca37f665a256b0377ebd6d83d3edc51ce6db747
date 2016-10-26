@@ -1,0 +1,191 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "baa041b7_7655df4d",
+        "filename": "eVSSIM/FTL_SOURCE/PAGE_MAP/ftl.c",
+        "patchSetId": 1
+      },
+      "lineNbr": 61,
+      "author": {
+        "id": 1006664
+      },
+      "writtenOn": "2016-10-26T19:37:01Z",
+      "side": 1,
+      "message": "let\u0027s remove this",
+      "revId": "fca37f665a256b0377ebd6d83d3edc51ce6db747",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "baa041b7_960bc37b",
+        "filename": "eVSSIM/FTL_SOURCE/PAGE_MAP/ftl_obj_strategy.c",
+        "patchSetId": 1
+      },
+      "lineNbr": 273,
+      "author": {
+        "id": 1006664
+      },
+      "writtenOn": "2016-10-26T19:37:01Z",
+      "side": 1,
+      "message": "spaces",
+      "revId": "fca37f665a256b0377ebd6d83d3edc51ce6db747",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "baa041b7_d6638b3f",
+        "filename": "eVSSIM/FTL_SOURCE/PAGE_MAP/ftl_obj_strategy.c",
+        "patchSetId": 1
+      },
+      "lineNbr": 332,
+      "author": {
+        "id": 1006664
+      },
+      "writtenOn": "2016-10-26T19:37:01Z",
+      "side": 1,
+      "message": "let\u0027s change this to thread save",
+      "revId": "fca37f665a256b0377ebd6d83d3edc51ce6db747",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "baa041b7_9659838f",
+        "filename": "eVSSIM/FTL_SOURCE/PAGE_MAP/ftl_obj_strategy.c",
+        "patchSetId": 1
+      },
+      "lineNbr": 468,
+      "author": {
+        "id": 1006664
+      },
+      "writtenOn": "2016-10-26T19:37:01Z",
+      "side": 1,
+      "message": "let;s remove this function",
+      "revId": "fca37f665a256b0377ebd6d83d3edc51ce6db747",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "baa041b7_f62b2fe9",
+        "filename": "eVSSIM/QEMU/hw/nvme.h",
+        "patchSetId": 1
+      },
+      "lineNbr": 703,
+      "author": {
+        "id": 1006664
+      },
+      "writtenOn": "2016-10-26T19:37:01Z",
+      "side": 1,
+      "message": "let be back to thos abfer the change in nvme_adm.c",
+      "revId": "fca37f665a256b0377ebd6d83d3edc51ce6db747",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "baa041b7_56cd3b5b",
+        "filename": "eVSSIM/QEMU/hw/nvme_adm.c",
+        "patchSetId": 1
+      },
+      "lineNbr": 1410,
+      "author": {
+        "id": 1006664
+      },
+      "writtenOn": "2016-10-26T19:37:01Z",
+      "side": 1,
+      "message": "Lets\u0027 get rid of ioctl via admin queue. Options?",
+      "revId": "fca37f665a256b0377ebd6d83d3edc51ce6db747",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "baa041b7_96fd036f",
+        "filename": "eVSSIM/QEMU/hw/nvme_storage.c",
+        "patchSetId": 1
+      },
+      "lineNbr": 34,
+      "author": {
+        "id": 1006664
+      },
+      "writtenOn": "2016-10-26T19:37:01Z",
+      "side": 1,
+      "message": "lest move this to the ftl code (nvme_storrage.c) shoudln\u0027t be aware of the ftl status.",
+      "revId": "fca37f665a256b0377ebd6d83d3edc51ce6db747",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "baa041b7_56f41b85",
+        "filename": "eVSSIM/QEMU/hw/nvme_storage.c",
+        "patchSetId": 1
+      },
+      "lineNbr": 754,
+      "author": {
+        "id": 1006664
+      },
+      "writtenOn": "2016-10-26T19:37:01Z",
+      "side": 1,
+      "message": "let\u0027s add a namespace number as a param fot FTL_INT (and as you saied to FTL_TERM)",
+      "revId": "fca37f665a256b0377ebd6d83d3edc51ce6db747",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "baa041b7_36ef57b2",
+        "filename": "eVSSIM/QEMU/hw/nvme_storage.c",
+        "patchSetId": 1
+      },
+      "lineNbr": 903,
+      "author": {
+        "id": 1006664
+      },
+      "writtenOn": "2016-10-26T19:37:01Z",
+      "side": 1,
+      "message": "spaces istared of TABS",
+      "revId": "fca37f665a256b0377ebd6d83d3edc51ce6db747",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "baa041b7_16ea13a0",
+        "filename": "eVSSIM/QEMU/hw/nvme_storage.c",
+        "patchSetId": 1
+      },
+      "lineNbr": 927,
+      "author": {
+        "id": 1006664
+      },
+      "writtenOn": "2016-10-26T19:37:01Z",
+      "side": 1,
+      "message": "and here",
+      "revId": "fca37f665a256b0377ebd6d83d3edc51ce6db747",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "baa041b7_76403fa5",
+        "filename": "eVSSIM/QEMU/vl.c",
+        "patchSetId": 1
+      },
+      "lineNbr": 3323,
+      "author": {
+        "id": 1006664
+      },
+      "writtenOn": "2016-10-26T19:37:01Z",
+      "side": 1,
+      "message": "let\u0027s remove this",
+      "revId": "fca37f665a256b0377ebd6d83d3edc51ce6db747",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    }
+  ]
+}
