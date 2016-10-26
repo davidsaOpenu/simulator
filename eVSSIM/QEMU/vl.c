@@ -3320,6 +3320,8 @@ int main(int argc, char **argv, char **envp)
     quit_timers();
     net_cleanup();
 
+/*
+
 #ifdef CONFIG_VSSIM    //TODO: this should be called from nvme_close_storage_disks()
 	FTL_TERM();  
 
@@ -3328,6 +3330,8 @@ int main(int argc, char **argv, char **envp)
 #endif
 
 #endif
+
+*/
 
     return 0;
 }

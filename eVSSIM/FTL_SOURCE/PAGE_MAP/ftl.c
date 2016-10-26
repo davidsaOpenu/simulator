@@ -57,6 +57,9 @@ void FTL_TERM(void)
 	FTL_TERM_STRATEGY();
 	FTL_TERM_STATS();
 	SSD_IO_TERM();
+
+	g_init = 0;
+
 	PINFO("complete\n");
 }
 

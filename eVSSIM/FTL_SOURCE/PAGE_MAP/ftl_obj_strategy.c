@@ -267,17 +267,17 @@ ftl_ret_val _FTL_OBJ_COPYBACK(int32_t source, int32_t destination)
     return FTL_SUCCESS;
 }
 
-bool _FTL_OBJ_CREATE(object_id_t obj_id, size_t size)
+object_id_t _FTL_OBJ_CREATE(object_id_t obj_id, size_t size)
 {
     stored_object *new_object;
     
     new_object = create_object(obj_id, size);
     
     if (new_object == NULL) {
-        return false;
+        return 0;
     }
     
-    return true;
+    return new_object->id;
 }
 
 ftl_ret_val _FTL_OBJ_DELETE(object_id_t object_id)
@@ -328,7 +328,16 @@ stored_object *create_object(object_id_t obj_id, size_t size)
 
     object_map *obj_map;
 
-    HASH_FIND_INT(objects_mapping, &obj_id, obj_map);
+    // generate random object id - not thread safe
+    if (0 == obj_id) {
+    	do {
+    		obj_id = rand();
+    		HASH_FIND_INT(objects_mapping, &obj_id, obj_map);
+
+    	} while (NULL != obj_map);
+    } else {
+    	HASH_FIND_INT(objects_mapping, &obj_id, obj_map);
+    }
     //if the requested id was not found, let's add it
     if (obj_map == NULL)
     {
@@ -460,20 +469,23 @@ page_node *add_page(stored_object *object, uint32_t page_id)
 {
 
 	//If that's the first prp, we need to create the object
+
+	object_id_t oid = obj_loc.object_id;
+
 	if (obj_loc.create_object)
 	{
-		PINFO("About to create an object in the SIMULATOR -> obj id: %lu size: %lu\n", obj_loc.object_id, size);
-		bool created = _FTL_OBJ_CREATE(obj_loc.object_id, size);
+		PINFO("About to create an object in the SIMULATOR -> obj id: %lu size: %lu\n", oid, size);
+		oid = _FTL_OBJ_CREATE(oid, size);
 		PINFO("Created the SIMULATOR object !\n");
 
-		if (!created)
+		if (!oid)
 		{
 			RERR(, "Could not create the SIMULATOR object. Aborting !\n");
 		}
 	}
 
-	PINFO("About to write an object to the SIMULATOR -> obj id: %lu size: %lu\n", obj_loc.object_id, size);
-	_FTL_OBJ_WRITE(obj_loc.object_id, 0, size);
+	PINFO("About to write an object to the SIMULATOR -> obj id: %lu size: %lu\n", oid, size);
+	_FTL_OBJ_WRITE(oid, 0, size);
 	//PINFO("Object written to the SIMULATOR with res:%d\n", res);
 
 	return;
@@ -501,6 +513,18 @@ page_node *add_page(stored_object *object, uint32_t page_id)
 	 PINFO("osd_init() finished successfully !\n");
 	 return true;
 
+ }
+
+ bool osd_format(void)
+ {
+	 if (osd_open(OSD_PATH, &osd))
+	 	return false;
+	 osd_sense = (uint8_t*)Calloc(1, 1024);
+	 if (!osd_sense)
+		 return false;
+	 if (osd_format_osd(&osd, 0, cdb_cont_len, osd_sense))
+		 return false;
+	 return true;
  }
 
  bool create_partition(partition_id_t part_id)

@@ -23,8 +23,15 @@
 
 
 #include <sys/mman.h>
+
 #include "nvme.h"
 #include "nvme_debug.h"
+
+#ifdef CONFIG_VSSIM
+#include "vssim_config_manager.h"
+#include "ftl_obj_strategy.h"
+#endif /* CONFIG_VSSIM */
+
 #include <sys/mman.h>
 
 static uint32_t adm_cmd_del_sq(NVMEState *n, NVMECmd *cmd, NVMECQE *cqe);
@@ -40,6 +47,7 @@ static uint32_t adm_cmd_async_ev_req(NVMEState *n, NVMECmd *cmd, NVMECQE *cqe);
 static uint32_t adm_cmd_act_fw(NVMEState *n, NVMECmd *cmd, NVMECQE *cqe);
 static uint32_t adm_cmd_dl_fw(NVMEState *n, NVMECmd *cmd, NVMECQE *cqe);
 static uint32_t adm_cmd_format_nvm(NVMEState *n, NVMECmd *cmd, NVMECQE *cqe);
+static uint32_t adm_cmd_create_object(NVMEState *n, NVMECmd *cmd, NVMECQE *cqe);
 
 typedef uint32_t adm_command_func(NVMEState *n, NVMECmd *cmd, NVMECQE *cqe);
 
@@ -57,6 +65,7 @@ static adm_command_func * const adm_cmds_funcs[] = {
     [NVME_ADM_CMD_ACTIVATE_FW] = adm_cmd_act_fw,
     [NVME_ADM_CMD_DOWNLOAD_FW] = adm_cmd_dl_fw,
     [NVME_ADM_CMD_FORMAT_NVM] = adm_cmd_format_nvm,
+	[NVME_ADM_CMD_CREATE_OBJECT] = adm_cmd_create_object,
     [NVME_ADM_CMD_LAST] = NULL,
 };
 
@@ -1391,6 +1400,36 @@ static uint32_t adm_cmd_format_nvm(NVMEState *n, NVMECmd *cmd, NVMECQE *cqe)
         return FAIL;
     }
 
+    if (!osd_format())
+        return FAIL;
+
     return 0;
+}
+
+static uint32_t adm_cmd_create_object(NVMEState *n, NVMECmd *cmd, NVMECQE *cqe)
+{
+	NVMEStatusField *sf = (NVMEStatusField *)&cqe->status;
+	uint32_t dw10 = cmd->cdw10;
+
+	sf->sc = NVME_SC_SUCCESS;
+	if (cmd->opcode != NVME_ADM_CMD_CREATE_OBJECT) {
+		LOG_NORM("%s(): Invalid opcode %d", __func__, cmd->opcode);
+		sf->sc = NVME_SC_INVALID_OPCODE;
+		return FAIL;
+	}
+
+	PINFO("reached the create object ioctl. \n");
+
+	object_id_t res = _FTL_OBJ_CREATE(dw10, 0);
+
+	PINFO("the new object id is: %" PRIu64 ". \n", res);
+
+	if (!res) {
+		LOG_NORM("%s(): Failed to create requested object.", __func__);
+		sf->sc = NVME_SC_INTERNAL;
+		return FAIL;
+	}
+
+	return res;
 }
 

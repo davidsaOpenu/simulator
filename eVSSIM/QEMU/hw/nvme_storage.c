@@ -30,6 +30,9 @@
 #include "vssim_config_manager.h"
 #include "ftl_obj_strategy.h"
 #include "ftl_sect_strategy.h"
+
+static volatile int initialized_ftl = 0;
+
 #endif /* CONFIG_VSSIM */
 
 #include <sys/mman.h>
@@ -744,7 +747,19 @@ int nvme_create_storage_disk(uint32_t instance, uint32_t nsid, DiskInfo *disk,
     uint32_t blksize, lba_idx;
     uint64_t size, blks;
     char str[PATH_MAX];
-#ifdef CONFIG_VSSIM
+
+#ifdef CONFIG_VSSIM // not thread safe
+
+    if (!initialized_ftl) {
+    	FTL_INIT();
+    	if (!osd_init())
+    	{
+    		LOG_DBG("Could not init osd !\n");
+    	}
+
+    	initialized_ftl = 1;
+    }
+
     strncpy(str, GET_FILE_NAME(), PATH_MAX-1);
     str[PATH_MAX-1] = '\0';
 #else
@@ -814,15 +829,8 @@ int nvme_create_storage_disks(NVMEState *n)
     uint32_t i;
     int ret = SUCCESS;
 
-#ifdef CONFIG_VSSIM
-	FTL_INIT();
-	if (!osd_init())
-	{
-		LOG_DBG("Could not init osd !\n");
-	}
-	#ifdef MONITOR_ON
+#if defined(CONFIG_VSSIM) && defined(MONITOR_ON)
 		INIT_LOG_MANAGER();
-	#endif
 #endif
 
     for (i = 0; i < n->num_namespaces; i++) {
@@ -889,6 +897,14 @@ int nvme_close_storage_disk(DiskInfo *disk)
     if (nvme_close_meta_disk(disk) != SUCCESS) {
         return FAIL;
     }
+
+#if defined(CONFIG_VSSIM) // not thread safe
+    if (initialized_ftl) {
+    	FTL_TERM();
+    	initialized_ftl = 0;
+    }
+#endif
+
     return SUCCESS;
 }
 
@@ -909,10 +925,8 @@ int nvme_close_storage_disks(NVMEState *n)
         ret = nvme_close_storage_disk(&n->disk[i]);
     }
     
-#ifdef CONFIG_VSSIM
-    //TODO: nvme_close_storage_disks() function is not called
-    //see vl.c for SSD_TERM();
-    //SSD_TERM();
+#if defined(CONFIG_VSSIM) && defined(MONITOR_ON)
+	TERM_LOG_MANAGER();
 #endif
 
     return ret;

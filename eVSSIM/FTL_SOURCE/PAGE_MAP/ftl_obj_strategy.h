@@ -56,13 +56,14 @@ void TERM_OBJ_STRATEGY(void);
 ftl_ret_val _FTL_OBJ_READ(object_id_t object_id, unsigned int offset, unsigned int length);
 ftl_ret_val _FTL_OBJ_WRITE(object_id_t object_id, unsigned int offset, unsigned int length);
 ftl_ret_val _FTL_OBJ_COPYBACK(int32_t source, int32_t destination);
-bool _FTL_OBJ_CREATE(object_id_t obj_id, size_t size);
+object_id_t _FTL_OBJ_CREATE(object_id_t obj_id, size_t size);
 void _FTL_OBJ_WRITECREATE(object_location obj_loc, size_t size);
 ftl_ret_val _FTL_OBJ_DELETE(object_id_t object_id);
 
 
 /* Persistent OSD storge */
 bool osd_init(void);
+bool osd_format(void);
 bool create_partition(partition_id_t part_id);
 void OSD_WRITE_OBJ(object_location obj_loc, unsigned int length, uint8_t *buf);
 void OSD_READ_OBJ(object_location obj_loc, unsigned int length, uint64_t addr, uint64_t offset);
