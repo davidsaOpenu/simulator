@@ -1092,6 +1092,7 @@ uint8_t nvme_admin_command(NVMEState *n, NVMECmd *sqe, NVMECQE *cqe);
 
 /* IO command processing */
 uint8_t nvme_io_command(NVMEState *n, NVMECmd *sqe, NVMECQE *cqe);
+uint8_t nvme_io_command3(NVMEState *n, NVMECmd *sqe, NVMECQE *cqe);
 
 /* NVM dataset management cmd processing */
 uint8_t nvme_dsm_command(NVMEState *n, NVMECmd *sqe, NVMECQE *cqe);
