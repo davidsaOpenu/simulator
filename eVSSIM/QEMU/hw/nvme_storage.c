@@ -99,16 +99,16 @@ void nvme_dma_mem_write(target_phys_addr_t addr, uint8_t *buf, int len)
 }
 
 #ifdef CONFIG_VSSIM
-//nvme_dma_mem_read2() -> READ what's inside the prp (addr) and write it to the hw (buf + relevant offset according to how the prps were divided) --> in this case, the prp (addr) is the dma memory we read from ?
-static void nvme_dma_mem_read2(target_phys_addr_t addr, uint8_t *buf, int len,
+//nvme_dma_mem_read3() -> READ what's inside the prp (addr) and write it to the hw (buf + relevant offset according to how the prps were divided) --> in this case, the prp (addr) is the dma memory we read from ?
+static void nvme_dma_mem_read3(target_phys_addr_t addr, uint8_t *buf, int len,
         uint8_t *mapping_addr, unsigned int partition_id, unsigned int object_id, bool should_create_obj)
 {
     if((len % GET_SECTOR_SIZE()) != 0){
-        LOG_ERR("nvme_dma_mem_read2: len (=%d) %% %d == %d (should be 0)",
+        LOG_ERR("nvme_dma_mem_read3: len (=%d) %% %d == %d (should be 0)",
                 len, GET_SECTOR_SIZE(), (len % GET_SECTOR_SIZE()));
     }
     if((buf - mapping_addr) % GET_SECTOR_SIZE() != 0){
-        LOG_ERR("nvme_dma_mem_read2: (buf - mapping_addr) (=%ld) %% %d == %ld "
+        LOG_ERR("nvme_dma_mem_read3: (buf - mapping_addr) (=%ld) %% %d == %ld "
                 "(should be 0)",
                 buf - mapping_addr, GET_SECTOR_SIZE(),
                 (buf - mapping_addr) % GET_SECTOR_SIZE());
@@ -153,19 +153,36 @@ static void nvme_dma_mem_read2(target_phys_addr_t addr, uint8_t *buf, int len,
 
 }
 
-//nvme_dma_mem_write2() -> read from the hw (buf + relevant offset according to the current prp number we're reading ?) and WRITE to the prp (dma addr)
-static void nvme_dma_mem_write2(target_phys_addr_t addr, uint8_t *buf, int len,
+static void nvme_dma_mem_read2(target_phys_addr_t addr, uint8_t *buf, int len,
+        uint8_t *mapping_addr)
+{
+    if((len % GET_SECTOR_SIZE()) != 0){
+        LOG_ERR("nvme_dma_mem_read2: len (=%d) %% %d == %d (should be 0)",
+                len, GET_SECTOR_SIZE(), (len % GET_SECTOR_SIZE()));
+    }
+    if((buf - mapping_addr) % GET_SECTOR_SIZE() != 0){
+        LOG_ERR("nvme_dma_mem_read2: (buf - mapping_addr) (=%ld) %% %d == %ld "
+                "(should be 0)",
+                buf - mapping_addr, GET_SECTOR_SIZE(),
+                (buf - mapping_addr) % GET_SECTOR_SIZE());
+    }
+    _FTL_WRITE_SECT((buf - mapping_addr) / GET_SECTOR_SIZE(), len / GET_SECTOR_SIZE());
+    cpu_physical_memory_rw(addr, buf, len, 0);
+}
+
+//nvme_dma_mem_write3() -> read from the hw (buf + relevant offset according to the current prp number we're reading ?) and WRITE to the prp (dma addr)
+static void nvme_dma_mem_write3(target_phys_addr_t addr, uint8_t *buf, int len,
         uint8_t *mapping_addr, unsigned int partition_id, unsigned int object_id)
 {
 	//the buf pointer is actually -> buf = mapping_addr + offset so:
 	uint64_t offset = buf - mapping_addr;
 
     if((len % GET_SECTOR_SIZE()) != 0){
-        LOG_ERR("nvme_dma_mem_write2: len (=%d) %% %d == %d (should be 0)",
+        LOG_ERR("nvme_dma_mem_write3: len (=%d) %% %d == %d (should be 0)",
                 len, GET_SECTOR_SIZE(), (len % GET_SECTOR_SIZE()));
     }
     if((offset) % GET_SECTOR_SIZE() != 0){
-        LOG_ERR("nvme_dma_mem_write2: (offset) (=%ld) %% %d == %ld "
+        LOG_ERR("nvme_dma_mem_write3: (offset) (=%ld) %% %d == %ld "
                 "(should be 0)",
 				offset, GET_SECTOR_SIZE(),
                 (offset) % GET_SECTOR_SIZE());
@@ -207,9 +224,30 @@ static void nvme_dma_mem_write2(target_phys_addr_t addr, uint8_t *buf, int len,
         cpu_physical_memory_rw(addr, buf, len, 1);
     }
 }
+
+static void nvme_dma_mem_write2(target_phys_addr_t addr, uint8_t *buf, int len,
+        uint8_t *mapping_addr)
+{
+	//the buf pointer is actually -> buf = mapping_addr + offset so:
+	uint64_t offset = buf - mapping_addr;
+
+    if((len % GET_SECTOR_SIZE()) != 0){
+        LOG_ERR("nvme_dma_mem_write2: len (=%d) %% %d == %d (should be 0)",
+                len, GET_SECTOR_SIZE(), (len % GET_SECTOR_SIZE()));
+    }
+    if((offset) % GET_SECTOR_SIZE() != 0){
+        LOG_ERR("nvme_dma_mem_write2: (offset) (=%ld) %% %d == %ld "
+                "(should be 0)",
+				offset, GET_SECTOR_SIZE(),
+                (offset) % GET_SECTOR_SIZE());
+    }
+
+    _FTL_READ_SECT((buf - mapping_addr) / GET_SECTOR_SIZE(), len / GET_SECTOR_SIZE());
+    cpu_physical_memory_rw(addr, buf, len, 1);
+}
 #endif /* CONFIG_VSSIM */
 
-static uint8_t do_rw_prp(NVMEState *n, uint64_t mem_addr, uint64_t *data_size_p,
+static uint8_t do_rw_prp3(NVMEState *n, uint64_t mem_addr, uint64_t *data_size_p,
     uint64_t *file_offset_p, uint8_t *mapping_addr, uint8_t rw, object_location obj_loc)
 {
     uint64_t data_len;
@@ -238,7 +276,7 @@ static uint8_t do_rw_prp(NVMEState *n, uint64_t mem_addr, uint64_t *data_size_p,
     case NVME_CMD_READ:
         LOG_DBG("Read cmd called");
 #ifdef CONFIG_VSSIM
-        nvme_dma_mem_write2(mem_addr, (mapping_addr + *file_offset_p), data_len, mapping_addr, obj_loc.partition_id, obj_loc.object_id);
+        nvme_dma_mem_write3(mem_addr, (mapping_addr + *file_offset_p), data_len, mapping_addr, obj_loc.partition_id, obj_loc.object_id);
 #else
         nvme_dma_mem_write(mem_addr, (mapping_addr + *file_offset_p), data_len);
 #endif
@@ -246,7 +284,7 @@ static uint8_t do_rw_prp(NVMEState *n, uint64_t mem_addr, uint64_t *data_size_p,
     case NVME_CMD_WRITE:
         LOG_DBG("Write cmd called");
 #ifdef CONFIG_VSSIM
-        nvme_dma_mem_read2(mem_addr, (mapping_addr + *file_offset_p), data_len, mapping_addr, obj_loc.partition_id, obj_loc.object_id, obj_loc.create_object);
+        nvme_dma_mem_read3(mem_addr, (mapping_addr + *file_offset_p), data_len, mapping_addr, obj_loc.partition_id, obj_loc.object_id, obj_loc.create_object);
 #else
         nvme_dma_mem_read(mem_addr, (mapping_addr + *file_offset_p), data_len);
 #endif
@@ -263,7 +301,61 @@ static uint8_t do_rw_prp(NVMEState *n, uint64_t mem_addr, uint64_t *data_size_p,
     return NVME_SC_SUCCESS;
 }
 
-static uint8_t do_rw_prp_list(NVMEState *n, NVMECmd *command,
+static uint8_t do_rw_prp(NVMEState *n, uint64_t mem_addr, uint64_t *data_size_p,
+    uint64_t *file_offset_p, uint8_t *mapping_addr, uint8_t rw)
+{
+    uint64_t data_len;
+
+    if (*data_size_p == 0) {
+        return FAIL;
+    }
+
+    /* Data Len to be written per page basis */
+    //
+    //the data_len is affected by the prp memory address - according to its alignment to page size
+    //this calculation of data_len appears to be simulating the mechanism in the kernel which sets up the data size for each prp prps -> it does that according to prp alignment to a page size
+    //
+    //if the calculated data_len is bigger than the provided data_size(which is a multplication of block size), then we'll use the provided data_size as the value of data_len (as there's no point in writing more data than provided)
+    data_len = PAGE_SIZE - (mem_addr % PAGE_SIZE);
+    LOG_DBG("data_len: %lu mem_addr mod PAGE_SIZE: %lu data_size: %lu\n", data_len, mem_addr % PAGE_SIZE, *data_size_p);
+    if (data_len > *data_size_p) {
+        data_len = *data_size_p;
+    }
+
+    LOG_DBG("File offset for read/write:%ld", *file_offset_p);
+    LOG_DBG("Length for read/write:%ld (0x%016lX)", data_len, data_len);
+    LOG_DBG("Address for read/write:%ld (0x%016lX))", mem_addr, mem_addr);
+
+    switch (rw) {
+    case NVME_CMD_READ:
+        LOG_DBG("Read cmd called");
+#ifdef CONFIG_VSSIM
+        nvme_dma_mem_write2(mem_addr, (mapping_addr + *file_offset_p), data_len, mapping_addr);
+#else
+        nvme_dma_mem_write(mem_addr, (mapping_addr + *file_offset_p), data_len);
+#endif
+        break;
+    case NVME_CMD_WRITE:
+        LOG_DBG("Write cmd called");
+#ifdef CONFIG_VSSIM
+        nvme_dma_mem_read2(mem_addr, (mapping_addr + *file_offset_p), data_len, mapping_addr);
+#else
+        nvme_dma_mem_read(mem_addr, (mapping_addr + *file_offset_p), data_len);
+#endif
+        break;
+    default:
+        LOG_ERR("Error- wrong opcode: %d", rw);
+        return FAIL;
+    }
+
+    printMemoryDump(mapping_addr + *file_offset_p,data_len);
+
+    *file_offset_p = *file_offset_p + data_len;
+    *data_size_p = *data_size_p - data_len;
+    return NVME_SC_SUCCESS;
+}
+
+static uint8_t do_rw_prp_list3(NVMEState *n, NVMECmd *command,
     uint64_t *data_size_p, uint64_t *file_offset_p, uint8_t *mapping_addr, object_location obj_loc)
 {
     uint64_t prp_list[512], prp_entries;
@@ -275,7 +367,7 @@ static uint8_t do_rw_prp_list(NVMEState *n, NVMECmd *command,
 
     /* Logic to find the number of PRP Entries */
     prp_entries = (uint64_t) ((*data_size_p + PAGE_SIZE - 1) / PAGE_SIZE);
-    //no need for nvme_dma_mem_read2 here as it's only reading prp2 (dma memory) into prp_list -> it's not writing to the qemu simulated hw
+    //no need for nvme_dma_mem_read3 here as it's only reading prp2 (dma memory) into prp_list -> it's not writing to the qemu simulated hw
     nvme_dma_mem_read(cmd->prp2, (uint8_t *)prp_list, min(sizeof(prp_list), prp_entries * sizeof(uint64_t)));
 
     /* Read/Write on PRPList */
@@ -283,12 +375,12 @@ static uint8_t do_rw_prp_list(NVMEState *n, NVMECmd *command,
         if (i == 511 && *data_size_p > PAGE_SIZE) {
             /* Calculate the actual number of remaining entries */
             prp_entries = (uint64_t) ((*data_size_p + PAGE_SIZE - 1) / PAGE_SIZE);
-            //reading the last item in the prp_list to prp_list (not the qemu simulated hw, so no need for nvme_dma_mem_read2)
+            //reading the last item in the prp_list to prp_list (not the qemu simulated hw, so no need for nvme_dma_mem_read3)
             nvme_dma_mem_read(prp_list[511], (uint8_t *)prp_list, min(sizeof(prp_list), prp_entries * sizeof(uint64_t)));
             i = 0;
         }
 
-        res = do_rw_prp(n, prp_list[i], data_size_p, file_offset_p, mapping_addr, cmd->opcode, obj_loc);
+        res = do_rw_prp3(n, prp_list[i], data_size_p, file_offset_p, mapping_addr, cmd->opcode, obj_loc);
         LOG_DBG("Data Size remaining for read/write:%ld", *data_size_p);
         if (res == FAIL) {
             break;
@@ -298,6 +390,50 @@ static uint8_t do_rw_prp_list(NVMEState *n, NVMECmd *command,
     return res;
 }
 
+static uint8_t do_rw_prp_list(NVMEState *n, NVMECmd *command,
+    uint64_t *data_size_p, uint64_t *file_offset_p, uint8_t *mapping_addr)
+{
+    uint64_t prp_list[512], prp_entries;
+    uint16_t i = 0;
+    uint8_t res = FAIL;
+    NVME_rw *cmd = (NVME_rw *)command;
+
+    LOG_DBG("Data Size remaining for read/write:%ld", *data_size_p);
+
+    /* Logic to find the number of PRP Entries */
+    prp_entries = (uint64_t) ((*data_size_p + PAGE_SIZE - 1) / PAGE_SIZE);
+#ifdef CONFIG_VSSIM
+    nvme_dma_mem_read2(cmd->prp2, (uint8_t *)prp_list,
+        min(sizeof(prp_list), prp_entries * sizeof(uint64_t)), mapping_addr);
+#else
+    nvme_dma_mem_read(cmd->prp2, (uint8_t *)prp_list,
+        min(sizeof(prp_list), prp_entries * sizeof(uint64_t)));
+#endif
+
+    /* Read/Write on PRPList */
+    while (*data_size_p != 0) {
+        if (i == 511 && *data_size_p > PAGE_SIZE) {
+            /* Calculate the actual number of remaining entries */
+            prp_entries = (uint64_t) ((*data_size_p + PAGE_SIZE - 1) / PAGE_SIZE);
+#ifdef CONFIG_VSSIM
+            nvme_dma_mem_read2(prp_list[511], (uint8_t *)prp_list,
+                min(sizeof(prp_list), prp_entries * sizeof(uint64_t)), mapping_addr);
+#else
+            nvme_dma_mem_read(prp_list[511], (uint8_t *)prp_list,
+                min(sizeof(prp_list), prp_entries * sizeof(uint64_t)));
+#endif
+            i = 0;
+        }
+
+        res = do_rw_prp(n, prp_list[i], data_size_p, file_offset_p, mapping_addr, cmd->opcode);
+        LOG_DBG("Data Size remaining for read/write:%ld", *data_size_p);
+        if (res == FAIL) {
+            break;
+        }
+        i++;
+    }
+    return res;
+}
 /*********************************************************************
     Function     :    update_ns_util
     Description  :    Updates the Namespace Utilization
@@ -386,7 +522,7 @@ static void nvme_update_stats(NVMEState *n, DiskInfo *disk, uint8_t opcode,
                       NVMECmd  *  : Pointer to SQ entries
                       NVMECQE *   : Pointer to CQ entries
 *********************************************************************/
-uint8_t nvme_io_command(NVMEState *n, NVMECmd *sqe, NVMECQE *cqe)
+uint8_t nvme_io_command3(NVMEState *n, NVMECmd *sqe, NVMECQE *cqe)
 {
     NVME_rw *e = (NVME_rw *)sqe;
     NVMEStatusField *sf = (NVMEStatusField *)&cqe->status;
@@ -505,7 +641,7 @@ uint8_t nvme_io_command(NVMEState *n, NVMECmd *sqe, NVMECQE *cqe)
     LOG_DBG("Writing/Reading PRP1");
     //first prp will always require creating an object
     obj_loc.create_object=true;
-    res = do_rw_prp(n, e->prp1, &data_size, &file_offset, mapping_addr,
+    res = do_rw_prp3(n, e->prp1, &data_size, &file_offset, mapping_addr,
         e->opcode, obj_loc);
     if (res == FAIL) {
         return FAIL;
@@ -519,11 +655,11 @@ uint8_t nvme_io_command(NVMEState *n, NVMECmd *sqe, NVMECQE *cqe)
     	obj_loc.create_object=false;
         if (data_size <= PAGE_SIZE) {
         	LOG_DBG("Writing/Reading PRP2");
-            res = do_rw_prp(n, e->prp2, &data_size, &file_offset, mapping_addr,
+            res = do_rw_prp3(n, e->prp2, &data_size, &file_offset, mapping_addr,
                 e->opcode, obj_loc);
         } else {
-        	LOG_DBG("Writing/Reading do_rw_prp_list!");
-            res = do_rw_prp_list(n, sqe, &data_size, &file_offset,
+        	LOG_DBG("Writing/Reading do_rw_prp_list3!");
+            res = do_rw_prp_list3(n, sqe, &data_size, &file_offset,
                 mapping_addr, obj_loc);
         }
         if (res == FAIL) {
@@ -537,6 +673,116 @@ uint8_t nvme_io_command(NVMEState *n, NVMECmd *sqe, NVMECQE *cqe)
     return res;
 }
 
+uint8_t nvme_io_command(NVMEState *n, NVMECmd *sqe, NVMECQE *cqe)
+{
+    NVME_rw *e = (NVME_rw *)sqe;
+    NVMEStatusField *sf = (NVMEStatusField *)&cqe->status;
+    uint8_t res = FAIL;
+    uint64_t data_size, file_offset;
+    uint8_t *mapping_addr;
+    uint32_t nvme_blk_sz;
+    DiskInfo *disk;
+    uint8_t lba_idx;
+
+    sf->sc = NVME_SC_SUCCESS;
+    LOG_DBG("%s(): called", __func__);
+
+    disk = &n->disk[e->nsid - 1];
+    if ((e->slba + e->nlb) >= disk->idtfy_ns.nsze) {
+        LOG_NORM("%s(): LBA out of range", __func__);
+        sf->sc = NVME_SC_LBA_RANGE;
+        return FAIL;
+    } else if ((e->slba + e->nlb) >= disk->idtfy_ns.ncap) {
+        LOG_NORM("%s():Capacity Exceeded", __func__);
+        sf->sc = NVME_SC_CAP_EXCEEDED;
+        return FAIL;
+    }
+
+    lba_idx = disk->idtfy_ns.flbas & 0xf;
+    if ((e->mptr == 0) &&            /* if NOT supplying separate meta buffer */
+    	(disk->idtfy_ns.lbafx[lba_idx].ms != 0) /* if using metadata */
+		&& ((disk->idtfy_ns.flbas & 0x10) == 0)) { /* if using separate buffer */
+        LOG_ERR("%s(): invalid meta-data for extended lba", __func__);
+        sf->sc = NVME_SC_INVALID_FIELD;
+        return FAIL;
+    }
+
+    /* Read in the command */
+    nvme_blk_sz = NVME_BLOCK_SIZE(disk->idtfy_ns.lbafx[lba_idx].lbads);
+    LOG_DBG("NVME Block size: %u", nvme_blk_sz);
+    data_size = (e->nlb + 1) * nvme_blk_sz;
+
+    if (disk->idtfy_ns.flbas & 0x10) {
+        data_size += (disk->idtfy_ns.lbafx[lba_idx].ms * (e->nlb + 1));
+    }
+
+    if (n->idtfy_ctrl->mdts && data_size > PAGE_SIZE *
+                (1 << (n->idtfy_ctrl->mdts))) {
+        LOG_ERR("%s(): data size:%ld exceeds max:%ld", __func__,
+            data_size, ((uint64_t)PAGE_SIZE) * (1 << (n->idtfy_ctrl->mdts)));
+        sf->sc = NVME_SC_INVALID_FIELD;
+        return FAIL;
+    }
+
+    file_offset = e->slba * nvme_blk_sz;
+    mapping_addr = disk->mapping_addr;
+
+    /* Namespace not ready */
+    if (mapping_addr == NULL) {
+        LOG_NORM("%s():Namespace not ready", __func__);
+        sf->sc = NVME_SC_NS_NOT_READY;
+        return FAIL;
+    }
+
+    /* Writing/Reading PRP1 */
+    LOG_DBG("Writing/Reading PRP1");
+    res = do_rw_prp(n, e->prp1, &data_size, &file_offset, mapping_addr,
+        e->opcode);
+    if (res == FAIL) {
+        return FAIL;
+    }
+
+    if (data_size > 0) {
+        if (data_size <= PAGE_SIZE) {
+        	LOG_DBG("Writing/Reading PRP2");
+            res = do_rw_prp(n, e->prp2, &data_size, &file_offset, mapping_addr,
+                e->opcode);
+        } else {
+        	LOG_DBG("Writing/Reading do_rw_prp_list!");
+            res = do_rw_prp_list(n, sqe, &data_size, &file_offset,
+                mapping_addr);
+        }
+        if (res == FAIL) {
+            return FAIL;
+        }
+    }
+
+    /* Spec states that non-zero meta data buffers shall be ignored, i.e. no
+     * error reported, when the DW4&5 (MPTR) field is not in use */
+    if ((e->mptr != 0) &&                /* if supplying separate meta buffer */
+        (disk->idtfy_ns.lbafx[lba_idx].ms != 0) &&       /* if using metadata */
+        ((disk->idtfy_ns.flbas & 0x10) == 0)) {   /* if using separate buffer */
+
+        /* Then go ahead and use the separate meta data buffer */
+        unsigned int ms, meta_offset, meta_size;
+        uint8_t *meta_mapping_addr;
+
+        ms = disk->idtfy_ns.lbafx[lba_idx].ms;
+        meta_offset = e->slba * ms;
+        meta_size = (e->nlb + 1) * ms;
+        meta_mapping_addr = disk->meta_mapping_addr + meta_offset;
+
+        /* does it mistake in the original code? */
+        if (e->opcode == NVME_CMD_READ) {
+            nvme_dma_mem_write(e->mptr, meta_mapping_addr, meta_size);
+        } else if (e->opcode == NVME_CMD_WRITE) {
+            nvme_dma_mem_read(e->mptr, meta_mapping_addr, meta_size);
+        }
+    }
+
+    nvme_update_stats(n, disk, e->opcode, e->slba, e->nlb);
+    return res;
+}
 /*********************************************************************
     Function     :    read_dsm_ranges
     Description  :    Read range definition data buffer specified
