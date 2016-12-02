@@ -189,7 +189,7 @@ void INIT_EMPTY_BLOCK_LIST(void)
 
 void INIT_VICTIM_BLOCK_LIST(void)
 {
-	int i, j, k;
+	int i, j;
 
 	victim_block_entry* curr_entry;
 	victim_block_root* curr_root;
@@ -210,7 +210,7 @@ void INIT_VICTIM_BLOCK_LIST(void)
 			for(j=0;j<FLASH_NB;j++){
 
 				total_victim_block_nb += curr_root->victim_block_nb;
-				k = curr_root->victim_block_nb;
+				int k = curr_root->victim_block_nb;
 				while(k > 0){
 					curr_entry = (victim_block_entry*)calloc(1, sizeof(victim_block_entry));
 					if(curr_entry == NULL){
@@ -291,14 +291,13 @@ void TERM_VALID_ARRAY(void)
 {
 	int i;
 	inverse_block_mapping_entry* curr_mapping_entry = (inverse_block_mapping_entry*)inverse_block_mapping_table_start;
-	char* valid_array;
 
 	FILE* fp = fopen("./data/valid_array.dat","w");
         if (fp == NULL)
 		RERR(, "File open fail\n");
  
 	for(i=0;i<BLOCK_MAPPING_ENTRY_NB;i++){
-		valid_array = curr_mapping_entry->valid_array;
+		char *valid_array = curr_mapping_entry->valid_array;
 		if(fwrite(valid_array, sizeof(char), PAGE_NB, fp) <= 0)
 			PERR("fwrite\n");
 		curr_mapping_entry += 1;
@@ -692,12 +691,12 @@ int UPDATE_INVERSE_PAGE_MAPPING(uint32_t ppn,  uint32_t lpn)
 
 int UPDATE_INVERSE_BLOCK_MAPPING(unsigned int phy_flash_nb, unsigned int phy_block_nb, int type)
 {
-        int i;
         inverse_block_mapping_entry* mapping_entry = GET_INVERSE_BLOCK_MAPPING_ENTRY(phy_flash_nb, phy_block_nb);
 
         mapping_entry->type = type;
 	
         if(type == EMPTY_BLOCK){
+                int i;
                 for(i=0;i<PAGE_NB;i++){
                         UPDATE_INVERSE_BLOCK_VALIDITY(phy_flash_nb, phy_block_nb, i, PAGE_ZERO);
                 }

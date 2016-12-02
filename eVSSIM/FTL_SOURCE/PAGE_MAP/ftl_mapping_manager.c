@@ -173,7 +173,6 @@ unsigned int CALC_CHANNEL(uint32_t ppn)
 
 unsigned int CALC_SCOPE_FIRST_PAGE(uint32_t address, int scope)
 {
-	int planeNumber;
 	switch (scope)
 	{
 		case PAGE:
@@ -184,7 +183,7 @@ unsigned int CALC_SCOPE_FIRST_PAGE(uint32_t address, int scope)
 			//If only there is only 1 plane per flash, then continue to flash case which will produce the right result in that case.
 			if (PLANES_PER_FLASH > 1){
 				//Only block that i % PLANES_PER_FLASH = planeNumber are in that plane
-				planeNumber = address % PLANES_PER_FLASH;
+				int planeNumber = address % PLANES_PER_FLASH;
 				return (((address / PLANES_PER_FLASH) * PAGES_PER_FLASH) + (PAGE_NB * planeNumber));
 			}else{
 				return address * PAGES_PER_FLASH;

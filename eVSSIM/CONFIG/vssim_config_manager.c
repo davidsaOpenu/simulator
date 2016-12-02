@@ -111,7 +111,7 @@ void INIT_SSD_CONFIG(void)
     char *szCommand = (char*)malloc(1024);
     int i;
     memset(szCommand, 0x00, 1024);
-    while (fscanf(pfData, "%s", szCommand) != EOF){
+    while (fscanf(pfData, "%1023s", szCommand) != EOF){
         if (strcmp(szCommand, "STAT_PATH") == 0){
             if (fgets(STAT_PATH, PATH_MAX, pfData) == NULL)
                 RERR(, "Can't read STAT_PATH\n");

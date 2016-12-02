@@ -243,13 +243,11 @@ int SSD_REG_ACCESS(int reg)
 
 int SSD_CH_ENABLE(int channel)
 {
-	int64_t do_delay = 0;
-
 	if(CHANNEL_SWITCH_DELAY_R == 0 && CHANNEL_SWITCH_DELAY_W == 0)
 		return FTL_SUCCESS;
 
 	if(old_channel_nb != channel){
-		do_delay = SSD_CH_SWITCH_DELAY(channel);
+		SSD_CH_SWITCH_DELAY(channel);
 	}
 	
 	return FTL_SUCCESS;
@@ -343,10 +341,9 @@ int SSD_CH_ACCESS(int channel)
 {
 	int i, j;
 	int ret = FTL_SUCCESS;
-	int r_num;
 
 	for(i=0;i<WAY_NB;i++){
-		r_num = channel*PLANES_PER_FLASH + i*CHANNEL_NB*PLANES_PER_FLASH; 
+		int r_num = channel*PLANES_PER_FLASH + i*CHANNEL_NB*PLANES_PER_FLASH; 
 		for(j=0;j<PLANES_PER_FLASH;j++){
 			if(reg_io_time[r_num] <= get_usec() && reg_io_time[r_num] != -1){
 				if(reg_io_cmd[r_num] == READ){
@@ -588,8 +585,6 @@ int SSD_CELL_READ_DELAY(int reg)
 int SSD_BLOCK_ERASE_DELAY(int reg)
 {
 	int ret = 0;
-	int64_t start = 0;
-	int64_t end = 0;
 	int64_t diff;
 	int64_t time_stamp = cell_io_time[reg];
 
@@ -597,7 +592,6 @@ int SSD_BLOCK_ERASE_DELAY(int reg)
 		return 0;
 
 	/* Block Erase Delay */
-	start = get_usec();
 	diff = get_usec() - cell_io_time[reg];
 	if( diff < BLOCK_ERASE_DELAY){
 		while(diff < BLOCK_ERASE_DELAY){
@@ -605,7 +599,6 @@ int SSD_BLOCK_ERASE_DELAY(int reg)
 	  	}
 		ret = 1;
 	}
-	end = get_usec();
 
 	/* Update IO Overhead */
 	cell_io_time[reg] = -1;
@@ -618,12 +611,11 @@ int SSD_BLOCK_ERASE_DELAY(int reg)
 int64_t SSD_GET_CH_ACCESS_TIME_FOR_READ(int channel, int reg)
 {
 	int i, j;
-	int r_num;
 	int64_t latest_time = cell_io_time[reg] + CELL_READ_DELAY;
 	int64_t temp_time = 0;
 
 	for(i=0;i<WAY_NB;i++){
-		r_num = channel*PLANES_PER_FLASH + i*CHANNEL_NB*PLANES_PER_FLASH; 
+		int r_num = channel*PLANES_PER_FLASH + i*CHANNEL_NB*PLANES_PER_FLASH; 
 		for(j=0;j<PLANES_PER_FLASH;j++){
 			temp_time = 0;
 
@@ -647,10 +639,9 @@ int64_t SSD_GET_CH_ACCESS_TIME_FOR_READ(int channel, int reg)
 void SSD_UPDATE_CH_ACCESS_TIME(int channel, int64_t current_time)
 {
 	int i, j;
-	int r_num;
 
 	for(i=0;i<WAY_NB;i++){
-		r_num = channel*PLANES_PER_FLASH + i*CHANNEL_NB*PLANES_PER_FLASH; 
+		int r_num = channel*PLANES_PER_FLASH + i*CHANNEL_NB*PLANES_PER_FLASH; 
 		for(j=0;j<PLANES_PER_FLASH;j++){
 			if(reg_io_cmd[r_num] == READ && reg_io_time[r_num] > current_time ){
 				reg_io_time[r_num] += REG_WRITE_DELAY;

@@ -199,7 +199,6 @@ int64_t ALLOC_IO_REQUEST(uint32_t sector_nb, unsigned int length, int io_type, i
 	unsigned int remain = length;
 	unsigned int left_skip = sector_nb % SECTORS_PER_PAGE;
 	unsigned int right_skip;
-	unsigned int sects;
 
 	io_request* curr_io_request = (io_request*)calloc(1, sizeof(io_request));
 	if (curr_io_request == NULL)
@@ -212,7 +211,7 @@ int64_t ALLOC_IO_REQUEST(uint32_t sector_nb, unsigned int length, int io_type, i
 		else{
 			right_skip = SECTORS_PER_PAGE - left_skip - remain;
 		}
-		sects = SECTORS_PER_PAGE - left_skip - right_skip;
+		unsigned int sects = SECTORS_PER_PAGE - left_skip - right_skip;
 
 		remain -= sects;
 		left_skip = 0;
@@ -348,10 +347,6 @@ int64_t UPDATE_IO_REQUEST(int request_nb, int offset, int64_t time, int type)
 {
 	int64_t start = get_usec();
 
-	int io_type;
-	int64_t latency=0;
-	int flag = 0;
-
 	if(request_nb == -1)
 		return 0;
 
@@ -369,13 +364,12 @@ int64_t UPDATE_IO_REQUEST(int request_nb, int offset, int64_t time, int type)
 	}
 
 	if(curr_request->start_count == curr_request->request_size && curr_request->end_count == curr_request->request_size){
-		latency = CALC_IO_LATENCY(curr_request);
-		io_type = curr_request->request_type;
+		int64_t latency = CALC_IO_LATENCY(curr_request);
+		int io_type = curr_request->request_type;
 
 		SEND_TO_PERF_CHECKER(io_type, latency, LATENCY_OP);
 
 		FREE_IO_REQUEST(curr_request);
-		flag = 1;
 	}
 	int64_t end = get_usec();
 
