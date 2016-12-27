@@ -30,6 +30,11 @@
 #include "vssim_config_manager.h"
 #include "ftl_obj_strategy.h"
 #include "ftl_sect_strategy.h"
+
+#include "osd-util/osd-defs.h"
+
+#include <stdlib.h>
+#include <time.h>
 #endif /* CONFIG_VSSIM */
 
 #include <sys/mman.h>
@@ -263,6 +268,169 @@ static uint8_t do_rw_prp(NVMEState *n, uint64_t mem_addr, uint64_t *data_size_p,
     return NVME_SC_SUCCESS;
 }
 
+static void nvme_dma_mem_read_obj(
+		target_phys_addr_t addr,
+		object_location loc,
+		uint64_t offset,
+		int len)
+{
+	uint8_t * buffer = malloc(len);
+	if (!buffer) {
+		LOG_ERR("%s(): Failed to allocate buffer for dma", __func__);
+	}
+
+    if((len % GET_SECTOR_SIZE()) != 0){
+        LOG_ERR("%s(): len (=%d) %% %d == %d (should be 0)", __func__,
+			len, GET_SECTOR_SIZE(),
+			(len % GET_SECTOR_SIZE()));
+    }
+    if(offset % GET_SECTOR_SIZE() != 0){
+        LOG_ERR("%s(): offset (=%ld) %% %d == %ld (should be 0)", __func__,
+			offset, GET_SECTOR_SIZE(),
+			offset % GET_SECTOR_SIZE());
+    }
+
+    if (FTL_FAILURE ==_FTL_OBJ_WRITE(loc.object_id, offset, len)) {
+    	LOG_ERR("%s(): Failed to write to object: 0x%" PRIx64, __func__, loc.object_id);
+    }
+
+    //write the object data to the persistent osd storage
+	//
+	//We DO use the obj_loc IDs here... they're NOT auto-determined
+	//
+	//In order to write the data to the OSD object, we need to go over the prp data at addr and write it to the
+	//object (quite the same as it's written to buf in the sector strategy below -> we might be able to just read buf, as it'll be easier to read than reading addr, which is a physical address)
+
+	cpu_physical_memory_rw(addr, buffer, len, 0);
+	OSD_WRITE_OBJ(loc, len, buffer);
+}
+
+static void nvme_dma_mem_write_obj(
+	target_phys_addr_t addr,
+	object_location loc,
+	uint64_t offset,
+	int len)
+{
+	ftl_ret_val ret;
+
+    if((len % GET_SECTOR_SIZE()) != 0){
+        LOG_ERR("nvme_dma_mem_write_obj: len (=%d) %% %d == %d (should be 0)",
+			len, GET_SECTOR_SIZE(),
+			(len % GET_SECTOR_SIZE()));
+    }
+    if(offset % GET_SECTOR_SIZE() != 0){
+        LOG_ERR("nvme_dma_mem_write_obj: offset (=%ld) %% %d == %ld (should be 0)",
+			offset, GET_SECTOR_SIZE(),
+			(offset) % GET_SECTOR_SIZE());
+    }
+
+    if (!loc.partition_id) {
+    	LOG_ERR("%s(): invalid partition id %"PRIu64, __func__, loc.partition_id);
+    }
+
+    if (!loc.object_id) {
+		LOG_ERR("%s(): invalid object id %"PRIu64, __func__, loc.object_id);
+	}
+
+	//perform a simulator READ
+	if (!(ret = _FTL_OBJ_READ(loc.object_id, offset, len))) {
+		LOG_DBG("FTL_OBJ_READ failed with ret: %d\n", ret);
+	} else {
+        LOG_DBG("Successfully read object from simulator\n");
+	}
+
+	//read from persistent OSD storage
+	OSD_READ_OBJ(loc, len, addr, offset);
+}
+
+static uint8_t do_rw_prp_obj(
+	NVMEState *n,
+	uint64_t mem_addr,
+	object_location loc,
+	uint64_t *data_size_p,
+	uint64_t *offset,
+	uint8_t rw)
+{
+    uint64_t data_len;
+
+    if (*data_size_p == 0) {
+        return FAIL;
+    }
+
+    /* Data Len to be written per page basis */
+    //
+    //the data_len is affected by the prp memory address - according to its alignment to page size
+    //this calculation of data_len appears to be simulating the mechanism in the kernel which sets up the data size for each prp prps -> it does that according to prp alignment to a page size
+    //
+    //if the calculated data_len is bigger than the provided data_size(which is a multplication of block size), then we'll use the provided data_size as the value of data_len (as there's no point in writing more data than provided)
+    data_len = PAGE_SIZE - (mem_addr % PAGE_SIZE);
+    LOG_DBG("data_len: %lu mem_addr mod PAGE_SIZE: %lu data_size: %lu\n", data_len, mem_addr % PAGE_SIZE, *data_size_p);
+    if (data_len > *data_size_p) {
+        data_len = *data_size_p;
+    }
+
+    LOG_DBG("Object offset for read/write:%ld", *offset);
+    LOG_DBG("Length for read/write:%ld (0x%016lX)", data_len, data_len);
+    LOG_DBG("Address for read/write:%ld (0x%016lX))", mem_addr, mem_addr);
+
+    switch (rw) {
+    case nvme_cmd_obj_read:
+        LOG_DBG("Read cmd called");
+        nvme_dma_mem_write_obj(mem_addr, loc, *offset, data_len);
+        break;
+    case nvme_cmd_obj_write:
+        LOG_DBG("Write cmd called");
+        nvme_dma_mem_read_obj(mem_addr, loc, *offset, data_len);
+        break;
+    default:
+        LOG_ERR("Error- wrong opcode: %d", rw);
+        return FAIL;
+    }
+
+    *offset = *offset + data_len;
+    *data_size_p = *data_size_p - data_len;
+    return NVME_SC_SUCCESS;
+}
+
+static uint8_t do_rw_prp_list_obj(
+	NVMEState *n,
+	NVMECmd *command,
+	object_location loc,
+	uint64_t *data_size_p,
+	uint64_t *offset)
+{
+    uint64_t prp_list[512], prp_entries;
+    uint16_t i = 0;
+    uint8_t res = FAIL;
+    NVME_rw *cmd = (NVME_rw *)command;
+
+    LOG_DBG("Data Size remaining for read/write:%ld", *data_size_p);
+
+    /* Logic to find the number of PRP Entries */
+    prp_entries = (uint64_t) ((*data_size_p + PAGE_SIZE - 1) / PAGE_SIZE);
+    //no need for nvme_dma_mem_read_obj here as it's only reading prp2 (dma memory) into prp_list -> it's not writing to the qemu simulated hw
+    nvme_dma_mem_read(cmd->prp2, (uint8_t *)prp_list, min(sizeof(prp_list), prp_entries * sizeof(uint64_t)));
+
+    /* Read/Write on PRPList */
+    while (*data_size_p != 0) {
+        if (i == 511 && *data_size_p > PAGE_SIZE) {
+            /* Calculate the actual number of remaining entries */
+            prp_entries = (uint64_t) ((*data_size_p + PAGE_SIZE - 1) / PAGE_SIZE);
+            //reading the last item in the prp_list to prp_list (not the qemu simulated hw, so no need for nvme_dma_mem_read2)
+            nvme_dma_mem_read(prp_list[511], (uint8_t *)prp_list, min(sizeof(prp_list), prp_entries * sizeof(uint64_t)));
+            i = 0;
+        }
+
+        res = do_rw_prp_obj(n, prp_list[i], loc, data_size_p, offset, cmd->opcode);
+        LOG_DBG("Data Size remaining for read/write:%ld", *data_size_p);
+        if (res == FAIL) {
+            break;
+        }
+        i++;
+    }
+    return res;
+}
+
 static uint8_t do_rw_prp_list(NVMEState *n, NVMECmd *command,
     uint64_t *data_size_p, uint64_t *file_offset_p, uint8_t *mapping_addr, object_location obj_loc)
 {
@@ -374,6 +542,60 @@ static void nvme_update_stats(NVMEState *n, DiskInfo *disk, uint8_t opcode,
             ++disk->data_units_read[1];
         }
     }
+}
+
+static uint8_t __nvme_create_object(NVMEState *n, NVMECmd *sqe, NVMECQE *cqe)
+{
+	struct nvme_obj_command  * s = (struct nvme_obj_command *) sqe;
+	struct nvme_completion  * c = (struct nvme_completion *) cqe;
+	object_id_t id;
+
+	int status = _FTL_CREATE_OBJECT(&id, s->nsid + PARTITION_PID_LB);
+	if (status) {
+		LOG_NORM("%s(): object id is 0x%"PRIx64, __func__, id);
+		c->result64 = id;
+	} else {
+		LOG_NORM("%s(): failed to find object", __func__);
+	}
+
+	c->status = status ? NVME_SC_SUCCESS : NVME_SC_CAP_EXCEEDED;
+
+	return status ? SUCCESS : FAIL;
+}
+
+static uint8_t nvme_create_object(NVMEState *n, NVMECmd *sqe, NVMECQE *cqe)
+{
+	LOG_NORM("%s(): really attempting to create object", __func__);
+
+	/*
+	 *
+	struct nvme_completion  * c = (struct nvme_completion *)  cqe;
+	c->status = NVME_SC_SUCCESS;
+	c->result64 = 1;
+	return SUCCESS;
+
+	*/
+
+	return __nvme_create_object(n, sqe, cqe);
+}
+
+static uint8_t nvme_delete_object(NVMEState *n, NVMECmd *sqe, NVMECQE *cqe)
+{
+	struct nvme_completion  *  c = (struct nvme_completion *) cqe;
+	struct nvme_obj_command  * s = (struct nvme_obj_command *) sqe;
+
+	LOG_NORM("%s(): deleting object 0x%"PRIx64, __func__, s->object_id);
+
+	int status = _FTL_OBJ_DELETE(s->object_id);
+	if (!status) {
+		LOG_NORM("%s(): failed to delete object", __func__);
+	} else {
+		LOG_NORM("%s(): successfully deleted object", __func__);
+	}
+
+	c->status = status ? NVME_SC_SUCCESS : NVME_SC_LBA_RANGE;
+
+	return status ? SUCCESS : FAIL;
 }
 
 /*********************************************************************
@@ -531,11 +753,136 @@ uint8_t nvme_io_command(NVMEState *n, NVMECmd *sqe, NVMECQE *cqe)
         }
     }
 
-
-
     nvme_update_stats(n, disk, e->opcode, e->slba, e->nlb);
     return res;
 }
+
+/*********************************************************************
+    Function     :    nvme_object_io_command
+    Description  :    NVME Read or write cmd processing.
+
+    Return Type  :    uint8_t
+
+    Arguments    :    NVMEState * : Pointer to NVME device State
+                      NVMECmd  *  : Pointer to SQ entries
+                      NVMECQE *   : Pointer to CQ entries
+*********************************************************************/
+static uint8_t nvme_object_io_command(NVMEState *n, NVMECmd *sqe, NVMECQE *cqe)
+{
+	struct nvme_obj_command * s = (struct nvme_obj_command *) sqe;
+    NVMEStatusField *sf = (NVMEStatusField *)&cqe->status;
+    uint8_t res = FAIL;
+    uint64_t data_size, offset = 0;
+    uint32_t nvme_blk_sz;
+    DiskInfo *disk;
+    uint8_t lba_idx;
+    stored_object *object;
+    size_t size;
+
+    sf->sc = NVME_SC_SUCCESS;
+    LOG_DBG("%s(): called", __func__);
+
+    disk = &n->disk[s->nsid - 1];
+    if (!(object = lookup_object(s->object_id))) {
+    	LOG_NORM("%s(): Invalid object id 0x%"PRIx64, __func__, s->object_id);
+    	sf->sc = NVME_SC_LBA_RANGE;
+    	return FAIL;
+    }
+
+    size = s->length * GET_SECTOR_SIZE();
+    if ((nvme_cmd_obj_read == s->opcode) && (size != object->size)) {
+    	LOG_NORM("%s(): Invalid buffer size. Given: %zu. Need: %zu.", __func__, size, object->size);
+    	sf->sc = NVME_SC_LBA_RANGE;
+    	return FAIL;
+    } else {
+    	if (FTL_FAILURE == _FTL_RESIZE_OBJECT(object, size)) {
+    		LOG_NORM("%s(): Failed to resize object.", __func__);
+    		sf->sc = NVME_SC_LBA_RANGE;
+    		return FAIL;
+    	}
+    }
+
+    lba_idx = disk->idtfy_ns.flbas & 0xf;
+    if ((s->metadata == 0) &&            /* if NOT supplying separate meta buffer */
+    	(disk->idtfy_ns.lbafx[lba_idx].ms != 0) /* if using metadata */
+		&& ((disk->idtfy_ns.flbas & 0x10) == 0)) /* if using separate buffer */ {
+        LOG_ERR("%s(): invalid meta-data for extended lba", __func__);
+        sf->sc = NVME_SC_INVALID_FIELD;
+        return FAIL;
+    }
+
+	/* Read in the command */
+	nvme_blk_sz = NVME_BLOCK_SIZE(disk->idtfy_ns.lbafx[lba_idx].lbads);
+	LOG_DBG("NVME Block size: %u", nvme_blk_sz);
+	data_size = (s->length + 1) * nvme_blk_sz;
+
+	if (disk->idtfy_ns.flbas & 0x10) {
+		data_size += (disk->idtfy_ns.lbafx[lba_idx].ms * (s->length + 1));
+	}
+
+	if (n->idtfy_ctrl->mdts && data_size > PAGE_SIZE *
+				(1 << (n->idtfy_ctrl->mdts))) {
+		LOG_ERR("%s(): data size:%ld exceeds max:%ld", __func__,
+			data_size, ((uint64_t)PAGE_SIZE) * (1 << (n->idtfy_ctrl->mdts)));
+		sf->sc = NVME_SC_INVALID_FIELD;
+		return FAIL;
+	}
+
+	object_location loc = {
+		.object_id = s->object_id,
+		.partition_id = s->nsid + USEROBJECT_PID_LB,
+	};
+
+	/* Writing/Reading PRP1 */
+	LOG_DBG("Writing/Reading PRP1");
+	res = do_rw_prp_obj(n, s->prp1, loc, &data_size, &offset, s->opcode);
+	if (res == FAIL) {
+		return FAIL;
+	}
+	if (data_size > 0) {
+		if (data_size <= PAGE_SIZE) {
+			LOG_DBG("Writing/Reading PRP2");
+			res = do_rw_prp_obj(n, s->prp2, loc, &data_size, &offset, s->opcode);
+		} else {
+			LOG_DBG("Writing/Reading do_rw_prp_list!");
+			res = do_rw_prp_list_obj(n, sqe, loc, &data_size, &offset);
+		}
+		if (res == FAIL) {
+			return FAIL;
+		}
+	}
+
+	/* Spec states that non-zero meta data buffers shall be ignored, i.e. no
+	 * error reported, when the DW4&5 (MPTR) field is not in use */
+	if ((s->metadata != 0) &&                /* if supplying separate meta buffer */
+		(disk->idtfy_ns.lbafx[lba_idx].ms != 0) &&       /* if using metadata */
+		((disk->idtfy_ns.flbas & 0x10) == 0)) {   /* if using separate buffer */
+
+		/* Then go ahead and use the separate meta data buffer */
+
+		/*
+
+		unsigned int ms, meta_offset, meta_size;
+		uint8_t *meta_mapping_addr;
+
+		ms = disk->idtfy_ns.lbafx[lba_idx].ms;
+		meta_offset = e->slba * ms;
+		meta_size = (e->nlb + 1) * ms;
+		meta_mapping_addr = disk->meta_mapping_addr + meta_offset;
+
+		if (e->opcode == NVME_CMD_READ) {
+			nvme_dma_mem_write(e->mptr, meta_mapping_addr, meta_size);
+		} else if (e->opcode == NVME_CMD_WRITE) {
+			nvme_dma_mem_read(e->mptr, meta_mapping_addr, meta_size);
+		}
+
+		*/
+	}
+
+	/* nvme_update_stats(n, disk, s->opcode, e->slba, e->nlb); */
+	return res;
+}
+
 
 /*********************************************************************
     Function     :    read_dsm_ranges
@@ -674,7 +1021,13 @@ uint8_t nvme_command_set(NVMEState *n, NVMECmd *sqe, NVMECQE *cqe)
         return nvme_dsm_command(n, sqe, cqe);
     } else if (sqe->opcode == NVME_CMD_FLUSH) {
         return NVME_SC_SUCCESS;
-    } else {
+    } else if (nvme_cmd_obj_create == sqe->opcode) {
+    	return nvme_create_object(n, sqe, cqe);
+    } else if (nvme_cmd_obj_delete == sqe->opcode) {
+    	return nvme_delete_object(n, sqe, cqe);
+    } else if (nvme_cmd_obj_write == sqe->opcode || nvme_cmd_obj_read == sqe->opcode) {
+    	return nvme_object_io_command(n, sqe, cqe);
+    }else {
         LOG_NORM("%s():Wrong IO opcode:\t\t0x%02x", __func__, sqe->opcode);
         sf->sc = NVME_SC_INVALID_OPCODE;
         return FAIL;
@@ -798,6 +1151,8 @@ int nvme_create_storage_disk(uint32_t instance, uint32_t nsid, DiskInfo *disk,
     LOG_NORM("created disk storage, mapping_addr:%p size:%lu",
         disk->mapping_addr, disk->mapping_size);
 
+    create_partition(nsid + USEROBJECT_PID_LB);
+
     return SUCCESS;
 }
 
@@ -813,6 +1168,8 @@ int nvme_create_storage_disks(NVMEState *n)
 {
     uint32_t i;
     int ret = SUCCESS;
+
+    srand(time(NULL));
 
 #ifdef CONFIG_VSSIM
 	FTL_INIT();

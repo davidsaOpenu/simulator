@@ -101,10 +101,9 @@
 
 /* Definitions regarding  Identify Controller Datastructure */
 #define NO_LBA_FORMATS 15 /* 0 BASED */
-//modified the lba format to "3" so the ms field is not zero but 128 
-// (one can write 128 bytes of metadata) -> this also affects the nvme
-// block size. 3 -> 512bytes
-#define LBA_FORMAT_INUSE 3 /* 0 BASED */
+
+// setting format to zero so as not to have metadata passed
+#define LBA_FORMAT_INUSE 0 /* 0 BASED */
 
 #define NVME_SPARE_THRESH 20
 #define NVME_TEMPERATURE 0x143
@@ -709,7 +708,13 @@ enum {
     NVME_CMD_WRITE      = 0x01,
     NVME_CMD_READ       = 0x02,
     NVME_CMD_DSM        = 0x09,
-    NVME_CMD_LAST
+
+	nvme_cmd_obj_write	= 0x0b,
+	nvme_cmd_obj_read	= 0x0c,
+    nvme_cmd_obj_create = 0x12,
+    nvme_cmd_obj_delete = 0x13,
+
+	NVME_CMD_LAST
 };
 
 typedef struct NVMEAdmCmdDeleteSQ {
@@ -1083,6 +1088,39 @@ typedef struct RangeDef {
 } __attribute__((__packed__)) RangeDef;
 
 enum {PCI_SPACE = 0, NVME_SPACE = 1};
+
+struct nvme_obj_command {
+	uint8_t			opcode;
+	uint8_t			flags;
+	uint16_t		command_id;
+	uint32_t		nsid;
+	uint64_t		rsvd2;
+	uint64_t		metadata;
+	uint64_t		prp1;
+	uint64_t		prp2;
+	uint64_t		object_id;
+	uint16_t		length;
+	uint16_t		control;
+	uint32_t		dsmgmt;
+	uint32_t		reftag;
+	uint16_t		apptag;
+	uint16_t		appmask;
+};
+
+struct nvme_completion {
+
+	/* Used by admin commands to return data */
+	union {
+		 uint16_t  result16;
+	     uint32_t  result;
+	     uint64_t  result64;
+    };
+
+	uint16_t	sq_head;	/* how much of this queue may be reclaimed */
+	uint16_t	sq_id;		/* submission queue that generated this entry */
+	uint16_t	command_id;	/* of the command which completed */
+	uint16_t	status;		/* did the command fail, and if so, why? */
+};
 
 /* Initialize IO thread */
 int nvme_init_io_thread(NVMEState *n);
