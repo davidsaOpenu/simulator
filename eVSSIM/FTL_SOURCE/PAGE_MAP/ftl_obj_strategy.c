@@ -280,6 +280,41 @@ bool _FTL_OBJ_CREATE(object_id_t obj_id, size_t size)
     return true;
 }
 
+ftl_ret_val _FTL_CREATE_OBJECT(object_id_t * result, uint64_t partition_id)
+{
+	object_id_t object_id;
+	stored_object *obj = malloc(sizeof(stored_object));
+	object_map *map;
+
+	do {
+		object_id = rand();
+		if (object_id < USEROBJECT_OID_LB)
+			object_id += USEROBJECT_OID_LB;
+		HASH_FIND_INT(objects_mapping, &object_id, map);
+	} while (map);
+
+	map = (object_map*)malloc(sizeof(object_map));
+	map->id = object_id;
+	map->exists = true;
+	HASH_ADD_INT(objects_mapping, id, map);
+
+	// initialize to stored_object struct with size and initial pages
+	obj->id = object_id;
+	obj->size = 0;
+	obj->pages = NULL;
+
+	// add the new object to the objects' hashtable
+	HASH_ADD_INT(objects_table, id, obj);
+
+	*result = object_id;
+
+	if (OSD_OK != osd_create(&osd, partition_id, object_id, 0, cdb_cont_len, osd_sense)) {
+		return FTL_FAILURE;
+	}
+
+	return FTL_SUCCESS;
+}
+
 ftl_ret_val _FTL_OBJ_DELETE(object_id_t object_id)
 {
     stored_object *object;
@@ -370,10 +405,62 @@ stored_object *create_object(object_id_t obj_id, size_t size)
     return obj;
 }
 
+static ftl_ret_val remove_pages(stored_object * obj)
+{
+	page_node * curr = obj->pages, * next;
+	while (curr != NULL)
+	{
+		next = curr->next;
+
+		// invalidate the physical page and update its mapping
+		UPDATE_INVERSE_BLOCK_VALIDITY(
+				CALC_FLASH(curr->page_id),
+				CALC_BLOCK(curr->page_id),
+				CALC_PAGE(curr->page_id),
+				PAGE_INVALID);
+
+#ifdef GC_ON
+		// should we really perform GC for every page? we know we are invalidating a lot of them now...
+		GC_CHECK(CALC_FLASH(curr->page_id), CALC_BLOCK(curr->page_id), true, true);
+#endif
+
+		if (curr->hh.tbl != NULL)
+			HASH_DEL(global_page_table, curr);
+
+		free(curr);
+		curr = next;
+	}
+
+	obj->pages = NULL;
+	obj->size  = 0;
+
+	return FTL_SUCCESS;
+}
+
+ftl_ret_val _FTL_RESIZE_OBJECT(stored_object * obj, size_t size)
+{
+	uint32_t page_id;
+
+	remove_pages(obj);
+
+	while(size > obj->size)
+	{
+		if (GET_NEW_PAGE(VICTIM_OVERALL, EMPTY_TABLE_ENTRY_NB, &page_id) == FTL_FAILURE)
+			RERR(FTL_FAILURE, "Failed to get new page.\n");
+
+		if(!add_page(obj, page_id))
+			RERR(FTL_FAILURE, "Failed to add new page.\n");
+
+		// mark new page as valid and used
+		UPDATE_NEW_PAGE_MAPPING_NO_LOGICAL(page_id);
+	}
+
+	return FTL_SUCCESS;
+}
+
 int remove_object(stored_object *object, object_map *obj_map)
 {
-    page_node *current_page;
-    page_node *invalidated_page;
+    ftl_ret_val result;
 
     if (object == NULL)
     	return FTL_SUCCESS;
@@ -389,31 +476,12 @@ int remove_object(stored_object *object, object_map *obj_map)
     	free(obj_map);
     }
 
-    current_page = object->pages;
-    while (current_page != NULL)
-    {
-        // invalidate the physical page and update its mapping
-        UPDATE_INVERSE_BLOCK_VALIDITY(CALC_FLASH(current_page->page_id), CALC_BLOCK(current_page->page_id), CALC_PAGE(current_page->page_id), PAGE_INVALID);
-
-#ifdef GC_ON
-        // should we really perform GC for every page? we know we are invalidating a lot of them now...
-        GC_CHECK(CALC_FLASH(current_page->page_id), CALC_BLOCK(current_page->page_id), true, true);
-#endif
-
-        // get next page and free the current one
-        invalidated_page = current_page;
-        current_page = current_page->next;
-
-        if (invalidated_page->hh.tbl != NULL)
-            HASH_DEL(global_page_table, invalidated_page);
-
-        free(invalidated_page);
-    }
+    result = remove_pages(object);
     
     // free the object's memory
     free(object);
     
-    return FTL_SUCCESS;
+    return result;
 }
 
 page_node *allocate_new_page(object_id_t object_id, uint32_t page_id)
@@ -519,8 +587,11 @@ page_node *add_page(stored_object *object, uint32_t page_id)
 void OSD_WRITE_OBJ(object_location obj_loc, unsigned int length, uint8_t *buf)
 {
 	int ret;
-	partition_id_t part_id = USEROBJECT_PID_LB + obj_loc.partition_id;
-	object_id_t obj_id = USEROBJECT_OID_LB + obj_loc.object_id;
+
+	// bases should be: USEROBJECT_PID_LB, USEROBJECT_OID_LB
+
+	partition_id_t part_id = obj_loc.partition_id;
+	object_id_t obj_id = obj_loc.object_id;
 
 	if (obj_loc.create_object)
 	{
@@ -613,8 +684,8 @@ void printMemoryDump(uint8_t *buffer, unsigned int bufferLength)
 
 void OSD_READ_OBJ(object_location obj_loc, unsigned int length, uint64_t addr, uint64_t offset)
 {
-	object_id_t obj_id = USEROBJECT_OID_LB + obj_loc.object_id;
-	partition_id_t part_id = USEROBJECT_PID_LB + obj_loc.partition_id;
+	object_id_t obj_id = obj_loc.object_id;
+	partition_id_t part_id = obj_loc.partition_id;
 
 
 	PINFO("READING %d bytes from OSD OBJECT: %lu %lu\n", length, part_id, obj_id);
