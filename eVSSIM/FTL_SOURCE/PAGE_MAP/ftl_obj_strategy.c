@@ -280,6 +280,35 @@ bool _FTL_OBJ_CREATE(object_id_t obj_id, size_t size)
     return true;
 }
 
+ftl_ret_val _FTL_CREATE_OBJECT(object_id_t * result)
+{
+	object_id_t object_id;
+	stored_object *obj = malloc(sizeof(stored_object));
+	object_map *map;
+
+	do {
+		object_id = rand();
+		HASH_FIND_INT(objects_mapping, &object_id, map);
+	} while (map);
+
+	map = (object_map*)malloc(sizeof(object_map));
+	map->id = object_id;
+	map->exists = true;
+	HASH_ADD_INT(objects_mapping, id, map);
+
+	// initialize to stored_object struct with size and initial pages
+	obj->id = object_id;
+	obj->size = 0;
+	obj->pages = NULL;
+
+	// add the new object to the objects' hashtable
+	HASH_ADD_INT(objects_table, id, obj);
+
+	*result = object_id;
+
+	return true;
+}
+
 ftl_ret_val _FTL_OBJ_DELETE(object_id_t object_id)
 {
     stored_object *object;

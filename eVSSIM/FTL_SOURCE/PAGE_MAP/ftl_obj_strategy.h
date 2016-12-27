@@ -60,6 +60,8 @@ bool _FTL_OBJ_CREATE(object_id_t obj_id, size_t size);
 void _FTL_OBJ_WRITECREATE(object_location obj_loc, size_t size);
 ftl_ret_val _FTL_OBJ_DELETE(object_id_t object_id);
 
+ftl_ret_val _FTL_CREATE_OBJECT(object_id_t * result);
+
 
 /* Persistent OSD storge */
 bool osd_init(void);

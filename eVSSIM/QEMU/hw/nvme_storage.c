@@ -376,6 +376,59 @@ static void nvme_update_stats(NVMEState *n, DiskInfo *disk, uint8_t opcode,
     }
 }
 
+static uint8_t __nvme_create_object(NVMEState *n, NVMECmd *sqe, NVMECQE *cqe)
+{
+	struct nvme_completion  * c = (struct nvme_completion *) cqe;
+	object_id_t id;
+
+	int status = _FTL_CREATE_OBJECT(&id);
+	if (status) {
+		LOG_NORM("%s(): object id is %"PRIu64, __func__, id);
+		c->result64 = id;
+	} else {
+		LOG_NORM("%s(): failed to find object", __func__);
+	}
+
+	c->status = status ? NVME_SC_SUCCESS : NVME_SC_CAP_EXCEEDED;
+
+	return status ? SUCCESS : FAIL;
+}
+
+static uint8_t nvme_create_object(NVMEState *n, NVMECmd *sqe, NVMECQE *cqe)
+{
+	LOG_NORM("%s(): really attempting to create object", __func__);
+
+	/*
+	 *
+	struct nvme_completion  * c = (struct nvme_completion *)  cqe;
+	c->status = NVME_SC_SUCCESS;
+	c->result64 = 1;
+	return SUCCESS;
+
+	*/
+
+	return __nvme_create_object(n, sqe, cqe);
+}
+
+static uint8_t nvme_delete_object(NVMEState *n, NVMECmd *sqe, NVMECQE *cqe)
+{
+	struct nvme_completion  *  c = (struct nvme_completion *) cqe;
+	struct nvme_obj_command  * s = (struct nvme_obj_command *) sqe;
+
+	LOG_NORM("%s(): deleting object 0x%"PRIx64, __func__, s->object_id);
+
+	int status = _FTL_OBJ_DELETE(s->object_id);
+	if (!status) {
+		LOG_NORM("%s(): failed to delete object", __func__);
+	} else {
+		LOG_NORM("%s(): successfully deleted object", __func__);
+	}
+
+	c->status = status ? NVME_SC_SUCCESS : NVME_SC_LBA_RANGE;
+
+	return status ? SUCCESS : FAIL;
+}
+
 /*********************************************************************
     Function     :    nvme_io_command
     Description  :    NVME Read or write cmd processing.
@@ -531,8 +584,6 @@ uint8_t nvme_io_command(NVMEState *n, NVMECmd *sqe, NVMECQE *cqe)
         }
     }
 
-
-
     nvme_update_stats(n, disk, e->opcode, e->slba, e->nlb);
     return res;
 }
@@ -674,7 +725,12 @@ uint8_t nvme_command_set(NVMEState *n, NVMECmd *sqe, NVMECQE *cqe)
         return nvme_dsm_command(n, sqe, cqe);
     } else if (sqe->opcode == NVME_CMD_FLUSH) {
         return NVME_SC_SUCCESS;
-    } else {
+    } else if (nvme_cmd_obj_create == sqe->opcode) {
+    	return nvme_create_object(n, sqe, cqe);
+    } else if (nvme_cmd_obj_delete == sqe->opcode) {
+    	return nvme_delete_object(n, sqe, cqe);
+    }
+    else {
         LOG_NORM("%s():Wrong IO opcode:\t\t0x%02x", __func__, sqe->opcode);
         sf->sc = NVME_SC_INVALID_OPCODE;
         return FAIL;
