@@ -1,0 +1,89 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "fabf19d9_eea9f9e0",
+        "filename": "eVSSIM/FTL_SOURCE/PAGE_MAP/ftl_obj_strategy.h",
+        "patchSetId": 1
+      },
+      "lineNbr": 57,
+      "author": {
+        "id": 1007990
+      },
+      "writtenOn": "2016-12-30T09:22:53Z",
+      "side": 1,
+      "message": "if we have write that enables resizing, why we need FTL_RESIZE_OBJECT?",
+      "revId": "65f6e619293f4524ac525dedfd12094390a79b0a",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fabf19d9_6e5f290f",
+        "filename": "eVSSIM/FTL_SOURCE/PAGE_MAP/ftl_obj_strategy.h",
+        "patchSetId": 1
+      },
+      "lineNbr": 59,
+      "author": {
+        "id": 1007990
+      },
+      "writtenOn": "2016-12-30T09:22:53Z",
+      "side": 1,
+      "message": "why to keep both this one and the new \n\nftl_ret_val _FTL_CREATE_OBJECT(object_id_t * result, uint64_t partition_id)?",
+      "revId": "65f6e619293f4524ac525dedfd12094390a79b0a",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fabf19d9_aeac21ee",
+        "filename": "eVSSIM/QEMU/hw/nvme.h",
+        "patchSetId": 1
+      },
+      "lineNbr": 712,
+      "author": {
+        "id": 1007990
+      },
+      "writtenOn": "2016-12-30T09:22:53Z",
+      "side": 1,
+      "message": "plz, change to upper case",
+      "revId": "65f6e619293f4524ac525dedfd12094390a79b0a",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fabf19d9_2e87f162",
+        "filename": "eVSSIM/QEMU/hw/nvme.h",
+        "patchSetId": 1
+      },
+      "lineNbr": 1092,
+      "author": {
+        "id": 1007990
+      },
+      "writtenOn": "2016-12-30T09:22:53Z",
+      "side": 1,
+      "message": "plz, move this struct where NVMeCmdWrite struct is and use the same namaing convention",
+      "revId": "65f6e619293f4524ac525dedfd12094390a79b0a",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fabf19d9_2ea011f4",
+        "filename": "eVSSIM/scripts/run_simulator.sh",
+        "patchSetId": 1
+      },
+      "lineNbr": 13,
+      "author": {
+        "id": 1007990
+      },
+      "writtenOn": "2016-12-30T09:22:53Z",
+      "side": 1,
+      "message": "1. path  should be relative\n2. 2 options are available: a. remove this file\n                            b. call run_sumulattro,sh from simulataor_ci",
+      "revId": "65f6e619293f4524ac525dedfd12094390a79b0a",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    }
+  ]
+}
