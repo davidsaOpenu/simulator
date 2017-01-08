@@ -8,7 +8,7 @@ ioengine=sync
 verify=meta
 verify_pattern=0xaa555aa5
 verify_interval=512
-#size=500m
+size=500m
 
 [write-phase]
 filename=/dev/nvme0n1
