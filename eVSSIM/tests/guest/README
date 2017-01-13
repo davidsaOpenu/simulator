@@ -1,6 +1,6 @@
 All guest tests are invoked by ansible automation project.
 
-If one setup the system then they may be invoked manually by runing:
-
-   pytest -v --junit-xml=./guest_tests_results.xml --full-trace
+If one setup the system then they may be invoked manually on the running guest by runing:
+ - pip install pytest
+ - run_all_guest_tests.sh
 
