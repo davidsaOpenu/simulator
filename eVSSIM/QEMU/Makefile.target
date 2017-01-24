@@ -37,6 +37,8 @@ ifndef CONFIG_HAIKU
 LIBS+=-lm
 endif
 
+LIBS+=-lrt
+
 config-target.h: config-target.h-timestamp
 config-target.h-timestamp: config-target.mak
 
