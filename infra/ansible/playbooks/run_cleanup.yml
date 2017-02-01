@@ -1,0 +1,19 @@
+- name: Propely shutting down guest OS
+  gather_facts: False
+  max_fail_percentage: 100
+  hosts: guests
+#  roles:
+#    - guest_halt
+  tags: guest
+  ignore_errors: yes
+
+- name: clean up after guest tests
+  hosts: guest_testers
+  tasks:
+    - name: extract files from the tar on guest_host
+      shell: sshpass -p esd ssh -o "StrictHostKeyChecking=no" -p 2222 esd@127.0.0.1 'cd /home/esd/ && tar xvf 3.16.2.tar'
+
+#  roles:
+#    - { role: guest_tester_pre, cleanup_only: true }
+  tags: guest
+  ignore_errors: yes

@@ -1,0 +1,4 @@
+# Download and build gtest if not existing
+- include: gtest.yml
+# Download and build bear if not existing
+- include: bear.yml

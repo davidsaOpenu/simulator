@@ -1,0 +1,14 @@
+- name: check whether bear was built
+  stat: "path=/usr/local/bin/bear"
+  register: bear_file
+
+- git: repo=https://github.com/rizsotto/Bear.git
+       dest="{{ ansible_env.HOME }}/Bear"
+  when: bear_file.stat.exists == false
+
+- name: build bear
+  sudo: true
+  shell: "cmake {{ ansible_env.HOME }}/Bear; make all; make install"
+  args:
+    chdir: "{{ ansible_env.HOME }}"
+  when: bear_file.stat.exists == false
