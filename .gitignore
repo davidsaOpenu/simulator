@@ -112,3 +112,6 @@ eVSSIM/osc-osd/osd-util/.depend
 eVSSIM/osc-osd/osd-target/.depend
 eVSSIM/osc-osd/osd-target/tests
 eVSSIM/osc-osd/osd-target/osd-schema.c
+
+# ansible files
+*.retry
