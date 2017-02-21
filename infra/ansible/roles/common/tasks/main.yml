@@ -1,4 +1,4 @@
-# Download and build gtest if not existing
+# Verify gtest exists
 - include: gtest.yml
-# Download and build bear if not existing
+# Verify bear exists
 - include: bear.yml
