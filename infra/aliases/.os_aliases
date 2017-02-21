@@ -1,0 +1,91 @@
+DOCKER_CMD="docker"
+# If user isn't root
+if [ "$(id -u)" != "0" ]; then
+    DOCKER_CMD="sudo $DOCKER_CMD"
+fi
+
+dk-help(){
+    echo "The Following command groups are available:"
+    echo -e "\tdkb - Building.\tUse dkb-help to see more help"
+    echo -e "\tdkr - Running.\tUse dkr-help to see more help"
+    echo -e "\tdkc - Cleaning.\tUse dkc-help to see more help"
+}
+
+dkc-help(){
+    echo "The following cleaning commands are available:"
+    echo -e "\tdkc-containers\tRemove all containers"
+    echo -e "\tdkc-images\tRemove all images"
+    echo -e "\tdkc-all\tRemove all containers and images"
+}
+
+dkb-help(){
+    echo "The following building commands are available:"
+    echo -e "\t dkb-os-ubutnu\t Build an OS simulator image. Also rebuilds the image from cache if needed."
+}
+
+dkr-help(){
+    echo "The following running commands are available:"
+    echo -e "\t dkr <IMAGE_NAME> [args]\t Run the <IMAGE_NAME> image with any arguments you want (e.g bash)"
+    echo -e "\t dkr-os-ubuntu [args]\t Run the os image with any arguments you want"
+    echo -e "\t dkr-os-ubuntu-shell\t Start an interactive shell session with a container of the os image."
+}
+
+alias dkc-containers='$DOCKER_CMD rm $($DOCKER_CMD ps -aq)'
+alias dkc-images='$DOCKER_CMD rmi $($DOCKER_CMD images -q)'
+
+dkc-all(){
+    $DOCKER_CMD rm $($DOCKER_CMD ps -aq)
+    $DOCKER_CMD rmi $($DOCKER_CMD images -q)
+}
+
+
+verifyCodeRoot(){ # TODO - verify code root is valid (i.e contains simulator and nvme-cli
+    CODE_ROOT_PATH=~/.code-root
+    if [ ! -f $CODE_ROOT_PATH ]; then
+        CODE_ROOT="/dev/null"
+        while [ ! -d $CODE_ROOT ]; do
+            echo -n "Enter the path to your git root (i.e /home/yourname/git) this directory should contain both simulator and nvme-cli folders:"
+            read CODE_ROOT
+        done
+        declare -p CODE_ROOT | cut -d ' ' -f 3 >> ${CODE_ROOT_PATH}
+    fi
+    source $CODE_ROOT_PATH
+}
+
+dkb-os-ubuntu() { 
+        verifyCodeRoot
+        $DOCKER_CMD build -t os-ubuntu ${CODE_ROOT}/simulator/infra/docker/ubuntu
+}
+
+dkb-os-centos() { 
+        verifyCodeRoot
+        $DOCKER_CMD build -t os-centos ${CODE_ROOT}/simulator/infra/docker/centos
+}
+
+dkr() { 
+    imageName=$1
+    shift
+        verifyCodeRoot
+        $DOCKER_CMD run -t -i -e DISPLAY=$DISPLAY -v /tmp/.X11-unix:/tmp/.X11-unix -v ${CODE_ROOT}:/code --cap-add SYS_PTRACE --privileged=true $imageName $@
+}
+
+dkr-os-ubuntu() { 
+        dkr os-ubuntu $@
+}
+
+dkr-os-ubuntu-shell(){
+        dkr-os-ubuntu /bin/bash
+}
+
+dkr-os-centos() { 
+        dkr os-centos $@
+}
+
+dkr-os-centos-shell(){
+        dkr-os-centos /bin/bash
+}
+
+cdcode() {
+        verifyCodeRoot
+        cd ${CODE_ROOT}
+}
