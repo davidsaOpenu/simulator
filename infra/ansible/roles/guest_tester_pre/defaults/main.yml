@@ -1,7 +1,7 @@
 memory: 2048
 smp: 4
 # This has to be a directory with ~ 9GB free space
-hda_dir: "{{ ansible_env.HOME }}"
+hda_dir: "/code/hda"
 hda_img: "{{hda_dir}}/hda_clean.qcow2"
 hda_cmpr: "{{hda_dir}}/hda_clean.qcow2.bz2"
 #this is a kernel version we start qemu with to ensure the vm is always properly started
