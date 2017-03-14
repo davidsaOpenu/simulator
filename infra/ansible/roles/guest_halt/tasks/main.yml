@@ -1,9 +1,0 @@
-- block:
-  - name: Propely shutting down guest OS
-    become: true
-    command: shutdown now "Propely shutting down guest OS"
-    async: 0
-    poll: 0
-    ignore_errors: true
-
-

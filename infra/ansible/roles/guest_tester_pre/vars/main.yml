@@ -1,1 +1,0 @@
-guest_ssh_cmd: "sshpass -p esd ssh -o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no esd@localhost -p {{ guest_ssh_port }}"
