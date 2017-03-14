@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "6c2f4369_e6c6f64f",
+        "filename": "/COMMIT_MSG",
+        "patchSetId": 1
+      },
+      "lineNbr": 7,
+      "author": {
+        "id": 1007990
+      },
+      "writtenOn": "2017-03-14T22:50:49Z",
+      "side": 1,
+      "message": "plz, make commit message 50 chars length and add the rest as a description",
+      "revId": "96a7a78acdd4d0bbb936606c3ab1ca021e5df44a",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    }
+  ]
+}
