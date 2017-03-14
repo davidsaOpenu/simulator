@@ -1,0 +1,4 @@
+﻿arch       - architecture dependent (code, configuration, compilation).
+interfaces - defines how different modules communicate.
+modules    - each module runs on a dedicated CPU (e.g. garbage collector, accounting manager, lockmanager). Each module is compiled in an architecture dependent way.
+config     - everything configuration related (but arch dependent).
