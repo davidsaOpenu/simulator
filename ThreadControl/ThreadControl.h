@@ -2,7 +2,7 @@
  * ThreadControl.h
  *
  *  Created on: Mar 14, 2017
- *      Author: root
+ *      Author: Alexy T.
  */
 
 #ifndef THREADCONTROL_H_
@@ -21,6 +21,6 @@ typedef enum { UPDATE_THREAD_INFO_TYPE_ENABLE , UPDATE_THREAD_INFO_TYPE_EXIT , U
 
 int		ThreadControl_Init( unsigned int iNumberOfThreads , unsigned int* pvStackSizesList );
 int		ThreadControl_Update( unsigned int number , teUpdateThreadInfoType type , ... );
-void	ThreadControl_Close();
+void		ThreadControl_Close();
 
 #endif /* THREADCONTROL_H_ */
