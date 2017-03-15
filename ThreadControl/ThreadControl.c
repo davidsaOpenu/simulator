@@ -4,7 +4,7 @@
  Author      : Alexy T.
  Version     :
  Copyright   : 
- Description : Hello World in C, Ansi-style
+ Description : Thread Control Module
  ============================================================================
  */
 
@@ -15,31 +15,31 @@
 
 typedef struct THREAD_INFO_ITEM
 {
-	unsigned int				number,					/// user defined serial number of thread
-								enabled,				/// Is enabled to run
-								exit;					/// force stop run thread
+	unsigned int				number,				/// user defined serial number of thread
+						enabled,			/// Is enabled to run
+						exit;				/// force stop run thread
 
-	int							error;					/// error from thread
+	int					error;				/// error from thread
 
 	unsigned int				stack_size;
 
-	char*						library_path;			/// the share library
+	char*					library_path;			/// the share library
 
-	char*						entry_point;			/// the entry point of share library
+	char*					entry_point;			/// the entry point of share library
 
-	void*						lib_handle;				/// share library handle
+	void*					lib_handle;			/// share library handle
 
 	struct sockaddr_in			socket_info;			/// thread income message socket info
 
-	int							fd_socket;				/// income socket file descriptor
+	int					fd_socket;			/// income socket file descriptor
 
-	pthread_t					thread_id;				/// the OS ID number of thread
+	pthread_t				thread_id;			/// the OS ID number of thread
 
-	pthread_mutex_t				lock;					/// access protection
+	pthread_mutex_t				lock;				/// access protection
 
-    pthread_attr_t 				attr;					/// tread attributes
+    	pthread_attr_t 				attr;				/// tread attributes
 
-	struct THREAD_INFO_ITEM*	next;				/// next item of info
+	struct THREAD_INFO_ITEM*		next;				/// next item of info
 
 } tsThreadInfoItem;
 
@@ -47,9 +47,9 @@ typedef enum { GET_THREAD_INFO_TYPE_SN , GET_THREAD_INFO_TYPE_ID , GET_THREAD_IN
 
 tsThreadInfoItem*	gThreadsInfoList;
 
-int					CreateThreadInfoList( tsThreadInfoItem** list , unsigned int iNumberOfThreads , unsigned int* pvStackSizesList );
+int			CreateThreadInfoList( tsThreadInfoItem** list , unsigned int iNumberOfThreads , unsigned int* pvStackSizesList );
 tsThreadInfoItem*	GetThreadInfoItem( tsThreadInfoItem *list , teGetThreadInfoType type , ... );
-void				FreeThreadInfoList( tsThreadInfoItem* list );
+void			FreeThreadInfoList( tsThreadInfoItem* list );
 
 
 int main(void)
@@ -70,13 +70,13 @@ int main(void)
  */
 static void*	thread_function(void* arg)
 {
-   tsThreadInfoItem*			current 	= arg;
+   tsThreadInfoItem*		current 	= arg;
 
-   unsigned int					exit 		= 0;
+   unsigned int			exit 		= 0;
 
    thread_execution_function	function 	= NULL;
 
-   int							error		= 0;
+   int				error		= 0;
 
    if ( current == NULL )
 	   return NULL;
@@ -158,9 +158,9 @@ int	ThreadControl_Update( unsigned int number , teUpdateThreadInfoType type , ..
 {
 	tsThreadInfoItem*	current = NULL;
 
-	va_list				args;
+	va_list			args;
 
-	char*				text = NULL;
+	char*			text = NULL;
 
 	current = GetThreadInfoItem( gThreadsInfoList , number );
 
@@ -232,7 +232,7 @@ int	CreateThreadInfoList( tsThreadInfoItem** list , unsigned int iNumberOfThread
 {
 	tsThreadInfoItem*	current = NULL;
 
-	void*				attr = NULL;
+	void*			attr = NULL;
 
 	unsigned int*		pvStackSizesListNext = NULL;
 
@@ -298,11 +298,11 @@ tsThreadInfoItem*	GetThreadInfoItem( tsThreadInfoItem *list , teGetThreadInfoTyp
 {
 	tsThreadInfoItem	*current	= list;
 
-	int					parameter	= 0;
+	int			parameter	= 0;
 
-	int					bFound		= 0;
+	int			bFound		= 0;
 
-	va_list				args;
+	va_list			args;
 
 	if ( list == NULL )
 		return current;
@@ -357,7 +357,7 @@ tsThreadInfoItem*	GetThreadInfoItem( tsThreadInfoItem *list , teGetThreadInfoTyp
 void	FreeThreadInfoList( tsThreadInfoItem *list )
 {
 	tsThreadInfoItem*	current = list,
-						*last = current;
+				*last = current;
 
 	while(current)
 	{
