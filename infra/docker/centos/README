@@ -1,0 +1,34 @@
+On your host (i.e PC):
+
+Pre-Reqs
+1. Install Docker (use Google "Install Docker Ubuntu")
+2. Run the following command to avoid x11 problems
+	xhost local:root
+
+
+Best thing to do is install the aliases file ".os_aliases" using 'source .os_aliases' (or adding it to .bashrc).
+The aliases file will provide the following:
+dkb-os-ubutnu - Build the Docker image
+dkr-os-ubuntu-shell - Will open a shell with the pre-loaded command "run-ansible" 
+
+see "dk-help" for more commands
+
+Troubleshooting
+
+If the Ubuntu img running in QEMU is stuck at boot with the error: 
+	fsck for util-linux 2.20.1    
+	/dev/sdb5: 276147/151969160 files (0.2% non-contiguous), 2214857/60774919 blocks
+
+Follow the intructions in the link: http://askubuntu.com/questions/240527/is-recovery-mode-supposed-to-hang-after-fsck
+Here are the main commands to run for copy\paste:
+	sudo fsck -f /dev/sdb5
+	sudo mount /dev/sdb5 / -o remount,rw
+
+
+## If you're not using the aliases:
+Build Image for Ubuntu 14.04 with the required deps
+sudo docker build -t <NAME_FOR_IMAGE> <SIMULATOR_REPO>/infra/docker/ubuntu
+
+Run a container from that image using:
+sudo docker run -t -i -e DISPLAY=$DISPLAY -v /tmp/.X11-unix:/tmp/.X11-unix -v <YOUR_CODE_REPO>:/code --cap-add SYS_PTRACE --privileged=true os
+
