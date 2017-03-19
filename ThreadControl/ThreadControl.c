@@ -1,7 +1,7 @@
 /*
  ============================================================================
  Name        : ThreadControl.c
- Author      : Alexy Trifonov.
+ Author      : Alexey Trifonov.
  Version     :
  Copyright   : 
  Description : Thread Control Module
@@ -18,34 +18,38 @@
 #include <netinet/in.h>
 #include <netinet/ip.h> /* superset of previous */
 #include <pthread.h>
+#include <unistd.h>
+#include <unistd.h>
+
+//================================ USE 4 Tab Width =============================================//
 
 typedef struct THREAD_INFO_ITEM
 {
-	void					*pData;				/// Custom Data
+	void							*pData;				/// Custom Data
 
-	unsigned int				number,				/// user defined serial number of thread
-						enabled,			/// Is enabled to run
-						exit;				/// force stop run thread
+	unsigned int					number,				/// user defined serial number of thread
+									enabled,			/// Is enabled to run
+									exit;				/// force stop run thread
 
-	int					error;				/// error from thread
+	int								error;				/// error from thread
 
-	unsigned int				stack_size;
+	unsigned int					stack_size;
 
-	char*					library_path;			/// the share library
+	char*							library_path;		/// the share library
 
-	char*					entry_point;			/// the entry point of share library
+	char*							entry_point;		/// the entry point of share library
 
-	void*					lib_handle;			/// share library handle
+	void*							lib_handle;			/// share library handle
 
-	struct sockaddr_in			socket_info;			/// thread income message socket info
+	struct sockaddr_in				socket_info;		/// thread income message socket info
 
-	int					fd_socket;			/// income socket file descriptor
+	int								fd_socket;			/// income socket file descriptor
 
-	pthread_t				thread_id;			/// the OS ID number of thread
+	pthread_t						thread_id;			/// the OS ID number of thread
 
-	pthread_mutex_t				lock;				/// access protection
+	pthread_mutex_t					lock;				/// access protection
 
-    	pthread_attr_t 				attr;				/// tread attributes
+   	pthread_attr_t 					attr;				/// tread attributes
 
 	struct THREAD_INFO_ITEM*		next;				/// next item of info
 
@@ -55,9 +59,9 @@ typedef enum { GET_THREAD_INFO_TYPE_SN , GET_THREAD_INFO_TYPE_ID , GET_THREAD_IN
 
 tsThreadInfoItem*	gThreadsInfoList;
 
-int			CreateThreadInfoList( tsThreadInfoItem** list , tsThreadInfoItem* root , unsigned int iNumberOfThreads , unsigned int* pvStackSizesList );
+int					CreateThreadInfoList( tsThreadInfoItem** list , tsThreadInfoItem* root , unsigned int iNumberOfThreads , unsigned int* pvStackSizesList );
 tsThreadInfoItem*	GetThreadInfoItem( tsThreadInfoItem *list , teGetThreadInfoType type , ... );
-void			FreeThreadInfoList( tsThreadInfoItem* list );
+void				FreeThreadInfoList( tsThreadInfoItem* list );
 
 
 int main(void)
@@ -84,11 +88,11 @@ static void*	thread_function(void* arg)
 {
    tsThreadInfoItem*				current 	= arg;
 
-   unsigned int					exit 		= 0;
+   unsigned int						exit 		= 0;
 
-   thread_execution_function			function 	= NULL;
+   thread_execution_function		function 	= NULL;
 
-   int						error		= 0;
+   int								error		= 0;
 
    if ( current == NULL )
 	   return NULL;
@@ -169,11 +173,11 @@ int	ThreadControl_Init( unsigned int iNumberOfThreads , unsigned int* pvStackSiz
  */
 int	ThreadControl_Update( unsigned int number , teUpdateThreadInfoType type , ... )
 {
-	tsThreadInfoItem*			current = NULL;
+	tsThreadInfoItem*				current = NULL;
 
-	va_list					args;
+	va_list							args;
 
-	char*					text = NULL;
+	char*							text = NULL;
 
 	current = GetThreadInfoItem( gThreadsInfoList , number );
 
@@ -247,13 +251,13 @@ void	ThreadControl_Close()
  */
 int	CreateThreadInfoList( tsThreadInfoItem** list , tsThreadInfoItem* root , unsigned int iNumberOfThreads , unsigned int* pvStackSizesList )
 {
-	tsThreadInfoItem*			current = NULL;
+	tsThreadInfoItem*				current = NULL;
 
-	void*					attr = NULL;
+	void*							attr = NULL;
 
-	unsigned int*				pvStackSizesListNext = NULL;
+	unsigned int*					pvStackSizesListNext = NULL;
 
-	socklen_t				length = sizeof(struct sockaddr_in);
+	socklen_t						length = sizeof(struct sockaddr_in);
 
 	if ( iNumberOfThreads == 0 )
 	{
@@ -322,13 +326,13 @@ int	CreateThreadInfoList( tsThreadInfoItem** list , tsThreadInfoItem* root , uns
  */
 tsThreadInfoItem*	GetThreadInfoItem( tsThreadInfoItem *list , teGetThreadInfoType type , ... )
 {
-	tsThreadInfoItem			*current	= list;
+	tsThreadInfoItem				*current	= list;
 
-	int					parameter	= 0;
+	int								parameter	= 0;
 
-	int					bFound		= 0;
+	int								bFound		= 0;
 
-	va_list					args;
+	va_list							args;
 
 	if ( list == NULL )
 		return current;
@@ -382,13 +386,11 @@ tsThreadInfoItem*	GetThreadInfoItem( tsThreadInfoItem *list , teGetThreadInfoTyp
  */
 void	FreeThreadInfoList( tsThreadInfoItem *list )
 {
-	tsThreadInfoItem*			current = list,
-						*last = current;
+	tsThreadInfoItem*				current = list,
+									*last = current;
 
 	while(current)
 	{
-		current = current->next;
-
 		current->exit = 1;
 
 		pthread_attr_destroy(&current->attr);
@@ -397,11 +399,18 @@ void	FreeThreadInfoList( tsThreadInfoItem *list )
 
 		pthread_mutex_destroy(&current->lock);
 
+		close(current->fd_socket);
+
 		if(last->entry_point)
 			free(last->entry_point);
 
+		current = current->next;
+
 		free(last);
 		last = current;
+
+		if ( current == list )
+			break;
 	}
 
 	return;
@@ -426,10 +435,10 @@ void	FreeThreadInfoList( tsThreadInfoItem *list )
  */
 int		SendMessage( void* pHandle , unsigned int uiThreadNumber , void *pData , unsigned int uiSize )
 {
-	tsThreadInfoItem*			current = pHandle,
-						*target = current->next;
+	tsThreadInfoItem*				current = pHandle,
+									*target = current->next;
 
-	unsigned int				senders = 0;
+	unsigned int					senders = 0;
 
 	if (( pHandle == NULL ) || ( pData == NULL ) || ( uiSize == 0 ))
 		return ERROR_INPUT_PARAM;
@@ -467,9 +476,9 @@ int		SendMessage( void* pHandle , unsigned int uiThreadNumber , void *pData , un
  */
 int		FetchMessage( void* pHandle , unsigned int uiReadSize , void *pData , unsigned int uiDataSize )
 {
-	tsThreadInfoItem*			current = pHandle;
+	tsThreadInfoItem*				current = pHandle;
 
-	int					receiveSize = 0;
+	int								receiveSize = 0;
 
 	if (( pHandle == NULL ) || ( pData == NULL ) || ( uiDataSize == 0 )  || ( uiReadSize > uiDataSize ))
 		return ERROR_INPUT_PARAM;
