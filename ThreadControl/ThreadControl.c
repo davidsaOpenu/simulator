@@ -1,7 +1,7 @@
 /*
  ============================================================================
  Name        : ThreadControl.c
- Author      : Alexy T.
+ Author      : Alexy Trifonov.
  Version     :
  Copyright   : 
  Description : Thread Control Module
@@ -12,9 +12,17 @@
 #include <string.h>
 #include <stdarg.h>
 #include <dlfcn.h>
+#include <stdlib.h>
+#include <stdio.h>
+#include <sys/socket.h>
+#include <netinet/in.h>
+#include <netinet/ip.h> /* superset of previous */
+#include <pthread.h>
 
 typedef struct THREAD_INFO_ITEM
 {
+	void					*pData;				/// Custom Data
+
 	unsigned int				number,				/// user defined serial number of thread
 						enabled,			/// Is enabled to run
 						exit;				/// force stop run thread
@@ -47,13 +55,17 @@ typedef enum { GET_THREAD_INFO_TYPE_SN , GET_THREAD_INFO_TYPE_ID , GET_THREAD_IN
 
 tsThreadInfoItem*	gThreadsInfoList;
 
-int			CreateThreadInfoList( tsThreadInfoItem** list , unsigned int iNumberOfThreads , unsigned int* pvStackSizesList );
+int			CreateThreadInfoList( tsThreadInfoItem** list , tsThreadInfoItem* root , unsigned int iNumberOfThreads , unsigned int* pvStackSizesList );
 tsThreadInfoItem*	GetThreadInfoItem( tsThreadInfoItem *list , teGetThreadInfoType type , ... );
 void			FreeThreadInfoList( tsThreadInfoItem* list );
 
 
 int main(void)
 {
+	int error = ThreadControl_Init( 1 , NULL );
+
+	while(1);
+
 	return EXIT_SUCCESS;
 }
 
@@ -70,13 +82,13 @@ int main(void)
  */
 static void*	thread_function(void* arg)
 {
-   tsThreadInfoItem*		current 	= arg;
+   tsThreadInfoItem*				current 	= arg;
 
-   unsigned int			exit 		= 0;
+   unsigned int					exit 		= 0;
 
-   thread_execution_function	function 	= NULL;
+   thread_execution_function			function 	= NULL;
 
-   int				error		= 0;
+   int						error		= 0;
 
    if ( current == NULL )
 	   return NULL;
@@ -130,7 +142,7 @@ static void*	thread_function(void* arg)
  */
 int	ThreadControl_Init( unsigned int iNumberOfThreads , unsigned int* pvStackSizesList )
 {
-	if ( CreateThreadInfoList( &gThreadsInfoList , iNumberOfThreads , pvStackSizesList ) < 0 )
+	if ( CreateThreadInfoList( &gThreadsInfoList , gThreadsInfoList , iNumberOfThreads , pvStackSizesList ) < 0 )
 		return -1;
 
 	return 0;
@@ -149,6 +161,7 @@ int	ThreadControl_Init( unsigned int iNumberOfThreads , unsigned int* pvStackSiz
  * 2. UPDATE_THREAD_INFO_TYPE_EXIT   	  ( int ) - kill the support thread ( not for external use )
  * 3. UPDATE_THREAD_INFO_TYPE_LIB_PATH 	  ( char* ) - The share library path name
  * 4. UPDATE_THREAD_INFO_TYPE_ENTRY_POINT ( char* ) - The thread function to run ( int (*func)(void* ) )
+ * 5. UPDATE_THREAD_INFO_TYPE_CUSTOM_DATA ( void* ) - The Custom Data Pointer
  *
  * @return status of initialization ( 0 - indicates a success ).
  *
@@ -156,16 +169,16 @@ int	ThreadControl_Init( unsigned int iNumberOfThreads , unsigned int* pvStackSiz
  */
 int	ThreadControl_Update( unsigned int number , teUpdateThreadInfoType type , ... )
 {
-	tsThreadInfoItem*	current = NULL;
+	tsThreadInfoItem*			current = NULL;
 
-	va_list			args;
+	va_list					args;
 
-	char*			text = NULL;
+	char*					text = NULL;
 
 	current = GetThreadInfoItem( gThreadsInfoList , number );
 
 	if ( current == NULL )
-		return -1;
+		return ERROR_INPUT_PARAM;
 
 	va_start( args , type );
 
@@ -192,6 +205,9 @@ int	ThreadControl_Update( unsigned int number , teUpdateThreadInfoType type , ..
 				current->entry_point = malloc((size_t)strlen(text)+1);
 				strcpy(current->entry_point,text);
 			}
+			break;
+		case UPDATE_THREAD_INFO_TYPE_CUSTOM_DATA:
+			current->pData = va_arg(args,void*);
 			break;
 	}
 
@@ -221,6 +237,7 @@ void	ThreadControl_Close()
  * The function is not start the target thread, only prepare for running.
  *
  * @param[in] list ( tsThreadInfoItem** ) - The global memory for linked list
+ * @param[in] root ( tsThreadInfoItem* ) - The global memory for linked list
  * @param[in] iNumberOfThreads (unsigned int) - The number of threads.
  * @param[in] pvStackSizesList (unsigned int*) - A list of thread stack memory size for each thread ( can be NULL ).
  *
@@ -228,54 +245,63 @@ void	ThreadControl_Close()
  *
  * @see GetThreadInfoItem , FreeThreadInfoList
  */
-int	CreateThreadInfoList( tsThreadInfoItem** list , unsigned int iNumberOfThreads , unsigned int* pvStackSizesList )
+int	CreateThreadInfoList( tsThreadInfoItem** list , tsThreadInfoItem* root , unsigned int iNumberOfThreads , unsigned int* pvStackSizesList )
 {
-	tsThreadInfoItem*	current = NULL;
+	tsThreadInfoItem*			current = NULL;
 
-	void*			attr = NULL;
+	void*					attr = NULL;
 
-	unsigned int*		pvStackSizesListNext = NULL;
+	unsigned int*				pvStackSizesListNext = NULL;
+
+	socklen_t				length = sizeof(struct sockaddr_in);
 
 	if ( iNumberOfThreads == 0 )
+	{
+		*list = root; // close loop
+
 		return 0;
+	}
 
 	current = calloc(1,sizeof(gThreadsInfoList));
 
 	if ( current == NULL )
-		return -1;
+		return ERROR_INPUT_PARAM;
 
 	if ( pthread_attr_init(&current->attr) != 0 )
-		return -1;
+		return ERROR_OS_RESOURCES;
 
 	if ( pthread_mutex_init(&current->lock, NULL) != 0 )
-		return -1;
+		return ERROR_OS_RESOURCES;
 
 	if ( pvStackSizesList )
 	{
 		pvStackSizesListNext = pvStackSizesList + 1;
 
 		if ( pthread_attr_setstacksize(&attr, *pvStackSizesList ) != 0 )
-			return -1;
+			return ERROR_OS_RESOURCES;
 	}
 
 	current->fd_socket = socket( AF_INET, SOCK_DGRAM, 0 );
 
 	if ( current->fd_socket < 0 )
-		return -1;
+		return ERROR_OPEN_SOCKET;
 
 	current->socket_info.sin_family = AF_INET;
 	current->socket_info.sin_port = 0;
 	current->socket_info.sin_addr.s_addr = 0;
 
 	if ( bind( current->fd_socket , &current->socket_info , sizeof(current->socket_info)) < 0 )
-		return -1;
+		return ERROR_OPEN_SOCKET;
+
+	if ( getsockname( current->fd_socket , (struct sockaddr *)&current->socket_info, &length) < 0 )
+		return ERROR_OPEN_SOCKET;
 
 	if ( pthread_create( &current->thread_id , attr, thread_function , (void*) current ) != 0 )
-		return -1;
+		return ERROR_OS_RESOURCES;
 
 	*list = current;
 
-	return CreateThreadInfoList( &(current->next) , iNumberOfThreads-1 , pvStackSizesListNext );
+	return CreateThreadInfoList( &(current->next) , root , iNumberOfThreads-1 , pvStackSizesListNext );
 }
 
 /**
@@ -296,13 +322,13 @@ int	CreateThreadInfoList( tsThreadInfoItem** list , unsigned int iNumberOfThread
  */
 tsThreadInfoItem*	GetThreadInfoItem( tsThreadInfoItem *list , teGetThreadInfoType type , ... )
 {
-	tsThreadInfoItem	*current	= list;
+	tsThreadInfoItem			*current	= list;
 
-	int			parameter	= 0;
+	int					parameter	= 0;
 
-	int			bFound		= 0;
+	int					bFound		= 0;
 
-	va_list			args;
+	va_list					args;
 
 	if ( list == NULL )
 		return current;
@@ -356,8 +382,8 @@ tsThreadInfoItem*	GetThreadInfoItem( tsThreadInfoItem *list , teGetThreadInfoTyp
  */
 void	FreeThreadInfoList( tsThreadInfoItem *list )
 {
-	tsThreadInfoItem*	current = list,
-				*last = current;
+	tsThreadInfoItem*			current = list,
+						*last = current;
 
 	while(current)
 	{
@@ -379,4 +405,76 @@ void	FreeThreadInfoList( tsThreadInfoItem *list )
 	}
 
 	return;
+}
+
+//=========================== Messanger ===================================//
+
+
+/**
+ * @brief SendMessage
+ *
+ * This method perform intercommunication.
+ *
+ * @param[in] pHandle (unsigned int) - The hanle.
+ * @param[in] uiThreadNumber (unsigned int*) - The target thread number ( 0 - Broadcast ).
+ * @param[in] pData (unsigned int) - The data that will be sent.
+ * @param[in] uiSize (unsigned int*) - The size of the data.
+ *
+ * @return status of success ( 1 - for one target , >= 1 for Broadcast ).
+ *
+ * @see FetchMessage
+ */
+int		SendMessage( void* pHandle , unsigned int uiThreadNumber , void *pData , unsigned int uiSize )
+{
+	tsThreadInfoItem*			current = pHandle,
+						*target = current->next;
+
+	unsigned int				senders = 0;
+
+	if (( pHandle == NULL ) || ( pData == NULL ) || ( uiSize == 0 ))
+		return ERROR_INPUT_PARAM;
+
+	while( current != target )
+	{
+		if ( uiThreadNumber > 0 )
+			target = GetThreadInfoItem( gThreadsInfoList , uiThreadNumber );
+
+		if ( sendto( current->fd_socket , pData , uiSize , 0 , (struct sockaddr_in*)&target->socket_info , sizeof(struct sockaddr_in) ) == uiSize )
+			senders++;
+
+		if ( uiThreadNumber > 0 )
+			break;
+
+		target = target->next;
+	};
+
+	return senders;
+}
+
+/**
+ * @brief FetchMessage
+ *
+ * This method fetch income message.
+ *
+ * @param[in] pHandle (unsigned int) - The hanle.
+ * @param[in] uiReadSize (unsigned int*) - The size that will be read.
+ * @param[in] pData (unsigned int) - The data that will be sent.
+ * @param[in] uiDataSize (unsigned int*) - The size of the data memory.
+ *
+ * @return receive size.
+ *
+ * @see SendMessage
+ */
+int		FetchMessage( void* pHandle , unsigned int uiReadSize , void *pData , unsigned int uiDataSize )
+{
+	tsThreadInfoItem*			current = pHandle;
+
+	int					receiveSize = 0;
+
+	if (( pHandle == NULL ) || ( pData == NULL ) || ( uiDataSize == 0 )  || ( uiReadSize > uiDataSize ))
+		return ERROR_INPUT_PARAM;
+
+	receiveSize = recvfrom( current->fd_socket, pData, uiReadSize, MSG_DONTWAIT, (struct sockaddr_in*)&current->socket_info , sizeof(struct sockaddr_in) );
+
+	return receiveSize;
 }
