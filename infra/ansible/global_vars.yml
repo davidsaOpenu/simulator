@@ -10,6 +10,3 @@ guest_ssh_port: 2222
 ########################################################
 # turns on/off guest_tester_pre role debugging
 debug_guest_tester_pre: False
-
-
-

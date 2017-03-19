@@ -1,7 +1,7 @@
 FROM tianon/centos:6.5
 
 # Install base packages
-RUN yum install -y vim gcc wget make cmake gcc-c++ valgrind curl sqlite-devel libpng12 unzip xz tar epel-release
+RUN yum install -y vim gcc wget make cmake gcc-c++ valgrind curl sqlite-devel libpng12 unzip xz tar epel-release openssh-clients
 RUN yum install -y SDL-devel libaio-devel libvncserver-devel  pciutils-devel
 RUN yum install  -y ansible libpng-1.2.49-2.el6_7.x86_64
 
