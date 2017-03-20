@@ -1,0 +1,66 @@
+Running the build using Docker
+
+## Prerequisites ##
+1. Have a Linux machine with a relatively new Kernel. There is a feature for Ubuntu Docker on Windows 10, but it is untested and undefined.
+2. Install Docker (use Google "Install Docker YOUR HOST OS")
+3. (optional - only if you're using the simulator GUI)
+   Run the following command to avoid x11 problems
+   xhost local:root
+
+## Docker in general ##
+You can read better tutorials over the Internet, but I've added a short explanation below as a starting point.
+- Docker is a container (not to be confused with a VM). 
+- A Docker image is built once, and from it many containers can be created.
+- All the containers on the machine share the Linux Kernel of the host.
+- A Docker image is built using a Dockerfile, and can mimic almost any OS (that use the same Kernel as the host. No “Windows” images on Linux hosts)
+- Once the container stops, all the data inside the container is lost* unless it was backed-up somewhere.
+
+*It does exist if you restart the same container, but for all intents and purposes it's lost.
+
+Some resources:
+1. https://www.solidfire.com/blog/containers-vs-vms/
+
+## Docker in this project ##
+Under infra/docker there are the Docker directories. Each directory contains the files to create a single image. At the time of writing this document the directories are:
+1. ubuntu – To build an Ubuntu 14.04 image
+2. centos – To build a CentOS 6.5 image
+
+#This project also contains aliases to help you work with Docker without learning all the commands.
+The aliases file is located under 'infra/aliases/'.  Install the aliases file ".os_aliases" using 'source .os_aliases' (or adding it to .bashrc for automatic loading).
+
+## The aliases file will provide the following commands ##
+dkb-os-ubutnu - Build the Docker image for Ubuntu
+dkr-os-ubuntu-shell - Will open a shell inside a new Ubuntu container with the pre-loaded command "run-ansible"
+
+dkb-os-centos - Build the Docker image for CentOS
+dkr-os-centos-shell - Will open a shell inside a new CentOS container with the pre-loaded command "run-ansible"
+
+dk-help - will show all the available commands
+
+## If you're not using the aliases, below are the commands used to build and run the Dockers ##
+#Build Image
+sudo docker build -t <NAME_FOR_IMAGE> <SIMULATOR_REPO>/infra/docker/<OS_DIR>
+
+#Run a container from that image using:
+sudo docker run -t -i -e DISPLAY=$DISPLAY -v /tmp/.X11-unix:/tmp/.X11-unix -v <YOUR_CODE_REPO>:/code --cap-add SYS_PTRACE --privileged=true <NAME_FOR_IMAGE>
+
+#Notice that the flags here are meant for interactive usage (i.e by a human), for automatic runs like Jenkins omit the following:
+'-t -e DISPLAY=$DISPLAY'
+
+
+## Troubleshooting ##
+If the Ubuntu img running in QEMU is stuck at boot with the error:
+        fsck for util-linux 2.20.1
+        /dev/sdb5: 276147/151969160 files (0.2% non-contiguous), 2214857/60774919 blocks
+
+Follow the intructions in the link: http://askubuntu.com/questions/240527/is-recovery-mode-supposed-to-hang-after-fsck
+Here are the main commands to run for copy\paste:
+        sudo fsck -f /dev/sdb5
+        sudo mount /dev/sdb5 / -o remount,rw
+
+
+## General purpose troubleshooting ##
+1. Build the image (dkb-os-<UBUNTU_OR_CENTOS>)
+2. Run a shell inside the image (dkr-os-<UBUNTU_OR_CENTOS>-shell)
+3. Run Ansible within that shell
+4. Debug like you would if this wasn't a container
