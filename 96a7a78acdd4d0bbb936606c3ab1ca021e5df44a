@@ -16,6 +16,23 @@
       "revId": "96a7a78acdd4d0bbb936606c3ab1ca021e5df44a",
       "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "bd16f21f_bef134ee",
+        "filename": "infra/ansible/roles/guest_tester_pre/defaults/main.yml",
+        "patchSetId": 1
+      },
+      "lineNbr": 4,
+      "author": {
+        "id": 1007990
+      },
+      "writtenOn": "2017-03-26T20:46:36Z",
+      "side": 1,
+      "message": "does it sounds intuitive that image is located under directory named \u0027code\u0027?",
+      "revId": "96a7a78acdd4d0bbb936606c3ab1ca021e5df44a",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
     }
   ]
 }
