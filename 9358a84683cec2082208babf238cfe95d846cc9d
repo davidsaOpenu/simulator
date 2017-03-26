@@ -19,6 +19,40 @@
     },
     {
       "key": {
+        "uuid": "70fb49a7_e77257b5",
+        "filename": "infra/docker/ubuntu/Dockerfile",
+        "patchSetId": 1
+      },
+      "lineNbr": 4,
+      "author": {
+        "id": 1007990
+      },
+      "writtenOn": "2017-03-26T20:30:00Z",
+      "side": 1,
+      "message": "let\u0027s make it line per package",
+      "revId": "9358a84683cec2082208babf238cfe95d846cc9d",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "e314d8e1_d8e99ce2",
+        "filename": "infra/docker/ubuntu/Dockerfile",
+        "patchSetId": 1
+      },
+      "lineNbr": 8,
+      "author": {
+        "id": 1007990
+      },
+      "writtenOn": "2017-03-26T20:30:00Z",
+      "side": 1,
+      "message": "apt-get update once again?",
+      "revId": "9358a84683cec2082208babf238cfe95d846cc9d",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "9372ec8a_5630b615",
         "filename": "infra/docker/ubuntu/README",
         "patchSetId": 1
