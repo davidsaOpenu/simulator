@@ -84,6 +84,142 @@
       "revId": "9358a84683cec2082208babf238cfe95d846cc9d",
       "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "40ed0a9f_76dbaadc",
+        "filename": "infra/docker/ubuntu/container_aliases",
+        "patchSetId": 1
+      },
+      "lineNbr": 5,
+      "author": {
+        "id": 1007990
+      },
+      "writtenOn": "2017-03-26T20:37:21Z",
+      "side": 1,
+      "message": "jenkins job - we have similar line",
+      "revId": "9358a84683cec2082208babf238cfe95d846cc9d",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "09c80850_3738b3bf",
+        "filename": "infra/docker/ubuntu/entry_point.sh",
+        "patchSetId": 1
+      },
+      "lineNbr": 3,
+      "author": {
+        "id": 1007990
+      },
+      "writtenOn": "2017-03-26T20:37:21Z",
+      "side": 1,
+      "message": "jenkins job has WORKSPACE.",
+      "revId": "9358a84683cec2082208babf238cfe95d846cc9d",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "c4786b59_7106464c",
+        "filename": "infra/docker/ubuntu/entry_point.sh",
+        "patchSetId": 1
+      },
+      "lineNbr": 4,
+      "author": {
+        "id": 1007990
+      },
+      "writtenOn": "2017-03-26T20:37:21Z",
+      "side": 1,
+      "message": "jenkins job checks out 3.16.2 to WORKSPACE",
+      "revId": "9358a84683cec2082208babf238cfe95d846cc9d",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "2fab640e_bfa349eb",
+        "filename": "infra/docker/ubuntu/entry_point.sh",
+        "patchSetId": 1
+      },
+      "lineNbr": 5,
+      "author": {
+        "id": 1007990
+      },
+      "writtenOn": "2017-03-26T20:37:21Z",
+      "side": 1,
+      "message": "again duplication of location",
+      "revId": "9358a84683cec2082208babf238cfe95d846cc9d",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "01a88c91_37633002",
+        "filename": "infra/docker/ubuntu/entry_point.sh",
+        "patchSetId": 1
+      },
+      "lineNbr": 6,
+      "author": {
+        "id": 1007990
+      },
+      "writtenOn": "2017-03-26T20:37:21Z",
+      "side": 1,
+      "message": "ditto",
+      "revId": "9358a84683cec2082208babf238cfe95d846cc9d",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "c2cdf2b5_6681a856",
+        "filename": "infra/docker/ubuntu/entry_point.sh",
+        "patchSetId": 1
+      },
+      "lineNbr": 7,
+      "author": {
+        "id": 1007990
+      },
+      "writtenOn": "2017-03-26T20:37:21Z",
+      "side": 1,
+      "message": "ditto",
+      "revId": "9358a84683cec2082208babf238cfe95d846cc9d",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "13ee8a3b_9ba82846",
+        "filename": "infra/docker/ubuntu/entry_point.sh",
+        "patchSetId": 1
+      },
+      "lineNbr": 28,
+      "author": {
+        "id": 1007990
+      },
+      "writtenOn": "2017-03-26T20:37:21Z",
+      "side": 1,
+      "message": "if no need, let\u0027s remove",
+      "revId": "9358a84683cec2082208babf238cfe95d846cc9d",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "4c03117f_72d837fe",
+        "filename": "infra/docker/ubuntu/entry_point.sh",
+        "patchSetId": 1
+      },
+      "lineNbr": 32,
+      "author": {
+        "id": 1007990
+      },
+      "writtenOn": "2017-03-26T20:37:21Z",
+      "side": 1,
+      "message": "same",
+      "revId": "9358a84683cec2082208babf238cfe95d846cc9d",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
     }
   ]
 }
