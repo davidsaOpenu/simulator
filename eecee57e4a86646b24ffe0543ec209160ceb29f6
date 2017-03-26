@@ -1,0 +1,89 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "ff201732_3640aced",
+        "filename": "infra/docker/centos/Dockerfile",
+        "patchSetId": 1
+      },
+      "lineNbr": 1,
+      "author": {
+        "id": 1007990
+      },
+      "writtenOn": "2017-03-26T20:53:29Z",
+      "side": 1,
+      "message": "same comments as for ubuntu docker",
+      "revId": "eecee57e4a86646b24ffe0543ec209160ceb29f6",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "0f3b40c3_98426cb4",
+        "filename": "infra/docker/centos/Dockerfile",
+        "patchSetId": 1
+      },
+      "lineNbr": 22,
+      "author": {
+        "id": 1007990
+      },
+      "writtenOn": "2017-03-26T20:53:29Z",
+      "side": 1,
+      "message": "this line will be more readable if \u003c chars",
+      "revId": "eecee57e4a86646b24ffe0543ec209160ceb29f6",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "43ff6d82_621b6400",
+        "filename": "infra/docker/centos/README",
+        "patchSetId": 1
+      },
+      "lineNbr": 1,
+      "author": {
+        "id": 1007990
+      },
+      "writtenOn": "2017-03-26T20:53:29Z",
+      "side": 1,
+      "message": "same comments as for ubunto docker patch",
+      "revId": "eecee57e4a86646b24ffe0543ec209160ceb29f6",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "6a4a6ece_1352bd02",
+        "filename": "infra/docker/centos/container_aliases",
+        "patchSetId": 1
+      },
+      "lineNbr": 1,
+      "author": {
+        "id": 1007990
+      },
+      "writtenOn": "2017-03-26T20:53:29Z",
+      "side": 1,
+      "message": "same question as for ubuntu docker patch",
+      "revId": "eecee57e4a86646b24ffe0543ec209160ceb29f6",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "89fc3706_460cf635",
+        "filename": "infra/docker/centos/entry_point.sh",
+        "patchSetId": 1
+      },
+      "lineNbr": 1,
+      "author": {
+        "id": 1007990
+      },
+      "writtenOn": "2017-03-26T20:53:29Z",
+      "side": 1,
+      "message": "same comments as for ubuntu related entry_point.sh file.",
+      "revId": "eecee57e4a86646b24ffe0543ec209160ceb29f6",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    }
+  ]
+}
