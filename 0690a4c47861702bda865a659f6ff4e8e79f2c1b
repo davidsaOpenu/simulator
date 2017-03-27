@@ -1,0 +1,157 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "d8cc931e_0ae31691",
+        "filename": "infra/aliases/.os_aliases",
+        "patchSetId": 2
+      },
+      "lineNbr": 55,
+      "author": {
+        "id": 1007990
+      },
+      "writtenOn": "2017-03-27T17:29:58Z",
+      "side": 1,
+      "message": "spaces in here and in lines 60, 65 and so on",
+      "revId": "0690a4c47861702bda865a659f6ff4e8e79f2c1b",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "f7030eff_533ee081",
+        "filename": "infra/docker/ubuntu/Dockerfile",
+        "patchSetId": 2
+      },
+      "lineNbr": 44,
+      "author": {
+        "id": 1007990
+      },
+      "writtenOn": "2017-03-27T17:29:58Z",
+      "side": 1,
+      "message": "this line is \u003e 80 char",
+      "revId": "0690a4c47861702bda865a659f6ff4e8e79f2c1b",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "74d37dd7_90e1d7ec",
+        "filename": "infra/docker/ubuntu/README",
+        "patchSetId": 2
+      },
+      "lineNbr": 6,
+      "author": {
+        "id": 1007990
+      },
+      "writtenOn": "2017-03-27T17:29:58Z",
+      "side": 1,
+      "message": "tabs",
+      "revId": "0690a4c47861702bda865a659f6ff4e8e79f2c1b",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "57b6c9fc_ed2bcae9",
+        "filename": "infra/docker/ubuntu/README",
+        "patchSetId": 2
+      },
+      "lineNbr": 12,
+      "author": {
+        "id": 1007990
+      },
+      "writtenOn": "2017-03-27T17:29:58Z",
+      "side": 1,
+      "message": "space",
+      "revId": "0690a4c47861702bda865a659f6ff4e8e79f2c1b",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "e42597d9_f6fa4b71",
+        "filename": "infra/docker/ubuntu/README",
+        "patchSetId": 2
+      },
+      "lineNbr": 18,
+      "author": {
+        "id": 1007990
+      },
+      "writtenOn": "2017-03-27T17:29:58Z",
+      "side": 1,
+      "message": "spaces",
+      "revId": "0690a4c47861702bda865a659f6ff4e8e79f2c1b",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "8d0e4dac_77a7cdd1",
+        "filename": "infra/docker/ubuntu/README",
+        "patchSetId": 2
+      },
+      "lineNbr": 24,
+      "author": {
+        "id": 1007990
+      },
+      "writtenOn": "2017-03-27T17:29:58Z",
+      "side": 1,
+      "message": "tabs",
+      "revId": "0690a4c47861702bda865a659f6ff4e8e79f2c1b",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "a64c173d_3abb227e",
+        "filename": "infra/docker/ubuntu/README",
+        "patchSetId": 2
+      },
+      "lineNbr": 25,
+      "author": {
+        "id": 1007990
+      },
+      "writtenOn": "2017-03-27T17:29:58Z",
+      "side": 1,
+      "message": "tabs",
+      "revId": "0690a4c47861702bda865a659f6ff4e8e79f2c1b",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "906cbfcc_19c01e06",
+        "filename": "infra/docker/ubuntu/container_aliases",
+        "patchSetId": 2
+      },
+      "lineNbr": 5,
+      "author": {
+        "id": 1007990
+      },
+      "writtenOn": "2017-03-27T17:29:58Z",
+      "side": 1,
+      "message": "why we need this line here? we have it in jenkins job. am I missing smth?",
+      "revId": "0690a4c47861702bda865a659f6ff4e8e79f2c1b",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "34ae02e8_8168b2fa",
+        "filename": "infra/docker/ubuntu/entry_point.sh",
+        "patchSetId": 2
+      },
+      "lineNbr": 2,
+      "author": {
+        "id": 1007990
+      },
+      "writtenOn": "2017-03-27T17:29:58Z",
+      "side": 1,
+      "message": "plz refer to https://review.gerrithub.io/#/c/352650/1/infra/docker/ubuntu/entry_point.sh",
+      "revId": "0690a4c47861702bda865a659f6ff4e8e79f2c1b",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    }
+  ]
+}
