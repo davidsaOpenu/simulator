@@ -1,0 +1,89 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "fd442428_fac24851",
+        "filename": "infra/docker/centos/README",
+        "patchSetId": 2
+      },
+      "lineNbr": 6,
+      "author": {
+        "id": 1007990
+      },
+      "writtenOn": "2017-03-27T17:34:54Z",
+      "side": 1,
+      "message": ".",
+      "revId": "026b48ec78d0fdc10cdfe3125da1227e7bd02387",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "1f1fecfd_653b62db",
+        "filename": "infra/docker/centos/README",
+        "patchSetId": 2
+      },
+      "lineNbr": 12,
+      "author": {
+        "id": 1007990
+      },
+      "writtenOn": "2017-03-27T17:34:54Z",
+      "side": 1,
+      "message": ".",
+      "revId": "026b48ec78d0fdc10cdfe3125da1227e7bd02387",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "9cc08a25_c164b8ef",
+        "filename": "infra/docker/centos/README",
+        "patchSetId": 2
+      },
+      "lineNbr": 18,
+      "author": {
+        "id": 1007990
+      },
+      "writtenOn": "2017-03-27T17:34:54Z",
+      "side": 1,
+      "message": ".",
+      "revId": "026b48ec78d0fdc10cdfe3125da1227e7bd02387",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "ff61260c_28e3f4c0",
+        "filename": "infra/docker/centos/README",
+        "patchSetId": 2
+      },
+      "lineNbr": 19,
+      "author": {
+        "id": 1007990
+      },
+      "writtenOn": "2017-03-27T17:34:54Z",
+      "side": 1,
+      "message": ".",
+      "revId": "026b48ec78d0fdc10cdfe3125da1227e7bd02387",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "70e971ae_719abeea",
+        "filename": "infra/docker/centos/README",
+        "patchSetId": 2
+      },
+      "lineNbr": 20,
+      "author": {
+        "id": 1007990
+      },
+      "writtenOn": "2017-03-27T17:34:54Z",
+      "side": 1,
+      "message": "plz go over all the files in this and other patches and see if you have TABS \"\u003e\u003e\" or spaces \"higlighted red\"",
+      "revId": "026b48ec78d0fdc10cdfe3125da1227e7bd02387",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    }
+  ]
+}
