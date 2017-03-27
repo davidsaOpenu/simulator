@@ -1,0 +1,38 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "4a252d3b_1b4b8f06",
+        "filename": "ThreadControl/ThreadControl.c",
+        "patchSetId": 2
+      },
+      "lineNbr": 1,
+      "author": {
+        "id": 1007990
+      },
+      "writtenOn": "2017-03-27T04:38:07Z",
+      "side": 1,
+      "message": "same: tabs should be replaced by spaces",
+      "revId": "e9e2f0d17434e3ddae55d7ea7e84801f0c7c98ad",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "0231ef8a_cd75d4b7",
+        "filename": "ThreadControl/ThreadControl.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 22,
+      "author": {
+        "id": 1007990
+      },
+      "writtenOn": "2017-03-27T04:38:07Z",
+      "side": 1,
+      "message": "plz remove tabs in ll 22-24. use spaces instead.",
+      "revId": "e9e2f0d17434e3ddae55d7ea7e84801f0c7c98ad",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    }
+  ]
+}
