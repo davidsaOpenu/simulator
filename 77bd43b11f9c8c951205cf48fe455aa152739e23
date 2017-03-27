@@ -1,0 +1,38 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "5f7e3955_fb791314",
+        "filename": "infra/docker/centos/container_aliases",
+        "patchSetId": 1
+      },
+      "lineNbr": 2,
+      "author": {
+        "id": 1007990
+      },
+      "writtenOn": "2017-03-27T04:34:11Z",
+      "side": 1,
+      "message": "nit: TAQBS in lines 2-6",
+      "revId": "77bd43b11f9c8c951205cf48fe455aa152739e23",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "6e09d806_f6a66637",
+        "filename": "infra/docker/ubuntu/container_aliases",
+        "patchSetId": 1
+      },
+      "lineNbr": 2,
+      "author": {
+        "id": 1007990
+      },
+      "writtenOn": "2017-03-27T04:34:11Z",
+      "side": 1,
+      "message": "nit: tabs",
+      "revId": "77bd43b11f9c8c951205cf48fe455aa152739e23",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    }
+  ]
+}
