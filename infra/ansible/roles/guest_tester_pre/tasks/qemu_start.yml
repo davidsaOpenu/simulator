@@ -79,21 +79,30 @@
 - name: compile kernel and modules
   command: sshpass -p esd ssh -o "StrictHostKeyChecking=no" -p 2222 esd@127.0.0.1 "{{ item }}"
   with_items:
-    - 'cd /home/esd/3.16.2/linux-3.16.2 && make -j 4' 
+    - 'cd /home/esd/3.16.2/linux-3.16.2 && make -j 4'
     - 'cd /home/esd/3.16.2/linux-3.16.2 && make modules -j 4'
     - 'cd /home/esd/3.16.2/linux-3.16.2 && echo esd | sudo -S make modules_install'
     - 'cd /home/esd/3.16.2/linux-3.16.2 && echo esd | sudo -S make install'
-
 
 - name: after compilation
   pause: prompt='Press return to continue. Press Ctrl+c and then "a" to abort'
   when: debug_guest_tester_pre == True
 
+
+- name: copy initrd.img-3.16.2 from the vm to the host
+  shell: sshpass -p esd scp -o "StrictHostKeyChecking=no" -P 2222  esd@127.0.0.1:/boot/initrd.img-3.16.2 .
+  args:
+    chdir: "{{ dest }}/"
+
+- name: copy vmlinuz-3.16.2 from the vm to the host
+  shell: sshpass -p esd scp -o "StrictHostKeyChecking=no" -P 2222  esd@127.0.0.1:/boot/vmlinuz-3.16.2 .
+  args:
+    chdir: "{{ dest }}/"
+
 - name: halt safe mode kernel
   command: sshpass -p esd ssh -o "StrictHostKeyChecking=no" -p 2222 root@127.0.0.1 "{{ item }}"
   with_items:
     - 'halt'
-
 
 # TODO: next 3 tasks are duplications role/qemu_stop
 - name: get old qemu pid
@@ -117,11 +126,8 @@
   when: qemu_pid_task.stdout != ""
   tags: qemu
 
-
-
-
 - name: start guest with new kernel
-  shell: "../x86_64-softmmu/qemu-system-x86_64 -m {{memory}} -smp {{smp}} -hda '{{hda_img}}' -device nvme -redir tcp:{{guest_ssh_port}}::22 -nographic -vnc :0  -daemonize -pidfile '{{qemu_pid_file}}' -machine {{qemu_machine}}"
+  shell: "../x86_64-softmmu/qemu-system-x86_64 -m {{memory}} -smp {{smp}} -hda '{{hda_img}}' -device nvme -redir tcp:{{guest_ssh_port}}::22 -nographic -vnc :0  -daemonize -pidfile '{{qemu_pid_file}}' -machine {{qemu_machine}} -kernel '{{dest}}/vmlinuz-3.16.2' -initrd '{{dest}}/initrd.img-3.16.2' -append 'BOOT_IMAGE=/boot/vmlinuz-3.16.2 root=UUID=063018ec-674c-4c3e-a976-ac4fa950864f ro'"
   args:
     chdir: "{{ dest }}/eVSSIM/QEMU/hw"
   tags: qemu
