@@ -6,8 +6,8 @@ RUN apt-get update && apt-get -y install \
   vim \
   wget \
   build-essential \
-  gcc-4.6 c\
-  make \
+  gcc-4.6 \
+  cmake \
   g++ \
   unzip \
   libsqlite3-dev \
