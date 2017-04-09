@@ -1,7 +1,3 @@
 run-ansible(){
-    CWD=$PWD
-    cd /code/simulator/infra/ansible
-    ansible --version
-    ansible-playbook  -e 'short_mode=true' -i hosts playbooks/run_full_setup.yml -vvvv --extra-vars dest=/code/simulator --extra-vars workspace=/code/projects --extra-vars=@global_vars.yml --extra-vars=@centos.yml
-    cd $CWD
+    /script/run-ansible
 }

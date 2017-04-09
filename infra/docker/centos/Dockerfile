@@ -55,6 +55,7 @@ RUN wget https://github.com/rizsotto/Bear/archive/master.zip -O $BEAR_ZIP_FILENA
   sed  -i -e "s/env\ python/env python2.7/g" /usr/local/bin/bear
 
 ADD container_aliases /root/.bash_aliases
+ADD run-ansible /script/run-ansible
 ADD entry_point.sh /script/entry_point.sh
 WORKDIR /code
 ENTRYPOINT ["/script/entry_point.sh"]
