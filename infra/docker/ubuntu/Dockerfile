@@ -45,6 +45,7 @@ RUN wget -qO- https://github.com/google/googletest/archive/release-1.7.0.tar.gz 
 RUN mkdir -p $GTEST_HOME/gtest/lib && cd $GTEST_HOME/gtest/lib && cmake .. && make
 
 ADD container_aliases /root/.bash_aliases
+ADD run-ansible /script/run-ansible
 ADD entry_point.sh /script/entry_point.sh
 WORKDIR /code
 ENTRYPOINT ["/script/entry_point.sh"]
