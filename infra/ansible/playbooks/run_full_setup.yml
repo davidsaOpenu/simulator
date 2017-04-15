@@ -1,3 +1,4 @@
+---
 - name: configure prerequisites
   hosts: [host_testers, guest_testers]
   roles:
@@ -25,6 +26,15 @@
     - guest_tester
   tags: guest
 
+#- name:  stop
+#  hosts: localhost 
+#  gather_facts: False
+#  tasks:
+#    - name: stop here
+#      fail:
+#        msg: "STORAGE_STRATEGY_OBJECT wasnt exercised"
+# TODO  stop here if dev-option == run setup and tests for STORAGE_STRATEGY_SECTOR
+
 - name: Propely shutting down guest OS
   gather_facts: False
   max_fail_percentage: 100
@@ -33,13 +43,13 @@
     - guest_halt
   tags: guest
 
-- name: prepare for guest tests with STORAGE_STRATEGY_OBJECT
+- name: prepare for guest tests with OBJECT_STRATEGY_OBJECT
   hosts: guest_testers
   roles:
     - { role: guest_tester_pre, ssd_storage_strategy: 2 }
   tags: guest
 
-- name: perform guest tests with STORAGE_STRATEGY_OBJECT
+- name: perform guest tests with OBJECT_STRATEGY_OBJECT
   hosts: guests
   roles:
     - guest_tester
