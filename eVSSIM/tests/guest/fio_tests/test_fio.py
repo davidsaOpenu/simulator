@@ -19,14 +19,13 @@ class TestFio:
 
     def test_run_short_mode_comparison(self):
         assert 0 == os.system("./perf_test_run_short.sh")
-
+    '''
     def test_run_recording(self):
         assert 0 == os.system("./perf_test_rec.sh")
 
     def test_run_comparison(self):
         assert 0 == os.system("./perf_test_run.sh")
-
+    '''
     def test_run_surface_scan(self):
         assert 0 == os.system("fio ./fio_jobs/surface-scan.fio")
-
 
