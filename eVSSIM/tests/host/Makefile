@@ -40,6 +40,8 @@ distclean: clean
         logging_rt_analyzer.h logging_rt_analyzer.c
 
 mklink:
+	ln -sf $(VSSIM_HOME)/SSD_MODULE/ssd.h
+	ln -sf $(VSSIM_HOME)/SSD_MODULE/ssd.c
 	ln -sf $(VSSIM_HOME)/SSD_MODULE/ssd_io_manager.h
 	ln -sf $(VSSIM_HOME)/SSD_MODULE/ssd_io_manager.c
 	ln -sf $(VSSIM_HOME)/SSD_MODULE/ssd_log_manager.h
