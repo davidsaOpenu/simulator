@@ -304,7 +304,7 @@ hw-obj-$(CONFIG_VSSIM) += vssim_config_manager.o
 hw-obj-$(CONFIG_VSSIM) += ftl.o ftl_mapping_manager.o ftl_inverse_mapping_manager.o
 hw-obj-$(CONFIG_VSSIM) += ftl_obj_strategy.o ftl_sect_strategy.o
 hw-obj-$(CONFIG_VSSIM) += ftl_gc_manager.o ftl_perf_manager.o
-hw-obj-$(CONFIG_VSSIM) += ssd_log_manager.o ssd_io_manager.o
+hw-obj-$(CONFIG_VSSIM) += ssd_log_manager.o ssd_io_manager.o ssd.o
 
 ######################################################################
 # libdis

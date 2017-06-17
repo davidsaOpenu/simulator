@@ -77,6 +77,11 @@ ftl_ret_val _FTL_READ_SECT(uint64_t sector_nb, unsigned int length)
 	return ret;
 }
 
+ftl_ret_val _FTL_READ(uint64_t sector_nb, unsigned int offset, unsigned int length)
+{
+    return _FTL_READ_SECT(sector_nb, length);
+}
+
 ftl_ret_val _FTL_WRITE(uint64_t sector_nb, unsigned int offset, unsigned int length)
 {
     return _FTL_WRITE_SECT(sector_nb, length);

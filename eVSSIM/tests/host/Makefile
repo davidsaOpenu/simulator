@@ -34,6 +34,8 @@ distclean: clean
         	ftl_perf_manager.c vssim_config_manager.h vssim_config_manager.c ssd_monitor uthash.h
 
 mklink:
+	ln -sf $(VSSIM_HOME)/SSD_MODULE/ssd.h
+	ln -sf $(VSSIM_HOME)/SSD_MODULE/ssd.c
 	ln -sf $(VSSIM_HOME)/SSD_MODULE/ssd_io_manager.h
 	ln -sf $(VSSIM_HOME)/SSD_MODULE/ssd_io_manager.c
 	ln -sf $(VSSIM_HOME)/SSD_MODULE/ssd_log_manager.h
