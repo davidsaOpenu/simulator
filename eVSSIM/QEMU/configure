@@ -3525,8 +3525,8 @@ if [ "$source_path" != `pwd` ]; then
 fi
 
 if test "$vssim" = "yes" ; then
-#    symlink "$source_path/../SSD_MODULE/ssd.h" "$source_path/hw/ssd.h"
-#    symlink "$source_path/../SSD_MODULE/ssd.c" "$source_path/hw/ssd.c"
+    symlink "$source_path/../SSD_MODULE/ssd.h" "$source_path/hw/ssd.h"
+    symlink "$source_path/../SSD_MODULE/ssd.c" "$source_path/hw/ssd.c"
     symlink "$source_path/../SSD_MODULE/ssd_io_manager.h" "$source_path/hw/ssd_io_manager.h"
     symlink "$source_path/../SSD_MODULE/ssd_io_manager.c" "$source_path/hw/ssd_io_manager.c"
     symlink "$source_path/../SSD_MODULE/ssd_log_manager.h" "$source_path/hw/ssd_log_manager.h"
