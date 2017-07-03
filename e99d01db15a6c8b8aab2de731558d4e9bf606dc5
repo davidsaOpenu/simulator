@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "d1d09839_8aa6bb76",
+        "filename": "eVSSIM/tests/guest/fs_tests/test_fs.py",
+        "patchSetId": 1
+      },
+      "lineNbr": 29,
+      "author": {
+        "id": 1007990
+      },
+      "writtenOn": "2017-07-03T17:29:55Z",
+      "side": 1,
+      "message": "It\u0027s rather preferable to define a range in one place. Alternatively, diff the directories recursively (-r).",
+      "revId": "e99d01db15a6c8b8aab2de731558d4e9bf606dc5",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    }
+  ]
+}
