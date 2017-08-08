@@ -14,6 +14,8 @@
  * limitations under the License.
  */
 
+// TODO: rename this file to `log_mgr_tests.cc`!
+
 extern "C" {
 
 #include "common.h"
