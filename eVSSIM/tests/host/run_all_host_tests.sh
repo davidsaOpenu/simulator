@@ -15,8 +15,7 @@ if [ $CURR_RESULT -ne 0 ]; then
 fi
 
 # run log manager tests
-# (TODO: s/./account_mgr_tests/./log_mgr_tests)
-valgrind --leak-check=full --error-exitcode=2 ./account_mgr_tests
+valgrind --leak-check=full --error-exitcode=2 ./log_mgr_tests
 CURR_RESULT=$?
 if [ $CURR_RESULT -ne 0 ]; then
   RESULT=1
