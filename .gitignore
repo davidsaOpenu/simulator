@@ -75,11 +75,18 @@ eVSSIM/QEMU/hw/ssd_monitor
 
 # unit test files
 eVSSIM/tests/host/test_*.txt
+eVSSIM/tests/host/log_mgr_tests
 eVSSIM/tests/host/unit_tests
 eVSSIM/tests/host/sector_tests
 eVSSIM/tests/host/object_tests
 eVSSIM/tests/host/data
 eVSSIM/tests/host/common.h
+eVSSIM/tests/host/logging_rt_analyzer.h
+eVSSIM/tests/host/logging_rt_analyzer.c
+eVSSIM/tests/host/logging_parser.h
+eVSSIM/tests/host/logging_parser.c
+eVSSIM/tests/host/logging_backend.h
+eVSSIM/tests/host/logging_backend.c
 eVSSIM/tests/host/ftl.h
 eVSSIM/tests/host/ftl.c
 eVSSIM/tests/host/ftl_gc_manager.h
