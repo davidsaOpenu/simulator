@@ -14,31 +14,27 @@
  * limitations under the License.
  */
 
-extern "C" {
+#ifndef __RT_ANALYZER_SUBSCRIBER_H__
+#define __RT_ANALYZER_SUBSCRIBER_H__
 
-#include "common.h"
+
+#include "logging_rt_analyzer.h"
+
+
+namespace rt_subscriber {
+    /*
+     * Write the different logs to the logger previously subscribed to
+     */
+    void write();
+    /*
+     * Read the logs from the logger using rt_log_analyzer_loop
+     */
+    void read();
+    /*
+     * Subscribe to the analyzer given, and save it for future use
+     */
+    void subscribe(RTLogAnalyzer* analyzer);
 }
-bool g_ci_mode = false;
 
-#define GTEST_DONT_DEFINE_FAIL 1
-#include <gtest/gtest.h>
 
-#include <fstream>
-#include <cstdio>
-#include <cstdlib>
-
-int main(int argc, char **argv) {
-    for (int i = 0; i < argc; i++) {
-        if (strcmp(argv[i], "--ci") == 0) {
-            g_ci_mode = true;
-        }
-    }
-    testing::InitGoogleTest(&argc, argv);
-    return RUN_ALL_TESTS();
-}
-
-using namespace std;
-
-namespace {
-
-} //namespace
+#endif
