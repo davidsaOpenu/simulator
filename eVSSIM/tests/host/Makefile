@@ -7,13 +7,16 @@ VSSIM_OBJ = vssim_config_manager.o \
 
 CFLAGS = -I/opt/gtest/include -I$(VSSIM_HOME)/osc-osd -I$(VSSIM_HOME)/osc-osd/osd-target -I$(VSSIM_HOME)/QEMU -g -DGTEST -DCOMPLIANCE_TESTS -L/opt/gtest/lib -L$(VSSIM_HOME)/osc-osd/osd-util -L$(VSSIM_HOME)/osc-osd/osd-target
 
-all: sector_tests object_tests
+all: sector_tests object_tests account_mgr_tests
 
 sector_tests: sector_tests.o $(VSSIM_OBJ)
-	g++ $(CFLAGS) -Wall -o sector_tests sector_tests.o $(VSSIM_OBJ) -lpthread -lgtest -lgtest_main -losdutil -losdtgt -lsqlite3 
+	g++ $(CFLAGS) -Wall -o sector_tests sector_tests.o $(VSSIM_OBJ) -lpthread -lgtest -lgtest_main -losdutil -losdtgt -lsqlite3
 
 object_tests: object_tests.o $(VSSIM_OBJ)
 	g++ $(CFLAGS) -Wall -o object_tests object_tests.o $(VSSIM_OBJ) -Wl,-Bstatic -L$(VSSIM_HOME)/osc-osd/osd-util -L$(VSSIM_HOME)/osc-osd/osd-target -losdutil -losdtgt -Wl,-Bdynamic -lsqlite3 -lm -lpthread -lgtest -lgtest_main
+
+account_mgr_tests: account_mgr_tests.o $(VSSIM_OBJ)
+	g++ $(CFLAGS) -Wall -o account_mgr_tests account_mgr_tests.o $(VSSIM_OBJ) -lpthread -lgtest -lgtest_main -losdutil -losdtgt -lsqlite3
 
 %.o: %.cc
 	g++ -Wall $(CFLAGS) -c $<
@@ -24,7 +27,7 @@ object_tests: object_tests.o $(VSSIM_OBJ)
 .PHONY: clean distclean mklink
 
 clean:
-	rm -f object_tests sector_tests object_tests.o sector_tests.o $(VSSIM_OBJ) data/*
+	rm -f object_tests sector_tests object_tests.o sector_tests.o account_mgr_tests account_mgr_tests.o $(VSSIM_OBJ) data/*
 
 distclean: clean
 	rm -f   ssd_io_manager.h ssd_io_manager.c ssd_log_manager.h ssd_log_manager.c ssd_util.h \
