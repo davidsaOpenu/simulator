@@ -1,0 +1,89 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "f9d50562_034ca682",
+        "filename": "eVSSIM/LOG_MGR/logging_backend.h",
+        "patchSetId": 32
+      },
+      "lineNbr": 24,
+      "author": {
+        "id": 1007990
+      },
+      "writtenOn": "2017-08-15T06:19:59Z",
+      "side": 1,
+      "message": "Let\u0027s use doxygen in all *.h files\n\nhttp://www.stack.nl/~dimitri/doxygen/manual/commands.html#cmdtypedef",
+      "revId": "5c51b8deab074ab65ed64d86c590061f0a3f8897",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "5e3d83a2_46ac5128",
+        "filename": "eVSSIM/LOG_MGR/logging_backend.h",
+        "patchSetId": 32
+      },
+      "lineNbr": 30,
+      "author": {
+        "id": 1007990
+      },
+      "writtenOn": "2017-08-15T06:19:59Z",
+      "side": 1,
+      "message": "http://www.stack.nl/~dimitri/doxygen/manual/commands.html#cmdtypedef",
+      "revId": "5c51b8deab074ab65ed64d86c590061f0a3f8897",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "905c2464_4dbd6fdc",
+        "filename": "eVSSIM/LOG_MGR/logging_backend.h",
+        "patchSetId": 32
+      },
+      "lineNbr": 34,
+      "author": {
+        "id": 1007990
+      },
+      "writtenOn": "2017-08-15T06:19:59Z",
+      "side": 1,
+      "message": "/** @struct Logger\n *  @brief This structure blah blah blah...\n */\n/** @var Logger::buffer \n *  Member \u0027buffer\u0027 contains...\n */\n/** @var Logger::head \n *  Member \u0027head\u0027 contains...\n */",
+      "revId": "5c51b8deab074ab65ed64d86c590061f0a3f8897",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "0cc22c3b_7ef51813",
+        "filename": "eVSSIM/LOG_MGR/logging_backend.h",
+        "patchSetId": 32
+      },
+      "lineNbr": 46,
+      "author": {
+        "id": 1007990
+      },
+      "writtenOn": "2017-08-15T06:19:59Z",
+      "side": 1,
+      "message": "Lets switch from the freestyle to to the doxygen one.\n\nhttps://www.stack.nl/~dimitri/doxygen/manual/docblocks.html\n\nE.g. \n \n/**\n * Create a new logger ...\n * @param int $number\n *   Description of this parameter\n * @see Logger\n * @return Logger *\n *   Description of the return value\n */",
+      "revId": "5c51b8deab074ab65ed64d86c590061f0a3f8897",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "456187d8_b0394a1d",
+        "filename": "eVSSIM/LOG_MGR/logging_backend.h",
+        "patchSetId": 32
+      },
+      "lineNbr": 53,
+      "author": {
+        "id": 1007990
+      },
+      "writtenOn": "2017-08-15T06:19:59Z",
+      "side": 1,
+      "message": "Using doxigen streamlines the process of description of each parameter",
+      "revId": "5c51b8deab074ab65ed64d86c590061f0a3f8897",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    }
+  ]
+}
