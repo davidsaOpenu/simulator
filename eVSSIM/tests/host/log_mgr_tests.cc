@@ -22,28 +22,42 @@ extern "C" {
 #include "logging_rt_analyzer.h"
 }
 bool g_ci_mode = false;
+bool g_monitor_mode = false;
 
 #include "rt_analyzer_subscriber.h"
+#include "monitor_test.h"
 
 #include <gtest/gtest.h>
 
 #include <fstream>
 #include <cstdio>
 #include <cstdlib>
-
-int main(int argc, char **argv) {
-    for (int i = 0; i < argc; i++) {
-        if (strcmp(argv[i], "--ci") == 0) {
-            g_ci_mode = true;
-        }
-    }
-    testing::InitGoogleTest(&argc, argv);
-    return RUN_ALL_TESTS();
-}
+#include <pthread.h>
 
 using namespace std;
 
-namespace {
+namespace log_mgr_tests {
+
+    class LogMgrTestEnv : public ::testing::Environment {
+        public:
+            virtual void SetUp() {
+                if (g_monitor_mode) {
+                    pthread_create(&_monitor, NULL, start_monitor, NULL);
+                }
+            }
+
+            virtual void TearDown() {
+                if (g_monitor_mode) {
+                    printf("Waiting for monitor to close...\n");
+                    pthread_join(_monitor, NULL);
+                    printf("Monitor closed\n");
+                }
+            }
+        protected:
+            pthread_t _monitor;
+    };
+    LogMgrTestEnv* testEnv;
+
     class LogMgrUnitTest : public ::testing::TestWithParam<size_t> {
         public:
             const static char TEST_STRING[];
@@ -178,51 +192,51 @@ namespace {
     /* Unit tests for the different logs */
 
     /**
-     * Test writing and reading a physical page read log
+     * Test writing and reading a physical cell read log
      */
-    TEST_P(LogMgrUnitTest, PhysicalPageRead) {
-        PhysicalPageReadLog log = {
+    TEST_P(LogMgrUnitTest, PhysicalCellRead) {
+        PhysicalCellReadLog log = {
                 .channel = 3,
                 .block = 80,
                 .page = 123
         };
-        LOG_PHYSICAL_PAGE_READ(_logger, log);
-        ASSERT_EQ(PHYSICAL_PAGE_READ_LOG_UID, next_log_type(_logger));
-        PhysicalPageReadLog res = NEXT_PHYSICAL_PAGE_READ_LOG(_logger);
+        LOG_PHYSICAL_CELL_READ(_logger, log);
+        ASSERT_EQ(PHYSICAL_CELL_READ_LOG_UID, next_log_type(_logger));
+        PhysicalCellReadLog res = NEXT_PHYSICAL_CELL_READ_LOG(_logger);
         ASSERT_EQ(log.channel, res.channel);
         ASSERT_EQ(log.block, res.block);
         ASSERT_EQ(log.page, res.page);
     }
 
     /**
-     * Test writing and reading a physical page write log
+     * Test writing and reading a physical cell program log
      */
-    TEST_P(LogMgrUnitTest, PhysicalPageWrite) {
-        PhysicalPageWriteLog log = {
+    TEST_P(LogMgrUnitTest, PhysicalCellProgram) {
+        PhysicalCellProgramLog log = {
                 .channel = 15,
                 .block = 63,
                 .page = 50
         };
-        LOG_PHYSICAL_PAGE_WRITE(_logger, log);
-        ASSERT_EQ(PHYSICAL_PAGE_WRITE_LOG_UID, next_log_type(_logger));
-        PhysicalPageWriteLog res = NEXT_PHYSICAL_PAGE_WRITE_LOG(_logger);
+        LOG_PHYSICAL_CELL_PROGRAM(_logger, log);
+        ASSERT_EQ(PHYSICAL_CELL_PROGRAM_LOG_UID, next_log_type(_logger));
+        PhysicalCellProgramLog res = NEXT_PHYSICAL_CELL_PROGRAM_LOG(_logger);
         ASSERT_EQ(log.channel, res.channel);
         ASSERT_EQ(log.block, res.block);
         ASSERT_EQ(log.page, res.page);
     }
 
     /**
-     * Test writing and reading a logical page write log
+     * Test writing and reading a logical cell program log
      */
-    TEST_P(LogMgrUnitTest, LogicalPageWrite) {
-        LogicalPageWriteLog log = {
+    TEST_P(LogMgrUnitTest, LogicalCellProgram) {
+        LogicalCellProgramLog log = {
                 .channel = 2,
                 .block = 260,
                 .page = 3
         };
-        LOG_LOGICAL_PAGE_WRITE(_logger, log);
-        ASSERT_EQ(LOGICAL_PAGE_WRITE_LOG_UID, next_log_type(_logger));
-        LogicalPageWriteLog res = NEXT_LOGICAL_PAGE_WRITE_LOG(_logger);
+        LOG_LOGICAL_CELL_PROGRAM(_logger, log);
+        ASSERT_EQ(LOGICAL_CELL_PROGRAM_LOG_UID, next_log_type(_logger));
+        LogicalCellProgramLog res = NEXT_LOGICAL_CELL_PROGRAM_LOG(_logger);
         ASSERT_EQ(log.channel, res.channel);
         ASSERT_EQ(log.block, res.block);
         ASSERT_EQ(log.page, res.page);
@@ -251,8 +265,25 @@ namespace {
     TEST_P(LogMgrUnitTest, BasicRTAnalyzer) {
         RTLogAnalyzer* analyzer = rt_log_analyzer_init(_logger);
         rt_subscriber::subscribe(analyzer);
+        if (g_monitor_mode)
+            rt_log_analyzer_subscribe(analyzer, (MonitorHook) update_stats);
         rt_subscriber::write();
         rt_subscriber::read();
         rt_log_analyzer_free(analyzer, 0);
     }
 } //namespace
+
+
+int main(int argc, char **argv) {
+    for (int i = 0; i < argc; i++) {
+        if (strcmp(argv[i], "--ci") == 0) {
+            g_ci_mode = true;
+        }
+        else if (strcmp(argv[i], "--show-monitor") == 0) {
+            g_monitor_mode = true;
+        }
+    }
+    testing::InitGoogleTest(&argc, argv);
+    log_mgr_tests::testEnv = (log_mgr_tests::LogMgrTestEnv*) testing::AddGlobalTestEnvironment(new log_mgr_tests::LogMgrTestEnv);
+    return RUN_ALL_TESTS();
+}

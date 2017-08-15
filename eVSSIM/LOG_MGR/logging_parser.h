@@ -54,56 +54,56 @@ int next_log_type(Logger* logger);
 
 
 /**
- * A log of a physical page read
+ * A log of a physical cell read
  */
 typedef struct {
     /**
-     * Member 'channel' is the channel number of the page read
+     * Member 'channel' is the channel number of the cell read
      */
     unsigned int channel;
     /**
-     * Member 'block' is the block number of the page read
+     * Member 'block' is the block number of the cell read
      */
     unsigned int block;
     /**
-     * Member 'page' is the page number of the page read
+     * Member 'page' is the page number of the cell read
      */
     unsigned int page;
-} PhysicalPageReadLog;
+} PhysicalCellReadLog;
 /**
- * A log of a physical page write
+ * A log of a physical cell program
  */
 typedef struct {
     /**
-     * Member 'channel' is the channel number of the page written
+     * Member 'channel' is the channel number of the programmed cell
      */
     unsigned int channel;
     /**
-     * Member 'block' is the block number of the page written
+     * Member 'block' is the block number of the programmed cell
      */
     unsigned int block;
     /**
-     * Member 'page' is the page number of the page written
+     * Member 'page' is the page number of the programmed cell
      */
     unsigned int page;
-} PhysicalPageWriteLog;
+} PhysicalCellProgramLog;
 /**
- * A log of a logical page write
+ * A log of a logical cell program
  */
 typedef struct {
     /**
-     * Member 'channel' is the channel number of the page written
+     * Member 'channel' is the channel number of the programmed cell
      */
     unsigned int channel;
     /**
-     * Member 'block' is the block number of the page written
+     * Member 'block' is the block number of the programmed cell
      */
     unsigned int block;
     /**
-     * Member 'page' is the page number of the page written
+     * Member 'page' is the page number of the programmed cell
      */
     unsigned int page;
-} LogicalPageWriteLog;
+} LogicalCellProgramLog;
 /**
  * A log of garbage collection
  */
@@ -120,9 +120,9 @@ typedef struct {
  * @param APPLIER the macro which is going to be applied to all the log types
  */
 #define _LOGS_DEFINITIONS(APPLIER)  \
-    APPLIER(PhysicalPageReadLog, PHYSICAL_PAGE_READ)    \
-    APPLIER(PhysicalPageWriteLog, PHYSICAL_PAGE_WRITE)  \
-    APPLIER(LogicalPageWriteLog, LOGICAL_PAGE_WRITE)    \
+    APPLIER(PhysicalCellReadLog, PHYSICAL_CELL_READ)    \
+    APPLIER(PhysicalCellProgramLog, PHYSICAL_CELL_PROGRAM)  \
+    APPLIER(LogicalCellProgramLog, LOGICAL_CELL_PROGRAM)    \
     APPLIER(GarbageCollectionLog, GARBAGE_COLLECTION)
 
 

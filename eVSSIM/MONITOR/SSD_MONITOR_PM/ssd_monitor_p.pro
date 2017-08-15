@@ -8,4 +8,4 @@ INCLUDEPATH += .
 # Input
 HEADERS += form1.ui.h
 INTERFACES += form1.ui
-SOURCES += main.cpp
+SOURCES += main.cpp monitor_test.cpp

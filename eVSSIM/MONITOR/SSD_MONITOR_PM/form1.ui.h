@@ -10,6 +10,7 @@
 ** destructor.
 *****************************************************************************/
 #include "form1.h"
+#include "monitor_test.h"
 #include <qfile.h>
 #include <qfiledialog.h>
 #include <qdir.h>
@@ -18,6 +19,14 @@
 #include <stdio.h>
 
 #define REG_IS_WRITE 706
+
+#define SET_TEXT(obj, str, var, buf)    \
+    do {                                \
+        sprintf(buf, str, var);         \
+        obj->setText(buf);              \
+    } while(0)
+#define SET_TEXT_I(obj, var, buf) SET_TEXT(obj, "%d", var, buf)
+#define SET_TEXT_F(obj, var, buf) SET_TEXT(obj, "%0.3f", var, buf)
 
 long long int get_usec(void){
 	long long int t = 0;
@@ -283,3 +292,33 @@ void Form1::onTimer()
     txtTimeProg->setText(sz_timer);
 }
 
+void Form1::updateStats(SSDStatistics stats) {
+    char szTemp[128];
+
+    WrittenCorrectCount = WriteSecCount = WriteCount = stats.write_count;
+    SET_TEXT_I(txtWriteCount, stats.write_count, szTemp);
+    txtWriteSectorCount->setText(szTemp);
+    txtWrittenBlockCount->setText(szTemp);
+
+
+    SET_TEXT_F(txtWriteSpeed, stats.write_speed, szTemp);
+
+    ReadSecCount = ReadCount = stats.read_count;
+    SET_TEXT_I(txtReadCount, stats.read_count, szTemp);
+    txtReadSectorCount->setText(szTemp);
+
+    SET_TEXT_F(txtReadSpeed, stats.read_speed, szTemp);
+
+    GCStarted = GC_NB = stats.garbage_collection_count;
+    SET_TEXT_I(txtGarbageCollectionNB, stats.garbage_collection_count, szTemp);
+    txtGCStart->setText(szTemp);
+
+    WriteAmpCount = stats.write_amplification;
+    SET_TEXT_F(txtWriteAmpCount, stats.write_amplification, szTemp);
+
+    SET_TEXT_F(txtSsdUtil, stats.utilization, szTemp);
+}
+
+void Form1::showEvent(QShowEvent*) {
+    Instance = this;
+}
