@@ -25,15 +25,19 @@ RTLogAnalyzer* rt_log_analyzer_init(Logger* logger) {
     if (analyzer == NULL)
         return NULL;
     analyzer->logger = logger;
-    analyzer->hook = NULL;
+    unsigned int i;
+    for (i = 0; i < MAX_SUBSCRIBERS; i++)
+        analyzer->hooks[i] = NULL;
+    analyzer->subscribers_count = 0;
 
     return analyzer;
 }
 
-MonitorHook rt_log_analyzer_subscribe(RTLogAnalyzer* analyzer, MonitorHook hook) {
-    MonitorHook old_hook = analyzer->hook;
-    analyzer->hook = hook;
-    return old_hook;
+int rt_log_analyzer_subscribe(RTLogAnalyzer* analyzer, MonitorHook hook) {
+    if (analyzer->subscribers_count >= MAX_SUBSCRIBERS)
+        return 1;
+    analyzer->hooks[analyzer->subscribers_count++] = hook;
+    return 0;
 }
 
 void rt_log_analyzer_loop(RTLogAnalyzer* analyzer, int max_logs) {
@@ -64,16 +68,16 @@ void rt_log_analyzer_loop(RTLogAnalyzer* analyzer, int max_logs) {
 
         // update the statistics according to the log
         switch (log_type) {
-            case PHYSICAL_PAGE_READ_LOG_UID:
-                NEXT_PHYSICAL_PAGE_READ_LOG(analyzer->logger);
+            case PHYSICAL_CELL_READ_LOG_UID:
+                NEXT_PHYSICAL_CELL_READ_LOG(analyzer->logger);
                 stats.read_count++;
                 break;
-            case PHYSICAL_PAGE_WRITE_LOG_UID:
-                NEXT_PHYSICAL_PAGE_WRITE_LOG(analyzer->logger);
+            case PHYSICAL_CELL_PROGRAM_LOG_UID:
+                NEXT_PHYSICAL_CELL_PROGRAM_LOG(analyzer->logger);
                 stats.write_count++;
                 break;
-            case LOGICAL_PAGE_WRITE_LOG_UID:
-                NEXT_LOGICAL_PAGE_WRITE_LOG(analyzer->logger);
+            case LOGICAL_CELL_PROGRAM_LOG_UID:
+                NEXT_LOGICAL_CELL_PROGRAM_LOG(analyzer->logger);
                 logical_write_count++;
                 break;
             case GARBAGE_COLLECTION_LOG_UID:
@@ -86,9 +90,10 @@ void rt_log_analyzer_loop(RTLogAnalyzer* analyzer, int max_logs) {
         else
             stats.write_amplification = ((double) stats.write_count) / logical_write_count;
 
-        // call the hook if present
-        if (analyzer->hook)
-            analyzer->hook(stats);
+        // call present hooks
+        unsigned int i;
+        for (i = 0; i < analyzer->subscribers_count; i++)
+            analyzer->hooks[i](stats);
 
         // update `logs_read` only if necessary (in order to avoid overflow)
         if (max_logs >= 0)
