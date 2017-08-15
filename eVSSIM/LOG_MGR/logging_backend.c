@@ -25,7 +25,6 @@
  * Return the size of the logger (full slots only)
  * @param {Logger*} logger the logger to check
  * @return the size of the logger (in bytes)
- * @see Logger
  */
 #define LOGGER_SIZE(logger) (((logger->head - logger->tail) + logger->buffer_size) % \
                              logger->buffer_size)
