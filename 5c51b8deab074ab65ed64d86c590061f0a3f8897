@@ -2,6 +2,57 @@
   "comments": [
     {
       "key": {
+        "uuid": "97ce1bd2_c584d1a3",
+        "filename": "eVSSIM/LOG_MGR/logging_backend.c",
+        "patchSetId": 32
+      },
+      "lineNbr": 20,
+      "author": {
+        "id": 1007990
+      },
+      "writtenOn": "2017-08-15T06:34:19Z",
+      "side": 1,
+      "message": "plz move this to h file",
+      "revId": "5c51b8deab074ab65ed64d86c590061f0a3f8897",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "8c0eb377_03a32322",
+        "filename": "eVSSIM/LOG_MGR/logging_backend.c",
+        "patchSetId": 32
+      },
+      "lineNbr": 36,
+      "author": {
+        "id": 1007990
+      },
+      "writtenOn": "2017-08-15T06:34:19Z",
+      "side": 1,
+      "message": "lets remove the duplicated comments in c files. We have them already in h files.",
+      "revId": "5c51b8deab074ab65ed64d86c590061f0a3f8897",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "558504da_a12681fb",
+        "filename": "eVSSIM/LOG_MGR/logging_backend.c",
+        "patchSetId": 32
+      },
+      "lineNbr": 42,
+      "author": {
+        "id": 1007990
+      },
+      "writtenOn": "2017-08-15T06:34:19Z",
+      "side": 1,
+      "message": "lets\u0027 use aligned_alloc or \nposix_memalign here\nhttps://www.gnu.org/software/libc/manual/html_node/Aligned-Memory-Blocks.html",
+      "revId": "5c51b8deab074ab65ed64d86c590061f0a3f8897",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "f9d50562_034ca682",
         "filename": "eVSSIM/LOG_MGR/logging_backend.h",
         "patchSetId": 32
