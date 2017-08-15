@@ -17,7 +17,18 @@
 #include <stdio.h>
 #include <stdlib.h>
 
+#include "ftl_perf_manager.h"
+#include "vssim_config_manager.h"
+
 #include "logging_rt_analyzer.h"
+
+
+/**
+ * Transforms pages in a usec to megabytes in a second
+ * @param {double} x pages in a usec
+ */
+#define PAGES_IN_USEC_TO_MBS(x) \
+    (((double) (x) * GET_PAGE_SIZE() * SECOND_IN_USEC) / (MEGABYTE_IN_BYTES))
 
 
 RTLogAnalyzer* rt_log_analyzer_init(Logger* logger) {
@@ -25,15 +36,19 @@ RTLogAnalyzer* rt_log_analyzer_init(Logger* logger) {
     if (analyzer == NULL)
         return NULL;
     analyzer->logger = logger;
-    analyzer->hook = NULL;
+    unsigned int i;
+    for (i = 0; i < MAX_SUBSCRIBERS; i++)
+        analyzer->hooks[i] = NULL;
+    analyzer->subscribers_count = 0;
 
     return analyzer;
 }
 
-MonitorHook rt_log_analyzer_subscribe(RTLogAnalyzer* analyzer, MonitorHook hook) {
-    MonitorHook old_hook = analyzer->hook;
-    analyzer->hook = hook;
-    return old_hook;
+int rt_log_analyzer_subscribe(RTLogAnalyzer* analyzer, MonitorHook hook) {
+    if (analyzer->subscribers_count >= MAX_SUBSCRIBERS)
+        return 1;
+    analyzer->hooks[analyzer->subscribers_count++] = hook;
+    return 0;
 }
 
 void rt_log_analyzer_loop(RTLogAnalyzer* analyzer, int max_logs) {
@@ -50,6 +65,10 @@ void rt_log_analyzer_loop(RTLogAnalyzer* analyzer, int max_logs) {
 
     // additional variables needed to calculate the statistics
     unsigned int logical_write_count = 0;
+    int write_wall_time = 0;
+    int read_wall_time = 0;
+    int current_wall_time = 0;
+    long occupied_pages = 0;
 
     // run as long as necessary
     int logs_read = 0;
@@ -64,31 +83,78 @@ void rt_log_analyzer_loop(RTLogAnalyzer* analyzer, int max_logs) {
 
         // update the statistics according to the log
         switch (log_type) {
-            case PHYSICAL_PAGE_READ_LOG_UID:
-                NEXT_PHYSICAL_PAGE_READ_LOG(analyzer->logger);
+            case PHYSICAL_CELL_READ_LOG_UID:
+                NEXT_PHYSICAL_CELL_READ_LOG(analyzer->logger);
                 stats.read_count++;
+                current_wall_time += CELL_READ_DELAY;
+                read_wall_time += current_wall_time;
+                current_wall_time = 0;
                 break;
-            case PHYSICAL_PAGE_WRITE_LOG_UID:
-                NEXT_PHYSICAL_PAGE_WRITE_LOG(analyzer->logger);
+            case PHYSICAL_CELL_PROGRAM_LOG_UID:
+                NEXT_PHYSICAL_CELL_PROGRAM_LOG(analyzer->logger);
                 stats.write_count++;
+                occupied_pages++;
+                current_wall_time += CELL_PROGRAM_DELAY;
+                write_wall_time += current_wall_time;
+                current_wall_time = 0;
                 break;
-            case LOGICAL_PAGE_WRITE_LOG_UID:
-                NEXT_LOGICAL_PAGE_WRITE_LOG(analyzer->logger);
+            case LOGICAL_CELL_PROGRAM_LOG_UID:
+                NEXT_LOGICAL_CELL_PROGRAM_LOG(analyzer->logger);
                 logical_write_count++;
                 break;
             case GARBAGE_COLLECTION_LOG_UID:
                 NEXT_GARBAGE_COLLECTION_LOG(analyzer->logger);
                 stats.garbage_collection_count++;
                 break;
+            case REGISTER_READ_LOG_UID:
+                NEXT_REGISTER_READ_LOG(analyzer->logger);
+                current_wall_time += REG_READ_DELAY;
+                break;
+            case REGISTER_WRITE_LOG_UID:
+                NEXT_REGISTER_WRITE_LOG(analyzer->logger);
+                current_wall_time += REG_WRITE_DELAY;
+                break;
+            case BLOCK_ERASE_LOG_UID:
+                NEXT_BLOCK_ERASE_LOG(analyzer->logger);
+                occupied_pages -= PAGE_NB;
+                current_wall_time += BLOCK_ERASE_DELAY;
+                break;
+            case CHANNEL_SWITCH_TO_READ_LOG_UID:
+                NEXT_CHANNEL_SWITCH_TO_READ_LOG(analyzer->logger);
+                current_wall_time += CHANNEL_SWITCH_DELAY_R;
+                break;
+            case CHANNEL_SWITCH_TO_WRITE_LOG_UID:
+                NEXT_CHANNEL_SWITCH_TO_WRITE_LOG(analyzer->logger);
+                current_wall_time += CHANNEL_SWITCH_DELAY_W;
+                break;
+            default:
+                fprintf(stderr, "WARNING: unknown log type id! [%d]\n", log_type);
+                fprintf(stderr, "WARNING: rt_log_analyzer_loop may not be up to date!\n");
+                continue;
         }
+
         if (logical_write_count == 0)
             stats.write_amplification = 0.0;
         else
             stats.write_amplification = ((double) stats.write_count) / logical_write_count;
 
-        // call the hook if present
-        if (analyzer->hook)
-            analyzer->hook(stats);
+        if (read_wall_time == 0)
+            stats.read_speed = 0.0;
+        else
+            stats.read_speed = PAGES_IN_USEC_TO_MBS((double) stats.read_count / read_wall_time);
+
+        if (stats.write_count == 0)
+            stats.write_speed = 0.0;
+        else
+            stats.write_speed = PAGES_IN_USEC_TO_MBS(((double) stats.write_count) / write_wall_time);
+
+        stats.utilization = ((double) occupied_pages) / PAGES_IN_SSD;
+
+
+        // call present hooks
+        unsigned int i;
+        for (i = 0; i < analyzer->subscribers_count; i++)
+            analyzer->hooks[i](stats);
 
         // update `logs_read` only if necessary (in order to avoid overflow)
         if (max_logs >= 0)

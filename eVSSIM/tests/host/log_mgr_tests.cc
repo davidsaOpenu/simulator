@@ -22,28 +22,68 @@ extern "C" {
 #include "logging_rt_analyzer.h"
 }
 bool g_ci_mode = false;
+bool g_monitor_mode = false;
 
 #include "rt_analyzer_subscriber.h"
+#include "monitor_test.h"
 
 #include <gtest/gtest.h>
 
 #include <fstream>
 #include <cstdio>
 #include <cstdlib>
-
-int main(int argc, char **argv) {
-    for (int i = 0; i < argc; i++) {
-        if (strcmp(argv[i], "--ci") == 0) {
-            g_ci_mode = true;
-        }
-    }
-    testing::InitGoogleTest(&argc, argv);
-    return RUN_ALL_TESTS();
-}
+#include <pthread.h>
+#include <unistd.h>
 
 using namespace std;
 
-namespace {
+namespace log_mgr_tests {
+
+    class LogMgrTestEnv : public ::testing::Environment {
+        public:
+            virtual void SetUp() {
+                ofstream ssd_conf("data/ssd.conf", ios_base::out | ios_base::trunc);
+                ssd_conf << "FILE_NAME ./data/ssd.img\n"
+                        "PAGE_SIZE 1048576\n" // bytes in Mb
+                        "PAGE_NB 2\n"
+                        "SECTOR_SIZE 1048576\n"
+                        "FLASH_NB 4\n"
+                        "BLOCK_NB 8\n"
+                        "PLANES_PER_FLASH 1\n"
+                        "REG_WRITE_DELAY 82\n"
+                        "CELL_PROGRAM_DELAY 900\n"
+                        "REG_READ_DELAY 82\n"
+                        "CELL_READ_DELAY 50\n"
+                        "BLOCK_ERASE_DELAY 2000\n"
+                        "CHANNEL_SWITCH_DELAY_R 16\n"
+                        "CHANNEL_SWITCH_DELAY_W 33\n"
+                        "CHANNEL_NB 4\n"
+                        "STAT_TYPE 15\n"
+                        "STAT_SCOPE 62\n"
+                        "STAT_PATH /tmp/stat.csv\n"
+                        "STORAGE_STRATEGY 1\n";
+                ssd_conf.close();
+
+                INIT_SSD_CONFIG();
+
+                if (g_monitor_mode) {
+                    pthread_create(&_monitor, NULL, start_monitor, NULL);
+                }
+            }
+
+            virtual void TearDown() {
+                if (g_monitor_mode) {
+                    printf("Waiting for monitor to close...\n");
+                    pthread_join(_monitor, NULL);
+                    printf("Monitor closed\n");
+                }
+                remove("./data/ssd.conf");
+            }
+        protected:
+            pthread_t _monitor;
+    };
+    LogMgrTestEnv* testEnv;
+
     class LogMgrUnitTest : public ::testing::TestWithParam<size_t> {
         public:
             const static char TEST_STRING[];
@@ -178,51 +218,51 @@ namespace {
     /* Unit tests for the different logs */
 
     /**
-     * Test writing and reading a physical page read log
+     * Test writing and reading a physical cell read log
      */
-    TEST_P(LogMgrUnitTest, PhysicalPageRead) {
-        PhysicalPageReadLog log = {
+    TEST_P(LogMgrUnitTest, PhysicalCellRead) {
+        PhysicalCellReadLog log = {
                 .channel = 3,
                 .block = 80,
                 .page = 123
         };
-        LOG_PHYSICAL_PAGE_READ(_logger, log);
-        ASSERT_EQ(PHYSICAL_PAGE_READ_LOG_UID, next_log_type(_logger));
-        PhysicalPageReadLog res = NEXT_PHYSICAL_PAGE_READ_LOG(_logger);
+        LOG_PHYSICAL_CELL_READ(_logger, log);
+        ASSERT_EQ(PHYSICAL_CELL_READ_LOG_UID, next_log_type(_logger));
+        PhysicalCellReadLog res = NEXT_PHYSICAL_CELL_READ_LOG(_logger);
         ASSERT_EQ(log.channel, res.channel);
         ASSERT_EQ(log.block, res.block);
         ASSERT_EQ(log.page, res.page);
     }
 
     /**
-     * Test writing and reading a physical page write log
+     * Test writing and reading a physical cell program log
      */
-    TEST_P(LogMgrUnitTest, PhysicalPageWrite) {
-        PhysicalPageWriteLog log = {
+    TEST_P(LogMgrUnitTest, PhysicalCellProgram) {
+        PhysicalCellProgramLog log = {
                 .channel = 15,
                 .block = 63,
                 .page = 50
         };
-        LOG_PHYSICAL_PAGE_WRITE(_logger, log);
-        ASSERT_EQ(PHYSICAL_PAGE_WRITE_LOG_UID, next_log_type(_logger));
-        PhysicalPageWriteLog res = NEXT_PHYSICAL_PAGE_WRITE_LOG(_logger);
+        LOG_PHYSICAL_CELL_PROGRAM(_logger, log);
+        ASSERT_EQ(PHYSICAL_CELL_PROGRAM_LOG_UID, next_log_type(_logger));
+        PhysicalCellProgramLog res = NEXT_PHYSICAL_CELL_PROGRAM_LOG(_logger);
         ASSERT_EQ(log.channel, res.channel);
         ASSERT_EQ(log.block, res.block);
         ASSERT_EQ(log.page, res.page);
     }
 
     /**
-     * Test writing and reading a logical page write log
+     * Test writing and reading a logical cell program log
      */
-    TEST_P(LogMgrUnitTest, LogicalPageWrite) {
-        LogicalPageWriteLog log = {
+    TEST_P(LogMgrUnitTest, LogicalCellProgram) {
+        LogicalCellProgramLog log = {
                 .channel = 2,
                 .block = 260,
                 .page = 3
         };
-        LOG_LOGICAL_PAGE_WRITE(_logger, log);
-        ASSERT_EQ(LOGICAL_PAGE_WRITE_LOG_UID, next_log_type(_logger));
-        LogicalPageWriteLog res = NEXT_LOGICAL_PAGE_WRITE_LOG(_logger);
+        LOG_LOGICAL_CELL_PROGRAM(_logger, log);
+        ASSERT_EQ(LOGICAL_CELL_PROGRAM_LOG_UID, next_log_type(_logger));
+        LogicalCellProgramLog res = NEXT_LOGICAL_CELL_PROGRAM_LOG(_logger);
         ASSERT_EQ(log.channel, res.channel);
         ASSERT_EQ(log.block, res.block);
         ASSERT_EQ(log.page, res.page);
@@ -243,6 +283,83 @@ namespace {
         ASSERT_EQ(0, logger_read(_logger, &placeholder, 1));
     }
 
+    /**
+     * Test writing and reading a register read log
+     */
+    TEST_P(LogMgrUnitTest, RegisterReadLog) {
+        RegisterReadLog log = {
+                .channel = 10,
+                .die = 15,
+                .reg = 37
+        };
+        LOG_REGISTER_READ(_logger, log);
+        ASSERT_EQ(REGISTER_READ_LOG_UID, next_log_type(_logger));
+        RegisterReadLog res = NEXT_REGISTER_READ_LOG(_logger);
+        ASSERT_EQ(log.channel, res.channel);
+        ASSERT_EQ(log.die, res.die);
+        ASSERT_EQ(log.reg, res.reg);
+    }
+
+    /**
+     * Test writing and reading a register write log
+     */
+    TEST_P(LogMgrUnitTest, RegisterWriteLog) {
+        RegisterWriteLog log = {
+                .channel = 87013,
+                .die = 225034,
+                .reg = 4
+        };
+        LOG_REGISTER_WRITE(_logger, log);
+        ASSERT_EQ(REGISTER_WRITE_LOG_UID, next_log_type(_logger));
+        RegisterWriteLog res = NEXT_REGISTER_WRITE_LOG(_logger);
+        ASSERT_EQ(log.channel, res.channel);
+        ASSERT_EQ(log.die, res.die);
+        ASSERT_EQ(log.reg, res.reg);
+    }
+
+    /**
+     * Test writing and reading a block erase log
+     */
+    TEST_P(LogMgrUnitTest, BlockEraseLog) {
+        BlockEraseLog log = {
+                .channel = 6,
+                .die = 352,
+                .block = 947
+        };
+        LOG_BLOCK_ERASE(_logger, log);
+        ASSERT_EQ(BLOCK_ERASE_LOG_UID, next_log_type(_logger));
+        BlockEraseLog res = NEXT_BLOCK_ERASE_LOG(_logger);
+        ASSERT_EQ(log.channel, res.channel);
+        ASSERT_EQ(log.die, res.die);
+        ASSERT_EQ(log.block, res.block);
+    }
+
+    /**
+     * Test writing and reading a channel switch to read log
+     */
+    TEST_P(LogMgrUnitTest, ChannelSwitchToReadLog) {
+        ChannelSwitchToReadLog log = {
+                .channel = 73
+        };
+        LOG_CHANNEL_SWITCH_TO_READ(_logger, log);
+        ASSERT_EQ(CHANNEL_SWITCH_TO_READ_LOG_UID, next_log_type(_logger));
+        ChannelSwitchToReadLog res = NEXT_CHANNEL_SWITCH_TO_READ_LOG(_logger);
+        ASSERT_EQ(log.channel, res.channel);
+    }
+
+    /**
+     * Test writing and reading a channel switch to read write
+     */
+    TEST_P(LogMgrUnitTest, ChannelSwitchToWriteLog) {
+        ChannelSwitchToWriteLog log = {
+                .channel = 3
+        };
+        LOG_CHANNEL_SWITCH_TO_WRITE(_logger, log);
+        ASSERT_EQ(CHANNEL_SWITCH_TO_WRITE_LOG_UID, next_log_type(_logger));
+        ChannelSwitchToWriteLog res = NEXT_CHANNEL_SWITCH_TO_WRITE_LOG(_logger);
+        ASSERT_EQ(log.channel, res.channel);
+    }
+
     /* Real Time Analyzer Tests */
 
     /**
@@ -251,8 +368,25 @@ namespace {
     TEST_P(LogMgrUnitTest, BasicRTAnalyzer) {
         RTLogAnalyzer* analyzer = rt_log_analyzer_init(_logger);
         rt_subscriber::subscribe(analyzer);
+        if (g_monitor_mode)
+            rt_log_analyzer_subscribe(analyzer, (MonitorHook) update_stats);
         rt_subscriber::write();
         rt_subscriber::read();
         rt_log_analyzer_free(analyzer, 0);
     }
 } //namespace
+
+
+int main(int argc, char **argv) {
+    for (int i = 0; i < argc; i++) {
+        if (strcmp(argv[i], "--ci") == 0) {
+            g_ci_mode = true;
+        }
+        else if (strcmp(argv[i], "--show-monitor") == 0) {
+            g_monitor_mode = true;
+        }
+    }
+    testing::InitGoogleTest(&argc, argv);
+    log_mgr_tests::testEnv = (log_mgr_tests::LogMgrTestEnv*) testing::AddGlobalTestEnvironment(new log_mgr_tests::LogMgrTestEnv);
+    return RUN_ALL_TESTS();
+}
