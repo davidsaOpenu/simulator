@@ -19,6 +19,24 @@
     },
     {
       "key": {
+        "uuid": "ec1173a6_dd529d09",
+        "filename": "eVSSIM/LOG_MGR/logging_backend.c",
+        "patchSetId": 32
+      },
+      "lineNbr": 20,
+      "author": {
+        "id": 1010875
+      },
+      "writtenOn": "2017-08-15T09:23:22Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "97ce1bd2_c584d1a3",
+      "revId": "5c51b8deab074ab65ed64d86c590061f0a3f8897",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "8c0eb377_03a32322",
         "filename": "eVSSIM/LOG_MGR/logging_backend.c",
         "patchSetId": 32
@@ -30,6 +48,24 @@
       "writtenOn": "2017-08-15T06:34:19Z",
       "side": 1,
       "message": "lets remove the duplicated comments in c files. We have them already in h files.",
+      "revId": "5c51b8deab074ab65ed64d86c590061f0a3f8897",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "9f39a332_e01a0e2d",
+        "filename": "eVSSIM/LOG_MGR/logging_backend.c",
+        "patchSetId": 32
+      },
+      "lineNbr": 36,
+      "author": {
+        "id": 1010875
+      },
+      "writtenOn": "2017-08-15T09:23:22Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "8c0eb377_03a32322",
       "revId": "5c51b8deab074ab65ed64d86c590061f0a3f8897",
       "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
       "unresolved": false
@@ -53,6 +89,24 @@
     },
     {
       "key": {
+        "uuid": "ac3e3fff_46a87560",
+        "filename": "eVSSIM/LOG_MGR/logging_backend.c",
+        "patchSetId": 32
+      },
+      "lineNbr": 42,
+      "author": {
+        "id": 1010875
+      },
+      "writtenOn": "2017-08-15T09:23:22Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "558504da_a12681fb",
+      "revId": "5c51b8deab074ab65ed64d86c590061f0a3f8897",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "f9d50562_034ca682",
         "filename": "eVSSIM/LOG_MGR/logging_backend.h",
         "patchSetId": 32
@@ -64,6 +118,24 @@
       "writtenOn": "2017-08-15T06:19:59Z",
       "side": 1,
       "message": "Let\u0027s use doxygen in all *.h files\n\nhttp://www.stack.nl/~dimitri/doxygen/manual/commands.html#cmdtypedef",
+      "revId": "5c51b8deab074ab65ed64d86c590061f0a3f8897",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "4ed67394_9482ba7f",
+        "filename": "eVSSIM/LOG_MGR/logging_backend.h",
+        "patchSetId": 32
+      },
+      "lineNbr": 24,
+      "author": {
+        "id": 1010875
+      },
+      "writtenOn": "2017-08-15T09:23:22Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "f9d50562_034ca682",
       "revId": "5c51b8deab074ab65ed64d86c590061f0a3f8897",
       "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
       "unresolved": false
@@ -87,6 +159,24 @@
     },
     {
       "key": {
+        "uuid": "b3d97c79_1a53ff38",
+        "filename": "eVSSIM/LOG_MGR/logging_backend.h",
+        "patchSetId": 32
+      },
+      "lineNbr": 30,
+      "author": {
+        "id": 1010875
+      },
+      "writtenOn": "2017-08-15T09:23:22Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "5e3d83a2_46ac5128",
+      "revId": "5c51b8deab074ab65ed64d86c590061f0a3f8897",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "905c2464_4dbd6fdc",
         "filename": "eVSSIM/LOG_MGR/logging_backend.h",
         "patchSetId": 32
@@ -98,6 +188,24 @@
       "writtenOn": "2017-08-15T06:19:59Z",
       "side": 1,
       "message": "/** @struct Logger\n *  @brief This structure blah blah blah...\n */\n/** @var Logger::buffer \n *  Member \u0027buffer\u0027 contains...\n */\n/** @var Logger::head \n *  Member \u0027head\u0027 contains...\n */",
+      "revId": "5c51b8deab074ab65ed64d86c590061f0a3f8897",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "8c0ddf4b_b9243934",
+        "filename": "eVSSIM/LOG_MGR/logging_backend.h",
+        "patchSetId": 32
+      },
+      "lineNbr": 34,
+      "author": {
+        "id": 1010875
+      },
+      "writtenOn": "2017-08-15T09:23:22Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "905c2464_4dbd6fdc",
       "revId": "5c51b8deab074ab65ed64d86c590061f0a3f8897",
       "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
       "unresolved": false
@@ -121,6 +229,24 @@
     },
     {
       "key": {
+        "uuid": "702064ff_1e570a62",
+        "filename": "eVSSIM/LOG_MGR/logging_backend.h",
+        "patchSetId": 32
+      },
+      "lineNbr": 46,
+      "author": {
+        "id": 1010875
+      },
+      "writtenOn": "2017-08-15T09:23:22Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "0cc22c3b_7ef51813",
+      "revId": "5c51b8deab074ab65ed64d86c590061f0a3f8897",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "456187d8_b0394a1d",
         "filename": "eVSSIM/LOG_MGR/logging_backend.h",
         "patchSetId": 32
@@ -132,6 +258,24 @@
       "writtenOn": "2017-08-15T06:19:59Z",
       "side": 1,
       "message": "Using doxigen streamlines the process of description of each parameter",
+      "revId": "5c51b8deab074ab65ed64d86c590061f0a3f8897",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "c032e8dd_84338527",
+        "filename": "eVSSIM/LOG_MGR/logging_backend.h",
+        "patchSetId": 32
+      },
+      "lineNbr": 53,
+      "author": {
+        "id": 1010875
+      },
+      "writtenOn": "2017-08-15T09:23:22Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "456187d8_b0394a1d",
       "revId": "5c51b8deab074ab65ed64d86c590061f0a3f8897",
       "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
       "unresolved": false
