@@ -31,7 +31,6 @@
             <string>Initialize </string>
         </property>
     </widget>
-
     <widget class="QGroupBox">
         <property name="name">
             <cstring>groupBox1</cstring>
@@ -517,39 +516,39 @@
         </property>
     </widget>
     <widget class="QLineEdit">
-    	<property name="name">
-	    <cstring>txtSsdUtil</cstring>
+        <property name="name">
+            <cstring>txtSsdUtil</cstring>
         </property>
-	<property name="geometry">
-	    <rect>
-	        <x>370</x>
-		<y>330</y>
-		<width>89</width>
-		<height>22</height>
-	    </rect>
-	</property>
-	<property name="text">
-	    <string>0</string>
-	</property>
-	<property name="alignment">
-	    <set>AlignRight</set>
+        <property name="geometry">
+            <rect>
+                <x>370</x>
+                <y>330</y>
+                <width>89</width>
+                <height>22</height>
+            </rect>
+        </property>
+        <property name="text">
+            <string>0</string>
+        </property>
+        <property name="alignment">
+            <set>AlignRight</set>
         </property>
     </widget>
     <widget class="QLabel">
-            <property name="name">
-                <cstring>textLabel1_2_3</cstring>
-            </property>
-            <property name="geometry">
-                <rect>
-                    <x>250</x>
-                    <y>330</y>
-                    <width>56</width>
-                    <height>20</height>
-                </rect>
-            </property>
-            <property name="text">
-                <string>SSD Util</string>
-            </property>
+        <property name="name">
+            <cstring>textLabel1_2_3</cstring>
+        </property>
+        <property name="geometry">
+            <rect>
+                <x>250</x>
+                <y>330</y>
+                <width>56</width>
+                <height>20</height>
+            </rect>
+        </property>
+        <property name="text">
+            <string>SSD Util</string>
+        </property>
     </widget>
     <widget class="QLabel">
         <property name="name">
@@ -688,7 +687,6 @@
             <string>Time</string>
         </property>
     </widget>
-
     <widget class="QPushButton">
         <property name="name">
             <cstring>btnSave</cstring>
@@ -724,6 +722,7 @@
     <include location="local" impldecl="in declaration">qsocket.h</include>
     <include location="local" impldecl="in declaration">qtimer.h</include>
     <include location="local" impldecl="in declaration">qfile.h</include>
+    <include location="local" impldecl="in declaration">../../LOG_MGR/logging_rt_analyzer.h</include>
     <include location="local" impldecl="in implementation">form1.ui.h</include>
 </includes>
 <variables>
@@ -752,6 +751,9 @@
     <variable access="private">double ReadTime</variable>
     <variable access="private">unsigned int WriteSecCount</variable>
     <variable access="private">unsigned int ReadSecCount</variable>
+    <variable access="public">static Form1* Instance</variable>
+    <variable access="public">static pthread_mutex_t InstanceLock</variable>
+    <variable access="public">static pthread_cond_t InstanceCondition</variable>
 </variables>
 <slots>
     <slot>init_var()</slot>
@@ -763,6 +765,9 @@
 </slots>
 <functions>
     <function>init()</function>
+    <function>showEvent(QShowEvent* event)</function>
+    <function returnType="bool">event(QEvent* event)</function>
+    <function access="private">updateStats(SSDStatistics stats)</function>
 </functions>
 <pixmapinproject/>
 <layoutdefaults spacing="6" margin="11"/>

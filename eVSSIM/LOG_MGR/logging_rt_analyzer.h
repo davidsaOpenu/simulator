@@ -32,7 +32,7 @@ typedef struct {
     /**
      * The writing speed in MB/s
      */
-    double write_speed;                             //TODO integrate stat
+    double write_speed;
     /**
      * The number of physical page written
      */
@@ -40,7 +40,7 @@ typedef struct {
     /**
      * The reading speed in MB/s
      */
-    double read_speed;                              //TODO integrate stat
+    double read_speed;
     /**
      * The number of garbage collection done
      */
@@ -52,7 +52,7 @@ typedef struct {
     /**
      * The utilization of the ssd
      */
-    double utilization;                             //TODO integrate stat
+    double utilization;
 } SSDStatistics;
 
 
@@ -64,6 +64,12 @@ typedef void (*MonitorHook)(SSDStatistics stats);
 
 
 /**
+ * The maximum number of subscribers an RTLogAnalyzer can hold
+ */
+#define MAX_SUBSCRIBERS 5
+
+
+/**
  * The real time log analyzer structure
  */
 typedef struct {
@@ -72,9 +78,13 @@ typedef struct {
      */
     Logger* logger;
     /**
-     * The hook to call after each analyze
+     * The hooks to call after each analyze
      */
-    MonitorHook hook;
+    MonitorHook hooks[MAX_SUBSCRIBERS];
+    /**
+     * The number of hooks currently subscribed to the analyzer
+     */
+    unsigned int subscribers_count;
 } RTLogAnalyzer;
 
 
@@ -89,9 +99,9 @@ RTLogAnalyzer* rt_log_analyzer_init(Logger* logger);
  * Subscribe to the log analyzer
  * @param analyzer the analyzer to subscribe to
  * @param hook the new hook to use
- * @return the old hook the analyzer used
+ * @return 0 if the subscription succeeded, nonzero otherwise
  */
-MonitorHook rt_log_analyzer_subscribe(RTLogAnalyzer* analyzer, MonitorHook hook);
+int rt_log_analyzer_subscribe(RTLogAnalyzer* analyzer, MonitorHook hook);
 
 /**
  * Do the main loop of the analyzer given
