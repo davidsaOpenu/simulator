@@ -16,6 +16,24 @@
       "revId": "e07fed6b87898fc85e576e026d8ef9208cabea98",
       "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "2bf47271_aeeec2ea",
+        "filename": "eVSSIM/tests/host/log_mgr_tests.cc",
+        "patchSetId": 29
+      },
+      "lineNbr": 74,
+      "author": {
+        "id": 1010875
+      },
+      "writtenOn": "2017-08-15T09:23:22Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "265828da_e37b2d6e",
+      "revId": "e07fed6b87898fc85e576e026d8ef9208cabea98",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
     }
   ]
 }
