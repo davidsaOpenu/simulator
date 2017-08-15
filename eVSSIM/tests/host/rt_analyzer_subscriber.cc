@@ -37,13 +37,13 @@ namespace rt_subscriber {
     void write() {
         Logger* logger = _analyzer->logger;
         GarbageCollectionLog GC_LOG;
-        LOG_PHYSICAL_PAGE_READ(logger, (PhysicalPageReadLog) { .channel = 1, .block = 2, .page = 3});
-        LOG_PHYSICAL_PAGE_WRITE(logger, (PhysicalPageWriteLog) { .channel = 4, .block = 5, .page = 6});
+        LOG_PHYSICAL_CELL_READ(logger, (PhysicalCellReadLog) { .channel = 1, .block = 2, .page = 3});
+        LOG_PHYSICAL_CELL_PROGRAM(logger, (PhysicalCellProgramLog) { .channel = 4, .block = 5, .page = 6});
         LOG_GARBAGE_COLLECTION(logger, GC_LOG);
-        LOG_LOGICAL_PAGE_WRITE(logger, (LogicalPageWriteLog) { .channel = 7, .block = 8, .page = 9});
-        LOG_PHYSICAL_PAGE_WRITE(logger, (PhysicalPageWriteLog) { .channel = 10, .block = 11, .page = 12});
-        LOG_LOGICAL_PAGE_WRITE(logger, (LogicalPageWriteLog) { .channel = 13, .block = 14, .page = 15});
-        LOG_PHYSICAL_PAGE_READ(logger, (PhysicalPageReadLog) { .channel = 16, .block = 17, .page = 18});
+        LOG_LOGICAL_CELL_PROGRAM(logger, (LogicalCellProgramLog) { .channel = 7, .block = 8, .page = 9});
+        LOG_PHYSICAL_CELL_PROGRAM(logger, (PhysicalCellProgramLog) { .channel = 10, .block = 11, .page = 12});
+        LOG_LOGICAL_CELL_PROGRAM(logger, (LogicalCellProgramLog) { .channel = 13, .block = 14, .page = 15});
+        LOG_PHYSICAL_CELL_READ(logger, (PhysicalCellReadLog) { .channel = 16, .block = 17, .page = 18});
         LOG_GARBAGE_COLLECTION(logger, GC_LOG);
     }
 
@@ -60,14 +60,14 @@ namespace rt_subscriber {
 
         switch (_logs_read) {
             case 1:
-                // physical page read
+                // physical cell read
                 ASSERT_EQ(0, stats.write_count);
                 ASSERT_EQ(1, stats.read_count);
                 ASSERT_EQ(0, stats.garbage_collection_count);
                 ASSERT_EQ(0.0, stats.write_amplification);
                 break;
             case 2:
-                // physical page write
+                // physical cell program
                 ASSERT_EQ(1, stats.write_count);
                 ASSERT_EQ(1, stats.read_count);
                 ASSERT_EQ(0, stats.garbage_collection_count);
@@ -81,28 +81,28 @@ namespace rt_subscriber {
                 ASSERT_EQ(0.0, stats.write_amplification);
                 break;
             case 4:
-                // logical page write
+                // logical cell program
                 ASSERT_EQ(1, stats.write_count);
                 ASSERT_EQ(1, stats.read_count);
                 ASSERT_EQ(1, stats.garbage_collection_count);
                 ASSERT_EQ(1.0, stats.write_amplification);
                 break;
             case 5:
-                // physical page write
+                // physical cell program
                 ASSERT_EQ(2, stats.write_count);
                 ASSERT_EQ(1, stats.read_count);
                 ASSERT_EQ(1, stats.garbage_collection_count);
                 ASSERT_EQ(2.0, stats.write_amplification);
                 break;
             case 6:
-                // logical page write
+                // logical cell program
                 ASSERT_EQ(2, stats.write_count);
                 ASSERT_EQ(1, stats.read_count);
                 ASSERT_EQ(1, stats.garbage_collection_count);
                 ASSERT_EQ(1.0, stats.write_amplification);
                 break;
             case 7:
-                // physical page read
+                // physical cell read
                 ASSERT_EQ(2, stats.write_count);
                 ASSERT_EQ(2, stats.read_count);
                 ASSERT_EQ(1, stats.garbage_collection_count);
