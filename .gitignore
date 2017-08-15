@@ -19,6 +19,9 @@ eVSSIM/MONITOR/SSD_MONITOR_PM/ssd_monitor_p
 eVSSIM/MONITOR/SSD_MONITOR_PM/form1.cpp
 eVSSIM/MONITOR/SSD_MONITOR_PM/form1.h
 eVSSIM/MONITOR/SSD_MONITOR_PM/moc_form1.cpp
+eVSSIM/MONITOR/SSD_MONITOR_PM/monitor_test.cpp
+eVSSIM/MONITOR/SSD_MONITOR_PM/monitor_test.h
+
 
 # qemu configure-created files
 eVSSIM/QEMU/config-host.mak
@@ -113,6 +116,7 @@ eVSSIM/tests/host/ssd_util.h
 eVSSIM/tests/host/uthash.h
 eVSSIM/tests/host/vssim_config_manager.c
 eVSSIM/tests/host/vssim_config_manager.h
+eVSSIM/tests/host/monitor_test.h
 
 # osd-osd files
 eVSSIM/osc-osd/osd-util/.depend
