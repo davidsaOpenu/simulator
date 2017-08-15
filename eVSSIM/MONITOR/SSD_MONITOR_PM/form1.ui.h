@@ -10,6 +10,7 @@
 ** destructor.
 *****************************************************************************/
 #include "form1.h"
+#include "monitor_test.h"
 #include <qfile.h>
 #include <qfiledialog.h>
 #include <qdir.h>
@@ -18,6 +19,7 @@
 #include <stdio.h>
 
 #define REG_IS_WRITE 706
+
 
 long long int get_usec(void){
 	long long int t = 0;
@@ -283,3 +285,36 @@ void Form1::onTimer()
     txtTimeProg->setText(sz_timer);
 }
 
+
+void Form1::updateStats(SSDStatistics stats) {
+    char szTemp[128];
+
+    WriteCount = stats.write_count;
+    sprintf(szTemp, "%d", stats.write_count);
+    txtWriteCount->setText(szTemp);
+
+    sprintf(szTemp, "%0.3f", stats.write_speed);
+    txtWriteSpeed->setText(szTemp);
+
+    ReadCount = stats.read_count;
+    sprintf(szTemp, "%d", stats.read_count);
+    txtReadCount->setText(szTemp);
+
+    sprintf(szTemp, "%0.3f", stats.read_speed);
+    txtReadSpeed->setText(szTemp);
+
+    GC_NB = stats.garbage_collection_count;
+    sprintf(szTemp, "%d", stats.garbage_collection_count);
+    txtGarbageCollectionNB->setText(szTemp);
+
+    WriteAmpCount = stats.write_amplification;
+    sprintf(szTemp, "%0.3f", stats.write_amplification);
+    txtWriteAmpCount->setText(szTemp);
+
+    sprintf(szTemp, "%0.3f", stats.utilization);
+    txtSsdUtil->setText(szTemp);
+}
+
+void Form1::showEvent(QShowEvent*) {
+    Instance = this;
+}

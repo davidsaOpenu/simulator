@@ -725,6 +725,7 @@
     <include location="local" impldecl="in declaration">qtimer.h</include>
     <include location="local" impldecl="in declaration">qfile.h</include>
     <include location="local" impldecl="in implementation">form1.ui.h</include>
+    <include location="local" impldecl="in declaration">../../LOG_MGR/logging_rt_analyzer.h</include>
 </includes>
 <variables>
     <variable access="private">long long int *access_time_reg_mon;</variable>
@@ -752,6 +753,7 @@
     <variable access="private">double ReadTime</variable>
     <variable access="private">unsigned int WriteSecCount</variable>
     <variable access="private">unsigned int ReadSecCount</variable>
+    <variable access="public">static Form1* Instance</variable> 
 </variables>
 <slots>
     <slot>init_var()</slot>
@@ -763,6 +765,8 @@
 </slots>
 <functions>
     <function>init()</function>
+    <function>updateStats(SSDStatistics stats)</function>
+    <function>showEvent(QShowEvent* event)</function>
 </functions>
 <pixmapinproject/>
 <layoutdefaults spacing="6" margin="11"/>
