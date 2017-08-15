@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "265828da_e37b2d6e",
+        "filename": "eVSSIM/tests/host/log_mgr_tests.cc",
+        "patchSetId": 29
+      },
+      "lineNbr": 74,
+      "author": {
+        "id": 1007990
+      },
+      "writtenOn": "2017-08-15T06:19:59Z",
+      "side": 1,
+      "message": "- let\u0027s add comment (bytes/giga)\n- let\u0027s leave one mode",
+      "revId": "e07fed6b87898fc85e576e026d8ef9208cabea98",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    }
+  ]
+}
