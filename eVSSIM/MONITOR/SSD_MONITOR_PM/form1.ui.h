@@ -10,6 +10,7 @@
 ** destructor.
 *****************************************************************************/
 #include "form1.h"
+#include "monitor_test.h"
 #include <qfile.h>
 #include <qfiledialog.h>
 #include <qdir.h>
@@ -18,6 +19,33 @@
 #include <stdio.h>
 
 #define REG_IS_WRITE 706
+
+/**
+ * Set the text of the object
+ * @param obj the object to call setText on
+ * @param str the string to use for the formatting
+ * @param var the variable to pass the formatter
+ * @param {char*} buf the buffer to use when formatting
+ */
+#define SET_TEXT(obj, str, var, buf)    \
+    do {                                \
+        sprintf(buf, str, var);         \
+        obj->setText(buf);              \
+    } while(0)
+/**
+ * Set the text of the object to the integer given
+ * @param obj the object to call setText on
+ * @param {int} var the integer value
+ * @param {char*} buf the buffer to use when formatting
+ */
+#define SET_TEXT_I(obj, var, buf) SET_TEXT(obj, "%d", var, buf)
+/**
+ * Set the text of the object to the double given
+ * @param obj the object to call setText on
+ * @param {int} var the integer value
+ * @param {char*} buf the buffer to use when formatting
+ */
+#define SET_TEXT_F(obj, var, buf) SET_TEXT(obj, "%0.3f", var, buf)
 
 long long int get_usec(void){
 	long long int t = 0;
@@ -77,7 +105,6 @@ void Form1::init()
 	timer = new QTimer(this);
 	connect(timer, SIGNAL(timeout()), this, SLOT(onTimer()));
 	timer->start(1, false);
-	
 }
 
 void Form1::onReceive()
@@ -283,3 +310,53 @@ void Form1::onTimer()
     txtTimeProg->setText(sz_timer);
 }
 
+/**
+ * Update the statistics displayed in the monitor
+ * @param stats the new statistics to display in the monitor
+ */
+void Form1::updateStats(SSDStatistics stats) {
+    char szTemp[128];
+
+    WrittenCorrectCount = WriteSecCount = WriteCount = stats.write_count;
+    SET_TEXT_I(txtWriteCount, stats.write_count, szTemp);
+    txtWriteSectorCount->setText(szTemp);
+    txtWrittenBlockCount->setText(szTemp);
+
+
+    SET_TEXT_F(txtWriteSpeed, stats.write_speed, szTemp);
+
+    ReadSecCount = ReadCount = stats.read_count;
+    SET_TEXT_I(txtReadCount, stats.read_count, szTemp);
+    txtReadSectorCount->setText(szTemp);
+
+    SET_TEXT_F(txtReadSpeed, stats.read_speed, szTemp);
+
+    GCStarted = GC_NB = stats.garbage_collection_count;
+    SET_TEXT_I(txtGarbageCollectionNB, stats.garbage_collection_count, szTemp);
+    txtGCStart->setText(szTemp);
+
+    WriteAmpCount = stats.write_amplification;
+    SET_TEXT_F(txtWriteAmpCount, stats.write_amplification, szTemp);
+
+    SET_TEXT(txtSsdUtil, "%0.3f%%", stats.utilization * 100.0, szTemp);
+}
+
+/**
+ * A hook which is called when the window is shown for the first time
+ */
+void Form1::showEvent(QShowEvent*) {
+    pthread_mutex_lock(&InstanceLock);
+    Instance = this;
+    pthread_cond_broadcast(&InstanceCondition);
+    pthread_mutex_unlock(&InstanceLock);
+}
+
+bool Form1::event(QEvent* event) {
+    if(event->type() == StatsUpdateEvent::type) {
+        StatsUpdateEvent* updateEvent = static_cast<StatsUpdateEvent *>(event);
+        updateStats(updateEvent->stats);
+        return true;
+    }
+
+    return QDialog::event(event);
+}
