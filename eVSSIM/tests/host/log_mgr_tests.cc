@@ -24,26 +24,31 @@ extern "C" {
 bool g_ci_mode = false;
 
 #include "rt_analyzer_subscriber.h"
+#include "monitor_test.h"
 
 #include <gtest/gtest.h>
 
 #include <fstream>
 #include <cstdio>
 #include <cstdlib>
-
-int main(int argc, char **argv) {
-    for (int i = 0; i < argc; i++) {
-        if (strcmp(argv[i], "--ci") == 0) {
-            g_ci_mode = true;
-        }
-    }
-    testing::InitGoogleTest(&argc, argv);
-    return RUN_ALL_TESTS();
-}
+#include <pthread.h>
 
 using namespace std;
 
-namespace {
+namespace log_mgr_tests {
+    class LogMgrTestEnv : public ::testing::Environment {
+        public:
+            virtual void SetUp() {
+                pthread_create(&_monitor, NULL, start_monitor, NULL);
+            }
+
+            virtual void TearDown() {
+                pthread_join(_monitor, NULL);
+            }
+        protected:
+            pthread_t _monitor;
+    };
+
     class LogMgrUnitTest : public ::testing::TestWithParam<size_t> {
         public:
             const static char TEST_STRING[];
@@ -69,7 +74,7 @@ namespace {
         std::vector<size_t> list;
 
         // push the different sizes of the buffer, in bytes
-        list.push_back(1024);
+//        list.push_back(1024);
         list.push_back(8192);
 
         return list;
@@ -256,3 +261,15 @@ namespace {
         rt_log_analyzer_free(analyzer, 0);
     }
 } //namespace
+
+
+int main(int argc, char **argv) {
+    for (int i = 0; i < argc; i++) {
+        if (strcmp(argv[i], "--ci") == 0) {
+            g_ci_mode = true;
+        }
+    }
+    testing::InitGoogleTest(&argc, argv);
+    testing::AddGlobalTestEnvironment(new log_mgr_tests::LogMgrTestEnv);
+    return RUN_ALL_TESTS();
+}
