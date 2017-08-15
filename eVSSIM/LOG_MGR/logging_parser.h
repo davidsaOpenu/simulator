@@ -54,63 +54,131 @@ int next_log_type(Logger* logger);
 
 
 /**
- * A log of a physical page read
+ * A log of a physical cell read
  */
 typedef struct {
     /**
-     * Member 'channel' is the channel number of the page read
+     * The channel number of the cell read
      */
     unsigned int channel;
     /**
-     * Member 'block' is the block number of the page read
+     * The block number of the cell read
      */
     unsigned int block;
     /**
-     * Member 'page' is the page number of the page read
+     * The page number of the cell read
      */
     unsigned int page;
-} PhysicalPageReadLog;
+} PhysicalCellReadLog;
 /**
- * A log of a physical page write
+ * A log of a physical cell program
  */
 typedef struct {
     /**
-     * Member 'channel' is the channel number of the page written
+     * The channel number of the programmed cell
      */
     unsigned int channel;
     /**
-     * Member 'block' is the block number of the page written
+     * The block number of the programmed cell
      */
     unsigned int block;
     /**
-     * Member 'page' is the page number of the page written
+     * The page number of the programmed cell
      */
     unsigned int page;
-} PhysicalPageWriteLog;
+} PhysicalCellProgramLog;
 /**
- * A log of a logical page write
+ * A log of a logical cell program
  */
 typedef struct {
     /**
-     * Member 'channel' is the channel number of the page written
+     * The channel number of the programmed cell
      */
     unsigned int channel;
     /**
-     * Member 'block' is the block number of the page written
+     * The block number of the programmed cell
      */
     unsigned int block;
     /**
-     * Member 'page' is the page number of the page written
+     * The page number of the programmed cell
      */
     unsigned int page;
-} LogicalPageWriteLog;
+} LogicalCellProgramLog;
 /**
  * A log of garbage collection
  */
 typedef struct {
 
 } GarbageCollectionLog;
-/*...*/
+/**
+ * A log of a register read
+ */
+typedef struct {
+    /**
+     * The channel number of the register read
+     */
+    unsigned int channel;
+    /**
+     * The die number of the register read
+     */
+    unsigned int die;
+    /**
+     * The register number of the register read
+     */
+    unsigned int reg;
+} RegisterReadLog;
+/**
+ * A log of a register write
+ */
+typedef struct {
+    /**
+     * The channel number of the written register
+     */
+    unsigned int channel;
+    /**
+     * The die number of the written register
+     */
+    unsigned int die;
+    /**
+     * The register number of the written register
+     */
+    unsigned int reg;
+} RegisterWriteLog;
+/**
+ * A log of a block erase
+ */
+typedef struct {
+    /**
+     * The channel number of the erased block
+     */
+    unsigned int channel;
+    /**
+     * The die number of the erased block
+     */
+    unsigned int die;
+    /**
+     * The block number of the erased block
+     */
+    unsigned int block;
+} BlockEraseLog;
+/**
+ * A block of a channel switch to read mode
+ */
+typedef struct {
+    /**
+     * The channel number of the channel being switched
+     */
+    unsigned int channel;
+} ChannelSwitchToReadLog;
+/**
+ * A block of a channel switch to write mode
+ */
+typedef struct {
+    /**
+     * The channel number of the channel being switched
+     */
+    unsigned int channel;
+} ChannelSwitchToWriteLog;
 
 
 /**
@@ -119,11 +187,16 @@ typedef struct {
  * In order to add a new log type, one must only add a new line with the log definition here
  * @param APPLIER the macro which is going to be applied to all the log types
  */
-#define _LOGS_DEFINITIONS(APPLIER)  \
-    APPLIER(PhysicalPageReadLog, PHYSICAL_PAGE_READ)    \
-    APPLIER(PhysicalPageWriteLog, PHYSICAL_PAGE_WRITE)  \
-    APPLIER(LogicalPageWriteLog, LOGICAL_PAGE_WRITE)    \
-    APPLIER(GarbageCollectionLog, GARBAGE_COLLECTION)
+#define _LOGS_DEFINITIONS(APPLIER)                              \
+    APPLIER(PhysicalCellReadLog, PHYSICAL_CELL_READ)            \
+    APPLIER(PhysicalCellProgramLog, PHYSICAL_CELL_PROGRAM)      \
+    APPLIER(LogicalCellProgramLog, LOGICAL_CELL_PROGRAM)        \
+    APPLIER(GarbageCollectionLog, GARBAGE_COLLECTION)           \
+    APPLIER(RegisterReadLog, REGISTER_READ)                     \
+    APPLIER(RegisterWriteLog, REGISTER_WRITE)                   \
+    APPLIER(BlockEraseLog, BLOCK_ERASE)                         \
+    APPLIER(ChannelSwitchToReadLog, CHANNEL_SWITCH_TO_READ)     \
+    APPLIER(ChannelSwitchToWriteLog, CHANNEL_SWITCH_TO_WRITE)
 
 
 /**
