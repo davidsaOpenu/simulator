@@ -40,7 +40,7 @@ void* run_monitor(void*) {
 }
 
 
-void update_stats(SSDStatistics stats) {
+void update_stats(SSDStatistics stats, void*) {
     static bool instanceFound = false;
     if (!instanceFound) {
         pthread_mutex_lock(&Form1::InstanceLock);

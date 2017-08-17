@@ -14,23 +14,35 @@
  * limitations under the License.
  */
 
-#ifndef __MONITOR_TEST_H__
-#define __MONITOR_TEST_H__
+#ifndef __LOG_MANAGER_SUBSCRIBER_H__
+#define __LOG_MANAGER_SUBSCRIBER_H__
 
-#include "../../LOG_MGR/logging_rt_analyzer.h"
+extern "C" {
 
+#include "logging_manager.h"
+}
 
-/**
- * Run the monitor in the current thread
- */
-void* run_monitor(void*);
 
 /**
- * Update the statistics displayed in the monitor
- * If no window is shown, block until one appears
- * @param stats the new statistics to display
+ * The namespace of the log manager subscriber, used for testing
  */
-void update_stats(SSDStatistics stats, void*);
+namespace manager_subscriber {
+    /**
+     * Initialize the data needed to run the test
+     * @param manager the manager to use
+     */
+    void init(LogManager* manager);
+
+    /**
+     * Run the log manager test
+     */
+    void run();
+
+    /**
+     * Free the memory allocated for the test
+     */
+    void free();
+}
 
 
 #endif
