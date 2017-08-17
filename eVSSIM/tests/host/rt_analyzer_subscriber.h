@@ -17,8 +17,10 @@
 #ifndef __RT_ANALYZER_SUBSCRIBER_H__
 #define __RT_ANALYZER_SUBSCRIBER_H__
 
+extern "C" {
 
 #include "logging_rt_analyzer.h"
+}
 
 
 /**

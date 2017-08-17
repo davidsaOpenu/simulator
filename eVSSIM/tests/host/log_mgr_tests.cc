@@ -20,11 +20,13 @@ extern "C" {
 #include "logging_backend.h"
 #include "logging_parser.h"
 #include "logging_rt_analyzer.h"
+#include "logging_manager.h"
 }
 bool g_ci_mode = false;
 bool g_monitor_mode = false;
 
 #include "rt_analyzer_subscriber.h"
+#include "log_manager_subscriber.h"
 #include "monitor_test.h"
 
 #include <gtest/gtest.h>
@@ -369,10 +371,25 @@ namespace log_mgr_tests {
         RTLogAnalyzer* analyzer = rt_log_analyzer_init(_logger);
         rt_subscriber::subscribe(analyzer);
         if (g_monitor_mode)
-            rt_log_analyzer_subscribe(analyzer, (MonitorHook) update_stats);
+            rt_log_analyzer_subscribe(analyzer, (MonitorHook) update_stats, NULL);
         rt_subscriber::write();
         rt_subscriber::read();
         rt_log_analyzer_free(analyzer, 0);
+    }
+
+    /* Log Manager Tests */
+
+    /**
+     * Do a simple test of the log manager
+     */
+    TEST_P(LogMgrUnitTest, BasicLogManager) {
+        LogManager* manager = log_manager_init();
+        manager_subscriber::init(manager);
+        if (g_monitor_mode)
+            log_manager_subscribe(manager, (MonitorHook) update_stats, NULL);
+        manager_subscriber::run();
+        manager_subscriber::free();
+        log_manager_free(manager);
     }
 } //namespace
 

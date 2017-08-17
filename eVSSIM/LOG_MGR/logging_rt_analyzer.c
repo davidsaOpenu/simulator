@@ -23,6 +23,20 @@
 #include "logging_rt_analyzer.h"
 
 
+SSDStatistics stats_init(void) {
+    SSDStatistics stats = {
+            .write_count = 0,
+            .write_speed = 0.0,
+            .read_count = 0,
+            .read_speed = 0.0,
+            .garbage_collection_count = 0,
+            .write_amplification = 0.0,
+            .utilization = 0.0
+    };
+    return stats;
+}
+
+
 /**
  * Transforms pages in a usec to megabytes in a second
  * @param {double} x pages in a usec
@@ -36,32 +50,22 @@ RTLogAnalyzer* rt_log_analyzer_init(Logger* logger) {
     if (analyzer == NULL)
         return NULL;
     analyzer->logger = logger;
-    unsigned int i;
-    for (i = 0; i < MAX_SUBSCRIBERS; i++)
-        analyzer->hooks[i] = NULL;
     analyzer->subscribers_count = 0;
 
     return analyzer;
 }
 
-int rt_log_analyzer_subscribe(RTLogAnalyzer* analyzer, MonitorHook hook) {
+int rt_log_analyzer_subscribe(RTLogAnalyzer* analyzer, MonitorHook hook, void* id) {
     if (analyzer->subscribers_count >= MAX_SUBSCRIBERS)
         return 1;
+    analyzer->hooks_ids[analyzer->subscribers_count] = id;
     analyzer->hooks[analyzer->subscribers_count++] = hook;
     return 0;
 }
 
 void rt_log_analyzer_loop(RTLogAnalyzer* analyzer, int max_logs) {
     // init the statistics
-    SSDStatistics stats = {
-        .write_count = 0,
-        .write_speed = 0.0,
-        .read_count = 0,
-        .read_speed = 0.0,
-        .garbage_collection_count = 0,
-        .write_amplification = 0.0,
-        .utilization = 0.0
-    };
+    SSDStatistics stats = stats_init();
 
     // additional variables needed to calculate the statistics
     unsigned int logical_write_count = 0;
@@ -154,7 +158,7 @@ void rt_log_analyzer_loop(RTLogAnalyzer* analyzer, int max_logs) {
         // call present hooks
         unsigned int i;
         for (i = 0; i < analyzer->subscribers_count; i++)
-            analyzer->hooks[i](stats);
+            analyzer->hooks[i](stats, analyzer->hooks_ids[i]);
 
         // update `logs_read` only if necessary (in order to avoid overflow)
         if (max_logs >= 0)
