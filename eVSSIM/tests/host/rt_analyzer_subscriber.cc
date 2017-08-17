@@ -192,7 +192,7 @@ namespace rt_subscriber {
      * Assert that the statistics given are OK
      * @param stats the statistics to validate
      */
-    void analyze_stats(SSDStatistics stats) {
+    void analyze_stats(SSDStatistics stats, void*) {
         SSDStatistics res = results[_logs_read];
         _logs_read++;
 
@@ -209,6 +209,6 @@ namespace rt_subscriber {
         _logs_read = 0;
         _analyzer = analyzer;
 
-        rt_log_analyzer_subscribe(_analyzer, (MonitorHook) analyze_stats);
+        rt_log_analyzer_subscribe(_analyzer, (MonitorHook) analyze_stats, NULL);
     }
 }

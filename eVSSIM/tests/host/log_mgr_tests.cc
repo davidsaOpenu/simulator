@@ -369,7 +369,7 @@ namespace log_mgr_tests {
         RTLogAnalyzer* analyzer = rt_log_analyzer_init(_logger);
         rt_subscriber::subscribe(analyzer);
         if (g_monitor_mode)
-            rt_log_analyzer_subscribe(analyzer, (MonitorHook) update_stats);
+            rt_log_analyzer_subscribe(analyzer, (MonitorHook) update_stats, NULL);
         rt_subscriber::write();
         rt_subscriber::read();
         rt_log_analyzer_free(analyzer, 0);
