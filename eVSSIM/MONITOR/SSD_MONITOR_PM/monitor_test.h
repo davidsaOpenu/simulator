@@ -30,7 +30,7 @@ void* run_monitor(void*);
  * If no window is shown, block until one appears
  * @param stats the new statistics to display
  */
-void update_stats(SSDStatistics stats);
+void update_stats(SSDStatistics stats, void*);
 
 
 #endif
