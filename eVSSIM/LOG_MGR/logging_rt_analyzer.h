@@ -17,7 +17,6 @@
 #ifndef __LOGGING_RT_ANALYZER_H__
 #define __LOGGING_RT_ANALYZER_H__
 
-
 #include "logging_parser.h"
 
 
@@ -57,10 +56,18 @@ typedef struct {
 
 
 /**
+ * Return a new, empty statistics structure
+ * @return a new, empty statistics structure
+ */
+SSDStatistics stats_init(void);
+
+
+/**
  * A monitor hook
  * @param stats the most recent statistics calculated
+ * @param id a pointer to user defined data
  */
-typedef void (*MonitorHook)(SSDStatistics stats);
+typedef void (*MonitorHook)(SSDStatistics stats, void* id);
 
 
 /**
@@ -82,6 +89,10 @@ typedef struct {
      */
     MonitorHook hooks[MAX_SUBSCRIBERS];
     /**
+     * The ids to use for the hooks
+     */
+    void* hooks_ids[MAX_SUBSCRIBERS];
+    /**
      * The number of hooks currently subscribed to the analyzer
      */
     unsigned int subscribers_count;
@@ -99,14 +110,15 @@ RTLogAnalyzer* rt_log_analyzer_init(Logger* logger);
  * Subscribe to the log analyzer
  * @param analyzer the analyzer to subscribe to
  * @param hook the new hook to use
+ * @param id a pointer to user defined data which will be sent to the hook
  * @return 0 if the subscription succeeded, nonzero otherwise
  */
-int rt_log_analyzer_subscribe(RTLogAnalyzer* analyzer, MonitorHook hook);
+int rt_log_analyzer_subscribe(RTLogAnalyzer* analyzer, MonitorHook hook, void* id);
 
 /**
  * Do the main loop of the analyzer given
  * @param analyzer the analyzer to run
- * @param max_logs the maimum number of logs to read; if negative, run forever
+ * @param max_logs the maximum number of logs to read; if negative, run forever
  */
 void rt_log_analyzer_loop(RTLogAnalyzer* analyzer, int max_logs);
 
