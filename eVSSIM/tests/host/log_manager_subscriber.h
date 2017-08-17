@@ -14,32 +14,34 @@
  * limitations under the License.
  */
 
-#ifndef __RT_ANALYZER_SUBSCRIBER_H__
-#define __RT_ANALYZER_SUBSCRIBER_H__
+#ifndef __LOG_MANAGER_SUBSCRIBER_H__
+#define __LOG_MANAGER_SUBSCRIBER_H__
 
 extern "C" {
 
-#include "logging_rt_analyzer.h"
+#include "logging_manager.h"
 }
 
 
 /**
- * The namespace of the real time log analyzer subscriber, used for testing
+ * The namespace of the log manager subscriber, used for testing
  */
-namespace rt_subscriber {
+namespace manager_subscriber {
     /**
-     * Write the different logs to the logger previously subscribed to
+     * Initialize the data needed to run the test
+     * @param manager the manager to use
      */
-    void write();
+    void init(LogManager* manager);
+
     /**
-     * Read the logs from the logger using rt_log_analyzer_loop
+     * Run the log manager test
      */
-    void read();
+    void run();
+
     /**
-     * Subscribe to the analyzer given, and save it for future use
-     * @param analyzer the analyzer to use in the subscriber
+     * Free the memory allocated for the test
      */
-    void subscribe(RTLogAnalyzer* analyzer);
+    void free();
 }
 
 
