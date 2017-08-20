@@ -37,6 +37,22 @@ SSDStatistics stats_init(void) {
 }
 
 
+int stats_json(SSDStatistics stats, Byte* buffer, int max_len) {
+    return snprintf((char*) buffer, max_len, "{"
+                    "\"write_count\":%d,"
+                    "\"write_speed\":%f,"
+                    "\"read_count\":%d,"
+                    "\"read_speed\":%f,"
+                    "\"garbage_collection_count\":%d,"
+                    "\"write_amplification\":%f,"
+                    "\"utilization\":%f"
+                    "}",
+                    stats.write_count, stats.write_speed, stats.read_count,
+                    stats.read_speed, stats.garbage_collection_count,
+                    stats.write_amplification, stats.utilization);
+}
+
+
 /**
  * Transforms pages in a usec to megabytes in a second
  * @param {double} x pages in a usec
