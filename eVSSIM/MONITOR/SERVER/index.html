@@ -1,0 +1,39 @@
+<!--/*TODO rewrite*/-->
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8">
+    <script type="text/javascript">
+      window.WebSocket = window.WebSocket || window.MozWebSocket;
+        var websocket = new WebSocket(
+            'ws://127.0.0.1:9000', 'evssim-monitor');
+        websocket.onopen = function () {
+          //$('h1').css('color', 'green');
+          console.log('connected');
+        };
+        websocket.onerror = function () {
+          //$('h1').css('color', 'red');
+          console.log('error');
+        };
+        websocket.onmessage = function (message) {
+          console.log(message.data);
+          var res = document.getElementById('res');
+          res.innerHTML += '<p>' + message.data + '</p>';
+        };
+        function sendme() {
+          var inp = document.getElementById('inp');
+          console.log('sending ' + inp.value);
+          websocket.send(inp.value);
+          inp.value = "";
+        };
+    </script>
+  </head>
+  <body>
+    <h1>WebSockets test</h1>
+    <form>
+      <input type="text" id=inp />
+      <button id=send type="button" onclick="sendme(); return false;">Send</button>
+    </form>
+    <div id=res></div>
+  </body>
+</html>

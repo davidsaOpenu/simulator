@@ -116,6 +116,8 @@ eVSSIM/tests/host/uthash.h
 eVSSIM/tests/host/vssim_config_manager.c
 eVSSIM/tests/host/vssim_config_manager.h
 eVSSIM/tests/host/monitor_test.h
+eVSSIM/tests/host/logging_server.c
+eVSSIM/tests/host/logging_server.h
 
 # osd-osd files
 eVSSIM/osc-osd/osd-util/.depend
