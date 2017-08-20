@@ -1,0 +1,72 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "d5743e26_30961e34",
+        "filename": "eVSSIM/MONITOR/SSD_MONITOR_PM/monitor_common.h",
+        "patchSetId": 19
+      },
+      "lineNbr": 22,
+      "author": {
+        "id": 1006664
+      },
+      "writtenOn": "2017-08-20T10:45:17Z",
+      "side": 1,
+      "message": "#include \"logging_rt_analyzer.h\"\nand let\u0027s add -I to Makefile",
+      "revId": "6b5acbe461cb0d901c88932dbdfa348d286e1efd",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "b1b16798_675a7d01",
+        "filename": "eVSSIM/MONITOR/SSD_MONITOR_PM/monitor_common.h",
+        "patchSetId": 19
+      },
+      "lineNbr": 38,
+      "author": {
+        "id": 1006664
+      },
+      "writtenOn": "2017-08-20T10:45:17Z",
+      "side": 1,
+      "message": "3000 - magic number",
+      "revId": "6b5acbe461cb0d901c88932dbdfa348d286e1efd",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "37c6d20e_793a3585",
+        "filename": "eVSSIM/MONITOR/SSD_MONITOR_PM/monitor_test.h",
+        "patchSetId": 19
+      },
+      "lineNbr": 20,
+      "author": {
+        "id": 1006664
+      },
+      "writtenOn": "2017-08-20T10:45:17Z",
+      "side": 1,
+      "message": "same note regarding ../.. and -I flag",
+      "revId": "6b5acbe461cb0d901c88932dbdfa348d286e1efd",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "76dfe77b_82984b80",
+        "filename": "eVSSIM/tests/host/rt_analyzer_subscriber.cc",
+        "patchSetId": 19
+      },
+      "lineNbr": 52,
+      "author": {
+        "id": 1006664
+      },
+      "writtenOn": "2017-08-20T10:45:17Z",
+      "side": 1,
+      "message": "Those computations are hard to understand. could you please add explanations or, alternatively, replace numbers with constant vars / defines with meaningful names?",
+      "revId": "6b5acbe461cb0d901c88932dbdfa348d286e1efd",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    }
+  ]
+}
