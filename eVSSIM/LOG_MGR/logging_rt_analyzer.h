@@ -63,6 +63,17 @@ SSDStatistics stats_init(void);
 
 
 /**
+ * Write a JSON representation of the statistics given to the buffer
+ * @param stats the statistics to write
+ * @param buffer the buffer to write the JSON to
+ * @param max_len the maximum length to write
+ * @return -1 if an error occurred, otherwise the number of characters written
+ *         (including the terminating null byte)
+ */
+int stats_json(SSDStatistics stats, Byte* buffer, int max_len);
+
+
+/**
  * A monitor hook
  * @param stats the most recent statistics calculated
  * @param id a pointer to user defined data
