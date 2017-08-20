@@ -19,5 +19,6 @@ make
 #compile QEMU
 cd ../../QEMU
 make distclean
-./configure --enable-io-thread --enable-linux-aio --target-list=x86_64-softmmu --enable-sdl --enable-vssim --extra-cflags='-Wno-deprecated-declarations -Wno-unused-but-set-variable'
+
+./configure --enable-io-thread --enable-linux-aio --target-list=x86_64-softmmu --enable-sdl --enable-vssim --extra-cflags='-Wno-error=unused-but-set-variable -Wno-error=deprecated-declarations -Wno-error=cpp' --disable-docs --cc=gcc-4.6
 make
