@@ -62,6 +62,9 @@ typedef struct {
 SSDStatistics stats_init(void);
 
 
+int stats_json(SSDStatistics stats, Byte* buffer, int max_len);
+
+
 /**
  * A monitor hook
  * @param stats the most recent statistics calculated
