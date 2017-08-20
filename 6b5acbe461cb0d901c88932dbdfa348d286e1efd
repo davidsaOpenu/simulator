@@ -19,6 +19,24 @@
     },
     {
       "key": {
+        "uuid": "8483859a_03b1c7b2",
+        "filename": "eVSSIM/MONITOR/SSD_MONITOR_PM/monitor_common.h",
+        "patchSetId": 19
+      },
+      "lineNbr": 22,
+      "author": {
+        "id": 1010875
+      },
+      "writtenOn": "2017-08-20T14:52:47Z",
+      "side": 1,
+      "message": "Added a comment",
+      "parentUuid": "d5743e26_30961e34",
+      "revId": "6b5acbe461cb0d901c88932dbdfa348d286e1efd",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "b1b16798_675a7d01",
         "filename": "eVSSIM/MONITOR/SSD_MONITOR_PM/monitor_common.h",
         "patchSetId": 19
@@ -30,6 +48,24 @@
       "writtenOn": "2017-08-20T10:45:17Z",
       "side": 1,
       "message": "3000 - magic number",
+      "revId": "6b5acbe461cb0d901c88932dbdfa348d286e1efd",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "1dafcfd5_f78ff383",
+        "filename": "eVSSIM/MONITOR/SSD_MONITOR_PM/monitor_common.h",
+        "patchSetId": 19
+      },
+      "lineNbr": 38,
+      "author": {
+        "id": 1010875
+      },
+      "writtenOn": "2017-08-20T14:52:47Z",
+      "side": 1,
+      "message": "Added a comment",
+      "parentUuid": "b1b16798_675a7d01",
       "revId": "6b5acbe461cb0d901c88932dbdfa348d286e1efd",
       "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
       "unresolved": false
@@ -53,6 +89,24 @@
     },
     {
       "key": {
+        "uuid": "e0e0004e_84c61901",
+        "filename": "eVSSIM/MONITOR/SSD_MONITOR_PM/monitor_test.h",
+        "patchSetId": 19
+      },
+      "lineNbr": 20,
+      "author": {
+        "id": 1010875
+      },
+      "writtenOn": "2017-08-20T14:52:47Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "37c6d20e_793a3585",
+      "revId": "6b5acbe461cb0d901c88932dbdfa348d286e1efd",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "76dfe77b_82984b80",
         "filename": "eVSSIM/tests/host/rt_analyzer_subscriber.cc",
         "patchSetId": 19
@@ -64,6 +118,24 @@
       "writtenOn": "2017-08-20T10:45:17Z",
       "side": 1,
       "message": "Those computations are hard to understand. could you please add explanations or, alternatively, replace numbers with constant vars / defines with meaningful names?",
+      "revId": "6b5acbe461cb0d901c88932dbdfa348d286e1efd",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "7d3f3a87_2cf3263b",
+        "filename": "eVSSIM/tests/host/rt_analyzer_subscriber.cc",
+        "patchSetId": 19
+      },
+      "lineNbr": 52,
+      "author": {
+        "id": 1010875
+      },
+      "writtenOn": "2017-08-20T14:52:47Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "76dfe77b_82984b80",
       "revId": "6b5acbe461cb0d901c88932dbdfa348d286e1efd",
       "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
       "unresolved": false
