@@ -23,7 +23,7 @@
 /**
  * The maximum number of analyzers a LogManager can hold
  */
-#define MAX_ANALYZERS 4
+#define MAX_ANALYZERS 16
 
 
 /**
@@ -71,6 +71,10 @@ typedef struct {
      * The number of hooks currently subscribed to the manager
      */
     unsigned int subscribers_count;
+    /**
+     * Whether the analyzer should stop looping ASAP
+     */
+    unsigned int close_flag : 1;
 } LogManager;
 
 
@@ -96,6 +100,13 @@ int log_manager_subscribe(LogManager* manager, MonitorHook hook, void* id);
  * @return 0 if the addition succeeded, nonzero otherwise
  */
 int log_manager_add_analyzer(LogManager* manager, RTLogAnalyzer* analyzer);
+
+/**
+ * Run the logging manager in the current thread;
+ * The same as `log_manager_loop(manager, -1)`
+ * @param manager the manager to run
+ */
+void* log_manager_run(void* manager);
 
 /**
  * Do the main loop of the manager given
