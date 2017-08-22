@@ -124,7 +124,7 @@ int main(int argc, char **argv)
 #include "hw/xen.h"
 #include "hw/qdev.h"
 #include "hw/loader.h"
-#include "hw/ftl.h"
+#include "hw/common.h"
 #include "bt-host.h"
 #include "net.h"
 #include "net/slirp.h"
@@ -3323,10 +3323,7 @@ int main(int argc, char **argv, char **envp)
 #ifdef CONFIG_VSSIM    //TODO: this should be called from nvme_close_storage_disks()
 	FTL_TERM();  
 
-#ifdef MONITOR_ON
 	TERM_LOG_MANAGER();
-#endif
-
 #endif
 
     return 0;

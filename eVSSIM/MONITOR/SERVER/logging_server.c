@@ -236,7 +236,7 @@ void log_server_loop(int max_loops) {
     }
 }
 
-void log_server_free() {
+void log_server_free(void) {
     lws_context_destroy(server.context);
     pthread_mutex_destroy(&server.lock);
 }

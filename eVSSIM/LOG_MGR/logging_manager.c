@@ -31,7 +31,7 @@
  * @param stats the new stats from the analyzer
  * @param id the id used when subscribing (pointer to the handler)
  */
-void on_analyzer_update(SSDStatistics stats, void* id) {
+static void on_analyzer_update(SSDStatistics stats, void* id) {
     AnalyzerHandler* handler = (AnalyzerHandler*) id;
     // first update the next statistics, and only then update the index
     // the only case which this does not solve is when this hook is called `HANDLER_SIZE` times

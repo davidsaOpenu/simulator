@@ -195,6 +195,12 @@ distclean: clean
 	rm -f hw/ftl_mapping_manager.{h,c}
 	rm -f hw/ftl_perf_manager.{h,c}
 	rm -f hw/vssim_config_manager.{h,c}
+	rm -f hw/logging_backend.{h,c}
+	rm -f hw/logging_manager.{h,c}
+	rm -f hw/logging_parser.{h,c}
+	rm -f hw/logging_rt_analyzer.{h,c}
+	rm -f hw/logging_server.{h,c}
+	rm -rf hw/www
 	rm -f hw/ssd_monitor
 	rm -f config-host.mak config-host.h* config-host.ld $(DOCS) qemu-options.texi qemu-img-cmds.texi qemu-monitor.texi
 	rm -f config-all-devices.mak
