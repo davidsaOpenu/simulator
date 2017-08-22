@@ -200,6 +200,7 @@ distclean: clean
 	rm -f hw/logging_parser.{h,c}
 	rm -f hw/logging_rt_analyzer.{h,c}
 	rm -f hw/logging_server.{h,c}
+	rm -f hw/logging_statistics.{h,c}
 	rm -rf hw/www
 	rm -f hw/ssd_monitor
 	rm -f config-host.mak config-host.h* config-host.ld $(DOCS) qemu-options.texi qemu-img-cmds.texi qemu-monitor.texi

@@ -56,15 +56,6 @@ namespace rt_subscriber {
                     .utilization = 0
             },
             // physical cell read
-            {
-                    .write_count = 0,
-                    .write_speed = 0,
-                    .read_count = 1,
-                    .read_speed = (1.0 / (REG_READ_DELAY + CELL_READ_DELAY)) * SEC_IN_USEC,
-                    .garbage_collection_count = 0,
-                    .write_amplification = 0,
-                    .utilization = 0
-            },
             // channel switch to write
             {
                     .write_count = 0,
@@ -96,15 +87,6 @@ namespace rt_subscriber {
                     .utilization = 1.0 / PAGES_IN_SSD
             },
             // logical cell program
-            {
-                    .write_count = 1,
-                    .write_speed = (1.0 / (CHANNEL_SWITCH_DELAY_W + CELL_PROGRAM_DELAY)) * SEC_IN_USEC,
-                    .read_count = 1,
-                    .read_speed = (1.0 / (REG_READ_DELAY + CELL_READ_DELAY)) * SEC_IN_USEC,
-                    .garbage_collection_count = 1,
-                    .write_amplification = 1,
-                    .utilization = 1.0 / PAGES_IN_SSD
-            },
             // register write
             {
                     .write_count = 1,
@@ -136,15 +118,6 @@ namespace rt_subscriber {
                     .utilization = 2.0 / PAGES_IN_SSD
             },
             // block erase
-            {
-                    .write_count = 2,
-                    .write_speed = (2.0 / (CHANNEL_SWITCH_DELAY_W + CELL_PROGRAM_DELAY + REG_WRITE_DELAY + CELL_PROGRAM_DELAY)) * SEC_IN_USEC,
-                    .read_count = 1,
-                    .read_speed = (1.0 / (REG_READ_DELAY + CELL_READ_DELAY)) * SEC_IN_USEC,
-                    .garbage_collection_count = 1,
-                    .write_amplification = 1.0,
-                    .utilization = 0.0 / PAGES_IN_SSD
-            },
             // channel switch to read
             {
                     .write_count = 2,
