@@ -20,6 +20,7 @@
 
 /* VSSIM Function */
 //#define MONITOR_ON
+#define LOGGING_SERVER_ON
 #ifdef PAGE_MAP
 #define GC_ON 1			/* Garbage Collection for PAGE MAP */
 #endif
@@ -43,6 +44,7 @@
 #include "logging_parser.h"
 #include "logging_rt_analyzer.h"
 #include "logging_server.h"
+#include "logging_statistics.h"
 
 #ifdef PAGE_MAP
 	#include "ftl_gc_manager.h"
