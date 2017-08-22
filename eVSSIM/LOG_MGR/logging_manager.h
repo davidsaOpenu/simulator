@@ -98,6 +98,13 @@ int log_manager_subscribe(LogManager* manager, MonitorHook hook, void* id);
 int log_manager_add_analyzer(LogManager* manager, RTLogAnalyzer* analyzer);
 
 /**
+ * Run the logging manager in the current thread;
+ * The same as `log_manager_loop(manager, -1)`
+ * @param manager the manager to run
+ */
+void* log_manager_run(void* manager);
+
+/**
  * Do the main loop of the manager given
  * @param manager the manager to run
  * @param max_loops the maximum number of loops to do; if negative, run forever

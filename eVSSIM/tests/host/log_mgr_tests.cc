@@ -90,6 +90,7 @@ namespace log_mgr_tests {
                     printf("Waiting for server to close...\n");
                     pthread_join(_server, NULL);
                     printf("Server closed\n");
+                    log_server_free();
                 }
 
                 remove("./data/ssd.conf");
