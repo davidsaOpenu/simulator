@@ -19,7 +19,7 @@
 
 #include <libwebsockets.h>
 
-#include "logging_rt_analyzer.h"
+#include "logging_statistics.h"
 
 
 /**
