@@ -44,18 +44,21 @@ limitations under the License.
             websocket.onopen = function() {
                 console.log('Successfully connected');
                 get('status').style.background = 'green';
+                get('status').title = 'Connected';
             };
 
             // handle disconnection
             websocket.onclose = function() {
                 console.log('Web socket disconnected');
                 get('status').style.background = 'red';
+                get('status').title = 'Disconnected';
             }
 
             // handle error
             websocket.onerror = function() {
                 console.log('An error occurred!');
                 get('status').style.background = 'red';
+                get('status').title = 'Error';
             }
 
             // handle messages

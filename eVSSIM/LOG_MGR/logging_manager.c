@@ -76,7 +76,15 @@ int log_manager_add_analyzer(LogManager* manager, RTLogAnalyzer* analyzer) {
 }
 
 
+void* log_manager_run(void* manager) {
+    log_manager_loop((LogManager*) manager, -1);
+    return NULL;
+}
+
+
 void log_manager_loop(LogManager* manager, int max_loops) {
+    SSDStatistics old_stats = stats_init();
+    int first_loop = 1;
     int loops = 0;
     while (max_loops < 0 || loops < max_loops) {
         // init the current statistics
@@ -121,13 +129,17 @@ void log_manager_loop(LogManager* manager, int max_loops) {
         else
             stats.read_speed = read_wall_time / stats.read_count;
 
-        // call present hooks
-        for (i = 0; i < manager->subscribers_count; i++)
-            manager->hooks[i](stats, manager->hooks_ids[i]);
+        // call present hooks if the statistics changed
+        if (first_loop || !stats_equal(old_stats, stats))
+            for (i = 0; i < manager->subscribers_count; i++)
+                manager->hooks[i](stats, manager->hooks_ids[i]);
 
         // update `loops` only if necessary (in order to avoid overflow)
         if (max_loops >= 0)
             loops++;
+
+        first_loop = 0;
+        old_stats = stats;
     }
 }
 
