@@ -17,9 +17,6 @@
 extern "C" {
 
 #include "common.h"
-#include "logging_backend.h"
-#include "logging_rt_analyzer.h"
-#include "logging_manager.h"
 }
 
 #include <gtest/gtest.h>
