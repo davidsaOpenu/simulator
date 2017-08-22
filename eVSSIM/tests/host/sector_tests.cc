@@ -71,15 +71,11 @@ namespace {
                     "STORAGE_STRATEGY 1\n"; // sector strategy
                 ssd_conf.close();
             	FTL_INIT();
-            #ifdef MONITOR_ON
             	INIT_LOG_MANAGER();
-            #endif
             }
             virtual void TearDown() {
             	FTL_TERM();
-            #ifdef MONITOR_ON
             	TERM_LOG_MANAGER();
-            #endif
                 remove("data/empty_block_list.dat");
                 remove("data/inverse_block_mapping.dat");
                 remove("data/inverse_page_mapping.dat");
