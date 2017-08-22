@@ -19,13 +19,41 @@
 
 #include <libwebsockets.h>
 
-#include "logging_rt_analyzer.h"
+#include "logging_statistics.h"
 
 
 /**
  * The port to be used by the server
  */
 #define LOG_SERVER_PORT 2003
+
+
+/**
+ * The logging server structure
+ */
+typedef struct {
+    /**
+     * A pointer to the lws context of the server
+     */
+    struct lws_context* context;
+    /**
+     * The lock of the server (used to safely update its statistics)
+     */
+    pthread_mutex_t lock;
+    /**
+     * The current statistics being displayed to the clients of the server
+     */
+    SSDStatistics stats;
+    /**
+     * Whether the server should stop looping ASAP
+     */
+    unsigned int exit_loop_flag: 1;
+} LogServer;
+
+/**
+ * The logging server structure declaration
+ */
+extern LogServer log_server;
 
 
 /**

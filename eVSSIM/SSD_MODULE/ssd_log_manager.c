@@ -15,14 +15,61 @@
 #include <sys/types.h>
 #include <fcntl.h>
 #include <stdarg.h>
+#include <signal.h>
 
+
+/**
+ * The data allocated for each logger and real time analyzer pair
+ */
+typedef struct {
+    /**
+     * The logger itself
+     */
+    Logger* logger;
+    /**
+     * The real time analyzer of the logger
+     */
+    RTLogAnalyzer* rt_log_analyzer;
+    /**
+     * The thread of the real time analyzer
+     */
+    pthread_t rt_log_analyzer_thread;
+} LoggerAnalyzerStorage;
+
+
+// old monitor data
 int servSock;
 int clientSock = 0;
 int g_init_log_server = 0;
 FILE *monitor = NULL;
 
+
+// new logging server data
+/**
+ * The size of each logger, in bytes (currently ~16Mb)
+ */
+#define LOGGER_SIZE (1 << 24)
+/**
+ * The loggers' + real time analyzers' data
+ */
+LoggerAnalyzerStorage* analyzers_storage;
+/**
+ * The log manager struct
+ */
+LogManager* log_manager;
+/**
+ * The log manager thread
+ */
+pthread_t log_manager_thread;
+/**
+ * The log server thread
+ */
+pthread_t log_server_thread;
+
+
 void INIT_LOG_MANAGER(void)
 {
+    // handle old monitor
 #ifdef MONITOR_ON
 	if(g_init_log_server == 0){
 		if ((monitor = popen("./ssd_monitor", "r")) == NULL)
@@ -32,13 +79,78 @@ void INIT_LOG_MANAGER(void)
 		g_init_log_server = 1;
 	}
 #endif
+
+	// handle new logging server
+#ifdef LOGGING_SERVER_ON
+	int i;
+
+	// allocate memory
+	analyzers_storage = (LoggerAnalyzerStorage*) malloc(sizeof(LoggerAnalyzerStorage) * FLASH_NB);
+	if (analyzers_storage == NULL)
+	    PERR("Couldn't allocate memory for the loggers and real time analyzers: %s\n", strerror(errno));
+
+	// init structures
+	for (i = 0; i < FLASH_NB; i++) {
+	    analyzers_storage[i].logger = logger_init(LOGGER_SIZE);
+	    if (analyzers_storage[i].logger == NULL)
+	        PERR("Couldn't create the logger: %s\n", strerror(errno));
+	    analyzers_storage[i].rt_log_analyzer = rt_log_analyzer_init(analyzers_storage[i].logger);
+	    if (analyzers_storage[i].rt_log_analyzer == NULL)
+	        PERR("Couldn't create the real time analyzer: %s\n", strerror(errno));
+	}
+	log_manager = log_manager_init();
+	if (log_manager == NULL)
+	    PERR("Couldn't create the log manager: %s\n", strerror(errno));
+	log_server_init();
+
+	// connect the logging mechanism
+	for (i = 0; i < FLASH_NB; i++) {
+	    log_manager_add_analyzer(log_manager, analyzers_storage[i].rt_log_analyzer);
+    }
+	log_manager_subscribe(log_manager, log_server_update, NULL);
+
+	// run the threads
+	pthread_create(&log_server_thread, NULL, log_server_run, NULL);
+	pthread_create(&log_manager_thread, NULL, log_manager_run, log_manager);
+	for (i = 0; i < FLASH_NB; i++) {
+	    pthread_create(&(analyzers_storage[i].rt_log_analyzer_thread), NULL, rt_log_analyzer_run, analyzers_storage[i].rt_log_analyzer);
+	}
+
+    PINFO("Log server opened\n");
+    PINFO("Browse to http://127.0.0.1:%d/ to see the current statistics\n", LOG_SERVER_PORT);
+#endif
 }
 void TERM_LOG_MANAGER(void)
 {
+    // handle old monitor
 #ifdef MONITOR_ON
 	close(servSock);
 	close(clientSock);
 	pclose(monitor);
+#endif
+
+	// handle new logging server
+#ifdef LOGGING_SERVER_ON
+	int i;
+
+	// alert the different threads to stop
+	for (i = 0; i < FLASH_NB; i++)
+	    analyzers_storage[i].rt_log_analyzer->exit_loop_flag = 1;
+	log_manager->exit_loop_flag = 1;
+	log_server.exit_loop_flag = 1;
+
+	// wait for the different threads to stop, and clear their data
+	for (i = 0; i < FLASH_NB; i++) {
+	    pthread_join(analyzers_storage[i].rt_log_analyzer_thread, NULL);
+	    rt_log_analyzer_free(analyzers_storage[i].rt_log_analyzer, 1);
+	}
+	pthread_join(log_manager_thread, NULL);
+	log_manager_free(log_manager);
+	pthread_join(log_server_thread, NULL);
+	log_server_free();
+
+	// free allocated memory
+	free(analyzers_storage);
 #endif
 }
 
@@ -101,3 +213,10 @@ void THREAD_CLIENT(void *arg)
 #endif
 }
 
+Logger* GET_LOGGER(unsigned int flash_number) {
+#ifdef LOGGING_SERVER_ON
+    if (flash_number < FLASH_NB)
+        return analyzers_storage[flash_number].logger;
+#endif
+    return NULL;
+}

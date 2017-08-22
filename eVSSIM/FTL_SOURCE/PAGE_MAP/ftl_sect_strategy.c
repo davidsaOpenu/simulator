@@ -102,6 +102,12 @@ ftl_ret_val _FTL_WRITE_SECT(uint64_t sector_nb, unsigned int length)
 	unsigned int right_skip;
 	unsigned int write_sects;
 
+	// the address of the currently written page
+	unsigned int flash_nb;
+	unsigned int channel;
+	unsigned int block;
+	unsigned int page;
+
 	unsigned int ret = FTL_FAILURE;
 	int write_page_nb=0;
 
@@ -150,6 +156,16 @@ ftl_ret_val _FTL_WRITE_SECT(uint64_t sector_nb, unsigned int length)
 		lba += write_sects;
 		remain -= write_sects;
 		left_skip = 0;
+
+		// calculate the address of the page
+		flash_nb = CALC_FLASH(new_ppn);
+		channel = CALC_CHANNEL(new_ppn);
+		block = CALC_BLOCK(new_ppn);
+		page = CALC_PAGE(new_ppn);
+
+		LOG_LOGICAL_CELL_PROGRAM(GET_LOGGER(flash_nb),(LogicalCellProgramLog) {
+		    .channel = channel, .block = block, .page = page
+		});
 	}
 
 	INCREASE_IO_REQUEST_SEQ_NB();

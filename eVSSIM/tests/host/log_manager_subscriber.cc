@@ -100,14 +100,25 @@ namespace manager_subscriber {
         log_manager_loop(manager, 1);
 
         // write the different logs to the different loggers
-        GarbageCollectionLog GC_LOG;
-        LOG_PHYSICAL_CELL_PROGRAM(logger1, (PhysicalCellProgramLog) { .channel = 1, .block = 2, .page = 3});
-        LOG_PHYSICAL_CELL_PROGRAM(logger1, (PhysicalCellProgramLog) { .channel = 4, .block = 5, .page = 6});
-        LOG_LOGICAL_CELL_PROGRAM(logger1, (LogicalCellProgramLog) { .channel = 7, .block = 8, .page = 9});
-        LOG_PHYSICAL_CELL_PROGRAM(logger2, (PhysicalCellProgramLog) { .channel = 10, .block = 11, .page = 12});
-        LOG_LOGICAL_CELL_PROGRAM(logger2, (LogicalCellProgramLog) { .channel = 13, .block = 14, .page = 15});
-        LOG_PHYSICAL_CELL_READ(logger2, (PhysicalCellReadLog) { .channel = 16, .block = 17, .page = 18 });
-        LOG_GARBAGE_COLLECTION(logger1, GC_LOG);
+        LOG_PHYSICAL_CELL_PROGRAM(logger1, (PhysicalCellProgramLog) {
+            .channel = 1, .block = 2, .page = 3
+        });
+        LOG_PHYSICAL_CELL_PROGRAM(logger1, (PhysicalCellProgramLog) {
+            .channel = 4, .block = 5, .page = 6
+        });
+        LOG_LOGICAL_CELL_PROGRAM(logger1, (LogicalCellProgramLog) {
+            .channel = 7, .block = 8, .page = 9
+        });
+        LOG_PHYSICAL_CELL_PROGRAM(logger2, (PhysicalCellProgramLog) {
+            .channel = 10, .block = 11, .page = 12
+        });
+        LOG_LOGICAL_CELL_PROGRAM(logger2, (LogicalCellProgramLog) {
+            .channel = 13, .block = 14, .page = 15
+        });
+        LOG_PHYSICAL_CELL_READ(logger2, (PhysicalCellReadLog) {
+            .channel = 16, .block = 17, .page = 18
+        });
+        LOG_GARBAGE_COLLECTION(logger1, (GarbageCollectionLog) empty_log);
 
         rt_log_analyzer_loop(analyzer1, 4);
         rt_log_analyzer_loop(analyzer2, 3);

@@ -34,23 +34,7 @@
 #define WWW_DIR "./www"
 
 
-/**
- * The logging server structure
- */
-static struct {
-    /**
-     * A pointer to the lws context of the server
-     */
-    struct lws_context* context;
-    /**
-     * The lock of the server (used to safely update its statistics)
-     */
-    pthread_mutex_t lock;
-    /**
-     * The current statistics being displayed to the clients of the server
-     */
-    SSDStatistics stats;
-} server;
+LogServer log_server;
 
 
 /**
@@ -105,9 +89,9 @@ static int callback_evssim_monitor(struct lws *wsi, enum lws_callback_reasons re
             break;
         case LWS_CALLBACK_SERVER_WRITEABLE:
             // on write schedule, copy the current statistics and send them
-            pthread_mutex_lock(&server.lock);
-            session->stats = server.stats;
-            pthread_mutex_unlock(&server.lock);
+            pthread_mutex_lock(&log_server.lock);
+            session->stats = log_server.stats;
+            pthread_mutex_unlock(&log_server.lock);
 
             int len = stats_json(session->stats, &session->buffer[LWS_PRE], MAX_FRAME_SIZE);
             if (len < 0 || len > MAX_FRAME_SIZE)
@@ -199,24 +183,27 @@ int log_server_init(void) {
         return 1;
 
     // try to create the lock
-    if (pthread_mutex_init(&server.lock, NULL)) {
+    if (pthread_mutex_init(&log_server.lock, NULL)) {
         lws_context_destroy(context);
         return 1;
     }
 
     // fill the members of the server structure
-    server.context = context;
-    server.stats = stats_init();
+    log_server.context = context;
+    log_server.stats = stats_init();
+    log_server.exit_loop_flag = 0;
 
     return 0;
 }
 
 void log_server_update(SSDStatistics stats, void* _) {
-    pthread_mutex_lock(&server.lock);
-    server.stats = stats;
-    pthread_mutex_unlock(&server.lock);
-    // schedule a write on all the clients connected to the evssim-monitor protocol
-    lws_callback_on_writable_all_protocol(server.context, &ws_protocols[1]);
+    if (!stats_equal(log_server.stats, stats)) {
+        pthread_mutex_lock(&log_server.lock);
+        log_server.stats = stats;
+        pthread_mutex_unlock(&log_server.lock);
+        // schedule a write on all the clients connected to the evssim-monitor protocol
+        lws_callback_on_writable_all_protocol(log_server.context, &ws_protocols[1]);
+    }
 }
 
 void* log_server_run(void* _) {
@@ -228,15 +215,21 @@ void log_server_loop(int max_loops) {
     int loops = 0;
     while (max_loops < 0 || loops < max_loops) {
         // process all waiting events and their callback functions, and then wait a bit
-        lws_service(server.context, SERVER_WAIT_TIME);
+        lws_service(log_server.context, SERVER_WAIT_TIME);
 
-        // update 'loops' only if necessary (in otder to avoid overflow)
+        // update 'loops' only if necessary (in order to avoid overflow)
         if (max_loops >= 0)
             loops++;
+
+        // exit if needed
+        if (log_server.exit_loop_flag) {
+            log_server.exit_loop_flag = 0;
+            break;
+        }
     }
 }
 
 void log_server_free(void) {
-    lws_context_destroy(server.context);
-    pthread_mutex_destroy(&server.lock);
+    lws_context_destroy(log_server.context);
+    pthread_mutex_destroy(&log_server.lock);
 }

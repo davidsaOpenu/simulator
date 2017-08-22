@@ -51,9 +51,7 @@ namespace {
                 ssd_conf.close();
             	FTL_INIT();
                 INIT_OBJ_STRATEGY();
-            #ifdef MONITOR_ON
             	INIT_LOG_MANAGER();
-            #endif
                 object_size_ = GetParam();
                 int object_pages = (int)ceil(1.0 * object_size_ / GET_PAGE_SIZE()); // ceil because we can't have a page belong to 2 objects
                 objects_in_ssd_ = (unsigned int)((PAGES_IN_SSD - BLOCK_NB)/ object_pages); //over-provisioning of exactly one block
@@ -63,9 +61,7 @@ namespace {
             }
             virtual void TearDown() {
             	FTL_TERM();
-            #ifdef MONITOR_ON
             	TERM_LOG_MANAGER();
-            #endif
                 remove("data/empty_block_list.dat");
                 remove("data/inverse_block_mapping.dat");
                 remove("data/inverse_page_mapping.dat");

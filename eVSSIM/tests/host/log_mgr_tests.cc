@@ -69,7 +69,8 @@ namespace log_mgr_tests {
                     log_server_init();
                     pthread_create(&_server, NULL, log_server_run, NULL);
                     printf("Server opened\n");
-                    printf("Browse to http://127.0.0.1:%d to see the statistics\n", LOG_SERVER_PORT);
+                    printf("Browse to http://127.0.0.1:%d/ to see the statistics\n",
+                           LOG_SERVER_PORT);
                 }
 
                 if (g_monitor_mode) {
@@ -90,6 +91,7 @@ namespace log_mgr_tests {
                     printf("Waiting for server to close...\n");
                     pthread_join(_server, NULL);
                     printf("Server closed\n");
+                    log_server_free();
                 }
 
                 remove("./data/ssd.conf");

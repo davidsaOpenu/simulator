@@ -54,6 +54,19 @@ int next_log_type(Logger* logger);
 
 
 /**
+ * A log which contains no attributes; should be an alias to every log which has no attributes
+ */
+typedef struct {
+
+} EmptyLog;
+
+/**
+ * An empty log, to use in place of a log which contains no attributes
+ */
+extern EmptyLog empty_log;
+
+
+/**
  * A log of a physical cell read
  */
 typedef struct {
@@ -107,9 +120,7 @@ typedef struct {
 /**
  * A log of garbage collection
  */
-typedef struct {
-
-} GarbageCollectionLog;
+typedef EmptyLog GarbageCollectionLog;
 /**
  * A log of a register read
  */
