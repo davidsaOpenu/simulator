@@ -17,7 +17,7 @@
 #ifndef __MONITOR_TEST_H__
 #define __MONITOR_TEST_H__
 
-#include "../../LOG_MGR/logging_rt_analyzer.h"
+#include "../../LOG_MGR/logging_statistics.h"
 
 
 /**
