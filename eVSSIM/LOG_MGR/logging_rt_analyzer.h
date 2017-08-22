@@ -127,6 +127,13 @@ RTLogAnalyzer* rt_log_analyzer_init(Logger* logger);
 int rt_log_analyzer_subscribe(RTLogAnalyzer* analyzer, MonitorHook hook, void* id);
 
 /**
+ * Run the log analyzer in the current thread;
+ * The same as `rt_log_analyzer_loop(analyzer, -1)`
+ * @param analyzer the analyzer to run
+ */
+void* rt_log_analyzer_run(void* analyzer);
+
+/**
  * Do the main loop of the analyzer given
  * @param analyzer the analyzer to run
  * @param max_logs the maximum number of logs to read; if negative, run forever

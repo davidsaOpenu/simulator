@@ -79,6 +79,11 @@ int rt_log_analyzer_subscribe(RTLogAnalyzer* analyzer, MonitorHook hook, void* i
     return 0;
 }
 
+void* rt_log_analyzer_run(void* analyzer) {
+    rt_log_analyzer_loop((RTLogAnalyzer*) analyzer, -1);
+    return NULL;
+}
+
 void rt_log_analyzer_loop(RTLogAnalyzer* analyzer, int max_logs) {
     // init the statistics
     SSDStatistics stats = stats_init();

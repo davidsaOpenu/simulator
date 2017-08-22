@@ -76,6 +76,12 @@ int log_manager_add_analyzer(LogManager* manager, RTLogAnalyzer* analyzer) {
 }
 
 
+void* log_manager_run(void* manager) {
+    log_manager_loop((LogManager*) manager, -1);
+    return NULL;
+}
+
+
 void log_manager_loop(LogManager* manager, int max_loops) {
     int loops = 0;
     while (max_loops < 0 || loops < max_loops) {
