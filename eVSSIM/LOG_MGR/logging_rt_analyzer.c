@@ -53,6 +53,17 @@ int stats_json(SSDStatistics stats, Byte* buffer, int max_len) {
 }
 
 
+int stats_equal(SSDStatistics first, SSDStatistics second) {
+    return first.write_count == second.write_count &&
+           first.write_speed == second.write_speed &&
+           first.read_count == second.read_count &&
+           first.read_speed == second.read_speed &&
+           first.garbage_collection_count == second.garbage_collection_count &&
+           first.write_amplification == second.write_amplification &&
+           first.utilization == second.utilization;
+}
+
+
 /**
  * Transforms pages in a usec to megabytes in a second
  * @param {double} x pages in a usec
@@ -79,9 +90,15 @@ int rt_log_analyzer_subscribe(RTLogAnalyzer* analyzer, MonitorHook hook, void* i
     return 0;
 }
 
+void* rt_log_analyzer_run(void* analyzer) {
+    rt_log_analyzer_loop((RTLogAnalyzer*) analyzer, -1);
+    return NULL;
+}
+
 void rt_log_analyzer_loop(RTLogAnalyzer* analyzer, int max_logs) {
     // init the statistics
     SSDStatistics stats = stats_init();
+    SSDStatistics old_stats = stats_init();
 
     // additional variables needed to calculate the statistics
     unsigned int logical_write_count = 0;
@@ -91,6 +108,7 @@ void rt_log_analyzer_loop(RTLogAnalyzer* analyzer, int max_logs) {
     long occupied_pages = 0;
 
     // run as long as necessary
+    int first_loop = 1;
     int logs_read = 0;
     while (max_logs < 0 || logs_read < max_logs) {
         int log_type = next_log_type(analyzer->logger);
@@ -171,14 +189,18 @@ void rt_log_analyzer_loop(RTLogAnalyzer* analyzer, int max_logs) {
         stats.utilization = ((double) occupied_pages) / PAGES_IN_SSD;
 
 
-        // call present hooks
+        // call present hooks if the statistics changed
         unsigned int i;
-        for (i = 0; i < analyzer->subscribers_count; i++)
-            analyzer->hooks[i](stats, analyzer->hooks_ids[i]);
+        if (first_loop || !stats_equal(old_stats, stats))
+            for (i = 0; i < analyzer->subscribers_count; i++)
+                analyzer->hooks[i](stats, analyzer->hooks_ids[i]);
 
         // update `logs_read` only if necessary (in order to avoid overflow)
         if (max_logs >= 0)
             logs_read++;
+
+        first_loop = 0;
+        old_stats = stats;
     }
 }
 
