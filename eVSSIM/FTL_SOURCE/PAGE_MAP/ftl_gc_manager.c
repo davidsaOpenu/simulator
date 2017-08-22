@@ -133,6 +133,8 @@ ftl_ret_val GARBAGE_COLLECTION(int mapping_index, int l2, bool isObjectStrategy)
 
 	gc_count++;
 	WRITE_LOG("GC ");
+	GarbageCollectionLog gc_log;
+	LOG_GARBAGE_COLLECTION(GET_LOGGER(victim_phy_flash_nb), gc_log);
 
 //	WRITE_LOG("WB AMP %d", copy_page_nb);
 	WRITE_LOG("WB AMP %f", (float)wa_counters.physical_block_write_counter / (float)wa_counters.logical_block_write_counter);

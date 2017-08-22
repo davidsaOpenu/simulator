@@ -212,11 +212,13 @@ int log_server_init(void) {
 }
 
 void log_server_update(SSDStatistics stats, void* _) {
-    pthread_mutex_lock(&server.lock);
-    server.stats = stats;
-    pthread_mutex_unlock(&server.lock);
-    // schedule a write on all the clients connected to the evssim-monitor protocol
-    lws_callback_on_writable_all_protocol(server.context, &ws_protocols[1]);
+    if (!stats_equal(server.stats, stats)) {
+        pthread_mutex_lock(&server.lock);
+        server.stats = stats;
+        pthread_mutex_unlock(&server.lock);
+        // schedule a write on all the clients connected to the evssim-monitor protocol
+        lws_callback_on_writable_all_protocol(server.context, &ws_protocols[1]);
+    }
 }
 
 void* log_server_run(void* _) {

@@ -150,6 +150,8 @@ ftl_ret_val _FTL_WRITE_SECT(uint64_t sector_nb, unsigned int length)
 		lba += write_sects;
 		remain -= write_sects;
 		left_skip = 0;
+
+		LOG_LOGICAL_CELL_PROGRAM(GET_LOGGER(CALC_FLASH(new_ppn)), (LogicalCellProgramLog) { .channel = CALC_CHANNEL(new_ppn), .block = CALC_BLOCK(new_ppn), .page = CALC_PAGE(new_ppn)});
 	}
 
 	INCREASE_IO_REQUEST_SEQ_NB();
