@@ -18,59 +18,7 @@
 #define __LOGGING_RT_ANALYZER_H__
 
 #include "logging_parser.h"
-
-
-/**
- * The statistics gathered from the simulator
- */
-typedef struct {
-    /**
-     * The number of physical page written
-     */
-    unsigned int write_count;
-    /**
-     * The writing speed in MB/s
-     */
-    double write_speed;
-    /**
-     * The number of physical page written
-     */
-    unsigned int read_count;
-    /**
-     * The reading speed in MB/s
-     */
-    double read_speed;
-    /**
-     * The number of garbage collection done
-     */
-    unsigned int garbage_collection_count;
-    /**
-     * The write amplification of the ssd
-     */
-    double write_amplification;
-    /**
-     * The utilization of the ssd
-     */
-    double utilization;
-} SSDStatistics;
-
-
-/**
- * Return a new, empty statistics structure
- * @return a new, empty statistics structure
- */
-SSDStatistics stats_init(void);
-
-
-/**
- * Write a JSON representation of the statistics given to the buffer
- * @param stats the statistics to write
- * @param buffer the buffer to write the JSON to
- * @param max_len the maximum length to write
- * @return -1 if an error occurred, otherwise the number of characters written
- *         (including the terminating null byte)
- */
-int stats_json(SSDStatistics stats, Byte* buffer, int max_len);
+#include "logging_statistics.h"
 
 
 /**
@@ -125,6 +73,13 @@ RTLogAnalyzer* rt_log_analyzer_init(Logger* logger);
  * @return 0 if the subscription succeeded, nonzero otherwise
  */
 int rt_log_analyzer_subscribe(RTLogAnalyzer* analyzer, MonitorHook hook, void* id);
+
+/**
+ * Run the log analyzer in the current thread;
+ * The same as `rt_log_analyzer_loop(analyzer, -1)`
+ * @param analyzer the analyzer to run
+ */
+void* rt_log_analyzer_run(void* analyzer);
 
 /**
  * Do the main loop of the analyzer given
