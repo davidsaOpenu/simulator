@@ -35,42 +35,54 @@ limitations under the License.
         </script>
         <script type="text/javascript">
             // find the right web socket object
-            window.WebSocket = window.WebSocket|| window.MozWebSocket;
+            window.WebSocket = window.WebSocket || window.MozWebSocket;
+			var websocket = null;
 
-            // create the web socket
-            const websocket = new WebSocket('ws://127.0.0.1:2003', 'evssim-monitor');
+			function connectSocket() {
+				if (websocket !== null)
+					return;
 
-            // handle connection
-            websocket.onopen = function() {
-                console.log('Successfully connected');
-                get('status').style.background = 'green';
-            };
+				// create the web socket
+				websocket = new WebSocket('ws://127.0.0.1:2003', 'evssim-monitor');
 
-            // handle disconnection
-            websocket.onclose = function() {
-                console.log('Web socket disconnected');
-                get('status').style.background = 'red';
-            }
+				// handle connection
+				websocket.onopen = function() {
+					console.log('Successfully connected');
+					get('status').style.background = 'green';
+					get('status').title = 'Connected';
+				};
 
-            // handle error
-            websocket.onerror = function() {
-                console.log('An error occurred!');
-                get('status').style.background = 'red';
-            }
+				// handle disconnection
+				websocket.onclose = function() {
+					console.log('Web socket disconnected');
+					get('status').style.background = 'red';
+					get('status').title = 'Disconnected';
+					websocket = null;
+				}
 
-            // handle messages
-            websocket.onmessage = function(message) {
-                console.log('Incoming message:');
-                console.log(message);
+				// handle error
+				websocket.onerror = function() {
+					console.log('An error occurred!');
+					get('status').style.background = 'red';
+					get('status').title = 'Error';
+				}
 
-                let stats = JSON.parse(message.data);
-                for (let id in stats) {
-                    if (get(id) == null)
-                        console.log('Unknown stat: ' + id);
-                    else
-                        setText(id, stats[id]);
-                }
-            }
+				// handle messages
+				websocket.onmessage = function(message) {
+					console.log('Incoming message:');
+					console.log(message);
+
+					let stats = JSON.parse(message.data);
+					for (let id in stats) {
+						if (get(id) == null)
+							console.log('Unknown stat: ' + id);
+						else
+							setText(id, stats[id]);
+					}
+				}
+			}
+
+			connectSocket();
         </script>
     </head>
     <body>
@@ -104,7 +116,7 @@ limitations under the License.
                     <td id='read_speed'></td>
                 </tr>
                 <tr>
-                    <td>Garbage Collections Done</td>
+                    <td>Garbage Collections Invocations</td>
                     <td id='garbage_collection_count'></td>
                 </tr>
                 <tr>
@@ -117,5 +129,6 @@ limitations under the License.
                 </tr>
             </tbody>
         </table>
+		<center><button class='button' onclick='connectSocket()'><span>Reconnect</span></button></center>
     </body>
 </html>
