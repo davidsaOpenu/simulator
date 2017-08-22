@@ -233,9 +233,10 @@ QEMU_CFLAGS="-Wall -Wundef -Wwrite-strings -Wmissing-prototypes $QEMU_CFLAGS"
 QEMU_CFLAGS="-Wstrict-prototypes -Wredundant-decls $QEMU_CFLAGS"
 QEMU_CFLAGS="-D_GNU_SOURCE -D_FILE_OFFSET_BITS=64 -D_LARGEFILE_SOURCE $QEMU_CFLAGS"
 QEMU_CFLAGS="-D_FORTIFY_SOURCE=2 $QEMU_CFLAGS"
-QEMU_INCLUDES="-I. -I\$(SRC_PATH) -I\$(SRC_PATH)/../osc-osd -I\$(SRC_PATH)/../osc-osd/osd-target"
-LDFLAGS="-g $LDFLAGS -L\$(SRC_PATH)/../osc-osd/osd-util -L\$(SRC_PATH)/../osc-osd/osd-target"
-LIBS="-losdutil -losdtgt -lsqlite3 $LIBS"
+QEMU_CFLAGS="-Wl,-R/opt/libwebsockets/lib $QEMU_CFLAGS"
+QEMU_INCLUDES="-I. -I\$(SRC_PATH) -I\$(SRC_PATH)/../osc-osd -I\$(SRC_PATH)/../osc-osd/osd-target -I/opt/libwebsockets/include"
+LDFLAGS="-g $LDFLAGS -L\$(SRC_PATH)/../osc-osd/osd-util -L\$(SRC_PATH)/../osc-osd/osd-target -L/opt/libwebsockets/lib"
+LIBS="-losdutil -losdtgt -lsqlite3 $LIBS -lwebsockets"
 
 # make source path absolute
 source_path=`cd "$source_path"; pwd`
@@ -3552,6 +3553,17 @@ if test "$vssim" = "yes" ; then
     symlink "$source_path/../CONFIG/vssim_config_manager.c" "$source_path/hw/vssim_config_manager.c"
     symlink "$source_path/../CONFIG/vssim_config_manager.h" "$source_path/hw/vssim_config_manager.h"
     symlink "$source_path/../MONITOR/SSD_MONITOR_PM/ssd_monitor_p" "$source_path/hw/ssd_monitor"
+    symlink "$source_path/../LOG_MGR/logging_backend.c" "$source_path/hw/logging_backend.c"
+    symlink "$source_path/../LOG_MGR/logging_backend.h" "$source_path/hw/logging_backend.h"
+    symlink "$source_path/../LOG_MGR/logging_manager.c" "$source_path/hw/logging_manager.c"
+    symlink "$source_path/../LOG_MGR/logging_manager.h" "$source_path/hw/logging_manager.h"
+    symlink "$source_path/../LOG_MGR/logging_parser.c" "$source_path/hw/logging_parser.c"
+    symlink "$source_path/../LOG_MGR/logging_parser.h" "$source_path/hw/logging_parser.h"
+    symlink "$source_path/../LOG_MGR/logging_rt_analyzer.c" "$source_path/hw/logging_rt_analyzer.c"
+    symlink "$source_path/../LOG_MGR/logging_rt_analyzer.h" "$source_path/hw/logging_rt_analyzer.h"
+    symlink "$source_path/../MONITOR/SERVER/logging_server.c" "$source_path/hw/logging_server.c"
+    symlink "$source_path/../MONITOR/SERVER/logging_server.h" "$source_path/hw/logging_server.h"
+    symlink "$source_path/../MONITOR/SERVER/www" "$source_path/hw/www"
 fi
 
 d=libuser

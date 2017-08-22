@@ -676,9 +676,7 @@ int nvme_create_storage_disks(NVMEState *n)
 
 #ifdef CONFIG_VSSIM
 	FTL_INIT();
-	#ifdef MONITOR_ON
-		INIT_LOG_MANAGER();
-	#endif
+	INIT_LOG_MANAGER();
 #endif
 
     for (i = 0; i < n->num_namespaces; i++) {
