@@ -17,11 +17,6 @@
 extern "C" {
 
 #include "common.h"
-#include "logging_backend.h"
-#include "logging_parser.h"
-#include "logging_rt_analyzer.h"
-#include "logging_manager.h"
-#include "logging_server.h"
 }
 bool g_ci_mode = false;
 bool g_monitor_mode = false;

@@ -72,6 +72,18 @@ eVSSIM/QEMU/hw/uthash.h
 eVSSIM/QEMU/hw/ssd.c
 eVSSIM/QEMU/hw/ssd.h
 eVSSIM/QEMU/hw/ssd_monitor
+eVSSIM/QEMU/hw/logging_backend.c
+eVSSIM/QEMU/hw/logging_backend.h
+eVSSIM/QEMU/hw/logging_manager.c
+eVSSIM/QEMU/hw/logging_manager.h
+eVSSIM/QEMU/hw/logging_parser.c
+eVSSIM/QEMU/hw/logging_parser.h
+eVSSIM/QEMU/hw/logging_rt_analyzer.c
+eVSSIM/QEMU/hw/logging_rt_analyzer.h
+eVSSIM/QEMU/hw/logging_server.c
+eVSSIM/QEMU/hw/logging_server.h
+eVSSIM/QEMU/hw/www
+
 
 # unit test files
 eVSSIM/tests/host/test_*.txt

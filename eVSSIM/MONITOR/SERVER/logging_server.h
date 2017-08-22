@@ -55,7 +55,7 @@ void log_server_loop(int max_loops);
 /**
  * Free the data initialized for the logging server
  */
-void log_server_free();
+void log_server_free(void);
 
 
 #endif
