@@ -143,6 +143,8 @@ ftl_ret_val SSD_PAGE_WRITE(unsigned int flash_nb, unsigned int block_nb, unsigne
 	}
 #endif
 
+	LOG_PHYSICAL_CELL_PROGRAM(GET_LOGGER(flash_nb), (PhysicalCellProgramLog) { .channel = channel, .block = block_nb, .page = page_nb });
+
 	return FTL_SUCCESS;
 }
 
@@ -176,6 +178,9 @@ ftl_ret_val SSD_PAGE_READ(unsigned int flash_nb, unsigned int block_nb, unsigned
 		SSD_REMAIN_IO_DELAY(reg);
 	}
 #endif
+
+	LOG_PHYSICAL_CELL_READ(GET_LOGGER(flash_nb), (PhysicalCellReadLog) { .channel = channel, .block = block_nb, .page = page_nb});
+
 	return FTL_SUCCESS;
 }
 
@@ -198,6 +203,9 @@ ftl_ret_val SSD_BLOCK_ERASE(unsigned int flash_nb, unsigned int block_nb)
        	/* Record Time Stamp */
 	SSD_REG_RECORD(reg, ERASE, ERASE, -1, channel);
 	SSD_CELL_RECORD(reg, ERASE);
+
+	// TODO calculate the die correctly
+	LOG_BLOCK_ERASE(GET_LOGGER(flash_nb), (BlockEraseLog) { .channel = channel, .die = 0, .block = block_nb });
 
 	return FTL_SUCCESS;
 }
@@ -408,6 +416,12 @@ int64_t SSD_CH_SWITCH_DELAY(int channel)
 	}
 	end = get_usec();
 
+	// TODO calculate the flash number appropriately
+	if (old_channel_cmd == READ)
+	    LOG_CHANNEL_SWITCH_TO_READ(GET_LOGGER(0), (ChannelSwitchToReadLog) { .channel = channel });
+	else if (old_channel_cmd == WRITE)
+	    LOG_CHANNEL_SWITCH_TO_WRITE(GET_LOGGER(0), (ChannelSwitchToWriteLog) { .channel = channel });
+
 	return end-start;
 }
 
@@ -446,6 +460,9 @@ int SSD_REG_WRITE_DELAY(int reg)
 
 	/* Update Time Stamp Struct */
 	reg_io_time[reg] = -1;
+
+	// TODO calculate the flash, channel and die numbers appropriately
+	LOG_REGISTER_WRITE(GET_LOGGER(0), (RegisterWriteLog) { .channel = 0, .die = 0, .reg = reg });
 
 	return ret;
 }
@@ -489,6 +506,9 @@ int SSD_REG_READ_DELAY(int reg)
 	reg_io_time[reg] = -1;
 	reg_io_cmd[reg] = NOOP;
 	reg_io_type[reg] = NOOP;
+
+	// TODO calculate the flash, channel and die numbers appropriately
+    LOG_REGISTER_READ(GET_LOGGER(0), (RegisterReadLog) { .channel = 0, .die = 0, .reg = reg });
 
 	return ret;
 }
