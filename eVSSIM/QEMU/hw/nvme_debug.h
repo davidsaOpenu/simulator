@@ -8,7 +8,7 @@
 #define LOG_ERR(fmt, ...)    \
     printf("%s-ERR:%s:%d: " fmt "\n", LEVEL, CHOP_FILE(__FILE__), \
         __LINE__, ## __VA_ARGS__)
-#ifdef NVMEDEBUG
+#ifdef DEBUG
 #define LOG_DBG(fmt, ...)    \
     printf("DBG|:%s:%d: " fmt "\n", CHOP_FILE(__FILE__), \
         __LINE__, ## __VA_ARGS__)
