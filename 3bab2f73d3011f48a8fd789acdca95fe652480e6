@@ -16,6 +16,24 @@
       "revId": "3bab2f73d3011f48a8fd789acdca95fe652480e6",
       "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "28424d6a_6d2c9eee",
+        "filename": "eVSSIM/tests/host/rt_analyzer_subscriber.cc",
+        "patchSetId": 21
+      },
+      "lineNbr": 37,
+      "author": {
+        "id": 1010875
+      },
+      "writtenOn": "2017-08-23T06:57:13Z",
+      "side": 1,
+      "message": "I already did it; it seems that the last change some how reverted it.",
+      "parentUuid": "d270f973_c872dc46",
+      "revId": "3bab2f73d3011f48a8fd789acdca95fe652480e6",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
     }
   ]
 }
