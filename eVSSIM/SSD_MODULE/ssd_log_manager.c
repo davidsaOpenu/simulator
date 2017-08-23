@@ -110,7 +110,7 @@ void INIT_LOG_MANAGER(void)
 	log_manager_subscribe(log_manager, log_server_update, NULL);
 
 	// run the threads
-	pthread_create(&log_server_thread, NULL, log_server_run, NULL);
+//	pthread_create(&log_server_thread, NULL, log_server_run, NULL);
 	pthread_create(&log_manager_thread, NULL, log_manager_run, log_manager);
 	for (i = 0; i < FLASH_NB; i++) {
 	    pthread_create(&(analyzers_storage[i].rt_log_analyzer_thread), NULL, rt_log_analyzer_run, analyzers_storage[i].rt_log_analyzer);
@@ -146,7 +146,7 @@ void TERM_LOG_MANAGER(void)
 	}
 	pthread_join(log_manager_thread, NULL);
 	log_manager_free(log_manager);
-	pthread_join(log_server_thread, NULL);
+//	pthread_join(log_server_thread, NULL);
 	log_server_free();
 
 	// free allocated memory
