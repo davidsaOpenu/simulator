@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "d270f973_c872dc46",
+        "filename": "eVSSIM/tests/host/rt_analyzer_subscriber.cc",
+        "patchSetId": 21
+      },
+      "lineNbr": 37,
+      "author": {
+        "id": 1007990
+      },
+      "writtenOn": "2017-08-23T06:02:49Z",
+      "side": 1,
+      "message": "Let\u0027s turn magic numbers to constants with meaningful names",
+      "revId": "3bab2f73d3011f48a8fd789acdca95fe652480e6",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    }
+  ]
+}
