@@ -5,7 +5,13 @@
 #include "ftl.h"
 #include "uthash.h"
 
-typedef uint64_t object_id_t;
+typedef struct obbject_id {
+    uint64_t objectNum;
+    uint64_t partitionNum;
+} object_id_t;
+
+typedef uint8_t *buf_ptr_t;
+
 typedef uint64_t partition_id_t;
 
 /* A page node in the linked list of object-mapped pages */
@@ -53,11 +59,25 @@ void INIT_OBJ_STRATEGY(void);
 void TERM_OBJ_STRATEGY(void);
 
 /* FTL functions */
-ftl_ret_val _FTL_OBJ_READ(object_id_t object_id, unsigned int offset, unsigned int length);
-ftl_ret_val _FTL_OBJ_WRITE(object_id_t object_id, unsigned int offset, unsigned int length);
+
+// reads are abble to return length bytes from the offset
+// reurn error if length+offset > sizeof(obj)
+ftl_ret_val _FTL_OBJ_READ(object_id_t object_id, unsigned int offset, unsigned int length, buf_ptr_t buf);
+
+// allows writing beyond obj size (headless reallocation)
+// allows writing on non programmable pages (by replacing those pages headleassly)
+ftl_ret_val _FTL_OBJ_WRITE(object_id_t object_id, unsigned int offset, unsigned int length, buf_ptr_t buf);
+
+// TBH
 ftl_ret_val _FTL_OBJ_COPYBACK(int32_t source, int32_t destination);
+
+// allocates upper(size / page_size) pages and maps them to obj_id
+// all pages are writable (everything is 1)
 bool _FTL_OBJ_CREATE(object_id_t obj_id, size_t size);
+
+// remove this one
 void _FTL_OBJ_WRITECREATE(object_location obj_loc, size_t size);
+
 ftl_ret_val _FTL_OBJ_DELETE(object_id_t object_id);
 
 
