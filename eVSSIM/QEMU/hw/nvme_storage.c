@@ -184,7 +184,7 @@ static void nvme_dma_mem_write2(target_phys_addr_t addr, uint8_t *buf, int len,
     	//
     	//We have a problem here as we have no idea what object id was created in the simulator object write (auto incremented) -> so this should fail as it's not the same as the
     	//object id we're about to read from the osd later
-        /*int ret = */ _FTL_OBJ_READ(obj_loc.object_id, 0, len);
+        ///*int ret = */ _FTL_OBJ_READ(obj_loc.object_id, 0, len);
 //        if (!ret)
 //        {
 //        	LOG_DBG("FTL_OBJ_READ failed with ret: %d\n", ret);

@@ -21,7 +21,7 @@ object_id_t current_id;
 
 void INIT_OBJ_STRATEGY(void)
 {
-    current_id = 1;
+    current_id.objectNum = 1;
     objects_table = NULL;
     objects_mapping = NULL;
     partitions_mapping = NULL;
@@ -76,7 +76,7 @@ void TERM_OBJ_STRATEGY(void)
     free_page_table();
 }
 
-ftl_ret_val _FTL_OBJ_READ(object_id_t object_id, unsigned int offset, unsigned int length)
+ftl_ret_val _FTL_OBJ_READ(object_id_t object_id, unsigned int offset, unsigned int length, buf_ptr_t buf)
 {
     stored_object *object;
     page_node *current_page;
@@ -130,7 +130,7 @@ ftl_ret_val _FTL_OBJ_READ(object_id_t object_id, unsigned int offset, unsigned i
 	return ret;
 }
 
-ftl_ret_val _FTL_OBJ_WRITE(object_id_t object_id, unsigned int offset, unsigned int length)
+ftl_ret_val _FTL_OBJ_WRITE(object_id_t object_id, unsigned int offset, unsigned int length, buf_ptr_t buf)
 {
     stored_object *object;
     page_node *current_page = NULL,*temp_page;
@@ -179,7 +179,7 @@ ftl_ret_val _FTL_OBJ_WRITE(object_id_t object_id, unsigned int offset, unsigned 
         }
         if((temp_page=lookup_page(page_id)))
         {
-            RERR(FTL_FAILURE, "[FTL_WRITE] Object %lu already contains page %d\n",temp_page->object_id,page_id);
+            //RERR(FTL_FAILURE, "[FTL_WRITE] Object %lu already contains page %d\n",temp_page->object_id,page_id);
         }
 
         // mark new page as valid and used
@@ -339,7 +339,7 @@ stored_object *create_object(object_id_t obj_id, size_t size)
     }
     else
     {
-    	RINFO(NULL, "Object %lu already exists, cannot create it !\n", obj_id);
+    	//RINFO(NULL, "Object %lu already exists, cannot create it !\n", obj_id);
     }
 
 
@@ -432,7 +432,7 @@ page_node *add_page(stored_object *object, uint32_t page_id)
     HASH_FIND_INT(global_page_table,&page_id,page);
     if(page)
     {
-        RERR(NULL, "[add_page] Object %lu already contains page %d\n",page->object_id,page_id);
+        //RERR(NULL, "[add_page] Object %lu already contains page %d\n",page->object_id,page_id);
     }
 
     object->size += GET_PAGE_SIZE();
@@ -447,7 +447,7 @@ page_node *add_page(stored_object *object, uint32_t page_id)
         ;
     if(page)
     {
-        RERR(NULL, "[add_page] Object %lu already contains page %d\n",page->object_id,page_id);
+        //RERR(NULL, "[add_page] Object %lu already contains page %d\n",page->object_id,page_id);
     }
 
     page = allocate_new_page(object->id,page_id);
@@ -459,22 +459,6 @@ page_node *add_page(stored_object *object, uint32_t page_id)
  void _FTL_OBJ_WRITECREATE(object_location obj_loc, size_t size)
 {
 
-	//If that's the first prp, we need to create the object
-	if (obj_loc.create_object)
-	{
-		PINFO("About to create an object in the SIMULATOR -> obj id: %lu size: %zu\n", obj_loc.object_id, size);
-		bool created = _FTL_OBJ_CREATE(obj_loc.object_id, size);
-		PINFO("Created the SIMULATOR object !\n");
-
-		if (!created)
-		{
-			RERR(, "Could not create the SIMULATOR object. Aborting !\n");
-		}
-	}
-
-	PINFO("About to write an object to the SIMULATOR -> obj id: %lu size: %zu\n", obj_loc.object_id, size);
-	_FTL_OBJ_WRITE(obj_loc.object_id, 0, size);
-	//PINFO("Object written to the SIMULATOR with res:%d\n", res);
 
 	return;
 }
@@ -520,7 +504,9 @@ void OSD_WRITE_OBJ(object_location obj_loc, unsigned int length, uint8_t *buf)
 {
 	int ret;
 	partition_id_t part_id = USEROBJECT_PID_LB + obj_loc.partition_id;
-	object_id_t obj_id = USEROBJECT_OID_LB + obj_loc.object_id;
+	object_id_t obj_id;
+      
+        obj_id.objectNum = USEROBJECT_OID_LB + obj_loc.object_id;
 
 	if (obj_loc.create_object)
 	{
@@ -552,8 +538,8 @@ void OSD_WRITE_OBJ(object_location obj_loc, unsigned int length, uint8_t *buf)
 	    	PINFO("partition %lu already exists, no need to create it !\n", part_id);
 	    }
 
-		PINFO("Creating an writing object to OSD with partition id: %lu and object id: %lu of size: %u\n", part_id, obj_id, length);
-		ret = osd_create_and_write(&osd, part_id, obj_id, length, 0, buf, cdb_cont_len, 0, osd_sense, DDT_CONTIG);
+		PINFO("Creating an writing object to OSD with partition id: %lu and object id: %lu of size: %u\n", part_id, obj_id.objectNum, length);
+		ret = osd_create_and_write(&osd, part_id, obj_id.objectNum, length, 0, buf, cdb_cont_len, 0, osd_sense, DDT_CONTIG);
 		if (ret) {
 			RERR(, "FAILED ! ret for osd_create_and_write() is: %d\n", ret);
 		}
@@ -561,8 +547,8 @@ void OSD_WRITE_OBJ(object_location obj_loc, unsigned int length, uint8_t *buf)
 	}
 
 	else{
-		PINFO("Updating OSD object id: %lu of size: %u\n", obj_id, length);
-		ret = osd_append(&osd,part_id, obj_id, length, buf, cdb_cont_len, osd_sense, DDT_CONTIG);
+		PINFO("Updating OSD object id: %lu of size: %u\n", obj_id.objectNum, length);
+		ret = osd_append(&osd,part_id, obj_id.objectNum, length, buf, cdb_cont_len, osd_sense, DDT_CONTIG);
 		if (ret) {
 			RERR(, "FAIL! ret for osd_append() is: %d\n",ret);
 
@@ -613,18 +599,19 @@ void printMemoryDump(uint8_t *buffer, unsigned int bufferLength)
 
 void OSD_READ_OBJ(object_location obj_loc, unsigned int length, uint64_t addr, uint64_t offset)
 {
-	object_id_t obj_id = USEROBJECT_OID_LB + obj_loc.object_id;
+	object_id_t obj_id;
 	partition_id_t part_id = USEROBJECT_PID_LB + obj_loc.partition_id;
 
+        obj_id.objectNum = USEROBJECT_OID_LB + obj_loc.object_id;
 
-	PINFO("READING %u bytes from OSD OBJECT: %lu %lu\n", length, part_id, obj_id);
+	PINFO("READING %u bytes from OSD OBJECT: %lu %lu\n", length, part_id, obj_id.objectNum);
 	uint64_t len;
 
 	uint8_t *rdbuf = malloc(length);
 
 	//we should also get the offset here, for cases where there's more than one prp
 
-	if(osd_read(&osd, part_id, obj_id, length, offset, NULL, rdbuf, &len, 0, osd_sense, DDT_CONTIG))
+	if(osd_read(&osd, part_id, obj_id.objectNum, length, offset, NULL, rdbuf, &len, 0, osd_sense, DDT_CONTIG))
 		PINFO("failed in osd_read()\n")
 	else
 	{
