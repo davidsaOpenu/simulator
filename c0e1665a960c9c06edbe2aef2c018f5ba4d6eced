@@ -33,6 +33,40 @@
       "revId": "c0e1665a960c9c06edbe2aef2c018f5ba4d6eced",
       "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "6af54ad7_6ee27342",
+        "filename": "eVSSIM/QEMU/hw/nvme_storage.c",
+        "patchSetId": 2
+      },
+      "lineNbr": 31,
+      "author": {
+        "id": 1007990
+      },
+      "writtenOn": "2017-08-28T06:33:30Z",
+      "side": 1,
+      "message": "let\u0027s replace NIRDO in the line 31 to \"TODO: some action\" if needed",
+      "revId": "c0e1665a960c9c06edbe2aef2c018f5ba4d6eced",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "818ecc21_ab2932d0",
+        "filename": "eVSSIM/QEMU/hw/nvme_storage.c",
+        "patchSetId": 2
+      },
+      "lineNbr": 679,
+      "author": {
+        "id": 1007990
+      },
+      "writtenOn": "2017-08-28T06:33:30Z",
+      "side": 1,
+      "message": "plz rm ll 679 - 682",
+      "revId": "c0e1665a960c9c06edbe2aef2c018f5ba4d6eced",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
     }
   ]
 }
