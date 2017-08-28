@@ -110,13 +110,15 @@ namespace {
         printf("SimpleObjectCreate test started\n");
         printf("Page no.:%ld\nPage size:%d\n",PAGES_IN_SSD,GET_PAGE_SIZE());
         printf("Object size: %d bytes\n",object_size_);
+        obj_id_t object_locator = { .object_id = 0, .partition_id = 0 };
 #ifndef NO_OSD
         char *wrbuf = (char *)Calloc(1, object_size_);
 #endif
 
         // Fill the disk with objects
         for(unsigned long p=1; p < objects_in_ssd_; p++){
-            bool res = _FTL_OBJ_CREATE(p, object_size_);
+        	object_locator.object_id = p;
+            bool res = _FTL_OBJ_CREATE(object_locator, object_size_);
             ASSERT_TRUE(res);
 #ifndef NO_OSD
             ASSERT_EQ(0, osd_create_and_write(&osd, USEROBJECT_PID_LB, USEROBJECT_OID_LB + p, object_size_, 0,
@@ -138,9 +140,10 @@ namespace {
         printf("SimpleObjectCreateWrite test started\n");
         printf("Page no.:%ld\nPage size:%d\n",PAGES_IN_SSD,GET_PAGE_SIZE());
         printf("Object size: %d bytes\n",object_size_);
+        obj_id_t object_locator = { .object_id = 0, .partition_id = 0 };
 
         // used to keep all the assigned ids
-        int objects[objects_in_ssd_];
+        obj_id_t objects[objects_in_ssd_];
 
 #ifndef NO_OSD
         char *wrbuf = (char *)Calloc(1, object_size_);
@@ -148,9 +151,11 @@ namespace {
 
         // Fill 50% of the disk with objects
         for(unsigned long p=1; p < objects_in_ssd_ / 2; p++){
-            bool res = _FTL_OBJ_CREATE(p, object_size_);
+        	object_locator.object_id = p;
+            bool res = _FTL_OBJ_CREATE(object_locator, object_size_);
             ASSERT_TRUE(res);
-            objects[p] = p;
+            objects[p].object_id = p;
+            objects[p].partition_id = 0 ;
 #ifndef NO_OSD
             ASSERT_EQ(0, osd_create_and_write(&osd, USEROBJECT_PID_LB, USEROBJECT_OID_LB + p, object_size_, 0,
                 (uint8_t *)wrbuf, cdb_cont_len, 0, osd_sense, DDT_CONTIG));
@@ -164,9 +169,9 @@ namespace {
 
         // Write GET_PAGE_SIZE() data to each one
         for(unsigned long p=1; p < objects_in_ssd_/2; p++){
-            ASSERT_EQ(FTL_SUCCESS, _FTL_OBJ_WRITE(objects[p],0,GET_PAGE_SIZE()));
+            ASSERT_EQ(FTL_SUCCESS, _FTL_OBJ_WRITE(objects[p],(buf_ptr_t) wrbuf,0,GET_PAGE_SIZE()));
 #ifndef NO_OSD
-            ASSERT_EQ(0, osd_write(&osd, USEROBJECT_PID_LB, USEROBJECT_OID_LB + objects[p],
+            ASSERT_EQ(0, osd_write(&osd, USEROBJECT_PID_LB, USEROBJECT_OID_LB + objects[p].object_id,
             		GET_PAGE_SIZE(), 0, (uint8_t *)wrbuf, 0, osd_sense, DDT_CONTIG));
 #endif
         }
@@ -184,16 +189,18 @@ namespace {
         printf("Object size: %d bytes\n",object_size_);
 
         // used to keep all the assigned ids
-        int objects[objects_in_ssd_];
+        obj_id_t objects[objects_in_ssd_];
 
 #ifndef NO_OSD
         char *wrbuf = (char *)Calloc(1, object_size_);
 #endif
         // Fill 50% of the disk with objects
         for(unsigned long p=1; p < objects_in_ssd_/2; p++){
-            bool res = _FTL_OBJ_CREATE(p, object_size_);
+        	objects[p].object_id = p;
+        	objects[p].partition_id = 0;
+            bool res = _FTL_OBJ_CREATE(objects[p], object_size_);
             ASSERT_TRUE(res);
-            objects[p] = p;
+
 #ifndef NO_OSD
             // insert unique data to the object
             sprintf(wrbuf,"%lu", p);
@@ -210,12 +217,12 @@ namespace {
 
         // Read GET_PAGE_SIZE()/2 data from each one
         for(unsigned long p=1; p < objects_in_ssd_/2; p++){
-            ASSERT_EQ(FTL_SUCCESS, _FTL_OBJ_READ(objects[p],0,GET_PAGE_SIZE()));
+            ASSERT_EQ(FTL_SUCCESS, _FTL_OBJ_READ(objects[p],(buf_ptr_t)rdbuf, 0,GET_PAGE_SIZE()));
 #ifndef NO_OSD
             // read and compare with the expected unique data
-            ASSERT_EQ(0, osd_read(&osd, USEROBJECT_PID_LB, USEROBJECT_OID_LB + objects[p],
+            ASSERT_EQ(0, osd_read(&osd, USEROBJECT_PID_LB, USEROBJECT_OID_LB + objects[p].object_id,
             		GET_PAGE_SIZE()/2, 0, NULL, (uint8_t *)rdbuf, &len, 0, osd_sense, DDT_CONTIG));
-            sprintf(wrbuf, "%u", objects[p]);
+            sprintf(wrbuf, "%lu", objects[p].object_id);
             ASSERT_EQ(0, strcmp(rdbuf, wrbuf));
 #endif
         }
@@ -234,7 +241,7 @@ namespace {
         printf("Object size: %d bytes\n",object_size_);
 
         // used to keep all the assigned ids
-        int objects[objects_in_ssd_];
+        obj_id_t objects[objects_in_ssd_];
 
 #ifndef NO_OSD
         char *wrbuf = (char *)Calloc(1, object_size_);
@@ -242,9 +249,11 @@ namespace {
 
         // Fill the disk with objects
         for(unsigned long p=1; p < objects_in_ssd_; p++){
-            bool res = _FTL_OBJ_CREATE(p, object_size_);
+        	objects[p].object_id = p;
+        	objects[p].partition_id = 0;
+            bool res = _FTL_OBJ_CREATE(objects[p], object_size_);
             ASSERT_TRUE(res);
-            objects[p] = p;
+
 #ifndef NO_OSD
             ASSERT_EQ(0, osd_create_and_write(&osd, USEROBJECT_PID_LB, USEROBJECT_OID_LB + p, object_size_, 0,
                 (uint8_t *)wrbuf, cdb_cont_len, 0, osd_sense, DDT_CONTIG));
@@ -257,13 +266,13 @@ namespace {
         for (unsigned long p=1; p < objects_in_ssd_; p++) {
             ASSERT_EQ(FTL_SUCCESS, _FTL_OBJ_DELETE(objects[p]));
 #ifndef NO_OSD
-            ASSERT_EQ(0, osd_remove(&osd, USEROBJECT_PID_LB, USEROBJECT_OID_LB + objects[p], cdb_cont_len, osd_sense));
+            ASSERT_EQ(0, osd_remove(&osd, USEROBJECT_PID_LB, USEROBJECT_OID_LB + objects[p].object_id, cdb_cont_len, osd_sense));
 #endif
         }
 
         // And try to fill the disk again with the same number of sized objects
         for(unsigned long p=1; p < objects_in_ssd_; p++){
-            bool res = _FTL_OBJ_CREATE(p, object_size_);
+            bool res = _FTL_OBJ_CREATE(objects[p], object_size_);
             ASSERT_TRUE(res);
 #ifndef NO_OSD
             ASSERT_EQ(0, osd_create_and_write(&osd, USEROBJECT_PID_LB, USEROBJECT_OID_LB + p, object_size_, 0,
@@ -285,24 +294,24 @@ namespace {
         printf("Initial object size: %d bytes\n",object_size_);
         printf("Final object size: %d bytes\n",final_object_size);
 
-        int tempObj = 1000;
+        obj_id_t tempObj = { .object_id = 1000, .partition_id = 0 };
         // create an object_size_bytes_ - sized object
         bool res = _FTL_OBJ_CREATE(tempObj, object_size_);
         ASSERT_TRUE(res);
 
 #ifndef NO_OSD
         char *wrbuf = (char *)Calloc(1, object_size_);
-        ASSERT_EQ(0, osd_create_and_write(&osd, USEROBJECT_PID_LB, USEROBJECT_OID_LB + tempObj, object_size_, 0,
+        ASSERT_EQ(0, osd_create_and_write(&osd, USEROBJECT_PID_LB, USEROBJECT_OID_LB + tempObj.object_id, object_size_, 0,
             (uint8_t *)wrbuf, cdb_cont_len, 0, osd_sense, DDT_CONTIG));
 #endif
         
         unsigned int size = object_size_;
         // continuously extend it with object_size_bytes_ chunks
         while (size < final_object_size) {
-            ASSERT_EQ(FTL_SUCCESS, _FTL_OBJ_WRITE(tempObj, size, object_size_));
+            ASSERT_EQ(FTL_SUCCESS, _FTL_OBJ_WRITE(tempObj,(buf_ptr_t)wrbuf, size, object_size_));
             size += object_size_;
 #ifndef NO_OSD
-            ASSERT_EQ(0, osd_write(&osd, USEROBJECT_PID_LB, USEROBJECT_OID_LB + tempObj,
+            ASSERT_EQ(0, osd_write(&osd, USEROBJECT_PID_LB, USEROBJECT_OID_LB + tempObj.object_id,
                 object_size_, size, (uint8_t *)wrbuf, 0, osd_sense, DDT_CONTIG));
 #endif
         }
