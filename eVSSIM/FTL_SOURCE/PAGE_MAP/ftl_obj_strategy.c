@@ -76,7 +76,7 @@ void TERM_OBJ_STRATEGY(void)
     free_page_table();
 }
 
-ftl_ret_val _FTL_OBJ_READ(object_id_t object_id, unsigned int offset, unsigned int length)
+ftl_ret_val _FTL_OBJ_READ(obj_id_t obj_loc, buf_ptr_t buf, offset_t offset, length_t length)
 {
     stored_object *object;
     page_node *current_page;
@@ -84,7 +84,7 @@ ftl_ret_val _FTL_OBJ_READ(object_id_t object_id, unsigned int offset, unsigned i
     int curr_io_page_nb;
     unsigned int ret = FTL_FAILURE;
     
-    object = lookup_object(object_id);
+    object = lookup_object(obj_loc.object_id);
     
     // file not found
     if (object == NULL)
@@ -130,7 +130,7 @@ ftl_ret_val _FTL_OBJ_READ(object_id_t object_id, unsigned int offset, unsigned i
 	return ret;
 }
 
-ftl_ret_val _FTL_OBJ_WRITE(object_id_t object_id, unsigned int offset, unsigned int length)
+ftl_ret_val _FTL_OBJ_WRITE(obj_id_t object_loc, buf_ptr_t buf, offset_t offset, length_t length)
 {
     stored_object *object;
     page_node *current_page = NULL,*temp_page;
@@ -139,7 +139,7 @@ ftl_ret_val _FTL_OBJ_WRITE(object_id_t object_id, unsigned int offset, unsigned 
     int curr_io_page_nb;
     unsigned int ret = FTL_FAILURE;
     
-    object = lookup_object(object_id);
+    object = lookup_object(object_loc.object_id);
     
     // file not found
     if (object == NULL)
@@ -267,11 +267,11 @@ ftl_ret_val _FTL_OBJ_COPYBACK(int32_t source, int32_t destination)
     return FTL_SUCCESS;
 }
 
-bool _FTL_OBJ_CREATE(object_id_t obj_id, size_t size)
+bool _FTL_OBJ_CREATE(obj_id_t obj_loc, size_t size)
 {
     stored_object *new_object;
     
-    new_object = create_object(obj_id, size);
+    new_object = create_object(obj_loc.object_id, size);
     
     if (new_object == NULL) {
         return false;
@@ -280,18 +280,18 @@ bool _FTL_OBJ_CREATE(object_id_t obj_id, size_t size)
     return true;
 }
 
-ftl_ret_val _FTL_OBJ_DELETE(object_id_t object_id)
+ftl_ret_val _FTL_OBJ_DELETE(obj_id_t obj_loc)
 {
     stored_object *object;
     object_map *obj_map;
     
-    object = lookup_object(object_id);
+    object = lookup_object(obj_loc.object_id);
     
     // object not found
     if (object == NULL)
     	return FTL_FAILURE;
 
-    obj_map = lookup_object_mapping(object_id);
+    obj_map = lookup_object_mapping(obj_loc.object_id);
 
     // object_map not found
     if (obj_map == NULL)
@@ -454,29 +454,6 @@ page_node *add_page(stored_object *object, uint32_t page_id)
     HASH_ADD_INT(global_page_table, page_id, page); 
     curr->next = page;
     return curr->next;
-}
-
- void _FTL_OBJ_WRITECREATE(object_location obj_loc, size_t size)
-{
-
-	//If that's the first prp, we need to create the object
-	if (obj_loc.create_object)
-	{
-		PINFO("About to create an object in the SIMULATOR -> obj id: %lu size: %zu\n", obj_loc.object_id, size);
-		bool created = _FTL_OBJ_CREATE(obj_loc.object_id, size);
-		PINFO("Created the SIMULATOR object !\n");
-
-		if (!created)
-		{
-			RERR(, "Could not create the SIMULATOR object. Aborting !\n");
-		}
-	}
-
-	PINFO("About to write an object to the SIMULATOR -> obj id: %lu size: %zu\n", obj_loc.object_id, size);
-	_FTL_OBJ_WRITE(obj_loc.object_id, 0, size);
-	//PINFO("Object written to the SIMULATOR with res:%d\n", res);
-
-	return;
 }
 
  bool osd_init(void) {
