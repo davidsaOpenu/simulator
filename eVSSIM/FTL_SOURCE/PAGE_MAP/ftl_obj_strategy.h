@@ -8,6 +8,12 @@
 typedef uint64_t object_id_t;
 typedef uint64_t partition_id_t;
 
+/* unique object locator */
+typedef struct unique_object_id {
+    object_id_t object_id;
+    uint64_t partition_id;
+} unique_object_id;
+
 /* A page node in the linked list of object-mapped pages */
 typedef struct page_node {
     uint32_t page_id;
@@ -38,6 +44,9 @@ typedef struct partition_map {
     UT_hash_handle hh; /* makes this structure hashable */
 } partition_map;
 
+/*
+ * TODO: this struct may be redundant with unique_object_id
+ */
 typedef struct {
 	uint64_t partition_id;
 	uint64_t object_id;
@@ -53,12 +62,17 @@ void INIT_OBJ_STRATEGY(void);
 void TERM_OBJ_STRATEGY(void);
 
 /* FTL functions */
-ftl_ret_val _FTL_OBJ_READ(object_id_t object_id, unsigned int offset, unsigned int length);
-ftl_ret_val _FTL_OBJ_WRITE(object_id_t object_id, unsigned int offset, unsigned int length);
+ftl_ret_val _FTL_OBJ_READ(unique_object_id *object_loc, unsigned int offset, unsigned int length);
+ftl_ret_val _FTL_OBJ_WRITE(unique_object_id *object_loc, unsigned int offset, unsigned int length);
 ftl_ret_val _FTL_OBJ_COPYBACK(int32_t source, int32_t destination);
-bool _FTL_OBJ_CREATE(object_id_t obj_id, size_t size);
+bool _FTL_OBJ_CREATE(unique_object_id *obj_loc, size_t size);
+
+/*
+ * TODO: check with David if API is required
+ *
 void _FTL_OBJ_WRITECREATE(object_location obj_loc, size_t size);
-ftl_ret_val _FTL_OBJ_DELETE(object_id_t object_id);
+*/
+ftl_ret_val _FTL_OBJ_DELETE(unique_object_id *object_loc);
 
 
 /* Persistent OSD storge */
