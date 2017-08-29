@@ -1,0 +1,147 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "e5bf1431_de16dda4",
+        "filename": "eVSSIM/FTL_SOURCE/PAGE_MAP/ftl_obj_strategy.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 12,
+      "author": {
+        "id": 1007990
+      },
+      "writtenOn": "2017-08-29T05:35:28Z",
+      "side": 1,
+      "message": "s/unique_object_id/object_id",
+      "revId": "0d607678428a10cf4771a63e684d7d7998730f8f",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "e6cc8df6_d6bd2a83",
+        "filename": "eVSSIM/FTL_SOURCE/PAGE_MAP/ftl_obj_strategy.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 15,
+      "author": {
+        "id": 1007990
+      },
+      "writtenOn": "2017-08-29T05:35:28Z",
+      "side": 1,
+      "message": "s/unique_object_id/object_id_t",
+      "revId": "0d607678428a10cf4771a63e684d7d7998730f8f",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "2e38ac84_34cd6578",
+        "filename": "eVSSIM/FTL_SOURCE/PAGE_MAP/ftl_obj_strategy.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 65,
+      "author": {
+        "id": 1007990
+      },
+      "writtenOn": "2017-08-29T05:35:28Z",
+      "side": 1,
+      "message": "lets define offset_t to be unsigned int",
+      "range": {
+        "startLine": 65,
+        "startChar": 70,
+        "endLine": 65,
+        "endChar": 83
+      },
+      "revId": "0d607678428a10cf4771a63e684d7d7998730f8f",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fdee0835_9b22fb93",
+        "filename": "eVSSIM/FTL_SOURCE/PAGE_MAP/ftl_obj_strategy.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 65,
+      "author": {
+        "id": 1007990
+      },
+      "writtenOn": "2017-08-29T05:35:28Z",
+      "side": 1,
+      "message": "are you sure that working with pointer is worthy here?",
+      "range": {
+        "startLine": 65,
+        "startChar": 27,
+        "endLine": 65,
+        "endChar": 44
+      },
+      "revId": "0d607678428a10cf4771a63e684d7d7998730f8f",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "dfda42a6_528e2964",
+        "filename": "eVSSIM/FTL_SOURCE/PAGE_MAP/ftl_obj_strategy.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 65,
+      "author": {
+        "id": 1007990
+      },
+      "writtenOn": "2017-08-29T05:35:28Z",
+      "side": 1,
+      "message": "lets define length_t to be unsigned int as well",
+      "range": {
+        "startLine": 65,
+        "startChar": 91,
+        "endLine": 65,
+        "endChar": 103
+      },
+      "revId": "0d607678428a10cf4771a63e684d7d7998730f8f",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "e1b4ef3c_35271d20",
+        "filename": "eVSSIM/FTL_SOURCE/PAGE_MAP/ftl_obj_strategy.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 65,
+      "author": {
+        "id": 1007990
+      },
+      "writtenOn": "2017-08-29T05:35:28Z",
+      "side": 1,
+      "message": "lets define typedef uint8_t *buf_ptr_t;",
+      "range": {
+        "startLine": 65,
+        "startChar": 56,
+        "endLine": 65,
+        "endChar": 68
+      },
+      "revId": "0d607678428a10cf4771a63e684d7d7998730f8f",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "4a3da744_fda6d2db",
+        "filename": "eVSSIM/FTL_SOURCE/PAGE_MAP/ftl_obj_strategy.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 73,
+      "author": {
+        "id": 1007990
+      },
+      "writtenOn": "2017-08-29T05:35:28Z",
+      "side": 1,
+      "message": "no. https://review.gerrithub.io/#/c/375876/",
+      "revId": "0d607678428a10cf4771a63e684d7d7998730f8f",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    }
+  ]
+}
