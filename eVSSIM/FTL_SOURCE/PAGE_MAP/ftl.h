@@ -8,12 +8,18 @@
 
 #include <stdint.h>
 #include <stdio.h>
+typedef uint64_t partition_id_t;
+
+typedef unsigned int length_t;
+typedef unsigned int offset_t;
+typedef uint8_t *buf_ptr_t;
 
 typedef enum {FTL_FAILURE, FTL_SUCCESS} ftl_ret_val;
 
 extern uint32_t** mapping_stats_table;
-void FTL_INIT(void);
-void FTL_TERM(void);
+struct osd_device get_osd_for_ns(partition_id_t nsid);
+void FTL_INIT(partition_id_t ns);
+void FTL_TERM(partition_id_t ns);
 
 //TODO: get rid of this (we have no init anymore)
 void FTL_TERM_STRATEGY(void);
@@ -26,5 +32,6 @@ void FTL_RESET_STATS(void);
 void FTL_TERM_STATS(void);
 void FTL_RECORD_SCOPE_STAT(FILE* fp , int scope);
 void *STAT_LISTEN(void *socket);
+void osd_init_part(partition_id_t nsid);
 
 #endif

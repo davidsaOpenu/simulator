@@ -24,6 +24,9 @@ extern "C" int g_init_log_server;
 
 using namespace std;
 
+/* turn off legacy osd*/
+#define NO_OSD
+
 namespace {
     class ObjectUnitTest : public ::testing::TestWithParam<size_t> {
         public:
@@ -49,7 +52,7 @@ namespace {
                     "STAT_PATH /tmp/stat.csv\n"
                     "STORAGE_STRATEGY 2\n"; // object strategy
                 ssd_conf.close();
-            	FTL_INIT();
+            	FTL_INIT(0);
                 INIT_OBJ_STRATEGY();
             #ifdef MONITOR_ON
             	INIT_LOG_MANAGER();
@@ -62,7 +65,7 @@ namespace {
 #endif
             }
             virtual void TearDown() {
-            	FTL_TERM();
+            	FTL_TERM(0);
             #ifdef MONITOR_ON
             	TERM_LOG_MANAGER();
             #endif
@@ -111,9 +114,9 @@ namespace {
         printf("Page no.:%ld\nPage size:%d\n",PAGES_IN_SSD,GET_PAGE_SIZE());
         printf("Object size: %d bytes\n",object_size_);
         obj_id_t object_locator = { .object_id = 0, .partition_id = 0 };
-#ifndef NO_OSD
+//#ifndef NO_OSD
         char *wrbuf = (char *)Calloc(1, object_size_);
-#endif
+//#endif
 
         // Fill the disk with objects
         for(unsigned long p=1; p < objects_in_ssd_; p++){
@@ -126,9 +129,9 @@ namespace {
 #endif
         }
 
-#ifndef NO_OSD
+//#ifndef NO_OSD
         free(wrbuf);
-#endif
+//#endif
 
         // At this step there shouldn't be any free page
         //ASSERT_EQ(FAIL, _FTL_OBJ_CREATE(object_size_));
@@ -145,9 +148,9 @@ namespace {
         // used to keep all the assigned ids
         obj_id_t objects[objects_in_ssd_];
 
-#ifndef NO_OSD
+//#ifndef NO_OSD
         char *wrbuf = (char *)Calloc(1, object_size_);
-#endif
+//#endif
 
         // Fill 50% of the disk with objects
         for(unsigned long p=1; p < objects_in_ssd_ / 2; p++){
@@ -162,10 +165,10 @@ namespace {
 #endif
         }
 
-#ifndef NO_OSD
+//#ifndef NO_OSD
         free(wrbuf);
         wrbuf = (char *)Calloc(1, GET_PAGE_SIZE());
-#endif
+//#endif
 
         // Write GET_PAGE_SIZE() data to each one
         for(unsigned long p=1; p < objects_in_ssd_/2; p++){
@@ -176,9 +179,9 @@ namespace {
 #endif
         }
 
-#ifndef NO_OSD
+//#ifndef NO_OSD
         free(wrbuf);
-#endif
+//#endif
 
         printf("SimpleObjectCreateWrite test ended\n");
     }
@@ -191,9 +194,9 @@ namespace {
         // used to keep all the assigned ids
         obj_id_t objects[objects_in_ssd_];
 
-#ifndef NO_OSD
+//#ifndef NO_OSD
         char *wrbuf = (char *)Calloc(1, object_size_);
-#endif
+//#endif
         // Fill 50% of the disk with objects
         for(unsigned long p=1; p < objects_in_ssd_/2; p++){
         	objects[p].object_id = p;
@@ -209,11 +212,11 @@ namespace {
 #endif
         }
 
-#ifndef NO_OSD
+//#ifndef NO_OSD
         // length and read buffer
-        uint64_t len;
+//        uint64_t len;
         char *rdbuf = (char *)Calloc(1, GET_PAGE_SIZE()/2);
-#endif
+//#endif
 
         // Read GET_PAGE_SIZE()/2 data from each one
         for(unsigned long p=1; p < objects_in_ssd_/2; p++){
@@ -227,10 +230,10 @@ namespace {
 #endif
         }
 
-#ifndef NO_OSD
+//#ifndef NO_OSD
         free(rdbuf);
         free(wrbuf);
-#endif
+//#endif
 
         printf("SimpleObjectCreateRead test ended\n");
     }
@@ -243,9 +246,9 @@ namespace {
         // used to keep all the assigned ids
         obj_id_t objects[objects_in_ssd_];
 
-#ifndef NO_OSD
+//#ifndef NO_OSD
         char *wrbuf = (char *)Calloc(1, object_size_);
-#endif
+//#endif
 
         // Fill the disk with objects
         for(unsigned long p=1; p < objects_in_ssd_; p++){
@@ -280,9 +283,9 @@ namespace {
 #endif
         }
 
-#ifndef NO_OSD
+//#ifndef NO_OSD
         free(wrbuf);
-#endif
+//#endif
 
         printf("SimpleObjectCreateDelete test ended\n");
     }
@@ -299,8 +302,9 @@ namespace {
         bool res = _FTL_OBJ_CREATE(tempObj, object_size_);
         ASSERT_TRUE(res);
 
-#ifndef NO_OSD
+//ifndef NO_OSD
         char *wrbuf = (char *)Calloc(1, object_size_);
+#ifndef NO_OSD
         ASSERT_EQ(0, osd_create_and_write(&osd, USEROBJECT_PID_LB, USEROBJECT_OID_LB + tempObj.object_id, object_size_, 0,
             (uint8_t *)wrbuf, cdb_cont_len, 0, osd_sense, DDT_CONTIG));
 #endif
@@ -318,9 +322,9 @@ namespace {
 
         // we should've covered the whole disk by now, so another write should fail
         //ASSERT_EQ(FAIL, _FTL_OBJ_WRITE(obj_id, size, object_size_)); 
-#ifndef NO_OSD
+//#ifndef NO_OSD
         free(wrbuf);
-#endif
+//#endif
         
         printf("ObjectGrowth test ended\n");
     }

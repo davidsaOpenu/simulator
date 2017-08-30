@@ -13,14 +13,55 @@
 #include <pthread.h>
 #include <unistd.h>
 
+
+#include "osd.h"
+#include "osd-util/osd-util.h"
+#include "osd-util/osd-defs.h"
+
+#define NVME_MAX_NUM_NAMESPACES 256
+
 int g_init = 0;
 extern double ssd_util;
 int gatherStats = 0;
 //Hold statistics information
 uint32_t** mapping_stats_table;
+struct osd_device ns_osd[NVME_MAX_NUM_NAMESPACES];
+uint8_t *osd_sense[NVME_MAX_NUM_NAMESPACES];
+static const uint32_t cdb_cont_len=0;
 
-void FTL_INIT(void)
+struct osd_device get_osd_for_ns(partition_id_t nsid){
+	return ns_osd[nsid];
+}
+
+
+ void osd_init_part(partition_id_t nsid) {
+	char root[30], rmroot[37];
+	sprintf(root, "/tmp/osd/%lu/", (unsigned long int) nsid);
+	sprintf(rmroot, "rm -rf tmp/osd/%lu/", (unsigned long int) nsid);
+	if (system(rmroot)) {
+		printf("ERROR[%s] failed to rm dir [%s]\n", __FUNCTION__, root);
+		//return;
+	}
+	if (osd_open(root, &ns_osd[nsid])){
+		printf("ERROR[%s] failed to open osd\n", __FUNCTION__);
+		return;
+	}
+	osd_sense[nsid] = (uint8_t*) Calloc(1, 1024);
+	if (!osd_sense[nsid]){
+		printf("ERROR[%s] failed to allocate memory\n", __FUNCTION__);
+		return;
+	}
+	if (osd_create_partition(&ns_osd[nsid], PARTITION_PID_LB, cdb_cont_len, osd_sense[nsid])){
+		printf("ERROR[%s] failed to create partition\n", __FUNCTION__);
+		return;
+	}
+}
+
+void FTL_INIT(partition_id_t ns)
 {
+
+	osd_init_part(ns);
+
 	if(g_init == 0){
         	PINFO("start\n");
 
@@ -43,7 +84,7 @@ void FTL_INIT(void)
 	}
 }
 
-void FTL_TERM(void)
+void FTL_TERM(partition_id_t ns)
 {
 	PINFO("start\n");
 
