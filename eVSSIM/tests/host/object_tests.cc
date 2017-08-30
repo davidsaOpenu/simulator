@@ -49,7 +49,7 @@ namespace {
                     "STAT_PATH /tmp/stat.csv\n"
                     "STORAGE_STRATEGY 2\n"; // object strategy
                 ssd_conf.close();
-            	FTL_INIT();
+            	FTL_INIT(0);
                 INIT_OBJ_STRATEGY();
             #ifdef MONITOR_ON
             	INIT_LOG_MANAGER();
@@ -62,7 +62,7 @@ namespace {
 #endif
             }
             virtual void TearDown() {
-            	FTL_TERM();
+            	FTL_TERM(0);
             #ifdef MONITOR_ON
             	TERM_LOG_MANAGER();
             #endif

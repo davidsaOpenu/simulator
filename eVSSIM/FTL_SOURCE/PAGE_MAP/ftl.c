@@ -12,15 +12,29 @@
 #include <sys/types.h>
 #include <pthread.h>
 #include <unistd.h>
+#include "nvme.h"
+
+#include "osd.h"
+#include "osd-util/osd-util.h"
+#include "osd-util/osd-defs.h"
+
 
 int g_init = 0;
 extern double ssd_util;
 int gatherStats = 0;
 //Hold statistics information
 uint32_t** mapping_stats_table;
+struct osd_device ns_osd[NVME_MAX_NUM_NAMESPACES];
 
-void FTL_INIT(void)
+struct osd_device get_osd_for_ns(const int nsid){
+	return ns_osd[nsid];
+}
+
+void FTL_INIT(partition_id_t ns)
 {
+	//dummy for compilation - osd init will take place here
+	ns_osd[0].ic.next_id=0;
+
 	if(g_init == 0){
         	PINFO("start\n");
 
@@ -43,7 +57,7 @@ void FTL_INIT(void)
 	}
 }
 
-void FTL_TERM(void)
+void FTL_TERM(partition_id_t ns)
 {
 	PINFO("start\n");
 
