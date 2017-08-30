@@ -8,15 +8,20 @@
 
 #include <stdint.h>
 #include <stdio.h>
+typedef uint64_t partition_id_t;
+typedef unsigned int psize_t; // size in Mb
+
+typedef unsigned int length_t;
+typedef unsigned int offset_t;
+typedef uint8_t *buf_ptr_t;
 
 typedef enum {FTL_FAILURE, FTL_SUCCESS} ftl_ret_val;
+typedef enum {FTL_SECTOR_STRATEGY, FTL_OBJECT_STRATEGY} strategy_t;
 
 extern uint32_t** mapping_stats_table;
-void FTL_INIT(void);
-void FTL_TERM(void);
+void FTL_INIT(strategy_t strategy, partition_id_t part_id, psize_t size);
+void FTL_TERM(strategy_t strategy, partition_id_t part_id);
 
-//TODO: get rid of this (we have no init anymore)
-void FTL_TERM_STRATEGY(void);
 
 void FTL_INIT_STATS(void);
 ftl_ret_val FTL_STATISTICS_GATHERING(uint32_t page_nb , int type);
@@ -26,5 +31,6 @@ void FTL_RESET_STATS(void);
 void FTL_TERM_STATS(void);
 void FTL_RECORD_SCOPE_STAT(FILE* fp , int scope);
 void *STAT_LISTEN(void *socket);
+
 
 #endif
