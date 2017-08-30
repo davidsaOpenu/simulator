@@ -1100,7 +1100,7 @@ uint8_t nvme_command_set(NVMEState *n, NVMECmd *sqe, NVMECQE *cqe);
 int nvme_open_storage_disks(NVMEState *n);
 int nvme_open_storage_disk(DiskInfo *disk);
 int nvme_close_storage_disks(NVMEState *n);
-int nvme_close_storage_disk(DiskInfo *disk);
+int nvme_close_storage_disk(DiskInfo *disk, uint32_t nsid);
 int nvme_create_storage_disks(NVMEState *n);
 int nvme_del_storage_disks(NVMEState *n);
 int nvme_del_storage_disk(DiskInfo *disk);
