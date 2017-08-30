@@ -6,11 +6,7 @@
 #include "uthash.h"
 
 typedef uint64_t object_id_t;
-typedef uint64_t partition_id_t;
 
-typedef unsigned int length_t;
-typedef unsigned int offset_t;
-typedef uint8_t *buf_ptr_t;
 
 /* unique object locator */
 typedef struct obj_id {

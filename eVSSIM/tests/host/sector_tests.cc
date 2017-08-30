@@ -70,13 +70,13 @@ namespace {
                     "STAT_PATH /tmp/stat.csv\n"
                     "STORAGE_STRATEGY 1\n"; // sector strategy
                 ssd_conf.close();
-            	FTL_INIT();
+            	FTL_INIT(0);
             #ifdef MONITOR_ON
             	INIT_LOG_MANAGER();
             #endif
             }
             virtual void TearDown() {
-            	FTL_TERM();
+            	FTL_TERM(0);
             #ifdef MONITOR_ON
             	TERM_LOG_MANAGER();
             #endif
