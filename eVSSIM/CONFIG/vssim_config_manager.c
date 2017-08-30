@@ -62,6 +62,8 @@ int GC_L2_THRESHOLD_BLOCK_NB;
 /* Storage strategy (1 = sector-based, 2 = object-based */
 int STORAGE_STRATEGY;
 
+int OSD_PERSISTENT;
+
 char gFile_Name[PATH_MAX] = {0,};
 char OSD_PATH[PATH_MAX] = {0,};
 char STAT_PATH[PATH_MAX] = {0,};
@@ -97,6 +99,7 @@ config_param options[] = {
     {"LOG_RAND_BLOCK_NB", "%d", &LOG_RAND_BLOCK_NB},
     {"LOG_SEQ_BLOCK_NB", "%d", &LOG_SEQ_BLOCK_NB},
 #endif
+    {"OSD_PERSISTENT", "%d", &OSD_PERSISTENT},
     {NULL, NULL, NULL},
 };
 

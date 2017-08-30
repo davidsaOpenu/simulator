@@ -17,7 +17,6 @@
 
 /* FTL */
 //#define FTL_DEBUG 1
-
 /* VSSIM Function */
 //#define MONITOR_ON
 
@@ -134,6 +133,9 @@
 #define COLLECT_FLASH	8
 #define COLLECT_CHANNEL	16
 #define COLLECT_SSD		32
+
+/* NVME controller specs */
+#define NVME_MAX_NUM_NAMESPACES 256
 
 /* VSSIM Function Debug */
 #define MNT_DEBUG			// MONITOR Debugging
