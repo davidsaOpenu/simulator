@@ -17,7 +17,7 @@
 
 /* FTL */
 //#define FTL_DEBUG 1
-
+#define NVME_MAX_NUM_NAMESPACES 256
 /* VSSIM Function */
 //#define MONITOR_ON
 //#define LOGGING_SERVER_ON

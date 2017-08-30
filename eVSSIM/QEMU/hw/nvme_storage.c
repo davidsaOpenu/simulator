@@ -604,7 +604,10 @@ int nvme_create_storage_disk(uint32_t instance, uint32_t nsid, DiskInfo *disk,
     uint32_t blksize, lba_idx;
     uint64_t size, blks;
     char str[PATH_MAX];
+
+
 #ifdef CONFIG_VSSIM
+    FTL_INIT(FTL_SECTOR_STRATEGY, nsid, 0 /* TODO: David */);
     strncpy(str, GET_FILE_NAME(), PATH_MAX-1);
     str[PATH_MAX-1] = '\0';
 #else
@@ -669,24 +672,24 @@ int nvme_create_storage_disk(uint32_t instance, uint32_t nsid, DiskInfo *disk,
 
     Arguments    :    NVMEState * : Pointer to NVME device State
 *********************************************************************/
-int nvme_create_storage_disks(NVMEState *n)
-{
-    uint32_t i;
-    int ret = SUCCESS;
+int nvme_create_storage_disks(NVMEState *n) {
+	uint32_t i;
+	int ret = SUCCESS;
 
 #ifdef CONFIG_VSSIM
-	FTL_INIT();
+#ifdef MONITOR_ON
 	INIT_LOG_MANAGER();
 #endif
+#endif
 
-    for (i = 0; i < n->num_namespaces; i++) {
-        ret = nvme_create_storage_disk(n->instance, i + 1, &n->disk[i], n);
-    }
+	for (i = 0; i < n->num_namespaces; i++) {
+		ret = nvme_create_storage_disk(n->instance, i + 1, &n->disk[i], n);
+	}
 
-    LOG_NORM("%s():Backing store created for instance %d", __func__,
-        n->instance);
+	LOG_NORM("%s():Backing store created for instance %d", __func__,
+			n->instance);
 
-    return ret;
+	return ret;
 }
 
 /*********************************************************************
@@ -721,8 +724,9 @@ static int nvme_close_meta_disk(DiskInfo *disk)
 
     Arguments    :    DiskInfo * : Pointer to NVME disk
 *********************************************************************/
-int nvme_close_storage_disk(DiskInfo *disk)
+int nvme_close_storage_disk(DiskInfo *disk, uint32_t nsid)
 {
+	FTL_TERM(FTL_SECTOR_STRATEGY, nsid);
     if (disk->mapping_addr != NULL) {
         if (munmap(disk->mapping_addr, disk->mapping_size) < 0) {
             LOG_ERR("Error while closing namespace: %d", disk->nsid);
@@ -760,14 +764,9 @@ int nvme_close_storage_disks(NVMEState *n)
     int ret = SUCCESS;
 
     for (i = 0; i < n->num_namespaces; i++) {
-        ret = nvme_close_storage_disk(&n->disk[i]);
+        // i+1 because namspaces are based at 1
+        ret = nvme_close_storage_disk(&n->disk[i],i+1);
     }
-    
-#ifdef CONFIG_VSSIM
-    //TODO: nvme_close_storage_disks() function is not called
-    //see vl.c for SSD_TERM();
-    //SSD_TERM();
-#endif
 
     return ret;
 }
