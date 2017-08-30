@@ -70,11 +70,11 @@ namespace {
                     "STAT_PATH /tmp/stat.csv\n"
                     "STORAGE_STRATEGY 1\n"; // sector strategy
                 ssd_conf.close();
-            	FTL_INIT();
+            	FTL_INIT(FTL_SECTOR_STRATEGY,0,0);
             	INIT_LOG_MANAGER();
             }
             virtual void TearDown() {
-            	FTL_TERM();
+            	FTL_TERM(FTL_SECTOR_STRATEGY, 0);
             	TERM_LOG_MANAGER();
                 remove("data/empty_block_list.dat");
                 remove("data/inverse_block_mapping.dat");
