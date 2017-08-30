@@ -3319,12 +3319,7 @@ int main(int argc, char **argv, char **envp)
     main_loop();
     quit_timers();
     net_cleanup();
-
-#ifdef CONFIG_VSSIM    //TODO: this should be called from nvme_close_storage_disks()
-	FTL_TERM();  
-
-#ifdef MONITOR_ON
-	TERM_LOG_MANAGER();
+    TERM_LOG_MANAGER();
 #endif
 
 #endif
