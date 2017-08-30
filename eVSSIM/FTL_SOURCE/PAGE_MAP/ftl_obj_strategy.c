@@ -130,7 +130,7 @@ ftl_ret_val _FTL_OBJ_READ(obj_id_t obj_loc, buf_ptr_t buf, offset_t offset, leng
 	return ret;
 }
 
-ftl_ret_val _FTL_OBJ_WRITE(obj_id_t object_loc, buf_ptr_t buf, offset_t offset, length_t length)
+ftl_ret_val _FTL_OBJ_WRITE(obj_id_t object_id, buf_ptr_t buf, offset_t offset, length_t length)
 {
     stored_object *object;
     page_node *current_page = NULL,*temp_page;
@@ -139,7 +139,7 @@ ftl_ret_val _FTL_OBJ_WRITE(obj_id_t object_loc, buf_ptr_t buf, offset_t offset, 
     int curr_io_page_nb;
     unsigned int ret = FTL_FAILURE;
     
-    object = lookup_object(object_loc.object_id);
+    object = lookup_object(object_id.object_id);
     
     // file not found
     if (object == NULL)
