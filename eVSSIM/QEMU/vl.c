@@ -3321,7 +3321,7 @@ int main(int argc, char **argv, char **envp)
     net_cleanup();
 
 #ifdef CONFIG_VSSIM    //TODO: this should be called from nvme_close_storage_disks()
-	FTL_TERM();  
+	/*FTL_TERM();        //Nirdo: @david, now it is */
 
 #ifdef MONITOR_ON
 	TERM_LOG_MANAGER();

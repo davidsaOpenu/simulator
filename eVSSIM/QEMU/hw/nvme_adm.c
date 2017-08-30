@@ -1364,7 +1364,7 @@ static uint32_t adm_cmd_format_nvm(NVMEState *n, NVMECmd *cmd, NVMECQE *cqe)
         return FAIL;
     }
 
-    if (nvme_close_storage_disk(disk)) {
+    if (nvme_close_storage_disk(disk,nsid)) {
         return FAIL;
     }
 
