@@ -9,9 +9,10 @@
 #include "hw.h"
 #endif
 
-uint8_t *osd_sense;
 static const uint32_t cdb_cont_len = 0;
 struct osd_device osd;
+struct osd_device ns_osd[NVME_MAX_NUM_NAMESPACES];
+uint8_t *osd_sense[NVME_MAX_NUM_NAMESPACES];
 
 stored_object *objects_table = NULL;
 object_map *objects_mapping = NULL;
@@ -19,7 +20,31 @@ partition_map *partitions_mapping = NULL;
 page_node *global_page_table = NULL;
 object_id_t current_id;
 
-void INIT_OBJ_STRATEGY(void)
+void osd_init_part(partition_id_t part_id) {
+	char root[30], rmroot[37];
+	sprintf(root, "/tmp/osd-%lu/", (unsigned long int) part_id);
+	sprintf(rmroot, "rm -rf tmp/osd-%lu/", (unsigned long int) part_id);
+	if (system(rmroot)) {
+		printf("ERROR[%s] failed to rm dir [%s]\n", __FUNCTION__, root);
+		//return;
+	}
+	if (osd_open(root, &ns_osd[part_id])){
+		printf("ERROR[%s] failed to open osd\n", __FUNCTION__);
+		return;
+	}
+	osd_sense[part_id] = (uint8_t*) Calloc(1, 1024);
+	if (!osd_sense[part_id]){
+		printf("ERROR[%s] failed to allocate memory\n", __FUNCTION__);
+		return;
+	}
+	if (osd_create_partition(&ns_osd[part_id], PARTITION_PID_LB, cdb_cont_len, osd_sense[part_id])){
+		printf("ERROR[%s] failed to create partition\n", __FUNCTION__);
+		return;
+	}
+}
+
+
+void _FTL_OBJ_STRATEGY_INIT(partition_id_t part_id, psize_t size)
 {
     current_id = 1;
     objects_table = NULL;
@@ -68,7 +93,7 @@ void free_page_table(void)
     }
 }
 
-void TERM_OBJ_STRATEGY(void)
+void _FTL_OBJ_STRATEGY_TERM(partition_id_t part_id)
 {
     free_obj_table();
     free_obj_mapping();
@@ -76,7 +101,7 @@ void TERM_OBJ_STRATEGY(void)
     free_page_table();
 }
 
-ftl_ret_val _FTL_OBJ_READ(obj_id_t obj_loc, buf_ptr_t buf, offset_t offset, length_t length)
+ftl_ret_val _FTL_OBJ_READ(obj_id_t object_id, buf_ptr_t buf, offset_t offset, length_t length)
 {
     stored_object *object;
     page_node *current_page;
@@ -84,7 +109,7 @@ ftl_ret_val _FTL_OBJ_READ(obj_id_t obj_loc, buf_ptr_t buf, offset_t offset, leng
     int curr_io_page_nb;
     unsigned int ret = FTL_FAILURE;
     
-    object = lookup_object(obj_loc.object_id);
+    object = lookup_object(object_id.object_id);
     
     // file not found
     if (object == NULL)
@@ -130,7 +155,7 @@ ftl_ret_val _FTL_OBJ_READ(obj_id_t obj_loc, buf_ptr_t buf, offset_t offset, leng
 	return ret;
 }
 
-ftl_ret_val _FTL_OBJ_WRITE(obj_id_t object_loc, buf_ptr_t buf, offset_t offset, length_t length)
+ftl_ret_val _FTL_OBJ_WRITE(obj_id_t object_id, buf_ptr_t buf, offset_t offset, length_t length)
 {
     stored_object *object;
     page_node *current_page = NULL,*temp_page;
@@ -139,7 +164,7 @@ ftl_ret_val _FTL_OBJ_WRITE(obj_id_t object_loc, buf_ptr_t buf, offset_t offset, 
     int curr_io_page_nb;
     unsigned int ret = FTL_FAILURE;
     
-    object = lookup_object(object_loc.object_id);
+    object = lookup_object(object_id.object_id);
     
     // file not found
     if (object == NULL)
@@ -267,11 +292,11 @@ ftl_ret_val _FTL_OBJ_COPYBACK(int32_t source, int32_t destination)
     return FTL_SUCCESS;
 }
 
-bool _FTL_OBJ_CREATE(obj_id_t obj_loc, size_t size)
+bool _FTL_OBJ_CREATE(obj_id_t object_id, size_t size)
 {
     stored_object *new_object;
     
-    new_object = create_object(obj_loc.object_id, size);
+    new_object = create_object(object_id.object_id, size);
     
     if (new_object == NULL) {
         return false;
@@ -280,18 +305,18 @@ bool _FTL_OBJ_CREATE(obj_id_t obj_loc, size_t size)
     return true;
 }
 
-ftl_ret_val _FTL_OBJ_DELETE(obj_id_t obj_loc)
+ftl_ret_val _FTL_OBJ_DELETE(obj_id_t object_id)
 {
     stored_object *object;
     object_map *obj_map;
     
-    object = lookup_object(obj_loc.object_id);
+    object = lookup_object(object_id.object_id);
     
     // object not found
     if (object == NULL)
     	return FTL_FAILURE;
 
-    obj_map = lookup_object_mapping(obj_loc.object_id);
+    obj_map = lookup_object_mapping(object_id.object_id);
 
     // object_map not found
     if (obj_map == NULL)
@@ -480,6 +505,7 @@ page_node *add_page(stored_object *object, uint32_t page_id)
 
  }
 
+ /* TODO: Hen, found this here - see if we can use it
  bool create_partition(partition_id_t part_id)
  {
 
@@ -549,6 +575,36 @@ void OSD_WRITE_OBJ(object_location obj_loc, unsigned int length, uint8_t *buf)
 	}
 }
 
+void OSD_READ_OBJ(object_location obj_loc, unsigned int length, uint64_t addr, uint64_t offset)
+{
+	object_id_t obj_id = USEROBJECT_OID_LB + obj_loc.object_id;
+	partition_id_t part_id = USEROBJECT_PID_LB + obj_loc.partition_id;
+
+
+	PINFO("READING %u bytes from OSD OBJECT: %lu %lu\n", length, part_id, obj_id);
+	uint64_t len;
+
+	uint8_t *rdbuf = malloc(length);
+
+	//we should also get the offset here, for cases where there's more than one prp
+
+	if(osd_read(&osd, part_id, obj_id, length, offset, NULL, rdbuf, &len, 0, osd_sense, DDT_CONTIG))
+		PINFO("failed in osd_read()\n")
+	else
+	{
+		PINFO("osd_read() was successful. %lu bytes were read !\n", len);
+
+#ifndef COMPLIANCE_TESTS
+		cpu_physical_memory_rw(addr, rdbuf, len, 1);
+#endif
+
+		printMemoryDump(rdbuf, length);
+
+	}
+	free(rdbuf);
+}
+
+*/
 void printMemoryDump(uint8_t *buffer, unsigned int bufferLength)
 {
 	unsigned int* start_p = (unsigned int*)buffer;
@@ -588,34 +644,6 @@ void printMemoryDump(uint8_t *buffer, unsigned int bufferLength)
 	PINFO("---------------------------------------\nDUMP MEMORY END\n---------------------------------------\n");
 }
 
-void OSD_READ_OBJ(object_location obj_loc, unsigned int length, uint64_t addr, uint64_t offset)
-{
-	object_id_t obj_id = USEROBJECT_OID_LB + obj_loc.object_id;
-	partition_id_t part_id = USEROBJECT_PID_LB + obj_loc.partition_id;
-
-
-	PINFO("READING %u bytes from OSD OBJECT: %lu %lu\n", length, part_id, obj_id);
-	uint64_t len;
-
-	uint8_t *rdbuf = malloc(length);
-
-	//we should also get the offset here, for cases where there's more than one prp
-
-	if(osd_read(&osd, part_id, obj_id, length, offset, NULL, rdbuf, &len, 0, osd_sense, DDT_CONTIG))
-		PINFO("failed in osd_read()\n")
-	else
-	{
-		PINFO("osd_read() was successful. %lu bytes were read !\n", len);
-
-#ifndef COMPLIANCE_TESTS
-		cpu_physical_memory_rw(addr, rdbuf, len, 1);
-#endif
-
-		printMemoryDump(rdbuf, length);
-
-	}
-	free(rdbuf);
-}
 
 page_node *page_by_offset(stored_object *object, unsigned int offset)
 {

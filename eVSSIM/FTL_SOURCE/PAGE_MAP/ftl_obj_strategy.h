@@ -6,11 +6,7 @@
 #include "uthash.h"
 
 typedef uint64_t object_id_t;
-typedef uint64_t partition_id_t;
 
-typedef unsigned int length_t;
-typedef unsigned int offset_t;
-typedef uint8_t *buf_ptr_t;
 
 /* unique object locator */
 typedef struct obj_id {
@@ -62,15 +58,17 @@ typedef struct {
 	 unsigned int metadata_size;
 } metadata_info;
 
-void INIT_OBJ_STRATEGY(void);
-void TERM_OBJ_STRATEGY(void);
+void _FTL_OBJ_STRATEGY_INIT(partition_id_t part_id, psize_t size);
+void _FTL_OBJ_STRATEGY_TERM(partition_id_t part_id);
+
+void osd_init_part(partition_id_t part_id);
 
 /* FTL functions */
-ftl_ret_val _FTL_OBJ_READ(obj_id_t object_loc, buf_ptr_t buf, offset_t offset,length_t length);
-ftl_ret_val _FTL_OBJ_WRITE(obj_id_t object_loc, buf_ptr_t buf, offset_t offset, length_t length);
+ftl_ret_val _FTL_OBJ_READ(obj_id_t object_id, buf_ptr_t buf, offset_t offset,length_t length);
+ftl_ret_val _FTL_OBJ_WRITE(obj_id_t object_id, buf_ptr_t buf, offset_t offset, length_t length);
 ftl_ret_val _FTL_OBJ_COPYBACK(int32_t source, int32_t destination);
-bool _FTL_OBJ_CREATE(obj_id_t obj_loc, size_t size);
-ftl_ret_val _FTL_OBJ_DELETE(obj_id_t object_loc);
+bool _FTL_OBJ_CREATE(obj_id_t object_id, size_t size);
+ftl_ret_val _FTL_OBJ_DELETE(obj_id_t object_id);
 
 
 /* Persistent OSD storge */

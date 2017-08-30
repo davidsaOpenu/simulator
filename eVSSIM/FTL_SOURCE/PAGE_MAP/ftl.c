@@ -13,14 +13,27 @@
 #include <pthread.h>
 #include <unistd.h>
 
+
+#include "osd.h"
+#include "osd-util/osd-util.h"
+#include "osd-util/osd-defs.h"
+
+
 int g_init = 0;
 extern double ssd_util;
 int gatherStats = 0;
 //Hold statistics information
 uint32_t** mapping_stats_table;
 
-void FTL_INIT(void)
+
+
+
+void FTL_INIT(strategy_t strategy, partition_id_t part_id, psize_t size)
 {
+
+	if (FTL_OBJECT_STRATEGY==strategy)
+		    _FTL_OBJ_STRATEGY_INIT(part_id, size);
+
 	if(g_init == 0){
         	PINFO("start\n");
 
@@ -43,7 +56,7 @@ void FTL_INIT(void)
 	}
 }
 
-void FTL_TERM(void)
+void FTL_TERM(strategy_t strategy, partition_id_t part_id)
 {
 	PINFO("start\n");
 
@@ -54,20 +67,14 @@ void FTL_TERM(void)
 	TERM_EMPTY_BLOCK_LIST();
 	TERM_VICTIM_BLOCK_LIST();
 	TERM_PERF_CHECKER();
-	FTL_TERM_STRATEGY();
 	FTL_TERM_STATS();
 	SSD_IO_TERM();
+	if (FTL_OBJECT_STRATEGY==strategy)
+	    _FTL_OBJ_STRATEGY_TERM(part_id);
+
 	PINFO("complete\n");
 }
 
-void FTL_TERM_STRATEGY(void)
-{
-	// As we can't figure out the storage strategy at this point, 
-	// We can terminate the object strategy anyway... at the worst 
-	// case where we're actually using the sector strtegy, it won't do
-	// anything and return
-	TERM_OBJ_STRATEGY();
-}
 
 void FTL_INIT_STATS(void)
 {
