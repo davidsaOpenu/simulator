@@ -1,0 +1,55 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "0d5e3f50_6af4960d",
+        "filename": "eVSSIM/tests/guest/fs_tests/test_fs.py",
+        "patchSetId": 3
+      },
+      "lineNbr": 15,
+      "author": {
+        "id": 1007990
+      },
+      "writtenOn": "2017-08-31T13:20:21Z",
+      "side": 1,
+      "message": "The script is missing. Maybe \u0027git add check-dmesg.sh\u0027?\n\nAnother issue: why assertions are ok? If script is not existing the test shell fail..",
+      "revId": "6663a93e6732f69a759b59fe3a8f25392f86483b",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "2585d66f_170df9de",
+        "filename": "eVSSIM/tests/guest/fs_tests/test_fs.py",
+        "patchSetId": 3
+      },
+      "lineNbr": 18,
+      "author": {
+        "id": 1007990
+      },
+      "writtenOn": "2017-08-31T13:20:21Z",
+      "side": 1,
+      "message": "worth adding command list and iterate ove the list to avoid duplication of assert self.verify_dmesg() lines.",
+      "revId": "6663a93e6732f69a759b59fe3a8f25392f86483b",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "2b51f847_2c696751",
+        "filename": "eVSSIM/tests/guest/fs_tests/test_fs.py",
+        "patchSetId": 3
+      },
+      "lineNbr": 54,
+      "author": {
+        "id": 1007990
+      },
+      "writtenOn": "2017-08-31T13:20:21Z",
+      "side": 1,
+      "message": "also we have duplications here",
+      "revId": "6663a93e6732f69a759b59fe3a8f25392f86483b",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    }
+  ]
+}
