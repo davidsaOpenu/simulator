@@ -1,0 +1,50 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "a2b8c312_906d17a6",
+        "filename": "eVSSIM/FTL_SOURCE/PAGE_MAP/ftl.h",
+        "patchSetId": 5
+      },
+      "lineNbr": 21,
+      "author": {
+        "id": 1007990
+      },
+      "writtenOn": "2017-08-31T13:30:41Z",
+      "side": 1,
+      "message": "maybe it worth adding size param as well?\n\ntypefed ungigned int psize_t; // size in Mb",
+      "range": {
+        "startLine": 21,
+        "startChar": 5,
+        "endLine": 21,
+        "endChar": 33
+      },
+      "revId": "3441edf41be7b9b14813ba6daa72b6c820da4a4b",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "3a6d9107_cbef824c",
+        "filename": "eVSSIM/FTL_SOURCE/PAGE_MAP/ftl.h",
+        "patchSetId": 5
+      },
+      "lineNbr": 21,
+      "author": {
+        "id": 1007990
+      },
+      "writtenOn": "2017-08-31T13:30:41Z",
+      "side": 1,
+      "message": "let\u0027s be consistent in naming conv and use either ns or partition everywhere in simulator. I think that partition sounds more general and not nvme specific.",
+      "range": {
+        "startLine": 21,
+        "startChar": 29,
+        "endLine": 21,
+        "endChar": 31
+      },
+      "revId": "3441edf41be7b9b14813ba6daa72b6c820da4a4b",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    }
+  ]
+}
