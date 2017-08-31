@@ -1,0 +1,73 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "b736eb93_4c6b29fd",
+        "filename": "eVSSIM/FTL_SOURCE/PAGE_MAP/ftl_obj_strategy.c",
+        "patchSetId": 4
+      },
+      "lineNbr": 79,
+      "author": {
+        "id": 1007990
+      },
+      "writtenOn": "2017-08-31T13:11:22Z",
+      "side": 1,
+      "message": "same as in C file regarding loc",
+      "range": {
+        "startLine": 79,
+        "startChar": 38,
+        "endLine": 79,
+        "endChar": 42
+      },
+      "revId": "0524b6fc643abce75eafebd83de015d7fc4b1a26",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "5a1ba32a_8cfb270b",
+        "filename": "eVSSIM/FTL_SOURCE/PAGE_MAP/ftl_obj_strategy.h",
+        "patchSetId": 4
+      },
+      "lineNbr": 69,
+      "author": {
+        "id": 1007990
+      },
+      "writtenOn": "2017-08-31T13:11:22Z",
+      "side": 1,
+      "message": "loc",
+      "range": {
+        "startLine": 69,
+        "startChar": 41,
+        "endLine": 69,
+        "endChar": 45
+      },
+      "revId": "0524b6fc643abce75eafebd83de015d7fc4b1a26",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "ed35af61_2d5ce859",
+        "filename": "eVSSIM/tests/host/object_tests.cc",
+        "patchSetId": 4
+      },
+      "lineNbr": 113,
+      "author": {
+        "id": 1007990
+      },
+      "writtenOn": "2017-08-31T13:11:22Z",
+      "side": 1,
+      "message": "let\u0027s get rid of locator",
+      "range": {
+        "startLine": 113,
+        "startChar": 17,
+        "endLine": 113,
+        "endChar": 31
+      },
+      "revId": "0524b6fc643abce75eafebd83de015d7fc4b1a26",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    }
+  ]
+}
