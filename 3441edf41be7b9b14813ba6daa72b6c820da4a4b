@@ -2,6 +2,23 @@
   "comments": [
     {
       "key": {
+        "uuid": "a76eeec8_68d80dfb",
+        "filename": "eVSSIM/FTL_SOURCE/PAGE_MAP/ftl.c",
+        "patchSetId": 5
+      },
+      "lineNbr": 60,
+      "author": {
+        "id": 1007990
+      },
+      "writtenOn": "2017-08-31T15:41:06Z",
+      "side": 1,
+      "message": "partId, strategy, size\n\n\nif startegy \u003d\u003d obj \n  call FTL_OBJ_INIT\nelse\n   call FTL_SECT_INIT",
+      "revId": "3441edf41be7b9b14813ba6daa72b6c820da4a4b",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "a2b8c312_906d17a6",
         "filename": "eVSSIM/FTL_SOURCE/PAGE_MAP/ftl.h",
         "patchSetId": 5
@@ -41,6 +58,114 @@
         "startChar": 29,
         "endLine": 21,
         "endChar": 31
+      },
+      "revId": "3441edf41be7b9b14813ba6daa72b6c820da4a4b",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "29d697d8_60fce111",
+        "filename": "eVSSIM/QEMU/hw/nvme.h",
+        "patchSetId": 5
+      },
+      "lineNbr": 1103,
+      "author": {
+        "id": 1007990
+      },
+      "writtenOn": "2017-08-31T15:41:06Z",
+      "side": 1,
+      "message": "great this is the place we should use nsid!",
+      "revId": "3441edf41be7b9b14813ba6daa72b6c820da4a4b",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "7f06e13d_5689b844",
+        "filename": "eVSSIM/QEMU/hw/nvme_storage.c",
+        "patchSetId": 5
+      },
+      "lineNbr": 610,
+      "author": {
+        "id": 1007990
+      },
+      "writtenOn": "2017-08-31T15:41:06Z",
+      "side": 1,
+      "message": "TABS - \u003e spaces",
+      "revId": "3441edf41be7b9b14813ba6daa72b6c820da4a4b",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "2cf946bb_cf0edbaf",
+        "filename": "eVSSIM/QEMU/hw/nvme_storage.c",
+        "patchSetId": 5
+      },
+      "lineNbr": 615,
+      "author": {
+        "id": 1007990
+      },
+      "writtenOn": "2017-08-31T15:41:06Z",
+      "side": 1,
+      "message": "let\u0027s revert ssd.h \n\nand wrap FTL_INIT into SSD_INIT\n\n\nSSD_INIT will perform log manager init.",
+      "revId": "3441edf41be7b9b14813ba6daa72b6c820da4a4b",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "42e4cc67_8cac9f6a",
+        "filename": "eVSSIM/QEMU/hw/nvme_storage.c",
+        "patchSetId": 5
+      },
+      "lineNbr": 777,
+      "author": {
+        "id": 1007990
+      },
+      "writtenOn": "2017-08-31T15:41:06Z",
+      "side": 1,
+      "message": "// clarification why +1",
+      "revId": "3441edf41be7b9b14813ba6daa72b6c820da4a4b",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "8306bac1_716d823e",
+        "filename": "eVSSIM/QEMU/hw/nvme_storage.c",
+        "patchSetId": 5
+      },
+      "lineNbr": 779,
+      "author": {
+        "id": 1007990
+      },
+      "writtenOn": "2017-08-31T15:41:06Z",
+      "side": 1,
+      "message": "spaces",
+      "revId": "3441edf41be7b9b14813ba6daa72b6c820da4a4b",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "bd402d8c_51d96f1e",
+        "filename": "eVSSIM/QEMU/vl.c",
+        "patchSetId": 5
+      },
+      "lineNbr": 3330,
+      "author": {
+        "id": 1007990
+      },
+      "writtenOn": "2017-08-31T15:41:06Z",
+      "side": 1,
+      "message": "lets move everything to destroy disk",
+      "range": {
+        "startLine": 3323,
+        "startChar": 0,
+        "endLine": 3330,
+        "endChar": 6
       },
       "revId": "3441edf41be7b9b14813ba6daa72b6c820da4a4b",
       "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
