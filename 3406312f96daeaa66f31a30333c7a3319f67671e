@@ -107,6 +107,74 @@
       "revId": "3406312f96daeaa66f31a30333c7a3319f67671e",
       "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "9090f0bf_d642351d",
+        "filename": "eVSSIM/LOG_MGR/logging_rt_analyzer.h",
+        "patchSetId": 19
+      },
+      "lineNbr": 61,
+      "author": {
+        "id": 1007990
+      },
+      "writtenOn": "2017-09-01T10:10:24Z",
+      "side": 1,
+      "message": "same as in logging_manager? Worth to have the flag in one place.",
+      "revId": "3406312f96daeaa66f31a30333c7a3319f67671e",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "42cce866_0a1cfdfe",
+        "filename": "eVSSIM/MONITOR/SERVER/logging_server.h",
+        "patchSetId": 19
+      },
+      "lineNbr": 50,
+      "author": {
+        "id": 1007990
+      },
+      "writtenOn": "2017-09-01T10:10:24Z",
+      "side": 1,
+      "message": "same comment as for rt analizer",
+      "revId": "3406312f96daeaa66f31a30333c7a3319f67671e",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fe9a37c8_87d56441",
+        "filename": "eVSSIM/MONITOR/SERVER/www/index.html",
+        "patchSetId": 19
+      },
+      "lineNbr": 86,
+      "author": {
+        "id": 1007990
+      },
+      "writtenOn": "2017-09-01T10:10:24Z",
+      "side": 1,
+      "message": "let\u0027s replace tabs with spaces",
+      "revId": "3406312f96daeaa66f31a30333c7a3319f67671e",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "9f7f3e6e_05c70e9b",
+        "filename": "eVSSIM/SSD_MODULE/ssd_io_manager.c",
+        "patchSetId": 19
+      },
+      "lineNbr": 146,
+      "author": {
+        "id": 1007990
+      },
+      "writtenOn": "2017-09-01T10:10:24Z",
+      "side": 1,
+      "message": "long line",
+      "revId": "3406312f96daeaa66f31a30333c7a3319f67671e",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
     }
   ]
 }
