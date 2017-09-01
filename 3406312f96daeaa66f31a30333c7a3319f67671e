@@ -1,0 +1,112 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "bfa4e53d_76f9f435",
+        "filename": "eVSSIM/FTL_SOURCE/PAGE_MAP/ftl_gc_manager.c",
+        "patchSetId": 19
+      },
+      "lineNbr": 136,
+      "author": {
+        "id": 1007990
+      },
+      "writtenOn": "2017-09-01T09:41:23Z",
+      "side": 1,
+      "message": "How about defining gc_log in logger manager? The idea is that log manager is responsible to provision, maintain and to destroy the log. Does it make better sense?",
+      "revId": "3406312f96daeaa66f31a30333c7a3319f67671e",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "3345bbde_f63c70b2",
+        "filename": "eVSSIM/FTL_SOURCE/PAGE_MAP/ftl_sect_strategy.c",
+        "patchSetId": 19
+      },
+      "lineNbr": 154,
+      "author": {
+        "id": 1007990
+      },
+      "writtenOn": "2017-09-01T09:41:23Z",
+      "side": 1,
+      "message": "unreadable and long. can yot plz rearrange this line?",
+      "revId": "3406312f96daeaa66f31a30333c7a3319f67671e",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "daa657a6_a5cad805",
+        "filename": "eVSSIM/LOG_MGR/logging_manager.c",
+        "patchSetId": 19
+      },
+      "lineNbr": 26,
+      "author": {
+        "id": 1007990
+      },
+      "writtenOn": "2017-09-01T09:41:23Z",
+      "side": 1,
+      "message": "IMHO, these is no need this macro. The only place it is used is in l 158",
+      "revId": "3406312f96daeaa66f31a30333c7a3319f67671e",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "e29170c5_27aca227",
+        "filename": "eVSSIM/LOG_MGR/logging_manager.c",
+        "patchSetId": 19
+      },
+      "lineNbr": 158,
+      "author": {
+        "id": 1007990
+      },
+      "writtenOn": "2017-09-01T09:41:23Z",
+      "side": 1,
+      "message": "usleep(50000); // sleep 50  milliseconds",
+      "revId": "3406312f96daeaa66f31a30333c7a3319f67671e",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "301de21f_9e7b216a",
+        "filename": "eVSSIM/LOG_MGR/logging_manager.c",
+        "patchSetId": 19
+      },
+      "lineNbr": 158,
+      "author": {
+        "id": 1007990
+      },
+      "writtenOn": "2017-09-01T09:41:23Z",
+      "side": 1,
+      "message": "plz checl return value. \nif \u003c 0 \n   log error into the error logger (lets add one)",
+      "range": {
+        "startLine": 158,
+        "startChar": 8,
+        "endLine": 158,
+        "endChar": 41
+      },
+      "revId": "3406312f96daeaa66f31a30333c7a3319f67671e",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "f766ab2a_785000d3",
+        "filename": "eVSSIM/LOG_MGR/logging_manager.h",
+        "patchSetId": 19
+      },
+      "lineNbr": 77,
+      "author": {
+        "id": 1007990
+      },
+      "writtenOn": "2017-09-01T09:41:23Z",
+      "side": 1,
+      "message": "can you plz rename close_flag to reflect that setting it stops looping ASAP? Maybe exit_rt_analizer_loop_flag or smth similar?",
+      "revId": "3406312f96daeaa66f31a30333c7a3319f67671e",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    }
+  ]
+}
