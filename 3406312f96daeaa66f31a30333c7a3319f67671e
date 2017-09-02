@@ -19,6 +19,24 @@
     },
     {
       "key": {
+        "uuid": "04b84128_415a4787",
+        "filename": "eVSSIM/FTL_SOURCE/PAGE_MAP/ftl_gc_manager.c",
+        "patchSetId": 19
+      },
+      "lineNbr": 136,
+      "author": {
+        "id": 1010875
+      },
+      "writtenOn": "2017-09-02T14:32:28Z",
+      "side": 1,
+      "message": "I added an empty_log to logging_parser.h, so that it is a bit more readable now.",
+      "parentUuid": "bfa4e53d_76f9f435",
+      "revId": "3406312f96daeaa66f31a30333c7a3319f67671e",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "3345bbde_f63c70b2",
         "filename": "eVSSIM/FTL_SOURCE/PAGE_MAP/ftl_sect_strategy.c",
         "patchSetId": 19
@@ -36,6 +54,24 @@
     },
     {
       "key": {
+        "uuid": "741c72d2_a56b8c03",
+        "filename": "eVSSIM/FTL_SOURCE/PAGE_MAP/ftl_sect_strategy.c",
+        "patchSetId": 19
+      },
+      "lineNbr": 154,
+      "author": {
+        "id": 1010875
+      },
+      "writtenOn": "2017-09-02T14:32:28Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "3345bbde_f63c70b2",
+      "revId": "3406312f96daeaa66f31a30333c7a3319f67671e",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "daa657a6_a5cad805",
         "filename": "eVSSIM/LOG_MGR/logging_manager.c",
         "patchSetId": 19
@@ -47,6 +83,24 @@
       "writtenOn": "2017-09-01T09:41:23Z",
       "side": 1,
       "message": "IMHO, these is no need this macro. The only place it is used is in l 158",
+      "revId": "3406312f96daeaa66f31a30333c7a3319f67671e",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "be4119a2_16433d52",
+        "filename": "eVSSIM/LOG_MGR/logging_manager.c",
+        "patchSetId": 19
+      },
+      "lineNbr": 26,
+      "author": {
+        "id": 1010875
+      },
+      "writtenOn": "2017-09-02T14:32:28Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "daa657a6_a5cad805",
       "revId": "3406312f96daeaa66f31a30333c7a3319f67671e",
       "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
       "unresolved": false
@@ -93,6 +147,48 @@
     },
     {
       "key": {
+        "uuid": "f0300b49_35f0f6d1",
+        "filename": "eVSSIM/LOG_MGR/logging_manager.c",
+        "patchSetId": 19
+      },
+      "lineNbr": 158,
+      "author": {
+        "id": 1010875
+      },
+      "writtenOn": "2017-09-02T14:32:28Z",
+      "side": 1,
+      "message": "I don\u0027t know if a full blown error logger is the right way to attack this in the beginning; I can add a hook for manager errors if you would like me to.\n\nI think that an error indicates an interrupting signal, which means that the manager should just exit; what do you say?",
+      "parentUuid": "301de21f_9e7b216a",
+      "range": {
+        "startLine": 158,
+        "startChar": 8,
+        "endLine": 158,
+        "endChar": 41
+      },
+      "revId": "3406312f96daeaa66f31a30333c7a3319f67671e",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "2a1e08f2_fa00a48c",
+        "filename": "eVSSIM/LOG_MGR/logging_manager.c",
+        "patchSetId": 19
+      },
+      "lineNbr": 158,
+      "author": {
+        "id": 1010875
+      },
+      "writtenOn": "2017-09-02T14:32:28Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "e29170c5_27aca227",
+      "revId": "3406312f96daeaa66f31a30333c7a3319f67671e",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "f766ab2a_785000d3",
         "filename": "eVSSIM/LOG_MGR/logging_manager.h",
         "patchSetId": 19
@@ -104,6 +200,24 @@
       "writtenOn": "2017-09-01T09:41:23Z",
       "side": 1,
       "message": "can you plz rename close_flag to reflect that setting it stops looping ASAP? Maybe exit_rt_analizer_loop_flag or smth similar?",
+      "revId": "3406312f96daeaa66f31a30333c7a3319f67671e",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "b0698a38_1833314d",
+        "filename": "eVSSIM/LOG_MGR/logging_manager.h",
+        "patchSetId": 19
+      },
+      "lineNbr": 77,
+      "author": {
+        "id": 1010875
+      },
+      "writtenOn": "2017-09-02T14:32:28Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "f766ab2a_785000d3",
       "revId": "3406312f96daeaa66f31a30333c7a3319f67671e",
       "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
       "unresolved": false
@@ -127,6 +241,24 @@
     },
     {
       "key": {
+        "uuid": "b2c17aaa_4408fc5b",
+        "filename": "eVSSIM/LOG_MGR/logging_rt_analyzer.h",
+        "patchSetId": 19
+      },
+      "lineNbr": 61,
+      "author": {
+        "id": 1010875
+      },
+      "writtenOn": "2017-09-02T14:32:28Z",
+      "side": 1,
+      "message": "Using a single flag for all the threads can cause synchronization problems, and can make the handling code much more complex. If we use a different flag for each thread, we also get the added benefit that every thread is able to be stopped independently of the other threads, so I like this design better. What do think?",
+      "parentUuid": "9090f0bf_d642351d",
+      "revId": "3406312f96daeaa66f31a30333c7a3319f67671e",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "42cce866_0a1cfdfe",
         "filename": "eVSSIM/MONITOR/SERVER/logging_server.h",
         "patchSetId": 19
@@ -138,6 +270,24 @@
       "writtenOn": "2017-09-01T10:10:24Z",
       "side": 1,
       "message": "same comment as for rt analizer",
+      "revId": "3406312f96daeaa66f31a30333c7a3319f67671e",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "47e1f210_99770318",
+        "filename": "eVSSIM/MONITOR/SERVER/logging_server.h",
+        "patchSetId": 19
+      },
+      "lineNbr": 50,
+      "author": {
+        "id": 1010875
+      },
+      "writtenOn": "2017-09-02T14:32:28Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "42cce866_0a1cfdfe",
       "revId": "3406312f96daeaa66f31a30333c7a3319f67671e",
       "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
       "unresolved": false
@@ -161,6 +311,24 @@
     },
     {
       "key": {
+        "uuid": "553e5e5e_085ac6f8",
+        "filename": "eVSSIM/MONITOR/SERVER/www/index.html",
+        "patchSetId": 19
+      },
+      "lineNbr": 86,
+      "author": {
+        "id": 1010875
+      },
+      "writtenOn": "2017-09-02T14:32:28Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "fe9a37c8_87d56441",
+      "revId": "3406312f96daeaa66f31a30333c7a3319f67671e",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "9f7f3e6e_05c70e9b",
         "filename": "eVSSIM/SSD_MODULE/ssd_io_manager.c",
         "patchSetId": 19
@@ -172,6 +340,24 @@
       "writtenOn": "2017-09-01T10:10:24Z",
       "side": 1,
       "message": "long line",
+      "revId": "3406312f96daeaa66f31a30333c7a3319f67671e",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "e2d22891_e39d44e3",
+        "filename": "eVSSIM/SSD_MODULE/ssd_io_manager.c",
+        "patchSetId": 19
+      },
+      "lineNbr": 146,
+      "author": {
+        "id": 1010875
+      },
+      "writtenOn": "2017-09-02T14:32:28Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "9f7f3e6e_05c70e9b",
       "revId": "3406312f96daeaa66f31a30333c7a3319f67671e",
       "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
       "unresolved": false
