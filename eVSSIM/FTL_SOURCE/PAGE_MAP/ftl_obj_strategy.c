@@ -47,7 +47,6 @@ void osd_term_part(partition_id_t part_id) {
      osd_close(&osd_parts[part_id]);
 }
 
-
 void _FTL_OBJ_STRATEGY_INIT(partition_id_t part_id, psize_t size)
 {
     current_id = 1;
@@ -107,23 +106,19 @@ void _FTL_OBJ_STRATEGY_TERM(partition_id_t part_id)
     osd_term_part(part_id);
 }
 
-<<<<<<< HEAD
-ftl_ret_val _FTL_OBJ_READ(object_id_t object_id, unsigned int offset, unsigned int length)
-=======
 ftl_ret_val _FTL_OBJ_READ(obj_id_t object_id, buf_ptr_t buf, offset_t offset, length_t length)
->>>>>>> c83df7f... Embed osd inside FTL and partition by nsid
 {
     stored_object *object;
     page_node *current_page;
     int io_page_nb;
     int curr_io_page_nb;
     unsigned int ret = FTL_FAILURE;
-    
-<<<<<<< HEAD
-    object = lookup_object(object_id);
-=======
+    struct osd_device osd;
+    uint8_t* osd_sense;
+    uint64_t len_osd;
+    int osd_ret;
+
     object = lookup_object(object_id.object_id);
->>>>>>> c83df7f... Embed osd inside FTL and partition by nsid
     
     // file not found
     if (object == NULL)
@@ -164,16 +159,20 @@ ftl_ret_val _FTL_OBJ_READ(obj_id_t object_id, buf_ptr_t buf, offset_t offset, le
 
 	WRITE_LOG("READ PAGE %d ", length);
 
+	osd = osd_parts[object_id.partition_id];
+	osd_sense = osd_senses[object_id.partition_id];
+	osd_ret = osd_read(&osd, USEROBJECT_PID_LB, USEROBJECT_OID_LB + object_id.object_id,
+            		length, offset, NULL, (uint8_t *)buf, &len_osd, 0, osd_sense, DDT_CONTIG);
+	if (osd_ret != OSD_OK) {
+		return FTL_FAILURE;
+	}
+
 	PDBG_FTL("Complete\n");
 
 	return ret;
 }
 
-<<<<<<< HEAD
-ftl_ret_val _FTL_OBJ_WRITE(object_id_t object_id, unsigned int offset, unsigned int length)
-=======
 ftl_ret_val _FTL_OBJ_WRITE(obj_id_t object_id, buf_ptr_t buf, offset_t offset, length_t length)
->>>>>>> c83df7f... Embed osd inside FTL and partition by nsid
 {
     stored_object *object;
     page_node *current_page = NULL,*temp_page;
@@ -181,12 +180,11 @@ ftl_ret_val _FTL_OBJ_WRITE(obj_id_t object_id, buf_ptr_t buf, offset_t offset, l
     int io_page_nb;
     int curr_io_page_nb;
     unsigned int ret = FTL_FAILURE;
+    struct osd_device osd;
+    uint8_t* osd_sense;
+    int osd_ret;
     
-<<<<<<< HEAD
-    object = lookup_object(object_id);
-=======
     object = lookup_object(object_id.object_id);
->>>>>>> c83df7f... Embed osd inside FTL and partition by nsid
     
     // file not found
     if (object == NULL)
@@ -281,6 +279,14 @@ ftl_ret_val _FTL_OBJ_WRITE(obj_id_t object_id, buf_ptr_t buf, offset_t offset, l
 	WRITE_LOG("WRITE PAGE %d ", length);
 	WRITE_LOG("WB CORRECT %d", curr_io_page_nb);
 
+	osd = osd_parts[object_id.partition_id];
+	osd_sense = osd_senses[object_id.partition_id];
+	osd_ret = osd_write(&osd, USEROBJECT_PID_LB, USEROBJECT_OID_LB + object_id.object_id,
+				length, offset, (uint8_t *)buf, 0, osd_sense, DDT_CONTIG);
+	if (osd_ret != OSD_OK) {
+		return FTL_FAILURE;
+	}
+
 	PDBG_FTL("Complete\n");
 
 	return ret;
@@ -288,361 +294,359 @@ ftl_ret_val _FTL_OBJ_WRITE(obj_id_t object_id, buf_ptr_t buf, offset_t offset, l
 
 ftl_ret_val _FTL_OBJ_COPYBACK(int32_t source, int32_t destination)
 {
-    page_node *source_p;
+	page_node *source_p;
 
-    source_p = lookup_page(source);
+	source_p = lookup_page(source);
 
-    // source_p can be NULL if the GC is working on some old pages that belonged to an object we deleted already
-    if (source_p != NULL)
-    {
-        // invalidate the source page
-        UPDATE_INVERSE_BLOCK_VALIDITY(CALC_FLASH(source), CALC_BLOCK(source), CALC_PAGE(source), PAGE_INVALID);
+	// source_p can be NULL if the GC is working on some old pages that belonged to an object we deleted already
+	if (source_p != NULL)
+	{
+		// invalidate the source page
+		UPDATE_INVERSE_BLOCK_VALIDITY(CALC_FLASH(source), CALC_BLOCK(source), CALC_PAGE(source), PAGE_INVALID);
 
-        // mark new page as valid and used
-        UPDATE_NEW_PAGE_MAPPING_NO_LOGICAL(destination);
+		// mark new page as valid and used
+		UPDATE_NEW_PAGE_MAPPING_NO_LOGICAL(destination);
 
-        // change the object's page mapping to the new page
-        HASH_DEL(global_page_table, source_p); 
-        source_p->page_id = destination;
-        HASH_ADD_INT(global_page_table, page_id, source_p); 
-    }
-    else
-    {
-        PDBG_FTL("Warning %u copyback page not mapped to an object \n", source);
-    }
+		// change the object's page mapping to the new page
+		HASH_DEL(global_page_table, source_p); 
+		source_p->page_id = destination;
+		HASH_ADD_INT(global_page_table, page_id, source_p); 
+	}
+	else
+	{
+		PDBG_FTL("Warning %u copyback page not mapped to an object \n", source);
+	}
 
-    return FTL_SUCCESS;
+	return FTL_SUCCESS;
 }
 
-<<<<<<< HEAD
-bool _FTL_OBJ_CREATE(object_id_t obj_id, size_t size)
-{
-    stored_object *new_object;
-    
-    new_object = create_object(obj_id, size);
-=======
 bool _FTL_OBJ_CREATE(obj_id_t object_id, size_t size)
 {
-    stored_object *new_object;
-    
-    new_object = create_object(object_id.object_id, size);
->>>>>>> c83df7f... Embed osd inside FTL and partition by nsid
-    
-    if (new_object == NULL) {
-        return false;
-    }
-    
-    return true;
+	stored_object *new_object;
+	struct osd_device osd;
+    	uint8_t* osd_sense;
+	int osd_ret;
+
+	new_object = create_object(object_id.object_id, size);
+
+	if (new_object == NULL) {
+		return false;
+	}
+
+	osd = osd_parts[object_id.partition_id];
+	osd_sense = osd_senses[object_id.partition_id];
+	osd_ret = osd_create(&osd, USEROBJECT_PID_LB, USEROBJECT_OID_LB + object_id.object_id, 
+			1, cdb_cont_len, osd_sense);
+	if (osd_ret == OSD_ERROR) { 
+		// Revert creation
+		object_map *obj_map = lookup_object_mapping(object_id.object_id);
+		if (obj_map != NULL) {
+			remove_object(new_object, obj_map);
+		}
+
+		return false;
+	}
+
+	// TODO (Hen): Should we zero the object as in osd_create_and_write()? 
+#if 0
+	char *wrbuf = (char *)Calloc(1, size);
+	osd_ret = osd_write(&osd, USEROBJECT_PID_LB, USEROBJECT_OID_LB + object_id.object_id,
+				size, 0, (uint8_t *)wrbuf, 0, osd_sense, DDT_CONTIG);
+	if (osd_ret != OSD_OK) {
+		return FTL_FAILURE;
+	}
+#endif
+
+	return true;
 }
 
-<<<<<<< HEAD
-ftl_ret_val _FTL_OBJ_DELETE(object_id_t object_id)
-=======
 ftl_ret_val _FTL_OBJ_DELETE(obj_id_t object_id)
->>>>>>> c83df7f... Embed osd inside FTL and partition by nsid
 {
-    stored_object *object;
-    object_map *obj_map;
-    
-<<<<<<< HEAD
-    object = lookup_object(object_id);
-=======
-    object = lookup_object(object_id.object_id);
->>>>>>> c83df7f... Embed osd inside FTL and partition by nsid
-    
-    // object not found
-    if (object == NULL)
-    	return FTL_FAILURE;
+	stored_object *object;
+	object_map *obj_map;
+	ftl_ret_val ret;
+    	struct osd_device osd;
+    	uint8_t* osd_sense;
+	int osd_ret;
 
-<<<<<<< HEAD
-    obj_map = lookup_object_mapping(object_id);
-=======
-    obj_map = lookup_object_mapping(object_id.object_id);
->>>>>>> c83df7f... Embed osd inside FTL and partition by nsid
+	object = lookup_object(object_id.object_id);
 
-    // object_map not found
-    if (obj_map == NULL)
-    	return FTL_FAILURE;
+	// object not found
+	if (object == NULL)
+		return FTL_FAILURE;
 
-    return remove_object(object, obj_map);
+	obj_map = lookup_object_mapping(object_id.object_id);
+
+	// object_map not found
+	if (obj_map == NULL)
+		return FTL_FAILURE;
+
+	ret = remove_object(object, obj_map);
+	if (ret != FTL_SUCCESS) {
+		return ret;
+	}
+
+	osd = osd_parts[object_id.partition_id];
+	osd_sense = osd_senses[object_id.partition_id];
+	osd_ret = osd_remove(&osd, USEROBJECT_PID_LB, USEROBJECT_OID_LB + object_id.object_id, 
+			cdb_cont_len, osd_sense);
+	if (osd_ret != OSD_OK) {
+		return FTL_FAILURE;
+	}
+
+	return FTL_SUCCESS;
 }
 
 stored_object *lookup_object(object_id_t object_id)
 {
-    stored_object *object;
-    
-    // try to find it in our hashtable. NULL will be returned if key not found
-    HASH_FIND_INT(objects_table, &object_id, object);
-    
-    return object;
+	stored_object *object;
+
+	// try to find it in our hashtable. NULL will be returned if key not found
+	HASH_FIND_INT(objects_table, &object_id, object);
+
+	return object;
 }
 
 object_map *lookup_object_mapping(object_id_t object_id)
 {
-    object_map *obj_map;
+	object_map *obj_map;
 
-    // try to find it in our hashtable. NULL will be returned if key not found
-    HASH_FIND_INT(objects_mapping, &object_id, obj_map);
+	// try to find it in our hashtable. NULL will be returned if key not found
+	HASH_FIND_INT(objects_mapping, &object_id, obj_map);
 
-    return obj_map;
+	return obj_map;
 }
 
 stored_object *create_object(object_id_t obj_id, size_t size)
 {
 
-    stored_object *obj = malloc(sizeof(stored_object));
-    uint32_t page_id;
+	stored_object *obj = malloc(sizeof(stored_object));
+	uint32_t page_id;
 
-    object_map *obj_map;
+	object_map *obj_map;
 
-    HASH_FIND_INT(objects_mapping, &obj_id, obj_map);
-    //if the requested id was not found, let's add it
-    if (obj_map == NULL)
-    {
-    	object_map *new_obj_id = (object_map*)malloc(sizeof(object_map));
-    	new_obj_id->id = obj_id;
-    	new_obj_id->exists = true;
-    	HASH_ADD_INT(objects_mapping, id, new_obj_id);
-    }
-    else
-    {
-    	RINFO(NULL, "Object %lu already exists, cannot create it !\n", obj_id);
-    }
+	HASH_FIND_INT(objects_mapping, &obj_id, obj_map);
+	//if the requested id was not found, let's add it
+	if (obj_map == NULL)
+	{
+		object_map *new_obj_id = (object_map*)malloc(sizeof(object_map));
+		new_obj_id->id = obj_id;
+		new_obj_id->exists = true;
+		HASH_ADD_INT(objects_mapping, id, new_obj_id);
+	}
+	else
+	{
+		RINFO(NULL, "Object %lu already exists, cannot create it !\n", obj_id);
+	}
 
 
-    // initialize to stored_object struct with size and initial pages
-    obj->id = obj_id;
-    obj->size = 0;
-    obj->pages = NULL;
+	// initialize to stored_object struct with size and initial pages
+	obj->id = obj_id;
+	obj->size = 0;
+	obj->pages = NULL;
 
-    // add the new object to the objects' hashtable
-    HASH_ADD_INT(objects_table, id, obj); 
+	// add the new object to the objects' hashtable
+	HASH_ADD_INT(objects_table, id, obj); 
 
-    while(size > obj->size)
-    {
-        if (GET_NEW_PAGE(VICTIM_OVERALL, EMPTY_TABLE_ENTRY_NB, &page_id) == FTL_FAILURE)
-        {
-            // cleanup just in case we managed to do anything up until now
-            remove_object(obj, obj_map);
-            return NULL;
-        }
+	while(size > obj->size)
+	{
+		if (GET_NEW_PAGE(VICTIM_OVERALL, EMPTY_TABLE_ENTRY_NB, &page_id) == FTL_FAILURE)
+		{
+			// cleanup just in case we managed to do anything up until now
+			remove_object(obj, obj_map);
+			return NULL;
+		}
 
-        if(!add_page(obj, page_id))
-            return NULL;
-        
-        // mark new page as valid and used
-        UPDATE_NEW_PAGE_MAPPING_NO_LOGICAL(page_id);
-    }
+		if(!add_page(obj, page_id))
+			return NULL;
 
-    return obj;
+		// mark new page as valid and used
+		UPDATE_NEW_PAGE_MAPPING_NO_LOGICAL(page_id);
+	}
+
+	return obj;
 }
 
 int remove_object(stored_object *object, object_map *obj_map)
 {
-    page_node *current_page;
-    page_node *invalidated_page;
+	page_node *current_page;
+	page_node *invalidated_page;
 
-    if (object == NULL)
-    	return FTL_SUCCESS;
+	if (object == NULL)
+		return FTL_SUCCESS;
 
-    // object could not exist in the hashtable yet because it could just be cleanup in case create_object failed
-    // if we do perform HASH_DEL on an object that is not in the hashtable, the whole hashtable will be deleted
-    if (object && (object->hh.tbl != NULL))
-        HASH_DEL(objects_table, object);
+	// object could not exist in the hashtable yet because it could just be cleanup in case create_object failed
+	// if we do perform HASH_DEL on an object that is not in the hashtable, the whole hashtable will be deleted
+	if (object && (object->hh.tbl != NULL))
+		HASH_DEL(objects_table, object);
 
-    
-    if (obj_map && (obj_map->hh.tbl != NULL)){
-    	HASH_DEL(objects_mapping, obj_map);
-    	free(obj_map);
-    }
 
-    current_page = object->pages;
-    while (current_page != NULL)
-    {
-        // invalidate the physical page and update its mapping
-        UPDATE_INVERSE_BLOCK_VALIDITY(CALC_FLASH(current_page->page_id), CALC_BLOCK(current_page->page_id), CALC_PAGE(current_page->page_id), PAGE_INVALID);
+	if (obj_map && (obj_map->hh.tbl != NULL)){
+		HASH_DEL(objects_mapping, obj_map);
+		free(obj_map);
+	}
+
+	current_page = object->pages;
+	while (current_page != NULL)
+	{
+		// invalidate the physical page and update its mapping
+		UPDATE_INVERSE_BLOCK_VALIDITY(CALC_FLASH(current_page->page_id), CALC_BLOCK(current_page->page_id), CALC_PAGE(current_page->page_id), PAGE_INVALID);
 
 #ifdef GC_ON
-        // should we really perform GC for every page? we know we are invalidating a lot of them now...
-        GC_CHECK(CALC_FLASH(current_page->page_id), CALC_BLOCK(current_page->page_id), true, true);
+		// should we really perform GC for every page? we know we are invalidating a lot of them now...
+		GC_CHECK(CALC_FLASH(current_page->page_id), CALC_BLOCK(current_page->page_id), true, true);
 #endif
 
-        // get next page and free the current one
-        invalidated_page = current_page;
-        current_page = current_page->next;
+		// get next page and free the current one
+		invalidated_page = current_page;
+		current_page = current_page->next;
 
-        if (invalidated_page->hh.tbl != NULL)
-            HASH_DEL(global_page_table, invalidated_page);
+		if (invalidated_page->hh.tbl != NULL)
+			HASH_DEL(global_page_table, invalidated_page);
 
-        free(invalidated_page);
-    }
-    
-    // free the object's memory
-    free(object);
-    
-    return FTL_SUCCESS;
+		free(invalidated_page);
+	}
+
+	// free the object's memory
+	free(object);
+
+	return FTL_SUCCESS;
 }
 
 page_node *allocate_new_page(object_id_t object_id, uint32_t page_id)
 {
-    page_node *page = malloc(sizeof(struct page_node));
-    page->page_id = page_id;
-    page->object_id = object_id;
-    page->next = NULL;
-    return page;
+	page_node *page = malloc(sizeof(struct page_node));
+	page->page_id = page_id;
+	page->object_id = object_id;
+	page->next = NULL;
+	return page;
 }
 
 page_node *add_page(stored_object *object, uint32_t page_id)
 {
-    page_node *curr,*page;
+	page_node *curr,*page;
 
-    HASH_FIND_INT(global_page_table,&page_id,page);
-    if(page)
-    {
-        RERR(NULL, "[add_page] Object %lu already contains page %d\n",page->object_id,page_id);
-    }
-
-    object->size += GET_PAGE_SIZE();
-    if(object->pages == NULL)
-    {
-        page = allocate_new_page(object->id,page_id);
-        HASH_ADD_INT(global_page_table, page_id, page); 
-        object->pages = page;
-        return object->pages;
-    }
-    for(curr=page=object->pages; page && page->page_id != page_id; curr=page,page=page->next)
-        ;
-    if(page)
-    {
-        RERR(NULL, "[add_page] Object %lu already contains page %d\n",page->object_id,page_id);
-    }
-
-    page = allocate_new_page(object->id,page_id);
-    HASH_ADD_INT(global_page_table, page_id, page); 
-    curr->next = page;
-    return curr->next;
-}
-
-<<<<<<< HEAD
- void _FTL_OBJ_WRITECREATE(object_location obj_loc, size_t size)
-{
-
-	//If that's the first prp, we need to create the object
-	if (obj_loc.create_object)
+	HASH_FIND_INT(global_page_table,&page_id,page);
+	if(page)
 	{
-		PINFO("About to create an object in the SIMULATOR -> obj id: %lu size: %zu\n", obj_loc.object_id, size);
-		bool created = _FTL_OBJ_CREATE(obj_loc.object_id, size);
-		PINFO("Created the SIMULATOR object !\n");
-
-		if (!created)
-		{
-			RERR(, "Could not create the SIMULATOR object. Aborting !\n");
-		}
+		RERR(NULL, "[add_page] Object %lu already contains page %d\n",page->object_id,page_id);
 	}
 
-	PINFO("About to write an object to the SIMULATOR -> obj id: %lu size: %zu\n", obj_loc.object_id, size);
-	_FTL_OBJ_WRITE(obj_loc.object_id, 0, size);
-	//PINFO("Object written to the SIMULATOR with res:%d\n", res);
+	object->size += GET_PAGE_SIZE();
+	if(object->pages == NULL)
+	{
+		page = allocate_new_page(object->id,page_id);
+		HASH_ADD_INT(global_page_table, page_id, page); 
+		object->pages = page;
+		return object->pages;
+	}
+	for(curr=page=object->pages; page && page->page_id != page_id; curr=page,page=page->next)
+		;
+	if(page)
+	{
+		RERR(NULL, "[add_page] Object %lu already contains page %d\n",page->object_id,page_id);
+	}
 
-	return;
+	page = allocate_new_page(object->id,page_id);
+	HASH_ADD_INT(global_page_table, page_id, page); 
+	curr->next = page;
+	return curr->next;
 }
 
-=======
- /* TODO: Hen, found this here - see if we can use it
-  *
-  *
->>>>>>> c83df7f... Embed osd inside FTL and partition by nsid
+/* TODO: Hen, found this here - see if we can use it
+ *
+ *
  bool osd_init(void) {
-	 const char *rm_command = "rm -rf ";
-	 char *rm_tmp_osd_command = malloc(strlen(OSD_PATH)+strlen(rm_command)+1);
+ const char *rm_command = "rm -rf ";
+ char *rm_tmp_osd_command = malloc(strlen(OSD_PATH)+strlen(rm_command)+1);
 
-	 if (rm_tmp_osd_command != NULL)
-	 {
-		 rm_tmp_osd_command[0] = '\0';
-		 strcat(rm_tmp_osd_command, rm_command);
-		 strcat(rm_tmp_osd_command, OSD_PATH);
-	 }
-	 else
-	 {
-		 RERR(false, "malloc failed !\n");
-	 }
+ if (rm_tmp_osd_command != NULL)
+ {
+ rm_tmp_osd_command[0] = '\0';
+ strcat(rm_tmp_osd_command, rm_command);
+ strcat(rm_tmp_osd_command, OSD_PATH);
+ }
+ else
+ {
+ RERR(false, "malloc failed !\n");
+ }
 
-	 if (system(rm_tmp_osd_command))
-		 return false;
-	 if (osd_open(OSD_PATH, &osd))
-		 return false;
-	 PINFO("osd_init() finished successfully !\n");
-	 return true;
+ if (system(rm_tmp_osd_command))
+ return false;
+ if (osd_open(OSD_PATH, &osd))
+ return false;
+ PINFO("osd_init() finished successfully !\n");
+ return true;
 
  }
 
  bool create_partition(partition_id_t part_id)
  {
 
-	 const char *root = "/tmp/osd/";
-	 if (osd_open(root, &osd))
-		 return false;
-	 osd_sense = (uint8_t*)Calloc(1, 1024);
-	 if (osd_create_partition(&osd, part_id, cdb_cont_len, osd_sense))
-		 return false;
-	 PINFO("Created partition: %lu finished successfully !\n", part_id);
-	 return true;
+ const char *root = "/tmp/osd/";
+ if (osd_open(root, &osd))
+ return false;
+ osd_sense = (uint8_t*)Calloc(1, 1024);
+ if (osd_create_partition(&osd, part_id, cdb_cont_len, osd_sense))
+ return false;
+ PINFO("Created partition: %lu finished successfully !\n", part_id);
+ return true;
  }
 
-void OSD_WRITE_OBJ(object_location obj_loc, unsigned int length, uint8_t *buf)
+ void OSD_WRITE_OBJ(object_location obj_loc, unsigned int length, uint8_t *buf)
+ {
+ int ret;
+ partition_id_t part_id = USEROBJECT_PID_LB + obj_loc.partition_id;
+ object_id_t obj_id = USEROBJECT_OID_LB + obj_loc.object_id;
+
+ if (obj_loc.create_object)
+ {
+ partition_map *part_map;
+
+ HASH_FIND_INT(partitions_mapping, &part_id, part_map);
+//if the requested id was not found, let's add it
+if (part_map == NULL)
 {
-	int ret;
-	partition_id_t part_id = USEROBJECT_PID_LB + obj_loc.partition_id;
-	object_id_t obj_id = USEROBJECT_OID_LB + obj_loc.object_id;
+PINFO("Osd partition %lu does not exist - trying to create it!\n", part_id);
+bool created = create_partition(part_id);
+if (created)
+{
+partition_map *new_partition_id = (partition_map*)malloc(sizeof(partition_map));
+new_partition_id->id = part_id;
+new_partition_id->exists = true;
+HASH_ADD_INT(partitions_mapping, id, new_partition_id);
+PINFO("osd partition %lu created successfully!\n", part_id);
 
-	if (obj_loc.create_object)
-	{
-	    partition_map *part_map;
+}
+else
+{
+RERR(, "Could not create an osd partition !\n");
+}
 
-	    HASH_FIND_INT(partitions_mapping, &part_id, part_map);
-	    //if the requested id was not found, let's add it
-	    if (part_map == NULL)
-	    {
-	    	PINFO("Osd partition %lu does not exist - trying to create it!\n", part_id);
-	    	bool created = create_partition(part_id);
-	    	if (created)
-			{
-	    		partition_map *new_partition_id = (partition_map*)malloc(sizeof(partition_map));
-				new_partition_id->id = part_id;
-				new_partition_id->exists = true;
-				HASH_ADD_INT(partitions_mapping, id, new_partition_id);
-		    	PINFO("osd partition %lu created successfully!\n", part_id);
+}
+else
+{
+	PINFO("partition %lu already exists, no need to create it !\n", part_id);
+}
 
-			}
-	    	else
-	    	{
-	    		RERR(, "Could not create an osd partition !\n");
-	    	}
+PINFO("Creating an writing object to OSD with partition id: %lu and object id: %lu of size: %u\n", part_id, obj_id, length);
+ret = osd_create_and_write(&osd, part_id, obj_id, length, 0, buf, cdb_cont_len, 0, osd_sense, DDT_CONTIG);
+if (ret) {
+	RERR(, "FAILED ! ret for osd_create_and_write() is: %d\n", ret);
+}
+PINFO("Object was created and written to osd !\n");
+}
 
-	    }
-	    else
-	    {
-	    	PINFO("partition %lu already exists, no need to create it !\n", part_id);
-	    }
+else{
+	PINFO("Updating OSD object id: %lu of size: %u\n", obj_id, length);
+	ret = osd_append(&osd,part_id, obj_id, length, buf, cdb_cont_len, osd_sense, DDT_CONTIG);
+	if (ret) {
+		RERR(, "FAIL! ret for osd_append() is: %d\n",ret);
 
-		PINFO("Creating an writing object to OSD with partition id: %lu and object id: %lu of size: %u\n", part_id, obj_id, length);
-		ret = osd_create_and_write(&osd, part_id, obj_id, length, 0, buf, cdb_cont_len, 0, osd_sense, DDT_CONTIG);
-		if (ret) {
-			RERR(, "FAILED ! ret for osd_create_and_write() is: %d\n", ret);
-		}
-		PINFO("Object was created and written to osd !\n");
+		return;
 	}
-
-	else{
-		PINFO("Updating OSD object id: %lu of size: %u\n", obj_id, length);
-		ret = osd_append(&osd,part_id, obj_id, length, buf, cdb_cont_len, osd_sense, DDT_CONTIG);
-		if (ret) {
-			RERR(, "FAIL! ret for osd_append() is: %d\n",ret);
-
-			return;
-		}
-		PINFO("OSD object was updated successfully\n");
-	}
+	PINFO("OSD object was updated successfully\n");
+}
 }
 
 void OSD_READ_OBJ(object_location obj_loc, unsigned int length, uint64_t addr, uint64_t offset)
@@ -674,7 +678,7 @@ void OSD_READ_OBJ(object_location obj_loc, unsigned int length, uint64_t addr, u
 	free(rdbuf);
 }
 
-*/
+	*/
 void printMemoryDump(uint8_t *buffer, unsigned int bufferLength)
 {
 	unsigned int* start_p = (unsigned int*)buffer;
@@ -717,23 +721,23 @@ void printMemoryDump(uint8_t *buffer, unsigned int bufferLength)
 
 page_node *page_by_offset(stored_object *object, unsigned int offset)
 {
-    page_node *page;
-    
-    // check if out of bounds
-    if(offset > object->size)
-        return NULL;
-    
-    // skim through pages until offset is less than a page's size
-    for(page = object->pages; page && offset >= GET_PAGE_SIZE(); offset -= GET_PAGE_SIZE(), page = page->next)
-        ;
-    
-    // if page==NULL then page collection < size - report error? or assume it's valid? - this technically shouldn't happen after the if at the beginning. just return NULL if it does
-    return page;
+	page_node *page;
+
+	// check if out of bounds
+	if(offset > object->size)
+		return NULL;
+
+	// skim through pages until offset is less than a page's size
+	for(page = object->pages; page && offset >= GET_PAGE_SIZE(); offset -= GET_PAGE_SIZE(), page = page->next)
+		;
+
+	// if page==NULL then page collection < size - report error? or assume it's valid? - this technically shouldn't happen after the if at the beginning. just return NULL if it does
+	return page;
 }
 
 page_node *lookup_page(uint32_t page_id)
 {
-    page_node *page;
-    HASH_FIND_INT(global_page_table, &page_id, page);
-    return page;
+	page_node *page;
+	HASH_FIND_INT(global_page_table, &page_id, page);
+	return page;
 }
