@@ -1,0 +1,136 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "4694d4c9_9e7bebd2",
+        "filename": "eVSSIM/FTL_SOURCE/PAGE_MAP/ftl_obj_strategy.c",
+        "patchSetId": 1
+      },
+      "lineNbr": 158,
+      "author": {
+        "id": 1007990
+      },
+      "writtenOn": "2017-09-07T06:41:01Z",
+      "side": 1,
+      "message": "spaces and tabs",
+      "range": {
+        "startLine": 121,
+        "startChar": 0,
+        "endLine": 158,
+        "endChar": 33
+      },
+      "revId": "ed55eb35c51fe978c5d199348157f44df1d91dc0",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "083f2f45_9e4fc654",
+        "filename": "eVSSIM/FTL_SOURCE/PAGE_MAP/ftl_obj_strategy.c",
+        "patchSetId": 1
+      },
+      "lineNbr": 162,
+      "author": {
+        "id": 1007990
+      },
+      "writtenOn": "2017-09-07T06:41:01Z",
+      "side": 1,
+      "message": "we need those and other persistent storage related lines only if persistent storage is enabled.\nPlz add OSD_PERSISTENT configuration option to ssd.conf.",
+      "revId": "ed55eb35c51fe978c5d199348157f44df1d91dc0",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "528bbf97_47fe2132",
+        "filename": "eVSSIM/FTL_SOURCE/PAGE_MAP/ftl_obj_strategy.c",
+        "patchSetId": 1
+      },
+      "lineNbr": 193,
+      "author": {
+        "id": 1007990
+      },
+      "writtenOn": "2017-09-07T06:41:01Z",
+      "side": 1,
+      "message": "spaces",
+      "range": {
+        "startLine": 185,
+        "startChar": 0,
+        "endLine": 193,
+        "endChar": 4
+      },
+      "revId": "ed55eb35c51fe978c5d199348157f44df1d91dc0",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "db99e740_781ea31e",
+        "filename": "eVSSIM/FTL_SOURCE/PAGE_MAP/ftl_obj_strategy.c",
+        "patchSetId": 1
+      },
+      "lineNbr": 465,
+      "author": {
+        "id": 1007990
+      },
+      "writtenOn": "2017-09-07T06:41:01Z",
+      "side": 1,
+      "message": "plz replace tabs by spaces",
+      "range": {
+        "startLine": 402,
+        "startChar": 0,
+        "endLine": 465,
+        "endChar": 2
+      },
+      "revId": "ed55eb35c51fe978c5d199348157f44df1d91dc0",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "2e64567f_3b23313d",
+        "filename": "eVSSIM/FTL_SOURCE/PAGE_MAP/ftl_obj_strategy.c",
+        "patchSetId": 1
+      },
+      "lineNbr": 551,
+      "author": {
+        "id": 1007990
+      },
+      "writtenOn": "2017-09-07T06:41:01Z",
+      "side": 1,
+      "message": "plz replace tabs by spaces",
+      "range": {
+        "startLine": 276,
+        "startChar": 0,
+        "endLine": 551,
+        "endChar": 27
+      },
+      "revId": "ed55eb35c51fe978c5d199348157f44df1d91dc0",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "cb4fd5af_dcba921b",
+        "filename": "eVSSIM/FTL_SOURCE/PAGE_MAP/ftl_obj_strategy.c",
+        "patchSetId": 1
+      },
+      "lineNbr": 553,
+      "author": {
+        "id": 1007990
+      },
+      "writtenOn": "2017-09-07T06:41:01Z",
+      "side": 1,
+      "message": "plz replace tabs with spaces",
+      "range": {
+        "startLine": 467,
+        "startChar": 0,
+        "endLine": 553,
+        "endChar": 19
+      },
+      "revId": "ed55eb35c51fe978c5d199348157f44df1d91dc0",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    }
+  ]
+}
