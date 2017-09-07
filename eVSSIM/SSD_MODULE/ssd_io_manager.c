@@ -143,6 +143,7 @@ ftl_ret_val SSD_PAGE_WRITE(unsigned int flash_nb, unsigned int block_nb, unsigne
 	}
 #endif
 
+    // FTL_WRITE already accounts fot this, inst' it?
 	LOG_PHYSICAL_CELL_PROGRAM(GET_LOGGER(flash_nb), (PhysicalCellProgramLog) {
 	    .channel = channel, .block = block_nb, .page = page_nb
 	});
@@ -181,6 +182,8 @@ ftl_ret_val SSD_PAGE_READ(unsigned int flash_nb, unsigned int block_nb, unsigned
 	}
 #endif
 
+
+    // maybe then we have no need to account for this in FT_RERAD
 	LOG_PHYSICAL_CELL_READ(GET_LOGGER(flash_nb), (PhysicalCellReadLog) {
 	    .channel = channel, .block = block_nb, .page = page_nb
 	});

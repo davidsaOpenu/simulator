@@ -20,6 +20,8 @@
 
 /* VSSIM Function */
 //#define MONITOR_ON
+
+// TODO: this one seems to be defined in ssd.conf
 //#define LOGGING_SERVER_ON
 #ifdef PAGE_MAP
 #define GC_ON 1			/* Garbage Collection for PAGE MAP */
@@ -39,6 +41,7 @@
 #include "ssd_io_manager.h"
 #include "ssd_log_manager.h"
 
+// TODO: move those includes to ssd_log_manager.h
 #include "logging_backend.h"
 #include "logging_manager.h"
 #include "logging_parser.h"

@@ -71,6 +71,8 @@ ftl_ret_val _FTL_READ_SECT(uint64_t sector_nb, unsigned int length)
 	INCREASE_IO_REQUEST_SEQ_NB();
 
 	WRITE_LOG("READ PAGE %d ", length);
+	
+	// TODO: plz add the reading counterpart of the LOG_LOGICAL_CELL_PROGRAM 
 
 	PDBG_FTL("Complete\n");
 
@@ -164,6 +166,7 @@ ftl_ret_val _FTL_WRITE_SECT(uint64_t sector_nb, unsigned int length)
 		page = CALC_PAGE(new_ppn);
 
 		LOG_LOGICAL_CELL_PROGRAM(GET_LOGGER(flash_nb),(LogicalCellProgramLog) {
+		// shoudn't we add flash nb as well?
 		    .channel = channel, .block = block, .page = page
 		});
 	}
