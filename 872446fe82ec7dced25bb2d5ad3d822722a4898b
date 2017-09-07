@@ -1,0 +1,164 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "f974bf68_3b00a1b7",
+        "filename": "eVSSIM/FTL_SOURCE/COMMON/common.h",
+        "patchSetId": 9
+      },
+      "lineNbr": 20,
+      "author": {
+        "id": 1007990
+      },
+      "writtenOn": "2017-09-07T06:25:51Z",
+      "side": 1,
+      "message": "Let\u0027s move this parameter to ssd.conf",
+      "revId": "872446fe82ec7dced25bb2d5ad3d822722a4898b",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "9046e2be_d7012507",
+        "filename": "eVSSIM/FTL_SOURCE/PAGE_MAP/ftl.c",
+        "patchSetId": 9
+      },
+      "lineNbr": 19,
+      "author": {
+        "id": 1007990
+      },
+      "writtenOn": "2017-09-07T06:25:51Z",
+      "side": 1,
+      "message": "Plz move those includes to obj strategy. It should be enough to have here ftl_obj_strategy.h",
+      "revId": "872446fe82ec7dced25bb2d5ad3d822722a4898b",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "404be128_f46b7ead",
+        "filename": "eVSSIM/FTL_SOURCE/PAGE_MAP/ftl.c",
+        "patchSetId": 9
+      },
+      "lineNbr": 43,
+      "author": {
+        "id": 1007990
+      },
+      "writtenOn": "2017-09-07T06:25:51Z",
+      "side": 1,
+      "message": "Those are sect starategy specific.  Plz call here _FTL_SECT_STRATEGY_INIT is strategy \u003d\u003d FTL_SECT_STRATEGY",
+      "range": {
+        "startLine": 41,
+        "startChar": 0,
+        "endLine": 43,
+        "endChar": 31
+      },
+      "revId": "872446fe82ec7dced25bb2d5ad3d822722a4898b",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "1ff99ec6_87c4b86e",
+        "filename": "eVSSIM/FTL_SOURCE/PAGE_MAP/ftl.c",
+        "patchSetId": 9
+      },
+      "lineNbr": 51,
+      "author": {
+        "id": 1007990
+      },
+      "writtenOn": "2017-09-07T06:25:51Z",
+      "side": 1,
+      "message": "spaces",
+      "revId": "872446fe82ec7dced25bb2d5ad3d822722a4898b",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "ad4fd286_d6a14e94",
+        "filename": "eVSSIM/FTL_SOURCE/PAGE_MAP/ftl.c",
+        "patchSetId": 9
+      },
+      "lineNbr": 56,
+      "author": {
+        "id": 1007990
+      },
+      "writtenOn": "2017-09-07T06:25:51Z",
+      "side": 1,
+      "message": "Plz replace tabs with spaces  and also configure IDE to insert 4 spaces when hitting TAB",
+      "range": {
+        "startLine": 34,
+        "startChar": 0,
+        "endLine": 56,
+        "endChar": 1
+      },
+      "revId": "872446fe82ec7dced25bb2d5ad3d822722a4898b",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "d002412d_8276e423",
+        "filename": "eVSSIM/FTL_SOURCE/PAGE_MAP/ftl.c",
+        "patchSetId": 9
+      },
+      "lineNbr": 69,
+      "author": {
+        "id": 1007990
+      },
+      "writtenOn": "2017-09-07T06:25:51Z",
+      "side": 1,
+      "message": "same. plz call _FTL_SECT_STRATEGY_TERM",
+      "range": {
+        "startLine": 62,
+        "startChar": 0,
+        "endLine": 69,
+        "endChar": 21
+      },
+      "revId": "872446fe82ec7dced25bb2d5ad3d822722a4898b",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "133a5c9b_0ab3b7bc",
+        "filename": "eVSSIM/QEMU/hw/nvme_storage.c",
+        "patchSetId": 9
+      },
+      "lineNbr": 690,
+      "author": {
+        "id": 1007990
+      },
+      "writtenOn": "2017-09-07T06:25:51Z",
+      "side": 1,
+      "message": "tabs",
+      "range": {
+        "startLine": 676,
+        "startChar": 0,
+        "endLine": 690,
+        "endChar": 16
+      },
+      "revId": "872446fe82ec7dced25bb2d5ad3d822722a4898b",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "7bef557c_e9f3df51",
+        "filename": "eVSSIM/QEMU/vl.c",
+        "patchSetId": 9
+      },
+      "lineNbr": 3322,
+      "author": {
+        "id": 1007990
+      },
+      "writtenOn": "2017-09-07T06:25:51Z",
+      "side": 1,
+      "message": "let\u0027s  move this to ssd.c (SSD_TERM)",
+      "revId": "872446fe82ec7dced25bb2d5ad3d822722a4898b",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    }
+  ]
+}
