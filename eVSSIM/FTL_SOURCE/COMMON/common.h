@@ -39,13 +39,6 @@
 #include "ssd_io_manager.h"
 #include "ssd_log_manager.h"
 
-#include "logging_backend.h"
-#include "logging_manager.h"
-#include "logging_parser.h"
-#include "logging_rt_analyzer.h"
-#include "logging_server.h"
-#include "logging_statistics.h"
-
 #ifdef PAGE_MAP
 	#include "ftl_gc_manager.h"
 	#include "ftl_mapping_manager.h"

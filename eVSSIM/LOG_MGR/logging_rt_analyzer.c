@@ -41,10 +41,10 @@ RTLogAnalyzer* rt_log_analyzer_init(Logger* logger) {
     return analyzer;
 }
 
-int rt_log_analyzer_subscribe(RTLogAnalyzer* analyzer, MonitorHook hook, void* id) {
+int rt_log_analyzer_subscribe(RTLogAnalyzer* analyzer, MonitorHook hook, void* uid) {
     if (analyzer->subscribers_count >= MAX_SUBSCRIBERS)
         return 1;
-    analyzer->hooks_ids[analyzer->subscribers_count] = id;
+    analyzer->hooks_ids[analyzer->subscribers_count] = uid;
     analyzer->hooks[analyzer->subscribers_count++] = hook;
     return 0;
 }
@@ -76,7 +76,8 @@ void rt_log_analyzer_loop(RTLogAnalyzer* analyzer, int max_logs) {
         while (bytes_read < sizeof(log_type)) {
             if (analyzer->exit_loop_flag)
                 break;
-            bytes_read += logger_read(analyzer->logger, ((Byte*)&log_type) + bytes_read, sizeof(log_type) - bytes_read);
+            bytes_read += logger_read(analyzer->logger, ((Byte*)&log_type) + bytes_read,
+                                      sizeof(log_type) - bytes_read);
         }
 
         // exit if needed
@@ -157,16 +158,18 @@ void rt_log_analyzer_loop(RTLogAnalyzer* analyzer, int max_logs) {
         if (write_wall_time == 0)
             stats.write_speed = 0.0;
         else
-            stats.write_speed = PAGES_IN_USEC_TO_MBS(((double) stats.write_count) / write_wall_time);
+            stats.write_speed = PAGES_IN_USEC_TO_MBS(
+                ((double) stats.write_count) / write_wall_time
+            );
 
         stats.utilization = ((double) occupied_pages) / PAGES_IN_SSD;
 
 
         // call present hooks if the statistics changed
-        unsigned int i;
+        unsigned int subscriber_id;
         if (first_loop || !stats_equal(old_stats, stats))
-            for (i = 0; i < analyzer->subscribers_count; i++)
-                analyzer->hooks[i](stats, analyzer->hooks_ids[i]);
+            for (subscriber_id = 0; subscriber_id < analyzer->subscribers_count; subscriber_id++)
+                analyzer->hooks[subscriber_id](stats, analyzer->hooks_ids[subscriber_id]);
 
         // update `logs_read` only if necessary (in order to avoid overflow)
         if (max_logs >= 0)
