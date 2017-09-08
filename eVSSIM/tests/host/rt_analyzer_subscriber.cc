@@ -28,6 +28,20 @@ extern "C" {
 
 using namespace std;
 
+/**
+ * The rt subscriber does a regression test of the real time log analyzer.
+ * It consists of three main calls:
+ * - subscribe: subscribes to the analyzer given, and saves it.
+ * - write: writes a random sequence of different logs to the logger associated with the analyzer.
+ * - read: checks the output of the analyzer using the handler `analyze_stats`.
+ * This test checks that the statistics that the analyzer outputs are valid, and corresponds to
+ * the logs written during the `write` function. In addition, it makes sure that if the stats
+ * do not change after a log was written to the logger, then the analyzer does not output any
+ * stats (in order to reduce the amount of data flowing between the different parts of the
+ * logging mechanism).
+ * The expected output of the analyzer is stored in the variable `results`, and it is used in the
+ * `analyze_stats` hook to compare the expected output and the actual output.
+ */
 namespace rt_subscriber {
     // delay constants as written to ssd.conf by log_mgr_tests.cc
     const static int REG_WRITE_DELAY = 82;

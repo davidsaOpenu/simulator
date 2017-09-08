@@ -88,10 +88,10 @@ LogManager* log_manager_init(void);
  * Subscribe to the log manager
  * @param manager the manager to subscribe to
  * @param hook the new hook to use
- * @param id a pointer to user defined data which will be sent to the hook
+ * @param uid a pointer to user defined data which will be sent to the hook
  * @return 0 if the subscription succeeded, nonzero otherwise
  */
-int log_manager_subscribe(LogManager* manager, MonitorHook hook, void* id);
+int log_manager_subscribe(LogManager* manager, MonitorHook hook, void* uid);
 
 /**
  * Add an analyzer to the log manager
