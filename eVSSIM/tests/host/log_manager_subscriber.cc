@@ -28,6 +28,16 @@ extern "C" {
 
 using namespace std;
 
+/**
+ * The manager subscriber does a regression test of the logging manager.
+ * It consists of three main calls:
+ * - init: creates two loggers, two analyzers associated with them and a manager.
+ * - run: writes artifical logs to the two managers, analyzes them using the analyzers
+ *        and then checks the output of the manager using the handler `on_update`
+ * - free: frees all the data structures
+ * This test checks that the statistics that the manager outputs are valid, and corresponds
+ * to the logs written during the start of the `run` function.
+ */
 namespace manager_subscriber {
     int updates_done;
     /**
@@ -97,6 +107,7 @@ namespace manager_subscriber {
     }
 
     void run() {
+        // check that no stats are provided yet
         log_manager_loop(manager, 1);
 
         // write the different logs to the different loggers
@@ -120,9 +131,11 @@ namespace manager_subscriber {
         });
         LOG_GARBAGE_COLLECTION(logger1, (GarbageCollectionLog) empty_log);
 
+        // analyze the logs and propagate the changes to the manager
         rt_log_analyzer_loop(analyzer1, 4);
         rt_log_analyzer_loop(analyzer2, 3);
 
+        // check the output of the manager
         log_manager_loop(manager, 1);
     }
 

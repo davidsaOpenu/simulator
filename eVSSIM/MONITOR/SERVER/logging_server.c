@@ -60,11 +60,12 @@ typedef struct {
  * @param wsi a struct related to the client
  * @param reason the reason the callback was called
  * @param user a pointer to per-session data
- * @param in a pointer to the incoming message
+ * @param in_message a pointer to the incoming message
  * @param len the length of the incoming message
  * @return zero if everything went OK, nonzero otherwise
  */
-static int callback_http(struct lws *wsi, enum lws_callback_reasons reason, void *user, void *in, size_t len) {
+static int callback_http(struct lws *wsi, enum lws_callback_reasons reason, void *user,
+                         void *in_message, size_t len) {
     // we do not care about requests which are not caught by the mount - not in the file system
     return 0;
 }
@@ -74,11 +75,12 @@ static int callback_http(struct lws *wsi, enum lws_callback_reasons reason, void
  * @param wsi a struct related to the client
  * @param reason the reason the callback was called
  * @param user a pointer to per-session data
- * @param in a pointer to the incoming message
+ * @param in_message a pointer to the incoming message
  * @param len the length of the incoming message
  * @return zero if everything went OK, nonzero otherwise
  */
-static int callback_evssim_monitor(struct lws *wsi, enum lws_callback_reasons reason, void *user, void *in, size_t len) {
+static int callback_evssim_monitor(struct lws *wsi, enum lws_callback_reasons reason, void *user,
+                                   void *in_message, size_t len) {
     WSSession* session = (WSSession*) user;
 
     switch (reason) {
@@ -167,6 +169,9 @@ static const struct lws_http_mount http_mount = {
 
 
 int log_server_init(void) {
+    // set debug level
+    lws_set_log_level(LLL_ERR | LLL_WARN, NULL);
+
     // init the creation info
     struct lws_context_creation_info info;
     memset(&info, 0, sizeof(info));
@@ -196,7 +201,7 @@ int log_server_init(void) {
     return 0;
 }
 
-void log_server_update(SSDStatistics stats, void* _) {
+void log_server_update(SSDStatistics stats, void* ___) {
     if (!stats_equal(log_server.stats, stats)) {
         pthread_mutex_lock(&log_server.lock);
         log_server.stats = stats;
@@ -206,7 +211,7 @@ void log_server_update(SSDStatistics stats, void* _) {
     }
 }
 
-void* log_server_run(void* _) {
+void* log_server_run(void* ___) {
     log_server_loop(-1);
     return NULL;
 }

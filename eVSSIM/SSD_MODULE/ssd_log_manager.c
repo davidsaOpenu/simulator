@@ -87,7 +87,8 @@ void INIT_LOG_MANAGER(void)
 	// allocate memory
 	analyzers_storage = (LoggerAnalyzerStorage*) malloc(sizeof(LoggerAnalyzerStorage) * FLASH_NB);
 	if (analyzers_storage == NULL)
-	    PERR("Couldn't allocate memory for the loggers and real time analyzers: %s\n", strerror(errno));
+	    PERR("Couldn't allocate memory for the loggers and real time analyzers: %s\n",
+	         strerror(errno));
 
 	// init structures
 	for (i = 0; i < FLASH_NB; i++) {
@@ -113,7 +114,8 @@ void INIT_LOG_MANAGER(void)
 	pthread_create(&log_server_thread, NULL, log_server_run, NULL);
 	pthread_create(&log_manager_thread, NULL, log_manager_run, log_manager);
 	for (i = 0; i < FLASH_NB; i++) {
-	    pthread_create(&(analyzers_storage[i].rt_log_analyzer_thread), NULL, rt_log_analyzer_run, analyzers_storage[i].rt_log_analyzer);
+	    pthread_create(&(analyzers_storage[i].rt_log_analyzer_thread), NULL, rt_log_analyzer_run,
+	                   analyzers_storage[i].rt_log_analyzer);
 	}
 
     PINFO("Log server opened\n");
