@@ -24,16 +24,20 @@
  * The next slot number
  * @param i the current slot number
  */
-#define NEXT_SLOT(i) ((HANDLER_SIZE == 1) ? 0 : (((i) + 1) % HANDLER_SIZE))
+#if(HANDLER_SIZE == 1)
+#define NEXT_SLOT(i) 0
+#else
+#define NEXT_SLOT(i) (((i) + 1) % HANDLER_SIZE)
+#endif
 
 
 /**
  * The hook to use when subscribing to an analyzer
  * @param stats the new stats from the analyzer
- * @param id the id used when subscribing (pointer to the handler)
+ * @param uid the unique id used when subscribing (pointer to the handler)
  */
-static void on_analyzer_update(SSDStatistics stats, void* id) {
-    AnalyzerHandler* handler = (AnalyzerHandler*) id;
+static void on_analyzer_update(SSDStatistics stats, void* uid) {
+    AnalyzerHandler* handler = (AnalyzerHandler*) uid;
     // first update the next statistics, and only then update the index
     // the only case which this does not solve is when this hook is called `HANDLER_SIZE` times
     // during the copy of the struct from here to the manager's main loop, which is extremely
@@ -54,10 +58,10 @@ LogManager* log_manager_init(void) {
 }
 
 
-int log_manager_subscribe(LogManager* manager, MonitorHook hook, void* id) {
+int log_manager_subscribe(LogManager* manager, MonitorHook hook, void* uid) {
     if (manager->subscribers_count >= MAX_SUBSCRIBERS)
         return 1;
-    manager->hooks_ids[manager->subscribers_count] = id;
+    manager->hooks_ids[manager->subscribers_count] = uid;
     manager->hooks[manager->subscribers_count++] = hook;
     return 0;
 }
@@ -68,9 +72,9 @@ int log_manager_add_analyzer(LogManager* manager, RTLogAnalyzer* analyzer) {
         return 1;
 
     AnalyzerHandler* handler = &(manager->handlers[manager->analyzers_count++]);
-    unsigned int i;
-    for (i = 0; i < HANDLER_SIZE; i++)
-        handler->slots[i] = stats_init();
+    unsigned int slot_id;
+    for (slot_id = 0; slot_id < HANDLER_SIZE; slot_id++)
+        handler->slots[slot_id] = stats_init();
     handler->current_slot = 0;
     rt_log_analyzer_subscribe(analyzer, (MonitorHook) on_analyzer_update, (void*) handler);
 
@@ -97,12 +101,12 @@ void log_manager_loop(LogManager* manager, int max_loops) {
         double write_wall_time = 0;
         double read_wall_time = 0;
 
-        unsigned int i;
+        unsigned int analyzer_id;
         // update the statistics according to the different analyzers
-        for (i = 0; i < manager->analyzers_count; i++) {
+        for (analyzer_id = 0; analyzer_id < manager->analyzers_count; analyzer_id++) {
             // copy the statistics to here, to avoid the chance of corruption
             // see the comment at `on_analyzer_update`
-            AnalyzerHandler* handler = &(manager->handlers[i]);
+            AnalyzerHandler* handler = &(manager->handlers[analyzer_id]);
             SSDStatistics current_stats = handler->slots[handler->current_slot];
 
             stats.write_count += current_stats.write_count;
@@ -131,10 +135,11 @@ void log_manager_loop(LogManager* manager, int max_loops) {
         else
             stats.read_speed = read_wall_time / stats.read_count;
 
+        unsigned int subscriber_id;
         // call present hooks if the statistics changed
         if (first_loop || !stats_equal(old_stats, stats))
-            for (i = 0; i < manager->subscribers_count; i++)
-                manager->hooks[i](stats, manager->hooks_ids[i]);
+            for (subscriber_id = 0; subscriber_id < manager->subscribers_count; subscriber_id++)
+                manager->hooks[subscriber_id](stats, manager->hooks_ids[subscriber_id]);
 
         // update `loops` only if necessary (in order to avoid overflow)
         if (max_loops >= 0)

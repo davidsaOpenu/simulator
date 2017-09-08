@@ -414,6 +414,14 @@ namespace log_mgr_tests {
 } //namespace
 
 
+/**
+ * Run the log manager tests
+ * @param argc the number of parameters provided in `argv`
+ * @param argv the parameters which can be provided to the script. Includes:
+ *        - `--ci`: run the tests in continous integration mode. Currently changes nothing.
+ *        - `--show-monitor`: display the QT monitor while running
+ *        - `--run-server`: open the web server while running
+ */
 int main(int argc, char **argv) {
     for (int i = 0; i < argc; i++) {
         if (strcmp(argv[i], "--ci") == 0) {
