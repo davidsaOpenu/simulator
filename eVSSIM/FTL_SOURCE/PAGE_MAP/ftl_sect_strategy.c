@@ -66,6 +66,10 @@ ftl_ret_val _FTL_READ_SECT(uint64_t sector_nb, unsigned int length)
 		lba += read_sects;
 		remain -= read_sects;
 		left_skip = 0;
+
+		// Normally, there would be a LOG_LOGICAL_CELL_READ call here. As it happens, each physical read
+		// corresponds exactly to one logical read with the exact same parameters; thus, we omit the logical
+		// read log all together, and refer to the physical one as an indication to both.
 	}
 
 	INCREASE_IO_REQUEST_SEQ_NB();

@@ -7,6 +7,11 @@
 #define _LOG_MANAGER_H_
 
 #include "logging_backend.h"
+#include "logging_manager.h"
+#include "logging_parser.h"
+#include "logging_rt_analyzer.h"
+#include "logging_server.h"
+#include "logging_statistics.h"
 
 
 void INIT_LOG_MANAGER(void);

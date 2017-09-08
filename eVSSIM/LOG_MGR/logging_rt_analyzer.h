@@ -24,9 +24,9 @@
 /**
  * A monitor hook
  * @param stats the most recent statistics calculated
- * @param id a pointer to user defined data
+ * @param uid a pointer to user defined data
  */
-typedef void (*MonitorHook)(SSDStatistics stats, void* id);
+typedef void (*MonitorHook)(SSDStatistics stats, void* uid);
 
 
 /**
@@ -73,10 +73,10 @@ RTLogAnalyzer* rt_log_analyzer_init(Logger* logger);
  * Subscribe to the log analyzer
  * @param analyzer the analyzer to subscribe to
  * @param hook the new hook to use
- * @param id a pointer to user defined data which will be sent to the hook
+ * @param uid a pointer to user defined data which will be sent to the hook
  * @return 0 if the subscription succeeded, nonzero otherwise
  */
-int rt_log_analyzer_subscribe(RTLogAnalyzer* analyzer, MonitorHook hook, void* id);
+int rt_log_analyzer_subscribe(RTLogAnalyzer* analyzer, MonitorHook hook, void* uid);
 
 /**
  * Run the log analyzer in the current thread;
