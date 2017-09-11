@@ -59,6 +59,30 @@
     },
     {
       "key": {
+        "uuid": "a10b1450_02969285",
+        "filename": "eVSSIM/FTL_SOURCE/PAGE_MAP/ftl.c",
+        "patchSetId": 9
+      },
+      "lineNbr": 43,
+      "author": {
+        "id": 1011584
+      },
+      "writtenOn": "2017-09-11T13:40:41Z",
+      "side": 1,
+      "message": "please indicate exactly which of the above and below are sect strategy specific (surely ssd config is not)",
+      "parentUuid": "404be128_f46b7ead",
+      "range": {
+        "startLine": 41,
+        "startChar": 0,
+        "endLine": 43,
+        "endChar": 31
+      },
+      "revId": "872446fe82ec7dced25bb2d5ad3d822722a4898b",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "1ff99ec6_87c4b86e",
         "filename": "eVSSIM/FTL_SOURCE/PAGE_MAP/ftl.c",
         "patchSetId": 9
@@ -156,6 +180,24 @@
       "writtenOn": "2017-09-07T06:25:51Z",
       "side": 1,
       "message": "let\u0027s  move this to ssd.c (SSD_TERM)",
+      "revId": "872446fe82ec7dced25bb2d5ad3d822722a4898b",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "84c597af_877cc20d",
+        "filename": "eVSSIM/QEMU/vl.c",
+        "patchSetId": 9
+      },
+      "lineNbr": 3322,
+      "author": {
+        "id": 1011584
+      },
+      "writtenOn": "2017-09-11T13:40:41Z",
+      "side": 1,
+      "message": "We don\u0027t have ssd.c in the project right now. Leaving this to Yoav or whoever is handling the logging epic",
+      "parentUuid": "7bef557c_e9f3df51",
       "revId": "872446fe82ec7dced25bb2d5ad3d822722a4898b",
       "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
       "unresolved": false
