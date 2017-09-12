@@ -83,6 +83,30 @@
     },
     {
       "key": {
+        "uuid": "ce91cf9b_e88002c2",
+        "filename": "eVSSIM/FTL_SOURCE/PAGE_MAP/ftl.c",
+        "patchSetId": 9
+      },
+      "lineNbr": 43,
+      "author": {
+        "id": 1007990
+      },
+      "writtenOn": "2017-09-12T19:56:54Z",
+      "side": 1,
+      "message": "highligted ones ll 41-43.",
+      "parentUuid": "a10b1450_02969285",
+      "range": {
+        "startLine": 41,
+        "startChar": 0,
+        "endLine": 43,
+        "endChar": 31
+      },
+      "revId": "872446fe82ec7dced25bb2d5ad3d822722a4898b",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "1ff99ec6_87c4b86e",
         "filename": "eVSSIM/FTL_SOURCE/PAGE_MAP/ftl.c",
         "patchSetId": 9
@@ -198,6 +222,24 @@
       "side": 1,
       "message": "We don\u0027t have ssd.c in the project right now. Leaving this to Yoav or whoever is handling the logging epic",
       "parentUuid": "7bef557c_e9f3df51",
+      "revId": "872446fe82ec7dced25bb2d5ad3d822722a4898b",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "0bd3b925_c78bf84c",
+        "filename": "eVSSIM/QEMU/vl.c",
+        "patchSetId": 9
+      },
+      "lineNbr": 3322,
+      "author": {
+        "id": 1007990
+      },
+      "writtenOn": "2017-09-12T19:56:54Z",
+      "side": 1,
+      "message": "ack",
+      "parentUuid": "84c597af_877cc20d",
       "revId": "872446fe82ec7dced25bb2d5ad3d822722a4898b",
       "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
       "unresolved": false
