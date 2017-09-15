@@ -67,6 +67,8 @@ char* GET_FILE_NAME(void);
 /* Storage strategy (1 = sector-based, 2 = object-based */
 extern int STORAGE_STRATEGY;
 
+extern int OSD_PERSISTENT;
+
 typedef struct config_param
 {
 	const char *name;

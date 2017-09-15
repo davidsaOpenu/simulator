@@ -22,19 +22,17 @@ uint32_t** mapping_stats_table;
 
 
 
+
 void FTL_INIT(strategy_t strategy, partition_id_t part_id, psize_t size)
 {
 
     PINFO("start\n");
-
 	if(g_init == 0){
-
 		INIT_SSD_CONFIG();
 		if (FTL_OBJECT_STRATEGY==strategy)
 		            _FTL_OBJ_STRATEGY_INIT(part_id, size);
 		        else //sector strategy
 		            _FTL_SECT_STRATEGY_INIT(part_id, size);
-
 		INIT_VALID_ARRAY();
 		INIT_EMPTY_BLOCK_LIST();
 		INIT_VICTIM_BLOCK_LIST();
@@ -51,13 +49,14 @@ void FTL_INIT(strategy_t strategy, partition_id_t part_id, psize_t size)
 void FTL_TERM(strategy_t strategy, partition_id_t part_id)
 {
 	PINFO("start\n");
-	if (FTL_OBJECT_STRATEGY==strategy)
-	        _FTL_OBJ_STRATEGY_TERM(part_id);
-	    else // sector strategy
-	        _FTL_SECT_STRATEGY_TERM(part_id);
+
 	TERM_VALID_ARRAY();
 	TERM_EMPTY_BLOCK_LIST();
 	TERM_VICTIM_BLOCK_LIST();
+	if (FTL_OBJECT_STRATEGY==strategy)
+	            _FTL_OBJ_STRATEGY_TERM(part_id);
+	        else // sector strategy
+	            _FTL_SECT_STRATEGY_TERM(part_id);
 	TERM_PERF_CHECKER();
 	FTL_TERM_STATS();
 	SSD_IO_TERM();
@@ -337,3 +336,6 @@ void *STAT_LISTEN(void *socket){
 
 	pthread_exit(NULL);
 }
+
+
+
