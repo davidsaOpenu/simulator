@@ -1,6 +1,17 @@
 #include "common.h"
 #include "ftl_sect_strategy.h"
 
+void _FTL_SECT_STRATEGY_INIT(partition_id_t part_id, psize_t size) {
+	INIT_MAPPING_TABLE();
+	INIT_INVERSE_PAGE_MAPPING();
+	INIT_INVERSE_BLOCK_MAPPING();
+}
+void _FTL_SECT_STRATEGY_TERM(partition_id_t part_id) {
+	TERM_MAPPING_TABLE();
+	TERM_INVERSE_PAGE_MAPPING();
+	TERM_INVERSE_BLOCK_MAPPING();
+}
+
 ftl_ret_val _FTL_READ_SECT(uint64_t sector_nb, unsigned int length)
 {
 
