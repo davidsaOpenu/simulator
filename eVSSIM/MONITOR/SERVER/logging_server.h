@@ -29,6 +29,12 @@
 
 
 /**
+ * A reset hook
+ */
+typedef void (*ResetHook)(void);
+
+
+/**
  * The logging server structure
  */
 typedef struct {
@@ -48,6 +54,10 @@ typedef struct {
      * Whether the server should stop looping ASAP
      */
     unsigned int exit_loop_flag: 1;
+    /**
+     * The hook to call when a reset request is send by the user
+     */
+    ResetHook reset_hook;
 } LogServer;
 
 /**
@@ -67,6 +77,13 @@ int log_server_init(void);
  * @param stats the new statistics to use
  */
 void log_server_update(SSDStatistics stats, void*);
+
+/**
+ * Update the current reset hook of the logging server
+ * @param hook the new hook to use
+ * @return the old reset hook
+ */
+ResetHook log_server_on_reset(ResetHook hook);
 
 /**
  * Run the logging server in the current thread;

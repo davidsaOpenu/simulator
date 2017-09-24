@@ -85,7 +85,7 @@ static int callback_evssim_monitor(struct lws *wsi, enum lws_callback_reasons re
 
     switch (reason) {
         case LWS_CALLBACK_ESTABLISHED:
-            // on connection, init the per-session data nad schedule a write
+            // on connection, init the per-session data and schedule a write
             session->stats = stats_init();
             lws_callback_on_writable(wsi);
             break;
@@ -95,11 +95,29 @@ static int callback_evssim_monitor(struct lws *wsi, enum lws_callback_reasons re
             session->stats = log_server.stats;
             pthread_mutex_unlock(&log_server.lock);
 
-            int len = stats_json(session->stats, &session->buffer[LWS_PRE], MAX_FRAME_SIZE);
-            if (len < 0 || len > MAX_FRAME_SIZE)
-                fprintf(stderr, "Couldn't write statistics to the client!");
+            int json_len = stats_json(session->stats, &session->buffer[LWS_PRE], MAX_FRAME_SIZE);
+            if (json_len < 0 || json_len > MAX_FRAME_SIZE)
+                fprintf(stderr, "WARNING: Couldn't write statistics to the client!");
             else
-                lws_write(wsi, &session->buffer[LWS_PRE], len, LWS_WRITE_TEXT);
+                lws_write(wsi, &session->buffer[LWS_PRE], json_len, LWS_WRITE_TEXT);
+            break;
+        case LWS_CALLBACK_RECEIVE:
+            // on receive, parse the command
+            if (strcasecmp("reset", in_message) == 0) {
+                if (log_server.reset_hook) {
+                    log_server.reset_hook();
+                }
+                else {
+                    fprintf(stderr, "WARNING: Couldn't reset stats, as no reset hook is configured!\n");
+                    fprintf(stderr, "WARNING: Reseting local stats instead...\n");
+                    log_server.stats = stats_init();
+                    lws_callback_on_writable(wsi);
+                }
+            }
+            else {
+                fprintf(stderr, "WARNING: Unknown websocket command: %.*s\n", (int)((ssize_t) len),
+                        (char*) in_message);
+            }
             break;
         default:
             break;
@@ -197,6 +215,7 @@ int log_server_init(void) {
     log_server.context = context;
     log_server.stats = stats_init();
     log_server.exit_loop_flag = 0;
+    log_server.reset_hook = NULL;
 
     return 0;
 }
@@ -209,6 +228,12 @@ void log_server_update(SSDStatistics stats, void* ___) {
         // schedule a write on all the clients connected to the evssim-monitor protocol
         lws_callback_on_writable_all_protocol(log_server.context, &ws_protocols[1]);
     }
+}
+
+ResetHook log_server_on_reset(ResetHook hook) {
+    ResetHook old_hook = log_server.reset_hook;
+    log_server.reset_hook = hook;
+    return old_hook;
 }
 
 void* log_server_run(void* ___) {

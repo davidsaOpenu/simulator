@@ -188,7 +188,7 @@ td.text-right {
   transition: all 0.5s;
   cursor: pointer;
   margin: 25px;
-  width: 100%;
+  width: 50%;
   max-width: 600px;
 }
 
