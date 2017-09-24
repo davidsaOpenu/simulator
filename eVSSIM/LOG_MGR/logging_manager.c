@@ -116,8 +116,10 @@ void log_manager_loop(LogManager* manager, int max_loops) {
 
             logical_write_count += (unsigned int)
                     (current_stats.write_count / current_stats.write_amplification);
-            write_wall_time += current_stats.write_count * current_stats.write_speed;
-            read_wall_time += current_stats.read_count * current_stats.read_speed;
+            if (current_stats.write_count > 0)
+                write_wall_time += current_stats.write_count / current_stats.write_speed;
+            if (current_stats.read_count > 0)
+                read_wall_time += current_stats.read_count / current_stats.read_speed;
         }
 
         if (logical_write_count == 0)
@@ -125,15 +127,15 @@ void log_manager_loop(LogManager* manager, int max_loops) {
         else
             stats.write_amplification = ((double) stats.write_count) / logical_write_count;
 
-        if (stats.write_count == 0)
+        if (write_wall_time == 0)
             stats.write_speed = 0.0;
         else
-            stats.write_speed = write_wall_time / stats.write_count;
+            stats.write_speed = ((double) stats.write_count) / write_wall_time;
 
-        if (stats.read_count == 0)
+        if (read_wall_time == 0)
             stats.read_speed = 0.0;
         else
-            stats.read_speed = read_wall_time / stats.read_count;
+            stats.read_speed = ((double) stats.read_count) / read_wall_time;
 
         unsigned int subscriber_id;
         // call present hooks if the statistics changed

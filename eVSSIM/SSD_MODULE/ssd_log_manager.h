@@ -29,4 +29,10 @@ void THREAD_CLIENT(void *arg);
  */
 Logger* GET_LOGGER(unsigned int flash_number);
 
+/**
+ * Reset all the data saved in the analyzers, to clear the entire logging
+ * mechanism.
+ */
+void reset_analyzers(void);
+
 #endif

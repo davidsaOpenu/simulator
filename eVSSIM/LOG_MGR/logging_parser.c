@@ -14,6 +14,7 @@
  * limitations under the License.
  */
 
+#include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
 
@@ -40,6 +41,7 @@ int next_log_type(Logger* logger) {
 
 #define _LOGS_WRITER_DEFINITION_APPLIER(structure, name)            \
     void CONCAT(LOG_, name)(Logger* logger, structure buffer) {     \
+        /*fprintf(stderr, "%p: " # name "\n", logger);*/            \
         if (logger == NULL)                                         \
             return;                                                 \
         int type = CONCAT(name, _LOG_UID);                          \
