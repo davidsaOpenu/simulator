@@ -28,7 +28,7 @@
  * @param {double} x pages in a usec
  */
 #define PAGES_IN_USEC_TO_MBS(x) \
-    (((double) (x) * GET_PAGE_SIZE() * SECOND_IN_USEC) / (MEGABYTE_IN_BYTES))
+    ((((double) (x)) * (GET_PAGE_SIZE()) * (SECOND_IN_USEC)) / (MEGABYTE_IN_BYTES))
 
 
 RTLogAnalyzer* rt_log_analyzer_init(Logger* logger) {
@@ -38,6 +38,7 @@ RTLogAnalyzer* rt_log_analyzer_init(Logger* logger) {
     analyzer->logger = logger;
     analyzer->subscribers_count = 0;
     analyzer->exit_loop_flag = 0;
+    analyzer->reset_flag = 0;
     return analyzer;
 }
 
@@ -66,6 +67,8 @@ void rt_log_analyzer_loop(RTLogAnalyzer* analyzer, int max_logs) {
     int current_wall_time = 0;
     long occupied_pages = 0;
 
+    unsigned int subscriber_id;
+
     // run as long as necessary
     int first_loop = 1;
     int logs_read = 0;
@@ -76,6 +79,17 @@ void rt_log_analyzer_loop(RTLogAnalyzer* analyzer, int max_logs) {
         while (bytes_read < sizeof(log_type)) {
             if (analyzer->exit_loop_flag)
                 break;
+            if (analyzer->reset_flag) {
+                // reset flag, reset stats and call subscribers
+                // save utilization, as it needs to remain the same
+                analyzer->reset_flag = 0;
+                double util = stats.utilization;
+                old_stats = stats_init();
+                stats = stats_init();
+                stats.utilization = old_stats.utilization = util;
+                for (subscriber_id = 0; subscriber_id < analyzer->subscribers_count; subscriber_id++)
+                    analyzer->hooks[subscriber_id](stats, analyzer->hooks_ids[subscriber_id]);
+            }
             bytes_read += logger_read(analyzer->logger, ((Byte*)&log_type) + bytes_read,
                                       sizeof(log_type) - bytes_read);
         }
@@ -142,7 +156,7 @@ void rt_log_analyzer_loop(RTLogAnalyzer* analyzer, int max_logs) {
             default:
                 fprintf(stderr, "WARNING: unknown log type id! [%d]\n", log_type);
                 fprintf(stderr, "WARNING: rt_log_analyzer_loop may not be up to date!\n");
-                continue;
+                break;
         }
 
         if (logical_write_count == 0)
@@ -153,7 +167,9 @@ void rt_log_analyzer_loop(RTLogAnalyzer* analyzer, int max_logs) {
         if (read_wall_time == 0)
             stats.read_speed = 0.0;
         else
-            stats.read_speed = PAGES_IN_USEC_TO_MBS((double) stats.read_count / read_wall_time);
+            stats.read_speed = PAGES_IN_USEC_TO_MBS(
+                ((double) stats.read_count) / read_wall_time
+            );
 
         if (write_wall_time == 0)
             stats.write_speed = 0.0;
@@ -166,7 +182,6 @@ void rt_log_analyzer_loop(RTLogAnalyzer* analyzer, int max_logs) {
 
 
         // call present hooks if the statistics changed
-        unsigned int subscriber_id;
         if (first_loop || !stats_equal(old_stats, stats))
             for (subscriber_id = 0; subscriber_id < analyzer->subscribers_count; subscriber_id++)
                 analyzer->hooks[subscriber_id](stats, analyzer->hooks_ids[subscriber_id]);

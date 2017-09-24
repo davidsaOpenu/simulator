@@ -182,6 +182,6 @@ int GET_SECTOR_SIZE(void){
 }
 
 int GET_PAGE_SIZE(void){
-        return SECTOR_SIZE;
+        return PAGE_SIZE;
 }
 

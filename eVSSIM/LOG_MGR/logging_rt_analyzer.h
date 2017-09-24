@@ -59,6 +59,10 @@ typedef struct {
      * Whether the analyzer should stop looping ASAP
      */
     unsigned int exit_loop_flag : 1;
+    /**
+     * Whether the analyzer should reset its internal data ASAP
+     */
+    unsigned int reset_flag: 1;
 } RTLogAnalyzer;
 
 
