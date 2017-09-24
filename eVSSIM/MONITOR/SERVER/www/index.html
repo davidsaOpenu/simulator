@@ -82,6 +82,13 @@ limitations under the License.
                 }
             }
 
+            function sendSocket(message) {
+                if (websocket === null)
+                    return;
+                websocket.send(message);
+                console.log('Sending message to server: "' + message + '"');
+            }
+
             connectSocket();
         </script>
     </head>
@@ -129,6 +136,14 @@ limitations under the License.
                 </tr>
             </tbody>
         </table>
-        <center><button class='button' onclick='connectSocket()'><span>Reconnect</span></button></center>
+        <center>
+            <button class='button' onclick='connectSocket()'>
+                <span>Reconnect</span>
+            </button>
+            <br />
+            <button class='button' style="margin: 0px;" onclick='sendSocket("reset")'>
+                <span>Reset</span>
+            </button>
+        </center>
     </body>
 </html>

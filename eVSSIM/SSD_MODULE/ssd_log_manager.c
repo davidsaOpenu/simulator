@@ -67,6 +67,13 @@ pthread_t log_manager_thread;
 pthread_t log_server_thread;
 
 
+void reset_analyzers(void) {
+    int i;
+    for (i = 0; i < FLASH_NB; i++)
+        analyzers_storage[i].rt_log_analyzer->reset_flag = 1;
+}
+
+
 void INIT_LOG_MANAGER(void)
 {
     // handle old monitor
@@ -109,6 +116,7 @@ void INIT_LOG_MANAGER(void)
 	    log_manager_add_analyzer(log_manager, analyzers_storage[i].rt_log_analyzer);
     }
 	log_manager_subscribe(log_manager, log_server_update, NULL);
+	log_server_on_reset(reset_analyzers);
 
 	// run the threads
 	pthread_create(&log_server_thread, NULL, log_server_run, NULL);
