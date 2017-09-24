@@ -19,8 +19,8 @@ RUN yum install -y vim \
   libaio-devel \
   libvncserver-devel \
   pciutils-devel \
-  ansible \
-  libpng-1.2.49-2.el6_7.x86_64
+  libpng-1.2.49-2.el6_7.x86_64 && \
+  yum install -y ansible
 
 # Clean yum cache (making the image smaller)
 RUN yum clean all
