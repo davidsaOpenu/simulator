@@ -19,8 +19,8 @@
 //#define FTL_DEBUG 1
 
 /* VSSIM Function */
-//#define MONITOR_ON
-//#define LOGGING_SERVER_ON
+#define MONITOR_ON
+#define LOGGING_SERVER_ON
 #ifdef PAGE_MAP
 #define GC_ON 1			/* Garbage Collection for PAGE MAP */
 #endif
