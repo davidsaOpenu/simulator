@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "052b4989_bb452ca5",
+        "filename": "/COMMIT_MSG",
+        "patchSetId": 6
+      },
+      "lineNbr": 10,
+      "author": {
+        "id": 1007990
+      },
+      "writtenOn": "2017-09-25T22:04:04Z",
+      "side": 1,
+      "message": "let\u0027s list the bugs that were fixed. E.g:\n\n- GET_PAGE_SIZE to return correct page size\n- ...\n- ...",
+      "revId": "a5ff2392d5c82d76d8363db0df93f586fbc0d298",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    }
+  ]
+}
