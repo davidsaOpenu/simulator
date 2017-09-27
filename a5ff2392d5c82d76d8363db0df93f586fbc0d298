@@ -19,6 +19,24 @@
     },
     {
       "key": {
+        "uuid": "626feba6_e68ad3e9",
+        "filename": "/COMMIT_MSG",
+        "patchSetId": 6
+      },
+      "lineNbr": 10,
+      "author": {
+        "id": 1010875
+      },
+      "writtenOn": "2017-09-27T16:00:25Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "052b4989_bb452ca5",
+      "revId": "a5ff2392d5c82d76d8363db0df93f586fbc0d298",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "6c631998_e5fb49e0",
         "filename": "eVSSIM/LOG_MGR/logging_manager.c",
         "patchSetId": 6
@@ -30,6 +48,24 @@
       "writtenOn": "2017-09-25T22:08:01Z",
       "side": 1,
       "message": "Is it possible that write_speed is 0 at some moment?",
+      "revId": "a5ff2392d5c82d76d8363db0df93f586fbc0d298",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "f1081987_2170b70c",
+        "filename": "eVSSIM/LOG_MGR/logging_manager.c",
+        "patchSetId": 6
+      },
+      "lineNbr": 120,
+      "author": {
+        "id": 1010875
+      },
+      "writtenOn": "2017-09-27T16:00:25Z",
+      "side": 1,
+      "message": "At the beginning of the run, before any logs were made.",
+      "parentUuid": "6c631998_e5fb49e0",
       "revId": "a5ff2392d5c82d76d8363db0df93f586fbc0d298",
       "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
       "unresolved": false
