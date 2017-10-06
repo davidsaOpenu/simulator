@@ -1,0 +1,44 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "97d911c9_cc493d92",
+        "filename": "/COMMIT_MSG",
+        "patchSetId": 5
+      },
+      "lineNbr": 42,
+      "author": {
+        "id": 1007990
+      },
+      "writtenOn": "2017-10-06T15:05:35Z",
+      "side": 1,
+      "message": "plz take a look on this:\nhttps://chris.beams.io/posts/git-commit/\u0027",
+      "range": {
+        "startLine": 7,
+        "startChar": 0,
+        "endLine": 42,
+        "endChar": 52
+      },
+      "revId": "9926bc60eb782ad208643cd10ca0078bf53c03d9",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "d2e3c9b2_d860d506",
+        "filename": "eVSSIM/FTL_SOURCE/COMMON/common.h",
+        "patchSetId": 5
+      },
+      "lineNbr": 20,
+      "author": {
+        "id": 1007990
+      },
+      "writtenOn": "2017-10-06T15:05:35Z",
+      "side": 1,
+      "message": "Lets create a section:\n\n/* NVME controller specs */\n \n\nand put this macro underneath",
+      "revId": "9926bc60eb782ad208643cd10ca0078bf53c03d9",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    }
+  ]
+}
