@@ -1,6 +1,7 @@
 
 extern "C" {
 #include "common.h"
+#include "common_setup.h"
 #include "ftl_obj_strategy.h"
 #include "uthash.h"
 
@@ -24,10 +25,15 @@ extern "C" int g_init_log_server;
 
 using namespace std;
 
+// TODO (https://trello.com/c/eRD6gano) create base class for simulator tests. Turn _server to be a private member of that
+// class and have ObjectUnitTest inherit from the base class
+pthread_t _server;
+
 namespace {
     class ObjectUnitTest : public ::testing::TestWithParam<size_t> {
         public:
             virtual void SetUp() {
+                start_log_server();
                 ofstream ssd_conf("data/ssd.conf", ios_base::out | ios_base::trunc);
                 ssd_conf << "FILE_NAME ./data/ssd.img\n"
                     "PAGE_SIZE 4096\n"
