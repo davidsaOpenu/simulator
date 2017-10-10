@@ -1,6 +1,7 @@
 
 extern "C" {
 #include "common.h"
+#include "common_setup.h"
 #include "ftl_obj_strategy.h"
 #include "uthash.h"
 
@@ -28,6 +29,7 @@ namespace {
     class ObjectUnitTest : public ::testing::TestWithParam<size_t> {
         public:
             virtual void SetUp() {
+                start_log_server();
                 ofstream ssd_conf("data/ssd.conf", ios_base::out | ios_base::trunc);
                 ssd_conf << "FILE_NAME ./data/ssd.img\n"
                     "PAGE_SIZE 4096\n"

@@ -2,6 +2,7 @@
 extern "C" {
 
 #include "common.h"
+#include "common_setup.h"
 #include "ftl_sect_strategy.h"
 }
 extern "C" int g_init;
@@ -34,7 +35,6 @@ namespace {
 
     class SectorUnitTest : public ::testing::TestWithParam<size_t> {
         public:
-
             //const static size_t CONST_BLOCK_NB_PER_FLASH = 4096;
             const static size_t CONST_FLASH_NUMBER = 4;
             const static size_t CONST_PAGES_PER_BLOCK = 8; // external (non over-provisioned)
@@ -48,6 +48,8 @@ namespace {
                 size_t block_x_flash = pages_ / CONST_PAGES_PER_BLOCK; // all_blocks_on_all_flashes = number_of_pages / pages_in_block
                 //size_t flash = block_x_flash / CONST_BLOCK_NB_PER_FLASH; // number_of_flashes = all_blocks_on_all_flashes / number_of_blocks_in_flash
                 size_t blocks_per_flash = block_x_flash / CONST_FLASH_NUMBER; // number_of_flashes = all_blocks_on_all_flashes / number_of_blocks_in_flash
+
+                start_log_server();                
 
                 ofstream ssd_conf("data/ssd.conf", ios_base::out | ios_base::trunc);
                 ssd_conf << "FILE_NAME ./data/ssd.img\n"
