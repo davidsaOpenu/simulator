@@ -98,6 +98,7 @@ namespace log_mgr_tests {
             }
         protected:
             pthread_t _monitor;
+            // TODO remove _server from here see https://trello.com/c/eRD6gano
             pthread_t _server;
     };
     LogMgrTestEnv* testEnv;
