@@ -1,6 +1,6 @@
 - name: build qemu
   shell: >
-      ./configure --enable-io-thread --enable-linux-aio --target-list=x86_64-softmmu --enable-sdl --enable-vssim --extra-cflags='-Wno-error=unused-but-set-variable -Wno-error=deprecated-declarations {{ extraCflags }}' --cc={{ gcc }} {{ xen }} --disable-docs && bear make
+      ./configure --enable-io-thread --enable-linux-aio --target-list=x86_64-softmmu --enable-sdl --enable-vssim --extra-cflags='-Wno-error=unused-but-set-variable -Wno-error=deprecated-declarations {{ extraCflags }}' --cc={{ gcc }} {{ xen }} --disable-docs && bear make;  chgrp jenkins /code/simulator/* -R;  chown jenkins /code/simulator/* -R
   args:
     chdir: "{{ dest }}/eVSSIM/QEMU"
     creates: "{{ dest }}/eVSSIM/QEMU/x86_64-softmmu/qemu-system-x86_64"
@@ -11,7 +11,6 @@
   args:
     src: bios.bin
     dest: "{{ dest }}/eVSSIM/QEMU/pc-bios/bios.bin"
-
 
 - name: copy kernel to simulator directory
   copy:
