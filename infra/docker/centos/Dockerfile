@@ -20,7 +20,8 @@ RUN yum install -y vim \
   libvncserver-devel \
   pciutils-devel \
   ansible \
-  libpng-1.2.49-2.el6_7.x86_64
+  libpng-1.2.49-2.el6_7.x86_64 \
+  sshpass
 
 # Clean yum cache (making the image smaller)
 RUN yum clean all
