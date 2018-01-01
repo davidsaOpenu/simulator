@@ -43,11 +43,11 @@ namespace manager_subscriber {
     /**
      * The first logger to use
      */
-    Logger* logger1;
+    Logger_Pool* logger1;
     /**
      * The second logger to use
      */
-    Logger* logger2;
+    Logger_Pool* logger2;
     /**
      * The analyzer of the first logger
      */
