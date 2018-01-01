@@ -144,6 +144,9 @@
 /* SSD Debugging */
 //#define SSD_DEBUG
 
+/* Logger pool size for Tests */
+#define LOGGER_TEST_POOL_SIZE 128
+
 #define print_wrapper(prefix, msg, args...){\
 	printf("%s[%s][%s][%d]: ", prefix, __FILE__, __FUNCTION__, __LINE__);\
 	printf(msg, ##args);\

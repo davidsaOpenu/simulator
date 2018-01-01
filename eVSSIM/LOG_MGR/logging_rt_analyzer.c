@@ -31,7 +31,7 @@
     ((((double) (x)) * (GET_PAGE_SIZE()) * (SECOND_IN_USEC)) / (MEGABYTE_IN_BYTES))
 
 
-RTLogAnalyzer* rt_log_analyzer_init(Logger* logger) {
+RTLogAnalyzer* rt_log_analyzer_init(Logger_Pool* logger) {
     RTLogAnalyzer* analyzer = (RTLogAnalyzer*) malloc(sizeof(RTLogAnalyzer));
     if (analyzer == NULL)
         return NULL;

@@ -43,11 +43,11 @@ namespace manager_subscriber {
     /**
      * The first logger to use
      */
-    Logger* logger1;
+    Logger_Pool* logger1;
     /**
      * The second logger to use
      */
-    Logger* logger2;
+    Logger_Pool* logger2;
     /**
      * The analyzer of the first logger
      */
@@ -96,8 +96,8 @@ namespace manager_subscriber {
 
     void init(LogManager* manager) {
         updates_done = 0;
-        logger1 = logger_init(128);
-        logger2 = logger_init(128);
+        logger1 = logger_init(LOGGER_TEST_POOL_SIZE);
+        logger2 = logger_init(LOGGER_TEST_POOL_SIZE);
         analyzer1 = rt_log_analyzer_init(logger1);
         analyzer2 = rt_log_analyzer_init(logger2);
         log_manager_add_analyzer(manager, analyzer1);
