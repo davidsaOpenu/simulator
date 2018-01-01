@@ -43,11 +43,11 @@ namespace manager_subscriber {
     /**
      * The first logger to use
      */
-    Logger* logger1;
+    Logger_Pool* logger1;
     /**
      * The second logger to use
      */
-    Logger* logger2;
+    Logger_Pool* logger2;
     /**
      * The analyzer of the first logger
      */
@@ -96,6 +96,7 @@ namespace manager_subscriber {
 
     void init(LogManager* manager) {
         updates_done = 0;
+        //TODO - is this 128 number important ???
         logger1 = logger_init(128);
         logger2 = logger_init(128);
         analyzer1 = rt_log_analyzer_init(logger1);
