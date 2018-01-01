@@ -42,7 +42,7 @@ typedef struct {
     /**
      * The logger to analyzer
      */
-    Logger* logger;
+    Logger_Pool* logger;
     /**
      * The hooks to call after each analyze
      */
@@ -71,7 +71,7 @@ typedef struct {
  * @param logger the logger to analyze
  * @return the newly created real time log analyzer
  */
-RTLogAnalyzer* rt_log_analyzer_init(Logger* logger);
+RTLogAnalyzer* rt_log_analyzer_init(Logger_Pool* logger);
 
 /**
  * Subscribe to the log analyzer

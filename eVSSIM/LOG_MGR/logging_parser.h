@@ -43,14 +43,14 @@
  * @param buffer the buffer to write the data to
  * @param length the number of bytes to read
  */
-void logger_busy_read(Logger* logger, Byte* buffer, int length);
+void logger_busy_read(Logger_Pool* logger, Byte* buffer, int length);
 
 /**
  * Return the type of the next log in the logger
  * @param logger the logger to read the next log type from
  * @return the next log type in the logger
  */
-int next_log_type(Logger* logger);
+int next_log_type(Logger_Pool* logger);
 
 
 /**
@@ -238,7 +238,7 @@ enum ParsableStructures {
  * @param name the name of the log type
  */
 #define _LOGS_WRITER_DECLARATION_APPLIER(structure, name)       \
-    void CONCAT(LOG_, name)(Logger* logger, structure buffer);
+    void CONCAT(LOG_, name)(Logger_Pool* logger, structure buffer);
 /**
  * The customized LOG_X function definitions, for type-safe logging
  */
@@ -251,7 +251,7 @@ _LOGS_DEFINITIONS(_LOGS_WRITER_DECLARATION_APPLIER)
  * @param name the name of the log type
  */
 #define _LOGS_READER_DECLARATION_APPLIER(structure, name)           \
-    structure CONCAT(NEXT_, CONCAT(name, _LOG))(Logger* logger);
+    structure CONCAT(NEXT_, CONCAT(name, _LOG))(Logger_Pool* logger);
 /**
  * The customized NEXT_X_LOG definitions, for type-safe logging
  */
