@@ -17,10 +17,10 @@
 #ifndef __LOGGING_BACKEND_H__
 #define __LOGGING_BACKEND_H__
 
-
 #include <stdlib.h>
+#include <time.h>
 
-
+// TODO - update this explantion
 /*
  * The backend logging mechanism is implemented using one long array in memory, which contains a
  * circular array inside; The array is aligned in memory, for a better caching performance
@@ -33,7 +33,15 @@
  */
 #define LOGGER_BUFFER_ALIGNMENT 64
 
+// TODO - understand if this is needed here or we can use the define that allready exists (1 << 24)
+// 0.5 mega byte logging area pool's
+#define LOGGER_BUFFER_POOL_SIZE (1 << 19)
 
+/**
+ * The time diff to use when trying to reduce
+ * logger_pool size
+ */
+#define CLEAN_TIME_DIFF 60
 /**
  * A byte typedef, for easier use
  */
@@ -41,11 +49,14 @@ typedef unsigned char Byte;
 
 
 /**
- * The logger structure
+ * The Log structure
+ * Each Log represents a place in the Logger pool
+ * Where the program may write/read data from
  */
-typedef struct {
+typedef struct Log Log;
+struct Log {
     /**
-     * The main buffer of the logger
+     * The main buffer of the logger log
      */
     Byte* buffer;
     /**
@@ -57,43 +68,92 @@ typedef struct {
      */
     Byte* tail;
     /**
-     * The size of the buffer (including empty slots)
+     * The next log
      */
-    size_t buffer_size;
-} Logger;
+    Log* next;
+    /**
+     * The previous log
+     */
+    Log* prev;
+    /**
+     * Timestamp of last write to the log
+     */
+    time_t last_used_timestamp;
+    /**
+     *  Flag that indicates if this Log is Clean
+     *  The Log is clean in two cases:
+     *      - newly created Log that wasn't used yet
+     *      - Log that was fully read and the data in it
+     *        is not needed any more
+     */
+    bool clean;
+};
+
+/**
+ * The Logger Pool structure
+ * Each logger pool holds number_of_allocated_logs Logs
+ */
+typedef struct {
+    /**
+     * Head log of Logger pool
+     */
+    Log* head_log;
+    /**
+     * Tail log of Logger pool
+     */
+    Log* tail_log;
+    /**
+     * Next free log of Logger pool
+     */
+    Log* free_log;
+    /**
+     * Number of total free logs in the Logger pool
+     */
+    unsigned int number_of_free_logs;
+    /**
+     * Number of allocated logs in the pool
+     * This number doesn't change after the first allocation
+     * of Logger_Pool
+     */
+    unsigned int number_of_allocated_logs;
+    /**
+     * Current number of logs in the Logger Pool
+     * This number changes each time we allocate more Logs
+     */
+    unsigned int current_number_of_logs;
+} Logger_Pool;
 
 /**
  * Create a new logger
- * @param size the size of the buffer to allocate for the logger
+ * @param number_of_logs the number of logs to allocate at this logger pool
  *  Due to the way posix_memalign works, size must be a power of two multiple of sizeof(void *)
  * @return the newly created logger
  */
-Logger* logger_init(size_t size);
+Logger_Pool* logger_init(unsigned int number_of_logs);
 
 /**
- * Write a byte array to the logger
- * Print a warning to stderr if the logger cannot fit all the data
- * @param logger the logger to write the bytes to
+ * Write a byte array to the log
+ * Print a warning to stderr if the log cannot fit all the data
+ * @param logger_pool struct that holds the logs that we write the bytes to
  * @param buffer the buffer to read the bytes from
  * @param length the number of bytes to copy from the buffer to the logger
  * @return 0 if the logger can fit all the data, otherwise nonzero
  */
-int logger_write(Logger* logger, Byte* buffer, int length);
+int logger_write(Logger_Pool* logger_pool, Byte* buffer, int length);
 
 /**
  * Read a byte array from the logger
- * @param logger the logger to read the data from
+ * @param logger_pool the logger pool to read the data from
  * @param buffer the buffer to write the data to
  * @param length the maximum number of bytes to read
  * @return the number of bytes read
  */
-int logger_read(Logger* logger, Byte* buffer, int length);
+int logger_read(Logger_Pool* logger_pool, Byte* buffer, int length);
 
 /**
- * Free the logger
- * @param logger the logger to free
+ * Free the logger_pool
+ * @param logger_pool the logger pool to free
  */
-void logger_free(Logger* logger);
-
+void logger_free(Logger_Pool* logger_pool);
 
 #endif
