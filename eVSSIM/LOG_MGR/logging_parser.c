@@ -24,7 +24,7 @@
 EmptyLog empty_log;
 
 
-void logger_busy_read(Logger* logger, Byte* buffer, int length) {
+void logger_busy_read(Logger_Pool* logger, Byte* buffer, int length) {
     int bytes_read = 0;
     while (bytes_read < length) {
         bytes_read += logger_read(logger, buffer + bytes_read, length - bytes_read);
@@ -32,7 +32,7 @@ void logger_busy_read(Logger* logger, Byte* buffer, int length) {
 }
 
 
-int next_log_type(Logger* logger) {
+int next_log_type(Logger_Pool* logger) {
     int type;
     logger_busy_read(logger, (Byte*) &type, sizeof(type));
     return type;
@@ -40,7 +40,7 @@ int next_log_type(Logger* logger) {
 
 
 #define _LOGS_WRITER_DEFINITION_APPLIER(structure, name)            \
-    void CONCAT(LOG_, name)(Logger* logger, structure buffer) {     \
+    void CONCAT(LOG_, name)(Logger_Pool* logger, structure buffer) {     \
         /*fprintf(stderr, "%p: " # name "\n", logger);*/            \
         if (logger == NULL)                                         \
             return;                                                 \
@@ -52,7 +52,7 @@ _LOGS_DEFINITIONS(_LOGS_WRITER_DEFINITION_APPLIER)
 
 
 #define _LOGS_READER_DEFINITION_APPLIER(structure, name)            \
-    structure CONCAT(NEXT_, CONCAT(name, _LOG))(Logger* logger) {   \
+    structure CONCAT(NEXT_, CONCAT(name, _LOG))(Logger_Pool* logger) {   \
         structure res;                                              \
         logger_busy_read(logger, (Byte*) &res, sizeof(structure));  \
         return res;                                                 \
