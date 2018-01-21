@@ -1,34 +1,3 @@
-
-#TODO move tnvme, dvme compilation to pre state (togather with kernel compilation)
-
-# shell instead of command (prevents failure on server. NP locally)
-- name: compile dnvme against the built kernel
-  shell: "{{ item }}"
-  with_items:
-    - make clean
-    - make
-  args:
-     chdir: "nvmeCompl/dnvme"
-
-- name: compile tnvme
-  command: "{{ item }}"
-  with_items:
-    - make clean
-    - make -j4
-  args:
-     chdir: "nvmeCompl/tnvme"
-
-
-- name: install required packages
-  apt:
-  args:
-      pkg: "{{ item }}"
-      state: installed
-  become: true
-  with_items:
-      - python-pip
-      - python-setuptools
-
 - name: run all guest tests
   become: true
   command: "{{ item }}"
@@ -40,3 +9,10 @@
   args:
      chdir: guest
 
+- name: shutdown guest vm if test_and_shutdown is set
+  become: true
+  command: "{{ item }}"
+  with_items:
+    - "free && sync && sh -c 'echo 3 > /proc/sys/vm/drop_caches' && free"
+    - 'shutdown -P now'
+  when: test_and_shutdown

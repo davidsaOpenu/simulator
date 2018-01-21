@@ -64,3 +64,6 @@ Here are the main commands to run for copy\paste:
 2. Run a shell inside the image (dkr-os-<UBUNTU_OR_CENTOS>-shell)
 3. Run Ansible within that shell
 4. Debug like you would if this wasn't a container
+
+
+TODO remove obsolite/update

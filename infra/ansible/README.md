@@ -96,3 +96,5 @@ Prepare role arguments:
 ## TODO
 
 - Add a public key to the guest VM image's `~esd/.ssh/authorized_keys` and get rid of `sshpass`.
+
+TODO remove obsolite/update

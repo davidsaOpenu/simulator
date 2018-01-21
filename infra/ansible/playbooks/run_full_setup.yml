@@ -14,16 +14,16 @@
     - host_tester
   tags: host
 
-- name: prepare for guest tests with STORAGE_STRATEGY_SECTOR
+- name: prepare image to run tests and leave instatce active
   hosts: guest_testers
   roles:
-    - { role: guest_tester_pre, ssd_storage_strategy: 1 }
+    - { role: guest_tester_pre, ssd_storage_strategy: 1, prepare_image: true, activate_instance: true }
   tags: guest
 
 - name: perform guest tests with STORAGE_STRATEGY_SECTOR
   hosts: guests
   roles:
-    - guest_tester
+    - { role: guest_tester, ssd_storage_strategy: 1, test_and_shutdown: true }
   tags: guest
 
 #- name:  stop
@@ -35,23 +35,17 @@
 #        msg: "STORAGE_STRATEGY_OBJECT wasnt exercised"
 # TODO  stop here if dev-option == run setup and tests for STORAGE_STRATEGY_SECTOR
 
-- name: Propely shutting down guest OS
-  gather_facts: False
-  max_fail_percentage: 100
-  hosts: guests
-  roles:
-    - guest_halt
-  tags: guest
 
-- name: prepare for guest tests with OBJECT_STRATEGY_OBJECT
+- name: skip image preparation, only actiavte instance
   hosts: guest_testers
   roles:
-    - { role: guest_tester_pre, ssd_storage_strategy: 2 }
+    - { role: guest_tester_pre, ssd_storage_strategy: 2, prepare_image: false, activate_instance: true }
   tags: guest
+
 
 - name: perform guest tests with OBJECT_STRATEGY_OBJECT
   hosts: guests
   roles:
-    - guest_tester
+    - { role: guest_tester, ssd_storage_strategy: 2, test_and_shutdown: false }
   tags: guest
 

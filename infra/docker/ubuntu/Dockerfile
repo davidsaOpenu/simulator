@@ -3,6 +3,7 @@ FROM ubuntu:14.04
 # Install base packages
 RUN apt-get update && apt-get -y install \
   software-properties-common \
+  git \
   vim \
   wget \
   build-essential \
@@ -18,7 +19,11 @@ RUN apt-get update && apt-get -y install \
   libvncserver-dev \
   libpci-dev \
   libaio-dev \
-  sshpass
+  libssl-dev \
+  sshpass \
+  libvirt-bin \
+  python-pip \
+  python-setuptools
 
 
 # Install build packages

@@ -2,6 +2,7 @@ FROM tianon/centos:6.5
 
 # Install base packages
 RUN yum install -y vim \
+  git \
   gcc \
   wget \
   make \
@@ -18,9 +19,13 @@ RUN yum install -y vim \
   SDL-devel \
   libaio-devel \
   libvncserver-devel \
+  openssl-devel \
   pciutils-devel \
   ansible \
-  libpng-1.2.49-2.el6_7.x86_64
+  libpng-1.2.49-2.el6_7.x86_64 \
+  libvirt-client \
+  python-pip \
+  python-setuptools
 
 # Clean yum cache (making the image smaller)
 RUN yum clean all

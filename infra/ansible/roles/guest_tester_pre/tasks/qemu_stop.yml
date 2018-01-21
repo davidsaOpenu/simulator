@@ -8,10 +8,10 @@
   register: qemu_pid_task
   tags: qemu
 
-- name: shut down old guest
-  shell: "kill {{qemu_pid_task.stdout}}"
-  when: qemu_pid_task.stdout != ""
-  tags: qemu
+#- name: shut down old guest
+#  shell: "kill {{qemu_pid_task.stdout}}"
+#  when: qemu_pid_task.stdout != ""
+#  tags: qemu
 
 - name: wait for old guest to shut down
   wait_for:
@@ -22,9 +22,3 @@
   tags: qemu
 
 #TODO: ability to run un parallel several jobs
-- name: delete per-test-instance directory
-  file:
-  args:
-    name: "{{ tmpfs_mountpoint }}/{{ test_instance_id }}"
-    state: absent
-  tags: qemu

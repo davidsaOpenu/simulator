@@ -17,6 +17,8 @@
 from __future__ import (absolute_import, division, print_function)
 __metaclass__ = type
 
+from ansible.plugins.callback import CallbackBase
+
 try:
     import simplejson as json
 except ImportError:
@@ -27,7 +29,7 @@ FIELDS = ['cmd', 'command', 'start', 'end', 'delta', 'msg', 'stdout',
           'stderr', 'results', 'changed']
 
 
-class CallbackModule(object):
+class CallbackModule(CallbackBase):
 
     """
     Ansible callback plugin for human-readable result logging

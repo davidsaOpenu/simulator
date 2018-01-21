@@ -3,5 +3,5 @@
   register: bear_file
 
 - fail:
-    msg: "Bear binary is required, and should be under /usr/bin/bear. Are you running in Docker?"
+    msg: "Bear binary is required, and should be under /usr/bin/bear."
   when: bear_file.stat.exists == false

@@ -1,0 +1,58 @@
+- name: check if CPU supports Intel based KVM
+  command: "egrep -c 'vmx' /proc/cpuinfo"
+  ignore_errors: True
+  register: kvm_intel
+
+- name: set fact for Intel based KVM
+  set_fact:
+      kvm_base: "intel"
+  when: kvm_intel.rc == 0
+
+- name: check if CPU supports AMD based KVM
+  command: "egrep -c 'svm' /proc/cpuinfo"
+  ignore_errors: True
+  register: kvm_amd
+
+- name: set fact for AMD based KVM
+  set_fact:
+      kvm_base: "amd"
+  when: kvm_amd.rc == 0
+
+- name: stop execution if cpu does not support KVM extensions
+  fail:
+      msg: "Your CPU does not support KVM extensions"
+  when: kvm_base is undefined
+
+- name: check if host supportes virtualization, using virt-host-validate
+  command: "virt-host-validate"
+  register: result
+  failed_when: "'FAIL' in result.stdout_lines"
+
+# TODO: (davidsa) Requires become: yes. Reenable when docker based jobs will be ready.
+#- name: enable nested KVM support
+#  lineinfile:
+#      dest: "/etc/modprobe.d/dist.conf"
+#      line: "options kvm_{{ kvm_base }} nested=1"
+#      state: present
+#      create: yes
+
+# A change in the modprobe requires to reload the module
+- name: unload KVM module
+  modprobe:
+      name: "kvm_{{ kvm_base }}"
+      state: absent
+  ignore_errors: True
+
+- name: try load KVM module
+  modprobe:
+      name: "kvm_{{ kvm_base }}"
+      state: present
+  ignore_errors: True
+  register: kvm_load
+
+- name: stop execution if KVM module could not be loaded
+  fail:
+      msg: |
+        "KVM module could not be loaded; it may be disabled by your BIOS"
+        "Enter your BIOS setup and make sure Virtualization Technology (VT) is enabled, and then reboot your system"
+  when: kvm_load.failed

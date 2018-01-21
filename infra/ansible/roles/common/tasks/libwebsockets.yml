@@ -1,0 +1,15 @@
+- name: check whether libwebsockets was built
+  stat: "path=/opt/libwebsockets/lib/libwebsockets.a"
+  register: libwebsockets_file
+
+- git:
+    repo: 'https://github.com/warmcat/libwebsockets.git'
+    dest: /opt/libwebsockets
+    version: v2.4-stable
+  when: libwebsockets_file.stat.exists == false
+
+- name: build libwebsockets
+  shell: "cmake . && make && make install"
+  args:
+    chdir: "/opt/libwebsockets"
+  when: libwebsockets_file.stat.exists == false

@@ -1,0 +1,27 @@
+- name: check whether qt3 exist
+  stat: "path=/usr/share/qt3/bin/qmake"
+  register: qt3_reg
+
+- name: set presice repo
+  when: qt3_reg.stat.exists == false
+  apt_repository:
+    repo: deb http://archive.ubuntu.com/ubuntu precise main universe multiverse
+    state: present
+    filename: '/etc/apt/sources.list.d/precise.list'
+    update_cache: yes
+
+
+- name: install qt3
+  when: qt3_reg.stat.exists == false
+  apt:
+    name: qt3-dev-tools
+    state: latest
+    install_recommends: yes
+    autoremove: yes
+
+- name: remove precise repo and update
+  when: qt3_reg.stat.exists == false
+  apt_repository:
+     repo: deb http://archive.ubuntu.com/ubuntu precise main universe multiverse
+     state: absent
+     update_cache: yes

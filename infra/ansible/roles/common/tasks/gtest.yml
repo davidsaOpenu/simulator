@@ -3,6 +3,6 @@
   register: libgtest_file
 
 - fail:
-    msg: "gtest 1.7.0 is required. Are you running in Docker?"
+    msg: "gtest 1.7.0 is required."
   when: libgtest_file.stat.exists == false
 

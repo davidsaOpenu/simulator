@@ -5,6 +5,6 @@
 
   - include: hda_image.yml
   - include: qemu_prepare.yml
-  - include: qemu_start.yml
-  
-  when: not cleanup_only
+  when:  prepare_image
+- include: qemu_start.yml
+  when: activate_instance
