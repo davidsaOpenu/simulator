@@ -1,4 +1,5 @@
 #!/bin/bash
+set -e
 CWD=$PWD
 cd /code/simulator/infra/ansible
 ansible --version
