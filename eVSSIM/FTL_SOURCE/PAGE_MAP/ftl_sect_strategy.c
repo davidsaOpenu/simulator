@@ -1,6 +1,8 @@
 #include "common.h"
 #include "ftl_sect_strategy.h"
 
+struct timeval logging_parser_tv;
+
 ftl_ret_val _FTL_READ_SECT(uint64_t sector_nb, unsigned int length)
 {
 
@@ -88,7 +90,7 @@ ftl_ret_val _FTL_WRITE(uint64_t sector_nb, unsigned int offset, unsigned int len
 
 ftl_ret_val _FTL_WRITE_SECT(uint64_t sector_nb, unsigned int length)
 {
-
+	TIME_MICROSEC(start);
 	PDBG_FTL("Start: sector_nb %" PRIu64 "length %u\n", sector_nb, length);
 
 	int io_page_nb;
@@ -167,8 +169,9 @@ ftl_ret_val _FTL_WRITE_SECT(uint64_t sector_nb, unsigned int length)
 		block = CALC_BLOCK(new_ppn);
 		page = CALC_PAGE(new_ppn);
 
+		TIME_MICROSEC(end);
 		LOG_LOGICAL_CELL_PROGRAM(GET_LOGGER(flash_nb),(LogicalCellProgramLog) {
-		    .channel = channel, .block = block, .page = page
+		    .channel = channel, .block = block, .page = page, .start_time = start, .end_time = end
 		});
 	}
 

@@ -306,10 +306,14 @@ namespace log_mgr_tests {
      * Test writing and reading a physical cell read log
      */
     TEST_P(LogMgrUnitTest, PhysicalCellRead) {
+        struct timeval logging_parser_tv;
+        TIME_MICROSEC(start);
         PhysicalCellReadLog log = {
             .channel = 3,
             .block = 80,
-            .page = 123
+            .page = 123,
+            .start_time = start,
+            .end_time = start+1
         };
         LOG_PHYSICAL_CELL_READ(_logger, log);
         ASSERT_EQ(PHYSICAL_CELL_READ_LOG_UID, next_log_type(_logger));
@@ -322,10 +326,14 @@ namespace log_mgr_tests {
      * Test writing and reading a physical cell program log
      */
     TEST_P(LogMgrUnitTest, PhysicalCellProgram) {
+        struct timeval logging_parser_tv;
+        TIME_MICROSEC(start);
         PhysicalCellProgramLog log = {
             .channel = 15,
             .block = 63,
-            .page = 50
+            .page = 50,
+            .start_time = start,
+            .end_time = start+1
         };
         LOG_PHYSICAL_CELL_PROGRAM(_logger, log);
         ASSERT_EQ(PHYSICAL_CELL_PROGRAM_LOG_UID, next_log_type(_logger));
@@ -338,10 +346,14 @@ namespace log_mgr_tests {
      * Test writing and reading a logical cell program log
      */
     TEST_P(LogMgrUnitTest, LogicalCellProgram) {
+        struct timeval logging_parser_tv;
+        TIME_MICROSEC(start);
         LogicalCellProgramLog log = {
             .channel = 2,
             .block = 260,
-            .page = 3
+            .page = 3,
+            .start_time = start,
+            .end_time = start+1
         };
         LOG_LOGICAL_CELL_PROGRAM(_logger, log);
         ASSERT_EQ(LOGICAL_CELL_PROGRAM_LOG_UID, next_log_type(_logger));
@@ -368,10 +380,14 @@ namespace log_mgr_tests {
      * Test writing and reading a register read log
      */
     TEST_P(LogMgrUnitTest, RegisterReadLog) {
+        struct timeval logging_parser_tv;
+        TIME_MICROSEC(start);
         RegisterReadLog log = {
             .channel = 10,
             .die = 15,
-            .reg = 37
+            .reg = 37,
+            .start_time = start,
+            .end_time = start+1
         };
         LOG_REGISTER_READ(_logger, log);
         ASSERT_EQ(REGISTER_READ_LOG_UID, next_log_type(_logger));
@@ -384,10 +400,14 @@ namespace log_mgr_tests {
      * Test writing and reading a register write log
      */
     TEST_P(LogMgrUnitTest, RegisterWriteLog) {
+        struct timeval logging_parser_tv;
+        TIME_MICROSEC(start);
         RegisterWriteLog log = {
             .channel = 87013,
             .die = 225034,
-            .reg = 4
+            .reg = 4,
+            .start_time = start,
+            .end_time = start+1
         };
         LOG_REGISTER_WRITE(_logger, log);
         ASSERT_EQ(REGISTER_WRITE_LOG_UID, next_log_type(_logger));
@@ -400,10 +420,14 @@ namespace log_mgr_tests {
      * Test writing and reading a block erase log
      */
     TEST_P(LogMgrUnitTest, BlockEraseLog) {
+        struct timeval logging_parser_tv;
+        TIME_MICROSEC(start);
         BlockEraseLog log = {
             .channel = 6,
             .die = 352,
-            .block = 947
+            .block = 947,
+            .start_time = start,
+            .end_time = start+1
         };
         LOG_BLOCK_ERASE(_logger, log);
         ASSERT_EQ(BLOCK_ERASE_LOG_UID, next_log_type(_logger));
@@ -416,8 +440,12 @@ namespace log_mgr_tests {
      * Test writing and reading a channel switch to read log
      */
     TEST_P(LogMgrUnitTest, ChannelSwitchToReadLog) {
+        struct timeval logging_parser_tv;
+        TIME_MICROSEC(start);
         ChannelSwitchToReadLog log = {
-            .channel = 73
+            .channel = 73,
+            .start_time = start,
+            .end_time = start+1
         };
         LOG_CHANNEL_SWITCH_TO_READ(_logger, log);
         ASSERT_EQ(CHANNEL_SWITCH_TO_READ_LOG_UID, next_log_type(_logger));
@@ -428,8 +456,12 @@ namespace log_mgr_tests {
      * Test writing and reading a channel switch to read write
      */
     TEST_P(LogMgrUnitTest, ChannelSwitchToWriteLog) {
+        struct timeval logging_parser_tv;
+        TIME_MICROSEC(start);
         ChannelSwitchToWriteLog log = {
-            .channel = 3
+            .channel = 3,
+            .start_time = start,
+            .end_time = start+1
         };
         LOG_CHANNEL_SWITCH_TO_WRITE(_logger, log);
         ASSERT_EQ(CHANNEL_SWITCH_TO_WRITE_LOG_UID, next_log_type(_logger));

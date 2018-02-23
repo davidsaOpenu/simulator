@@ -17,9 +17,8 @@
 #ifndef __LOGGING_PARSER_H__
 #define __LOGGING_PARSER_H__
 
-
 #include "logging_backend.h"
-
+#include <sys/time.h>
 
 /**
  * Concatenate the parameters given
@@ -36,6 +35,16 @@
  */
 #define CONCAT(x, y) _CONCAT(x, y)
 
+/**
+ * Set current time in micro seconds in the given parameter
+ * @param t the paramter that will contain the time
+ */
+#define TIME_MICROSEC(t) \
+    int64_t t = 0; \
+    gettimeofday(&logging_parser_tv, NULL); \
+    t = logging_parser_tv.tv_sec; \
+    t *= 1000000; \
+    t += logging_parser_tv.tv_usec;
 
 /**
  * Read bytes from the logger, while busy waiting when there are not enough data
@@ -82,6 +91,14 @@ typedef struct {
      * The page number of the cell read
      */
     unsigned int page;
+    /**
+     * The start time of the cell read
+     */
+    int64_t start_time;
+    /**
+     * The end time of the cell read
+     */
+    int64_t end_time;
 } PhysicalCellReadLog;
 /**
  * A log of a physical cell program
@@ -99,6 +116,14 @@ typedef struct {
      * The page number of the programmed cell
      */
     unsigned int page;
+    /**
+     * The start time of the physical cell program
+     */
+    int64_t start_time;
+    /**
+     * The end time of the  physical cell program
+     */
+    int64_t end_time;
 } PhysicalCellProgramLog;
 /**
  * A log of a logical cell program
@@ -116,6 +141,14 @@ typedef struct {
      * The page number of the programmed cell
      */
     unsigned int page;
+    /**
+     * The start time of the logical cell program
+     */
+    int64_t start_time;
+    /**
+     * The end time of the logical cell program
+     */
+    int64_t end_time;
 } LogicalCellProgramLog;
 /**
  * A log of garbage collection
@@ -137,6 +170,14 @@ typedef struct {
      * The register number of the register read
      */
     unsigned int reg;
+    /**
+     * The start time of the register read
+     */
+    int64_t start_time;
+    /**
+     * The end time of the register read
+     */
+    int64_t end_time;
 } RegisterReadLog;
 /**
  * A log of a register write
@@ -154,6 +195,14 @@ typedef struct {
      * The register number of the written register
      */
     unsigned int reg;
+    /**
+     * The start time of the written register
+     */
+    int64_t start_time;
+    /**
+     * The end time of the written register
+     */
+    int64_t end_time;
 } RegisterWriteLog;
 /**
  * A log of a block erase
@@ -171,6 +220,14 @@ typedef struct {
      * The block number of the erased block
      */
     unsigned int block;
+    /**
+     * The start time of the erased block
+     */
+    int64_t start_time;
+    /**
+     * The end time of the erased block
+     */
+    int64_t end_time;
 } BlockEraseLog;
 /**
  * A block of a channel switch to read mode
@@ -180,6 +237,14 @@ typedef struct {
      * The channel number of the channel being switched
      */
     unsigned int channel;
+    /**
+     * The start time of the channel being switched
+     */
+    int64_t start_time;
+    /**
+     * The end time of the channel being switched
+     */
+    int64_t end_time;
 } ChannelSwitchToReadLog;
 /**
  * A block of a channel switch to write mode
@@ -189,6 +254,14 @@ typedef struct {
      * The channel number of the channel being switched
      */
     unsigned int channel;
+    /**
+     * The start time of the channel being switched
+     */
+    int64_t start_time;
+    /**
+     * The end time of the channel being switched
+     */
+    int64_t end_time;
 } ChannelSwitchToWriteLog;
 
 
@@ -200,14 +273,14 @@ typedef struct {
  */
 #define _LOGS_DEFINITIONS(APPLIER)                              \
     APPLIER(PhysicalCellReadLog, PHYSICAL_CELL_READ)            \
-    APPLIER(PhysicalCellProgramLog, PHYSICAL_CELL_PROGRAM)      \
-    APPLIER(LogicalCellProgramLog, LOGICAL_CELL_PROGRAM)        \
-    APPLIER(GarbageCollectionLog, GARBAGE_COLLECTION)           \
-    APPLIER(RegisterReadLog, REGISTER_READ)                     \
-    APPLIER(RegisterWriteLog, REGISTER_WRITE)                   \
-    APPLIER(BlockEraseLog, BLOCK_ERASE)                         \
-    APPLIER(ChannelSwitchToReadLog, CHANNEL_SWITCH_TO_READ)     \
-    APPLIER(ChannelSwitchToWriteLog, CHANNEL_SWITCH_TO_WRITE)
+APPLIER(PhysicalCellProgramLog, PHYSICAL_CELL_PROGRAM)      \
+APPLIER(LogicalCellProgramLog, LOGICAL_CELL_PROGRAM)        \
+APPLIER(GarbageCollectionLog, GARBAGE_COLLECTION)           \
+APPLIER(RegisterReadLog, REGISTER_READ)                     \
+APPLIER(RegisterWriteLog, REGISTER_WRITE)                   \
+APPLIER(BlockEraseLog, BLOCK_ERASE)                         \
+APPLIER(ChannelSwitchToReadLog, CHANNEL_SWITCH_TO_READ)     \
+APPLIER(ChannelSwitchToWriteLog, CHANNEL_SWITCH_TO_WRITE)
 
 
 /**
@@ -224,11 +297,11 @@ enum ParsableStructures {
      * The definitions of the logs' ids of the different log types
      */
     _LOGS_DEFINITIONS(_LOGS_ENUM_APPLIER)
-    /**
-     * The number of different log types
-     * LEAVE AS LAST ITEM!
-     */
-    LOG_UID_COUNT
+        /**
+         * The number of different log types
+         * LEAVE AS LAST ITEM!
+         */
+        LOG_UID_COUNT
 };
 
 
@@ -245,16 +318,16 @@ enum ParsableStructures {
 _LOGS_DEFINITIONS(_LOGS_WRITER_DECLARATION_APPLIER)
 
 
-/**
- * The reader log applier; used to create a reader function for the different log types
- * @param structure the structure associated with the log type
- * @param name the name of the log type
- */
+    /**
+     * The reader log applier; used to create a reader function for the different log types
+     * @param structure the structure associated with the log type
+     * @param name the name of the log type
+     */
 #define _LOGS_READER_DECLARATION_APPLIER(structure, name)           \
-    structure CONCAT(NEXT_, CONCAT(name, _LOG))(Logger_Pool* logger);
-/**
- * The customized NEXT_X_LOG definitions, for type-safe logging
- */
+        structure CONCAT(NEXT_, CONCAT(name, _LOG))(Logger_Pool* logger);
+    /**
+     * The customized NEXT_X_LOG definitions, for type-safe logging
+     */
 _LOGS_DEFINITIONS(_LOGS_READER_DECLARATION_APPLIER)
 
 
