@@ -1,13 +1,15 @@
 #include "common.h"
 #include "ftl_sect_strategy.h"
 
+struct timeval logging_parser_tv;
+
 ftl_ret_val _FTL_READ_SECT(uint64_t sector_nb, unsigned int length)
 {
 
 	PDBG_FTL("Start: sector_nb %ld length %u\n", sector_nb, length);
 
 	if (sector_nb + length > SECTOR_NB)
-		RERR(FTL_FAILURE, "[FTL_READ] Exceed Sector number\n"); 
+		RERR(FTL_FAILURE, "[FTL_READ] Exceed Sector number\n");
 
 	int32_t lpn;
 	int32_t ppn;
@@ -88,7 +90,7 @@ ftl_ret_val _FTL_WRITE(uint64_t sector_nb, unsigned int offset, unsigned int len
 
 ftl_ret_val _FTL_WRITE_SECT(uint64_t sector_nb, unsigned int length)
 {
-
+	TIME_MICROSEC(_start);
 	PDBG_FTL("Start: sector_nb %" PRIu64 "length %u\n", sector_nb, length);
 
 	int io_page_nb;
@@ -148,7 +150,7 @@ ftl_ret_val _FTL_WRITE_SECT(uint64_t sector_nb, unsigned int length)
 		lpn = lba / (int32_t)SECTORS_PER_PAGE;
 		//Send a logical write action being done to the statistics gathering
 		FTL_STATISTICS_GATHERING(lpn , LOGICAL_WRITE);
-		
+
 		// logical page number to physical. will need to be changed to account for objectid
 		UPDATE_OLD_PAGE_MAPPING(lpn);
 		UPDATE_NEW_PAGE_MAPPING(lpn, new_ppn);
@@ -167,8 +169,11 @@ ftl_ret_val _FTL_WRITE_SECT(uint64_t sector_nb, unsigned int length)
 		block = CALC_BLOCK(new_ppn);
 		page = CALC_PAGE(new_ppn);
 
+		TIME_MICROSEC(_end);
 		LOG_LOGICAL_CELL_PROGRAM(GET_LOGGER(flash_nb),(LogicalCellProgramLog) {
-		    .channel = channel, .block = block, .page = page
+		    .channel = channel, .block = block, .page = page,
+            .metadata.logging_start_time = _start,
+            .metadata.logging_end_time = _end
 		});
 	}
 

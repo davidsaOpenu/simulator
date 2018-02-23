@@ -20,9 +20,7 @@
 
 #include "logging_parser.h"
 
-
 EmptyLog empty_log;
-
 
 void logger_busy_read(Logger_Pool* logger, Byte* buffer, int length) {
     int bytes_read = 0;
