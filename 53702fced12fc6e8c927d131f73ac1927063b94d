@@ -1,0 +1,205 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "a8f71aec_771874c7",
+        "filename": "eVSSIM/LOG_MGR/logging_backend.c",
+        "patchSetId": 8
+      },
+      "lineNbr": 34,
+      "author": {
+        "id": 1007990
+      },
+      "writtenOn": "2018-02-25T13:13:05Z",
+      "side": 1,
+      "message": "seems that those 2 are exactly the same",
+      "range": {
+        "startLine": 23,
+        "startChar": 0,
+        "endLine": 34,
+        "endChar": 90
+      },
+      "revId": "53702fced12fc6e8c927d131f73ac1927063b94d",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "99675005_f92f564b",
+        "filename": "eVSSIM/LOG_MGR/logging_backend.c",
+        "patchSetId": 8
+      },
+      "lineNbr": 78,
+      "author": {
+        "id": 1007990
+      },
+      "writtenOn": "2018-02-25T13:13:05Z",
+      "side": 1,
+      "message": "Maybe using sentinels will make this function looking better.",
+      "range": {
+        "startLine": 59,
+        "startChar": 0,
+        "endLine": 78,
+        "endChar": 9
+      },
+      "revId": "53702fced12fc6e8c927d131f73ac1927063b94d",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "56593dcf_536327ca",
+        "filename": "eVSSIM/LOG_MGR/logging_backend.c",
+        "patchSetId": 8
+      },
+      "lineNbr": 126,
+      "author": {
+        "id": 1007990
+      },
+      "writtenOn": "2018-02-25T13:13:05Z",
+      "side": 1,
+      "message": "it will make sense to use some linked list primitives defined as macro functions for speed (insert, remove)\n\nto avoid code duplication.",
+      "range": {
+        "startLine": 115,
+        "startChar": 0,
+        "endLine": 126,
+        "endChar": 46
+      },
+      "revId": "53702fced12fc6e8c927d131f73ac1927063b94d",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "5f9b7824_d853c218",
+        "filename": "eVSSIM/LOG_MGR/logging_backend.c",
+        "patchSetId": 8
+      },
+      "lineNbr": 144,
+      "author": {
+        "id": 1007990
+      },
+      "writtenOn": "2018-02-25T13:13:05Z",
+      "side": 1,
+      "message": "is this if ... else branch covered by tests?",
+      "range": {
+        "startLine": 129,
+        "startChar": 0,
+        "endLine": 144,
+        "endChar": 5
+      },
+      "revId": "53702fced12fc6e8c927d131f73ac1927063b94d",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "a2c187dd_4b18375d",
+        "filename": "eVSSIM/LOG_MGR/logging_backend.c",
+        "patchSetId": 8
+      },
+      "lineNbr": 160,
+      "author": {
+        "id": 1007990
+      },
+      "writtenOn": "2018-02-25T13:13:05Z",
+      "side": 1,
+      "message": "this will be also handled by the linked list.",
+      "range": {
+        "startLine": 148,
+        "startChar": 0,
+        "endLine": 160,
+        "endChar": 45
+      },
+      "revId": "53702fced12fc6e8c927d131f73ac1927063b94d",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "3d98d5a6_02f1f39e",
+        "filename": "eVSSIM/LOG_MGR/logging_backend.c",
+        "patchSetId": 8
+      },
+      "lineNbr": 196,
+      "author": {
+        "id": 1007990
+      },
+      "writtenOn": "2018-02-25T13:13:05Z",
+      "side": 1,
+      "message": "same question re this if ... esle (is it covered by tests)?",
+      "range": {
+        "startLine": 181,
+        "startChar": 0,
+        "endLine": 196,
+        "endChar": 13
+      },
+      "revId": "53702fced12fc6e8c927d131f73ac1927063b94d",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "863d2652_c92e168e",
+        "filename": "eVSSIM/LOG_MGR/logging_backend.c",
+        "patchSetId": 8
+      },
+      "lineNbr": 245,
+      "author": {
+        "id": 1007990
+      },
+      "writtenOn": "2018-02-25T13:13:05Z",
+      "side": 1,
+      "message": "this will also look nicer if using linked list library",
+      "range": {
+        "startLine": 214,
+        "startChar": 0,
+        "endLine": 245,
+        "endChar": 9
+      },
+      "revId": "53702fced12fc6e8c927d131f73ac1927063b94d",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "e8bcdf85_5e4a1102",
+        "filename": "eVSSIM/LOG_MGR/logging_backend.c",
+        "patchSetId": 8
+      },
+      "lineNbr": 277,
+      "author": {
+        "id": 1007990
+      },
+      "writtenOn": "2018-02-25T13:13:05Z",
+      "side": 1,
+      "message": "do you think it will be a good idea to have this in ssd.conf?",
+      "range": {
+        "startLine": 277,
+        "startChar": 68,
+        "endLine": 277,
+        "endChar": 83
+      },
+      "revId": "53702fced12fc6e8c927d131f73ac1927063b94d",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "ff01c175_60c45a25",
+        "filename": "eVSSIM/LOG_MGR/logging_backend.h",
+        "patchSetId": 8
+      },
+      "lineNbr": 37,
+      "author": {
+        "id": 1007990
+      },
+      "writtenOn": "2018-02-25T13:13:05Z",
+      "side": 1,
+      "message": "this TODO can be removed, isn\u0027t it?",
+      "revId": "53702fced12fc6e8c927d131f73ac1927063b94d",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    }
+  ]
+}
