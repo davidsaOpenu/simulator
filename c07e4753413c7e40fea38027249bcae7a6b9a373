@@ -1,0 +1,50 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "72a1abca_862cef52",
+        "filename": "eVSSIM/LOG_MGR/logging_backend.c",
+        "patchSetId": 10
+      },
+      "lineNbr": 83,
+      "author": {
+        "id": 1007990
+      },
+      "writtenOn": "2018-03-14T07:11:50Z",
+      "side": 1,
+      "message": "Hear, I would also suggest to have those lines in some initialization macro along with ISERT_NODE",
+      "range": {
+        "startLine": 75,
+        "startChar": 0,
+        "endLine": 83,
+        "endChar": 24
+      },
+      "revId": "c07e4753413c7e40fea38027249bcae7a6b9a373",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "607b7248_9f088eaf",
+        "filename": "eVSSIM/LOG_MGR/logging_backend.h",
+        "patchSetId": 10
+      },
+      "lineNbr": 37,
+      "author": {
+        "id": 1007990
+      },
+      "writtenOn": "2018-03-14T07:11:50Z",
+      "side": 1,
+      "message": "pool",
+      "range": {
+        "startLine": 37,
+        "startChar": 59,
+        "endLine": 37,
+        "endChar": 64
+      },
+      "revId": "c07e4753413c7e40fea38027249bcae7a6b9a373",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    }
+  ]
+}
