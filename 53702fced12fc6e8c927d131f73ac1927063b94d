@@ -49,6 +49,30 @@
     },
     {
       "key": {
+        "uuid": "016d776a_e21692a9",
+        "filename": "eVSSIM/LOG_MGR/logging_backend.c",
+        "patchSetId": 8
+      },
+      "lineNbr": 34,
+      "author": {
+        "id": 1007990
+      },
+      "writtenOn": "2018-03-14T07:11:50Z",
+      "side": 1,
+      "message": "you are right. I didn\u0027t payed attention to the diff bw log-\u003etail and log-\u003ehead",
+      "parentUuid": "40a73057_2bef6f3a",
+      "range": {
+        "startLine": 23,
+        "startChar": 0,
+        "endLine": 34,
+        "endChar": 90
+      },
+      "revId": "53702fced12fc6e8c927d131f73ac1927063b94d",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "99675005_f92f564b",
         "filename": "eVSSIM/LOG_MGR/logging_backend.c",
         "patchSetId": 8
@@ -84,6 +108,30 @@
       "side": 1,
       "message": "Done",
       "parentUuid": "99675005_f92f564b",
+      "range": {
+        "startLine": 59,
+        "startChar": 0,
+        "endLine": 78,
+        "endChar": 9
+      },
+      "revId": "53702fced12fc6e8c927d131f73ac1927063b94d",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "ba8e3a1f_5e8dc6f1",
+        "filename": "eVSSIM/LOG_MGR/logging_backend.c",
+        "patchSetId": 8
+      },
+      "lineNbr": 78,
+      "author": {
+        "id": 1007990
+      },
+      "writtenOn": "2018-03-14T07:11:50Z",
+      "side": 1,
+      "message": "Looks much better. Thanks!",
+      "parentUuid": "1755eed4_603aa8f3",
       "range": {
         "startLine": 59,
         "startChar": 0,
@@ -284,6 +332,30 @@
     },
     {
       "key": {
+        "uuid": "3cb9dc7e_8a7c09aa",
+        "filename": "eVSSIM/LOG_MGR/logging_backend.c",
+        "patchSetId": 8
+      },
+      "lineNbr": 196,
+      "author": {
+        "id": 1007990
+      },
+      "writtenOn": "2018-03-14T07:11:50Z",
+      "side": 1,
+      "message": "ReadBeforeWrite was intended to test the case of 2 threads what is not a case now. And I\u0027m afraid that no test we have currently is testing branches in this function. Let\u0027s have a talk today.\n\nAnother thing worth having is to  link having test functions linked to this function (e.g by say doxigen directive). What do you think?",
+      "parentUuid": "4e4f5541_c31fd547",
+      "range": {
+        "startLine": 181,
+        "startChar": 0,
+        "endLine": 196,
+        "endChar": 13
+      },
+      "revId": "53702fced12fc6e8c927d131f73ac1927063b94d",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "863d2652_c92e168e",
         "filename": "eVSSIM/LOG_MGR/logging_backend.c",
         "patchSetId": 8
@@ -407,6 +479,29 @@
       "side": 1,
       "message": "Done",
       "parentUuid": "ff01c175_60c45a25",
+      "revId": "53702fced12fc6e8c927d131f73ac1927063b94d",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "ba0055d2_12446238",
+        "filename": "eVSSIM/tests/host/log_manager_subscriber.cc",
+        "patchSetId": 8
+      },
+      "lineNbr": 100,
+      "author": {
+        "id": 1007990
+      },
+      "writtenOn": "2018-03-14T07:11:50Z",
+      "side": 1,
+      "message": "Good point. Let\u0027s introduce macro with meaningful name",
+      "range": {
+        "startLine": 100,
+        "startChar": 30,
+        "endLine": 100,
+        "endChar": 33
+      },
       "revId": "53702fced12fc6e8c927d131f73ac1927063b94d",
       "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
       "unresolved": false
