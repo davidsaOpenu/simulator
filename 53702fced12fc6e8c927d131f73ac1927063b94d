@@ -356,6 +356,30 @@
     },
     {
       "key": {
+        "uuid": "27f99645_2e6b5c13",
+        "filename": "eVSSIM/LOG_MGR/logging_backend.c",
+        "patchSetId": 8
+      },
+      "lineNbr": 196,
+      "author": {
+        "id": 1011209
+      },
+      "writtenOn": "2018-03-14T19:03:38Z",
+      "side": 1,
+      "message": "-changed the tests name to more clear names. \n-commented near the else with the function names that test them. I am not sure how to link it in doxygen language.",
+      "parentUuid": "3cb9dc7e_8a7c09aa",
+      "range": {
+        "startLine": 181,
+        "startChar": 0,
+        "endLine": 196,
+        "endChar": 13
+      },
+      "revId": "53702fced12fc6e8c927d131f73ac1927063b94d",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "863d2652_c92e168e",
         "filename": "eVSSIM/LOG_MGR/logging_backend.c",
         "patchSetId": 8
@@ -496,6 +520,30 @@
       "writtenOn": "2018-03-14T07:11:50Z",
       "side": 1,
       "message": "Good point. Let\u0027s introduce macro with meaningful name",
+      "range": {
+        "startLine": 100,
+        "startChar": 30,
+        "endLine": 100,
+        "endChar": 33
+      },
+      "revId": "53702fced12fc6e8c927d131f73ac1927063b94d",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "efd09d5b_b0b3e28e",
+        "filename": "eVSSIM/tests/host/log_manager_subscriber.cc",
+        "patchSetId": 8
+      },
+      "lineNbr": 100,
+      "author": {
+        "id": 1011209
+      },
+      "writtenOn": "2018-03-14T19:03:38Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "ba0055d2_12446238",
       "range": {
         "startLine": 100,
         "startChar": 30,
