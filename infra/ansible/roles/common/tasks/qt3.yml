@@ -1,3 +1,6 @@
+#TODO those tasks to be performed as a part of interm
+#     image generation. Otherwise, it takes a while
+#     to run them on every docker invocation.
 - name: check whether qt3 exist
   stat: "path=/usr/share/qt3/bin/qmake"
   register: qt3_reg
