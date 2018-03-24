@@ -380,6 +380,30 @@
     },
     {
       "key": {
+        "uuid": "43c344d3_d6639c80",
+        "filename": "eVSSIM/LOG_MGR/logging_backend.c",
+        "patchSetId": 8
+      },
+      "lineNbr": 196,
+      "author": {
+        "id": 1006664
+      },
+      "writtenOn": "2018-03-24T19:28:40Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "3cb9dc7e_8a7c09aa",
+      "range": {
+        "startLine": 181,
+        "startChar": 0,
+        "endLine": 196,
+        "endChar": 13
+      },
+      "revId": "53702fced12fc6e8c927d131f73ac1927063b94d",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "863d2652_c92e168e",
         "filename": "eVSSIM/LOG_MGR/logging_backend.c",
         "patchSetId": 8
