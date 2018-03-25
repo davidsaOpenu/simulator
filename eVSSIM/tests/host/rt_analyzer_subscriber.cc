@@ -165,7 +165,7 @@ namespace rt_subscriber {
     };
 
     void write() {
-        Logger* logger = _analyzer->logger;
+        Logger_Pool* logger = _analyzer->logger;
         LOG_REGISTER_READ(logger, (RegisterReadLog) {
             .channel = 19, .die = 20, .reg = 21
         });

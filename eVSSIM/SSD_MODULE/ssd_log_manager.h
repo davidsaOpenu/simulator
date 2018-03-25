@@ -27,7 +27,7 @@ void THREAD_CLIENT(void *arg);
  * @return the appropriate logger of the flash, or NULL if an error occurred
  *         (or if the logger is not set up)
  */
-Logger* GET_LOGGER(unsigned int flash_number);
+Logger_Pool* GET_LOGGER(unsigned int flash_number);
 
 /**
  * Reset all the data saved in the analyzers, to clear the entire logging

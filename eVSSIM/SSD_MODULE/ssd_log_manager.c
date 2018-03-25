@@ -25,7 +25,7 @@ typedef struct {
     /**
      * The logger itself
      */
-    Logger* logger;
+    Logger_Pool* logger;
     /**
      * The real time analyzer of the logger
      */
@@ -99,7 +99,9 @@ void INIT_LOG_MANAGER(void)
 
 	// init structures
 	for (i = 0; i < FLASH_NB; i++) {
-	    analyzers_storage[i].logger = logger_init(LOGGER_SIZE);
+        // TODO - what is the logger size that we want here ?
+        // how many log's we want to allocate
+	    analyzers_storage[i].logger = logger_init(DEFUALT_LOGGER_POOL_SIZE);
 	    if (analyzers_storage[i].logger == NULL)
 	        PERR("Couldn't create the logger: %s\n", strerror(errno));
 	    analyzers_storage[i].rt_log_analyzer = rt_log_analyzer_init(analyzers_storage[i].logger);
@@ -223,7 +225,7 @@ void THREAD_CLIENT(void *arg)
 #endif
 }
 
-Logger* GET_LOGGER(unsigned int flash_number) {
+Logger_Pool* GET_LOGGER(unsigned int flash_number) {
 #ifdef LOGGING_SERVER_ON
     if (flash_number < FLASH_NB)
         return analyzers_storage[flash_number].logger;
