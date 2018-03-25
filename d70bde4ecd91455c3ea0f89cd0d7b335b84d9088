@@ -42,6 +42,24 @@
     },
     {
       "key": {
+        "uuid": "1924768d_6c081c8e",
+        "filename": "eVSSIM/tests/host/object_tests.cc",
+        "patchSetId": 2
+      },
+      "lineNbr": 336,
+      "author": {
+        "id": 1011209
+      },
+      "writtenOn": "2018-03-25T18:55:03Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "ebf04b6a_0b055e20",
+      "revId": "d70bde4ecd91455c3ea0f89cd0d7b335b84d9088",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "49a6c4a0_3e9272d0",
         "filename": "eVSSIM/tests/host/sector_tests.cc",
         "patchSetId": 2
@@ -65,6 +83,30 @@
     },
     {
       "key": {
+        "uuid": "57dc557b_027a794f",
+        "filename": "eVSSIM/tests/host/sector_tests.cc",
+        "patchSetId": 2
+      },
+      "lineNbr": 122,
+      "author": {
+        "id": 1011209
+      },
+      "writtenOn": "2018-03-25T18:55:03Z",
+      "side": 1,
+      "message": "I am not sure that enums are the solution here. How would i iterate over such enum ? \nMaybe i can define 2 vectors and iterate over them ?",
+      "parentUuid": "49a6c4a0_3e9272d0",
+      "range": {
+        "startLine": 98,
+        "startChar": 0,
+        "endLine": 122,
+        "endChar": 49
+      },
+      "revId": "d70bde4ecd91455c3ea0f89cd0d7b335b84d9088",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "f45f3e86_e4635a25",
         "filename": "eVSSIM/tests/host/sector_tests.cc",
         "patchSetId": 2
@@ -76,6 +118,30 @@
       "writtenOn": "2018-03-25T14:50:55Z",
       "side": 1,
       "message": "let\u0027s avoid magic nums in sake of leaving better code then the one that was received.",
+      "range": {
+        "startLine": 127,
+        "startChar": 38,
+        "endLine": 127,
+        "endChar": 43
+      },
+      "revId": "d70bde4ecd91455c3ea0f89cd0d7b335b84d9088",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "f15c1267_f740c49f",
+        "filename": "eVSSIM/tests/host/sector_tests.cc",
+        "patchSetId": 2
+      },
+      "lineNbr": 127,
+      "author": {
+        "id": 1011209
+      },
+      "writtenOn": "2018-03-25T18:55:03Z",
+      "side": 1,
+      "message": "How should i call it ? what is the meaning of this number ? \nDEFAULT_SIZE_MB ? and DEFAULT_FLASH_NB ?",
+      "parentUuid": "f45f3e86_e4635a25",
       "range": {
         "startLine": 127,
         "startChar": 38,
