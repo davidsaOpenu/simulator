@@ -107,6 +107,30 @@
     },
     {
       "key": {
+        "uuid": "e30b4936_222b52ed",
+        "filename": "eVSSIM/tests/host/sector_tests.cc",
+        "patchSetId": 2
+      },
+      "lineNbr": 122,
+      "author": {
+        "id": 1007990
+      },
+      "writtenOn": "2018-03-26T08:22:36Z",
+      "side": 1,
+      "message": "E.g.\n\n#include \u003ciostream\u003e\n#include \u003calgorithm\u003e\n\nnamespace MyEnum\n{\n  enum Type\n  {\n    a \u003d 100,\n    b \u003d 220,\n    c \u003d -1\n  };\n\n  static const Type All[] \u003d { a, b, c };\n}\n\nvoid fun( const MyEnum::Type e )\n{\n  std::cout \u003c\u003c e \u003c\u003c std::endl;\n}\n\nint main()\n{\n  // all\n  for ( const auto e : MyEnum::All )\n    fun( e );\n\n  // some\n  for ( const auto e : { MyEnum::a, MyEnum::b } )\n    fun( e );\n\n  // all\n  std::for_each( std::begin( MyEnum::All ), std::end( MyEnum::All ), fun );\n\n  return 0;\n}\n\nBut vectors are also ok",
+      "parentUuid": "57dc557b_027a794f",
+      "range": {
+        "startLine": 98,
+        "startChar": 0,
+        "endLine": 122,
+        "endChar": 49
+      },
+      "revId": "d70bde4ecd91455c3ea0f89cd0d7b335b84d9088",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "f45f3e86_e4635a25",
         "filename": "eVSSIM/tests/host/sector_tests.cc",
         "patchSetId": 2
@@ -142,6 +166,30 @@
       "side": 1,
       "message": "How should i call it ? what is the meaning of this number ? \nDEFAULT_SIZE_MB ? and DEFAULT_FLASH_NB ?",
       "parentUuid": "f45f3e86_e4635a25",
+      "range": {
+        "startLine": 127,
+        "startChar": 38,
+        "endLine": 127,
+        "endChar": 43
+      },
+      "revId": "d70bde4ecd91455c3ea0f89cd0d7b335b84d9088",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "f7ae4c4b_43453f49",
+        "filename": "eVSSIM/tests/host/sector_tests.cc",
+        "patchSetId": 2
+      },
+      "lineNbr": 127,
+      "author": {
+        "id": 1007990
+      },
+      "writtenOn": "2018-03-26T08:22:36Z",
+      "side": 1,
+      "message": "Sure there is no problem to refer to the values via macros. And what do you think about defining const variables (e.g constDiskSize and constFlashNum and putting them just above the  list.push_back(std::make_pair(256,4))? ) Does it looks more clear?",
+      "parentUuid": "f15c1267_f740c49f",
       "range": {
         "startLine": 127,
         "startChar": 38,
