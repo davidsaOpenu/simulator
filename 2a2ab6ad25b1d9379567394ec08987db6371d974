@@ -1,0 +1,90 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "3772954c_dbcaf278",
+        "filename": "eVSSIM/tests/host/sector_tests.cc",
+        "patchSetId": 3
+      },
+      "lineNbr": 56,
+      "author": {
+        "id": 1007990
+      },
+      "writtenOn": "2018-04-04T11:37:24Z",
+      "side": 1,
+      "message": "Let\u0027s change the --ci to be --nightly.",
+      "revId": "2a2ab6ad25b1d9379567394ec08987db6371d974",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "c1dfcfa7_d3b2643f",
+        "filename": "eVSSIM/tests/host/sector_tests.cc",
+        "patchSetId": 3
+      },
+      "lineNbr": 57,
+      "author": {
+        "id": 1007990
+      },
+      "writtenOn": "2018-04-04T11:37:24Z",
+      "side": 1,
+      "message": "Also, let\u0027s read \nconst char* s \u003d getenv(\"CI_MODE\"); environmental variable.\nIf CI_MODE is set to be NIGTHLY, then let\u0027s change g_nighlty_mode to be true even if no --nighly was delivered.",
+      "range": {
+        "startLine": 57,
+        "startChar": 11,
+        "endLine": 57,
+        "endChar": 29
+      },
+      "revId": "2a2ab6ad25b1d9379567394ec08987db6371d974",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "04723b38_b57abc2a",
+        "filename": "eVSSIM/tests/host/sector_tests.cc",
+        "patchSetId": 3
+      },
+      "lineNbr": 57,
+      "author": {
+        "id": 1007990
+      },
+      "writtenOn": "2018-04-04T11:37:24Z",
+      "side": 1,
+      "message": "s/g_ci_mode/g_nightly_mode",
+      "range": {
+        "startLine": 57,
+        "startChar": 12,
+        "endLine": 57,
+        "endChar": 21
+      },
+      "revId": "2a2ab6ad25b1d9379567394ec08987db6371d974",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "8aaa470d_561a5c03",
+        "filename": "eVSSIM/tests/host/sector_tests.cc",
+        "patchSetId": 3
+      },
+      "lineNbr": 144,
+      "author": {
+        "id": 1007990
+      },
+      "writtenOn": "2018-04-04T11:37:24Z",
+      "side": 1,
+      "message": "And then let\u0027s run a basic (old) set of tests in a regular mode and in case of g_nightly_mode, let\u0027s run all those new ones as well",
+      "range": {
+        "startLine": 133,
+        "startChar": 0,
+        "endLine": 144,
+        "endChar": 2
+      },
+      "revId": "2a2ab6ad25b1d9379567394ec08987db6371d974",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    }
+  ]
+}
