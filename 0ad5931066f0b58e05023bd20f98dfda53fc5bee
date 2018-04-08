@@ -1,0 +1,182 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "834ffe30_efc1b2c4",
+        "filename": "/COMMIT_MSG",
+        "patchSetId": 1
+      },
+      "lineNbr": 10,
+      "author": {
+        "id": 1007990
+      },
+      "writtenOn": "2018-04-08T06:31:23Z",
+      "side": 1,
+      "message": "nit: 80  char lines",
+      "revId": "0ad5931066f0b58e05023bd20f98dfda53fc5bee",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "b7e5c353_ed7ea744",
+        "filename": "eVSSIM/FTL_SOURCE/PAGE_MAP/ftl_sect_strategy.c",
+        "patchSetId": 1
+      },
+      "lineNbr": 160,
+      "author": {
+        "id": 1007990
+      },
+      "writtenOn": "2018-04-08T06:31:23Z",
+      "side": 1,
+      "message": "is line 172 is still valid in this case?",
+      "range": {
+        "startLine": 160,
+        "startChar": 0,
+        "endLine": 160,
+        "endChar": 78
+      },
+      "revId": "0ad5931066f0b58e05023bd20f98dfda53fc5bee",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "bf5c8773_83c5c022",
+        "filename": "eVSSIM/LOG_MGR/logging_parser.h",
+        "patchSetId": 1
+      },
+      "lineNbr": 101,
+      "author": {
+        "id": 1007990
+      },
+      "writtenOn": "2018-04-08T06:31:23Z",
+      "side": 1,
+      "message": "how about adding here a structs (e.g. LoggerInfo or something like this) instead? It will make it easier to add additional fieldes in the future.",
+      "range": {
+        "startLine": 94,
+        "startChar": 0,
+        "endLine": 101,
+        "endChar": 21
+      },
+      "revId": "0ad5931066f0b58e05023bd20f98dfda53fc5bee",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "2915dc6b_8e652f2b",
+        "filename": "eVSSIM/LOG_MGR/logging_parser.h",
+        "patchSetId": 1
+      },
+      "lineNbr": 126,
+      "author": {
+        "id": 1007990
+      },
+      "writtenOn": "2018-04-08T06:31:23Z",
+      "side": 1,
+      "message": "how about adding here a structs (e.g. LoggerInfo or something like this) instead? It will make it easier to add additional fields in the future.",
+      "range": {
+        "startLine": 119,
+        "startChar": 0,
+        "endLine": 126,
+        "endChar": 21
+      },
+      "revId": "0ad5931066f0b58e05023bd20f98dfda53fc5bee",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "f4996b85_74510eef",
+        "filename": "eVSSIM/LOG_MGR/logging_parser.h",
+        "patchSetId": 1
+      },
+      "lineNbr": 151,
+      "author": {
+        "id": 1007990
+      },
+      "writtenOn": "2018-04-08T06:31:23Z",
+      "side": 1,
+      "message": "same",
+      "range": {
+        "startLine": 144,
+        "startChar": 0,
+        "endLine": 151,
+        "endChar": 21
+      },
+      "revId": "0ad5931066f0b58e05023bd20f98dfda53fc5bee",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "268b3fc6_8fe3bc9f",
+        "filename": "eVSSIM/LOG_MGR/logging_parser.h",
+        "patchSetId": 1
+      },
+      "lineNbr": 179,
+      "author": {
+        "id": 1007990
+      },
+      "writtenOn": "2018-04-08T06:31:23Z",
+      "side": 1,
+      "message": "same",
+      "range": {
+        "startLine": 173,
+        "startChar": 0,
+        "endLine": 179,
+        "endChar": 7
+      },
+      "revId": "0ad5931066f0b58e05023bd20f98dfda53fc5bee",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "01d42502_7ec3b967",
+        "filename": "eVSSIM/LOG_MGR/logging_parser.h",
+        "patchSetId": 1
+      },
+      "lineNbr": 205,
+      "author": {
+        "id": 1007990
+      },
+      "writtenOn": "2018-04-08T06:31:23Z",
+      "side": 1,
+      "message": "same",
+      "range": {
+        "startLine": 198,
+        "startChar": 0,
+        "endLine": 205,
+        "endChar": 21
+      },
+      "revId": "0ad5931066f0b58e05023bd20f98dfda53fc5bee",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "8e71ff0e_59ddee08",
+        "filename": "eVSSIM/LOG_MGR/logging_parser.h",
+        "patchSetId": 1
+      },
+      "lineNbr": 264,
+      "author": {
+        "id": 1007990
+      },
+      "writtenOn": "2018-04-08T06:31:23Z",
+      "side": 1,
+      "message": "same",
+      "range": {
+        "startLine": 223,
+        "startChar": 1,
+        "endLine": 264,
+        "endChar": 21
+      },
+      "revId": "0ad5931066f0b58e05023bd20f98dfda53fc5bee",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    }
+  ]
+}
