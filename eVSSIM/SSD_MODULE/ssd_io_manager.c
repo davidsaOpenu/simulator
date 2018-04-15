@@ -1,4 +1,4 @@
-// Copyright(c)2013 
+// Copyright(c)2013
 //
 // Hanyang University, Seoul, Korea
 // Embedded Software Systems Lab. All right reserved
@@ -25,6 +25,8 @@ int64_t io_update_overhead=0;
 
 char ssd_version[4] = "1.0";
 char ssd_date[9] = "13.04.11";
+
+struct timeval logging_parser_tv;
 
 int64_t get_usec(void)
 {
@@ -75,7 +77,7 @@ int SSD_IO_INIT(void){
 	for(i=0; i< FLASH_NB*PLANES_PER_FLASH; i++){
 		*(cell_io_time + i) = -1;
 	}
-  
+
 	/* Init Access sequence_nb */
 	access_nb = (int **)malloc(sizeof(int*) * FLASH_NB * PLANES_PER_FLASH);
 	for(i=0; i< FLASH_NB*PLANES_PER_FLASH; i++){
@@ -113,6 +115,8 @@ ftl_ret_val SSD_PAGE_WRITE(unsigned int flash_nb, unsigned int block_nb, unsigne
 	int ret = FTL_FAILURE;
 	int delay_ret;
 
+    TIME_MICROSEC(_start);
+
 	/* Calculate ch & reg */
 	channel = flash_nb % CHANNEL_NB;
 	reg = flash_nb*PLANES_PER_FLASH + block_nb%PLANES_PER_FLASH;
@@ -125,8 +129,8 @@ ftl_ret_val SSD_PAGE_WRITE(unsigned int flash_nb, unsigned int block_nb, unsigne
 	}
 	else{
 		delay_ret = SSD_REG_ACCESS(flash_nb, channel, reg);
-	}	
-	
+	}
+
 	/* Check Channel Operation */
 	while(ret == FTL_FAILURE){
 		ret = SSD_CH_ACCESS(flash_nb, channel);
@@ -143,8 +147,12 @@ ftl_ret_val SSD_PAGE_WRITE(unsigned int flash_nb, unsigned int block_nb, unsigne
 	}
 #endif
 
+    TIME_MICROSEC(_end);
+
 	LOG_PHYSICAL_CELL_PROGRAM(GET_LOGGER(flash_nb), (PhysicalCellProgramLog) {
-	    .channel = channel, .block = block_nb, .page = page_nb
+	    .channel = channel, .block = block_nb, .page = page_nb,
+        .metadata.logging_start_time = _start,
+        .metadata.logging_end_time = _end
 	});
 
 	return FTL_SUCCESS;
@@ -154,6 +162,8 @@ ftl_ret_val SSD_PAGE_READ(unsigned int flash_nb, unsigned int block_nb, unsigned
 {
 	int channel, reg;
 	int delay_ret;
+
+    TIME_MICROSEC(_start);
 
 	/* Calculate ch & reg */
 	channel = flash_nb % CHANNEL_NB;
@@ -181,8 +191,12 @@ ftl_ret_val SSD_PAGE_READ(unsigned int flash_nb, unsigned int block_nb, unsigned
 	}
 #endif
 
+    TIME_MICROSEC(_end);
+
 	LOG_PHYSICAL_CELL_READ(GET_LOGGER(flash_nb), (PhysicalCellReadLog) {
-	    .channel = channel, .block = block_nb, .page = page_nb
+	    .channel = channel, .block = block_nb, .page = page_nb,
+        .metadata.logging_start_time = _start,
+        .metadata.logging_end_time = _end
 	});
 
 	return FTL_SUCCESS;
@@ -191,6 +205,8 @@ ftl_ret_val SSD_PAGE_READ(unsigned int flash_nb, unsigned int block_nb, unsigned
 ftl_ret_val SSD_BLOCK_ERASE(unsigned int flash_nb, unsigned int block_nb)
 {
 	int channel, reg;
+
+    TIME_MICROSEC(_start);
 
 	/* Calculate ch & reg */
 	channel = flash_nb % CHANNEL_NB;
@@ -204,12 +220,16 @@ ftl_ret_val SSD_BLOCK_ERASE(unsigned int flash_nb, unsigned int block_nb)
 		SSD_REG_ACCESS(flash_nb, channel, reg);
 	}
 
-       	/* Record Time Stamp */
+	/* Record Time Stamp */
 	SSD_REG_RECORD(reg, ERASE, ERASE, -1, channel);
 	SSD_CELL_RECORD(reg, ERASE);
 
+    TIME_MICROSEC(_end);
+
 	LOG_BLOCK_ERASE(GET_LOGGER(flash_nb), (BlockEraseLog) {
-	    .channel = channel, .die = flash_nb, .block = block_nb
+	    .channel = channel, .die = flash_nb, .block = block_nb,
+        .metadata.logging_start_time = _start,
+        .metadata.logging_end_time = _end
 	});
 
 	return FTL_SUCCESS;
@@ -222,16 +242,16 @@ int SSD_FLASH_ACCESS(unsigned int flash_nb, int channel, int reg)
 	int ret = 0;
 
 	for(i=0;i<PLANES_PER_FLASH;i++){
-		
+
 		if(r_num != reg && access_nb[r_num][0] == io_request_seq_nb){
 			/* That's OK */
 		}
 		else{
 			ret = SSD_REG_ACCESS(flash_nb, channel, r_num);
 		}
-	
+
 		r_num++;
-	}	
+	}
 
 	return ret;
 }
@@ -264,7 +284,7 @@ int SSD_CH_ENABLE(unsigned int flash_nb, int channel)
 	if(old_channel_nb != channel){
 		do_delay = SSD_CH_SWITCH_DELAY(flash_nb, channel);
 	}
-	
+
 	return FTL_SUCCESS;
 }
 
@@ -359,7 +379,7 @@ int SSD_CH_ACCESS(unsigned int flash_nb, int channel)
 	int r_num;
 
 	for(i=0;i<WAY_NB;i++){
-		r_num = channel*PLANES_PER_FLASH + i*CHANNEL_NB*PLANES_PER_FLASH; 
+		r_num = channel*PLANES_PER_FLASH + i*CHANNEL_NB*PLANES_PER_FLASH;
 		for(j=0;j<PLANES_PER_FLASH;j++){
 			if(reg_io_time[r_num] <= get_usec() && reg_io_time[r_num] != -1){
 				if(reg_io_cmd[r_num] == READ){
@@ -372,7 +392,7 @@ int SSD_CH_ACCESS(unsigned int flash_nb, int channel)
 					ret = FTL_FAILURE;
 				}
 			}
-			r_num++;	
+			r_num++;
 		}
 	}
 
@@ -389,10 +409,11 @@ void SSD_UPDATE_IO_OVERHEAD(int reg, int64_t overhead_time)
 int64_t SSD_CH_SWITCH_DELAY(unsigned int flash_nb, int channel)
 {
 	int64_t start = 0;
-       	int64_t	end = 0;
+    int64_t	end = 0;
 	int64_t diff = 0;
-
 	int64_t switch_delay = 0;
+
+    TIME_MICROSEC(_start);
 
 	if(old_channel_cmd == READ){
 		switch_delay = CHANNEL_SWITCH_DELAY_R;
@@ -421,13 +442,19 @@ int64_t SSD_CH_SWITCH_DELAY(unsigned int flash_nb, int channel)
 	}
 	end = get_usec();
 
+    TIME_MICROSEC(_end);
+
 	if (old_channel_cmd == READ)
 	    LOG_CHANNEL_SWITCH_TO_READ(GET_LOGGER(flash_nb), (ChannelSwitchToReadLog) {
-	        .channel = channel
+	        .channel = channel,
+            .metadata.logging_start_time = _start,
+            .metadata.logging_end_time = _end
 	    });
 	else if (old_channel_cmd == WRITE)
 	    LOG_CHANNEL_SWITCH_TO_WRITE(GET_LOGGER(flash_nb), (ChannelSwitchToWriteLog) {
-	        .channel = channel
+	        .channel = channel,
+            .metadata.logging_start_time = _start,
+            .metadata.logging_end_time = _end
 	    });
 
 	return end-start;
@@ -437,9 +464,11 @@ int SSD_REG_WRITE_DELAY(unsigned int flash_nb, int channel, int reg)
 {
 	int ret = 0;
 	int64_t start = 0;
-       	int64_t	end = 0;
+    int64_t	end = 0;
 	int64_t diff = 0;
 	int64_t time_stamp = reg_io_time[reg];
+
+    TIME_MICROSEC(_start);
 
 	if (time_stamp == -1)
 		return 0;
@@ -469,8 +498,12 @@ int SSD_REG_WRITE_DELAY(unsigned int flash_nb, int channel, int reg)
 	/* Update Time Stamp Struct */
 	reg_io_time[reg] = -1;
 
+    TIME_MICROSEC(_end);
+
 	LOG_REGISTER_WRITE(GET_LOGGER(flash_nb), (RegisterWriteLog) {
-	    .channel = channel, .die = flash_nb, .reg = reg
+	    .channel = channel, .die = flash_nb, .reg = reg,
+        .metadata.logging_start_time = _start,
+        .metadata.logging_end_time = _end
 	});
 
 	return ret;
@@ -483,6 +516,8 @@ int SSD_REG_READ_DELAY(unsigned int flash_nb, int channel, int reg)
 	int64_t end = 0;
 	int64_t diff = 0;
 	int64_t time_stamp = reg_io_time[reg];
+
+    TIME_MICROSEC(_start);
 
 	if (time_stamp == -1)
 		return 0;
@@ -510,14 +545,18 @@ int SSD_REG_READ_DELAY(unsigned int flash_nb, int channel, int reg)
 	/* Send Delay Info To Perf Checker */
 	SEND_TO_PERF_CHECKER(reg_io_type[reg], end-start, CH_OP);
 	SSD_UPDATE_IO_REQUEST(reg);
-	
+
 	/* Update Time Stamp Struct */
 	reg_io_time[reg] = -1;
 	reg_io_cmd[reg] = NOOP;
 	reg_io_type[reg] = NOOP;
 
+    TIME_MICROSEC(_end);
+
 	LOG_REGISTER_READ(GET_LOGGER(flash_nb), (RegisterReadLog) {
-	    .channel = channel, .die = flash_nb, .reg = reg
+	    .channel = channel, .die = flash_nb, .reg = reg,
+        .metadata.logging_start_time = _start,
+        .metadata.logging_end_time = _end
 	});
 
 	return ret;
@@ -632,7 +671,7 @@ int SSD_BLOCK_ERASE_DELAY(int reg)
 	if( diff < BLOCK_ERASE_DELAY){
 		while(diff < BLOCK_ERASE_DELAY){
 			diff = get_usec() - time_stamp;
-	  	}
+		}
 		ret = 1;
 	}
 	end = get_usec();
@@ -653,24 +692,24 @@ int64_t SSD_GET_CH_ACCESS_TIME_FOR_READ(int channel, int reg)
 	int64_t temp_time = 0;
 
 	for(i=0;i<WAY_NB;i++){
-		r_num = channel*PLANES_PER_FLASH + i*CHANNEL_NB*PLANES_PER_FLASH; 
+		r_num = channel*PLANES_PER_FLASH + i*CHANNEL_NB*PLANES_PER_FLASH;
 		for(j=0;j<PLANES_PER_FLASH;j++){
 			temp_time = 0;
 
 			if(reg_io_cmd[r_num] == READ){
-				temp_time = reg_io_time[r_num] + REG_READ_DELAY;	
+				temp_time = reg_io_time[r_num] + REG_READ_DELAY;
 			}
 			else if(reg_io_cmd[r_num] == WRITE){
 				temp_time = reg_io_time[r_num] + REG_WRITE_DELAY;
 			}
-	
+
 			if( temp_time > latest_time ){
 				latest_time = temp_time;
 			}
 			r_num++;
 		}
 	}
-	
+
 	return latest_time;
 }
 
@@ -680,12 +719,12 @@ void SSD_UPDATE_CH_ACCESS_TIME(int channel, int64_t current_time)
 	int r_num;
 
 	for(i=0;i<WAY_NB;i++){
-		r_num = channel*PLANES_PER_FLASH + i*CHANNEL_NB*PLANES_PER_FLASH; 
+		r_num = channel*PLANES_PER_FLASH + i*CHANNEL_NB*PLANES_PER_FLASH;
 		for(j=0;j<PLANES_PER_FLASH;j++){
 			if(reg_io_cmd[r_num] == READ && reg_io_time[r_num] > current_time ){
 				reg_io_time[r_num] += REG_WRITE_DELAY;
 			}
-			r_num++;	
+			r_num++;
 		}
 	}
 }

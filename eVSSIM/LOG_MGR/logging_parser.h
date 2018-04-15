@@ -17,9 +17,8 @@
 #ifndef __LOGGING_PARSER_H__
 #define __LOGGING_PARSER_H__
 
-
 #include "logging_backend.h"
-
+#include <sys/time.h>
 
 /**
  * Concatenate the parameters given
@@ -36,6 +35,30 @@
  */
 #define CONCAT(x, y) _CONCAT(x, y)
 
+/**
+ * Set current time in micro seconds in the given parameter
+ * @param t the paramter that will contain the time
+ */
+#define TIME_MICROSEC(t) \
+    int64_t t = 0; \
+gettimeofday(&logging_parser_tv, NULL); \
+t = logging_parser_tv.tv_sec; \
+t *= 1000000; \
+t += logging_parser_tv.tv_usec;
+
+/**
+ * Log meta data structer
+ */
+typedef struct {
+    /**
+     * Logging start time
+     */
+    int64_t logging_start_time;
+    /**
+     * Logging end time
+     */
+    int64_t logging_end_time;
+} LogMetadata;
 
 /**
  * Read bytes from the logger, while busy waiting when there are not enough data
@@ -52,7 +75,6 @@ void logger_busy_read(Logger_Pool* logger, Byte* buffer, int length);
  */
 int next_log_type(Logger_Pool* logger);
 
-
 /**
  * A log which contains no attributes; should be an alias to every log which has no attributes
  */
@@ -64,7 +86,6 @@ typedef struct {
  * An empty log, to use in place of a log which contains no attributes
  */
 extern EmptyLog empty_log;
-
 
 /**
  * A log of a physical cell read
@@ -82,7 +103,12 @@ typedef struct {
      * The page number of the cell read
      */
     unsigned int page;
+    /**
+     * Log metadata
+     */
+    LogMetadata metadata;
 } PhysicalCellReadLog;
+
 /**
  * A log of a physical cell program
  */
@@ -99,7 +125,12 @@ typedef struct {
      * The page number of the programmed cell
      */
     unsigned int page;
+    /**
+     * Log metadata
+     */
+    LogMetadata metadata;
 } PhysicalCellProgramLog;
+
 /**
  * A log of a logical cell program
  */
@@ -116,11 +147,17 @@ typedef struct {
      * The page number of the programmed cell
      */
     unsigned int page;
+    /**
+     * Log metadata
+     */
+    LogMetadata metadata;
 } LogicalCellProgramLog;
+
 /**
  * A log of garbage collection
  */
 typedef EmptyLog GarbageCollectionLog;
+
 /**
  * A log of a register read
  */
@@ -137,7 +174,12 @@ typedef struct {
      * The register number of the register read
      */
     unsigned int reg;
+    /**
+     * Log metadata
+     */
+    LogMetadata metadata;
 } RegisterReadLog;
+
 /**
  * A log of a register write
  */
@@ -154,7 +196,12 @@ typedef struct {
      * The register number of the written register
      */
     unsigned int reg;
+    /**
+     * Log metadata
+     */
+    LogMetadata metadata;
 } RegisterWriteLog;
+
 /**
  * A log of a block erase
  */
@@ -171,7 +218,12 @@ typedef struct {
      * The block number of the erased block
      */
     unsigned int block;
+    /**
+     * Log metadata
+     */
+    LogMetadata metadata;
 } BlockEraseLog;
+
 /**
  * A block of a channel switch to read mode
  */
@@ -180,7 +232,12 @@ typedef struct {
      * The channel number of the channel being switched
      */
     unsigned int channel;
+    /**
+     * Log metadata
+     */
+    LogMetadata metadata;
 } ChannelSwitchToReadLog;
+
 /**
  * A block of a channel switch to write mode
  */
@@ -189,8 +246,11 @@ typedef struct {
      * The channel number of the channel being switched
      */
     unsigned int channel;
+    /**
+     * Log metadata
+     */
+    LogMetadata metadata;
 } ChannelSwitchToWriteLog;
-
 
 /**
  * All the logs definitions; used to easily add more log types
@@ -198,17 +258,16 @@ typedef struct {
  * In order to add a new log type, one must only add a new line with the log definition here
  * @param APPLIER the macro which is going to be applied to all the log types
  */
-#define _LOGS_DEFINITIONS(APPLIER)                              \
-    APPLIER(PhysicalCellReadLog, PHYSICAL_CELL_READ)            \
-    APPLIER(PhysicalCellProgramLog, PHYSICAL_CELL_PROGRAM)      \
-    APPLIER(LogicalCellProgramLog, LOGICAL_CELL_PROGRAM)        \
-    APPLIER(GarbageCollectionLog, GARBAGE_COLLECTION)           \
-    APPLIER(RegisterReadLog, REGISTER_READ)                     \
-    APPLIER(RegisterWriteLog, REGISTER_WRITE)                   \
-    APPLIER(BlockEraseLog, BLOCK_ERASE)                         \
-    APPLIER(ChannelSwitchToReadLog, CHANNEL_SWITCH_TO_READ)     \
-    APPLIER(ChannelSwitchToWriteLog, CHANNEL_SWITCH_TO_WRITE)
-
+#define _LOGS_DEFINITIONS(APPLIER)                          \
+    APPLIER(PhysicalCellReadLog, PHYSICAL_CELL_READ)        \
+APPLIER(PhysicalCellProgramLog, PHYSICAL_CELL_PROGRAM)      \
+APPLIER(LogicalCellProgramLog, LOGICAL_CELL_PROGRAM)        \
+APPLIER(GarbageCollectionLog, GARBAGE_COLLECTION)           \
+APPLIER(RegisterReadLog, REGISTER_READ)                     \
+APPLIER(RegisterWriteLog, REGISTER_WRITE)                   \
+APPLIER(BlockEraseLog, BLOCK_ERASE)                         \
+APPLIER(ChannelSwitchToReadLog, CHANNEL_SWITCH_TO_READ)     \
+APPLIER(ChannelSwitchToWriteLog, CHANNEL_SWITCH_TO_WRITE)
 
 /**
  * The enum log applier; used to create an enum of the log types' ids
@@ -216,6 +275,7 @@ typedef struct {
  * @param name the name of the log type
  */
 #define _LOGS_ENUM_APPLIER(structure, name) CONCAT(name, _LOG_UID),
+
 /**
  * The unique ids for the different structs available for parsing
  */
@@ -231,7 +291,6 @@ enum ParsableStructures {
     LOG_UID_COUNT
 };
 
-
 /**
  * The writer log applier; used to create a writer function for the different log types
  * @param structure the structure associated with the log type
@@ -239,11 +298,11 @@ enum ParsableStructures {
  */
 #define _LOGS_WRITER_DECLARATION_APPLIER(structure, name)       \
     void CONCAT(LOG_, name)(Logger_Pool* logger, structure buffer);
+
 /**
  * The customized LOG_X function definitions, for type-safe logging
  */
 _LOGS_DEFINITIONS(_LOGS_WRITER_DECLARATION_APPLIER)
-
 
 /**
  * The reader log applier; used to create a reader function for the different log types
@@ -252,10 +311,10 @@ _LOGS_DEFINITIONS(_LOGS_WRITER_DECLARATION_APPLIER)
  */
 #define _LOGS_READER_DECLARATION_APPLIER(structure, name)           \
     structure CONCAT(NEXT_, CONCAT(name, _LOG))(Logger_Pool* logger);
+
 /**
  * The customized NEXT_X_LOG definitions, for type-safe logging
  */
 _LOGS_DEFINITIONS(_LOGS_READER_DECLARATION_APPLIER)
-
 
 #endif

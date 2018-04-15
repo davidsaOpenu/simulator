@@ -165,40 +165,66 @@ namespace rt_subscriber {
     };
 
     void write() {
+        struct timeval logging_parser_tv;
         Logger_Pool* logger = _analyzer->logger;
+
+        TIME_MICROSEC(start);
+
+        TIME_MICROSEC(end1);
         LOG_REGISTER_READ(logger, (RegisterReadLog) {
-            .channel = 19, .die = 20, .reg = 21
+            .channel = 19, .die = 20, .reg = 21,
+            .metadata = {start, end1}
         });
+        TIME_MICROSEC(end2);
         LOG_PHYSICAL_CELL_READ(logger, (PhysicalCellReadLog) {
-            .channel = 1, .block = 2, .page = 3
+            .channel = 1, .block = 2, .page = 3,
+            .metadata = {start, end2}
         });
+        TIME_MICROSEC(end3);
         LOG_CHANNEL_SWITCH_TO_WRITE(logger, (ChannelSwitchToWriteLog) {
-            .channel = 28
+            .channel = 28,
+            .metadata = {start, end3}
         });
+        TIME_MICROSEC(end4);
         LOG_PHYSICAL_CELL_PROGRAM(logger, (PhysicalCellProgramLog) {
-            .channel = 4, .block = 5, .page = 6
+            .channel = 4, .block = 5, .page = 6,
+            .metadata = {start, end4}
         });
+        TIME_MICROSEC(end5);
         LOG_GARBAGE_COLLECTION(logger, (GarbageCollectionLog) empty_log);
         LOG_LOGICAL_CELL_PROGRAM(logger, (LogicalCellProgramLog) {
-            .channel = 7, .block = 8, .page = 9
+            .channel = 7, .block = 8, .page = 9,
+            .metadata = {start, end5}
         });
+        TIME_MICROSEC(end6);
         LOG_REGISTER_WRITE(logger, (RegisterWriteLog) {
-            .channel = 22, .die = 23, .reg = 24
+            .channel = 22, .die = 23, .reg = 24,
+            .metadata = {start, end6}
         });
+        TIME_MICROSEC(end7);
         LOG_PHYSICAL_CELL_PROGRAM(logger, (PhysicalCellProgramLog) {
-            .channel = 10, .block = 11, .page = 12
+            .channel = 10, .block = 11, .page = 12,
+            .metadata = {start, end7}
         });
+        TIME_MICROSEC(end8);
         LOG_LOGICAL_CELL_PROGRAM(logger, (LogicalCellProgramLog) {
-            .channel = 13, .block = 14, .page = 15
+            .channel = 13, .block = 14, .page = 15,
+            .metadata = {start, end8}
         });
+        TIME_MICROSEC(end9);
         LOG_BLOCK_ERASE(logger, (BlockEraseLog) {
-            .channel = 25, .die = 26, .block = 27
+            .channel = 25, .die = 26, .block = 27,
+            .metadata = {start, end9}
         });
+        TIME_MICROSEC(end10);
         LOG_CHANNEL_SWITCH_TO_READ(logger, (ChannelSwitchToReadLog) {
-            .channel = 29
+            .channel = 29,
+            .metadata = {start, end10}
         });
+        TIME_MICROSEC(end11);
         LOG_PHYSICAL_CELL_READ(logger, (PhysicalCellReadLog) {
-            .channel = 16, .block = 17, .page = 18
+            .channel = 16, .block = 17, .page = 18,
+            .metadata = {start, end11}
         });
         LOG_GARBAGE_COLLECTION(logger, (GarbageCollectionLog) empty_log);
     }
