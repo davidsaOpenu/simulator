@@ -20,7 +20,6 @@
 #include "logging_parser.h"
 #include "logging_statistics.h"
 
-
 /**
  * A monitor hook
  * @param stats the most recent statistics calculated
@@ -102,6 +101,5 @@ void rt_log_analyzer_loop(RTLogAnalyzer* analyzer, int max_logs);
  * @param free_logger whether to free the logger the analyzer uses
  */
 void rt_log_analyzer_free(RTLogAnalyzer* analyzer, int free_logger);
-
 
 #endif
