@@ -199,6 +199,7 @@ distclean: clean
 	rm -f hw/logging_manager.{h,c}
 	rm -f hw/logging_parser.{h,c}
 	rm -f hw/logging_rt_analyzer.{h,c}
+	rm -f hw/logging_offline_analyzer.{h,c}
 	rm -f hw/logging_server.{h,c}
 	rm -f hw/logging_statistics.{h,c}
 	rm -rf hw/www
