@@ -40,15 +40,14 @@
 #define LOG_SIZE (1 << 19)
 
 /**
- * The time diff to use when trying to reduce
- * logger_pool size
- */
-#define CLEAN_TIME_DIFF 60
-
-/**
  * Defualt number of log's in each Looger Pool
  */
 #define DEFUALT_LOGGER_POOL_SIZE 20
+
+/**
+ * Maximum time that a log can be unused and not reduced
+ */
+#define LOG_MAX_UNUSED_TIME_SECONDS 60
 
 /**
  * A byte typedef, for easier use
@@ -95,6 +94,16 @@ struct Log {
      *        is not needed any more
      */
     bool clean;
+    /**
+     * Flag that indicates if the real time analyzer
+     * done reading this log
+     */
+    bool rt_analyzer_done;
+    /**
+     * Flag that indicates if the offline analyzer
+     * done reading this log
+     */
+    bool offline_analyzer_done;
 };
 
 /**
@@ -164,14 +173,35 @@ int logger_write(Logger_Pool* logger_pool, Byte* buffer, int length);
 int logger_read(Logger_Pool* logger_pool, Byte* buffer, int length);
 
 /**
+ * Read a byte array from the log
+ * @param log the log to read the data from
+ * @paratm buffer the buffer to write the data to
+ * @paratm length the maximum number of bytes to read
+ * @return the number of bytes to read
+ */
+int logger_read_log(Log* log, Byte* buffer, int length);
+
+/**
  * Free the logger_pool
  * @param logger_pool the logger pool to free
  */
 void logger_free(Logger_Pool* logger_pool);
 
 /**
- * TODO
+ * Reduce logger pool size to it's original allocated size
+ * logger_reduce_size() has to be called before the use of logger_clean()
+ * to have any affect
+ * @param logger_pool the looger pool to reduce it's size
  */
-void logger_pool_reduce_size(Logger_Pool* logger_pool);
+void logger_reduce_size(Logger_Pool* logger_pool);
+
+/**
+ * Clean log's that was wriiten to and read by
+ * the real time analyzer and the offline analyzer
+ * logger_clean() must be called after logger_reduce_size() for the
+ * reduction of the logger size to have affect
+ * @param logger_pool the logger pool that hold's the log's to clean
+ */
+void logger_clean(Logger_Pool* logger_pool);
 
 #endif
