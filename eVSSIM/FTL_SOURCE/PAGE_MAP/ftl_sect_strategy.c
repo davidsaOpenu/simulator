@@ -1,7 +1,7 @@
 #include "common.h"
 #include "ftl_sect_strategy.h"
 
-struct timeval logging_parser_tv;
+static struct timeval logging_parser_tv;
 
 ftl_ret_val _FTL_READ_SECT(uint64_t sector_nb, unsigned int length)
 {
