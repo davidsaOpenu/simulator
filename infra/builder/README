@@ -1,0 +1,27 @@
+== Initial Installation
+source env.sh
+./build-docker-image.sh
+./build-qemu-image.sh
+./compile-kernel.sh
+./compile-monitor.sh
+./compile-nvme-tools.sh
+./compile-qemu.sh
+./compile-tests.sh
+
+./run-sanity.sh
+
+== Running QEMU
+./run-qemu.sh
+    - Accessible via ssh @ port 2222 username=esd password=esd
+    - Accessible via vnc @ port 5900
+    - eVSSIM API @ http port 2003
+    - CTRL+C To stop
+
+    - While QEMU is running, the following scripts are available
+        ./enter-ssh.sh - Enter using SSH into the running QEMU virtual machine (Guest)
+        ./enter-docker.sh - Enter into the running QEMU container image (Host)
+
+
+== Running docker
+./run-bash.sh - Run bash inside an empty docker
+./runbash-chrooted.sh - Run bash inside the image of the QEMU guest
