@@ -187,7 +187,51 @@ namespace log_mgr_tests {
             memset(res,0, sizeof(TEST_STRING));
         }
     }
+    /**
+     * Test reducing logger size and cleaning the logs
+     *  - make sure logger_reduce_size() function works
+     *  - make sure logger_clean() function works
+     */
+    TEST_P(LogMgrUnitTest, CleanReduceLogger)
+    {
+        Byte placeholder = 'x';
+        char read_res[1];
+        int logger_size_before_reduce;
+        Log* log;
 
+        // write full log
+        for (unsigned long int i = 0; i < ((LOG_SIZE * _logger->number_of_allocated_logs)); i++) {
+            ASSERT_EQ(0, logger_write(_logger, &placeholder, 1));
+        }
+        // read full log
+        for (unsigned long int i = 0; i < (LOG_SIZE * _logger->number_of_allocated_logs); i++) {
+            ASSERT_EQ(1, logger_read(_logger, (Byte*)read_res, 1));
+        }
+
+        // try to reduce logger size with out a sleep
+        // logger_reduce_size should not reduce any logs
+        // on this test
+        logger_reduce_size(_logger);
+        logger_size_before_reduce = _logger->current_number_of_logs;
+        ASSERT_EQ(logger_size_before_reduce, _logger->current_number_of_logs);
+
+        // sleep for LOG_MAX_UNUSED_TIME_SECONDS to test
+        // logger_reduce_size function
+        logger_size_before_reduce = _logger->current_number_of_logs;
+        sleep(LOG_MAX_UNUSED_TIME_SECONDS+1);
+        log = _logger->dummy_log->next;
+        while( log != _logger->dummy_log)
+        {
+            log->offline_analyzer_done = true;
+            log = log->next;
+        }
+        logger_reduce_size(_logger);
+        ASSERT_EQ(logger_size_before_reduce-1, _logger->current_number_of_logs);
+
+        // test the logger_clean function
+        logger_clean(_logger);
+        ASSERT_EQ(_logger->number_of_free_logs, _logger->current_number_of_logs);
+    }
     /**
      * Test filling up the log and then writting more data:
      * - make sure filling up the buffer returns zero
@@ -461,7 +505,6 @@ namespace log_mgr_tests {
         ChannelSwitchToWriteLog res = NEXT_CHANNEL_SWITCH_TO_WRITE_LOG(_logger);
         ASSERT_EQ(log.channel, res.channel);
     }
-
     /* Real Time Analyzer Tests */
     /**
      * Do a simple test of the real time log analyzer
@@ -477,7 +520,38 @@ namespace log_mgr_tests {
         rt_subscriber::read();
         rt_log_analyzer_free(analyzer, 0);
     }
+    /* offline Analyzer Tests */
+    /**
+     * Do a simple sanity test of the offline time log analyzer
+     * make sure :
+     *      - we are able to create offline logger analyzer thread
+     *      - offline logger analyzer exits on request
+     *      - offline logger analyzer cleans it's resources
+     */
+    TEST_P(LogMgrUnitTest, BasicOfflineAnalyzer) {
+        Byte placeholder = 'x';
+        char read_res[1];
+        pthread_t offline_log_analyzer_thread;
+        OfflineLogAnalyzer* analyzer = offline_log_analyzer_init(_logger);
 
+        // create thread for the offline log analyzer
+        pthread_create(&offline_log_analyzer_thread, NULL,
+                offline_log_analyzer_run, analyzer);
+
+        // write full log
+        for (unsigned long int i = 0; i < ((LOG_SIZE * _logger->number_of_allocated_logs)); i++) {
+            ASSERT_EQ(0, logger_write(_logger, &placeholder, 1));
+        }
+        // read full log
+        for (unsigned long int i = 0; i < (LOG_SIZE * _logger->number_of_allocated_logs); i++) {
+            ASSERT_EQ(1, logger_read(_logger, (Byte*)read_res, 1));
+        }
+
+        // free && clean up's of the offline log analyzer
+        analyzer->exit_loop_flag = 1;
+        pthread_join(offline_log_analyzer_thread, NULL);
+        offline_log_analyzer_free(analyzer);
+    }
     /* Log Manager Tests */
     /**
      * Do a simple test of the log manager
