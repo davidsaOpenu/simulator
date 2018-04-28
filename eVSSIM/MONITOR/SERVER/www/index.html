@@ -42,8 +42,8 @@ limitations under the License.
                 if (websocket !== null)
                     return;
 
-                // create the web socket
-                websocket = new WebSocket('ws://127.0.0.1:2003', 'evssim-monitor');
+                // create the web socket;
+                websocket = new WebSocket(`ws://${document.location.host}`, 'evssim-monitor');
 
                 // handle connection
                 websocket.onopen = function() {

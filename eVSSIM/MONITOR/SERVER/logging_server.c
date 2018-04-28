@@ -31,7 +31,11 @@
 /**
  * The directory visible by the HTTP web server, relative to the working directory
  */
-#define WWW_DIR "./www"
+#ifdef VSSIM_NEXTGEN_BUILD_SYSTEM
+    #define WWW_DIR "./vssim/simulator/www"
+#else
+    #define WWW_DIR "./www"
+#endif
 
 
 LogServer log_server;
