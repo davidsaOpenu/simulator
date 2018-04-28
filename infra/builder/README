@@ -1,0 +1,123 @@
+== Initial Installation
+The following is the expected folder structure on initial installation
+    root/
+        qemu/ - git@openu/qemu
+        simulator/ - git@openu/simulator
+        nvme-cli/ - git@openu/nvme-cli
+        nvmeCompl/
+            dnvme/ - git@openu/dnvme
+            tnvme/ - git@openu/tnvme
+        3.16.2/ - git@openu/3.16.2 (Linux Kernel)
+
+All compiled binaries go into the "dist" folder. To speed up build,
+we suggest mounting the dist folder as tmpfs as follows
+    $ sudo mount -t tmpfs -o size=4g tmpfs /path/to/dist
+
+All environment configuration exist in env.sh. The script should be sourced prior to running
+any script.
+
+
+The following is the recommended initial run including a sanity test
+source env.sh
+./build-docker-image.sh
+./build-qemu-image.sh
+
+./compile-kernel.sh
+./compile-qemu.sh
+./compile-monitor.sh
+./compile-nvme-tools.sh
+./compile-tests.sh
+
+./docker-run-sanity.sh
+
+== Builder Framework
+TODO Explaing builder.sh functions
+
+== Running QEMU
+Every QEMU run uses a fresh copy of the QEMU guest image pre-made by build-qemu-image.sh.
+Additionally ALL necessary binaries are copied into the home directory of the
+guest (Including nvme cli, nvme compliance) and available in /home/esd/guest.
+
+./docker-run-qemu.sh
+    - Run qemu attached to the console
+    - Accessible via ssh @ port 2222
+    - Accessible via vnc @ port 5900
+    - Monitors
+        - New logging server http port 2003 (If compiled)
+        - Old monitoring (If compiled) via Xserver (If available)
+    - CTRL+C To stop
+
+    - While QEMU is running, the following scripts are available
+        ./docker-enter.sh - Enter into the running QEMU container image (Host)
+        ./guest-entry.sh - Enter using SSH into the running QEMU virtual machine (Guest)
+
+./docker-run-qemu-enter-guest.sh
+    - Same as above but will run qemu detached and open a shell in the guest
+
+./docker-copy-into-guest.sh
+    - Copies compiled binaries such nvme cli and nvme compliance into the QEMU image.
+    - This can be used EXPLICITLY for debugging purposes
+    - All the qemu running commands do this IMPLICITLY
+
+== Advanced Running
+    * gdb
+        While qemu is running, its easy to attach with gdb to qemu by attaching to the docker
+            $ ./docker-enter.sh
+            # gdb -p $(cat /tmp/qemu.pid)
+
+    * Tracing
+        QEMU has an extensive tracing facilities. The following environment
+        variables gives a quick access to enabeling them.
+            # Trace NVME module
+            EVSSIM_QEMU_TRACE_NVME=yes/no
+
+            # Trace VSSIM module (Block driver)
+            EVSSIM_QEMU_TRACE_VSSIM=yes/no
+
+            # Trace Block module
+            EVSSIM_QEMU_TRACE_BLOCK=yes/no
+
+        Environment could be altered through env.sh or directly
+            $ EVSSIM_QEMU_TRACE_VSSIM=yes ./docker-run-qemu.sh
+
+    * Simulator Toggle
+    Simulator could be toggled on and off (Without recompilation) using the
+    following environment. Default is yes.
+        EVSSIM_QEMU_SIMULATOR_ENABLED=yes/no
+
+    * Disk size
+    When simulator is turned OFF the nvme disk size is taken from
+        EVSSIM_QEMU_DEFAULT_DISK_SIZE
+    and defaulted to 1M.
+    When simulator is turned ON the nvme disk size is CALCULATED
+    from the ssd configuration.
+
+    * Reset Simulator
+    By default, every run of qemu will clear any simulator runtime files (Such as FTL mapping).
+    The variable EVSSIM_RUNTIME_ALWAYS_RESET=yes/no controls that behaviour.
+
+    * Strategy
+    Strategy is configures using EVSSIM_RUNTIME_STORAGE_STRATEGY
+    Available values are
+        1 - Sector
+        2 - Object
+
+    * SSD Configuration
+        The template for the configuration exists in ssd.conf.template
+
+== Running docker
+./docker-run-bash.sh - Run bash inside an empty docker
+./docker-run-bash-chrooted.sh - Run bash inside the image of the QEMU guest
+
+== Compilation
+
+./compile-kernel.sh - Compile kernel and created images in dist
+./compile-qemu.sh - Compile qemu
+./compile-monitor.sh - Compile monitoring related code
+./compile-nvme-tools.sh - Compile nvme tools
+./compile-tests.sh - Compile test related code
+
+
+== Tests
+./docker-test-host.sh - Host tests
+./docker-test-guest.sh - Guest tests using QEMU. Each test is saved into the "dist/tests" unique test folder.

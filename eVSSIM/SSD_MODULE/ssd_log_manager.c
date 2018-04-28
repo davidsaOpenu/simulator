@@ -17,6 +17,11 @@
 #include <stdarg.h>
 #include <signal.h>
 
+#ifdef VSSIM_NEXTGEN_BUILD_SYSTEM
+    #define MONITOR_EXECUTABLE_PATH ("./vssim/simulator/ssd_monitor")
+#else
+    #define MONITOR_EXECUTABLE_PATH ("./ssd_monitor")
+#endif
 
 /**
  * The data allocated for each logger and real time analyzer pair
@@ -79,7 +84,7 @@ void INIT_LOG_MANAGER(void)
     // handle old monitor
 #ifdef MONITOR_ON
 	if(g_init_log_server == 0){
-		if ((monitor = popen("./ssd_monitor", "r")) == NULL)
+		if ((monitor = popen(MONITOR_EXECUTABLE_PATH, "r")) == NULL)
 			PERR("popen failed: %s\n", strerror(errno));
 		THREAD_SERVER();
 
