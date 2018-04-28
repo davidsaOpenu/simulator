@@ -1,0 +1,44 @@
+== Initial Installation
+All compiled binaries go into the "dist" folder.
+
+
+source env.sh
+./build-docker-image.sh
+./build-qemu-image.sh
+./compile-kernel.sh
+./compile-monitor.sh
+./compile-nvme-tools.sh
+./compile-qemu.sh
+./compile-tests.sh
+
+./docker-run-sanity.sh
+
+== Running QEMU
+NOTE Every QEMU run uses a fresh copy of the QEMU guest image pre-made by build-qemu-image.sh.
+Additionally ALL necessary binaries are copied into the home directory of the guest (Including nvme cli, nvme compliance)
+
+./docker-run-qemu.sh
+    - Accessible via ssh @ port 2222 username=esd password=esd
+    - Accessible via vnc @ port 5900
+    - eVSSIM API @ http port 2003
+    - CTRL+C To stop
+
+    - While QEMU is running, the following scripts are available
+        ./guest-entry.sh - Enter using SSH into the running QEMU virtual machine (Guest)
+        ./docker-entry.sh - Enter into the running QEMU container image (Host)
+
+./docker-run-qemu-enter-guest.sh
+    - Same as above but will attach into the guest terminal
+
+.docker-copy-into-guest.sh
+    - Copies compiled binaries such nvme cli and nvme compliance into the QEMU image.
+    - Note that when running all the commands above this is done IMPLICITLY
+    - This can be used explicitly for debugging purposes
+
+== Running docker
+./docker-run-bash.sh - Run bash inside an empty docker
+./docker-run-bash-chrooted.sh - Run bash inside the image of the QEMU guest
+
+== Tests
+./docker-test-host.sh - Host tests
+./docker-test-guest.sh - Guest tests using QEMU. Each test is saved into the "dist/tests" unique test folder.
