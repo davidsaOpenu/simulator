@@ -77,6 +77,12 @@ RUN mkdir /tmp/qt3 && cd /tmp/qt3 && \
             qt3-dev-tools_3.3.8-b-8ubuntu3_amd64.deb && \
     rm -rf /tmp/qt3
 
+# Extra debugging packages
+RUN apt-get install -y htop socat
+
+# QEMU v2.12 Build Dependencies
+RUN apt-get install -y libpixman-1-dev bison flex
+
 # Copy our folder into the scripts folder
 ADD docker /scripts
 ADD env.sh /scripts
