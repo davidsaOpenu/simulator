@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "ac722561_5cae7d00",
+        "filename": "/COMMIT_MSG",
+        "patchSetId": 1
+      },
+      "lineNbr": 7,
+      "author": {
+        "id": 1007990
+      },
+      "writtenOn": "2018-05-03T07:22:56Z",
+      "side": 1,
+      "message": "could you please refer to: https://www.mediawiki.org/wiki/Gerrit/Commit_message_guidelines",
+      "revId": "a88059fb579551382e628fef936a0be7551570bc",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    }
+  ]
+}
