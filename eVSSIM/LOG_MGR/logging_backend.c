@@ -17,6 +17,9 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <unistd.h>
+#include <sys/types.h>
+#include <linux/unistd.h>
 
 #include "logging_backend.h"
 
@@ -212,6 +215,9 @@ int logger_read(Logger_Pool* logger_pool, Byte* buffer, int length) {
                 log->tail += number_bytes_to_read_in_log;
                 number_of_bytes_to_read -= number_bytes_to_read_in_log;
             }
+        } else {
+            // The current log is clean, we have nothing to read
+            return 0;
         }
 
         // save log->next

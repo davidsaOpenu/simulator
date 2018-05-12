@@ -76,6 +76,7 @@ void rt_log_analyzer_loop(RTLogAnalyzer* analyzer, int max_logs) {
         // read the log type, while listening to analyzer->exit_loop_flag
         int log_type;
         int bytes_read = 0;
+        int bytes_read_last_read = 0;
         while (bytes_read < sizeof(log_type)) {
             if (analyzer->exit_loop_flag)
                 break;
@@ -93,8 +94,14 @@ void rt_log_analyzer_loop(RTLogAnalyzer* analyzer, int max_logs) {
                 for (subscriber_id = 0; subscriber_id < analyzer->subscribers_count; subscriber_id++)
                     analyzer->hooks[subscriber_id](stats, analyzer->hooks_ids[subscriber_id]);
             }
-            bytes_read += logger_read(analyzer->logger, ((Byte*)&log_type) + bytes_read,
+            bytes_read_last_read = logger_read(analyzer->logger, ((Byte*)&log_type) + bytes_read,
                                       sizeof(log_type) - bytes_read);
+            if (0 == bytes_read_last_read) {
+                // We have nothing to read, we will got into a penalty timeoff for the analyzer loop.
+                // NOTE Ignoring interrupt-possible failures of the sleep.
+                (void)usleep(100000); // 0.1 Seconds
+            }
+            bytes_read += bytes_read_last_read;
         }
 
         // exit if needed
