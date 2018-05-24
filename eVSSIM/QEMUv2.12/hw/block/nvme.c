@@ -25,6 +25,7 @@
  */
 
 #include "qemu/osdep.h"
+#include "qemu/range.h"
 #include "hw/block/block.h"
 #include "hw/hw.h"
 #include "hw/pci/msix.h"
@@ -801,6 +802,7 @@ static void nvme_clear_ctrl(NvmeCtrl *n)
     }
     for (i = 0; i < n->num_queues; i++) {
         if (n->cq[i] != NULL) {
+            //nvme_irq_deassert(n, n->cq[i]);
             nvme_free_cq(n->cq[i], n);
         }
     }
@@ -1194,14 +1196,30 @@ static const MemoryRegionOps nvme_cmb_ops = {
     },
 };
 
+static uint32_t nvme_pci_read_config(PCIDevice *pci_dev, uint32_t addr, int len)
+{
+    uint32_t val; /* Value to be returned */
+
+    val = pci_default_read_config(pci_dev, addr, len);
+    if (ranges_overlap(addr, len, PCI_BASE_ADDRESS_2, 4) && (!(pci_dev->config[PCI_COMMAND] & PCI_COMMAND_IO))) {
+        /* When CMD.IOSE is not set */
+        val = 0 ;
+    }
+    return val;
+}
+
 static void nvme_realize(PCIDevice *pci_dev, Error **errp)
 {
+    static const uint16_t nvme_pm_offset = 0x80;
+    static const uint16_t nvme_pcie_offset = nvme_pm_offset + PCI_PM_SIZEOF;
+
     NvmeCtrl *n = NVME(pci_dev);
     NvmeIdCtrl *id = &n->id_ctrl;
 
     int i;
     int64_t bs_size;
     uint8_t *pci_conf;
+    uint8_t *pci_wmask;
 
     if (!n->conf.blk) {
         error_setg(errp, "drive property not set");
@@ -1226,10 +1244,27 @@ static void nvme_realize(PCIDevice *pci_dev, Error **errp)
     }
 
     pci_conf = pci_dev->config;
+    pci_wmask = pci_dev->wmask;
     pci_conf[PCI_INTERRUPT_PIN] = 1;
     pci_config_set_prog_interface(pci_dev->config, 0x2);
     pci_config_set_class(pci_dev->config, PCI_CLASS_STORAGE_EXPRESS);
-    pcie_endpoint_cap_init(&n->parent_obj, 0x80);
+
+    // Disable BME, MSE and IOSE
+    pci_conf[PCI_COMMAND] &= ~(PCI_COMMAND_IO | PCI_COMMAND_MEMORY | PCI_COMMAND_MASTER | PCI_COMMAND_INTX_DISABLE);
+
+    // Configure the PMC capability
+    (void)pci_add_capability(pci_dev, PCI_CAP_ID_PM, nvme_pm_offset, PCI_PM_SIZEOF, errp);
+    if (NULL != *errp) {
+        return;
+    }
+
+    //  - PCI Power Management v1.2, No PME support, No Soft Reset, Make state writeable
+    pci_set_word(pci_conf + nvme_pm_offset + PCI_PM_PMC, PCI_PM_CAP_VER_1_2);
+    pci_set_word(pci_conf + nvme_pm_offset + PCI_PM_CTRL, PCI_PM_CTRL_NO_SOFT_RESET);
+    pci_set_word(pci_wmask + nvme_pm_offset + PCI_PM_CTRL, PCI_PM_CTRL_STATE_MASK);
+
+    // PCIE Capability
+    pcie_endpoint_cap_init(&n->parent_obj, nvme_pcie_offset);
 
     n->num_namespaces = 1;
     n->num_queues = 64;
@@ -1320,6 +1355,8 @@ static void nvme_realize(PCIDevice *pci_dev, Error **errp)
             cpu_to_le64(n->ns_size >>
                 id_ns->lbaf[NVME_ID_NS_FLBAS_INDEX(ns->id_ns.flbas)].ds);
     }
+
+    fprintf(stderr, "HELLO WORLD %hd\n", pci_conf[PCI_STATUS]);
 }
 
 static void nvme_exit(PCIDevice *pci_dev)
@@ -1355,6 +1392,7 @@ static void nvme_class_init(ObjectClass *oc, void *data)
     PCIDeviceClass *pc = PCI_DEVICE_CLASS(oc);
 
     pc->realize = nvme_realize;
+    pc->config_read = nvme_pci_read_config;
     pc->exit = nvme_exit;
     pc->class_id = PCI_CLASS_STORAGE_EXPRESS;
     pc->vendor_id = PCI_VENDOR_ID_INTEL;

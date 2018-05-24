@@ -245,10 +245,18 @@ int pci_bus_get_irq_level(PCIBus *bus, int irq_num)
  * state change. */
 static void pci_update_irq_status(PCIDevice *dev)
 {
+    if (0 == strcmp(dev->name, "nvme")) {
+        fprintf(stderr, "IRQ BEFORE %hd %hd %hd %hhu\n", dev->config[PCI_COMMAND], dev->config[PCI_STATUS], dev->config[PCI_STATUS] & PCI_STATUS_INTERRUPT, dev->irq_state);
+    }
+
     if (dev->irq_state) {
         dev->config[PCI_STATUS] |= PCI_STATUS_INTERRUPT;
     } else {
         dev->config[PCI_STATUS] &= ~PCI_STATUS_INTERRUPT;
+    }
+
+    if (0 == strcmp(dev->name, "nvme")) {
+        fprintf(stderr, "IRQ AFTER %hd %hd %hd %hhu\n", dev->config[PCI_COMMAND], dev->config[PCI_STATUS], dev->config[PCI_STATUS] & PCI_STATUS_INTERRUPT, dev->irq_state);
     }
 }
 
@@ -293,6 +301,10 @@ static void pci_do_device_reset(PCIDevice *dev)
 
     msi_reset(dev);
     msix_reset(dev);
+
+    if (0 == strcmp(dev->name, "nvme")) {
+        fprintf(stderr, "DO RESET %hd %hd\n", dev->config[PCI_COMMAND], dev->config[PCI_STATUS]);
+    }
 }
 
 /*
@@ -301,6 +313,9 @@ static void pci_do_device_reset(PCIDevice *dev)
  */
 void pci_device_reset(PCIDevice *dev)
 {
+    if (0 == strcmp(dev->name, "nvme")) {
+        fprintf(stderr, "RESET %s\n", dev->name);
+    }
     qdev_reset_all(&dev->qdev);
     pci_do_device_reset(dev);
 }
@@ -1294,6 +1309,10 @@ static void pci_update_mappings(PCIDevice *d)
     int i;
     pcibus_t new_addr;
 
+    if (0 == strcmp(d->name, "nvme")) {
+        fprintf(stderr, "MAPPING BEFORE %hd %hd\n", d->config[PCI_COMMAND], d->config[PCI_STATUS]);
+    }
+
     for(i = 0; i < PCI_NUM_REGIONS; i++) {
         r = &d->io_regions[i];
 
@@ -1327,6 +1346,10 @@ static void pci_update_mappings(PCIDevice *d)
     }
 
     pci_update_vga(d);
+
+    if (0 == strcmp(d->name, "nvme")) {
+        fprintf(stderr, "MAPPING AFTER %hd %hd\n", d->config[PCI_COMMAND], d->config[PCI_STATUS]);
+    }
 }
 
 static inline int pci_irq_disabled(PCIDevice *d)
