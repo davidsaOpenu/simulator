@@ -25,6 +25,7 @@
  */
 
 #include "qemu/osdep.h"
+#include "qemu/range.h"
 #include "hw/block/block.h"
 #include "hw/hw.h"
 #include "hw/pci/msix.h"
@@ -37,6 +38,9 @@
 #include "qemu/log.h"
 #include "trace.h"
 #include "nvme.h"
+
+#define PCI_EXP_LNKCAP_AOC 0x00400000 /* ASPM Optionality Compliance (AOC) */
+#define PCI_EXP_DEVCAP2_CTDS 0x10 /* Completion Timeout Disable Supported (CTDS) */
 
 #define NVME_GUEST_ERR(trace, fmt, ...) \
     do { \
@@ -805,6 +809,10 @@ static void nvme_clear_ctrl(NvmeCtrl *n)
         }
     }
 
+    // All CQs are down, clear pin-based interrupt status
+    n->irq_status = 0;
+    nvme_irq_check(n);
+
     blk_flush(n->conf.blk);
     n->bar.cc = 0;
 }
@@ -965,20 +973,27 @@ static void nvme_write_bar(NvmeCtrl *n, hwaddr offset, uint64_t data,
                 trace_nvme_mmio_start_success();
                 n->bar.csts = NVME_CSTS_READY;
             }
+            fprintf(stderr, "ENABLE 0x%"PRIx32"\n\n", n->bar.csts);
         } else if (!NVME_CC_EN(data) && NVME_CC_EN(n->bar.cc)) {
             trace_nvme_mmio_stopped();
             nvme_clear_ctrl(n);
             n->bar.csts &= ~NVME_CSTS_READY;
+
+            fprintf(stderr, "DISABLE 0x%"PRIx32"\n\n", n->bar.csts);
         }
         if (NVME_CC_SHN(data) && !(NVME_CC_SHN(n->bar.cc))) {
             trace_nvme_mmio_shutdown_set();
             nvme_clear_ctrl(n);
             n->bar.cc = data;
             n->bar.csts |= NVME_CSTS_SHST_COMPLETE;
+
+            fprintf(stderr, "SHUTDOWN 0x%"PRIx32"\n\n", n->bar.csts);
         } else if (!NVME_CC_SHN(data) && NVME_CC_SHN(n->bar.cc)) {
             trace_nvme_mmio_shutdown_cleared();
             n->bar.csts &= ~NVME_CSTS_SHST_COMPLETE;
             n->bar.cc = data;
+
+            fprintf(stderr, "ROLLUP 0x%"PRIx32"\n\n", n->bar.csts);
         }
         break;
     case 0x1C:  /* CSTS */
@@ -1194,14 +1209,31 @@ static const MemoryRegionOps nvme_cmb_ops = {
     },
 };
 
+static uint32_t nvme_pci_read_config(PCIDevice *pci_dev, uint32_t addr, int len)
+{
+    uint32_t val; /* Value to be returned */
+
+    val = pci_default_read_config(pci_dev, addr, len);
+    if (ranges_overlap(addr, len, PCI_BASE_ADDRESS_2, 4) && (!(pci_dev->config[PCI_COMMAND] & PCI_COMMAND_IO))) {
+        /* When CMD.IOSE is not set */
+        val = 0 ;
+    }
+
+    return val;
+}
+
 static void nvme_realize(PCIDevice *pci_dev, Error **errp)
 {
+    static const uint16_t nvme_pm_offset = 0x80;
+    static const uint16_t nvme_pcie_offset = nvme_pm_offset + PCI_PM_SIZEOF;
+
     NvmeCtrl *n = NVME(pci_dev);
     NvmeIdCtrl *id = &n->id_ctrl;
 
     int i;
     int64_t bs_size;
     uint8_t *pci_conf;
+    uint8_t *pci_wmask;
 
     if (!n->conf.blk) {
         error_setg(errp, "drive property not set");
@@ -1226,14 +1258,45 @@ static void nvme_realize(PCIDevice *pci_dev, Error **errp)
     }
 
     pci_conf = pci_dev->config;
+    pci_wmask = pci_dev->wmask;
     pci_conf[PCI_INTERRUPT_PIN] = 1;
     pci_config_set_prog_interface(pci_dev->config, 0x2);
     pci_config_set_class(pci_dev->config, PCI_CLASS_STORAGE_EXPRESS);
-    pcie_endpoint_cap_init(&n->parent_obj, 0x80);
+
+    // Configure the PMC capability
+    (void)pci_add_capability(pci_dev, PCI_CAP_ID_PM, nvme_pm_offset, PCI_PM_SIZEOF, errp);
+    if (NULL != *errp) {
+        return;
+    }
+
+    //  - PCI Power Management v1.2, No PME support, No Soft Reset, Make state writeable
+    pci_set_word(pci_conf + nvme_pm_offset + PCI_PM_PMC, PCI_PM_CAP_VER_1_2);
+    pci_set_word(pci_conf + nvme_pm_offset + PCI_PM_CTRL, PCI_PM_CTRL_NO_SOFT_RESET);
+    pci_set_word(pci_wmask + nvme_pm_offset + PCI_PM_CTRL, PCI_PM_CTRL_STATE_MASK);
+
+    // Disable QEMU default QEMU_PCIE_LNKSTA_DLLLA to disabled active flag in the Link Status Register of PCIE
+    pci_dev->cap_present &= ~(QEMU_PCIE_LNKSTA_DLLLA);
+
+    // PCIE Capability
+    pcie_endpoint_cap_init(&n->parent_obj, nvme_pcie_offset);
+
+    // PCIE Function Level Reset (FLRC) as required by 1.2 spec
+    pcie_cap_flr_init(&n->parent_obj);
+
+    // PCIE Configured with L0s by default by QEMU, configure missing AOC flag required by compliance
+    pci_long_test_and_set_mask(pci_conf + pci_dev->exp.exp_cap + PCI_EXP_LNKCAP, PCI_EXP_LNKCAP_AOC);
+
+    // Compliance requires Completion Timeout Disable Supported (CTDS).
+    pci_long_test_and_set_mask(pci_conf + pci_dev->exp.exp_cap + PCI_EXP_DEVCAP2, PCI_EXP_DEVCAP2_CTDS);
+
+    // Make the End-End TLP Prefix readonly as NVME spec doesnt acknoledge this field
+    pci_word_test_and_clear_mask(pci_wmask + pci_dev->exp.exp_cap + PCI_EXP_DEVCTL2, PCI_EXP_DEVCTL2_EETLPPB);
 
     n->num_namespaces = 1;
     n->num_queues = 64;
-    n->reg_size = pow2ceil(0x1004 + 2 * (n->num_queues + 1) * 4);
+    //n->reg_size = pow2ceil(0x1004 + 2 * (n->num_queues + 1) * 4);
+    // The compliane fail to properly check this field and only supports a very specific size of BAR
+    n->reg_size = 0x4000;
     n->ns_size = bs_size / (uint64_t)n->num_namespaces;
 
     n->namespaces = g_new0(NvmeNamespace, n->num_namespaces);
@@ -1245,6 +1308,10 @@ static void nvme_realize(PCIDevice *pci_dev, Error **errp)
     pci_register_bar(&n->parent_obj, 0,
         PCI_BASE_ADDRESS_SPACE_MEMORY | PCI_BASE_ADDRESS_MEM_TYPE_64,
         &n->iomem);
+
+    // Expose the NVME memory through Address Space IO (Optional by spec)
+    pci_register_bar(&n->parent_obj, 2, PCI_BASE_ADDRESS_SPACE_IO, &n->iomem);
+
     msix_init_exclusive_bar(&n->parent_obj, n->num_queues, 4, NULL);
 
     id->vid = cpu_to_le16(pci_get_word(pci_conf + PCI_VENDOR_ID));
@@ -1355,6 +1422,7 @@ static void nvme_class_init(ObjectClass *oc, void *data)
     PCIDeviceClass *pc = PCI_DEVICE_CLASS(oc);
 
     pc->realize = nvme_realize;
+    pc->config_read = nvme_pci_read_config;
     pc->exit = nvme_exit;
     pc->class_id = PCI_CLASS_STORAGE_EXPRESS;
     pc->vendor_id = PCI_VENDOR_ID_INTEL;

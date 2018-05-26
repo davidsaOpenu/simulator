@@ -49,7 +49,7 @@ evssim_run_at_folder () {
 evssim_run_at_path () {
     local path=$1
     local args="${@:2}"
-    docker run --rm -i $docker_extra_tty --privileged --env-file <(evssim_all_env) -v $EVSSIM_ROOT_PATH:$EVSSIM_DOCKER_ROOT_PATH $EVSSIM_DOCKER_IMAGE_NAME bash -c "cd $path; $args"
+    docker run --rm -i $docker_extra_tty --privileged -p 2222:2222 -p 5900:5900 --env-file <(evssim_all_env) -v $EVSSIM_ROOT_PATH:$EVSSIM_DOCKER_ROOT_PATH $EVSSIM_DOCKER_IMAGE_NAME bash -c "cd $path; $args"
 }
 
 evssim_run () {
@@ -112,7 +112,12 @@ evssim_qemu () {
         timeout="timeout $EVSSIM_DOCKER_MAX_TIMEOUT_IN_MINUTES"m
     fi
 
-    local args="cd $EVSSIM_DOCKER_ROOT_PATH/$EVSSIM_QEMU_FOLDER/hw && $timeout ../x86_64-softmmu/qemu-system-x86_64 -m 4096 -smp 4 -hda $image -device nvme -redir tcp:$EVSSIM_QEMU_PORT::22 -vnc :$EVSSIM_QEMU_VNC -machine accel=kvm -kernel $kernel -initrd $initrd -bios $bios -append '$append'";
+    local trace_config="";
+    if [[ "$EVSSIM_QEMU_TRACE_NVME" =~ y.* ]]; then
+        trace_config="-trace nvme*"
+    fi
+
+    local args="cd $EVSSIM_DOCKER_ROOT_PATH/$EVSSIM_QEMU_FOLDER/hw && qemu-img create -f raw $EVSSIM_DOCKER_ROOT_PATH/$EVSSIM_DATA_FOLDER/nvme.img 1g >/dev/null && $timeout ../x86_64-softmmu/qemu-system-x86_64 $trace_config -m 4096 -smp 4 -drive format=raw,file=$image -drive format=raw,file=$EVSSIM_DOCKER_ROOT_PATH/$EVSSIM_DATA_FOLDER/nvme.img,if=none,id=memory -device nvme,drive=memory,serial=1 -device e1000,netdev=net0 -netdev user,id=net0,hostfwd=tcp::$EVSSIM_QEMU_PORT-:22 -vnc :$EVSSIM_QEMU_VNC -machine accel=kvm -kernel $kernel -initrd $initrd -L /usr/share/seabios -L ../pc-bios/optionrom -append '$append'";
 
     local ports=""
     for i in $(echo $EVSSIM_DOCKER_PORTS | tr -d "\n" | tr "," " "); do
