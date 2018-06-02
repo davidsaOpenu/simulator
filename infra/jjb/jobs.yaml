@@ -1,0 +1,42 @@
+- job:
+    name: test
+    project-type: pipeline
+    dsl:
+        !include-raw:  
+            - Main.groovy
+    triggers:
+        - gerrit:
+            server-name: 'https://review.gerrithub.io'
+            trigger-on:
+                - patchset-created-event:
+                      exclude-drafts: true
+                      exclude-trivial-rebase: true
+                      exclude-no-code-change: true 
+                - comment-added-contains-event:
+                      comment-contains-value: '(?i)^(Patch Set [0-9]+:)?( [\w\\+-]*)*(\n\n)?\s*(recheck)$'
+            projects:
+                - project-compare-type: 'PLAIN'
+                  project-pattern: 'davidsaOpenu/simulator'
+                  branches:
+                    - branch-compare-type: 'REG_EXP'
+                      branch-pattern: 'master'
+            failure-message: 'FAILURE!'
+            successful-message: 'SUCCESS!'
+            skip-vote:
+                successful: false
+                failed: false
+                unstable: false
+                notbuilt: false
+            silent-start: false
+            override-votes: true
+            gerrit-build-started-verified-value: 0
+            gerrit-build-successful-verified-value: 1
+            gerrit-build-unstable-verified-value: -1
+            gerrit-build-failed-verified-value: -1
+    parameters:
+        - string:
+            name: GERRIT_REFSPEC
+            default: 'refs/heads/master'
+        - string:
+            name: GERRIT_BRANCH
+            default: 'origin/master'
