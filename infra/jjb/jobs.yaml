@@ -1,0 +1,13 @@
+- job:
+    name: test
+    project-type: pipeline
+    dsl:
+        !include-raw:  
+            - main.dsl
+    parameters:
+        - string:
+            name: GERRIT_REFSPEC
+            default: 'refs/heads/master'
+        - string:
+            name: GERRIT_BRANCH
+            default: 'origin/master'
