@@ -1,4 +1,4 @@
 #!/bin/bash
 source ./builder.sh
 
-evssim_copy_tools
+evssim_qemu_fresh_image

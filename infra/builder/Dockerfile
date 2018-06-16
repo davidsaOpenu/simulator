@@ -53,15 +53,7 @@ RUN apt-get -y install libboost-all-dev
 RUN apt-get -y install eatmydata
 RUN apt-get -y install strace lsof
 
-# QT3 Hack. Install packages from precise repo
-#RUN apt-get install -y libcups2-dev && \
-#    mv /etc/apt/sources.list /etc/apt/sources.list.disable && \
-#    echo "deb http://archive.ubuntu.com/ubuntu/ precise main universe multiverse" > /etc/apt/sources.list && \
-#    apt-get update && \
-#    apt-get install -y qt3-dev-tools libqt3-mt-dev && \
-#    mv /etc/apt/sources.list.disable /etc/apt/sources.list
-
-RUN apt-get install -y libxft-dev libaudio-dev libcups2-dev libcups2-dev libcups2 libjpeg62 libaudio2 libfontconfig1 libfreetype6 libice6 libice-dev libsm6 libsm-dev libxcursor1 libxcursor-dev libxft2 libxi6 libxi-dev libxinerama1 libxinerama-dev libxrandr2 libxrandr-dev fontconfig libxmu6 libxmu-dev liblcms1 liblcms-dev libfontconfig1-dev
+RUN apt-get install -y libpixman-1-dev libxft-dev libaudio-dev libcups2-dev libcups2-dev libcups2 libjpeg62 libaudio2 libfontconfig1 libfreetype6 libice6 libice-dev libsm6 libsm-dev libxcursor1 libxcursor-dev libxft2 libxi6 libxi-dev libxinerama1 libxinerama-dev libxrandr2 libxrandr-dev fontconfig libxmu6 libxmu-dev liblcms1 liblcms-dev libfontconfig1-dev
 RUN mkdir /tmp/qt3 && cd /tmp/qt3 && \
     wget http://launchpadlibrarian.net/77202866/libmng1_1.0.10-1ubuntu1_amd64.deb && \
     wget http://launchpadlibrarian.net/77202867/libmng-dev_1.0.10-1ubuntu1_amd64.deb && \
