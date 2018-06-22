@@ -1,5 +1,8 @@
 FROM tianon/centos:6.5
 
+# Prepare package db
+RUN rpm --rebuilddb; yum install -y yum-plugin-ovl
+
 # Install base packages
 RUN yum install -y vim \
   git \
