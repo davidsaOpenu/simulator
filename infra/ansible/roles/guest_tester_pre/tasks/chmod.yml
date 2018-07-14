@@ -1,0 +1,2 @@
+- name: run me even after an error
+  shell: chmod  -R 777 {{ dest }}
