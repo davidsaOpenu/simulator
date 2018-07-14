@@ -4,7 +4,7 @@
 - include: gtest.yml
 # Verify bear exists
 - include: bear.yml
-# Download and build libwebsockets if needed
+# Verify libwebsockets exist
 - include: libwebsockets.yml
-# Download and build qt3 if needed
+# Verify qt3 exist
 - include: qt3.yml
