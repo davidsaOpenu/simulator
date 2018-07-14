@@ -1,4 +1,4 @@
-FROM tianon/centos:6.5
+centos:centos7
 
 # Install base packages
 RUN yum install -y vim \
@@ -21,7 +21,6 @@ RUN yum install -y vim \
   libvncserver-devel \
   openssl-devel \
   pciutils-devel \
-  ansible \
   libpng-1.2.49-2.el6_7.x86_64 \
   libvirt-client \
   python-pip \
@@ -38,16 +37,28 @@ RUN wget http://python.org/ftp/python/2.7.6/Python-2.7.6.tar.xz && \
   ./configure --prefix=/usr/local --enable-unicode=ucs4 --enable-shared LDFLAGS="-Wl,-rpath /usr/local/lib" && \
   make && make altinstall
 
+# Install Ansible
+RUN yum install -y ansible
+
 
 # Install Gtest
 ENV GTEST_HOME /opt
-RUN wget -qO- https://github.com/google/googletest/archive/release-1.7.0.tar.gz | tar xz -C $GTEST_HOME/ && \
-  mv $GTEST_HOME/googletest-release-1.7.0 $GTEST_HOME/gtest
+RUN wget -qO- https://github.com/google/googletest/archive/release-1.7.0.tar.gz |tar xz -C $GTEST_HOME/ && \
+mv $GTEST_HOME/googletest-release-1.7.0 $GTEST_HOME/gtest
 
 RUN mkdir -p $GTEST_HOME/gtest/lib && \
-  cd $GTEST_HOME/gtest/lib && \
-  cmake .. && \
-  make
+    cd $GTEST_HOME/gtest/lib && \
+    cmake .. && \
+    make
+  
+# Install websockets
+RUN wget https://codeload.github.com/warmcat/libwebsockets/zip/v2.4-stable && \
+    rm -rf /opt/libwebsockets && \
+    unzip v2.4-stable -d /opt && \
+    mv /opt/libwebsockets-2.4-stable /opt/libwebsockets && \
+    cd /opt/libwebsockets && cmake . && \
+    make && \
+    make install
 
 # Install Bear
 ENV BEAR_ZIP_FILENAME bear.zip
@@ -58,6 +69,15 @@ RUN wget https://github.com/rizsotto/Bear/archive/master.zip -O $BEAR_ZIP_FILENA
   make install && \
   ln -s /usr/local/bin/bear /usr/bin/bear && \
   sed  -i -e "s/env\ python/env python2.7/g" /usr/local/bin/bear
+ 
+
+#istall qt
+RUN yum install -y qt3 qt3-devel
+RUN ln -s /usr/lib64/qt-3.3/bin/qmake /bin/uic && \
+    ln -s /usr/lib64/qt-3.3/bin/qmake /bin/qmake
+ENV PATH "/usr/lib64/qt-3.3/bin/:${PATH}"
+
+
 
 ADD container_aliases /root/.bash_aliases
 ADD run-ansible /script/run-ansible
