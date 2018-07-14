@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-#include <qapplication.h>
+#include <QApplication>
 #include <unistd.h>
 #include <pthread.h>
 
