@@ -11,7 +11,7 @@
   shell: "qmake -o Makefile ssd_monitor_p.pro && make"
   args:
     chdir: "{{ dest }}/eVSSIM/MONITOR/SSD_MONITOR_PM"
-  when: build_ssd_monitor
+  when: build_ssd_monitor and ansible_distribution == 'Ubuntu'
 
 - name: compile osc-osd
   shell: "make target_clean && make target"
