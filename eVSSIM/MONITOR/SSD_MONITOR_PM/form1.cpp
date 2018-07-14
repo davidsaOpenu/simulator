@@ -1,76 +1,74 @@
-/***************************************************************************
-** ui.h extension file, included from the uic-generated form implementation.
-**
-** If you want to add, delete, or rename functions or slots, use
-** Qt Designer to update this file, preserving your code.
-**
-** You should not define a constructor or destructor in this file.
-** Instead, write your code in functions called init() and destroy().
-** These will automatically be called by the form's constructor and
-** destructor.
-*****************************************************************************/
+
+#include <QFile>
+#include <QFileDialog>
+
+#include <qvariant.h>
+#include <qimage.h>
+#include <qpixmap.h>
+
 #include "form1.h"
-#include "monitor_common.h"
-#include <qfile.h>
-#include <qfiledialog.h>
-#include <qdir.h>
-#include <stdlib.h>
-#include <sys/time.h>
-#include <stdio.h>
+#include "ui_form1.h"
 
-#define REG_IS_WRITE 706
 
-/**
- * Set the text of the object
- * @param obj the object to call setText on
- * @param str the string to use for the formatting
- * @param var the variable to pass the formatter
- * @param {char*} buf the buffer to use when formatting
+/*
+ *  Constructs a Form1 as a child of 'parent', with the
+ *  name 'name' and widget flags set to 'f'.
+ *
+ *  The dialog will by default be modeless, unless you set 'modal' to
+ *  true to construct a modal dialog.
  */
-#define SET_TEXT(obj, str, var, buf)    \
-    do {                                \
-        sprintf(buf, str, var);         \
-        obj->setText(buf);              \
-    } while(0)
-/**
- * Set the text of the object to the integer given
- * @param obj the object to call setText on
- * @param {int} var the integer value
- * @param {char*} buf the buffer to use when formatting
- */
-#define SET_TEXT_I(obj, var, buf) SET_TEXT(obj, "%d", var, buf)
-/**
- * Set the text of the object to the double given
- * @param obj the object to call setText on
- * @param {int} var the integer value
- * @param {char*} buf the buffer to use when formatting
- */
-#define SET_TEXT_F(obj, var, buf) SET_TEXT(obj, "%0.3f", var, buf)
+Form1::Form1(QWidget *parent) :
+    QDialog(parent),
+    ui(new Ui::Form1)
+{
+    /* initialize variables. */
+	init_var();
+	
+	ui->setupUi(this);
 
-long long int get_usec(void){
-	long long int t = 0;
-	struct timeval tv;
-	struct timezone tz;
+	
+	printf("INIT SSD_MONITOR!!!\n");
 
-	gettimeofday(&tv, &tz);
-	t = tv.tv_sec;
-	t *= 1000000;
-	t += tv.tv_usec;
 
-	return t;
+
+
+	/* initialize timer. */
+	timer = new QTimer(this);
+	connect(timer, SIGNAL(timeout()), this, SLOT(onTimer()));
+	timer->start(1);
+	
+    /* initialize socket connected with VSSIM */
+    sock = new QTcpSocket(this);
+    connect(sock, SIGNAL(readyRead()), this, SLOT(onReceive()));
+	connect(sock, SIGNAL(connectionClosed()), this, SLOT(accept()));
+	sock->connectToHost("127.0.0.1", 9999);
 }
+
+/*
+ *  Destroys the object and frees any allocated resources
+ */
+Form1::~Form1()
+{
+    delete ui;
+}
+
+/*
+ * initialize variables.
+ */
 void Form1::init_var()
 {
+    this->setWindowTitle("SSD Monitor");
+
 	WriteSecCount = 0;
 	ReadSecCount = 0;
 	WriteCount = 0;
 	ReadCount = 0;
-	PowCount = 0;
+
 
 	RandMergeCount = 0;
 	SeqMergeCount = 0;
-	ExchangeCount = 0;
-	WriteSectorCount = 0;
+
+	WriteSecCount = 0;
 	TrimEffect = 0;
 	TrimCount = 0;
 	WrittenCorrectCount = 0;
@@ -80,32 +78,24 @@ void Form1::init_var()
 	TimeProg = 0;
 	WriteTime = 0;
 	ReadTime = 0;
-}
 
-void Form1::btnConnect_clicked()
+    fflush(stdout);}
+
+
+
+
+void Form1::onTimer()
 {
-
-    
+    char sz_timer[20];
+    TimeProg++;
+    sprintf(sz_timer, "%lld", TimeProg);
+    ui->txtTimeProg->setText(sz_timer);
 }
 
+/*
+ * callback method for socket.
+ */
 
-void Form1::init()
-{
-	printf("INIT SSD_MONITOR!!!\n");
-	init_var();
-
-	sock = new QSocket(this);
-	connect(sock, SIGNAL(readyRead()), this, SLOT(onReceive()));
-	connect(sock, SIGNAL(connectionClosed()), this, SLOT(accept()));
-
-    	/* socket의 서버 설정. 실험 pc의 서버와 동일하게 한다. */
-	sock->connectToHost("127.0.0.1", 9999);
-
-	// timer Setting
-	timer = new QTimer(this);
-	connect(timer, SIGNAL(timeout()), this, SLOT(onTimer()));
-	timer->start(1, false);
-}
 
 void Form1::onReceive()
 {
@@ -118,35 +108,35 @@ void Form1::onReceive()
 	{
 
 		szCmd = sock->readLine();
-	 	szCmdList = QStringList::split(" ", szCmd);
+        szCmdList = szCmd.split(" ");
 
-		/* WRITE인 소켓을 받았을 경우 */
+        /* WRITE : write count, write sector count, write speed. */
 		if(szCmdList[0] == "WRITE")
 		{
 			if(szCmdList[1] == "PAGE"){        
-        			unsigned int length;
-				sscanf(szCmdList[2], "%u", &length);
+        	    unsigned int length;
+				stream >> length;
 				// Write Sector Number Count
 				WriteSecCount += length;
 
 				sprintf(szTemp, "%u", WriteSecCount);
-				txtWriteSectorCount->setText(szTemp);
+				ui->txtWriteSectorCount->setText(szTemp);
 
 				// Write SATA Command Count
 				WriteCount++;  
 				sprintf(szTemp, "%d", WriteCount);
-				txtWriteCount->setText(szTemp);
+				ui->txtWriteCount->setText(szTemp);
 			}
 			else if(szCmdList[1] == "BW"){
 				double time;
-				sscanf(szCmdList[2], "%lf", &time);
+				stream >>time;
 				if(time != 0){
 					sprintf(szTemp, "%0.3lf", time);
-					txtWriteSpeed->setText(szTemp);
+					ui->txtWriteSpeed->setText(szTemp);
 				}
 			}
 	  	}	    
-		/* READ인 소켓을 받았을 경우 */
+		/* READ : read count, read sector count, read speed. */
 		else if(szCmdList[0] == "READ")
 		{
 			if(szCmdList[1] == "PAGE"){
@@ -157,12 +147,12 @@ void Form1::onReceive()
 	  			ReadSecCount += length;
 
 	  			sprintf(szTemp, "%u", ReadSecCount);
-	  			txtReadSectorCount->setText(szTemp);
+	  			ui->txtReadSectorCount->setText(szTemp);
 
 				/* Read SATA Command Count */
 				ReadCount++;
 				sprintf(szTemp, "%d", ReadCount);
-				txtReadCount->setText(szTemp);
+				ui->txtReadCount->setText(szTemp);
 			}
 			else if(szCmdList[1] == "BW"){
 				double time;
@@ -170,7 +160,7 @@ void Form1::onReceive()
 	  			if(time != 0)
 	  			{
 	  				sprintf(szTemp, "%0.3lf", time);
-	  				txtReadSpeed->setText(szTemp);
+	  				ui->txtReadSpeed->setText(szTemp);
 				}
 			}
 		}
@@ -185,7 +175,7 @@ void Form1::onReceive()
   		{
 			GC_NB++;
 			sprintf(szTemp, "%ld", GC_NB);
-			txtGarbageCollectionNB->setText(szTemp);
+			ui->txtGarbageCollectionNB->setText(szTemp);
 
 		}
 		/* WB인 소켓을 받았을 경우 */
@@ -196,12 +186,12 @@ void Form1::onReceive()
 			{
 	      			WrittenCorrectCount += WriteAmpCount;
 	      			sprintf(szTemp, "%ld", WrittenCorrectCount);
-	      			txtWrittenBlockCount->setText(szTemp);
+	      			ui->txtWrittenBlockCount->setText(szTemp);
 			}
 			else
 			{
 	      			sprintf(szTemp, "%f", WriteAmpCount);
-	      			txtWriteAmpCount->setText(szTemp);
+	      			ui->txtWriteAmpCount->setText(szTemp);
 			}
 		}	
 		/* TRIM인 소켓을 받았을 경우 */
@@ -211,7 +201,7 @@ void Form1::onReceive()
 			{
 				TrimCount++;
 				sprintf(szTemp, "%d", TrimCount);
-				txtTrimCount->setText(szTemp);	    
+				ui->txtTrimCount->setText(szTemp);	    
 			}
 			else
 			{
@@ -219,7 +209,7 @@ void Form1::onReceive()
 				sscanf(szCmdList[2], "%d", &effect);
 				TrimEffect+= effect;
 				sprintf(szTemp, "%d", TrimEffect);
-				txtTrimEffect->setText(szTemp);	
+				ui->txtTrimEffect->setText(szTemp);	
 			}
 		}
 		/* UTIL인 소켓을 받았을 경우 */
@@ -228,35 +218,41 @@ void Form1::onReceive()
 			double util = 0;
 			sscanf(szCmdList[1], "%lf", &util);
 			sprintf(szTemp, "%lf", util);
-			txtSsdUtil->setText(szTemp);
+			ui->txtSsdUtil->setText(szTemp);
 	  	}
 
-		txtDebug->setText(szCmd);
+		ui->txtDebug->setText(szCmd);
 	} // end while
 }
 
 
+/*
+ * callback method for reset button click.
+ */
 void Form1::btnInit_clicked()
 {
     init_var();
 
-    txtWriteCount->setText("0");
-    txtWriteSpeed->setText("0");
-    txtWriteSectorCount->setText("0");
-    txtReadCount->setText("0");
-    txtReadSpeed->setText("0");
-    txtReadSectorCount->setText("0");
-    txtGarbageCollectionNB->setText("0");
-    txtGarbageCollection->setText("0");
-    txtGCStart->setText("0"); 
-    txtTrimCount->setText("0");
-    txtTrimEffect->setText("0");
-    txtWrittenBlockCount->setText("0");
-    txtWriteAmpCount->setText("0");
-    txtDebug->setText("");
+    ui->txtWriteCount->setText("0");
+    ui->txtWriteSpeed->setText("0");
+    ui->txtWriteSectorCount->setText("0");
+    ui->txtReadCount->setText("0");
+    ui->txtReadSpeed->setText("0");
+    ui->txtReadSectorCount->setText("0");
+    ui->txtGarbageCollectionNB->setText("0");
+    ui->txtGarbageCollection->setText("0");
+    ui->txtGCStart->setText("0"); 
+    ui->txtTrimCount->setText("0");
+    ui->txtTrimEffect->setText("0");
+    ui->txtWrittenBlockCount->setText("0");
+    ui->txtWriteAmpCount->setText("0");
+    ui->txtDebug->setText("");
 }
 
 
+/*
+ * callback method for save button click.
+ */
 void Form1::btnSave_clicked()
 {
 
@@ -302,13 +298,6 @@ void Form1::btnSave_clicked()
     file.close();
 }
 
-void Form1::onTimer()
-{
-    char sz_timer[20];
-    TimeProg++;
-    sprintf(sz_timer, "%lld", TimeProg);
-    txtTimeProg->setText(sz_timer);
-}
 
 /**
  * Update the statistics displayed in the monitor
@@ -365,3 +354,13 @@ bool Form1::event(QEvent* event) {
 
     return QDialog::event(event);
 }
+
+/*
+ *  Sets the strings of the subwidgets using the current
+ *  language.
+ */
+void Form1::languageChange()
+{
+    retranslateUi(this);
+}
+
