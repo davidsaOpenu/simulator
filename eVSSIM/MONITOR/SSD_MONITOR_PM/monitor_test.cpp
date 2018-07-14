@@ -14,17 +14,12 @@
  * limitations under the License.
  */
 
-#include <qapplication.h>
+#include <QApplication>
 #include <unistd.h>
 #include <pthread.h>
 
 #include "monitor_common.h"
 #include "form1.h"
-
-
-Form1* Form1::Instance = NULL;
-pthread_mutex_t Form1::InstanceLock = PTHREAD_MUTEX_INITIALIZER;
-pthread_cond_t Form1::InstanceCondition = PTHREAD_COND_INITIALIZER;
 
 
 void* run_monitor(void*) {
