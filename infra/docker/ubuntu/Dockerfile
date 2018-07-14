@@ -34,9 +34,7 @@ RUN apt-get update && apt-get -y install \
   valgrind \
   curl
 
-#RUN apt-get update && apt-get -y install \
-#  qt3-dev-tools \
-#  libqt3-mt-dev
+
 
 # Install Ansible
 RUN add-apt-repository -y ppa:ansible/ansible && apt-get update && apt-get -y install ansible
@@ -46,8 +44,30 @@ RUN apt-get clean && rm -rf /var/lib/apt/lists/*
 
 # Install Gtest
 ENV GTEST_HOME /opt
-RUN wget -qO- https://github.com/google/googletest/archive/release-1.7.0.tar.gz |tar xz -C $GTEST_HOME/ && mv $GTEST_HOME/googletest-release-1.7.0 $GTEST_HOME/gtest
-RUN mkdir -p $GTEST_HOME/gtest/lib && cd $GTEST_HOME/gtest/lib && cmake .. && make
+RUN wget -qO- https://github.com/google/googletest/archive/release-1.7.0.tar.gz |tar xz -C $GTEST_HOME/ && \
+mv $GTEST_HOME/googletest-release-1.7.0 $GTEST_HOME/gtest
+
+RUN mkdir -p $GTEST_HOME/gtest/lib && \
+    cd $GTEST_HOME/gtest/lib && \
+    cmake .. && \
+    make
+
+# Install websockets
+RUN git clone --branch v2.4-stable https://github.com/warmcat/libwebsockets.git /opt/libwebsockets && \
+    cd /opt/libwebsockets && cmake . && \
+    make && \
+    make install
+
+# Install qt5
+RUN echo "deb http://archive.ubuntu.com/ubuntu trusty main universe multiverse" | tee /etc/apt/sources.list.d/trusty.list && \ 
+    apt-get update && \
+    apt-get -y install qtdeclarative5-dev qt5-default qttools5-dev-tools
+# for 14.04 (https://askubuntu.com/questions/386254/how-to-install-qt3-dev-tools-package)
+#RUN echo "deb http://archive.ubuntu.com/ubuntu precise main universe multiverse" | tee /etc/apt/sources.list.d/precise.list && \
+#    apt-get update && \
+#    apt-get -y install qt3-dev-tools && \
+#    rm /etc/apt/sources.list.d/precise.list && \
+#    apt-get update
 
 ADD container_aliases /root/.bash_aliases
 ADD run-ansible /script/run-ansible
