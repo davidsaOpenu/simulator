@@ -18,8 +18,14 @@ sector_tests: sector_tests.o $(VSSIM_OBJ)
 object_tests: object_tests.o $(VSSIM_OBJ)
 	g++ $(CFLAGS) -Wall -o object_tests object_tests.o $(VSSIM_OBJ) -Wl,-Bstatic -L$(VSSIM_HOME)/osc-osd/osd-util -L$(VSSIM_HOME)/osc-osd/osd-target -losdutil -losdtgt -Wl,-Bdynamic -lsqlite3 -lm -lpthread -lgtest -lgtest_main -lwebsockets
 
-log_mgr_tests: log_mgr_tests.o $(VSSIM_OBJ) rt_analyzer_subscriber.o log_manager_subscriber.o .MONITOR
-	g++ $(CFLAGS) -Wall -o log_mgr_tests log_mgr_tests.o rt_analyzer_subscriber.o log_manager_subscriber.o $(VSSIM_OBJ) $(MONITOR_DIR)/monitor_test.o $(MONITOR_DIR)/form1.o $(MONITOR_DIR)/moc_form1.o -L/usr/share/qt3/lib -L/usr/X11R6/lib -lqt-mt -lXext -lX11 -lm -lpthread -lgtest -lgtest_main -losdutil -losdtgt -lsqlite3 -lwebsockets
+log_mgr_tests: log_mgr_tests.o $(VSSIM_OBJ) rt_analyzer_subscriber.o log_manager_subscriber.o
+	g++ $(CFLAGS) -Wall -o log_mgr_tests log_mgr_tests.o rt_analyzer_subscriber.o log_manager_subscriber.o $(VSSIM_OBJ) -lqt-mt -lXext -lX11 -lm -lpthread -lgtest -lgtest_main -losdutil -losdtgt -lsqlite3 -lwebsockets
+
+# TODO Fix qt installation problem for centos. ATM, qt3 mon is compiled and working only for ununtu.
+# qt installation for centos is not working properly, because more env variabled to be difined manulally, e.g /user/lib64/qt-3.3/include/* files are not recognized.
+# worth checking with vssim original repo to see if qt setup and monitor compilation is operational.
+qt_mon_tests: $(VSSIM_OBJ) .MONITOR
+	g++ $(CFLAGS) -Wall -o qt_mon_tests $(VSSIM_OBJ) $(MONITOR_DIR)/monitor_test.o $(MONITOR_DIR)/form1.o $(MONITOR_DIR)/moc_form1.o -L/usr/share/qt3/lib -L/usr/X11R6/lib -lqt-mt -lXext -lX11 -lm -lpthread -lgtest -lgtest_main
 
 %.o: %.cc
 	g++ -Wall $(CFLAGS) -c $<
