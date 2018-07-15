@@ -1,0 +1,61 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "7ed59078_b4410bbb",
+        "filename": "infra/builder/README",
+        "patchSetId": 14
+      },
+      "lineNbr": 21,
+      "author": {
+        "id": 1007990
+      },
+      "writtenOn": "2018-07-15T05:13:42Z",
+      "side": 1,
+      "message": "Let[s add to env.sh \n\n\nexport PS1\u003d(evssim)$PS1",
+      "revId": "7134406377e59798005ff9443c34a431eb053702",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "959de32f_16592ae3",
+        "filename": "infra/builder/README",
+        "patchSetId": 14
+      },
+      "lineNbr": 22,
+      "author": {
+        "id": 1007990
+      },
+      "writtenOn": "2018-07-15T05:13:42Z",
+      "side": 1,
+      "message": "1. let\u0027s add that one has to be in docker group in order to run this script. \n2. until I have logged out/in the addition to the docker was not reflected (so we need to add here to follow the steps \nin https://docs.docker.com/install/linux/linux-postinstall/#manage-docker-as-a-non-root-user)",
+      "revId": "7134406377e59798005ff9443c34a431eb053702",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "067af9a4_077c79d9",
+        "filename": "infra/builder/README",
+        "patchSetId": 14
+      },
+      "lineNbr": 26,
+      "author": {
+        "id": 1007990
+      },
+      "writtenOn": "2018-07-15T05:13:42Z",
+      "side": 1,
+      "message": "maybe here we opt to the same trick with tmpfs?",
+      "range": {
+        "startLine": 26,
+        "startChar": 0,
+        "endLine": 26,
+        "endChar": 17
+      },
+      "revId": "7134406377e59798005ff9443c34a431eb053702",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    }
+  ]
+}
