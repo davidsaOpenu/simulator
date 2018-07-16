@@ -79,16 +79,6 @@
   pip:
     name: docker
 
-- name: install packages for SSD monitor
-  apt:
-  args:
-    pkg: "{{ item }}"
-    state: installed
-  become: true
-  with_items:
-      - libqt3-mt-dev
-  when: build_ssd_monitor
-
 - name: ensure tmpfs dir exists
   become: true
   file:
