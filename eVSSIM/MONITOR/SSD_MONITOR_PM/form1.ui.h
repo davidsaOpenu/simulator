@@ -94,7 +94,7 @@ void Form1::init()
 	printf("INIT SSD_MONITOR!!!\n");
 	init_var();
 
-	sock = new QSocket(this);
+	sock = new QTcpSocket(this);
 	connect(sock, SIGNAL(readyRead()), this, SLOT(onReceive()));
 	connect(sock, SIGNAL(connectionClosed()), this, SLOT(accept()));
 
