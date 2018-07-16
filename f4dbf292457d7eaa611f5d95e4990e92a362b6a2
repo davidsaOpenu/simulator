@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "a25f97bd_baf938ca",
+        "filename": "infra/ansible/roles/guest_tester_pre/tasks/qemu_reboot.yml",
+        "patchSetId": 1
+      },
+      "lineNbr": 21,
+      "author": {
+        "id": 1006664
+      },
+      "writtenOn": "2018-07-16T15:39:23Z",
+      "side": 1,
+      "message": "I guess it makes sense to truncate the log before the loop? What do you think?",
+      "revId": "f4dbf292457d7eaa611f5d95e4990e92a362b6a2",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    }
+  ]
+}
