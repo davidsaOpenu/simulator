@@ -6,14 +6,3 @@
 
 - name: create SSD configuration file into eVSSIM/tests/host/data
   file: path="{{ dest }}/eVSSIM/tests/host/data/ssd.conf" state=touch
-
-- name: build ssd_monitor
-  shell: "qmake -o Makefile ssd_monitor_p.pro && make"
-  args:
-    chdir: "{{ dest }}/eVSSIM/MONITOR/SSD_MONITOR_PM"
-  when: build_ssd_monitor
-
-- name: compile osc-osd
-  shell: "make target_clean && make target"
-  args:
-      chdir: "{{ dest }}/eVSSIM/osc-osd"

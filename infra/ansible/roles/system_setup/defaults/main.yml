@@ -1,7 +1,5 @@
 ---
 
-build_ssd_monitor: false
-
 # defaults file for docker-ce-
 
 docker_state: present
