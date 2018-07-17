@@ -123,6 +123,11 @@
   args:
     chdir: "{{ dest }}/"
 
+- name: trancate dmesg buffer ring
+  command: sshpass -p esd ssh -o "StrictHostKeyChecking=no" -p 2222 esd@127.0.0.1 "{{ item }}"
+  with_items:
+    - 'echo esd | sudo -S dmesg -C'
+
 - name: prepare for reboot several times
   set_fact:
     boot_loop_list: "{{ boot_loop_list | default([]) + [item | int] }}"
