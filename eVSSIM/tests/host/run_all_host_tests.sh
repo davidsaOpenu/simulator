@@ -9,7 +9,7 @@ CURR_RESULT=$?
 
 # run object tests
 # TODO: uncomment when running time issue is fixed
-# valgrind --leak-check=full --error-exitcode=2 ./object_tests
+valgrind --leak-check=full --error-exitcode=2 ./object_tests
 CURR_RESULT=$?
 if [ $CURR_RESULT -ne 0 ]; then
   RESULT=1
@@ -18,6 +18,7 @@ fi
 # run log manager tests
 # TODO: fix compilation warnings and valgrind complaints
 #valgrind --leak-check=full --error-exitcode=2 ./log_mgr_tests
+./log_mgr_tests
 CURR_RESULT=$?
 if [ $CURR_RESULT -ne 0 ]; then
   RESULT=1
