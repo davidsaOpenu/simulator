@@ -28,13 +28,12 @@
   register: result
   failed_when: "'FAIL' in result.stdout_lines"
 
-# TODO: (davidsa) Requires become: yes. Reenable when docker based jobs will be ready.
-#- name: enable nested KVM support
-#  lineinfile:
-#      dest: "/etc/modprobe.d/dist.conf"
-#      line: "options kvm_{{ kvm_base }} nested=1"
-#      state: present
-#      create: yes
+- name: enable nested KVM support
+  lineinfile:
+      dest: "/etc/modprobe.d/dist.conf"
+      line: "options kvm_{{ kvm_base }} nested=1"
+      state: present
+      create: yes
 
 # A change in the modprobe requires to reload the module
 - name: unload KVM module
