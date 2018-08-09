@@ -26,6 +26,6 @@ fi
 [ ! -d $NVME_COMPL_DIR ] && echo -e "*****\nWARNING - The project 'nvmeCompl' should be cloned and located next to simulator\n*****"
 
 cd $QEMU_DIR/hw
-chmod +x /script/run-ansible
+chmod +x /code/simulator/infra/docker/ubuntu/run-ansible 
 echo -e "\n\nHi you have new aliases to use:\nrun-ansible\n"
 exec "$@"

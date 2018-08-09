@@ -1,9 +1,6 @@
 - block:
   - name: build qemu
     include: build_qemu.yml
-  rescue:
-  - name: chmod all files
-    include: chmod.yml
 
 # Newer version of SeaBIOS is required to allow booting directly with a Linux kernel image.
 - name: overwrite bios.bin

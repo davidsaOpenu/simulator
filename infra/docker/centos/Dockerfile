@@ -79,8 +79,17 @@ RUN ln -s /usr/lib64/qt5/bin/qmake /bin/uic && \
 
 
 ADD container_aliases /root/.bash_aliases
-ADD run-ansible /script/run-ansible
-ADD entry_point.sh /script/entry_point.sh
+#ADD run-ansible /script/run-ansible
+#ADD entry_point.sh /script/entry_point.sh
 WORKDIR /code
-ENTRYPOINT ["/script/entry_point.sh"]
+
+#RUN groupadd jenkins -g 1003
+#RUN useradd -ms /bin/bash jenkins -u 1003 -g 1003
+
+
+ENTRYPOINT ["/code/simulator/infra/docker/centos/entry_point.sh"]
+
+#those 2 lines are appended from outside
+#RUN groupadd `stat -c "%G" .` -g `stat -c "%g" .`
+#RUN useradd -ms /bin/bash `stat -c "%U" .` -u `stat -c "%u" .` -g `stat -c "%g" .`
 
