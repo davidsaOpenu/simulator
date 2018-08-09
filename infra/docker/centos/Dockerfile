@@ -79,8 +79,8 @@ RUN ln -s /usr/lib64/qt5/bin/qmake /bin/uic && \
 
 
 ADD container_aliases /root/.bash_aliases
-ADD run-ansible /script/run-ansible
-ADD entry_point.sh /script/entry_point.sh
+#ADD run-ansible /script/run-ansible
+#ADD entry_point.sh /script/entry_point.sh
 WORKDIR /code
-ENTRYPOINT ["/script/entry_point.sh"]
+ENTRYPOINT ["/code/simulator/infra/docker/centos/entry_point.sh"]
 
