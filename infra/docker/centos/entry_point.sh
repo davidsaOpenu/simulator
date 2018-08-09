@@ -25,7 +25,7 @@ fi
 [ ! -d $NVME_CLI_DIR ] && echo -e "*****\nWARNING - The project 'nvme-cli' should be cloned and located next to simulator\n*****"
 [ ! -d $NVME_COMPL_DIR ] && echo -e "*****\nWARNING - The project 'nvmeCompl' should be cloned and located next to simulator\n*****"
 
-chmod +x /script/run-ansible
+chmod +x /code/simulator/infra/docker/centos/run-ansible 
 
 cd $QEMU_DIR/hw
 echo -e "\n\nHi in order to use the alias:\t'run-ansible'\nPlease run the command\t'source /root/.bash_aliases'"
