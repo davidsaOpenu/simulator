@@ -64,8 +64,12 @@ RUN echo "deb http://archive.ubuntu.com/ubuntu trusty main universe multiverse" 
     apt-get -y install qtdeclarative5-dev qt5-default qttools5-dev-tools
 
 ADD container_aliases /root/.bash_aliases
-ADD run-ansible /script/run-ansible
-ADD entry_point.sh /script/entry_point.sh
+#ADD run-ansible /script/run-ansible
+#ADD entry_point.sh /script/entry_point.sh
 WORKDIR /code
-ENTRYPOINT ["/script/entry_point.sh"]
+
+RUN groupadd `stat -c "%G" .` -g `stat -c "%g" .`
+RUN useradd -ms /bin/bash `stat -c "%U" .` -u `stat -c "%u" .` -g `stat -c "%g" .`
+
+ENTRYPOINT ["/code/simulator/infra/docker/ubuntu/entry_point.sh"]
 

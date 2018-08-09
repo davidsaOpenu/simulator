@@ -1,2 +1,2 @@
 
-tmpfs_mountpoint: /mnt/simulator_ci_tmp
+tmpfs_mountpoint: /tmp/simulator_ci_tmp
