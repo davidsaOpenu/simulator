@@ -4,6 +4,9 @@
   rescue:
   - name: chmod all files
     include: chmod.yml
+  always:
+  - name: chmod all files
+    include: chmod.yml
 
 # Newer version of SeaBIOS is required to allow booting directly with a Linux kernel image.
 - name: overwrite bios.bin
