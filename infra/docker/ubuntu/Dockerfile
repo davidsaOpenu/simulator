@@ -23,7 +23,8 @@ RUN apt-get update && apt-get -y install \
   sshpass \
   libvirt-bin \
   python-pip \
-  python-setuptools
+  python-setuptools \
+  sudo
 
 
 # Install build packages
@@ -70,7 +71,10 @@ WORKDIR /code
 
 ENTRYPOINT ["/code/simulator/infra/docker/ubuntu/entry_point.sh"]
 
-#those 2 lines are appended from outside
-#RUN groupadd `stat -c "%G" .` -g `stat -c "%g" .`
-#RUN useradd -ms /bin/bash `stat -c "%U" .` -u `stat -c "%u" .` -g `stat -c "%g" .`
 
+RUN echo "ALL            ALL = (ALL) NOPASSWD: ALL" >> /etc/sudoers
+
+#those lines are appended from outside
+#echo RUN groupadd `stat -c "%G" .` -g `stat -c "%g" .` >> ${WORKSPACE}/simulator/infra/docker/ubuntu/Dockerfile 
+#echo RUN useradd -ms /bin/bash `stat -c "%U" .` -u `stat -c "%u" .` -g `stat -c "%g" .` >> ${WORKSPACE}/simulator/infra/docker/ubuntu/Dockerfile 
+#echo RUN adduser `stat -c "%U" .` sudo >> ${WORKSPACE}/simulator/infra/docker/ubuntu/Dockerfile
