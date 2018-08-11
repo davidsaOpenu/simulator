@@ -60,7 +60,7 @@ Simulator role arguments:
 | `dest` | Simulator output directory. Defaults to dest={{ workspace }}/simulator |
 | `ref` | Used where git_in_ansible=true, determines which ref to pull from repo. Defaults to ref=refs/heads/master |
 | `build_ssd_monitor` | Determines whether to build ssd_monitor. Defaults to build_ssd_monitor=false |
-| `qemu_pid_file` | Location of pid_file. Defaults to "{{ ansible_env.HOME }}/simulator_qemu.pid" |
+| `qemu_pid_file` | Location of pid_file. Defaults to "{{ dest }}/simulator_qemu.pid" |
 | `cleanup_only` | This argument is used internally. Determines if to skip test's preparations steps and to perform cleanup steps only. Defaults to cleanup_only=false |
 
 Guest tester role arguments:

@@ -25,7 +25,8 @@ RUN yum install -y vim \
   libpng-1.2.49-2.el6_7.x86_64 \
   libvirt-client \
   python-pip \
-  python-setuptools
+  python-setuptools \
+  sudo
 
 # Clean yum cache (making the image smaller)
 RUN yum clean all
@@ -89,7 +90,11 @@ WORKDIR /code
 
 ENTRYPOINT ["/code/simulator/infra/docker/centos/entry_point.sh"]
 
-#those 2 lines are appended from outside
-#RUN groupadd `stat -c "%G" .` -g `stat -c "%g" .`
-#RUN useradd -ms /bin/bash `stat -c "%U" .` -u `stat -c "%u" .` -g `stat -c "%g" .`
+
+RUN echo "ALL            ALL = (ALL) NOPASSWD: ALL" >> /etc/sudoers
+
+#those lines are appended from outside
+#echo RUN groupadd `stat -c "%G" .` -g `stat -c "%g" .` >> ${WORKSPACE}/simulator/infra/docker/centos/Dockerfile 
+#echo RUN useradd -ms /bin/bash `stat -c "%U" .` -u `stat -c "%u" .` -g `stat -c "%g" .` >> ${WORKSPACE}/simulator/infra/docker/centos/Dockerfile 
+#echo RUN adduser -G wheel `stat -c "%U" .` >> ${WORKSPACE}/simulator/infra/docker/centos/Dockerfile 
 
