@@ -25,7 +25,8 @@ RUN yum install -y vim \
   libpng-1.2.49-2.el6_7.x86_64 \
   libvirt-client \
   python-pip \
-  python-setuptools
+  python-setuptools \
+  sudo
 
 # Clean yum cache (making the image smaller)
 RUN yum clean all
@@ -76,20 +77,12 @@ RUN yum install -y qt5-qtbase-devel
 RUN ln -s /usr/lib64/qt5/bin/qmake /bin/uic && \
     ln -s /usr/lib64/qt5/bin/qmake /bin/qmake
 
-
-
 ADD container_aliases /root/.bash_aliases
-#ADD run-ansible /script/run-ansible
-#ADD entry_point.sh /script/entry_point.sh
 WORKDIR /code
-
-#RUN groupadd jenkins -g 1003
-#RUN useradd -ms /bin/bash jenkins -u 1003 -g 1003
-
-
 ENTRYPOINT ["/code/simulator/infra/docker/centos/entry_point.sh"]
+RUN echo "ALL            ALL = (ALL) NOPASSWD: ALL" >> /etc/sudoers
 
-#those 2 lines are appended from outside
-#RUN groupadd `stat -c "%G" .` -g `stat -c "%g" .`
-#RUN useradd -ms /bin/bash `stat -c "%U" .` -u `stat -c "%u" .` -g `stat -c "%g" .`
+#those lines are appended from outside
+#echo RUN groupadd `stat -c "%G" .` -g `stat -c "%g" .` >> ${WORKSPACE}/simulator/infra/docker/centos/Dockerfile
+#echo RUN useradd -ms /bin/bash `stat -c "%U" .` -u `stat -c "%u" .` -g `stat -c "%g" .` -G wheel >> ${WORKSPACE}/simulator/infra/docker/centos/Dockerfile
 
