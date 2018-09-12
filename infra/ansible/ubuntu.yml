@@ -1,3 +1,2 @@
-gcc: gcc-4.6
-xen: "--enable-xen"
-extraCflags: "-Wno-error=cpp"
+gcc: gcc
+extraCflags: "-Wno-error=cpp -Wno-error=nested-externs -Wno-error=unused-local-typedefs -Wno-error=unused-const-variable -Wno-error=misleading-indentation -Wno-error=format-truncation"

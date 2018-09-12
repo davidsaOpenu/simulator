@@ -1,9 +1,8 @@
 memory: 2048
 smp: 4
-# This has to be a directory with ~ 9GB free space
-hda_dir: "/code/hda"
+# This has to be a directory with ~ 22222222222222222222222222222222222222222222GB free space
+hda_dir: "/"
 hda_img: "{{hda_dir}}/hda_clean.qcow2"
-hda_cmpr: "{{hda_dir}}/hda_clean.qcow2.bz2"
 #this is a kernel version we start qemu with to ensure the vm is always properly started
 kernel_version: 3.8.0-29-generic
 kernel_image: "vmlinuz-{{ kernel_version }}"
