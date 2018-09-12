@@ -1,4 +1,4 @@
-- name: waiting for guest to start with new kernel
+- name: waiting for guest to start
   wait_for:
   args:
     port: "{{guest_ssh_port}}"
@@ -6,7 +6,7 @@
     timeout: 10000
   tags: qemu
 
-- name: ssh into guest with new kernel
+- name: ssh into guest
   shell: "{{ guest_ssh_cmd }} uname"
   register: guest_uname
   tags: qemu

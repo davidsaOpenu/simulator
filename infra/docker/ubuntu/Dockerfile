@@ -1,13 +1,14 @@
-FROM ubuntu:14.04
+FROM ubuntu:18.04
 
 # Install base packages
+ENV DEBIAN_FRONTEND noninteractive # to avoid keyboard conf questions during the update
 RUN apt-get update && apt-get -y install \
   software-properties-common \
   git \
   vim \
   wget \
   build-essential \
-  gcc-4.6 \
+  gcc \
   cmake \
   g++ \
   unzip \
@@ -15,7 +16,6 @@ RUN apt-get update && apt-get -y install \
   libxen-dev \
   zlib1g-dev \
   libsdl-image1.2-dev \
-  libgnutls-dev \
   libvncserver-dev \
   libpci-dev \
   libaio-dev \
@@ -24,11 +24,7 @@ RUN apt-get update && apt-get -y install \
   libvirt-bin \
   python-pip \
   python-setuptools \
-  sudo
-
-
-# Install build packages
-RUN apt-get update && apt-get -y install \
+  sudo \
   bear \
   qemu \
   qemu-kvm \
@@ -38,10 +34,9 @@ RUN apt-get update && apt-get -y install \
 
 
 # Install Ansible
-RUN add-apt-repository -y ppa:ansible/ansible && apt-get update && apt-get -y install ansible
+RUN apt-get -y install ansible
 
-# Clean APT cache (making the image smaller)
-RUN apt-get clean && rm -rf /var/lib/apt/lists/*
+
 
 # Install Gtest
 ENV GTEST_HOME /opt
@@ -64,11 +59,69 @@ RUN echo "deb http://archive.ubuntu.com/ubuntu trusty main universe multiverse" 
     apt-get update && \
     apt-get -y install qtdeclarative5-dev qt5-default qttools5-dev-tools
 
-ADD container_aliases /root/.bash_aliases
+
+# prepare image on fly
+ARG IMAGE_URL="https://cloud-images.ubuntu.com/bionic/current/bionic-server-cloudimg-amd64.img"
+ARG IMAGE="bionic-server-cloudimg-amd64.img"
+RUN wget $IMAGE_URL
+RUN apt-get update -y
+RUN apt-get install -y libguestfs-tools
+ENV LIBGUESTFS_BACKEND direct
+
+
+RUN ssh-keygen -t rsa -N "" -f /root/.ssh/id_rsa
+# FIXED missing kernel # https://bugzilla.redhat.com/show_bug.cgi?id=1542892
+RUN apt-get -y install linux-image-generic
+
+
+# resize image
+ARG TMP="tmp_file"
+RUN qemu-img info $IMAGE && \
+    qemu-img resize $IMAGE +20G && \
+    cp $IMAGE $TMP && \
+    virt-resize --expand /dev/sda1 $TMP $IMAGE && \
+    qemu-img info $IMAGE && \
+    virt-filesystems --long -h --all -a $IMAGE && \
+    rm $TMP
+
+COPY 01-network-manager-all.yaml 01-network-manager-all.yaml
+COPY sshd_config sshd_config
+
+
+# FIXED copy-in problem: https://bugzilla.redhat.com/show_bug.cgi?id=1591617
+RUN echo dash > /usr/lib/x86_64-linux-gnu/guestfs/supermin.d/zz-dash-packages
+RUN rm -rf /var/cache/.guestfs-$UID
+RUN rm -rf /var/tmp/.guestfs*
+
+# FIXED partition ordering: https://bugzilla.redhat.com/show_bug.cgi?id=1472039 and 
+#                           https://howtoubuntu.org/how-to-repair-restore-reinstall-grub-2-with-a-ubuntu-live-cd
+# FIXED ssh connectivity (copy-in missing/updated files and generate missing host keys)
+RUN LIBGUESTFS_DEBUG=1 LIBGUESTFS_TRACE=1 \
+    /usr/bin/virt-customize --ssh-inject root \ 
+                            --root-password password:PASSWORD \
+                            --run-command 'grub-install --recheck /dev/sda && \
+                                           update-grub && \
+                                           useradd -m -s /bin/bash esd && \
+                                           usermod -a -G sudo esd && \
+                                           ssh-keygen -A && \
+                                           echo "ALL            ALL = (ALL) NOPASSWD: ALL" >> /etc/sudoers' \
+                            --password esd:password:esd \
+                            --ssh-inject esd \
+                            --copy-in 01-network-manager-all.yaml:/etc/netplan \
+                            --copy-in sshd_config:/etc/ssh -a $IMAGE && \
+    mv $IMAGE hda_clean.qcow2
+
+
+# Clean package cache (making the image smaller)
+RUN apt-get clean && rm -rf /var/lib/apt/lists/*
+
 WORKDIR /code
-ENTRYPOINT ["/code/simulator/infra/docker/ubuntu/entry_point.sh"]
+ADD container_aliases /root/.bash_aliases
+#ENTRYPOINT ["/code/simulator/infra/docker/ubuntu/entry_point.sh"]
 RUN echo "ALL            ALL = (ALL) NOPASSWD: ALL" >> /etc/sudoers
 
 #those lines are appended from outside
 #echo RUN groupadd `stat -c "%G" .` -g `stat -c "%g" .` >> ${WORKSPACE}/simulator/infra/docker/ubuntu/Dockerfile
 #echo RUN useradd -ms /bin/bash `stat -c "%U" .` -u `stat -c "%u" .` -g `stat -c "%g" .` -G sudo >> ${WORKSPACE}/simulator/infra/docker/ubuntu/Dockerfile
+RUN groupadd datos -g 1000
+RUN useradd -ms /bin/bash datos -u 1000 -g 1000 -G sudo

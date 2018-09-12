@@ -28,8 +28,7 @@ RUN yum install -y vim \
   python-setuptools \
   sudo
 
-# Clean yum cache (making the image smaller)
-RUN yum clean all
+
 
 # Install Bear
 ENV BEAR_ZIP_FILENAME bear.zip
@@ -77,6 +76,19 @@ RUN yum install -y qt5-qtbase-devel
 RUN ln -s /usr/lib64/qt5/bin/qmake /bin/uic && \
     ln -s /usr/lib64/qt5/bin/qmake /bin/qmake
 
+
+# prepare image on fly
+ARG IMAGE_URL="https://cloud.centos.org/centos/7/images/CentOS-7-x86_64-GenericCloud-1808.qcow2"
+ARG IMAGE="CentOS-7-x86_64-GenericCloud-1808.qcow2"
+RUN wget $IMAGE_URL
+RUN yum install -y libguestfs-tools
+ENV LIBGUESTFS_BACKEND direct
+RUN ssh-keygen -t rsa -N "" -f /root/.ssh/id_rsa
+RUN LIBGUESTFS_DEBUG=1 LIBGUESTFS_TRACE=1 /usr/bin/virt-customize --ssh-inject root -a $IMAGE
+RUN /usr/bin/virt-customize --root-password password:PASSWORD -a $IMAGE
+
+# Clean package cache (making the image smaller)
+RUN yum clean all
 ADD container_aliases /root/.bash_aliases
 WORKDIR /code
 ENTRYPOINT ["/code/simulator/infra/docker/centos/entry_point.sh"]

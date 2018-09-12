@@ -1,3 +1,2 @@
-gcc: gcc44
-xen: ""
+gcc: gcc
 extraCflags: ""
