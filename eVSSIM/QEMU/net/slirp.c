@@ -465,7 +465,7 @@ int net_slirp_redir(const char *redir_str)
 /* automatic user mode samba server configuration */
 static void slirp_smb_cleanup(SlirpState *s)
 {
-    char cmd[128];
+    char cmd[128+7];
     int ret;
 
     if (s->smb_dir[0] != '\0') {
@@ -485,7 +485,7 @@ static int slirp_smb(SlirpState* s, const char *exported_dir,
                      struct in_addr vserver_addr)
 {
     static int instance;
-    char smb_conf[128];
+    char smb_conf[128+9];
     char smb_cmdline[128];
     FILE *f;
 

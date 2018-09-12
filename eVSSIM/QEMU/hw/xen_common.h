@@ -89,9 +89,13 @@ static inline int xc_domain_add_to_physmap(int xc_handle, uint32_t domid,
 /* Xen 4.1 */
 #else
 
-typedef xc_interface *XenXC;
+/*typedef xc_interface *XenXC;
 typedef xc_evtchn *XenEvtchn;
 typedef xc_gnttab *XenGnttab;
+*/
+typedef xc_interface xenforeignmemory_handle;
+typedef xc_evtchn xenevtchn_handle;
+typedef xc_gnttab xengnttab_handle;
 
 #  define XC_INTERFACE_FMT "%p"
 #  define XC_HANDLER_INITIAL_VALUE    NULL

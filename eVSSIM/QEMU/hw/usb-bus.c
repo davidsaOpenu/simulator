@@ -156,8 +156,9 @@ void usb_register_port(USBBus *bus, USBPort *port, void *opaque, int index,
 void usb_port_location(USBPort *downstream, USBPort *upstream, int portnr)
 {
     if (upstream) {
-        snprintf(downstream->path, sizeof(downstream->path), "%s.%d",
-                 upstream->path, portnr);
+        snprintf(downstream->path, sizeof(downstream->path), "%s",
+                 upstream->path);
+	snprintf(downstream->path + sizeof(downstream->path) - 4, 4, ".%d", portnr % 10);
     } else {
         snprintf(downstream->path, sizeof(downstream->path), "%d", portnr);
     }

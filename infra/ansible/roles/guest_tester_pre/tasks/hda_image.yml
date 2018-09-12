@@ -1,3 +1,4 @@
+
 - name: test whether hda image exists
   stat:
   args:
@@ -6,7 +7,9 @@
     get_md5: False
   register: hda_file
 
-# TODO - download clean ubuntu image and customize onfly (instead of using current hda)
 - fail:
-    msg: "Please make sure the hda image is located under the directory <CODE_ROOT>/hda. You can download it form 'https://drive.google.com/open?id=0B1JAKGv3cL1oVExydnFrVUNxV2c'"
+    msg: "Please make sure the hda image is located at {{hda_img}}"
   when: hda_file.stat.exists == false
+
+
+

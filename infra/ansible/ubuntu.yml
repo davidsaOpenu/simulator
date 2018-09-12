@@ -1,3 +1,3 @@
-gcc: gcc-4.6
-xen: "--enable-xen"
-extraCflags: "-Wno-error=cpp"
+gcc: gcc
+xen: ""
+extraCflags: "-Wno-error=cpp -Wno-error=nested-externs"
