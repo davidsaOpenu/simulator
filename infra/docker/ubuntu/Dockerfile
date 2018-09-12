@@ -64,9 +64,15 @@ RUN echo "deb http://archive.ubuntu.com/ubuntu trusty main universe multiverse" 
     apt-get update && \
     apt-get -y install qtdeclarative5-dev qt5-default qttools5-dev-tools
 
+# Install diskimage-builder and create image
+RUN apt-get -y install python-diskimage-builder
+RUN DIB_DEV_USER_PWDLESS_SUDO=yes DIB_DEV_USER_PASSWORD=esd DIB_DEV_USER_USERNAME=esd DIB_RELEASE=trusty disk-image-create -a amd64 -o ubuntu-amd64  ubuntu --image-size  20G 
+RUN mv ubuntu-amd64.qcow2 /code/hda/hda_clean.qcow2
+
+
 ADD container_aliases /root/.bash_aliases
 WORKDIR /code
-ENTRYPOINT ["/code/simulator/infra/docker/ubuntu/entry_point.sh"]
+#ENTRYPOINT ["/code/simulator/infra/docker/ubuntu/entry_point.sh"]
 RUN echo "ALL            ALL = (ALL) NOPASSWD: ALL" >> /etc/sudoers
 
 #those lines are appended from outside

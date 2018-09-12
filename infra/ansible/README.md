@@ -41,13 +41,6 @@ Here are some arguments you can add to `ansible-playbook` invocations:
 | `--skip-tags clean` | When replaying, skip the clean actions so there is no need to re-build the packages |
 | `--tags qemu` | Perform only QEMU execution tasks (without running all the lengthy setup and build tasks) |
 
-## Customizing
-
-It is possible to customize variables per host. For example, if you prefer to store the hda.img in /tmp and to use KVM hardware acceleration:
-
-```
-tester1.my-hosting.com hda_dir=/tmp qemu_machine=accel=kvm
-```
 
 ## Useful variables
 Here are some arguments you can add to `run_full_setup.yml` invocations (with '-e' or '--extra-vars')
@@ -73,8 +66,7 @@ Guest tester pre (preparation) role arguments:
 | --- | --- |
 | `memory`| Parameter to qemu. Default: 2048 |
 | `smp`| Parameter to qemu. Default: 4 |
-| `hda_dir` | Where to store hda image if downloaded. This has to be a directory with ~ 9GB free space. Default: {{ ansible_env.HOME }} |
-| `hda_cmpr` | compressed hda image filename. Default: {{hda_dir}}/hda_clean.qcow2.bz2 |
+| `hda_dir` | Where to store hda image if downloaded. This has to be a directory with ~ 9GB free space. Default: where /code/hda is mapped to. |
 | `hda_img` | hda image filename. Default: {{hda_dir}}/hda_clean.qcow2 |
 | `guest_ssh_port` | Port to guest machine, passed to qemu. Default: 2222 |
 | `kernel_image` | filename of kernel image. Default: vmlinuz-3.8.0-29-generic |
