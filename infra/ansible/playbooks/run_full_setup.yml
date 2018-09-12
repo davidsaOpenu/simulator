@@ -11,7 +11,7 @@
 - name: perform host tests
   hosts: host_testers
   roles:
-    - host_tester
+      - { role: host_tester, when: 1 == 0}
   tags: host
 
 - name: prepare image to run tests and leave instatce active
