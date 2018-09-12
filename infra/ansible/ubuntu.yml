@@ -1,3 +1,4 @@
 gcc: gcc-4.6
 xen: "--enable-xen"
 extraCflags: "-Wno-error=cpp"
+clean_image_url: "https://cloud-images.ubuntu.com/xenial/20180911/xenial-server-cloudimg-amd64-disk1.img"
