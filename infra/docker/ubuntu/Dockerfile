@@ -1,13 +1,15 @@
-FROM ubuntu:14.04
+FROM ubuntu:18.04
 
 # Install base packages
+ENV DEBIAN_FRONTEND noninteractive # to avoid keyboard conf questions during the update
 RUN apt-get update && apt-get -y install \
+
   software-properties-common \
   git \
   vim \
   wget \
   build-essential \
-  gcc-4.6 \
+  gcc-4.7 \
   cmake \
   g++ \
   unzip \
@@ -15,7 +17,6 @@ RUN apt-get update && apt-get -y install \
   libxen-dev \
   zlib1g-dev \
   libsdl-image1.2-dev \
-  libgnutls-dev \
   libvncserver-dev \
   libpci-dev \
   libaio-dev \
@@ -24,11 +25,7 @@ RUN apt-get update && apt-get -y install \
   libvirt-bin \
   python-pip \
   python-setuptools \
-  sudo
-
-
-# Install build packages
-RUN apt-get update && apt-get -y install \
+  sudo \
   bear \
   qemu \
   qemu-kvm \
@@ -38,10 +35,9 @@ RUN apt-get update && apt-get -y install \
 
 
 # Install Ansible
-RUN add-apt-repository -y ppa:ansible/ansible && apt-get update && apt-get -y install ansible
+RUN apt-get -y install ansible
 
-# Clean APT cache (making the image smaller)
-RUN apt-get clean && rm -rf /var/lib/apt/lists/*
+
 
 # Install Gtest
 ENV GTEST_HOME /opt
@@ -63,6 +59,25 @@ RUN git clone --branch v2.4-stable https://github.com/warmcat/libwebsockets.git 
 RUN echo "deb http://archive.ubuntu.com/ubuntu trusty main universe multiverse" | tee /etc/apt/sources.list.d/trusty.list && \
     apt-get update && \
     apt-get -y install qtdeclarative5-dev qt5-default qttools5-dev-tools
+
+
+# prepare image on fly
+ARG IMAGE_URL="https://cloud-images.ubuntu.com/bionic/20180917/bionic-server-cloudimg-amd64.img"
+ARG IMAGE="bionic-server-cloudimg-amd64.img"
+RUN wget $IMAGE_URL
+RUN apt-get update -y
+RUN apt-get install -y libguestfs-tools
+ENV LIBGUESTFS_BACKEND direct
+
+
+
+RUN ssh-keygen -t rsa -N "" -f /root/.ssh/id_rsa
+RUN apt-get -y install linux-image-generic # https://bugzilla.redhat.com/show_bug.cgi?id=1542892
+RUN LIBGUESTFS_DEBUG=1 LIBGUESTFS_TRACE=1 /usr/bin/virt-customize --ssh-inject root -a $IMAGE
+RUN /usr/bin/virt-customize --root-password password:PASSWORD -a $IMAGE
+# Clean package cache (making the image smaller)
+RUN apt-get clean && rm -rf /var/lib/apt/lists/*
+
 
 ADD container_aliases /root/.bash_aliases
 WORKDIR /code
