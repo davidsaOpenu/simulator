@@ -1,4 +1,4 @@
-FROM ubuntu:14.04
+FROM ubuntu:16.04
 
 # Install base packages
 RUN apt-get update && apt-get -y install \
