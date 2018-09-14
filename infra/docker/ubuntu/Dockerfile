@@ -1,6 +1,7 @@
-FROM ubuntu:14.04
+FROM ubuntu:16.04
 
 # Install base packages
+RUN deb http://dk.archive.ubuntu.com/ubuntu/ trusty main universe
 RUN apt-get update && apt-get -y install \
   software-properties-common \
   git \
