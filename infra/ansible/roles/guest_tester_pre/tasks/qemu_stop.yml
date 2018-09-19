@@ -8,10 +8,10 @@
   register: qemu_pid_task
   tags: qemu
 
-#- name: shut down old guest
-#  shell: "kill {{qemu_pid_task.stdout}}"
-#  when: qemu_pid_task.stdout != ""
-#  tags: qemu
+- name: shut down old guest
+  shell: "kill {{qemu_pid_task.stdout}}"
+  when: qemu_pid_task.stdout != ""
+  tags: qemu
 
 - name: wait for old guest to shut down
   wait_for:
