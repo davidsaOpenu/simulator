@@ -9,7 +9,7 @@
   tags: qemu
 
 - name: shut down old guest
-  shell: "kill {{qemu_pid_task.stdout}}"
+  shell: "sudo kill {{qemu_pid_task.stdout}}"
   when: qemu_pid_task.stdout != ""
   tags: qemu
 
