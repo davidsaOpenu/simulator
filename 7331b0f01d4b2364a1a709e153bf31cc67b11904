@@ -1,0 +1,72 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "3c1cf268_e4da7c3d",
+        "filename": "infra/ansible/roles/guest_tester_pre/tasks/qemu_reboot.yml",
+        "patchSetId": 1
+      },
+      "lineNbr": 14,
+      "author": {
+        "id": 1007990
+      },
+      "writtenOn": "2018-10-30T05:51:23Z",
+      "side": 1,
+      "message": "nit: spaces",
+      "revId": "7331b0f01d4b2364a1a709e153bf31cc67b11904",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "b605be96_babe8a89",
+        "filename": "infra/ansible/roles/guest_tester_pre/tasks/qemu_reboot.yml",
+        "patchSetId": 1
+      },
+      "lineNbr": 26,
+      "author": {
+        "id": 1007990
+      },
+      "writtenOn": "2018-10-30T05:51:23Z",
+      "side": 1,
+      "message": "any reason to have this task rather then changing ingnore_errors to False in the previous one?",
+      "revId": "7331b0f01d4b2364a1a709e153bf31cc67b11904",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "36232a0a_1add3f03",
+        "filename": "infra/ansible/roles/guest_tester_pre/tasks/qemu_reboot.yml",
+        "patchSetId": 1
+      },
+      "lineNbr": 30,
+      "author": {
+        "id": 1007990
+      },
+      "writtenOn": "2018-10-30T05:51:23Z",
+      "side": 1,
+      "message": "nit: please add a new line",
+      "revId": "7331b0f01d4b2364a1a709e153bf31cc67b11904",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "7fa100ab_8b461b1a",
+        "filename": "infra/ansible/roles/guest_tester_pre/tasks/qemu_stop.yml",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 1007990
+      },
+      "writtenOn": "2018-10-30T05:51:23Z",
+      "side": 1,
+      "message": "what do you think about changing the file name to something that reflects the fact of waiting \nfor the shut down?",
+      "revId": "7331b0f01d4b2364a1a709e153bf31cc67b11904",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": true
+    }
+  ]
+}
