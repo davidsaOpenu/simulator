@@ -13,3 +13,6 @@ qemu_machine: accel=kvm
 
 # This is intended to be passed from e.g. Jenkins to allow multiple tests to run simultaneously
 test_instance_id: some_unique_id
+
+# Number of tested reboot repeats
+test_reboot_repeats: 10

@@ -1,5 +1,5 @@
 # Cleanup previous executions on this host
-- include: qemu_stop.yml
+- include: qemu_wait_while_stopping.yml
 
 - block:
 
