@@ -1,0 +1,31 @@
+
+- name: halt safe mode kernel
+  command: sshpass -p esd ssh -o "StrictHostKeyChecking=no" -p 2222 root@127.0.0.1 "{{ item }}"
+  with_items:
+    - 'free && sync && echo 3 > /proc/sys/vm/drop_caches && free'
+    - 'shutdown -P now'
+
+- include: qemu_wait_while_stopping.yml
+
+- name: start guest with new kernel
+  shell: "../x86_64-softmmu/qemu-system-x86_64 -m {{memory}} -smp {{smp}} -hda '{{hda_img}}' -device nvme -redir tcp:{{guest_ssh_port}}::22 -nographic -vnc :0  -daemonize -pidfile '{{qemu_pid_file}}' -machine {{qemu_machine}} -kernel '{{dest}}/vmlinuz-3.16.2' -initrd '{{dest}}/initrd.img-3.16.2' -append 'BOOT_IMAGE=/boot/vmlinuz-3.16.2 root=UUID=063018ec-674c-4c3e-a976-ac4fa950864f ro'"
+  args:
+    chdir: "{{ dest }}/eVSSIM/QEMU/hw"
+  become: yes
+  tags: qemu
+
+- include: qemu_wait_while_starting.yml
+
+# nvme error check
+- name: looking for nvme error messages on dmesg buffer
+  command: sshpass -p esd ssh -o "StrictHostKeyChecking=no" -p 2222 esd@127.0.0.1 "{{ item }}"
+  with_items:
+    - 'dmesg -x --level=warn,err | grep nvme'
+  ignore_errors: True
+  register: dgmes_error
+
+- name: fail the play if the nvme error messages exists
+  fail:
+    msg: "nvme error messages found. failed."
+  when: "dgmes_error.results[0].rc == 0"
+- debug: msg="done qemu reboot test {{ loop_item }}/{{test_reboot_repeats}}\n"
