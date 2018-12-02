@@ -103,6 +103,10 @@ Logger_Pool* logger_init(unsigned int number_of_logs) {
     if(logger_pool == NULL)
         return NULL;
 
+    // try to create the lock
+    if (pthread_mutex_init(&logger_pool->lock, NULL))
+        return NULL;
+
     // update logger pool atributes
     logger_pool->free_log = dummy->next;
     logger_pool->dummy_log = dummy;
@@ -121,6 +125,9 @@ int logger_write(Logger_Pool* logger_pool, Byte* buffer, int length) {
     if(length > LOG_SIZE)
         return 1;
 
+    // lock logger pool
+    pthread_mutex_lock(&logger_pool->lock);
+
     // make sure that logger pool allways has at least 2 logs
     // one log that we write to and another one for when
     // the first one get full
@@ -128,10 +135,18 @@ int logger_write(Logger_Pool* logger_pool, Byte* buffer, int length) {
     {
         Log* log = (Log*) malloc(sizeof(Log));
         if(log == NULL)
+        {
+            // unlock logger pool
+            pthread_mutex_unlock(&logger_pool->lock);
             return 1;
+        }
 
         if (posix_memalign((void**) &mem_buf, LOGGER_BUFFER_ALIGNMENT, LOG_SIZE))
+        {
+            // unlock logger pool
+            pthread_mutex_unlock(&logger_pool->lock);
             return 1;
+        }
 
         INSERT_NODE(log, logger_pool->dummy_log, mem_buf);
 
@@ -172,6 +187,10 @@ int logger_write(Logger_Pool* logger_pool, Byte* buffer, int length) {
 
         UPDATE_NODE(logger_pool->free_log, false, (length-number_of_bytes_to_write));
     }
+
+    // unlock logger pool
+    pthread_mutex_unlock(&logger_pool->lock);
+
     return res;
 }
 
@@ -179,6 +198,9 @@ int logger_read(Logger_Pool* logger_pool, Byte* buffer, int length) {
     Log *log, *temp_log;
     int number_bytes_to_read_in_log; // number of bytes that wasn't read yet in the log
     int number_of_bytes_to_read = length; // number of bytes that we still have to read
+
+    // lock logger pool
+    pthread_mutex_lock(&logger_pool->lock);
 
     log = logger_pool->dummy_log->next;
 
@@ -196,7 +218,11 @@ int logger_read(Logger_Pool* logger_pool, Byte* buffer, int length) {
                 // check that we are not going to read past what has been written
                 if(!((NUMBER_OF_BYTES_TO_READ(log)-number_of_bytes_to_read) >=
                             NUMBER_OF_BYTES_TO_WRITE(log)))
+                {
+                    // unlock logger pool
+                    pthread_mutex_unlock(&logger_pool->lock);
                     return (length-number_of_bytes_to_read);
+                }
 
                 memcpy((void*) buffer, (void*) log->tail, number_of_bytes_to_read);
                 log->tail += number_of_bytes_to_read;
@@ -208,7 +234,11 @@ int logger_read(Logger_Pool* logger_pool, Byte* buffer, int length) {
                 // check that we are not going to read past what has bean written
                 if(!((NUMBER_OF_BYTES_TO_READ(log)-number_bytes_to_read_in_log) >=
                             NUMBER_OF_BYTES_TO_WRITE(log)))
+                {
+                    // unlock logger pool
+                    pthread_mutex_unlock(&logger_pool->lock);
                     return (length-number_of_bytes_to_read);
+                }
 
                 memcpy((void*) buffer, (void*) log->tail, number_bytes_to_read_in_log);
                 buffer += number_bytes_to_read_in_log;
@@ -216,6 +246,8 @@ int logger_read(Logger_Pool* logger_pool, Byte* buffer, int length) {
                 number_of_bytes_to_read -= number_bytes_to_read_in_log;
             }
         } else {
+            // unlock logger pool
+            pthread_mutex_unlock(&logger_pool->lock);
             // The current log is clean, we have nothing to read
             return 0;
         }
@@ -237,14 +269,24 @@ int logger_read(Logger_Pool* logger_pool, Byte* buffer, int length) {
 
         // check if we reached to the end of the Logger_Pool linked list
         if(log == logger_pool->dummy_log)
+        {
+            // unlock logger pool
+            pthread_mutex_unlock(&logger_pool->lock);
             return (length-number_of_bytes_to_read);
+        }
     }
+
+    // unlock logger pool
+    pthread_mutex_unlock(&logger_pool->lock);
     return (length-number_of_bytes_to_read);
 }
 
 void logger_free(Logger_Pool* logger_pool) {
     Log* log = logger_pool->dummy_log->next;
     Log* prev;
+
+    // lock logger pool
+    pthread_mutex_lock(&logger_pool->lock);
 
     while(log != logger_pool->dummy_log)
     {
@@ -257,5 +299,9 @@ void logger_free(Logger_Pool* logger_pool) {
     }
     // free Logger_Pool
     free(logger_pool->dummy_log);
+
+    // unlock logger pool
+    pthread_mutex_unlock(&logger_pool->lock);
+
     free(logger_pool);
 }

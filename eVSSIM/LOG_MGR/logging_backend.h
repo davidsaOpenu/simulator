@@ -20,6 +20,7 @@
 #include <stdlib.h>
 #include <stdbool.h>
 #include <time.h>
+#include <pthread.h>
 
 /**
  * The backend logging mechanism is implemented using pool of logs each one of size LOG_SIZE.
@@ -127,6 +128,12 @@ typedef struct {
      * This number changes each time we allocate more Logs
      */
     unsigned int current_number_of_logs;
+
+    /**
+     * The lock of the logger pool to update it safely from
+     * threads
+     */
+    pthread_mutex_t lock;
 } Logger_Pool;
 
 /**
