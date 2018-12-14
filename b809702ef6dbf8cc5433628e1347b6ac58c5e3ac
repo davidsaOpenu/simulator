@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "8b68f936_09ab0d68",
+        "filename": "eVSSIM/SSD_MODULE/ssd_log_manager.c",
+        "patchSetId": 11
+      },
+      "lineNbr": 1,
+      "author": {
+        "id": 1007990
+      },
+      "writtenOn": "2018-12-14T07:01:01Z",
+      "side": 0,
+      "message": "nit: space",
+      "revId": "b809702ef6dbf8cc5433628e1347b6ac58c5e3ac",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    }
+  ]
+}
