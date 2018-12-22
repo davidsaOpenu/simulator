@@ -3,6 +3,8 @@ QT       += core gui network widgets
 TEMPLATE	= app
 LANGUAGE	= C++
 
+QMAKE_LFLAGS += ssd_log_monitor.c
+
 INCLUDEPATH	+= .
 
 HEADERS	+= form1.h
