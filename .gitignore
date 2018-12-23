@@ -92,6 +92,7 @@ eVSSIM/tests/host/unit_tests
 eVSSIM/tests/host/sector_tests
 eVSSIM/tests/host/object_tests
 eVSSIM/tests/host/qt_monitor_tests
+eVSSIM/tests/host/qt_monitor_log_parser_tests
 eVSSIM/tests/host/data
 eVSSIM/tests/host/common.h
 eVSSIM/tests/host/logging_rt_analyzer.h

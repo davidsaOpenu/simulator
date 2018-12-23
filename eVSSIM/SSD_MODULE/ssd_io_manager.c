@@ -28,6 +28,9 @@ char ssd_date[9] = "13.04.11";
 
 struct timeval logging_parser_tv;
 
+int physical_page_write = 0;
+int logical_page_write = 0;
+
 int64_t get_usec(void)
 {
 	int64_t t = 0;
@@ -48,6 +51,10 @@ int SSD_IO_INIT(void){
 
 	/* Print SSD version */
 	PINFO("SSD Emulator Version: %s ver. (%s)\n", ssd_version, ssd_date);
+
+	/* Init page write / read counters variable */
+	physical_page_write = 0;
+	logical_page_write = 0;
 
 	/* Init Variable for Channel Switch Delay */
 	old_channel_nb = CHANNEL_NB;
@@ -116,7 +123,6 @@ ftl_ret_val SSD_PAGE_WRITE(unsigned int flash_nb, unsigned int block_nb, unsigne
 	int delay_ret;
 
     TIME_MICROSEC(_start);
-
 	/* Calculate ch & reg */
 	channel = flash_nb % CHANNEL_NB;
 	reg = flash_nb*PLANES_PER_FLASH + block_nb%PLANES_PER_FLASH;
@@ -148,6 +154,14 @@ ftl_ret_val SSD_PAGE_WRITE(unsigned int flash_nb, unsigned int block_nb, unsigne
 #endif
 
     TIME_MICROSEC(_end);
+
+    physical_page_write++;
+    if( type == WRITE ) {
+    	logical_page_write++;
+    	WRITE_LOG("WRITE PAGE %d\n", 1);
+    }
+
+    WRITE_LOG("WB AMP %lf\n", (double)physical_page_write / logical_page_write);
 
 	LOG_PHYSICAL_CELL_PROGRAM(GET_LOGGER(flash_nb), (PhysicalCellProgramLog) {
 	    .channel = channel, .block = block_nb, .page = page_nb,

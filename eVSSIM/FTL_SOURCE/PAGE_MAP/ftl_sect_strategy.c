@@ -182,10 +182,9 @@ ftl_ret_val _FTL_WRITE_SECT(uint64_t sector_nb, unsigned int length)
 #ifdef GC_ON
 	GC_CHECK(CALC_FLASH(new_ppn), CALC_BLOCK(new_ppn), false, false); // is this a bug? gc will only happen on the last page's flash and block
 #endif
-    WRITE_LOG("WRITE PAGE %d ", length);
+
     WRITE_LOG("WB CORRECT %d", write_page_nb);
 	//also update the write amplifications status here
-	WRITE_LOG("WB AMP %f", (float)wa_counters.physical_block_write_counter / (float)wa_counters.logical_block_write_counter);
     PDBG_FTL("Complete\n");
 
 	return ret;
