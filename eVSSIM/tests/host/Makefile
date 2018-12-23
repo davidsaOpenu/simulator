@@ -30,10 +30,8 @@ qt_monitor_tests: qt_monitor_tests.o $(VSSIM_OBJ)
 %.o: %.c
 	gcc -Wall $(CFLAGS) -c $<
 
-#.MONITOR:
-#	cd $(MONITOR_DIR) && qmake -o Makefile ssd_monitor_p.pro && make
 .MONITOR:
-	cd $(MONITOR_DIR) && make
+	cd $(MONITOR_DIR) && qmake -o Makefile ssd_monitor_p.pro && make
 
 .PHONY: clean distclean mklink
 
