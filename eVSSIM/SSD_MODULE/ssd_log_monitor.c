@@ -39,7 +39,6 @@ void PARSE_LOG(const char* log_line, logger_monitor *monitor) {
 	char next_word[200];
 
 	int pp = _next_word(next_word, log_line, 0);
-	printf("'%s'\n", log_line);
 	if( pp >= 0 ) {
 
 		if( strcmp(next_word, "WRITE") == 0 )  {

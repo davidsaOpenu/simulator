@@ -24,21 +24,16 @@ bool g_nightly_mode = false;
 // default value for flash number
 #define DEFAULT_FLASH_NB 4
 
-/**
- * paramters that the tests run with
- * @param sizemb - disk size parameter
- *  testing disk sizes of 1,2,4 and 8 megabyte
- * @param flashnb - number of flash memories
- *  testing flash numbers 2,4,8,16 and 32
- */
 extern LogServer log_server;
 extern int servSock;
 extern int clientSock;
 logger_monitor log_monitor;
+extern int errno;
 
 pthread_t listener_thread;
 void* monitor_listener(void *arg) {
 
+	usleep(50000);
     int sockfd = 0, n = 0;
     char recvBuff[1024];
     struct sockaddr_in serv_addr;
@@ -63,6 +58,7 @@ void* monitor_listener(void *arg) {
     if( connect(sockfd, (struct sockaddr *)&serv_addr, sizeof(serv_addr)) < 0)
     {
        printf("\n Error : Connect Failed \n");
+       printf("errno : '%d' \n", errno);
     }
 
     while ( (n = read(sockfd, recvBuff, sizeof(recvBuff)-1)) > 0)
@@ -73,7 +69,6 @@ void* monitor_listener(void *arg) {
          pch = strtok (recvBuff,"\n");
          while (pch != NULL)
          {
-           printf ("log: '%s'\n",pch);
 		   PARSE_LOG(pch, &log_monitor);
            pch = strtok (NULL, "\n");
          }
@@ -111,16 +106,6 @@ namespace parameters
 }
 
 int main(int argc, char **argv) {
-    // check if CI_MODE environment variable is set to NIGHTLY
-    const char* ci_mode = getenv("CI_MODE");
-    if(ci_mode != NULL && std::string(ci_mode) == "NIGHTLY")
-        g_nightly_mode = true;
-
-    for (int i = 0; i < argc; i++) {
-        if (strcmp(argv[i], "--nightly") == 0) {
-            g_nightly_mode = true;
-        }
-    }
     testing::InitGoogleTest(&argc, argv);
     return RUN_ALL_TESTS();
 }
@@ -169,15 +154,13 @@ namespace {
                     "STORAGE_STRATEGY 1\n"; // sector strategy
                 ssd_conf.close();
                 FTL_INIT();
-//                INIT_LOG_MANAGER();
 
                 int err;
                  err = pthread_create(&listener_thread, NULL, &monitor_listener, NULL);
                  if (err != 0)
                      printf("\ncan't create thread :[%s]", strerror(err));
-                 else
-                     printf("\n Thread created successfully\n");
-         		THREAD_SERVER();
+
+          		THREAD_SERVER();
             }
             virtual void TearDown() {
                 FTL_TERM();
@@ -209,7 +192,7 @@ namespace {
     INSTANTIATE_TEST_CASE_P(DiskSize, QTMonitorUnitTest, ::testing::ValuesIn(GetParams()));
     TEST_P(QTMonitorUnitTest, LogWritePageOnePage) {
     	INIT_LOGGER_MONITOR(&log_monitor);
-        WRITE_LOG("WRITE PAGE 1");
+    	SEND_LOG(clientSock, "WRITE PAGE 1");
         usleep(100000);
         ASSERT_EQ(1, log_monitor.write_count);
         ASSERT_EQ(1, log_monitor.write_sector_count);
@@ -218,7 +201,7 @@ namespace {
     TEST_P(QTMonitorUnitTest, LogWritePageOnePageMutipleTime) {
     	INIT_LOGGER_MONITOR(&log_monitor);
     	for( int i = 0; i < 2; i++ )
-    		WRITE_LOG("WRITE PAGE 1");
+    		SEND_LOG(clientSock, "WRITE PAGE 1");
         usleep(100000);
         ASSERT_EQ(2, log_monitor.write_count);
         ASSERT_EQ(2, log_monitor.write_sector_count);
@@ -226,7 +209,7 @@ namespace {
 
     TEST_P(QTMonitorUnitTest, LogWritePageMutiplePageOneTime) {
     	INIT_LOGGER_MONITOR(&log_monitor);
-		WRITE_LOG("WRITE PAGE 16");
+    	SEND_LOG(clientSock, "WRITE PAGE 16");
         usleep(100000);
         ASSERT_EQ(16, log_monitor.write_count);
         ASSERT_EQ(16, log_monitor.write_sector_count);
@@ -235,7 +218,7 @@ namespace {
 
     TEST_P(QTMonitorUnitTest, LogReadPageOnePage) {
     	INIT_LOGGER_MONITOR(&log_monitor);
-        WRITE_LOG("READ PAGE 1");
+    	SEND_LOG(clientSock, "READ PAGE 1");
         usleep(100000);
         ASSERT_EQ(1, log_monitor.read_count);
         ASSERT_EQ(1, log_monitor.read_sector_count);
@@ -244,7 +227,7 @@ namespace {
     TEST_P(QTMonitorUnitTest, LogReadPageOnePageMutipleTime) {
     	INIT_LOGGER_MONITOR(&log_monitor);
     	for( int i = 0; i < 2; i++ )
-    		WRITE_LOG("READ PAGE 1");
+    		SEND_LOG(clientSock, "READ PAGE 1");
         usleep(100000);
         ASSERT_EQ(2, log_monitor.read_count);
 		ASSERT_EQ(2, log_monitor.read_sector_count);
@@ -252,7 +235,7 @@ namespace {
 
     TEST_P(QTMonitorUnitTest, LogReadPageMutiplePageOneTime) {
     	INIT_LOGGER_MONITOR(&log_monitor);
-		WRITE_LOG("READ PAGE 16");
+    	SEND_LOG(clientSock, "READ PAGE 16");
         usleep(100000);
         ASSERT_EQ(16, log_monitor.read_count);
         ASSERT_EQ(16, log_monitor.read_sector_count);
@@ -260,53 +243,53 @@ namespace {
 
     TEST_P(QTMonitorUnitTest, LogWriteSpeed) {
     	INIT_LOGGER_MONITOR(&log_monitor);
-        WRITE_LOG("WRITE BW 0.2233");
+    	SEND_LOG(clientSock, "WRITE BW 0.2233");
         usleep(100000);
         ASSERT_EQ(0.2233, log_monitor.write_speed);
     }
 
     TEST_P(QTMonitorUnitTest, LogWriteSpeedChange) {
     	INIT_LOGGER_MONITOR(&log_monitor);
-        WRITE_LOG("WRITE BW 0.2233");
-        WRITE_LOG("WRITE BW 0.5432");
+    	SEND_LOG(clientSock, "WRITE BW 0.2233");
+    	SEND_LOG(clientSock, "WRITE BW 0.5432");
         usleep(100000);
         ASSERT_EQ(0.5432, log_monitor.write_speed);
     }
 
     TEST_P(QTMonitorUnitTest, LogReadSpeed) {
      	INIT_LOGGER_MONITOR(&log_monitor);
-         WRITE_LOG("READ BW 0.2233");
+     	SEND_LOG(clientSock, "READ BW 0.2233");
          usleep(100000);
          ASSERT_EQ(0.2233, log_monitor.read_speed);
      }
 
     TEST_P(QTMonitorUnitTest, LogReadSpeedChange) {
     	INIT_LOGGER_MONITOR(&log_monitor);
-        WRITE_LOG("WRITE BW 0.2233");
-        WRITE_LOG("WRITE BW 0.5432");
+    	SEND_LOG(clientSock, "READ BW 0.2233");
+    	SEND_LOG(clientSock, "READ BW 0.5432");
         usleep(100000);
         ASSERT_EQ(0.5432, log_monitor.read_speed);
     }
 
     TEST_P(QTMonitorUnitTest, LogGCCount) {
      	INIT_LOGGER_MONITOR(&log_monitor);
-         WRITE_LOG("GC ");
-         WRITE_LOG("GC");
-         WRITE_LOG("GC");
+     	SEND_LOG(clientSock, "GC ");
+     	SEND_LOG(clientSock, "GC");
+     	SEND_LOG(clientSock, "GC");
          usleep(100000);
          ASSERT_EQ(3, log_monitor.gc_count);
      }
 
     TEST_P(QTMonitorUnitTest, LogWriteAmplificationSpeed) {
      	INIT_LOGGER_MONITOR(&log_monitor);
-         WRITE_LOG("WB AMP 0.2233");
+     	SEND_LOG(clientSock, "WB AMP 0.2233");
          usleep(100000);
          ASSERT_EQ(0.2233, log_monitor.write_amplification);
      }
 
     TEST_P(QTMonitorUnitTest, LogUtils) {
      	INIT_LOGGER_MONITOR(&log_monitor);
-         WRITE_LOG("UTIL 0.2233");
+     	SEND_LOG(clientSock, "UTIL 0.2233");
          usleep(100000);
          ASSERT_EQ(0.2233, log_monitor.utils);
      }
