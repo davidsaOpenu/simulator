@@ -102,6 +102,11 @@ void Form1::onReceive()
         szCmd = sock->readLine();
         szCmdList = szCmd.split(" ");
 
+        if( szCmdList[0] == "TERMINATE" ) {
+			close();
+			return;
+        }
+
         /* WRITE : write count, write sector count, write speed. */
         if(szCmdList[0] == "WRITE")
         {

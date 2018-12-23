@@ -141,6 +141,7 @@ void TERM_LOG_MANAGER(void)
 {
     // handle old monitor
 #ifdef MONITOR_ON
+	WRITE_LOG("TERMINATE ");
 	close(servSock);
 	close(clientSock);
 	pclose(monitor);
