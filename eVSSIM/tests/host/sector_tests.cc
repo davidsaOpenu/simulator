@@ -109,6 +109,7 @@ namespace {
                     "STORAGE_STRATEGY 1\n"; // sector strategy
                 ssd_conf.close();
                 FTL_INIT();
+                SET_MONITOR(MONITOR_OFF);
                 INIT_LOG_MANAGER();
             }
             virtual void TearDown() {

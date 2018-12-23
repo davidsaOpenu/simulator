@@ -78,22 +78,8 @@ void reset_analyzers(void) {
         analyzers_storage[i].rt_log_analyzer->reset_flag = 1;
 }
 
-
-void INIT_LOG_MANAGER(void)
+void START_LOG_SERVER(void)
 {
-    // handle old monitor
-#ifdef MONITOR_ON
-	if(g_init_log_server == 0){
-		if ((monitor = popen(MONITOR_EXECUTABLE_PATH, "r")) == NULL)
-			PERR("popen failed: %s\n", strerror(errno));
-		THREAD_SERVER();
-
-		g_init_log_server = 1;
-	}
-#endif
-
-	// handle new logging server
-#ifdef LOGGING_SERVER_ON
 	int i;
 
 	// allocate memory
@@ -135,16 +121,50 @@ void INIT_LOG_MANAGER(void)
 
     PINFO("Log server opened\n");
     PINFO("Browse to http://127.0.0.1:%d/ to see the current statistics\n", LOG_SERVER_PORT);
+}
+
+#ifdef MONITOR_ON
+	int monitor_type = MONITOR_QT;
+#endif
+#ifndef MONITOR_ON
+	int monitor_type = MONITOR_OFF;
+#endif
+
+void SET_MONITOR(int type) {
+	monitor_type = type;
+}
+
+void INIT_LOG_MANAGER(void)
+{
+    // handle old monitor
+	if( monitor_type != MONITOR_OFF ) {
+		if(g_init_log_server == 0){
+
+			if( monitor_type == MONITOR_QT ) {
+				if ((monitor = popen(MONITOR_EXECUTABLE_PATH, "r")) == NULL)
+					PERR("popen failed: %s\n", strerror(errno));
+			}
+			THREAD_SERVER();
+
+			g_init_log_server = 1;
+		}
+	}
+
+	// handle new logging server
+#ifdef LOGGING_SERVER_ON
+	START_LOG_SERVER();
 #endif
 }
 void TERM_LOG_MANAGER(void)
 {
     // handle old monitor
-#ifdef MONITOR_ON
-	close(servSock);
-	close(clientSock);
-	pclose(monitor);
-#endif
+	if( monitor_type != MONITOR_OFF ) {
+		close(servSock);
+		if( monitor_type == MONITOR_QT ) {
+			close(clientSock);
+			pclose(monitor);
+		}
+	}
 
 	// handle new logging server
 #ifdef LOGGING_SERVER_ON
@@ -182,7 +202,7 @@ void SEND_LOG(int clientSock, const char* szLog)
 
 void WRITE_LOG(const char *fmt, ...)
 {
-#ifdef MONITOR_ON
+	if( monitor_type != MONITOR_OFF ) {
 		if (clientSock == 0)
 			RERR(, "write log is failed\n");
 
@@ -192,7 +212,7 @@ void WRITE_LOG(const char *fmt, ...)
 		vsprintf(szLog, fmt, argp);
 		SEND_LOG(clientSock, szLog);
 		va_end(argp);
-#endif
+	}
 }
 
 void THREAD_SERVER(void)

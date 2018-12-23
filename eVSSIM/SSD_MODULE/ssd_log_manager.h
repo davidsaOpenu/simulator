@@ -14,7 +14,15 @@
 #include "logging_statistics.h"
 
 
+#define MONITOR_OFF 1
+#define MONITOR_QT 2
+#define MONITOR_CUSTOM 3
+
+void START_LOG_SERVER(void);
+
 void INIT_LOG_MANAGER(void);
+void SET_MONITOR(int client_type);
+
 void TERM_LOG_MANAGER(void);
 void WRITE_LOG(const char *fmt, ...);
 void SEND_LOG(int clientSock, const char* szLog);

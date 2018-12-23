@@ -101,6 +101,7 @@ namespace {
                 ssd_conf.close();
                 FTL_INIT();
                 INIT_OBJ_STRATEGY();
+                SET_MONITOR(MONITOR_OFF);
                 INIT_LOG_MANAGER();
                 object_size_ = params.first;
                 int object_pages = (int)ceil(1.0 * object_size_ / GET_PAGE_SIZE()); // ceil because we can't have a page belong to 2 objects
