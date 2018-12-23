@@ -25,14 +25,14 @@ if [ $CURR_RESULT -ne 0 ]; then
 fi
 
 # Monitor logging parse tests
-valgrind --leak-check=full --error-exitcode=2 ./qt_monitor_log_parser_tests
+./qt_monitor_log_parser_tests
 CURR_RESULT=$?
 if [ $CURR_RESULT -ne 0 ]; then
   RESULT=1
 fi
 
 # Monitor log calculation tests
-valgrind --leak-check=full --error-exitcode=2 ./qt_monitor_tests
+./qt_monitor_tests
 CURR_RESULT=$?
 if [ $CURR_RESULT -ne 0 ]; then
   RESULT=1
