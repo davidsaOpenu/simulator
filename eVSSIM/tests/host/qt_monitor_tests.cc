@@ -64,7 +64,6 @@ void* monitor_listener(void *arg) {
     while ( (n = read(sockfd, recvBuff, sizeof(recvBuff)-1)) > 0)
     {
         recvBuff[n] = 0;
-        printf("buf '%s'\n\n", recvBuff);
 		char * pch;
          pch = strtok (recvBuff,"\n");
          while (pch != NULL)
@@ -159,6 +158,7 @@ namespace {
                 err = pthread_create(&listener_thread, NULL, &monitor_listener, NULL);
                 if (err != 0) printf("\ncan't create thread :[%s]", strerror(err));
 
+			INIT_LOGGER_MONITOR(&log_monitor);
                 SET_MONITOR(MONITOR_CUSTOM);
                 INIT_LOG_MANAGER();
             }
@@ -190,7 +190,6 @@ namespace {
 
     INSTANTIATE_TEST_CASE_P(DiskSize, QTMonitorUnitTest, ::testing::ValuesIn(GetParams()));
 	TEST_P(QTMonitorUnitTest, NoGCNoMergeWriteAmpCalculate) {
-		INIT_LOGGER_MONITOR(&log_monitor);
 		SSD_PAGE_WRITE(0,0,0,0, WRITE, -1);
 		usleep(100000);
 		ASSERT_EQ(1, log_monitor.write_count);
@@ -198,7 +197,6 @@ namespace {
 	}
 
 	TEST_P(QTMonitorUnitTest, GCWriteAmpCalculate) {
-		INIT_LOGGER_MONITOR(&log_monitor);
 		SSD_PAGE_WRITE(0,0,0,0, WRITE, -1);
 		SSD_PAGE_WRITE(0,0,0,0, GC_WRITE, -1);
 		usleep(100000);
@@ -207,7 +205,6 @@ namespace {
 	}
 
 	TEST_P(QTMonitorUnitTest, VariantWritesAmpCalculate) {
-		INIT_LOGGER_MONITOR(&log_monitor);
 		int i;
 		int logical_writes = 40;
 		int physical_writes = 50;
@@ -223,10 +220,36 @@ namespace {
 		ASSERT_EQ((double)physical_writes / logical_writes, log_monitor.write_amplification);
 	}
 
-	TEST_P(QTMonitorUnitTest, CountEraseBlockOp) {
-		INIT_LOGGER_MONITOR(&log_monitor);
+	TEST_P(QTMonitorUnitTest, CountEraseBlockOps) {
 		SSD_BLOCK_ERASE(0,0);
 		usleep(100000);
 		ASSERT_EQ(1, log_monitor.erase_count);
+	}
+
+
+	TEST_P(QTMonitorUnitTest, CountWriteSector) {
+		_FTL_WRITE_SECT(0, 1);
+		usleep(100000);
+		ASSERT_EQ(1, log_monitor.write_sector_count);
+	}
+
+	TEST_P(QTMonitorUnitTest, CustomLengthCountWriteSector) {
+		_FTL_WRITE_SECT(0, 16);
+		usleep(100000);
+		ASSERT_EQ(16, log_monitor.write_sector_count);
+	}
+
+	TEST_P(QTMonitorUnitTest, CountReadSector) {
+		_FTL_WRITE_SECT(0, 1);
+		_FTL_READ_SECT(0, 1);
+		usleep(100000);
+		ASSERT_EQ(1, log_monitor.read_sector_count);
+	}
+
+	TEST_P(QTMonitorUnitTest, CustomLengthCountReadSector) {
+		_FTL_WRITE_SECT(0, 16);
+		_FTL_READ_SECT(0, 16);
+		usleep(100000);
+		ASSERT_EQ(16, log_monitor.read_sector_count);
 	}
 } //namespace

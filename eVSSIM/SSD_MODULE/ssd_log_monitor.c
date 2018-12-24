@@ -45,10 +45,13 @@ void PARSE_LOG(const char* log_line, logger_monitor *monitor) {
 	    	pp = _next_word(next_word, log_line, pp + 1);
 
 			if( strcmp(next_word, "PAGE") == 0 ) {
-
-		    	pp = _next_word(next_word, log_line, pp + 1);
+				pp = _next_word(next_word, log_line, pp + 1);
 				unsigned int length = atoi(next_word);
 				monitor->write_count += length;
+
+			} else if( strcmp(next_word, "SECTOR") == 0 ) {
+				pp = _next_word(next_word, log_line, pp + 1);
+				unsigned int length = atoi(next_word);
 				monitor->write_sector_count += length;
 
 			} else if( strcmp(next_word, "BW") == 0 ) {
@@ -60,9 +63,13 @@ void PARSE_LOG(const char* log_line, logger_monitor *monitor) {
 
 	    	pp = _next_word(next_word, log_line, pp + 1);
 			if( strcmp(next_word, "PAGE") == 0 ) {
-		    	pp = _next_word(next_word, log_line, pp + 1);
+				pp = _next_word(next_word, log_line, pp + 1);
 				unsigned int length = atoi(next_word);
 				monitor->read_count += length;
+
+			} else if( strcmp(next_word, "SECTOR") == 0 ) {
+				pp = _next_word(next_word, log_line, pp + 1);
+				unsigned int length = atoi(next_word);
 				monitor->read_sector_count += length;
 
 			} else if( strcmp(next_word, "BW") == 0 ) {
