@@ -95,6 +95,9 @@ void Form1::printStats()
 	sprintf(szTemp, "%lf", monitor.read_speed);
 	ui->txtReadSpeed->setText(szTemp);
 
+	sprintf(szTemp, "%ld", monitor.erase_count);
+	ui->txtEraseCount->setText(szTemp);
+
 	// GC
 	sprintf(szTemp, "%ld", monitor.gc_count);
 	ui->txtGarbageCollectionNB->setText(szTemp);

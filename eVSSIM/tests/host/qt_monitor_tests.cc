@@ -64,6 +64,7 @@ void* monitor_listener(void *arg) {
     while ( (n = read(sockfd, recvBuff, sizeof(recvBuff)-1)) > 0)
     {
         recvBuff[n] = 0;
+        printf("buf '%s'\n\n", recvBuff);
 		char * pch;
          pch = strtok (recvBuff,"\n");
          while (pch != NULL)
@@ -222,4 +223,10 @@ namespace {
 		ASSERT_EQ((double)physical_writes / logical_writes, log_monitor.write_amplification);
 	}
 
+	TEST_P(QTMonitorUnitTest, CountEraseBlockOp) {
+		INIT_LOGGER_MONITOR(&log_monitor);
+		SSD_BLOCK_ERASE(0,0);
+		usleep(100000);
+		ASSERT_EQ(1, log_monitor.erase_count);
+	}
 } //namespace

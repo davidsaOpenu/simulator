@@ -22,6 +22,8 @@ typedef struct {
 	int gc_exchange;
 	int gc_sector;
 
+	int erase_count;
+
 	int trim_count;
 	int trim_effect;
 	int written_pages;

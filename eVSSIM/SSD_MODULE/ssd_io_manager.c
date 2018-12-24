@@ -240,6 +240,7 @@ ftl_ret_val SSD_BLOCK_ERASE(unsigned int flash_nb, unsigned int block_nb)
 
     TIME_MICROSEC(_end);
 
+    WRITE_LOG("ERASE ");
 	LOG_BLOCK_ERASE(GET_LOGGER(flash_nb), (BlockEraseLog) {
 	    .channel = channel, .die = flash_nb, .block = block_nb,
         .metadata.logging_start_time = _start,

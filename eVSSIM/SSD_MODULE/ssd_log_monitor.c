@@ -73,6 +73,10 @@ void PARSE_LOG(const char* log_line, logger_monitor *monitor) {
 
 			monitor->gc_count++;
 
+		} else if( strcmp(next_word, "ERASE") == 0 ) {
+
+			monitor->erase_count++;
+
 		} else if( strcmp(next_word, "WB") == 0 ) {
 
 	    	pp = _next_word(next_word, log_line, pp + 1);
@@ -119,6 +123,8 @@ void INIT_LOGGER_MONITOR(logger_monitor *monitor) {
 	monitor->gc_count = 0;
 	monitor->gc_exchange = 0;
 	monitor->gc_sector = 0;
+
+	monitor->erase_count = 0;
 
 	monitor->trim_count = 0;
 	monitor->trim_effect = 0;
