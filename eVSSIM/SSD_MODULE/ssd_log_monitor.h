@@ -26,7 +26,7 @@ typedef struct {
 
 	int trim_count;
 	int trim_effect;
-	int written_pages;
+	int written_page;
 	double write_amplification;
 	double utils;
 } logger_monitor;

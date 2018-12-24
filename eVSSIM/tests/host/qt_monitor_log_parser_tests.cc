@@ -190,10 +190,30 @@ namespace {
     }
 
     INSTANTIATE_TEST_CASE_P(DiskSize, QTMonitorUnitTest, ::testing::ValuesIn(GetParams()));
+    TEST_P(QTMonitorUnitTest, LogWriteRequestOnePage) {
+	SEND_LOG(clientSock, "WRITE REQUEST 1");
+        usleep(100000);
+        ASSERT_EQ(1, log_monitor.write_count);
+    }
+
+    TEST_P(QTMonitorUnitTest, CumulativeLogWriteRequestOnePageMutipleTime) {
+	int times = 16;
+	for( int i = 0; i < times; i++ )
+		SEND_LOG(clientSock, "WRITE REQUEST 1");
+        usleep(100000);
+        ASSERT_EQ(times, log_monitor.write_count);
+    }
+
+    TEST_P(QTMonitorUnitTest, LogWriteRequestMutiplePageOneTime) {
+	SEND_LOG(clientSock, "WRITE REQUEST 16");
+        usleep(100000);
+        ASSERT_EQ(16, log_monitor.write_count);
+    }
+
     TEST_P(QTMonitorUnitTest, LogWritePageOnePage) {
     	SEND_LOG(clientSock, "WRITE PAGE 1");
         usleep(100000);
-        ASSERT_EQ(1, log_monitor.write_count);
+        ASSERT_EQ(1, log_monitor.written_page);
     }
 
     TEST_P(QTMonitorUnitTest, CumulativeLogWritePageOnePageMutipleTime) {
@@ -201,15 +221,14 @@ namespace {
 	for( int i = 0; i < times; i++ )
     		SEND_LOG(clientSock, "WRITE PAGE 1");
         usleep(100000);
-        ASSERT_EQ(times, log_monitor.write_count);
+        ASSERT_EQ(times, log_monitor.written_page);
     }
 
     TEST_P(QTMonitorUnitTest, LogWritePageMutiplePageOneTime) {
     	SEND_LOG(clientSock, "WRITE PAGE 16");
         usleep(100000);
-        ASSERT_EQ(16, log_monitor.write_count);
+        ASSERT_EQ(16, log_monitor.written_page);
     }
-
 
     TEST_P(QTMonitorUnitTest, LogWriteSectorOnePage) {
 	SEND_LOG(clientSock, "WRITE SECTOR 1");
@@ -233,20 +252,20 @@ namespace {
 
 
     TEST_P(QTMonitorUnitTest, LogReadPageOnePage) {
-    	SEND_LOG(clientSock, "READ PAGE 1");
+    SEND_LOG(clientSock, "READ REQUEST 1");
         usleep(100000);
         ASSERT_EQ(1, log_monitor.read_count);
     }
 
     TEST_P(QTMonitorUnitTest, LogReadPageOnePageMutipleTime) {
     	for( int i = 0; i < 2; i++ )
-    		SEND_LOG(clientSock, "READ PAGE 1");
+		SEND_LOG(clientSock, "READ REQUEST 1");
         usleep(100000);
         ASSERT_EQ(2, log_monitor.read_count);
     }
 
     TEST_P(QTMonitorUnitTest, LogReadPageMutiplePageOneTime) {
-    	SEND_LOG(clientSock, "READ PAGE 16");
+    SEND_LOG(clientSock, "READ REQUEST 16");
         usleep(100000);
         ASSERT_EQ(16, log_monitor.read_count);
     }

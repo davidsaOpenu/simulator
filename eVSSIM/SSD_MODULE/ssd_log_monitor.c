@@ -44,10 +44,17 @@ void PARSE_LOG(const char* log_line, logger_monitor *monitor) {
 		if( strcmp(next_word, "WRITE") == 0 )  {
 	    	pp = _next_word(next_word, log_line, pp + 1);
 
-			if( strcmp(next_word, "PAGE") == 0 ) {
+	    	if( strcmp(next_word, "REQUEST") == 0 ) {
+
 				pp = _next_word(next_word, log_line, pp + 1);
 				unsigned int length = atoi(next_word);
 				monitor->write_count += length;
+
+	    	} else if( strcmp(next_word, "PAGE") == 0 ) {
+
+				pp = _next_word(next_word, log_line, pp + 1);
+				unsigned int length = atoi(next_word);
+				monitor->written_page += length;
 
 			} else if( strcmp(next_word, "SECTOR") == 0 ) {
 				pp = _next_word(next_word, log_line, pp + 1);
@@ -62,7 +69,8 @@ void PARSE_LOG(const char* log_line, logger_monitor *monitor) {
 		} else if( strcmp(next_word, "READ") == 0 ) {
 
 	    	pp = _next_word(next_word, log_line, pp + 1);
-			if( strcmp(next_word, "PAGE") == 0 ) {
+		if( strcmp(next_word, "REQUEST") == 0 ) {
+
 				pp = _next_word(next_word, log_line, pp + 1);
 				unsigned int length = atoi(next_word);
 				monitor->read_count += length;
@@ -91,7 +99,7 @@ void PARSE_LOG(const char* log_line, logger_monitor *monitor) {
 	    	if( strcmp(next_word, "CORRECT") == 0 ) {
 
 		    	pp = _next_word(next_word, log_line, pp + 1);
-				monitor->written_pages += atoi(next_word);
+				monitor->written_page += atoi(next_word);
 
 			} else {
 		    	pp = _next_word(next_word, log_line, pp + 1);
@@ -135,7 +143,7 @@ void INIT_LOGGER_MONITOR(logger_monitor *monitor) {
 
 	monitor->trim_count = 0;
 	monitor->trim_effect = 0;
-	monitor->written_pages = 0;
+	monitor->written_page = 0;
 
 	monitor->write_amplification = 0.0;
 	monitor->utils = 0.0;

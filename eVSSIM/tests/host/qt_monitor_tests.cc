@@ -192,7 +192,7 @@ namespace {
 	TEST_P(QTMonitorUnitTest, NoGCNoMergeWriteAmpCalculate) {
 		SSD_PAGE_WRITE(0,0,0,0, WRITE, -1);
 		usleep(100000);
-		ASSERT_EQ(1, log_monitor.write_count);
+		ASSERT_EQ(1, log_monitor.written_page);
 		ASSERT_EQ(1.0, log_monitor.write_amplification);
 	}
 
@@ -200,7 +200,7 @@ namespace {
 		SSD_PAGE_WRITE(0,0,0,0, WRITE, -1);
 		SSD_PAGE_WRITE(0,0,0,0, GC_WRITE, -1);
 		usleep(100000);
-		ASSERT_EQ(1, log_monitor.write_count);
+		ASSERT_EQ(1, log_monitor.written_page);
 		ASSERT_EQ(2.0, log_monitor.write_amplification);
 	}
 
@@ -216,7 +216,7 @@ namespace {
 			SSD_PAGE_WRITE(0,0,0,0, GC_WRITE, -1);
 
 		usleep(100000);
-		ASSERT_EQ(logical_writes, log_monitor.write_count);
+		ASSERT_EQ(logical_writes, log_monitor.written_page);
 		ASSERT_EQ((double)physical_writes / logical_writes, log_monitor.write_amplification);
 	}
 
@@ -226,16 +226,17 @@ namespace {
 		ASSERT_EQ(1, log_monitor.erase_count);
 	}
 
-
 	TEST_P(QTMonitorUnitTest, CountWriteSector) {
 		_FTL_WRITE_SECT(0, 1);
 		usleep(100000);
+		ASSERT_EQ(1, log_monitor.write_count);
 		ASSERT_EQ(1, log_monitor.write_sector_count);
 	}
 
 	TEST_P(QTMonitorUnitTest, CustomLengthCountWriteSector) {
 		_FTL_WRITE_SECT(0, 16);
 		usleep(100000);
+		ASSERT_EQ(1, log_monitor.write_count);
 		ASSERT_EQ(16, log_monitor.write_sector_count);
 	}
 
@@ -243,6 +244,7 @@ namespace {
 		_FTL_WRITE_SECT(0, 1);
 		_FTL_READ_SECT(0, 1);
 		usleep(100000);
+		ASSERT_EQ(1, log_monitor.read_count);
 		ASSERT_EQ(1, log_monitor.read_sector_count);
 	}
 
@@ -250,6 +252,7 @@ namespace {
 		_FTL_WRITE_SECT(0, 16);
 		_FTL_READ_SECT(0, 16);
 		usleep(100000);
+		ASSERT_EQ(1, log_monitor.read_count);
 		ASSERT_EQ(16, log_monitor.read_sector_count);
 	}
 } //namespace

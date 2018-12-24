@@ -76,6 +76,7 @@ ftl_ret_val _FTL_READ_SECT(uint64_t sector_nb, unsigned int length)
 
 	INCREASE_IO_REQUEST_SEQ_NB();
 
+	WRITE_LOG("READ REQUEST %d", 1);
 	WRITE_LOG("READ SECTOR %d", length);
 	PDBG_FTL("Complete\n");
 
@@ -169,6 +170,7 @@ ftl_ret_val _FTL_WRITE_SECT(uint64_t sector_nb, unsigned int length)
 		page = CALC_PAGE(new_ppn);
 
 		TIME_MICROSEC(_end);
+		WRITE_LOG("WRITE REQUEST %d", 1);
 		WRITE_LOG("WRITE SECTOR %d\n", length);
 		LOG_LOGICAL_CELL_PROGRAM(GET_LOGGER(flash_nb),(LogicalCellProgramLog) {
 		    .channel = channel, .block = block, .page = page,
