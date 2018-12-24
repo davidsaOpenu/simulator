@@ -10,7 +10,7 @@ VSSIM_OBJ = vssim_config_manager.o \
 CFLAGS = ssd_log_monitor.c -I/opt/gtest/include -I$(VSSIM_HOME)/osc-osd -I$(VSSIM_HOME)/osc-osd/osd-target -I$(VSSIM_HOME)/QEMU -g -DGTEST -DCOMPLIANCE_TESTS -L/opt/gtest/lib -L$(VSSIM_HOME)/osc-osd/osd-util -L$(VSSIM_HOME)/osc-osd/osd-target -I/opt/libwebsockets/include -L/opt/libwebsockets/lib -Wl,-R/opt/libwebsockets/lib -g -m64 -pipe -O2 -Wall -W -D_REENTRANT -fPIE -DQT_NO_DEBUG -DQT_WIDGETS_LIB -DQT_NETWORK_LIB -DQT_GUI_LIB -DQT_CORE_LIB
 MONITOR_DIR = ../../MONITOR/SSD_MONITOR_PM
 
-all: sector_tests object_tests log_mgr_tests qt_monitor_tests
+all: sector_tests object_tests log_mgr_tests qt_monitor_log_parser_tests qt_monitor_tests
 
 sector_tests: sector_tests.o $(VSSIM_OBJ)
 	g++ $(CFLAGS) -Wall -o sector_tests sector_tests.o $(VSSIM_OBJ) -lpthread -lgtest -lgtest_main -losdutil -losdtgt -lsqlite3 -lwebsockets
@@ -20,6 +20,9 @@ object_tests: object_tests.o $(VSSIM_OBJ)
 
 log_mgr_tests: log_mgr_tests.o $(VSSIM_OBJ) rt_analyzer_subscriber.o log_manager_subscriber.o .MONITOR
 	g++ $(CFLAGS) -Wall -o log_mgr_tests log_mgr_tests.o rt_analyzer_subscriber.o log_manager_subscriber.o $(VSSIM_OBJ) $(MONITOR_DIR)/monitor_test.o $(MONITOR_DIR)/form1.o $(MONITOR_DIR)/moc_form1.o -L/usr/X11R6/lib64 -lXext -lX11 -lm -lpthread -lgtest -lgtest_main -losdutil -losdtgt -lsqlite3 -lwebsockets -lQt5Widgets -L/usr/lib/x86_64-linux-gnu -lQt5Network -lQt5Gui -lQt5Core
+
+qt_monitor_log_parser_tests: qt_monitor_log_parser_tests.o $(VSSIM_OBJ)
+	g++ $(CFLAGS) -Wall -o qt_monitor_log_parser_tests qt_monitor_log_parser_tests.o $(VSSIM_OBJ) -lpthread -lgtest -lgtest_main -losdutil -losdtgt -lsqlite3 -lwebsockets
 
 qt_monitor_tests: qt_monitor_tests.o $(VSSIM_OBJ)
 	g++ $(CFLAGS) -Wall -o qt_monitor_tests qt_monitor_tests.o $(VSSIM_OBJ) -lpthread -lgtest -lgtest_main -losdutil -losdtgt -lsqlite3 -lwebsockets
@@ -36,7 +39,7 @@ qt_monitor_tests: qt_monitor_tests.o $(VSSIM_OBJ)
 .PHONY: clean distclean mklink
 
 clean:
-	rm -f object_tests sector_tests log_mgr_tests object_tests.o sector_tests.o log_mgr_tests.o rt_analyzer_subscriber.o log_manager_subscriber.o $(VSSIM_OBJ) data/*
+	rm -f object_tests sector_tests log_mgr_tests qt_monitor_log_parser_tests object_tests.o sector_tests.o log_mgr_tests.o qt_monitor_log_parser_tests.o rt_analyzer_subscriber.o log_manager_subscriber.o $(VSSIM_OBJ) data/*
 
 distclean: clean
 	rm -rf   ssd_io_manager.h ssd_io_manager.c ssd_log_manager.h ssd_log_manager.c ssd_log_monitor.h ssd_log_monitor.c ssd_util.h \
