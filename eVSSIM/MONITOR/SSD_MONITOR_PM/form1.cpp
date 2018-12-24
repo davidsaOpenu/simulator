@@ -95,6 +95,9 @@ void Form1::printStats()
 	sprintf(szTemp, "%lf", monitor.read_speed);
 	ui->txtReadSpeed->setText(szTemp);
 
+	sprintf(szTemp, "%ld", monitor.erase_count);
+	ui->txtEraseCount->setText(szTemp);
+
 	// GC
 	sprintf(szTemp, "%ld", monitor.gc_count);
 	ui->txtGarbageCollectionNB->setText(szTemp);
@@ -107,7 +110,7 @@ void Form1::printStats()
     ui->txtTrimEffect->setText(szTemp);
 
     // Written page
-	sprintf(szTemp, "%ld", monitor.written_pages);
+	sprintf(szTemp, "%ld", monitor.written_page);
 	ui->txtWrittenBlockCount->setText(szTemp);
 
     // Write amplification
@@ -193,7 +196,7 @@ void Form1::btnSave_clicked()
     out << "TRIM effect\t" << monitor.trim_effect << "\n\n";
 
     out << "Write Amplification\t" << monitor.write_amplification << "\n";
-    out << "Written Page\t" << monitor.written_pages << "\n";
+    out << "Written Page\t" << monitor.written_page << "\n";
     out << "Run-time[ms]\t" << s_timer << "\n";
 
     file.close();
@@ -207,7 +210,7 @@ void Form1::btnSave_clicked()
 void Form1::updateStats(SSDStatistics stats) {
     char szTemp[128];
 
-    monitor.written_pages
+    monitor.written_page
 		= monitor.write_sector_count
 		= monitor.write_count = stats.write_count;
 

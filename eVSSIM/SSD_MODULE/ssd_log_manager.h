@@ -13,12 +13,18 @@
 #include "logging_server.h"
 #include "logging_statistics.h"
 
+#define MONITOR_OFF 1
+#define MONITOR_QT 2
+#define MONITOR_CUSTOM 3
+
+void SET_MONITOR(int monitor_type);
 
 void INIT_LOG_MANAGER(void);
 void TERM_LOG_MANAGER(void);
 void WRITE_LOG(const char *fmt, ...);
 void SEND_LOG(int clientSock, const char* szLog);
 
+void CUSTOM_MONITOR_ON(void);
 void THREAD_SERVER(void);
 void THREAD_CLIENT(void *arg);
 
