@@ -1,18 +1,18 @@
 ---
-- name: configure prerequisites
-  hosts: [host_testers, guest_testers]
-  roles:
-    - common
-  environment:
-    http_proxy: "{{ lookup('env','http_proxy') }}"
-    https_proxy: "{{ lookup('env','http_proxy') }}"
-  tags: [host, guest, common]
-
-- name: perform host tests
-  hosts: host_testers
-  roles:
-    - host_tester
-  tags: host
+#- name: configure prerequisites
+#  hosts: [host_testers, guest_testers]
+#  roles:
+#    - common
+#  environment:
+#    http_proxy: "{{ lookup('env','http_proxy') }}"
+#    https_proxy: "{{ lookup('env','http_proxy') }}"
+#  tags: [host, guest, common]
+#
+#- name: perform host tests
+#  hosts: host_testers
+#  roles:
+#    - host_tester
+#  tags: host
 
 - name: prepare image to run tests and leave instatce active
   hosts: guest_testers

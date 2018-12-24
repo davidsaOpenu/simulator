@@ -24,6 +24,14 @@ if [ $CURR_RESULT -ne 0 ]; then
   RESULT=1
 fi
 
+
+# run qt monitor tests
+./qt_monitor_tests
+CURR_RESULT=$?
+if [ $CURR_RESULT -ne 0 ]; then
+  RESULT=1
+fi
+
 exit $RESULT
 
 
