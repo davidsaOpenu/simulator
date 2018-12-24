@@ -156,15 +156,16 @@ namespace {
 
                 int err;
                 err = pthread_create(&listener_thread, NULL, &monitor_listener, NULL);
-                if (err != 0) printf("\ncan't create thread :[%s]", strerror(err));
+                if (err != 0)
+				printf("\ncan't create thread :[%s]", strerror(err));
 
 			INIT_LOGGER_MONITOR(&log_monitor);
-                SET_MONITOR(MONITOR_CUSTOM);
-                INIT_LOG_MANAGER();
+          		THREAD_SERVER();
             }
             virtual void TearDown() {
                 FTL_TERM();
-            TERM_LOG_MANAGER();
+            	close(servSock);
+            	close(clientSock);
                 remove("data/empty_block_list.dat");
                 remove("data/inverse_block_mapping.dat");
                 remove("data/inverse_page_mapping.dat");
@@ -189,70 +190,152 @@ namespace {
     }
 
     INSTANTIATE_TEST_CASE_P(DiskSize, QTMonitorUnitTest, ::testing::ValuesIn(GetParams()));
-	TEST_P(QTMonitorUnitTest, NoGCNoMergeWriteAmpCalculate) {
-		SSD_PAGE_WRITE(0,0,0,0, WRITE, -1);
-		usleep(100000);
-		ASSERT_EQ(1, log_monitor.written_page);
-		ASSERT_EQ(1.0, log_monitor.write_amplification);
-	}
+    TEST_P(QTMonitorUnitTest, LogWriteRequestOnePage) {
+	SEND_LOG(clientSock, "WRITE REQUEST 1");
+        usleep(100000);
+        ASSERT_EQ(1, log_monitor.write_count);
+    }
 
-	TEST_P(QTMonitorUnitTest, GCWriteAmpCalculate) {
-		SSD_PAGE_WRITE(0,0,0,0, WRITE, -1);
-		SSD_PAGE_WRITE(0,0,0,0, GC_WRITE, -1);
-		usleep(100000);
-		ASSERT_EQ(1, log_monitor.written_page);
-		ASSERT_EQ(2.0, log_monitor.write_amplification);
-	}
+    TEST_P(QTMonitorUnitTest, CumulativeLogWriteRequestOnePageMutipleTime) {
+	int times = 16;
+	for( int i = 0; i < times; i++ )
+		SEND_LOG(clientSock, "WRITE REQUEST 1");
+        usleep(100000);
+        ASSERT_EQ(times, log_monitor.write_count);
+    }
 
-	TEST_P(QTMonitorUnitTest, VariantWritesAmpCalculate) {
-		int i;
-		int logical_writes = 40;
-		int physical_writes = 50;
+    TEST_P(QTMonitorUnitTest, LogWriteRequestMutiplePageOneTime) {
+	SEND_LOG(clientSock, "WRITE REQUEST 16");
+        usleep(100000);
+        ASSERT_EQ(16, log_monitor.write_count);
+    }
 
-		for( i = 0; i < logical_writes; i++ )
-			SSD_PAGE_WRITE(0,0,0,0, WRITE, -1);
+    TEST_P(QTMonitorUnitTest, LogWritePageOnePage) {
+    	SEND_LOG(clientSock, "WRITE PAGE 1");
+        usleep(100000);
+        ASSERT_EQ(1, log_monitor.written_page);
+    }
 
-		for( i = 0; i < physical_writes - logical_writes; i++ )
-			SSD_PAGE_WRITE(0,0,0,0, GC_WRITE, -1);
+    TEST_P(QTMonitorUnitTest, CumulativeLogWritePageOnePageMutipleTime) {
+	int times = 16;
+	for( int i = 0; i < times; i++ )
+    		SEND_LOG(clientSock, "WRITE PAGE 1");
+        usleep(100000);
+        ASSERT_EQ(times, log_monitor.written_page);
+    }
 
-		usleep(100000);
-		ASSERT_EQ(logical_writes, log_monitor.written_page);
-		ASSERT_EQ((double)physical_writes / logical_writes, log_monitor.write_amplification);
-	}
+    TEST_P(QTMonitorUnitTest, LogWritePageMutiplePageOneTime) {
+    	SEND_LOG(clientSock, "WRITE PAGE 16");
+        usleep(100000);
+        ASSERT_EQ(16, log_monitor.written_page);
+    }
 
-	TEST_P(QTMonitorUnitTest, CountEraseBlockOps) {
-		SSD_BLOCK_ERASE(0,0);
-		usleep(100000);
-		ASSERT_EQ(1, log_monitor.erase_count);
-	}
+    TEST_P(QTMonitorUnitTest, LogWriteSectorOnePage) {
+	SEND_LOG(clientSock, "WRITE SECTOR 1");
+        usleep(100000);
+        ASSERT_EQ(1, log_monitor.write_sector_count);
+    }
 
-	TEST_P(QTMonitorUnitTest, CountWriteSector) {
-		_FTL_WRITE_SECT(0, 1);
-		usleep(100000);
-		ASSERT_EQ(1, log_monitor.write_count);
-		ASSERT_EQ(1, log_monitor.write_sector_count);
-	}
+    TEST_P(QTMonitorUnitTest, CumulativeLogWriteSectorOnePageMutipleTime) {
+	int times = 16;
+	for( int i = 0; i < times; i++ )
+		SEND_LOG(clientSock, "WRITE SECTOR 1");
+        usleep(100000);
+        ASSERT_EQ(times, log_monitor.write_sector_count);
+    }
 
-	TEST_P(QTMonitorUnitTest, CustomLengthCountWriteSector) {
-		_FTL_WRITE_SECT(0, 16);
-		usleep(100000);
-		ASSERT_EQ(1, log_monitor.write_count);
-		ASSERT_EQ(16, log_monitor.write_sector_count);
-	}
+    TEST_P(QTMonitorUnitTest, LogWriteSectorMutiplePageOneTime) {
+	SEND_LOG(clientSock, "WRITE SECTOR 16");
+        usleep(100000);
+        ASSERT_EQ(16, log_monitor.write_sector_count);
+    }
 
-	TEST_P(QTMonitorUnitTest, CountReadSector) {
-		_FTL_WRITE_SECT(0, 1);
-		_FTL_READ_SECT(0, 1);
-		usleep(100000);
-		ASSERT_EQ(1, log_monitor.read_count);
-		ASSERT_EQ(1, log_monitor.read_sector_count);
-	}
 
-	TEST_P(QTMonitorUnitTest, CustomLengthCountReadSector) {
-		_FTL_WRITE_SECT(0, 16);
-		_FTL_READ_SECT(0, 16);
-		usleep(100000);
-		ASSERT_EQ(1, log_monitor.read_count);
-		ASSERT_EQ(16, log_monitor.read_sector_count);
-	}
+    TEST_P(QTMonitorUnitTest, LogReadPageOnePage) {
+    SEND_LOG(clientSock, "READ REQUEST 1");
+        usleep(100000);
+        ASSERT_EQ(1, log_monitor.read_count);
+    }
+
+    TEST_P(QTMonitorUnitTest, LogReadPageOnePageMutipleTime) {
+    	for( int i = 0; i < 2; i++ )
+		SEND_LOG(clientSock, "READ REQUEST 1");
+        usleep(100000);
+        ASSERT_EQ(2, log_monitor.read_count);
+    }
+
+    TEST_P(QTMonitorUnitTest, LogReadPageMutiplePageOneTime) {
+    SEND_LOG(clientSock, "READ REQUEST 16");
+        usleep(100000);
+        ASSERT_EQ(16, log_monitor.read_count);
+    }
+
+
+    TEST_P(QTMonitorUnitTest, LogReadSectorOnePage) {
+	SEND_LOG(clientSock, "READ SECTOR 1");
+        usleep(100000);
+        ASSERT_EQ(1, log_monitor.read_sector_count);
+    }
+
+    TEST_P(QTMonitorUnitTest, LogReadSectorOnePageMutipleTime) {
+	for( int i = 0; i < 2; i++ )
+		SEND_LOG(clientSock, "READ SECTOR 1");
+        usleep(100000);
+		ASSERT_EQ(2, log_monitor.read_sector_count);
+    }
+
+    TEST_P(QTMonitorUnitTest, LogReadSectorMutiplePageOneTime) {
+	SEND_LOG(clientSock, "READ SECTOR 16");
+        usleep(100000);
+        ASSERT_EQ(16, log_monitor.read_sector_count);
+    }
+
+
+    TEST_P(QTMonitorUnitTest, LogWriteSpeed) {
+    	SEND_LOG(clientSock, "WRITE BW 0.2233");
+        usleep(100000);
+        ASSERT_EQ(0.2233, log_monitor.write_speed);
+    }
+
+    TEST_P(QTMonitorUnitTest, LogWriteSpeedChange) {
+    	SEND_LOG(clientSock, "WRITE BW 0.2233");
+    	SEND_LOG(clientSock, "WRITE BW 0.5432");
+        usleep(100000);
+        ASSERT_EQ(0.5432, log_monitor.write_speed);
+    }
+
+    TEST_P(QTMonitorUnitTest, LogReadSpeed) {
+     	SEND_LOG(clientSock, "READ BW 0.2233");
+         usleep(100000);
+         ASSERT_EQ(0.2233, log_monitor.read_speed);
+     }
+
+    TEST_P(QTMonitorUnitTest, LogReadSpeedChange) {
+    	SEND_LOG(clientSock, "READ BW 0.2233");
+    	SEND_LOG(clientSock, "READ BW 0.5432");
+        usleep(100000);
+        ASSERT_EQ(0.5432, log_monitor.read_speed);
+    }
+
+    TEST_P(QTMonitorUnitTest, LogGCCount) {
+     	SEND_LOG(clientSock, "GC ");
+     	SEND_LOG(clientSock, "GC");
+     	SEND_LOG(clientSock, "GC");
+         usleep(100000);
+         ASSERT_EQ(3, log_monitor.gc_count);
+     }
+
+    TEST_P(QTMonitorUnitTest, LogWriteAmplificationSpeed) {
+     	SEND_LOG(clientSock, "WB AMP 0.2233");
+         usleep(100000);
+         ASSERT_EQ(0.2233, log_monitor.write_amplification);
+     }
+
+    TEST_P(QTMonitorUnitTest, LogUtils) {
+     	SEND_LOG(clientSock, "UTIL 0.2233");
+         usleep(100000);
+         ASSERT_EQ(0.2233, log_monitor.utils);
+     }
+
+
 } //namespace
