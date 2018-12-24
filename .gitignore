@@ -53,6 +53,7 @@ eVSSIM/QEMU/hw/ftl_obj_strategy.h
 eVSSIM/QEMU/hw/ftl_perf_manager.h
 eVSSIM/QEMU/hw/ssd_io_manager.h
 eVSSIM/QEMU/hw/ssd_log_manager.h
+eVSSIM/QEMU/hw/ssd_log_monitor.h
 eVSSIM/QEMU/hw/ftl.c
 eVSSIM/QEMU/hw/ftl_mapping_manager.c
 eVSSIM/QEMU/hw/ftl_inverse_mapping_manager.c
@@ -62,6 +63,7 @@ eVSSIM/QEMU/hw/ftl_obj_strategy.c
 eVSSIM/QEMU/hw/ftl_perf_manager.c
 eVSSIM/QEMU/hw/ssd_io_manager.c
 eVSSIM/QEMU/hw/ssd_log_manager.c
+eVSSIM/QEMU/hw/ssd_log_monitor.c
 eVSSIM/QEMU/x86_64-softmmu/ssd_monitor
 eVSSIM/QEMU/x86_64-softmmu/data/ssd.conf
 eVSSIM/QEMU/hw/vssim_config_manager.h
@@ -91,6 +93,7 @@ eVSSIM/tests/host/log_mgr_tests
 eVSSIM/tests/host/unit_tests
 eVSSIM/tests/host/sector_tests
 eVSSIM/tests/host/object_tests
+eVSSIM/tests/host/qt_monitor_tests
 eVSSIM/tests/host/data
 eVSSIM/tests/host/common.h
 eVSSIM/tests/host/logging_rt_analyzer.h
@@ -124,6 +127,8 @@ eVSSIM/tests/host/ssd_io_manager.c
 eVSSIM/tests/host/ssd_io_manager.h
 eVSSIM/tests/host/ssd_log_manager.c
 eVSSIM/tests/host/ssd_log_manager.h
+eVSSIM/tests/host/ssd_log_monitor.c
+eVSSIM/tests/host/ssd_log_monitor.h
 eVSSIM/tests/host/ssd_monitor
 eVSSIM/tests/host/ssd_util.h
 eVSSIM/tests/host/uthash.h
