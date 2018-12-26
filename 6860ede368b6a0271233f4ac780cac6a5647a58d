@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "16c9dfb1_e4b534aa",
+        "filename": "infra/docker/centos/Dockerfile",
+        "patchSetId": 1
+      },
+      "lineNbr": 4,
+      "author": {
+        "id": 1007990
+      },
+      "writtenOn": "2018-12-26T15:33:45Z",
+      "side": 1,
+      "message": "why the rebuild is nessary?\nwhen and why yum-plugin-ovl is used?",
+      "range": {
+        "startLine": 4,
+        "startChar": 0,
+        "endLine": 4,
+        "endChar": 50
+      },
+      "revId": "6860ede368b6a0271233f4ac780cac6a5647a58d",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    }
+  ]
+}
