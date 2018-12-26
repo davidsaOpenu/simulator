@@ -67,4 +67,9 @@ void SSD_UPDATE_QEMU_OVERHEAD(int64_t delay);
 /* SSD Module Debugging */
 void SSD_PRINT_STAMP(void);
 
+/* SSD statistics */
+double SSD_UTIL_CALC(void);
+double SSD_WRITE_BANDWIDTH(void);
+double SSD_READ_BANDWIDTH(void);
+
 #endif

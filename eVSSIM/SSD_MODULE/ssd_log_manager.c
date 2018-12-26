@@ -182,15 +182,6 @@ void TERM_LOG_MANAGER(void)
 #endif
 }
 
-void SEND_LOG(int clientSock, const char* szLog)
-{
-	if (clientSock == 0)
-		RERR(, "write log is failed\n");
-
-	send(clientSock, szLog, strlen(szLog), 0);
-	send(clientSock, "\n", 1, MSG_DONTWAIT);
-}
-
 void WRITE_LOG(const char *fmt, ...)
 {
 	if( monitor_type != MONITOR_OFF ) {
@@ -201,7 +192,11 @@ void WRITE_LOG(const char *fmt, ...)
 		va_list argp;
 		va_start(argp, fmt);
 		vsprintf(szLog, fmt, argp);
-		SEND_LOG(clientSock, szLog);
+		if (clientSock == 0)
+			RERR(, "write log is failed\n");
+
+		send(clientSock, szLog, strlen(szLog), 0);
+		send(clientSock, "\n", 1, MSG_DONTWAIT);
 		va_end(argp);
 	}
 }

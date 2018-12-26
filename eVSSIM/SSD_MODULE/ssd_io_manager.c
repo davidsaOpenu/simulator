@@ -30,6 +30,11 @@ struct timeval logging_parser_tv;
 
 int physical_page_write = 0;
 int logical_page_write = 0;
+int logical_page_read = 0;
+int** block_pages_counter;
+
+unsigned long int write_delay_sum = 0;
+unsigned long int read_delay_sum = 0;
 
 int64_t get_usec(void)
 {
@@ -48,6 +53,7 @@ int64_t get_usec(void)
 int SSD_IO_INIT(void){
 
 	int i= 0;
+	int j= 0;
 
 	/* Print SSD version */
 	PINFO("SSD Emulator Version: %s ver. (%s)\n", ssd_version, ssd_date);
@@ -55,6 +61,11 @@ int SSD_IO_INIT(void){
 	/* Init page write / read counters variable */
 	physical_page_write = 0;
 	logical_page_write = 0;
+	logical_page_read = 0;
+
+	/* Init write / read delay */
+	write_delay_sum = 0;
+	read_delay_sum = 0;
 
 	/* Init Variable for Channel Switch Delay */
 	old_channel_nb = CHANNEL_NB;
@@ -99,6 +110,14 @@ int SSD_IO_INIT(void){
 		*(io_overhead + i) = 0;
 	}
 
+	/* Init pages in block counter */
+	block_pages_counter = (int **)malloc(sizeof(int*) * FLASH_NB * BLOCK_NB);
+	for( i = 0; i < FLASH_NB; i++ ) {
+		*(block_pages_counter + i) = (int*)malloc(sizeof(int)*BLOCK_NB);
+		for( j = 0; j < BLOCK_NB; j++ )
+			block_pages_counter[i][j] = 0;
+	}
+
 	return 0;
 }
 
@@ -122,6 +141,7 @@ ftl_ret_val SSD_PAGE_WRITE(unsigned int flash_nb, unsigned int block_nb, unsigne
 	int ret = FTL_FAILURE;
 	int delay_ret;
 
+	int64_t start_usec = get_usec();
     TIME_MICROSEC(_start);
 	/* Calculate ch & reg */
 	channel = flash_nb % CHANNEL_NB;
@@ -154,8 +174,10 @@ ftl_ret_val SSD_PAGE_WRITE(unsigned int flash_nb, unsigned int block_nb, unsigne
 #endif
 
     TIME_MICROSEC(_end);
+	write_delay_sum += (get_usec() - start_usec);
 
     physical_page_write++;
+    block_pages_counter[flash_nb][block_nb]++;
     if( type == WRITE ) {
     	logical_page_write++;
     	WRITE_LOG("WRITE PAGE %d\n", 1);
@@ -177,6 +199,7 @@ ftl_ret_val SSD_PAGE_READ(unsigned int flash_nb, unsigned int block_nb, unsigned
 	int channel, reg;
 	int delay_ret;
 
+	int64_t start_usec = get_usec();
     TIME_MICROSEC(_start);
 
 	/* Calculate ch & reg */
@@ -207,6 +230,15 @@ ftl_ret_val SSD_PAGE_READ(unsigned int flash_nb, unsigned int block_nb, unsigned
 
     TIME_MICROSEC(_end);
 
+    // Calculate total duration
+    int64_t duration = get_usec() - start_usec;
+    if( type == READ ) {
+    	// Logical read
+    	read_delay_sum += duration;
+    	logical_page_read++;
+    } else if( type == GC_READ )
+    	write_delay_sum += duration;
+
 	LOG_PHYSICAL_CELL_READ(GET_LOGGER(flash_nb), (PhysicalCellReadLog) {
 	    .channel = channel, .block = block_nb, .page = page_nb,
         .metadata.logging_start_time = _start,
@@ -220,6 +252,7 @@ ftl_ret_val SSD_BLOCK_ERASE(unsigned int flash_nb, unsigned int block_nb)
 {
 	int channel, reg;
 
+	int64_t start_usec = get_usec();
     TIME_MICROSEC(_start);
 
 	/* Calculate ch & reg */
@@ -239,7 +272,9 @@ ftl_ret_val SSD_BLOCK_ERASE(unsigned int flash_nb, unsigned int block_nb)
 	SSD_CELL_RECORD(reg, ERASE);
 
     TIME_MICROSEC(_end);
+	write_delay_sum += (get_usec() - start_usec);
 
+    block_pages_counter[flash_nb][block_nb] = 0;
     WRITE_LOG("ERASE ");
 	LOG_BLOCK_ERASE(GET_LOGGER(flash_nb), (BlockEraseLog) {
 	    .channel = channel, .die = flash_nb, .block = block_nb,
@@ -825,4 +860,32 @@ ftl_ret_val SSD_PAGE_COPYBACK(uint32_t source, uint32_t destination, int type){
 	SSD_REG_RECORD(reg, COPYBACK, type, 0, channel);
 
 	return FTL_SUCCESS;
+}
+
+
+
+double SSD_UTIL_CALC(void)
+{
+	int in_use_pages = 0;
+	int i, j;
+
+	for( i = 0; i < FLASH_NB; i++ ) {
+		for( j = 0; j < BLOCK_NB; j++ ) {
+			in_use_pages += block_pages_counter[i][j];
+		}
+	}
+
+	return (double)in_use_pages / PAGES_IN_SSD;
+}
+
+double SSD_WRITE_BANDWIDTH(void)
+{
+	if( write_delay_sum == 0 ) return 0.0;
+	return GET_IO_BANDWIDTH((double)write_delay_sum / logical_page_write);
+}
+
+double SSD_READ_BANDWIDTH(void)
+{
+	if( read_delay_sum == 0 ) return 0.0;
+	return GET_IO_BANDWIDTH((double)read_delay_sum / logical_page_read);
 }

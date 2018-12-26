@@ -109,6 +109,11 @@ int main(int argc, char **argv) {
     return RUN_ALL_TESTS();
 }
 
+void sync_monitor() {
+	SEND_TO_PERF_CHECKER(WRITE, 0, LATENCY_OP);
+	SEND_TO_PERF_CHECKER(READ, 0, LATENCY_OP);
+	usleep(100000);
+}
 
 using namespace std;
 
@@ -190,8 +195,12 @@ namespace {
 
     INSTANTIATE_TEST_CASE_P(DiskSize, QTMonitorUnitTest, ::testing::ValuesIn(GetParams()));
 	TEST_P(QTMonitorUnitTest, NoGCNoMergeWriteAmpCalculate) {
-		SSD_PAGE_WRITE(0,0,0,0, WRITE, -1);
-		usleep(100000);
+
+		int flash_nb = 0;
+		int block_nb = 0;
+
+		SSD_PAGE_WRITE(flash_nb,block_nb,0,0, WRITE, -1);
+		sync_monitor();
 		ASSERT_EQ(1, log_monitor.written_page);
 		ASSERT_EQ(1.0, log_monitor.write_amplification);
 	}
@@ -199,7 +208,7 @@ namespace {
 	TEST_P(QTMonitorUnitTest, GCWriteAmpCalculate) {
 		SSD_PAGE_WRITE(0,0,0,0, WRITE, -1);
 		SSD_PAGE_WRITE(0,0,0,0, GC_WRITE, -1);
-		usleep(100000);
+		sync_monitor();
 		ASSERT_EQ(1, log_monitor.written_page);
 		ASSERT_EQ(2.0, log_monitor.write_amplification);
 	}
@@ -215,27 +224,27 @@ namespace {
 		for( i = 0; i < physical_writes - logical_writes; i++ )
 			SSD_PAGE_WRITE(0,0,0,0, GC_WRITE, -1);
 
-		usleep(100000);
+		sync_monitor();
 		ASSERT_EQ(logical_writes, log_monitor.written_page);
 		ASSERT_EQ((double)physical_writes / logical_writes, log_monitor.write_amplification);
 	}
 
 	TEST_P(QTMonitorUnitTest, CountEraseBlockOps) {
 		SSD_BLOCK_ERASE(0,0);
-		usleep(100000);
+		sync_monitor();
 		ASSERT_EQ(1, log_monitor.erase_count);
 	}
 
 	TEST_P(QTMonitorUnitTest, CountWriteSector) {
 		_FTL_WRITE_SECT(0, 1);
-		usleep(100000);
+		sync_monitor();
 		ASSERT_EQ(1, log_monitor.write_count);
 		ASSERT_EQ(1, log_monitor.write_sector_count);
 	}
 
 	TEST_P(QTMonitorUnitTest, CustomLengthCountWriteSector) {
 		_FTL_WRITE_SECT(0, 16);
-		usleep(100000);
+		sync_monitor();
 		ASSERT_EQ(1, log_monitor.write_count);
 		ASSERT_EQ(16, log_monitor.write_sector_count);
 	}
@@ -243,7 +252,7 @@ namespace {
 	TEST_P(QTMonitorUnitTest, CountReadSector) {
 		_FTL_WRITE_SECT(0, 1);
 		_FTL_READ_SECT(0, 1);
-		usleep(100000);
+		sync_monitor();
 		ASSERT_EQ(1, log_monitor.read_count);
 		ASSERT_EQ(1, log_monitor.read_sector_count);
 	}
@@ -251,8 +260,70 @@ namespace {
 	TEST_P(QTMonitorUnitTest, CustomLengthCountReadSector) {
 		_FTL_WRITE_SECT(0, 16);
 		_FTL_READ_SECT(0, 16);
-		usleep(100000);
+		sync_monitor();
 		ASSERT_EQ(1, log_monitor.read_count);
 		ASSERT_EQ(16, log_monitor.read_sector_count);
 	}
+
+	TEST_P(QTMonitorUnitTest, SSDUtilSingleWrite) {
+		SSD_PAGE_WRITE(0,0,0,0, WRITE, -1);
+		sync_monitor();
+		ASSERT_EQ((double)1 / PAGES_IN_SSD, log_monitor.utils);
+	}
+
+	TEST_P(QTMonitorUnitTest, SingleWriteSpeedCalculate) {
+
+		int flash_nb = 0;
+		int block_nb = 0;
+
+		int64_t start = get_usec();
+		SSD_PAGE_WRITE(flash_nb,block_nb,0,0, WRITE, -1);
+		int64_t duration = get_usec() - start;
+
+		sync_monitor();
+
+		double bw_low_limit = GET_IO_BANDWIDTH((double)duration);
+		ASSERT_GE(log_monitor.write_speed, bw_low_limit);
+	}
+
+	TEST_P(QTMonitorUnitTest, GcReadWriteSpeedCalculate) {
+
+		int flash_nb = 0;
+		int block_nb = 0;
+
+		int64_t start = get_usec();
+		SSD_PAGE_WRITE(flash_nb,block_nb,0,0, WRITE, -1);
+		int64_t duration = get_usec() - start;
+
+		start = get_usec();
+		SSD_PAGE_READ(flash_nb,block_nb,0,0, GC_READ, -1);
+		duration += get_usec() - start;
+
+		sync_monitor();
+
+		double bw_low_limit = GET_IO_BANDWIDTH((double)duration / 1);
+		ASSERT_GE(log_monitor.write_speed, bw_low_limit);
+		ASSERT_EQ(log_monitor.read_speed, 0);
+	}
+
+	TEST_P(QTMonitorUnitTest, GcReadReadSpeedCalculate) {
+
+		int flash_nb = 0;
+		int block_nb = 0;
+		int64_t start, duration;
+		// Prepare page for read
+		SSD_PAGE_WRITE(flash_nb,block_nb,0,0, WRITE, -1);
+		// Start measure read duration
+		start = get_usec();
+		// Read page
+		SSD_PAGE_READ(flash_nb,block_nb,0,0, READ, -1);
+		// Read duration
+		duration += get_usec() - start;
+		// Trigger monitor update
+		sync_monitor();
+		// Bandwidth low limit
+		double bw_low_limit = GET_IO_BANDWIDTH((double)duration / 1);
+		ASSERT_GE(log_monitor.read_speed, bw_low_limit);
+	}
+
 } //namespace
