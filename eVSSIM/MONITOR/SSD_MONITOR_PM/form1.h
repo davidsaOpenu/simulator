@@ -13,6 +13,7 @@
 #include <stdio.h>
 
 #include "monitor_common.h"
+#include "ssd_log_monitor.h"
 
 #define REG_IS_WRITE 706
 
@@ -42,6 +43,7 @@ public:
     void updateStats(SSDStatistics stats);
     void showEvent(QShowEvent*);
     bool event(QEvent* event);
+    void printStats();
 
 private slots:
     void btnInit_clicked();
@@ -51,6 +53,7 @@ private:
     Ui::Form1 *ui;
     QTcpSocket *sock;
     QTimer *timer;
+    logger_monitor monitor;
 
     /* variables */
     long long int TimeProg;
@@ -61,13 +64,6 @@ private:
     int gcExchange, gcSector;
     int RandMergeCount, SeqMergeCount;
     long int overwriteCount;
-
-    long int WriteCount, ReadCount;
-    long int WriteSecCount, ReadSecCount;
-    int TrimEffect, TrimCount;
-    long int WriteAmpCount, WrittenCorrectCount;
-
-    double ReadTime, WriteTime;
 };
 
 
