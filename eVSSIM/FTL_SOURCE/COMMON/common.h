@@ -135,6 +135,14 @@
 #define COLLECT_CHANNEL	16
 #define COLLECT_SSD		32
 
+
+#define FLASH_READY		1200
+#define FLASH_PROGRAM	1201
+#define FLASH_READ		1202
+#define FLASH_ERASE		1203
+#define FLASH_COPYBACK	1204
+
+
 /* VSSIM Function Debug */
 #define MNT_DEBUG			// MONITOR Debugging
 
