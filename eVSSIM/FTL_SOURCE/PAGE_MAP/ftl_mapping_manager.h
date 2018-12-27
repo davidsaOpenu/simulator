@@ -28,6 +28,7 @@ int UPDATE_NEW_PAGE_MAPPING_NO_LOGICAL(uint32_t ppn);
 unsigned int CALC_FLASH(uint32_t ppn);
 unsigned int CALC_BLOCK(uint32_t ppn);
 unsigned int CALC_PAGE(uint32_t ppn);
+unsigned int CALC_PLANE_BY_FLASH_BLOCK(uint32_t ppn);
 unsigned int CALC_PLANE(uint32_t ppn);
 unsigned int CALC_CHANNEL(uint32_t ppn);
 unsigned int CALC_SCOPE_FIRST_PAGE(uint32_t address, int scope);
