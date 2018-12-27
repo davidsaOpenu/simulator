@@ -231,7 +231,6 @@ ftl_ret_val _FTL_OBJ_WRITE(obj_id_t object_loc, buf_ptr_t buf, offset_t offset, 
 
     INCREASE_IO_REQUEST_SEQ_NB();
 
-	WRITE_LOG("WRITE PAGE %d ", length);
 	WRITE_LOG("WB CORRECT %d", curr_io_page_nb);
 
 	PDBG_FTL("Complete\n");
