@@ -6,9 +6,12 @@
 #include <qimage.h>
 #include <qpixmap.h>
 
+#include <stdlib.h>
+
 #include "form1.h"
 #include "ui_form1.h"
 
+#include "ssd_log_monitor.h"
 
 Form1* Form1::Instance = NULL;
 pthread_mutex_t Form1::InstanceLock = PTHREAD_MUTEX_INITIALIZER;
@@ -57,26 +60,7 @@ void Form1::init_var()
 {
     this->setWindowTitle("SSD Monitor");
 
-    WriteSecCount = 0;
-    ReadSecCount = 0;
-    WriteCount = 0;
-    ReadCount = 0;
-
-
-    RandMergeCount = 0;
-    SeqMergeCount = 0;
-
-    WriteSecCount = 0;
-    TrimEffect = 0;
-    TrimCount = 0;
-    WrittenCorrectCount = 0;
-    WriteAmpCount = 0;
-    GCStarted = 0;
-    GC_NB = 0;
-    TimeProg = 0;
-    WriteTime = 0;
-    ReadTime = 0;
-
+    INIT_LOGGER_MONITOR(&monitor);
     fflush(stdout);
 }
 
@@ -86,6 +70,56 @@ void Form1::onTimer()
     TimeProg++;
     sprintf(sz_timer, "%lld", TimeProg);
     ui->txtTimeProg->setText(sz_timer);
+}
+
+void Form1::printStats()
+{
+    char szTemp[128];
+    // Write
+    sprintf(szTemp, "%ld", monitor.write_sector_count);
+    ui->txtWriteSectorCount->setText(szTemp);
+
+    sprintf(szTemp, "%ld", monitor.write_count);
+	ui->txtWriteCount->setText(szTemp);
+
+	sprintf(szTemp, "%lf", monitor.write_speed);
+	ui->txtWriteSpeed->setText(szTemp);
+
+	// Read
+	sprintf(szTemp, "%ld", monitor.read_sector_count);
+	ui->txtReadSectorCount->setText(szTemp);
+
+	sprintf(szTemp, "%ld", monitor.read_count);
+	ui->txtReadCount->setText(szTemp);
+
+	sprintf(szTemp, "%lf", monitor.read_speed);
+	ui->txtReadSpeed->setText(szTemp);
+
+	sprintf(szTemp, "%ld", monitor.erase_count);
+	ui->txtEraseCount->setText(szTemp);
+
+	// GC
+	sprintf(szTemp, "%ld", monitor.gc_count);
+	ui->txtGarbageCollectionNB->setText(szTemp);
+
+	// Trim
+	sprintf(szTemp, "%d", monitor.trim_count);
+	ui->txtTrimCount->setText(szTemp);
+
+	sprintf(szTemp, "%ld", monitor.trim_effect);
+    ui->txtTrimEffect->setText(szTemp);
+
+    // Written page
+	sprintf(szTemp, "%ld", monitor.written_page);
+	ui->txtWrittenBlockCount->setText(szTemp);
+
+    // Write amplification
+	sprintf(szTemp, "%0.3f", monitor.write_amplification);
+    ui->txtWriteAmpCount->setText(szTemp);
+
+    // SSD Util
+	sprintf(szTemp, "%0.3f", monitor.utils);
+    ui->txtSsdUtil->setText(szTemp);
 }
 
 /*
@@ -101,122 +135,11 @@ void Form1::onReceive()
     {
         szCmd = sock->readLine();
         szCmdList = szCmd.split(" ");
-
-        /* WRITE : write count, write sector count, write speed. */
-        if(szCmdList[0] == "WRITE")
-        {
-            QTextStream stream(&szCmdList[2]);
-            if(szCmdList[1] == "PAGE"){
-                unsigned int length;
-                stream >> length;
-                // Write Sector Number Count
-                WriteSecCount += length;
-
-                sprintf(szTemp, "%ld", WriteSecCount);
-                ui->txtWriteSectorCount->setText(szTemp);
-
-                // Write SATA Command Count
-                WriteCount++;
-                sprintf(szTemp, "%ld", WriteCount);
-                ui->txtWriteCount->setText(szTemp);
-            }
-            else if(szCmdList[1] == "BW"){
-                double time;
-                stream >>time;
-                if(time != 0){
-                    sprintf(szTemp, "%0.3lf", time);
-                    ui->txtWriteSpeed->setText(szTemp);
-                }
-            }
-        }
-        /* READ : read count, read sector count, read speed. */
-        else if(szCmdList[0] == "READ")
-        {
-            QTextStream stream(&szCmdList[2]);
-            if(szCmdList[1] == "PAGE"){
-                unsigned int length;
-
-                /* Read Sector Number Count */
-                stream >> length;
-                  ReadSecCount += length;
-
-                  sprintf(szTemp, "%ld", ReadSecCount);
-                  ui->txtReadSectorCount->setText(szTemp);
-
-                /* Read SATA Command Count */
-                ReadCount++;
-                sprintf(szTemp, "%ld", ReadCount);
-                ui->txtReadCount->setText(szTemp);
-            }
-            else if(szCmdList[1] == "BW"){
-                double time;
-                  stream >> time;
-                  if(time != 0)
-                  {
-                      sprintf(szTemp, "%0.3lf", time);
-                      ui->txtReadSpeed->setText(szTemp);
-                }
-            }
-        }
-
-        /* GC : gc has been occured. */
-        else if(szCmdList[0] == "GC")
-        {
-            GC_NB++;
-            sprintf(szTemp, "%ld", GC_NB);
-            ui->txtGarbageCollectionNB->setText(szTemp);
-
-        }
-        /* WB : written block count, write amplification. */
-        else if(szCmdList[0] == "WB")
-            {
-            long long int WriteAmpCount = 0;
-            QTextStream stream(&szCmdList[2]);
-            stream >> WriteAmpCount;
-
-            if(szCmdList[1] == "CORRECT")
-            {
-                      WrittenCorrectCount += WriteAmpCount;
-                      sprintf(szTemp, "%ld", WrittenCorrectCount);
-                      ui->txtWrittenBlockCount->setText(szTemp);
-            }
-            else
-            {
-                      sprintf(szTemp, "%lld", WriteAmpCount);
-                      ui->txtWriteAmpCount->setText(szTemp);
-            }
-        }
-        /* TRIM : trim count, trim effect. */
-        else if(szCmdList[0] == "TRIM")
-        {
-            if(szCmdList[1] == "INSERT")
-            {
-                TrimCount++;
-                sprintf(szTemp, "%d", TrimCount);
-                ui->txtTrimCount->setText(szTemp);
-            }
-            else
-            {
-                int effect = 0;
-                QTextStream stream(&szCmdList[2]);
-                stream >> effect;
-                TrimEffect+= effect;
-                sprintf(szTemp, "%d", TrimEffect);
-                ui->txtTrimEffect->setText(szTemp);
-            }
-        }
-
-        /* UTIL : SSD Util. */
-        else if(szCmdList[0] == "UTIL")
-        {
-            double util = 0;
-            QTextStream stream(&szCmdList[1]);
-            stream >> util;
-            sprintf(szTemp, "%lf", util);
-            ui->txtSsdUtil->setText(szTemp);
-          }
-
-        ui->txtDebug->setText(szCmd);
+        // Parse log
+        PARSE_LOG(szCmd.toStdString().c_str(), &monitor);
+        printStats();
+        // Debug
+        ui->txtDebug->setText(szCmd.toStdString().c_str());
     } // end while
 }
 
@@ -227,20 +150,7 @@ void Form1::onReceive()
 void Form1::btnInit_clicked()
 {
     init_var();
-
-    ui->txtWriteCount->setText("0");
-    ui->txtWriteSpeed->setText("0");
-    ui->txtWriteSectorCount->setText("0");
-    ui->txtReadCount->setText("0");
-    ui->txtReadSpeed->setText("0");
-    ui->txtReadSectorCount->setText("0");
-    ui->txtGarbageCollectionNB->setText("0");
-    ui->txtGarbageCollection->setText("0");
-    ui->txtGCStart->setText("0");
-    ui->txtTrimCount->setText("0");
-    ui->txtTrimEffect->setText("0");
-    ui->txtWrittenBlockCount->setText("0");
-    ui->txtWriteAmpCount->setText("0");
+    printStats();
     ui->txtDebug->setText("");
 }
 
@@ -273,20 +183,20 @@ void Form1::btnSave_clicked()
     out << "==========================================================================\n\n";
 */
 
-    out << "Write Request\t" << WriteCount << "\n";
-    out << "Write Sector\t" << WriteSecCount << "\n\n";
-    out << "Read Request\t" << ReadCount << "\n";
-    out << "Read Sector\t" << ReadSecCount << "\n\n";
+    out << "Write Request\t" << monitor.write_count << "\n";
+    out << "Write Sector\t" << monitor.write_sector_count << "\n\n";
+    out << "Read Request\t" << monitor.read_count << "\n";
+    out << "Read Sector\t" << monitor.read_sector_count << "\n\n";
 
     out << "Garbage Collection\n";
     out << "  Count\t" << GC_NB <<"\n";
     out << "  Sector Count\t" << GCStarted << "\n\n";
 
-    out << "TRIM Count\t" << TrimCount << "\n";
-    out << "TRIM effect\t" << TrimEffect << "\n\n";
+    out << "TRIM Count\t" << monitor.trim_count << "\n";
+    out << "TRIM effect\t" << monitor.trim_effect << "\n\n";
 
-    out << "Write Amplification\t" << WriteAmpCount << "\n";
-    out << "Written Page\t" << WrittenCorrectCount << "\n";
+    out << "Write Amplification\t" << monitor.write_amplification << "\n";
+    out << "Written Page\t" << monitor.written_page << "\n";
     out << "Run-time[ms]\t" << s_timer << "\n";
 
     file.close();
@@ -300,28 +210,16 @@ void Form1::btnSave_clicked()
 void Form1::updateStats(SSDStatistics stats) {
     char szTemp[128];
 
-    WrittenCorrectCount = WriteSecCount = WriteCount = stats.write_count;
-    SET_TEXT_I(ui->txtWriteCount, stats.write_count, szTemp);
-    ui->txtWriteSectorCount->setText(szTemp);
-    ui->txtWrittenBlockCount->setText(szTemp);
+    monitor.written_page
+		= monitor.write_sector_count
+		= monitor.write_count = stats.write_count;
 
+    monitor.read_sector_count = monitor.read_count = stats.read_count;
+    monitor.gc_count = stats.garbage_collection_count;
+    monitor.write_amplification = stats.write_amplification;
+    monitor.utils = stats.utilization * 100.0;
 
-    SET_TEXT_F(ui->txtWriteSpeed, stats.write_speed, szTemp);
-
-    ReadSecCount = ReadCount = stats.read_count;
-    SET_TEXT_I(ui->txtReadCount, stats.read_count, szTemp);
-    ui->txtReadSectorCount->setText(szTemp);
-
-    SET_TEXT_F(ui->txtReadSpeed, stats.read_speed, szTemp);
-
-    GCStarted = GC_NB = stats.garbage_collection_count;
-    SET_TEXT_I(ui->txtGarbageCollectionNB, stats.garbage_collection_count, szTemp);
-    ui->txtGCStart->setText(szTemp);
-
-    WriteAmpCount = stats.write_amplification;
-    SET_TEXT_F(ui->txtWriteAmpCount, stats.write_amplification, szTemp);
-
-    SET_TEXT(ui->txtSsdUtil, "%0.3f%%", stats.utilization * 100.0, szTemp);
+    printStats();
 }
 
 /**
