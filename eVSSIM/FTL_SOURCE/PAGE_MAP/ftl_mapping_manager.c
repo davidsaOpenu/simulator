@@ -150,6 +150,19 @@ unsigned int CALC_PAGE(uint32_t ppn)
 	return page_nb;
 }
 
+
+unsigned int CALC_PLANE_BY_FLASH_BLOCK(uint32_t ppn)
+{
+	int flash_nb = CALC_FLASH(ppn);
+	int block_nb = CALC_BLOCK(ppn);
+	int plane;
+
+	plane = flash_nb*PLANES_PER_FLASH + block_nb%PLANES_PER_FLASH;
+
+	return plane;
+}
+
+
 unsigned int CALC_PLANE(uint32_t ppn)
 {
 	int flash_nb = CALC_FLASH(ppn);

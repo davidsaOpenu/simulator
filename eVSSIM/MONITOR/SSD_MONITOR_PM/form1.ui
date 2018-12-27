@@ -10,7 +10,7 @@
         <x>0</x>
         <y>0</y>
         <width>600</width>
-        <height>500</height>
+        <height>520</height>
       </rect>
     </property>
     <property name="windowTitle">
@@ -35,7 +35,7 @@
           <x>11</x>
           <y>10</y>
           <width>460</width>
-          <height>91</height>
+          <height>130</height>
         </rect>
       </property>
       <property name="title">
@@ -57,6 +57,24 @@
           <bool>false</bool>
         </property>
       </widget>
+
+      <widget class="QLabel" name="textLabelErase">
+        <property name="geometry">
+          <rect>
+            <x>20</x>
+            <y>90</y>
+            <width>56</width>
+            <height>20</height>
+          </rect>
+        </property>
+        <property name="text">
+          <string>Erase:</string>
+        </property>
+        <property name="wordWrap">
+          <bool>false</bool>
+        </property>
+      </widget>
+
       <widget class="QLineEdit" name="txtWriteCount">
         <property name="geometry">
           <rect>
@@ -217,12 +235,29 @@
           <set>Qt::AlignRight</set>
         </property>
       </widget>
+
+      <widget class="QLineEdit" name="txtEraseCount">
+        <property name="geometry">
+          <rect>
+            <x>120</x>
+            <y>90</y>
+            <width>89</width>
+            <height>22</height>
+          </rect>
+        </property>
+        <property name="text">
+          <string>0</string>
+        </property>
+        <property name="alignment">
+          <set>Qt::AlignRight</set>
+        </property>
+      </widget>
     </widget>
     <widget class="QGroupBox" name="groupBox2">
       <property name="geometry">
         <rect>
           <x>10</x>
-          <y>120</y>
+          <y>140</y>
           <width>460</width>
           <height>80</height>
         </rect>
@@ -347,7 +382,7 @@
       <property name="geometry">
         <rect>
           <x>10</x>
-          <y>210</y>
+          <y>230</y>
           <width>270</width>
           <height>70</height>
         </rect>
@@ -440,7 +475,7 @@
       <property name="geometry">
         <rect>
           <x>250</x>
-          <y>300</y>
+          <y>320</y>
           <width>150</width>
           <height>20</height>
         </rect>
@@ -456,7 +491,7 @@
       <property name="geometry">
         <rect>
           <x>370</x>
-          <y>300</y>
+          <y>320</y>
           <width>89</width>
           <height>22</height>
         </rect>
@@ -472,7 +507,7 @@
       <property name="geometry">
         <rect>
           <x>370</x>
-          <y>330</y>
+          <y>350</y>
           <width>89</width>
           <height>22</height>
         </rect>
@@ -488,7 +523,7 @@
       <property name="geometry">
         <rect>
           <x>250</x>
-          <y>330</y>
+          <y>350</y>
           <width>56</width>
           <height>20</height>
         </rect>
@@ -504,7 +539,7 @@
       <property name="geometry">
         <rect>
           <x>30</x>
-          <y>300</y>
+          <y>320</y>
           <width>100</width>
           <height>20</height>
         </rect>
@@ -520,7 +555,7 @@
       <property name="geometry">
         <rect>
           <x>130</x>
-          <y>300</y>
+          <y>320</y>
           <width>89</width>
           <height>22</height>
         </rect>
@@ -552,7 +587,7 @@
       <property name="geometry">
         <rect>
           <x>470</x>
-          <y>630</y>
+          <y>650</y>
           <width>89</width>
           <height>22</height>
         </rect>
@@ -568,7 +603,7 @@
       <property name="geometry">
         <rect>
           <x>10</x>
-          <y>400</y>
+          <y>420</y>
           <width>460</width>
           <height>80</height>
         </rect>
@@ -581,7 +616,7 @@
       <property name="geometry">
         <rect>
           <x>10</x>
-          <y>370</y>
+          <y>390</y>
           <width>120</width>
           <height>20</height>
         </rect>
@@ -597,7 +632,7 @@
       <property name="geometry">
         <rect>
           <x>130</x>
-          <y>330</y>
+          <y>350</y>
           <width>89</width>
           <height>22</height>
         </rect>
@@ -613,7 +648,7 @@
       <property name="geometry">
         <rect>
           <x>40</x>
-          <y>330</y>
+          <y>350</y>
           <width>50</width>
           <height>20</height>
         </rect>
