@@ -79,18 +79,29 @@ void reset_analyzers(void) {
         analyzers_storage[i].rt_log_analyzer->reset_flag = 1;
 }
 
+#ifdef MONITOR_ON
+	int monitor_type = MONITOR_QT;
+#endif
+#ifndef MONITOR_ON
+	int monitor_type = MONITOR_OFF;
+#endif
+
+void SET_MONITOR(int type) {
+	monitor_type = type;
+}
+
 void INIT_LOG_MANAGER(void)
 {
     // handle old monitor
-#ifdef MONITOR_ON
-	if(g_init_log_server == 0){
-		if ((monitor = popen(MONITOR_EXECUTABLE_PATH, "r")) == NULL)
-			PERR("popen failed: %s\n", strerror(errno));
+	if( monitor_type != MONITOR_OFF && g_init_log_server == 0) {
+		if( monitor_type == MONITOR_QT ) {
+			if ((monitor = popen(MONITOR_EXECUTABLE_PATH, "r")) == NULL)
+				PERR("popen failed: %s\n", strerror(errno));
+		}
 		THREAD_SERVER();
 
-        g_init_log_server = 1;
-    }
-#endif
+		g_init_log_server = 1;
+	}
 
     // handle new logging server
 #ifdef LOGGING_SERVER_ON
@@ -147,13 +158,13 @@ void INIT_LOG_MANAGER(void)
 void TERM_LOG_MANAGER(void)
 {
     // handle old monitor
-#ifdef MONITOR_ON
-    close(servSock);
-    close(clientSock);
-    pclose(monitor);
-#endif
-
-    // handle new logging server
+	if( monitor_type != MONITOR_OFF ) {
+		close(servSock);
+		close(clientSock);
+		if( monitor_type == MONITOR_QT )
+			pclose(monitor);
+	}
+	// handle new logging server
 #ifdef LOGGING_SERVER_ON
     int i;
 
@@ -185,23 +196,25 @@ void TERM_LOG_MANAGER(void)
 
 void WRITE_LOG(const char *fmt, ...)
 {
-#ifdef MONITOR_ON
-    if (clientSock == 0)
-        RERR(, "write log is failed\n");
+	if( monitor_type != MONITOR_OFF ) {
+		if (clientSock == 0)
+			RERR(, "write log is failed\n");
 
-    char szLog[1024];
-    va_list argp;
-    va_start(argp, fmt);
-    vsprintf(szLog, fmt, argp);
-    send(clientSock, szLog, strlen(szLog), 0);
-    send(clientSock, "\n", 1, MSG_DONTWAIT);
-    va_end(argp);
-#endif
+		char szLog[1024];
+		va_list argp;
+		va_start(argp, fmt);
+		vsprintf(szLog, fmt, argp);
+		if (clientSock == 0)
+			RERR(, "write log is failed\n");
+
+		send(clientSock, szLog, strlen(szLog), 0);
+		send(clientSock, "\n", 1, MSG_DONTWAIT);
+		va_end(argp);
+	}
 }
 
 void THREAD_SERVER(void)
 {
-#ifdef MONITOR_ON
     PDBG_MNT("Start\n");
 
     if ((servSock = socket(AF_INET, SOCK_STREAM, IPPROTO_TCP)) < 0)
@@ -230,16 +243,15 @@ void THREAD_SERVER(void)
     if ((clientSock = accept(servSock, NULL, NULL)) < 0)
         RDBG_MNT(, "accept failed: %s\n", strerror(errno));
     PDBG_MNT("Connected![%d]\n", clientSock);
-#endif
 }
 
 void THREAD_CLIENT(void *arg)
 {
-#ifdef MONITOR_ON
-    int sock = *(int*)arg;
-    PDBG_MNT("ClientSock[%d]\n", sock);
-    send(sock, "test\n", 5, 0);
-#endif
+	if( monitor_type != MONITOR_OFF ) {
+		int sock = *(int*)arg;
+		PDBG_MNT("ClientSock[%d]\n", sock);
+		send(sock, "test\n", 5, 0);
+	}
 }
 
 Logger_Pool* GET_LOGGER(unsigned int flash_number) {
