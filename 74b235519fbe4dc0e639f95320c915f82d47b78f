@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "147a3331_d19a16b7",
+        "filename": "eVSSIM/SSD_MODULE/ssd_io_manager.c",
+        "patchSetId": 9
+      },
+      "lineNbr": 483,
+      "author": {
+        "id": 1007990
+      },
+      "writtenOn": "2018-12-30T19:49:26Z",
+      "side": 1,
+      "message": "in use pages must be updated online during write/eraze cycles. Lopping FLASH_NB*BLOCK_NB times must be avoided. \nIn fact, loops are problematic in those operations (time consuming).",
+      "revId": "74b235519fbe4dc0e639f95320c915f82d47b78f",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    }
+  ]
+}
