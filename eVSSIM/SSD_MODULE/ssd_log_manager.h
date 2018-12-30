@@ -14,6 +14,12 @@
 #include "logging_server.h"
 #include "logging_statistics.h"
 
+// monitor clients
+#define MONITOR_OFF 1
+#define MONITOR_QT 2
+#define MONITOR_CUSTOM 3
+// set monitor client
+void SET_MONITOR(int monitor_type);
 
 void INIT_LOG_MANAGER(void);
 void TERM_LOG_MANAGER(void);
