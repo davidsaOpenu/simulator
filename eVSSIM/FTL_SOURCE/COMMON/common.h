@@ -77,11 +77,13 @@
 #define CHANNEL_IS_WRITE 701
 #define CHANNEL_IS_READ  702
 #define CHANNEL_IS_ERASE 703
+#define CHANNEL_SWITCH_W 704
+#define CHANNEL_SWITCH_R 705
 
-#define REG_IS_EMPTY 		705
-#define REG_IS_WRITE 		706
-#define REG_IS_READ  		707
-#define REG_IS_ERASE 		708
+#define REG_IS_EMPTY 		715
+#define REG_IS_WRITE 		716
+#define REG_IS_READ  		717
+#define REG_IS_ERASE 		718
 
 #define NOOP			800
 #define READ  			801
@@ -134,6 +136,19 @@
 #define COLLECT_FLASH	8
 #define COLLECT_CHANNEL	16
 #define COLLECT_SSD		32
+
+
+#define FLASH_READY		1200
+#define FLASH_PROGRAM	1201
+#define FLASH_READ		1202
+#define FLASH_ERASE		1203
+#define FLASH_COPYBACK	1204
+
+#define LOCKED			1300
+#define UNLOCKED		1301
+
+#define IO_PAGE_FIRST	-1
+
 
 /* VSSIM Function Debug */
 #define MNT_DEBUG			// MONITOR Debugging

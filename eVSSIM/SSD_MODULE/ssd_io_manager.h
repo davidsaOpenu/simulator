@@ -14,6 +14,60 @@ extern int old_channel_nb;
 extern int64_t io_alloc_overhead;
 extern int64_t io_update_overhead;
 
+
+typedef struct {
+
+	int occupied_pages_counter;
+
+} ssd_block;
+
+typedef struct {
+
+	int status;
+	int64_t timer;
+	int64_t register_timer;
+	unsigned int op_nb;
+	volatile unsigned int done_op_nb;
+
+} ssd_channel;
+
+typedef struct {
+
+	int status;
+	int64_t timer;
+
+} ssd_plane;
+
+typedef struct {
+
+	// physical page writes counter
+	unsigned int physical_page_writes;
+	// logical page writes counter
+	unsigned int logical_page_writes;
+	// physical page reads countes
+	unsigned int physical_page_reads;
+	// logical page reads counter
+	unsigned int logical_page_reads;
+	// erase counter
+	unsigned int erases;
+	// occupied pages counter
+	unsigned int occupied_pages;
+	//
+	// sum of all delay time for logical write operation
+	// in usec (microseconds)
+	unsigned int write_delay;
+	//
+	// sum of all delay time for logical write operation
+	// in usec (microseconds)
+	unsigned int read_delay;
+
+	ssd_block** blocks;
+	ssd_channel* channels;
+	ssd_plane* planes;
+
+} ssd_disk;
+
+
 /* Get Current time in micro second */
 int64_t get_usec(void);
 
@@ -27,44 +81,55 @@ ftl_ret_val SSD_PAGE_WRITE(unsigned int flash_nb, unsigned int block_nb, unsigne
 ftl_ret_val SSD_BLOCK_ERASE(unsigned int flash_nb, unsigned int block_nb);
 ftl_ret_val SSD_PAGE_COPYBACK(uint32_t source, uint32_t destination, int type);
 
-/* Channel Access Delay */
-int SSD_CH_ENABLE(unsigned int flash_nb, int channel);
+/*
+ * registers mode controllers
+ * */
+// Turn register into read mode
+void _SSD_SET_REGISTER_READ(int op_nb, unsigned int flash_nb);
+// Turn register into write mode
+void _SSD_REGISTER_WRITE(int op_nb, unsigned int flash_nb);
 
-/* Flash or Register Access */
-int SSD_FLASH_ACCESS(unsigned int flash_nb, int channel, int reg);
-int SSD_REG_ACCESS(unsigned int flash_nb, int channel, int reg);
+/*
+ * blocks mode controllers
+ * */
+// Turn block into cell programming mode
+void _SSD_SET_BLOCK_CELL_PROGRAMMING(unsigned int flash_nb, unsigned int block_nb);
+// Turn block into read mode
+void _SSD_SET_BLOCK_READ(unsigned int flash_nb, unsigned int block_nb);
+// Turn block into erase mode
+void _SSD_SET_BLOCK_ERASE(unsigned int flash_nb, unsigned int block_nb);
+// Turn block to page copyback mode
+void _SSD_SET_BLOCK_PAGE_COPYBACK(unsigned int flash_nb, unsigned int block_nb);
 
-/* Channel Delay */
-int64_t SSD_CH_SWITCH_DELAY(unsigned int flash_nb, int channel);
-
-/* Register Delay */
-int SSD_REG_WRITE_DELAY(unsigned int flash_nb, int channel, int reg);
-int SSD_REG_READ_DELAY(unsigned int flash_nb, int channel, int reg);
-
-/* Cell Delay */
-int SSD_CELL_WRITE_DELAY(int reg);
-int SSD_CELL_READ_DELAY(int reg);
-
-/* Erase Delay */
-int SSD_BLOCK_ERASE_DELAY(int reg);
-
-/* Mark Time Stamp */
-int SSD_CH_RECORD(int channel, int cmd, int offset, int ret);
-int SSD_REG_RECORD(int reg, int cmd, int type, int offset, int channel);
-int SSD_CELL_RECORD(int reg, int cmd);
-
-/* Check Read Operation in the Same Channel  */
-int SSD_CH_ACCESS(unsigned int flash_nb, int channel);
-int64_t SSD_GET_CH_ACCESS_TIME_FOR_READ(int channel, int reg);
-void SSD_UPDATE_CH_ACCESS_TIME(int channel, int64_t current_time);
-
-/* Correction Delay */
-void SSD_UPDATE_IO_REQUEST(int reg);
-void SSD_UPDATE_IO_OVERHEAD(int reg, int64_t overhead_time);
-void SSD_REMAIN_IO_DELAY(unsigned int flash_nb, int channel, int reg);
-void SSD_UPDATE_QEMU_OVERHEAD(int64_t delay);
+/*
+ * IO wait controllers
+ * */
+// wait until block @block_nb on flash @flash_nb
+// get available for new operations
+void _SSD_IO_WAIT(unsigned int flash_nb, unsigned int block_nb);
+// wait until channel @channel
+// get available for access
+void _SSD_CHANNEL_ACCESS(int op_nb, int channel);
+// busy wait until timestamp equals or after @until_timestamp
+void _SSD_BUSY_WAIT(int64_t until_timestamp);
 
 /* SSD Module Debugging */
 void SSD_PRINT_STAMP(void);
+
+void _SSD_BLOCK_INIT(ssd_block* block);
+
+/* SSD statistics */
+unsigned long int SSD_GET_LOGICAL_PAGE_WRITE_COUNT(void);
+unsigned long int SSD_GET_PHYSICAL_PAGE_WRITE_COUNT(void);
+unsigned long int SSD_GET_LOGICAL_PAGE_READ_COUNT(void);
+unsigned long int SSD_GET_PHYSICAL_PAGE_READ_COUNT(void);
+unsigned long int SSD_GET_ERASE_COUNT(void);
+double SSD_UTIL_CALC(void);
+double SSD_WRITE_BANDWIDTH(void);
+double SSD_READ_BANDWIDTH(void);
+
+
+unsigned long SSD_TOTAL_WRITE_DELAY(void);
+unsigned long SSD_TOTAL_READ_DELAY(void);
 
 #endif
