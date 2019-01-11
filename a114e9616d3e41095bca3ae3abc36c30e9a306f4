@@ -165,6 +165,224 @@
       "revId": "a114e9616d3e41095bca3ae3abc36c30e9a306f4",
       "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "d2e7bb54_bffdc68e",
+        "filename": "eVSSIM/tests/host/qt_monitor_tests.cc",
+        "patchSetId": 14
+      },
+      "lineNbr": 192,
+      "author": {
+        "id": 1007990
+      },
+      "writtenOn": "2019-01-11T12:49:26Z",
+      "side": 1,
+      "message": "same:\n - code duplication\n - indentation \n - tabs vs spaces",
+      "range": {
+        "startLine": 1,
+        "startChar": 0,
+        "endLine": 192,
+        "endChar": 9
+      },
+      "revId": "a114e9616d3e41095bca3ae3abc36c30e9a306f4",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "ec53ea7c_d84ac93e",
+        "filename": "eVSSIM/tests/host/qt_monitor_tests.cc",
+        "patchSetId": 14
+      },
+      "lineNbr": 195,
+      "author": {
+        "id": 1007990
+      },
+      "writtenOn": "2019-01-11T12:49:26Z",
+      "side": 1,
+      "message": "same doxigen style descriptions for each test case/suite",
+      "revId": "a114e9616d3e41095bca3ae3abc36c30e9a306f4",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "23b768e7_c6b68927",
+        "filename": "eVSSIM/tests/host/qt_monitor_tests.cc",
+        "patchSetId": 14
+      },
+      "lineNbr": 209,
+      "author": {
+        "id": 1007990
+      },
+      "writtenOn": "2019-01-11T12:49:26Z",
+      "side": 1,
+      "message": "magic numbers here and elsewhere",
+      "range": {
+        "startLine": 208,
+        "startChar": 0,
+        "endLine": 209,
+        "endChar": 40
+      },
+      "revId": "a114e9616d3e41095bca3ae3abc36c30e9a306f4",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "accceb63_22b20caa",
+        "filename": "eVSSIM/tests/host/qt_monitor_tests.cc",
+        "patchSetId": 14
+      },
+      "lineNbr": 213,
+      "author": {
+        "id": 1007990
+      },
+      "writtenOn": "2019-01-11T12:49:26Z",
+      "side": 1,
+      "message": "will this test be selfcontained? meaning, is running the lest in line 195 will not alter the runreult of this test?",
+      "range": {
+        "startLine": 212,
+        "startChar": 0,
+        "endLine": 213,
+        "endChar": 50
+      },
+      "revId": "a114e9616d3e41095bca3ae3abc36c30e9a306f4",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "8915cdec_4818730d",
+        "filename": "eVSSIM/tests/host/qt_monitor_tests.cc",
+        "patchSetId": 14
+      },
+      "lineNbr": 242,
+      "author": {
+        "id": 1007990
+      },
+      "writtenOn": "2019-01-11T12:49:26Z",
+      "side": 1,
+      "message": "great ones. We had no test like those. Very basic and powerful!",
+      "range": {
+        "startLine": 215,
+        "startChar": 0,
+        "endLine": 242,
+        "endChar": 47
+      },
+      "revId": "a114e9616d3e41095bca3ae3abc36c30e9a306f4",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "d85d8f74_16fb8592",
+        "filename": "eVSSIM/tests/host/qt_monitor_tests.cc",
+        "patchSetId": 14
+      },
+      "lineNbr": 271,
+      "author": {
+        "id": 1007990
+      },
+      "writtenOn": "2019-01-11T12:49:26Z",
+      "side": 1,
+      "message": "maybe in a different line?",
+      "range": {
+        "startLine": 271,
+        "startChar": 12,
+        "endLine": 271,
+        "endChar": 36
+      },
+      "revId": "a114e9616d3e41095bca3ae3abc36c30e9a306f4",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "429253bf_ff66936f",
+        "filename": "eVSSIM/tests/host/qt_monitor_tests.cc",
+        "patchSetId": 14
+      },
+      "lineNbr": 272,
+      "author": {
+        "id": 1007990
+      },
+      "writtenOn": "2019-01-11T12:49:26Z",
+      "side": 1,
+      "message": "magic numbers",
+      "range": {
+        "startLine": 252,
+        "startChar": 0,
+        "endLine": 272,
+        "endChar": 2
+      },
+      "revId": "a114e9616d3e41095bca3ae3abc36c30e9a306f4",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "e2d939ae_a79e5046",
+        "filename": "eVSSIM/tests/host/qt_monitor_tests.cc",
+        "patchSetId": 14
+      },
+      "lineNbr": 286,
+      "author": {
+        "id": 1007990
+      },
+      "writtenOn": "2019-01-11T12:49:26Z",
+      "side": 1,
+      "message": "better to check that the modulo of the diff is less or equal to the predetermined threshold",
+      "revId": "a114e9616d3e41095bca3ae3abc36c30e9a306f4",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "cd13b004_b8751435",
+        "filename": "eVSSIM/tests/host/qt_monitor_tests.cc",
+        "patchSetId": 14
+      },
+      "lineNbr": 304,
+      "author": {
+        "id": 1007990
+      },
+      "writtenOn": "2019-01-11T12:49:26Z",
+      "side": 1,
+      "message": "?",
+      "range": {
+        "startLine": 304,
+        "startChar": 57,
+        "endLine": 304,
+        "endChar": 61
+      },
+      "revId": "a114e9616d3e41095bca3ae3abc36c30e9a306f4",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "99db3689_20472e97",
+        "filename": "eVSSIM/tests/host/qt_monitor_tests.cc",
+        "patchSetId": 14
+      },
+      "lineNbr": 305,
+      "author": {
+        "id": 1007990
+      },
+      "writtenOn": "2019-01-11T12:49:26Z",
+      "side": 1,
+      "message": "same modulo/threshold comment as before",
+      "range": {
+        "startLine": 305,
+        "startChar": 2,
+        "endLine": 305,
+        "endChar": 11
+      },
+      "revId": "a114e9616d3e41095bca3ae3abc36c30e9a306f4",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
     }
   ]
 }
