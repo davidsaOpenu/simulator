@@ -1,0 +1,73 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "142da098_0a138332",
+        "filename": "eVSSIM/tests/host/qt_monitor_log_parser_tests.cc",
+        "patchSetId": 14
+      },
+      "lineNbr": 109,
+      "author": {
+        "id": 1007990
+      },
+      "writtenOn": "2019-01-11T12:17:20Z",
+      "side": 1,
+      "message": "this part seems like a code duplication. In the past we had block strategy and object strategy tests. They required different ssd.conf files for initialization.",
+      "range": {
+        "startLine": 1,
+        "startChar": 0,
+        "endLine": 109,
+        "endChar": 1
+      },
+      "revId": "a114e9616d3e41095bca3ae3abc36c30e9a306f4",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "a3663ad1_592fbdfe",
+        "filename": "eVSSIM/tests/host/qt_monitor_log_parser_tests.cc",
+        "patchSetId": 14
+      },
+      "lineNbr": 182,
+      "author": {
+        "id": 1007990
+      },
+      "writtenOn": "2019-01-11T12:17:20Z",
+      "side": 1,
+      "message": "same (duplication)",
+      "range": {
+        "startLine": 115,
+        "startChar": 0,
+        "endLine": 182,
+        "endChar": 31
+      },
+      "revId": "a114e9616d3e41095bca3ae3abc36c30e9a306f4",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "4ded594b_6cb272d4",
+        "filename": "eVSSIM/tests/host/qt_monitor_log_parser_tests.cc",
+        "patchSetId": 14
+      },
+      "lineNbr": 203,
+      "author": {
+        "id": 1007990
+      },
+      "writtenOn": "2019-01-11T12:17:20Z",
+      "side": 1,
+      "message": "1. replace 10000 with soemthing meaningfully named\n\n2. is not 100000 is too long?",
+      "range": {
+        "startLine": 203,
+        "startChar": 15,
+        "endLine": 203,
+        "endChar": 21
+      },
+      "revId": "a114e9616d3e41095bca3ae3abc36c30e9a306f4",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    }
+  ]
+}
