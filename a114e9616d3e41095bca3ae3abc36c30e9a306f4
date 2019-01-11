@@ -383,6 +383,305 @@
       "revId": "a114e9616d3e41095bca3ae3abc36c30e9a306f4",
       "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "c2ab479f_159507ae",
+        "filename": "eVSSIM/tests/host/ssd_io_emulator_tests.cc",
+        "patchSetId": 14
+      },
+      "lineNbr": 281,
+      "author": {
+        "id": 1007990
+      },
+      "writtenOn": "2019-01-11T14:07:13Z",
+      "side": 1,
+      "message": "same comments as for previous *test.cc files",
+      "range": {
+        "startLine": 1,
+        "startChar": 0,
+        "endLine": 281,
+        "endChar": 95
+      },
+      "revId": "a114e9616d3e41095bca3ae3abc36c30e9a306f4",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "0180ae9d_d53432cf",
+        "filename": "eVSSIM/tests/host/ssd_io_emulator_tests.cc",
+        "patchSetId": 14
+      },
+      "lineNbr": 294,
+      "author": {
+        "id": 1007990
+      },
+      "writtenOn": "2019-01-11T14:07:13Z",
+      "side": 1,
+      "message": "what is IO_PAGE_FIRST?",
+      "range": {
+        "startLine": 294,
+        "startChar": 53,
+        "endLine": 294,
+        "endChar": 66
+      },
+      "revId": "a114e9616d3e41095bca3ae3abc36c30e9a306f4",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "43665803_7cff2e8b",
+        "filename": "eVSSIM/tests/host/ssd_io_emulator_tests.cc",
+        "patchSetId": 14
+      },
+      "lineNbr": 294,
+      "author": {
+        "id": 1007990
+      },
+      "writtenOn": "2019-01-11T14:07:13Z",
+      "side": 1,
+      "message": "magic",
+      "range": {
+        "startLine": 294,
+        "startChar": 43,
+        "endLine": 294,
+        "endChar": 44
+      },
+      "revId": "a114e9616d3e41095bca3ae3abc36c30e9a306f4",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "74eb4d77_6e948ea1",
+        "filename": "eVSSIM/tests/host/ssd_io_emulator_tests.cc",
+        "patchSetId": 14
+      },
+      "lineNbr": 299,
+      "author": {
+        "id": 1007990
+      },
+      "writtenOn": "2019-01-11T14:07:13Z",
+      "side": 1,
+      "message": "this formula suggests that you the register was in read mode. \none needs to set the more of the register explicitly. once read mode and once write mode and to try \nreadmode + read\nreadmode + write\nwritemode + read\nwritemode + wrte\n\nnot sure id in one test or in a combined one though.",
+      "range": {
+        "startLine": 299,
+        "startChar": 22,
+        "endLine": 299,
+        "endChar": 58
+      },
+      "revId": "a114e9616d3e41095bca3ae3abc36c30e9a306f4",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fe6e546a_795acab9",
+        "filename": "eVSSIM/tests/host/ssd_io_emulator_tests.cc",
+        "patchSetId": 14
+      },
+      "lineNbr": 301,
+      "author": {
+        "id": 1007990
+      },
+      "writtenOn": "2019-01-11T14:07:13Z",
+      "side": 1,
+      "message": "please give a meaningful name to this expression",
+      "range": {
+        "startLine": 301,
+        "startChar": 29,
+        "endLine": 301,
+        "endChar": 91
+      },
+      "revId": "a114e9616d3e41095bca3ae3abc36c30e9a306f4",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "aa47bb29_e4ea3018",
+        "filename": "eVSSIM/tests/host/ssd_io_emulator_tests.cc",
+        "patchSetId": 14
+      },
+      "lineNbr": 301,
+      "author": {
+        "id": 1007990
+      },
+      "writtenOn": "2019-01-11T14:07:13Z",
+      "side": 1,
+      "message": "modulo of diff with threshold, maybe?",
+      "range": {
+        "startLine": 301,
+        "startChar": 2,
+        "endLine": 301,
+        "endChar": 11
+      },
+      "revId": "a114e9616d3e41095bca3ae3abc36c30e9a306f4",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "f1e161f0_bcf7d446",
+        "filename": "eVSSIM/tests/host/ssd_io_emulator_tests.cc",
+        "patchSetId": 14
+      },
+      "lineNbr": 302,
+      "author": {
+        "id": 1007990
+      },
+      "writtenOn": "2019-01-11T14:07:13Z",
+      "side": 1,
+      "message": "modulo of diff with threshold, maybe?",
+      "range": {
+        "startLine": 302,
+        "startChar": 2,
+        "endLine": 302,
+        "endChar": 11
+      },
+      "revId": "a114e9616d3e41095bca3ae3abc36c30e9a306f4",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "dd87123b_2f58a80d",
+        "filename": "eVSSIM/tests/host/ssd_io_emulator_tests.cc",
+        "patchSetId": 14
+      },
+      "lineNbr": 302,
+      "author": {
+        "id": 1007990
+      },
+      "writtenOn": "2019-01-11T14:07:13Z",
+      "side": 1,
+      "message": "please give a meaningful name to this expression",
+      "range": {
+        "startLine": 302,
+        "startChar": 29,
+        "endLine": 302,
+        "endChar": 103
+      },
+      "revId": "a114e9616d3e41095bca3ae3abc36c30e9a306f4",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "0f61ad8c_c5fda21f",
+        "filename": "eVSSIM/tests/host/ssd_io_emulator_tests.cc",
+        "patchSetId": 14
+      },
+      "lineNbr": 311,
+      "author": {
+        "id": 1007990
+      },
+      "writtenOn": "2019-01-11T14:07:13Z",
+      "side": 1,
+      "message": "if testing 4 modes as mentioned in the comment of ll 299, then, probably this one is redundant...\nOr should be replaced with one that tests a sequence of several reads/writes. What do you think?",
+      "range": {
+        "startLine": 307,
+        "startChar": 0,
+        "endLine": 311,
+        "endChar": 4
+      },
+      "revId": "a114e9616d3e41095bca3ae3abc36c30e9a306f4",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "208246e9_59c3b356",
+        "filename": "eVSSIM/tests/host/ssd_io_emulator_tests.cc",
+        "patchSetId": 14
+      },
+      "lineNbr": 326,
+      "author": {
+        "id": 1007990
+      },
+      "writtenOn": "2019-01-11T14:07:13Z",
+      "side": 1,
+      "message": "what was the status of the register before? one need to set it explicitly and better to test both options as a starting point",
+      "range": {
+        "startLine": 326,
+        "startChar": 2,
+        "endLine": 326,
+        "endChar": 43
+      },
+      "revId": "a114e9616d3e41095bca3ae3abc36c30e9a306f4",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "6a5b1531_f04f6477",
+        "filename": "eVSSIM/tests/host/ssd_io_emulator_tests.cc",
+        "patchSetId": 14
+      },
+      "lineNbr": 334,
+      "author": {
+        "id": 1007990
+      },
+      "writtenOn": "2019-01-11T14:07:13Z",
+      "side": 1,
+      "message": "all previous comments are relevant here as well and in functions below (indentation, tabs, magic numbers, thresholds/modulo, replace expressions inside ASSERT macros with meaningfully named variables)",
+      "range": {
+        "startLine": 327,
+        "startChar": 0,
+        "endLine": 334,
+        "endChar": 1
+      },
+      "revId": "a114e9616d3e41095bca3ae3abc36c30e9a306f4",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "d981daaf_2fa4843c",
+        "filename": "eVSSIM/tests/host/ssd_io_emulator_tests.cc",
+        "patchSetId": 14
+      },
+      "lineNbr": 341,
+      "author": {
+        "id": 1007990
+      },
+      "writtenOn": "2019-01-11T14:07:13Z",
+      "side": 1,
+      "message": "\u0027gc page read\u0027? what is it?",
+      "range": {
+        "startLine": 341,
+        "startChar": 6,
+        "endLine": 341,
+        "endChar": 26
+      },
+      "revId": "a114e9616d3e41095bca3ae3abc36c30e9a306f4",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "a57a0e3a_96d526fe",
+        "filename": "eVSSIM/tests/host/ssd_io_emulator_tests.cc",
+        "patchSetId": 14
+      },
+      "lineNbr": 394,
+      "author": {
+        "id": 1007990
+      },
+      "writtenOn": "2019-01-11T14:07:13Z",
+      "side": 1,
+      "message": "could you please specify the purpose of the this test and that it assumes inherent limitations. Plz, specify which ones.\n\nsame comments as seem before. e.g. \nassumes that the channel was in read mode without setting it",
+      "range": {
+        "startLine": 388,
+        "startChar": 0,
+        "endLine": 394,
+        "endChar": 104
+      },
+      "revId": "a114e9616d3e41095bca3ae3abc36c30e9a306f4",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
     }
   ]
 }
