@@ -682,6 +682,98 @@
       "revId": "a114e9616d3e41095bca3ae3abc36c30e9a306f4",
       "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "63ac0bed_03f4bd27",
+        "filename": "eVSSIM/tests/host/ssd_io_emulator_tests.cc",
+        "patchSetId": 14
+      },
+      "lineNbr": 402,
+      "author": {
+        "id": 1007990
+      },
+      "writtenOn": "2019-01-11T14:27:43Z",
+      "side": 1,
+      "message": "does it makes sense to test only 2 reads writes when the permutations as commented above were tested? Guess it will be stronger to test several writes in a raw. E.g in a manner that fills entire block. Then entire channel.",
+      "range": {
+        "startLine": 401,
+        "startChar": 0,
+        "endLine": 402,
+        "endChar": 24
+      },
+      "revId": "a114e9616d3e41095bca3ae3abc36c30e9a306f4",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "0387e4c0_c093da82",
+        "filename": "eVSSIM/tests/host/ssd_io_emulator_tests.cc",
+        "patchSetId": 14
+      },
+      "lineNbr": 503,
+      "author": {
+        "id": 1007990
+      },
+      "writtenOn": "2019-01-11T14:27:43Z",
+      "side": 1,
+      "message": "what is the purpose of this test?",
+      "range": {
+        "startLine": 501,
+        "startChar": 0,
+        "endLine": 503,
+        "endChar": 23
+      },
+      "revId": "a114e9616d3e41095bca3ae3abc36c30e9a306f4",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "4439210d_bcb6cb48",
+        "filename": "eVSSIM/tests/host/ssd_io_emulator_tests.cc",
+        "patchSetId": 14
+      },
+      "lineNbr": 539,
+      "author": {
+        "id": 1007990
+      },
+      "writtenOn": "2019-01-11T14:27:43Z",
+      "side": 1,
+      "message": "same question",
+      "range": {
+        "startLine": 537,
+        "startChar": 0,
+        "endLine": 539,
+        "endChar": 24
+      },
+      "revId": "a114e9616d3e41095bca3ae3abc36c30e9a306f4",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "f58b90f8_e7342ff0",
+        "filename": "eVSSIM/tests/host/ssd_io_emulator_tests.cc",
+        "patchSetId": 14
+      },
+      "lineNbr": 686,
+      "author": {
+        "id": 1007990
+      },
+      "writtenOn": "2019-01-11T14:27:43Z",
+      "side": 1,
+      "message": "is this reflects what actually happens?\n\nI\u0027m stopping to comment here, because from the look on the lines below, first, previous comments have to be addressed. Second,  my concern is whether we can acheave the same result with less complication and with at least same coverage of ssd_manager lines? I\u0027m missing the point of having a test for writing after usec diff delay (missing it here and bellow where all those delay tests are where introduced). Could you please explain the reasoning?",
+      "range": {
+        "startLine": 683,
+        "startChar": 0,
+        "endLine": 686,
+        "endChar": 47
+      },
+      "revId": "a114e9616d3e41095bca3ae3abc36c30e9a306f4",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
     }
   ]
 }
