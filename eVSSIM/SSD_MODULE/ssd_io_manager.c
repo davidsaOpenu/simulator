@@ -139,7 +139,11 @@ ftl_ret_val SSD_PAGE_WRITE(unsigned int flash_nb, unsigned int block_nb, unsigne
 	/* Record Time Stamp */
 	SSD_CH_RECORD(channel, WRITE, offset, delay_ret);
 	SSD_REG_RECORD(reg, WRITE, type, offset, channel);
+	SSD_REG_ACCESS(flash_nb, channel, reg);
 	SSD_CELL_RECORD(reg, WRITE);
+
+	SSD_CH_ACCESS(flash_nb, channel);
+	SSD_CELL_WRITE_DELAY(reg);
 
 #ifdef O_DIRECT_VSSIM
 	if(offset == io_page_nb-1){
@@ -493,10 +497,9 @@ int SSD_REG_WRITE_DELAY(unsigned int flash_nb, int channel, int reg)
 	end = get_usec();
 
 	/* Send Delay Info To Perf Checker */
-	SEND_TO_PERF_CHECKER(reg_io_type[reg], end-start, CH_OP);
+	SEND_TO_PERF_CHECKER(reg_io_type[reg], diff, CH_OP);
 
 	/* Update Time Stamp Struct */
-	reg_io_time[reg] = -1;
 
     TIME_MICROSEC(_end);
 
@@ -594,7 +597,7 @@ int SSD_CELL_WRITE_DELAY(int reg)
 	end = get_usec();
 
 	/* Send Delay Info To Perf Checker */
-	SEND_TO_PERF_CHECKER(reg_io_type[reg], end-start, REG_OP);
+	SEND_TO_PERF_CHECKER(reg_io_type[reg], diff, REG_OP);
 	SSD_UPDATE_IO_REQUEST(reg);
 
 	/* Update Time Stamp Struct */
