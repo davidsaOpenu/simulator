@@ -10,6 +10,13 @@
 #include "ftl.h"
 
 
+typedef struct {
+
+	int occupied_pages_counter;
+
+} ssd_block;
+
+
 extern int old_channel_nb;
 extern int64_t io_alloc_overhead;
 extern int64_t io_update_overhead;
@@ -67,4 +74,5 @@ void SSD_UPDATE_QEMU_OVERHEAD(int64_t delay);
 /* SSD Module Debugging */
 void SSD_PRINT_STAMP(void);
 
+double SSD_UTIL(void);
 #endif
