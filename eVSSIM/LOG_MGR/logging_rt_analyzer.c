@@ -55,17 +55,24 @@ void* rt_log_analyzer_run(void* analyzer) {
     return NULL;
 }
 
+// additional variables needed to calculate the statistics
+unsigned int logical_write_count = 0;
+int write_wall_time = 0;
+int read_wall_time = 0;
+int current_wall_time = 0;
+long occupied_pages = 0;
+
 void rt_log_analyzer_loop(RTLogAnalyzer* analyzer, int max_logs) {
     // init the statistics
     SSDStatistics stats = stats_init();
     SSDStatistics old_stats = stats_init();
 
-    // additional variables needed to calculate the statistics
-    unsigned int logical_write_count = 0;
-    int write_wall_time = 0;
-    int read_wall_time = 0;
-    int current_wall_time = 0;
-    long occupied_pages = 0;
+    // init additional variables
+    logical_write_count = 0;
+    write_wall_time = 0;
+    read_wall_time = 0;
+    current_wall_time = 0;
+    occupied_pages = 0;
 
     unsigned int subscriber_id;
 

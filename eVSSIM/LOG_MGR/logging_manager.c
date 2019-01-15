@@ -87,7 +87,7 @@ void* log_manager_run(void* manager) {
     return NULL;
 }
 
-
+SSDStatistics* current_stats;
 void log_manager_loop(LogManager* manager, int max_loops) {
     SSDStatistics old_stats = stats_init();
     int first_loop = 1;
@@ -95,6 +95,7 @@ void log_manager_loop(LogManager* manager, int max_loops) {
     while (max_loops < 0 || loops < max_loops) {
         // init the current statistics
         SSDStatistics stats = stats_init();
+        current_stats = &stats;
 
         // additional variables needed to calculate the statistics
         unsigned int logical_write_count = 0;
