@@ -28,6 +28,8 @@ char ssd_date[9] = "13.04.11";
 
 struct timeval logging_parser_tv;
 
+ssd_disk ssd;
+
 int64_t get_usec(void)
 {
 	int64_t t = 0;
@@ -53,6 +55,11 @@ int SSD_IO_INIT(void){
 	old_channel_nb = CHANNEL_NB;
 	old_channel_cmd = NOOP;
 	old_channel_time = 0;
+
+    /* Init ssd statistic */
+	ssd.occupied_pages_counter = 0;
+	ssd.physical_page_writes = 0;
+	ssd.logical_page_writes = 0;
 
 	/* Init Variable for Time-stamp */
 
@@ -138,8 +145,13 @@ ftl_ret_val SSD_PAGE_WRITE(unsigned int flash_nb, unsigned int block_nb, unsigne
 
 	/* Record Time Stamp */
 	SSD_CH_RECORD(channel, WRITE, offset, delay_ret);
+
 	SSD_REG_RECORD(reg, WRITE, type, offset, channel);
+	SSD_REG_ACCESS(flash_nb, channel, reg);
 	SSD_CELL_RECORD(reg, WRITE);
+
+	SSD_CH_ACCESS(flash_nb, channel);
+	SSD_CELL_WRITE_DELAY(reg);
 
 #ifdef O_DIRECT_VSSIM
 	if(offset == io_page_nb-1){
@@ -149,6 +161,20 @@ ftl_ret_val SSD_PAGE_WRITE(unsigned int flash_nb, unsigned int block_nb, unsigne
 
     TIME_MICROSEC(_end);
 
+    /* Update ssd page write counters */
+    ssd.occupied_pages_counter++;
+    ssd.physical_page_writes++;
+	if( type == WRITE ) {
+		ssd.logical_page_writes++;
+
+		LOG_LOGICAL_CELL_PROGRAM(GET_LOGGER(flash_nb),(LogicalCellProgramLog) {
+		    .channel = channel, .block = block_nb, .page = page_nb,
+            .metadata.logging_start_time = _start,
+            .metadata.logging_end_time = _end
+		});
+	}
+
+	WRITE_LOG("WRITE PAGE %d ", 1);
 	LOG_PHYSICAL_CELL_PROGRAM(GET_LOGGER(flash_nb), (PhysicalCellProgramLog) {
 	    .channel = channel, .block = block_nb, .page = page_nb,
         .metadata.logging_start_time = _start,
@@ -226,7 +252,9 @@ ftl_ret_val SSD_BLOCK_ERASE(unsigned int flash_nb, unsigned int block_nb)
 
     TIME_MICROSEC(_end);
 
-	LOG_BLOCK_ERASE(GET_LOGGER(flash_nb), (BlockEraseLog) {
+	ssd.occupied_pages_counter -= PAGE_NB;
+
+    LOG_BLOCK_ERASE(GET_LOGGER(flash_nb), (BlockEraseLog) {
 	    .channel = channel, .die = flash_nb, .block = block_nb,
         .metadata.logging_start_time = _start,
         .metadata.logging_end_time = _end
@@ -292,7 +320,6 @@ int SSD_CH_RECORD(int channel, int cmd, int offset, int ret)
 {
 	old_channel_nb = channel;
 	old_channel_cmd = cmd;
-
 	if(cmd == READ && offset != 0 && ret == 0){
 		old_channel_time += CHANNEL_SWITCH_DELAY_R;
 	}
@@ -302,7 +329,6 @@ int SSD_CH_RECORD(int channel, int cmd, int offset, int ret)
 	else{
 		old_channel_time = get_usec();
 	}
-
 	return FTL_SUCCESS;
 }
 
@@ -329,7 +355,6 @@ int SSD_REG_RECORD(int reg, int cmd, int type, int offset, int channel)
 	}
 	else if(cmd == READ){
 		reg_io_time[reg] = SSD_GET_CH_ACCESS_TIME_FOR_READ(channel, reg);
-
 		/* Update SATA request Info */
 		if(type == READ){
 			access_nb[reg][0] = io_request_seq_nb;
@@ -414,7 +439,6 @@ int64_t SSD_CH_SWITCH_DELAY(unsigned int flash_nb, int channel)
 	int64_t switch_delay = 0;
 
     TIME_MICROSEC(_start);
-
 	if(old_channel_cmd == READ){
 		switch_delay = CHANNEL_SWITCH_DELAY_R;
 	}
@@ -493,10 +517,9 @@ int SSD_REG_WRITE_DELAY(unsigned int flash_nb, int channel, int reg)
 	end = get_usec();
 
 	/* Send Delay Info To Perf Checker */
-	SEND_TO_PERF_CHECKER(reg_io_type[reg], end-start, CH_OP);
+	SEND_TO_PERF_CHECKER(reg_io_type[reg], diff, CH_OP);
 
 	/* Update Time Stamp Struct */
-	reg_io_time[reg] = -1;
 
     TIME_MICROSEC(_end);
 
@@ -516,9 +539,7 @@ int SSD_REG_READ_DELAY(unsigned int flash_nb, int channel, int reg)
 	int64_t end = 0;
 	int64_t diff = 0;
 	int64_t time_stamp = reg_io_time[reg];
-
     TIME_MICROSEC(_start);
-
 	if (time_stamp == -1)
 		return 0;
 
@@ -540,7 +561,6 @@ int SSD_REG_READ_DELAY(unsigned int flash_nb, int channel, int reg)
 		ret = 1;
 	}
 	end = get_usec();
-
 
 	/* Send Delay Info To Perf Checker */
 	SEND_TO_PERF_CHECKER(reg_io_type[reg], end-start, CH_OP);
@@ -594,7 +614,7 @@ int SSD_CELL_WRITE_DELAY(int reg)
 	end = get_usec();
 
 	/* Send Delay Info To Perf Checker */
-	SEND_TO_PERF_CHECKER(reg_io_type[reg], end-start, REG_OP);
+	SEND_TO_PERF_CHECKER(reg_io_type[reg], diff, REG_OP);
 	SSD_UPDATE_IO_REQUEST(reg);
 
 	/* Update Time Stamp Struct */
@@ -689,6 +709,7 @@ int64_t SSD_GET_CH_ACCESS_TIME_FOR_READ(int channel, int reg)
 	int i, j;
 	int r_num;
 	int64_t latest_time = cell_io_time[reg] + CELL_READ_DELAY;
+
 	int64_t temp_time = 0;
 
 	for(i=0;i<WAY_NB;i++){
@@ -810,4 +831,12 @@ ftl_ret_val SSD_PAGE_COPYBACK(uint32_t source, uint32_t destination, int type){
 	SSD_REG_RECORD(reg, COPYBACK, type, 0, channel);
 
 	return FTL_SUCCESS;
+}
+
+double SSD_UTIL(void) {
+	return (double)ssd.occupied_pages_counter / PAGES_IN_SSD;
+}
+
+double WRITE_AMPLIFICATION(void) {
+	return (double)ssd.physical_page_writes / ssd.logical_page_writes;
 }
