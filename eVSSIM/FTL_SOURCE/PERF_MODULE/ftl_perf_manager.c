@@ -171,7 +171,7 @@ void SEND_TO_PERF_CHECKER(int op_type, int64_t op_delay, int type){
 				avg_write_latency = (avg_write_latency * write_latency_count + delay)/(write_latency_count + 1);
 				write_latency_count++;
 				WRITE_LOG("WRITE BW %lf ", GET_IO_BANDWIDTH(avg_write_delay));
-				WRITE_LOG("UTIL %lf ", ssd_util);
+				WRITE_LOG("UTIL %lf ", SSD_UTIL());
 				break;
 			default:
 				break;
