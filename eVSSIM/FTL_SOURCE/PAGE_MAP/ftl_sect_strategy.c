@@ -2,6 +2,7 @@
 #include "ftl_sect_strategy.h"
 
 static struct timeval logging_parser_tv;
+extern ssd_disk ssd;
 
 ftl_ret_val _FTL_READ_SECT(uint64_t sector_nb, unsigned int length)
 {
@@ -170,11 +171,6 @@ ftl_ret_val _FTL_WRITE_SECT(uint64_t sector_nb, unsigned int length)
 		page = CALC_PAGE(new_ppn);
 
 		TIME_MICROSEC(_end);
-		LOG_LOGICAL_CELL_PROGRAM(GET_LOGGER(flash_nb),(LogicalCellProgramLog) {
-		    .channel = channel, .block = block, .page = page,
-            .metadata.logging_start_time = _start,
-            .metadata.logging_end_time = _end
-		});
 	}
 
 	INCREASE_IO_REQUEST_SEQ_NB();
@@ -182,10 +178,10 @@ ftl_ret_val _FTL_WRITE_SECT(uint64_t sector_nb, unsigned int length)
 #ifdef GC_ON
 	GC_CHECK(CALC_FLASH(new_ppn), CALC_BLOCK(new_ppn), false, false); // is this a bug? gc will only happen on the last page's flash and block
 #endif
-    WRITE_LOG("WRITE PAGE %d ", length);
-    WRITE_LOG("WB CORRECT %d", write_page_nb);
+
+//    WRITE_LOG("WB CORRECT %d", write_page_nb);
 	//also update the write amplifications status here
-	WRITE_LOG("WB AMP %f", (float)wa_counters.physical_block_write_counter / (float)wa_counters.logical_block_write_counter);
+	WRITE_LOG("WB AMP %f", (float)ssd.physical_page_writes / (float)ssd.logical_page_writes);
     PDBG_FTL("Complete\n");
 
 	return ret;
