@@ -99,6 +99,24 @@
     },
     {
       "key": {
+        "uuid": "a1fb5045_00f1460a",
+        "filename": "eVSSIM/SSD_MODULE/ssd_io_manager.c",
+        "patchSetId": 9
+      },
+      "lineNbr": 521,
+      "author": {
+        "id": 1014550
+      },
+      "writtenOn": "2019-01-16T17:26:54Z",
+      "side": 1,
+      "message": "replace all {end-start} occurrences currently will disrupt the delays and it is requires a very deep change",
+      "parentUuid": "7f38d245_50e75555",
+      "revId": "caabecee4817536c536ff57a30f604f0d176df3f",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "84b8b512_1c9858d0",
         "filename": "eVSSIM/SSD_MODULE/ssd_io_manager.h",
         "patchSetId": 9
@@ -144,6 +162,24 @@
       "writtenOn": "2019-01-16T14:13:55Z",
       "side": 1,
       "message": "valgrind --leak-check\u003dfull --error-exitcode\u003d2  ./ssd_io_emulator_tests",
+      "revId": "caabecee4817536c536ff57a30f604f0d176df3f",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "c57285de_6b1547f6",
+        "filename": "eVSSIM/tests/host/run_all_host_tests.sh",
+        "patchSetId": 9
+      },
+      "lineNbr": 29,
+      "author": {
+        "id": 1014550
+      },
+      "writtenOn": "2019-01-16T17:26:54Z",
+      "side": 1,
+      "message": "this change will requires a very deep change cause by delays test case",
+      "parentUuid": "bc2b4147_349d2abf",
       "revId": "caabecee4817536c536ff57a30f604f0d176df3f",
       "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
       "unresolved": false
@@ -213,6 +249,24 @@
     },
     {
       "key": {
+        "uuid": "01a4deaa_8dca91b1",
+        "filename": "eVSSIM/tests/host/ssd_io_emulator_tests.cc",
+        "patchSetId": 9
+      },
+      "lineNbr": 182,
+      "author": {
+        "id": 1014550
+      },
+      "writtenOn": "2019-01-16T17:26:54Z",
+      "side": 1,
+      "message": "We assume the channel is in: \"initiated\" state, \nwe can be sure this is the state by line 136, setup method: FTL_INIT() which is calls to SSD_IO_INIT()",
+      "parentUuid": "3e8eeac7_b04ebebb",
+      "revId": "caabecee4817536c536ff57a30f604f0d176df3f",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "8aa53c84_8646d90c",
         "filename": "eVSSIM/tests/host/ssd_io_emulator_tests.cc",
         "patchSetId": 9
@@ -224,6 +278,24 @@
       "writtenOn": "2019-01-16T14:02:19Z",
       "side": 1,
       "message": "MONITOR_SYNC_DELAY must be in correlation with the values you are setting in lines 116 and so on. Here and in other tests  below.",
+      "revId": "caabecee4817536c536ff57a30f604f0d176df3f",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "e1f099d2_1b23c1b9",
+        "filename": "eVSSIM/tests/host/ssd_io_emulator_tests.cc",
+        "patchSetId": 9
+      },
+      "lineNbr": 185,
+      "author": {
+        "id": 1014550
+      },
+      "writtenOn": "2019-01-16T17:26:54Z",
+      "side": 1,
+      "message": "I tried to synchronize it with: logging_manager.c line: 161, What value it is should hold?",
+      "parentUuid": "8aa53c84_8646d90c",
       "revId": "caabecee4817536c536ff57a30f604f0d176df3f",
       "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
       "unresolved": false
@@ -276,6 +348,30 @@
     },
     {
       "key": {
+        "uuid": "6207ff3e_f758dfd2",
+        "filename": "eVSSIM/tests/host/ssd_io_emulator_tests.cc",
+        "patchSetId": 9
+      },
+      "lineNbr": 214,
+      "author": {
+        "id": 1014550
+      },
+      "writtenOn": "2019-01-16T17:26:54Z",
+      "side": 1,
+      "message": "SSD_UTIL() is the old monitor,\ncurrent_stats-\u003eutilization is the new.",
+      "parentUuid": "e829a663_52b1c809",
+      "range": {
+        "startLine": 213,
+        "startChar": 0,
+        "endLine": 214,
+        "endChar": 57
+      },
+      "revId": "caabecee4817536c536ff57a30f604f0d176df3f",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "d5853c62_c41da41f",
         "filename": "eVSSIM/tests/host/ssd_io_emulator_tests.cc",
         "patchSetId": 9
@@ -310,6 +406,24 @@
       "writtenOn": "2019-01-16T14:02:19Z",
       "side": 1,
       "message": "can be negative if PAGE_NB is greater then 2?",
+      "revId": "caabecee4817536c536ff57a30f604f0d176df3f",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "a0befe69_c9d985c0",
+        "filename": "eVSSIM/tests/host/ssd_io_emulator_tests.cc",
+        "patchSetId": 9
+      },
+      "lineNbr": 278,
+      "author": {
+        "id": 1014550
+      },
+      "writtenOn": "2019-01-16T17:26:54Z",
+      "side": 1,
+      "message": "Currently it can be negative, used by new monitor ssd_utilization calculation",
+      "parentUuid": "152562a4_e8458692",
       "revId": "caabecee4817536c536ff57a30f604f0d176df3f",
       "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
       "unresolved": false

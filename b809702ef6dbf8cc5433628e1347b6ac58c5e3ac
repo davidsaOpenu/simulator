@@ -19,6 +19,24 @@
     },
     {
       "key": {
+        "uuid": "4412c494_b9d165e5",
+        "filename": "eVSSIM/FTL_SOURCE/PAGE_MAP/ftl_sect_strategy.c",
+        "patchSetId": 9
+      },
+      "lineNbr": 173,
+      "author": {
+        "id": 1014550
+      },
+      "writtenOn": "2019-01-16T17:26:54Z",
+      "side": 0,
+      "message": "Moved to eVSSIM/SSD_MODULE/ssd_io_manager.c +170",
+      "parentUuid": "f83ca87b_e6ff7764",
+      "revId": "b809702ef6dbf8cc5433628e1347b6ac58c5e3ac",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "992e3e40_a9cad25f",
         "filename": "eVSSIM/FTL_SOURCE/PAGE_MAP/ftl_sect_strategy.c",
         "patchSetId": 9
@@ -30,6 +48,24 @@
       "writtenOn": "2019-01-16T14:02:19Z",
       "side": 0,
       "message": "Same question as in line 173 (just related to old monitor so reflected immediately)",
+      "revId": "b809702ef6dbf8cc5433628e1347b6ac58c5e3ac",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fd23e2b0_33d80f56",
+        "filename": "eVSSIM/FTL_SOURCE/PAGE_MAP/ftl_sect_strategy.c",
+        "patchSetId": 9
+      },
+      "lineNbr": 185,
+      "author": {
+        "id": 1014550
+      },
+      "writtenOn": "2019-01-16T17:26:54Z",
+      "side": 0,
+      "message": "Moved to eVSSIM/SSD_MODULE/ssd_io_manager.c +177",
+      "parentUuid": "992e3e40_a9cad25f",
       "revId": "b809702ef6dbf8cc5433628e1347b6ac58c5e3ac",
       "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
       "unresolved": false
