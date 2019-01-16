@@ -1,0 +1,38 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "f83ca87b_e6ff7764",
+        "filename": "eVSSIM/FTL_SOURCE/PAGE_MAP/ftl_sect_strategy.c",
+        "patchSetId": 9
+      },
+      "lineNbr": 173,
+      "author": {
+        "id": 1007990
+      },
+      "writtenOn": "2019-01-16T14:02:19Z",
+      "side": 0,
+      "message": "This one is used by the new monitor to record READ (to be analysed later). Have you moves it so somewhere else?",
+      "revId": "b809702ef6dbf8cc5433628e1347b6ac58c5e3ac",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "992e3e40_a9cad25f",
+        "filename": "eVSSIM/FTL_SOURCE/PAGE_MAP/ftl_sect_strategy.c",
+        "patchSetId": 9
+      },
+      "lineNbr": 185,
+      "author": {
+        "id": 1007990
+      },
+      "writtenOn": "2019-01-16T14:02:19Z",
+      "side": 0,
+      "message": "Same question as in line 173 (just related to old monitor so reflected immediately)",
+      "revId": "b809702ef6dbf8cc5433628e1347b6ac58c5e3ac",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    }
+  ]
+}
