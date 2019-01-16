@@ -18,7 +18,7 @@
 #include <stdlib.h>
 
 #include "logging_manager.h"
-
+#include "ssd_io_manager.h"
 
 /**
  * The next slot number
@@ -30,6 +30,7 @@
 #define NEXT_SLOT(i) (((i) + 1) % HANDLER_SIZE)
 #endif
 
+extern ssd_disk ssd;
 
 /**
  * The hook to use when subscribing to an analyzer
@@ -87,7 +88,6 @@ void* log_manager_run(void* manager) {
     return NULL;
 }
 
-
 void log_manager_loop(LogManager* manager, int max_loops) {
     SSDStatistics old_stats = stats_init();
     int first_loop = 1;
@@ -95,6 +95,7 @@ void log_manager_loop(LogManager* manager, int max_loops) {
     while (max_loops < 0 || loops < max_loops) {
         // init the current statistics
         SSDStatistics stats = stats_init();
+        ssd.current_stats = &stats;
 
         // additional variables needed to calculate the statistics
         unsigned int logical_write_count = 0;
