@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "69850d55_5cd73096",
+        "filename": "eVSSIM/SSD_MODULE/ssd_io_manager.c",
+        "patchSetId": 12
+      },
+      "lineNbr": 472,
+      "author": {
+        "id": 1007990
+      },
+      "writtenOn": "2019-01-17T16:50:23Z",
+      "side": 1,
+      "message": "nice catch!",
+      "revId": "3d9adc681e667442412d98e938b59f64f2e82837",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    }
+  ]
+}
