@@ -24,6 +24,16 @@ if [ $CURR_RESULT -ne 0 ]; then
   RESULT=1
 fi
 
+
+# run io emulator monitor statistics tests
+# TODO: fix compilation warnings and valgrind complaints
+#valgrind --leak-check=full --error-exitcode=2 ./ssd_io_emulator_tests
+./ssd_io_emulator_tests
+CURR_RESULT=$?
+if [ $CURR_RESULT -ne 0 ]; then
+  RESULT=1
+fi
+
 exit $RESULT
 
 

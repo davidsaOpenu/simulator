@@ -13,7 +13,7 @@ int fail_cnt = 0;
 extern double ssd_util;
 
 write_amplification_counters wa_counters;
-
+extern ssd_disk ssd;
 
 void GC_CHECK(unsigned int phy_flash_nb, unsigned int phy_block_nb, bool force, bool isObjectStrategy)
 {
@@ -136,7 +136,7 @@ ftl_ret_val GARBAGE_COLLECTION(int mapping_index, int l2, bool isObjectStrategy)
 	LOG_GARBAGE_COLLECTION(GET_LOGGER(victim_phy_flash_nb), (GarbageCollectionLog) empty_log);
 
 //	WRITE_LOG("WB AMP %d", copy_page_nb);
-	WRITE_LOG("WB AMP %f", (float)wa_counters.physical_block_write_counter / (float)wa_counters.logical_block_write_counter);
+	WRITE_LOG("WB AMP %f", (float)ssd.physical_page_writes / (float)ssd.logical_page_writes);
 
 
 	return FTL_SUCCESS;
