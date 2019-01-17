@@ -37,6 +37,24 @@
     },
     {
       "key": {
+        "uuid": "52821267_27ac3105",
+        "filename": "eVSSIM/FTL_SOURCE/PAGE_MAP/ftl_sect_strategy.c",
+        "patchSetId": 9
+      },
+      "lineNbr": 173,
+      "author": {
+        "id": 1007990
+      },
+      "writtenOn": "2019-01-17T11:53:24Z",
+      "side": 0,
+      "message": "then what is the purpose of lines 167-173?",
+      "parentUuid": "4412c494_b9d165e5",
+      "revId": "b809702ef6dbf8cc5433628e1347b6ac58c5e3ac",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "992e3e40_a9cad25f",
         "filename": "eVSSIM/FTL_SOURCE/PAGE_MAP/ftl_sect_strategy.c",
         "patchSetId": 9
