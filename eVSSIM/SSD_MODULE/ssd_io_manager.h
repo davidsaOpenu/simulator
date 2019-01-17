@@ -8,6 +8,27 @@
 
 //#include "ssd_util.h"
 #include "ftl.h"
+#include "logging_statistics.h"
+
+/** @struct ssd_disk
+ *  @brief This structure represents statistics related to ssd disk
+ *  @var int occupied_pages_counter
+ *  Member 'occupied_pages_counter' holds number of current occupied pages in disk
+ *  @var int physical_page_writes
+ *  Member 'physical_page_writes' holds sum of all page writes
+ *  @var int logical_page_writes
+ *  Member 'logical_page_writes' holds sum of logical only page writes
+ *  @var SSDStatistics* current_stats
+ *  Member 'current_stats' holds stats of browser monitor
+ */
+typedef struct {
+
+    int occupied_pages_counter;
+    int physical_page_writes;
+    int logical_page_writes;
+    SSDStatistics* current_stats;
+
+} ssd_disk;
 
 
 extern int old_channel_nb;
@@ -66,5 +87,7 @@ void SSD_UPDATE_QEMU_OVERHEAD(int64_t delay);
 
 /* SSD Module Debugging */
 void SSD_PRINT_STAMP(void);
+
+double SSD_UTIL(void);
 
 #endif
