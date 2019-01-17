@@ -222,6 +222,24 @@
     },
     {
       "key": {
+        "uuid": "2ee5c39e_7fbbe3a4",
+        "filename": "eVSSIM/tests/host/run_all_host_tests.sh",
+        "patchSetId": 9
+      },
+      "lineNbr": 29,
+      "author": {
+        "id": 1007990
+      },
+      "writtenOn": "2019-01-17T14:51:33Z",
+      "side": 1,
+      "message": "Ok. Please add a comment that this case is an exception and that performance tests that incur real delays must run naively. At least until we will find the the way to calculate the the bandwidth without walltime.",
+      "parentUuid": "e00c4ac7_a1505925",
+      "revId": "caabecee4817536c536ff57a30f604f0d176df3f",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "0820b538_88877006",
         "filename": "eVSSIM/tests/host/ssd_io_emulator_tests.cc",
         "patchSetId": 9
@@ -368,6 +386,24 @@
       "side": 1,
       "message": "Do you mean to replace the usleep line with:\nusleep(expected_write_duration + expected_read_duration) ? this will\ncause failure for all tests.\nthe delay is not for end page write / read operation but waiting for\nlogging manager execute the next loop on logging_manager.c line: 161 \n\u0026 logging calculation delay cause by logging_rt_analyzer.c line: 103",
       "parentUuid": "a92a4507_b4d5431c",
+      "revId": "caabecee4817536c536ff57a30f604f0d176df3f",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "04322864_34ae596e",
+        "filename": "eVSSIM/tests/host/ssd_io_emulator_tests.cc",
+        "patchSetId": 9
+      },
+      "lineNbr": 185,
+      "author": {
+        "id": 1007990
+      },
+      "writtenOn": "2019-01-17T14:51:33Z",
+      "side": 1,
+      "message": "What happens if I\u0027m putting read delay which is longer then 0.15 sec (MONITOR_SYNC_DELAY)? I guess the test will fail, right?  What I mean is using MONITOR_SYNC_DELAY(expected_read_duration) that adds 0.15 sec to expected_read_duration.",
+      "parentUuid": "cd67b413_3ef0c663",
       "revId": "caabecee4817536c536ff57a30f604f0d176df3f",
       "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
       "unresolved": false
