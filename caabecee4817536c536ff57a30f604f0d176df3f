@@ -320,6 +320,24 @@
     },
     {
       "key": {
+        "uuid": "a92a4507_b4d5431c",
+        "filename": "eVSSIM/tests/host/ssd_io_emulator_tests.cc",
+        "patchSetId": 9
+      },
+      "lineNbr": 185,
+      "author": {
+        "id": 1007990
+      },
+      "writtenOn": "2019-01-17T11:56:37Z",
+      "side": 1,
+      "message": "Compute it from the delays",
+      "parentUuid": "e1f099d2_1b23c1b9",
+      "revId": "caabecee4817536c536ff57a30f604f0d176df3f",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "55672643_0a5b6d3b",
         "filename": "eVSSIM/tests/host/ssd_io_emulator_tests.cc",
         "patchSetId": 9
@@ -378,6 +396,30 @@
       "side": 1,
       "message": "SSD_UTIL() is the old monitor,\ncurrent_stats-\u003eutilization is the new.",
       "parentUuid": "e829a663_52b1c809",
+      "range": {
+        "startLine": 213,
+        "startChar": 0,
+        "endLine": 214,
+        "endChar": 57
+      },
+      "revId": "caabecee4817536c536ff57a30f604f0d176df3f",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "6dfb5469_fe12ee80",
+        "filename": "eVSSIM/tests/host/ssd_io_emulator_tests.cc",
+        "patchSetId": 9
+      },
+      "lineNbr": 214,
+      "author": {
+        "id": 1007990
+      },
+      "writtenOn": "2019-01-17T11:56:37Z",
+      "side": 1,
+      "message": "it is not clear from the code/comments",
+      "parentUuid": "6207ff3e_f758dfd2",
       "range": {
         "startLine": 213,
         "startChar": 0,
