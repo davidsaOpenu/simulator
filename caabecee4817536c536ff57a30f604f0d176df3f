@@ -204,6 +204,24 @@
     },
     {
       "key": {
+        "uuid": "e00c4ac7_a1505925",
+        "filename": "eVSSIM/tests/host/run_all_host_tests.sh",
+        "patchSetId": 9
+      },
+      "lineNbr": 29,
+      "author": {
+        "id": 1014550
+      },
+      "writtenOn": "2019-01-17T13:38:56Z",
+      "side": 1,
+      "message": "execution of the command valgrind --leak-check\u003dfull --error-exitcode\u003d2 ./ssd_io_emulator_tests make the BWCase1 failed cause delay by very long and unlimited delay",
+      "parentUuid": "f56cc92a_65c5bb79",
+      "revId": "caabecee4817536c536ff57a30f604f0d176df3f",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "0820b538_88877006",
         "filename": "eVSSIM/tests/host/ssd_io_emulator_tests.cc",
         "patchSetId": 9
@@ -332,6 +350,24 @@
       "side": 1,
       "message": "Compute it from the delays",
       "parentUuid": "e1f099d2_1b23c1b9",
+      "revId": "caabecee4817536c536ff57a30f604f0d176df3f",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "cd67b413_3ef0c663",
+        "filename": "eVSSIM/tests/host/ssd_io_emulator_tests.cc",
+        "patchSetId": 9
+      },
+      "lineNbr": 185,
+      "author": {
+        "id": 1014550
+      },
+      "writtenOn": "2019-01-17T13:38:56Z",
+      "side": 1,
+      "message": "Do you mean to replace the usleep line with:\nusleep(expected_write_duration + expected_read_duration) ? this will\ncause failure for all tests.\nthe delay is not for end page write / read operation but waiting for\nlogging manager execute the next loop on logging_manager.c line: 161 \n\u0026 logging calculation delay cause by logging_rt_analyzer.c line: 103",
+      "parentUuid": "a92a4507_b4d5431c",
       "revId": "caabecee4817536c536ff57a30f604f0d176df3f",
       "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
       "unresolved": false
