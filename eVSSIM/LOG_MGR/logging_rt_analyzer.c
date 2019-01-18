@@ -155,6 +155,8 @@ void rt_log_analyzer_loop(RTLogAnalyzer* analyzer, int max_logs) {
                 NEXT_BLOCK_ERASE_LOG(analyzer->logger);
                 rt_log_stats.occupied_pages -= PAGE_NB;
                 rt_log_stats.current_wall_time += BLOCK_ERASE_DELAY;
+                rt_log_stats.write_wall_time += rt_log_stats.current_wall_time;
+                rt_log_stats.current_wall_time = 0;
                 break;
             case CHANNEL_SWITCH_TO_READ_LOG_UID:
                 NEXT_CHANNEL_SWITCH_TO_READ_LOG(analyzer->logger);

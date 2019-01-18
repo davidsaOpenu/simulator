@@ -102,6 +102,7 @@ void SEND_TO_PERF_CHECKER(int op_type, int64_t op_delay, int type){
 				break;
 
 			case ERASE:
+				total_write_delay += delay;
 				break;
 
 			case GC_READ:
@@ -134,6 +135,7 @@ void SEND_TO_PERF_CHECKER(int op_type, int64_t op_delay, int type){
 
 			case ERASE:
 				written_page_nb -= PAGE_NB;
+				total_write_delay += delay;
 				WRITE_LOG("ERASE 1");
 				break;
 
