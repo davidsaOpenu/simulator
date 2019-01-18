@@ -2,6 +2,29 @@
   "comments": [
     {
       "key": {
+        "uuid": "d5c90bb4_d0ef1310",
+        "filename": "/COMMIT_MSG",
+        "patchSetId": 13
+      },
+      "lineNbr": 10,
+      "author": {
+        "id": 1007990
+      },
+      "writtenOn": "2019-01-18T12:36:15Z",
+      "side": 1,
+      "message": "long lines - out of gerrit window scope",
+      "range": {
+        "startLine": 9,
+        "startChar": 0,
+        "endLine": 10,
+        "endChar": 80
+      },
+      "revId": "6315fa7ebe276325384490ac86d17b8e399a8a42",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "5d9703b1_679e0e01",
         "filename": "eVSSIM/tests/host/ssd_io_emulator_tests.cc",
         "patchSetId": 13
