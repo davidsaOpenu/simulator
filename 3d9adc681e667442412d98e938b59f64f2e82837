@@ -16,6 +16,24 @@
       "revId": "3d9adc681e667442412d98e938b59f64f2e82837",
       "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "39ee971f_1f25d58a",
+        "filename": "eVSSIM/SSD_MODULE/ssd_io_manager.c",
+        "patchSetId": 12
+      },
+      "lineNbr": 472,
+      "author": {
+        "id": 1014550
+      },
+      "writtenOn": "2019-01-18T13:03:44Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "69850d55_5cd73096",
+      "revId": "3d9adc681e667442412d98e938b59f64f2e82837",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
     }
   ]
 }
