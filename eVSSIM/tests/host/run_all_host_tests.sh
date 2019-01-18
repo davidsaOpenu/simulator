@@ -24,6 +24,15 @@ if [ $CURR_RESULT -ne 0 ]; then
   RESULT=1
 fi
 
+
+# run io emulator monitor statistics tests
+# performance tests that incur real delays must run naively
+./ssd_io_emulator_tests
+CURR_RESULT=$?
+if [ $CURR_RESULT -ne 0 ]; then
+  RESULT=1
+fi
+
 exit $RESULT
 
 
