@@ -25,6 +25,30 @@
     },
     {
       "key": {
+        "uuid": "63dfca5b_e9b8b562",
+        "filename": "/COMMIT_MSG",
+        "patchSetId": 13
+      },
+      "lineNbr": 10,
+      "author": {
+        "id": 1014550
+      },
+      "writtenOn": "2019-01-18T13:05:28Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "d5c90bb4_d0ef1310",
+      "range": {
+        "startLine": 9,
+        "startChar": 0,
+        "endLine": 10,
+        "endChar": 80
+      },
+      "revId": "6315fa7ebe276325384490ac86d17b8e399a8a42",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "5d9703b1_679e0e01",
         "filename": "eVSSIM/tests/host/ssd_io_emulator_tests.cc",
         "patchSetId": 13
@@ -36,6 +60,30 @@
       "writtenOn": "2019-01-18T12:31:52Z",
       "side": 1,
       "message": "plz go over my earlier comments. Some of them are still unrelated in the PS#13. Like this one. \n\nIn general, good practice is to comment with \"Done\" or \"Fixed\" on the comments (or putting down a reason if objecting)",
+      "range": {
+        "startLine": 95,
+        "startChar": 1,
+        "endLine": 105,
+        "endChar": 1
+      },
+      "revId": "6315fa7ebe276325384490ac86d17b8e399a8a42",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "20d0e01e_e8189d00",
+        "filename": "eVSSIM/tests/host/ssd_io_emulator_tests.cc",
+        "patchSetId": 13
+      },
+      "lineNbr": 105,
+      "author": {
+        "id": 1014550
+      },
+      "writtenOn": "2019-01-18T13:05:28Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "5d9703b1_679e0e01",
       "range": {
         "startLine": 95,
         "startChar": 1,
