@@ -30,6 +30,17 @@ typedef struct {
 
 } ssd_disk;
 
+/** @struct ssd_block
+ *  @brief This structure represents ssd block
+ *  @var int written_pages
+ *  Member 'written_pages' holds number of current occupied pages in block
+ */
+typedef struct {
+
+    int written_pages;
+
+} ssd_block;
+
 
 extern int old_channel_nb;
 extern int64_t io_alloc_overhead;
