@@ -118,6 +118,10 @@ typedef struct {
      */
     unsigned int channel;
     /**
+     * The die number of the register read
+     */
+    unsigned int die;
+    /**
      * The block number of the programmed cell
      */
     unsigned int block;
