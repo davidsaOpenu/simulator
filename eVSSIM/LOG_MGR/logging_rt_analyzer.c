@@ -68,6 +68,12 @@ void rt_log_analyzer_loop(RTLogAnalyzer* analyzer, int max_logs) {
     rt_log_stats.current_wall_time = 0;
     rt_log_stats.occupied_pages = 0;
 
+    int i;
+    ssd_block* rt_log_blocks = (ssd_block *)malloc(sizeof(ssd_block) * FLASH_NB * BLOCK_NB );
+    for(i=0; i< FLASH_NB*BLOCK_NB; i++){
+        ssd_block block = { .written_pages = 0 };
+        rt_log_blocks[i] = block;
+    }
     unsigned int subscriber_id;
 
     // run as long as necessary
@@ -128,8 +134,12 @@ void rt_log_analyzer_loop(RTLogAnalyzer* analyzer, int max_logs) {
                 rt_log_stats.current_wall_time = 0;
                 break;
             case PHYSICAL_CELL_PROGRAM_LOG_UID:
-                NEXT_PHYSICAL_CELL_PROGRAM_LOG(analyzer->logger);
+                ;
+                PhysicalCellProgramLog pcpl = NEXT_PHYSICAL_CELL_PROGRAM_LOG(analyzer->logger);
                 stats.write_count++;
+
+                int block_idx = pcpl.die * BLOCK_NB + pcpl.block;
+                rt_log_blocks[block_idx].written_pages++;
                 rt_log_stats.occupied_pages++;
                 rt_log_stats.current_wall_time += CELL_PROGRAM_DELAY;
                 rt_log_stats.write_wall_time += rt_log_stats.current_wall_time;
@@ -152,8 +162,11 @@ void rt_log_analyzer_loop(RTLogAnalyzer* analyzer, int max_logs) {
                 rt_log_stats.current_wall_time += REG_WRITE_DELAY;
                 break;
             case BLOCK_ERASE_LOG_UID:
-                NEXT_BLOCK_ERASE_LOG(analyzer->logger);
-                rt_log_stats.occupied_pages -= PAGE_NB;
+                ;
+                BlockEraseLog bel = NEXT_BLOCK_ERASE_LOG(analyzer->logger);
+                block_idx = bel.die * BLOCK_NB + bel.block;
+                rt_log_stats.occupied_pages -= rt_log_blocks[block_idx].written_pages;
+                rt_log_blocks[block_idx].written_pages = 0;
                 rt_log_stats.current_wall_time += BLOCK_ERASE_DELAY;
                 break;
             case CHANNEL_SWITCH_TO_READ_LOG_UID:
@@ -204,6 +217,7 @@ void rt_log_analyzer_loop(RTLogAnalyzer* analyzer, int max_logs) {
         first_loop = 0;
         old_stats = stats;
     }
+    free(rt_log_blocks);
 }
 
 void rt_log_analyzer_free(RTLogAnalyzer* analyzer, int free_logger) {
