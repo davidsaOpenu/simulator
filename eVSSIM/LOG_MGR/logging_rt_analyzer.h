@@ -66,6 +66,19 @@ typedef struct {
 
 
 /**
+ *
+ */
+typedef struct {
+
+	unsigned int logical_write_count;
+	int write_wall_time;
+	int read_wall_time;
+	int current_wall_time;
+	long occupied_pages;
+
+} RTLogStatistics;
+
+/**
  * Create a new real time log analyzer
  * @param logger the logger to analyze
  * @return the newly created real time log analyzer
