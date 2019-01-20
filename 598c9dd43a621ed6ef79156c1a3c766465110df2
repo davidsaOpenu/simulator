@@ -1,0 +1,129 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "a54ce396_d2e2c432",
+        "filename": "/COMMIT_MSG",
+        "patchSetId": 3
+      },
+      "lineNbr": 9,
+      "author": {
+        "id": 1007990
+      },
+      "writtenOn": "2019-01-20T09:30:37Z",
+      "side": 1,
+      "message": "ssd utilization indication?",
+      "range": {
+        "startLine": 9,
+        "startChar": 17,
+        "endLine": 9,
+        "endChar": 42
+      },
+      "revId": "598c9dd43a621ed6ef79156c1a3c766465110df2",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "f960e8c6_01f2cdf3",
+        "filename": "eVSSIM/LOG_MGR/logging_parser.h",
+        "patchSetId": 3
+      },
+      "lineNbr": 121,
+      "author": {
+        "id": 1007990
+      },
+      "writtenOn": "2019-01-20T09:30:37Z",
+      "side": 1,
+      "message": "1. how die is connected to register read?\n\n2. adding dies looks like an additional change and \nit was not reflected in commit message.",
+      "revId": "598c9dd43a621ed6ef79156c1a3c766465110df2",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "846282cb_16c0f33f",
+        "filename": "eVSSIM/LOG_MGR/logging_rt_analyzer.c",
+        "patchSetId": 3
+      },
+      "lineNbr": 72,
+      "author": {
+        "id": 1007990
+      },
+      "writtenOn": "2019-01-20T09:30:37Z",
+      "side": 1,
+      "message": "1. rt loop imposes no mallocs (system calls and other high cost functions)\n2. at our meetings, I mentioned that we are not using structs since CPU cache invalidation \"eats\" too much time \nand that was the reason for implementing logger. Therefore having ssd block struct in memory is not acceptable for simulator (it\u0027s barely ok only for emulator mode). Read again the material I\u0027ve covered pointed to during the lectures: https://docs.google.com/document/d/1Iy7PUHWPsGP30_b52sQR1bcJ2rWHEX_G2o6yrLcYkz0/edit?usp\u003dsharing",
+      "revId": "598c9dd43a621ed6ef79156c1a3c766465110df2",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "4d807224_8f4b1134",
+        "filename": "eVSSIM/LOG_MGR/logging_rt_analyzer.c",
+        "patchSetId": 3
+      },
+      "lineNbr": 165,
+      "author": {
+        "id": 1007990
+      },
+      "writtenOn": "2019-01-20T09:30:37Z",
+      "side": 1,
+      "message": "plz remove",
+      "revId": "598c9dd43a621ed6ef79156c1a3c766465110df2",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "f0317bd8_100cbaf9",
+        "filename": "eVSSIM/LOG_MGR/logging_rt_analyzer.c",
+        "patchSetId": 3
+      },
+      "lineNbr": 166,
+      "author": {
+        "id": 1007990
+      },
+      "writtenOn": "2019-01-20T09:30:37Z",
+      "side": 1,
+      "message": "Returning struct waists many CPU cycles. I guess here one needs to change the way NEXT_BLOCK_ERAZE works to get the only the desired field.",
+      "revId": "598c9dd43a621ed6ef79156c1a3c766465110df2",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "cd235a7c_bd80dc1c",
+        "filename": "eVSSIM/SSD_MODULE/ssd_io_manager.c",
+        "patchSetId": 3
+      },
+      "lineNbr": 32,
+      "author": {
+        "id": 1007990
+      },
+      "writtenOn": "2019-01-20T09:30:37Z",
+      "side": 1,
+      "message": "to be a part of ssd.",
+      "revId": "598c9dd43a621ed6ef79156c1a3c766465110df2",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "c645dcc6_d130f845",
+        "filename": "eVSSIM/SSD_MODULE/ssd_io_manager.c",
+        "patchSetId": 3
+      },
+      "lineNbr": 175,
+      "author": {
+        "id": 1007990
+      },
+      "writtenOn": "2019-01-20T09:30:37Z",
+      "side": 1,
+      "message": "what about dies. Either add them both for simulator and for emulator or remove.\n\nAlso if addig dies, the number must come from ssd.conf",
+      "revId": "598c9dd43a621ed6ef79156c1a3c766465110df2",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    }
+  ]
+}
