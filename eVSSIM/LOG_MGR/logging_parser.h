@@ -118,9 +118,9 @@ typedef struct {
      */
     unsigned int channel;
     /**
-     * The die number of the register read
+     * The flash number of the register read
      */
-    unsigned int die;
+    unsigned int flash;
     /**
      * The block number of the programmed cell
      */
@@ -320,5 +320,9 @@ _LOGS_DEFINITIONS(_LOGS_WRITER_DECLARATION_APPLIER)
  * The customized NEXT_X_LOG definitions, for type-safe logging
  */
 _LOGS_DEFINITIONS(_LOGS_READER_DECLARATION_APPLIER)
+
+unsigned int NEXT_CELL_PROGRAM_LOG_BLOCK_IDX(int blocks_number, Logger_Pool* logger);
+
+unsigned int NEXT_BLOCK_ERASE_LOG_BLOCK_IDX(int blocks_number, Logger_Pool* logger);
 
 #endif

@@ -128,6 +128,11 @@ typedef struct {
      * This number changes each time we allocate more Logs
      */
     unsigned int current_number_of_logs;
+    /**
+     * Map of block number to number of current
+     * written pages
+     */
+    void* block_map_buffer;
 
     /**
      * The lock of the logger pool to update it safely from
