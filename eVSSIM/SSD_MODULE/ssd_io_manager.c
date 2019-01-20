@@ -29,7 +29,6 @@ char ssd_date[9] = "13.04.11";
 struct timeval logging_parser_tv;
 
 ssd_disk ssd;
-ssd_block* blocks;
 
 int64_t get_usec(void)
 {
@@ -100,10 +99,10 @@ int SSD_IO_INIT(void){
 		*(io_overhead + i) = 0;
 	}
 
-	blocks = (ssd_block *)malloc(sizeof(ssd_block) * FLASH_NB * BLOCK_NB );
+	ssd.blocks = (ssd_block *)malloc(sizeof(ssd_block) * FLASH_NB * BLOCK_NB );
 	for(i=0; i< FLASH_NB*BLOCK_NB; i++){
 		ssd_block block = { .written_pages = 0 };
-		blocks[i] = block;
+		ssd.blocks[i] = block;
 	}
 
 	return 0;
@@ -120,7 +119,7 @@ int SSD_IO_TERM(void)
 		free(access_nb[i]);
 	free(access_nb);
 	free(io_overhead);
-	free(blocks);
+	free(ssd.blocks);
 	return 0;
 }
 
@@ -172,7 +171,7 @@ ftl_ret_val SSD_PAGE_WRITE(unsigned int flash_nb, unsigned int block_nb, unsigne
     /* Update ssd page write counters */
     ssd.occupied_pages_counter++;
     ssd.physical_page_writes++;
-    blocks[flash_nb * BLOCK_NB + block_nb].written_pages++;
+    ssd.blocks[flash_nb * BLOCK_NB + block_nb].written_pages++;
 	if( type == WRITE ) {
 		ssd.logical_page_writes++;
 
@@ -185,7 +184,7 @@ ftl_ret_val SSD_PAGE_WRITE(unsigned int flash_nb, unsigned int block_nb, unsigne
 
 	WRITE_LOG("WRITE PAGE %d ", 1);
 	LOG_PHYSICAL_CELL_PROGRAM(GET_LOGGER(flash_nb), (PhysicalCellProgramLog) {
-	    .channel = channel, .block = block_nb, .page = page_nb,
+	    .channel = channel, .flash=flash_nb, .block = block_nb, .page = page_nb,
         .metadata.logging_start_time = _start,
         .metadata.logging_end_time = _end
 	});
@@ -262,8 +261,8 @@ ftl_ret_val SSD_BLOCK_ERASE(unsigned int flash_nb, unsigned int block_nb)
 
     TIME_MICROSEC(_end);
 
-    ssd.occupied_pages_counter -= blocks[flash_nb * BLOCK_NB + block_nb].written_pages;
-    blocks[flash_nb * BLOCK_NB + block_nb].written_pages = 0;
+    ssd.occupied_pages_counter -= ssd.blocks[flash_nb * BLOCK_NB + block_nb].written_pages;
+    ssd.blocks[flash_nb * BLOCK_NB + block_nb].written_pages = 0;
 
     LOG_BLOCK_ERASE(GET_LOGGER(flash_nb), (BlockEraseLog) {
 	    .channel = channel, .die = flash_nb, .block = block_nb,
