@@ -25,6 +25,30 @@
     },
     {
       "key": {
+        "uuid": "80ea59b4_76d39a42",
+        "filename": "/COMMIT_MSG",
+        "patchSetId": 3
+      },
+      "lineNbr": 9,
+      "author": {
+        "id": 1014550
+      },
+      "writtenOn": "2019-01-20T16:41:19Z",
+      "side": 1,
+      "message": "Fixed",
+      "parentUuid": "a54ce396_d2e2c432",
+      "range": {
+        "startLine": 9,
+        "startChar": 17,
+        "endLine": 9,
+        "endChar": 42
+      },
+      "revId": "598c9dd43a621ed6ef79156c1a3c766465110df2",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "f960e8c6_01f2cdf3",
         "filename": "eVSSIM/LOG_MGR/logging_parser.h",
         "patchSetId": 3
@@ -36,6 +60,24 @@
       "writtenOn": "2019-01-20T09:30:37Z",
       "side": 1,
       "message": "1. how die is connected to register read?\n\n2. adding dies looks like an additional change and \nit was not reflected in commit message.",
+      "revId": "598c9dd43a621ed6ef79156c1a3c766465110df2",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "d73aa2fd_fe7e2e13",
+        "filename": "eVSSIM/LOG_MGR/logging_parser.h",
+        "patchSetId": 3
+      },
+      "lineNbr": 121,
+      "author": {
+        "id": 1014550
+      },
+      "writtenOn": "2019-01-20T16:41:19Z",
+      "side": 1,
+      "message": "Change to flash number",
+      "parentUuid": "f960e8c6_01f2cdf3",
       "revId": "598c9dd43a621ed6ef79156c1a3c766465110df2",
       "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
       "unresolved": false
@@ -59,6 +101,24 @@
     },
     {
       "key": {
+        "uuid": "03c41b08_dda7c4ba",
+        "filename": "eVSSIM/LOG_MGR/logging_rt_analyzer.c",
+        "patchSetId": 3
+      },
+      "lineNbr": 72,
+      "author": {
+        "id": 1014550
+      },
+      "writtenOn": "2019-01-20T16:41:19Z",
+      "side": 1,
+      "message": "Fixed",
+      "parentUuid": "846282cb_16c0f33f",
+      "revId": "598c9dd43a621ed6ef79156c1a3c766465110df2",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "4d807224_8f4b1134",
         "filename": "eVSSIM/LOG_MGR/logging_rt_analyzer.c",
         "patchSetId": 3
@@ -70,6 +130,24 @@
       "writtenOn": "2019-01-20T09:30:37Z",
       "side": 1,
       "message": "plz remove",
+      "revId": "598c9dd43a621ed6ef79156c1a3c766465110df2",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "21889c9e_5b74ea2d",
+        "filename": "eVSSIM/LOG_MGR/logging_rt_analyzer.c",
+        "patchSetId": 3
+      },
+      "lineNbr": 165,
+      "author": {
+        "id": 1014550
+      },
+      "writtenOn": "2019-01-20T16:41:19Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "4d807224_8f4b1134",
       "revId": "598c9dd43a621ed6ef79156c1a3c766465110df2",
       "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
       "unresolved": false
@@ -93,6 +171,24 @@
     },
     {
       "key": {
+        "uuid": "f6bbff2f_4fc8b0c3",
+        "filename": "eVSSIM/LOG_MGR/logging_rt_analyzer.c",
+        "patchSetId": 3
+      },
+      "lineNbr": 166,
+      "author": {
+        "id": 1014550
+      },
+      "writtenOn": "2019-01-20T16:41:19Z",
+      "side": 1,
+      "message": "Fixed",
+      "parentUuid": "f0317bd8_100cbaf9",
+      "revId": "598c9dd43a621ed6ef79156c1a3c766465110df2",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "cd235a7c_bd80dc1c",
         "filename": "eVSSIM/SSD_MODULE/ssd_io_manager.c",
         "patchSetId": 3
@@ -110,6 +206,24 @@
     },
     {
       "key": {
+        "uuid": "5ad94e7d_7bddb44c",
+        "filename": "eVSSIM/SSD_MODULE/ssd_io_manager.c",
+        "patchSetId": 3
+      },
+      "lineNbr": 32,
+      "author": {
+        "id": 1014550
+      },
+      "writtenOn": "2019-01-20T16:41:19Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "cd235a7c_bd80dc1c",
+      "revId": "598c9dd43a621ed6ef79156c1a3c766465110df2",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "c645dcc6_d130f845",
         "filename": "eVSSIM/SSD_MODULE/ssd_io_manager.c",
         "patchSetId": 3
@@ -121,6 +235,24 @@
       "writtenOn": "2019-01-20T09:30:37Z",
       "side": 1,
       "message": "what about dies. Either add them both for simulator and for emulator or remove.\n\nAlso if addig dies, the number must come from ssd.conf",
+      "revId": "598c9dd43a621ed6ef79156c1a3c766465110df2",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "5e363394_b6180986",
+        "filename": "eVSSIM/SSD_MODULE/ssd_io_manager.c",
+        "patchSetId": 3
+      },
+      "lineNbr": 175,
+      "author": {
+        "id": 1014550
+      },
+      "writtenOn": "2019-01-20T16:41:19Z",
+      "side": 1,
+      "message": "Fixed",
+      "parentUuid": "c645dcc6_d130f845",
       "revId": "598c9dd43a621ed6ef79156c1a3c766465110df2",
       "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
       "unresolved": false
