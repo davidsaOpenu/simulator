@@ -40,6 +40,8 @@ RTLogAnalyzer* rt_log_analyzer_init(Logger_Pool* logger) {
     analyzer->subscribers_count = 0;
     analyzer->exit_loop_flag = 0;
     analyzer->reset_flag = 0;
+    logger->block_map_buffer = (void *)malloc(FLASH_NB * BLOCK_NB * sizeof(int));
+
     return analyzer;
 }
 
@@ -69,11 +71,9 @@ void rt_log_analyzer_loop(RTLogAnalyzer* analyzer, int max_logs) {
     rt_log_stats.occupied_pages = 0;
 
     int i;
-    ssd_block* rt_log_blocks = (ssd_block *)malloc(sizeof(ssd_block) * FLASH_NB * BLOCK_NB );
-    for(i=0; i< FLASH_NB*BLOCK_NB; i++){
-        ssd_block block = { .written_pages = 0 };
-        rt_log_blocks[i] = block;
-    }
+    for( i = 0; i < FLASH_NB * BLOCK_NB; i++ )
+        *(int *)(analyzer->logger->block_map_buffer + i * sizeof(int)) = 0;
+
     unsigned int subscriber_id;
 
     // run as long as necessary
@@ -134,17 +134,17 @@ void rt_log_analyzer_loop(RTLogAnalyzer* analyzer, int max_logs) {
                 rt_log_stats.current_wall_time = 0;
                 break;
             case PHYSICAL_CELL_PROGRAM_LOG_UID:
-                ;
-                PhysicalCellProgramLog pcpl = NEXT_PHYSICAL_CELL_PROGRAM_LOG(analyzer->logger);
+            {
                 stats.write_count++;
 
-                int block_idx = pcpl.die * BLOCK_NB + pcpl.block;
-                rt_log_blocks[block_idx].written_pages++;
+                int block_idx = NEXT_CELL_PROGRAM_LOG_BLOCK_IDX(BLOCK_NB, analyzer->logger);//pcpl.die * BLOCK_NB + pcpl.block;
+                (*(int *)(analyzer->logger->block_map_buffer + block_idx * sizeof(int)))++;
                 rt_log_stats.occupied_pages++;
                 rt_log_stats.current_wall_time += CELL_PROGRAM_DELAY;
                 rt_log_stats.write_wall_time += rt_log_stats.current_wall_time;
                 rt_log_stats.current_wall_time = 0;
                 break;
+            }
             case LOGICAL_CELL_PROGRAM_LOG_UID:
                 NEXT_LOGICAL_CELL_PROGRAM_LOG(analyzer->logger);
                 rt_log_stats.logical_write_count++;
@@ -162,13 +162,14 @@ void rt_log_analyzer_loop(RTLogAnalyzer* analyzer, int max_logs) {
                 rt_log_stats.current_wall_time += REG_WRITE_DELAY;
                 break;
             case BLOCK_ERASE_LOG_UID:
-                ;
-                BlockEraseLog bel = NEXT_BLOCK_ERASE_LOG(analyzer->logger);
-                block_idx = bel.die * BLOCK_NB + bel.block;
-                rt_log_stats.occupied_pages -= rt_log_blocks[block_idx].written_pages;
-                rt_log_blocks[block_idx].written_pages = 0;
+            {
+                int block_idx = NEXT_BLOCK_ERASE_LOG_BLOCK_IDX(BLOCK_NB, analyzer->logger);
+                int block_pages = (*(int *)(analyzer->logger->block_map_buffer + block_idx * sizeof(int)));
+                rt_log_stats.occupied_pages -= block_pages;
+                (*(int *)(analyzer->logger->block_map_buffer + block_idx * sizeof(int))) = 0;
                 rt_log_stats.current_wall_time += BLOCK_ERASE_DELAY;
                 break;
+            }
             case CHANNEL_SWITCH_TO_READ_LOG_UID:
                 NEXT_CHANNEL_SWITCH_TO_READ_LOG(analyzer->logger);
                 rt_log_stats.current_wall_time += CHANNEL_SWITCH_DELAY_R;
@@ -217,11 +218,12 @@ void rt_log_analyzer_loop(RTLogAnalyzer* analyzer, int max_logs) {
         first_loop = 0;
         old_stats = stats;
     }
-    free(rt_log_blocks);
 }
 
 void rt_log_analyzer_free(RTLogAnalyzer* analyzer, int free_logger) {
-    if (free_logger)
+    if (free_logger) {
+        free(analyzer->logger->block_map_buffer);
         logger_free(analyzer->logger);
+    }
     free((void*) analyzer);
 }

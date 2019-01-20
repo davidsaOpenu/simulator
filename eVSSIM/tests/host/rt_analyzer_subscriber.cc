@@ -169,7 +169,6 @@ namespace rt_subscriber {
         Logger_Pool* logger = _analyzer->logger;
 
         TIME_MICROSEC(start);
-
         TIME_MICROSEC(end1);
         LOG_REGISTER_READ(logger, (RegisterReadLog) {
             .channel = 19, .die = 20, .reg = 21,
@@ -187,7 +186,7 @@ namespace rt_subscriber {
         });
         TIME_MICROSEC(end4);
         LOG_PHYSICAL_CELL_PROGRAM(logger, (PhysicalCellProgramLog) {
-            .channel = 4, .die=1, .block = 5, .page = 6,
+            .channel = 4, .flash=1, .block = 5, .page = 6,
             .metadata = {start, end4}
         });
         TIME_MICROSEC(end5);
@@ -203,7 +202,7 @@ namespace rt_subscriber {
         });
         TIME_MICROSEC(end7);
         LOG_PHYSICAL_CELL_PROGRAM(logger, (PhysicalCellProgramLog) {
-            .channel = 10, .die=1, .block = 11, .page = 12,
+            .channel = 10, .flash=1, .block = 11, .page = 12,
             .metadata = {start, end7}
         });
         TIME_MICROSEC(end8);
