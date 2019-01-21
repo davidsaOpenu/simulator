@@ -36,4 +36,23 @@ Logger_Pool* GET_LOGGER(unsigned int flash_number);
  */
 void reset_analyzers(void);
 
+
+/**
+ * The data allocated for each logger and real time analyzer pair
+ */
+typedef struct {
+    /**
+     * The logger itself
+     */
+    Logger_Pool* logger;
+    /**
+     * The real time analyzer of the logger
+     */
+    RTLogAnalyzer* rt_log_analyzer;
+    /**
+     * The thread of the real time analyzer
+     */
+    pthread_t rt_log_analyzer_thread;
+} LoggerAnalyzerStorage;
+
 #endif

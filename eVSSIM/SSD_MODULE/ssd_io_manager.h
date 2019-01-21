@@ -10,6 +10,18 @@
 #include "ftl.h"
 #include "logging_statistics.h"
 
+
+/** @struct ssd_block
+ *  @brief This structure represents ssd block
+ *  @var int written_pages
+ *  Member 'written_pages' holds number of current occupied pages in block
+ */
+typedef struct {
+
+    int written_pages;
+
+} ssd_block;
+
 /** @struct ssd_disk
  *  @brief This structure represents statistics related to ssd disk
  *  @var int occupied_pages_counter
@@ -27,6 +39,7 @@ typedef struct {
     int physical_page_writes;
     int logical_page_writes;
     SSDStatistics* current_stats;
+    ssd_block* blocks;
 
 } ssd_disk;
 

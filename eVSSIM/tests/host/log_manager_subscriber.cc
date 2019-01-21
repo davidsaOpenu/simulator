@@ -117,12 +117,12 @@ namespace manager_subscriber {
         // write the different logs to the different loggers
         TIME_MICROSEC(end1);
         LOG_PHYSICAL_CELL_PROGRAM(logger1, (PhysicalCellProgramLog) {
-                .channel = 1, .block = 2, .page = 3,
+                .channel = 1, .flash=1, .block = 2, .page = 3,
                 .metadata = {start,end1}
                 });
         TIME_MICROSEC(end2);
         LOG_PHYSICAL_CELL_PROGRAM(logger1, (PhysicalCellProgramLog) {
-                .channel = 4, .block = 5, .page = 6,
+                .channel = 4, .flash=1, .block = 5, .page = 6,
                 .metadata = {start,end2}
                 });
         TIME_MICROSEC(end3);
@@ -132,7 +132,7 @@ namespace manager_subscriber {
                 });
         TIME_MICROSEC(end4);
         LOG_PHYSICAL_CELL_PROGRAM(logger2, (PhysicalCellProgramLog) {
-                .channel = 10, .block = 11, .page = 12,
+                .channel = 10, .flash=1, .block = 11, .page = 12,
                 .metadata = {start,end4}
                 });
         TIME_MICROSEC(end5);
