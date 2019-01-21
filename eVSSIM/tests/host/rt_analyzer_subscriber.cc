@@ -140,7 +140,7 @@ namespace rt_subscriber {
                     .read_speed = (1.0 / (REG_READ_DELAY + CELL_READ_DELAY)) * SEC_IN_USEC,
                     .garbage_collection_count = 1,
                     .write_amplification = 1.0,
-                    .utilization = 0.0 / PAGES_IN_SSD
+                    .utilization = 1.0 / PAGES_IN_SSD
             },
             // physical cell read
             {
@@ -150,7 +150,7 @@ namespace rt_subscriber {
                     .read_speed = (2.0 / (REG_READ_DELAY + CELL_READ_DELAY + BLOCK_ERASE_DELAY + CHANNEL_SWITCH_DELAY_R + CELL_READ_DELAY)) * SEC_IN_USEC,
                     .garbage_collection_count = 1,
                     .write_amplification = 1.0,
-                    .utilization = 0.0 / PAGES_IN_SSD
+                    .utilization = 1.0 / PAGES_IN_SSD
             },
             // garbage collection
             {
@@ -160,7 +160,7 @@ namespace rt_subscriber {
                     .read_speed = (2.0 / (REG_READ_DELAY + CELL_READ_DELAY + BLOCK_ERASE_DELAY + CHANNEL_SWITCH_DELAY_R + CELL_READ_DELAY)) * SEC_IN_USEC,
                     .garbage_collection_count = 2,
                     .write_amplification = 1.0,
-                    .utilization = 0.0 / PAGES_IN_SSD
+                    .utilization = 1.0 / PAGES_IN_SSD
             }
     };
 
@@ -169,7 +169,6 @@ namespace rt_subscriber {
         Logger_Pool* logger = _analyzer->logger;
 
         TIME_MICROSEC(start);
-
         TIME_MICROSEC(end1);
         LOG_REGISTER_READ(logger, (RegisterReadLog) {
             .channel = 19, .die = 20, .reg = 21,
@@ -187,7 +186,7 @@ namespace rt_subscriber {
         });
         TIME_MICROSEC(end4);
         LOG_PHYSICAL_CELL_PROGRAM(logger, (PhysicalCellProgramLog) {
-            .channel = 4, .block = 5, .page = 6,
+            .channel = 4, .flash=1, .block = 5, .page = 6,
             .metadata = {start, end4}
         });
         TIME_MICROSEC(end5);
@@ -203,7 +202,7 @@ namespace rt_subscriber {
         });
         TIME_MICROSEC(end7);
         LOG_PHYSICAL_CELL_PROGRAM(logger, (PhysicalCellProgramLog) {
-            .channel = 10, .block = 11, .page = 12,
+            .channel = 10, .flash=1, .block = 11, .page = 12,
             .metadata = {start, end7}
         });
         TIME_MICROSEC(end8);
@@ -213,7 +212,7 @@ namespace rt_subscriber {
         });
         TIME_MICROSEC(end9);
         LOG_BLOCK_ERASE(logger, (BlockEraseLog) {
-            .channel = 25, .die = 26, .block = 27,
+            .channel = 4, .die=1, .block = 5,
             .metadata = {start, end9}
         });
         TIME_MICROSEC(end10);

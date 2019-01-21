@@ -52,7 +52,43 @@ _LOGS_DEFINITIONS(_LOGS_WRITER_DEFINITION_APPLIER)
 #define _LOGS_READER_DEFINITION_APPLIER(structure, name)            \
     structure CONCAT(NEXT_, CONCAT(name, _LOG))(Logger_Pool* logger) {   \
         structure res;                                              \
-        logger_busy_read(logger, (Byte*) &res, sizeof(structure));  \
+        logger_busy_read(logger, (void *)&res, sizeof(structure));  \
         return res;                                                 \
     }
 _LOGS_DEFINITIONS(_LOGS_READER_DEFINITION_APPLIER)
+
+unsigned int NEXT_CELL_PROGRAM_LOG_BLOCK_IDX(int blocks_number, Logger_Pool* logger) {
+
+    unsigned int flash_nb;
+    unsigned int block_nb;
+
+    // skip PhysicalCellProgramLog.channel
+    logger_busy_read(logger, NULL, sizeof(int));
+    // read PhysicalCellProgramLog.flash
+    logger_busy_read(logger, (void *)&flash_nb, sizeof(int));
+    // read PhysicalCellProgramLog.block
+    logger_busy_read(logger, (void *)&block_nb, sizeof(int));
+    // skip PhysicalCellProgramLog.page
+    logger_busy_read(logger, NULL, sizeof(int));
+    // skip PhysicalCellProgramLog.metadata
+    logger_busy_read(logger, NULL, sizeof(LogMetadata));
+
+    return flash_nb * blocks_number + block_nb;
+}
+
+unsigned int NEXT_BLOCK_ERASE_LOG_BLOCK_IDX(int blocks_number, Logger_Pool* logger) {
+
+    unsigned int flash_nb;
+    unsigned int block_nb;
+
+    // skip BlockEraseLog.channel
+    logger_busy_read(logger, NULL, sizeof(int));
+    // read BlockEraseLog.die
+    logger_busy_read(logger, (void *)&flash_nb, sizeof(int));
+    // read BlockEraseLog.block
+    logger_busy_read(logger, (void *)&block_nb, sizeof(int));
+    // skip left BlockEraseLog buffer
+    logger_busy_read(logger, NULL, sizeof(BlockEraseLog) - sizeof(int) * 3);
+
+    return flash_nb * blocks_number + block_nb;
+}

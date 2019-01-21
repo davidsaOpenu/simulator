@@ -374,6 +374,7 @@ namespace log_mgr_tests {
         TIME_MICROSEC(start);
         PhysicalCellProgramLog log = {
             .channel = 15,
+            .flash = 1,
             .block = 63,
             .page = 50,
             .metadata = {start, start+1}

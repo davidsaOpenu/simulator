@@ -106,6 +106,35 @@ struct Log {
     bool offline_analyzer_done;
 };
 
+
+/**
+ * Logger RT statistics
+ */
+typedef struct {
+
+    /**
+     * Number of logical writes
+     */
+    unsigned int logical_write_count;
+    /**
+     * Total write delay
+     */
+    int write_wall_time;
+    /**
+     * Total read delay
+     */
+    int read_wall_time;
+    /**
+     * Sum of delay will relate write or read
+     */
+    int current_wall_time;
+    /**
+     * Number of occupied pages
+     */
+    long occupied_pages;
+
+} RTLogStatistics;
+
 /**
  * The Logger Pool structure
  * Each logger pool holds number_of_allocated_logs Logs
@@ -137,6 +166,15 @@ typedef struct {
      * This number changes each time we allocate more Logs
      */
     unsigned int current_number_of_logs;
+    /**
+     * Map of block number to number of current
+     * written pages
+     */
+    void* block_map_buffer;
+    /**
+     * RT log statistics
+     */
+    RTLogStatistics rt_log_stats;
 
     /**
      * The lock of the logger pool to update it safely from
