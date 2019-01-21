@@ -144,14 +144,16 @@ ftl_ret_val SSD_PAGE_WRITE(unsigned int flash_nb, unsigned int block_nb, unsigne
 	}
 
 	/* Record Time Stamp */
+    int last_channel_cmd = old_channel_cmd;
 	SSD_CH_RECORD(channel, WRITE, offset, delay_ret);
-
+    old_channel_cmd = last_channel_cmd;
 	SSD_REG_RECORD(reg, WRITE, type, offset, channel);
 	SSD_REG_ACCESS(flash_nb, channel, reg);
 	SSD_CELL_RECORD(reg, WRITE);
 
 	SSD_CH_ACCESS(flash_nb, channel);
 	SSD_CELL_WRITE_DELAY(reg);
+    old_channel_cmd = last_channel_cmd;
 
 #ifdef O_DIRECT_VSSIM
 	if(offset == io_page_nb-1){
@@ -173,6 +175,14 @@ ftl_ret_val SSD_PAGE_WRITE(unsigned int flash_nb, unsigned int block_nb, unsigne
             .metadata.logging_end_time = _end
 		});
 	}
+
+    if(last_channel_cmd == READ) {
+        LOG_CHANNEL_SWITCH_TO_WRITE(GET_LOGGER(flash_nb), (ChannelSwitchToWriteLog) {
+            .channel = channel,
+            .metadata.logging_start_time = _start,
+            .metadata.logging_end_time = _end
+        });
+    }
 
 	WRITE_LOG("WRITE PAGE %d ", 1);
 	LOG_PHYSICAL_CELL_PROGRAM(GET_LOGGER(flash_nb), (PhysicalCellProgramLog) {
@@ -207,11 +217,14 @@ ftl_ret_val SSD_PAGE_READ(unsigned int flash_nb, unsigned int block_nb, unsigned
 	}
 
 	/* Record Time Stamp */
-	SSD_CH_SWITCH_DELAY(flash_nb, channel);
+    int last_channel_cmd = old_channel_cmd;
 	SSD_CH_RECORD(channel, READ, offset, delay_ret);
+    old_channel_cmd = last_channel_cmd;
 	SSD_CELL_RECORD(reg, READ);
 	SSD_REG_RECORD(reg, READ, type, offset, channel);
 	SSD_REG_READ_DELAY(flash_nb, channel, reg);
+    old_channel_cmd = READ;
+
 #ifdef O_DIRECT_VSSIM
 	if(offset == io_page_nb - 1){
 		SSD_REMAIN_IO_DELAY(flash_nb, channel, reg);
@@ -219,6 +232,14 @@ ftl_ret_val SSD_PAGE_READ(unsigned int flash_nb, unsigned int block_nb, unsigned
 #endif
 
     TIME_MICROSEC(_end);
+
+    if(last_channel_cmd != READ) {
+        LOG_CHANNEL_SWITCH_TO_READ(GET_LOGGER(flash_nb), (ChannelSwitchToReadLog) {
+            .channel = channel,
+            .metadata.logging_start_time = _start,
+            .metadata.logging_end_time = _end
+        });
+    }
 
 	LOG_PHYSICAL_CELL_READ(GET_LOGGER(flash_nb), (PhysicalCellReadLog) {
 	    .channel = channel, .block = block_nb, .page = page_nb,
@@ -339,7 +360,9 @@ int SSD_REG_RECORD(int reg, int cmd, int type, int offset, int channel)
 	reg_io_type[reg] = type;
 
 	if(cmd == WRITE){
-		reg_io_time[reg] = old_channel_time+CHANNEL_SWITCH_DELAY_W;
+		reg_io_time[reg] = old_channel_time;
+		if( old_channel_cmd == READ )
+		    reg_io_time[reg] += CHANNEL_SWITCH_DELAY_W;
 		SSD_UPDATE_CH_ACCESS_TIME(channel, reg_io_time[reg]);
 
 		/* Update SATA request Info */
@@ -389,7 +412,9 @@ int SSD_CELL_RECORD(int reg, int cmd)
 		cell_io_time[reg] = reg_io_time[reg] + REG_WRITE_DELAY;
 	}
 	else if(cmd == READ){
-		cell_io_time[reg] = old_channel_time + CHANNEL_SWITCH_DELAY_R;
+	    cell_io_time[reg] = old_channel_time;
+	    if( old_channel_cmd != READ )
+	        cell_io_time[reg] += CHANNEL_SWITCH_DELAY_R;
 	}
 	else if((cmd == ERASE) || (cmd == COPYBACK)){
 		cell_io_time[reg] = get_usec();
@@ -509,7 +534,9 @@ int SSD_REG_WRITE_DELAY(unsigned int flash_nb, int channel, int reg)
 	diff = start - reg_io_time[reg];
 #endif
 
-	if (diff < REG_WRITE_DELAY){
+    int64_t delay = 0;
+    if (diff < REG_WRITE_DELAY){
+        delay = REG_WRITE_DELAY - diff;
 		while( diff < REG_WRITE_DELAY ){
 			diff = get_usec() - time_stamp;
 		}
@@ -518,7 +545,7 @@ int SSD_REG_WRITE_DELAY(unsigned int flash_nb, int channel, int reg)
 	end = get_usec();
 
 	/* Send Delay Info To Perf Checker */
-	SEND_TO_PERF_CHECKER(reg_io_type[reg], diff, CH_OP);
+    SEND_TO_PERF_CHECKER(reg_io_type[reg], delay, CH_OP);
 
 	/* Update Time Stamp Struct */
 
