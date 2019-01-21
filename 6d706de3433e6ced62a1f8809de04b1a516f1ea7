@@ -19,6 +19,24 @@
     },
     {
       "key": {
+        "uuid": "e523c239_34c7d314",
+        "filename": "eVSSIM/FTL_SOURCE/PERF_MODULE/ftl_perf_manager.c",
+        "patchSetId": 2
+      },
+      "lineNbr": 105,
+      "author": {
+        "id": 1014550
+      },
+      "writtenOn": "2019-01-21T10:55:17Z",
+      "side": 1,
+      "message": "What cases erase delay will not counted as write delay?",
+      "parentUuid": "5e3df653_382c5d6d",
+      "revId": "6d706de3433e6ced62a1f8809de04b1a516f1ea7",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "1bf0b5d2_fe0b28cd",
         "filename": "eVSSIM/FTL_SOURCE/PERF_MODULE/ftl_perf_manager.c",
         "patchSetId": 2
