@@ -19,6 +19,24 @@
     },
     {
       "key": {
+        "uuid": "194019bd_be8553c7",
+        "filename": "eVSSIM/SSD_MODULE/ssd_io_manager.c",
+        "patchSetId": 5
+      },
+      "lineNbr": 147,
+      "author": {
+        "id": 1014550
+      },
+      "writtenOn": "2019-01-22T10:36:20Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "9050dfd2_dea10043",
+      "revId": "12daad230948362e8ff3832fb7d8ef5798ba88b1",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "ae0d6800_8f99622d",
         "filename": "eVSSIM/SSD_MODULE/ssd_io_manager.c",
         "patchSetId": 5
@@ -42,6 +60,30 @@
     },
     {
       "key": {
+        "uuid": "4a53cd4b_6671a9de",
+        "filename": "eVSSIM/SSD_MODULE/ssd_io_manager.c",
+        "patchSetId": 5
+      },
+      "lineNbr": 156,
+      "author": {
+        "id": 1014550
+      },
+      "writtenOn": "2019-01-22T10:36:20Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "ae0d6800_8f99622d",
+      "range": {
+        "startLine": 147,
+        "startChar": 0,
+        "endLine": 156,
+        "endChar": 39
+      },
+      "revId": "12daad230948362e8ff3832fb7d8ef5798ba88b1",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "2ab45161_e72c83e3",
         "filename": "eVSSIM/SSD_MODULE/ssd_io_manager.c",
         "patchSetId": 5
@@ -53,6 +95,30 @@
       "writtenOn": "2019-01-22T09:21:47Z",
       "side": 1,
       "message": "see my previous comment",
+      "range": {
+        "startLine": 220,
+        "startChar": 0,
+        "endLine": 226,
+        "endChar": 27
+      },
+      "revId": "12daad230948362e8ff3832fb7d8ef5798ba88b1",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "8e6861a4_352807f7",
+        "filename": "eVSSIM/SSD_MODULE/ssd_io_manager.c",
+        "patchSetId": 5
+      },
+      "lineNbr": 226,
+      "author": {
+        "id": 1014550
+      },
+      "writtenOn": "2019-01-22T10:36:20Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "2ab45161_e72c83e3",
       "range": {
         "startLine": 220,
         "startChar": 0,
