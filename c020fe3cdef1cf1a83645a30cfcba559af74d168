@@ -2,6 +2,23 @@
   "comments": [
     {
       "key": {
+        "uuid": "c6c7e456_2f2f36c6",
+        "filename": "eVSSIM/LOG_MGR/logging_backend.c",
+        "patchSetId": 5
+      },
+      "lineNbr": 237,
+      "author": {
+        "id": 1011209
+      },
+      "writtenOn": "2019-01-22T15:56:06Z",
+      "side": 1,
+      "message": "I think that this check can be done at the start of the function once instead of this line and line 254. If a valid buffer is not passed we can\u0027t read anything from the logger so it makes sense to return straight with 0.",
+      "revId": "c020fe3cdef1cf1a83645a30cfcba559af74d168",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "a3d02f30_c81b38f8",
         "filename": "eVSSIM/LOG_MGR/logging_backend.h",
         "patchSetId": 5
