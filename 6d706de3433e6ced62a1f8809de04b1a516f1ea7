@@ -37,6 +37,24 @@
     },
     {
       "key": {
+        "uuid": "cf13f7bb_d4a74d69",
+        "filename": "eVSSIM/FTL_SOURCE/PERF_MODULE/ftl_perf_manager.c",
+        "patchSetId": 2
+      },
+      "lineNbr": 105,
+      "author": {
+        "id": 1007990
+      },
+      "writtenOn": "2019-01-22T09:28:47Z",
+      "side": 1,
+      "message": "e.g. if command is issued by CG. Or any other case when erase will be issued in the future, Here you trying to couple erases with writes is wrong from the code engineering perspective.",
+      "parentUuid": "e523c239_34c7d314",
+      "revId": "6d706de3433e6ced62a1f8809de04b1a516f1ea7",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "1bf0b5d2_fe0b28cd",
         "filename": "eVSSIM/FTL_SOURCE/PERF_MODULE/ftl_perf_manager.c",
         "patchSetId": 2
