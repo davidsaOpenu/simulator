@@ -99,7 +99,10 @@ int SSD_IO_INIT(void){
 		*(io_overhead + i) = 0;
 	}
 
-	return 0;
+        ssd.channel_mode = (int *)malloc(sizeof(int)*CHANNEL_NB);
+        for(i = 0; i < CHANNEL_NB; i++)
+            ssd.channel_mode[i] = NOOP;
+        return 0;
 }
 
 int SSD_IO_TERM(void)
@@ -113,6 +116,7 @@ int SSD_IO_TERM(void)
 		free(access_nb[i]);
 	free(access_nb);
 	free(io_overhead);
+        free(ssd.channel_mode);
 	return 0;
 }
 
@@ -145,10 +149,9 @@ ftl_ret_val SSD_PAGE_WRITE(unsigned int flash_nb, unsigned int block_nb, unsigne
 
 	/* Record Time Stamp */
 	SSD_CH_RECORD(channel, WRITE, offset, delay_ret);
-
 	SSD_REG_RECORD(reg, WRITE, type, offset, channel);
 	SSD_REG_ACCESS(flash_nb, channel, reg);
-	SSD_CELL_RECORD(reg, WRITE);
+	SSD_CELL_RECORD(reg, WRITE, channel);
 
 	SSD_CH_ACCESS(flash_nb, channel);
 	SSD_CELL_WRITE_DELAY(reg);
@@ -173,6 +176,15 @@ ftl_ret_val SSD_PAGE_WRITE(unsigned int flash_nb, unsigned int block_nb, unsigne
             .metadata.logging_end_time = _end
 		});
 	}
+
+        if(ssd.channel_mode[channel] == READ) {
+            LOG_CHANNEL_SWITCH_TO_WRITE(GET_LOGGER(flash_nb), (ChannelSwitchToWriteLog) {
+                .channel = channel,
+                .metadata.logging_start_time = _start,
+                .metadata.logging_end_time = _end
+            });
+        }
+        ssd.channel_mode[channel] = WRITE;
 
 	WRITE_LOG("WRITE PAGE %d ", 1);
 	LOG_PHYSICAL_CELL_PROGRAM(GET_LOGGER(flash_nb), (PhysicalCellProgramLog) {
@@ -207,11 +219,11 @@ ftl_ret_val SSD_PAGE_READ(unsigned int flash_nb, unsigned int block_nb, unsigned
 	}
 
 	/* Record Time Stamp */
-	SSD_CH_SWITCH_DELAY(flash_nb, channel);
 	SSD_CH_RECORD(channel, READ, offset, delay_ret);
-	SSD_CELL_RECORD(reg, READ);
+	SSD_CELL_RECORD(reg, READ, channel);
 	SSD_REG_RECORD(reg, READ, type, offset, channel);
 	SSD_REG_READ_DELAY(flash_nb, channel, reg);
+
 #ifdef O_DIRECT_VSSIM
 	if(offset == io_page_nb - 1){
 		SSD_REMAIN_IO_DELAY(flash_nb, channel, reg);
@@ -219,6 +231,15 @@ ftl_ret_val SSD_PAGE_READ(unsigned int flash_nb, unsigned int block_nb, unsigned
 #endif
 
     TIME_MICROSEC(_end);
+
+        if(ssd.channel_mode[channel] != READ) {
+            LOG_CHANNEL_SWITCH_TO_READ(GET_LOGGER(flash_nb), (ChannelSwitchToReadLog) {
+                .channel = channel,
+                .metadata.logging_start_time = _start,
+                .metadata.logging_end_time = _end
+            });
+        }
+        ssd.channel_mode[channel] = READ;
 
 	LOG_PHYSICAL_CELL_READ(GET_LOGGER(flash_nb), (PhysicalCellReadLog) {
 	    .channel = channel, .block = block_nb, .page = page_nb,
@@ -249,7 +270,7 @@ ftl_ret_val SSD_BLOCK_ERASE(unsigned int flash_nb, unsigned int block_nb)
 
 	/* Record Time Stamp */
 	SSD_REG_RECORD(reg, ERASE, ERASE, -1, channel);
-	SSD_CELL_RECORD(reg, ERASE);
+	SSD_CELL_RECORD(reg, ERASE, channel);
 
     TIME_MICROSEC(_end);
 
@@ -339,7 +360,9 @@ int SSD_REG_RECORD(int reg, int cmd, int type, int offset, int channel)
 	reg_io_type[reg] = type;
 
 	if(cmd == WRITE){
-		reg_io_time[reg] = old_channel_time+CHANNEL_SWITCH_DELAY_W;
+        reg_io_time[reg] = old_channel_time;
+        if( ssd.channel_mode[channel] == READ )
+            reg_io_time[reg] += CHANNEL_SWITCH_DELAY_W;
 		SSD_UPDATE_CH_ACCESS_TIME(channel, reg_io_time[reg]);
 
 		/* Update SATA request Info */
@@ -383,13 +406,15 @@ int SSD_REG_RECORD(int reg, int cmd, int type, int offset, int channel)
 	return FTL_SUCCESS;
 }
 
-int SSD_CELL_RECORD(int reg, int cmd)
+int SSD_CELL_RECORD(int reg, int cmd, int channel)
 {
 	if(cmd == WRITE){
 		cell_io_time[reg] = reg_io_time[reg] + REG_WRITE_DELAY;
 	}
 	else if(cmd == READ){
-		cell_io_time[reg] = old_channel_time + CHANNEL_SWITCH_DELAY_R;
+        cell_io_time[reg] = old_channel_time;
+        if( ssd.channel_mode[channel] != READ )
+            cell_io_time[reg] += CHANNEL_SWITCH_DELAY_R;
 	}
 	else if((cmd == ERASE) || (cmd == COPYBACK)){
 		cell_io_time[reg] = get_usec();
@@ -509,7 +534,9 @@ int SSD_REG_WRITE_DELAY(unsigned int flash_nb, int channel, int reg)
 	diff = start - reg_io_time[reg];
 #endif
 
-	if (diff < REG_WRITE_DELAY){
+    int64_t delay = 0;
+    if (diff < REG_WRITE_DELAY){
+        delay = REG_WRITE_DELAY - diff;
 		while( diff < REG_WRITE_DELAY ){
 			diff = get_usec() - time_stamp;
 		}
@@ -518,7 +545,7 @@ int SSD_REG_WRITE_DELAY(unsigned int flash_nb, int channel, int reg)
 	end = get_usec();
 
 	/* Send Delay Info To Perf Checker */
-	SEND_TO_PERF_CHECKER(reg_io_type[reg], diff, CH_OP);
+    SEND_TO_PERF_CHECKER(reg_io_type[reg], delay, CH_OP);
 
 	/* Update Time Stamp Struct */
 
@@ -828,7 +855,7 @@ ftl_ret_val SSD_PAGE_COPYBACK(uint32_t source, uint32_t destination, int type){
 	}
 
 	SSD_CH_RECORD(channel, COPYBACK, 0, delay_ret);
-	SSD_CELL_RECORD(reg, COPYBACK);
+	SSD_CELL_RECORD(reg, COPYBACK, channel);
 	SSD_REG_RECORD(reg, COPYBACK, type, 0, channel);
 
 	return FTL_SUCCESS;

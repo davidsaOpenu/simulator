@@ -26,10 +26,11 @@ typedef struct {
     int occupied_pages_counter;
     int physical_page_writes;
     int logical_page_writes;
+    int* channel_mode;
     SSDStatistics* current_stats;
 
 } ssd_disk;
-
+//int* channel_mode;
 
 extern int old_channel_nb;
 extern int64_t io_alloc_overhead;
@@ -72,7 +73,7 @@ int SSD_BLOCK_ERASE_DELAY(int reg);
 /* Mark Time Stamp */
 int SSD_CH_RECORD(int channel, int cmd, int offset, int ret);
 int SSD_REG_RECORD(int reg, int cmd, int type, int offset, int channel);
-int SSD_CELL_RECORD(int reg, int cmd);
+int SSD_CELL_RECORD(int reg, int cmd, int channel);
 
 /* Check Read Operation in the Same Channel  */
 int SSD_CH_ACCESS(unsigned int flash_nb, int channel);
