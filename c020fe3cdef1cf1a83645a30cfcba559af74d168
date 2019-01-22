@@ -2,6 +2,109 @@
   "comments": [
     {
       "key": {
+        "uuid": "a3d02f30_c81b38f8",
+        "filename": "eVSSIM/LOG_MGR/logging_backend.h",
+        "patchSetId": 5
+      },
+      "lineNbr": 136,
+      "author": {
+        "id": 1007990
+      },
+      "writtenOn": "2019-01-22T12:57:29Z",
+      "side": 1,
+      "message": "a) please use same naming conventions as found in this file. \nb) have you refactored all the places where the variables appear? \n\nLOG_MGR/logging_manager.c:101:        double write_wall_time \u003d 0;\nLOG_MGR/logging_manager.c:102:        double read_wall_time \u003d 0;\nLOG_MGR/logging_manager.c:120:                write_wall_time +\u003d current_stats.write_count / current_stats.write_speed;\nLOG_MGR/logging_manager.c:122:                read_wall_time +\u003d current_stats.read_count / current_stats.read_speed;\nLOG_MGR/logging_manager.c:130:        if (write_wall_time \u003d\u003d 0)\nLOG_MGR/logging_manager.c:133:            stats.write_speed \u003d ((double) stats.write_count) / write_wall_time;\nLOG_MGR/logging_manager.c:135:        if (read_wall_time \u003d\u003d 0)\nLOG_MGR/logging_manager.c:138:            stats.read_speed \u003d ((double) stats.read_count) / read_wall_time;\nLOG_MGR/logging_rt_analyzer.c:65:    int write_wall_time \u003d 0;\nLOG_MGR/logging_rt_analyzer.c:66:    int read_wall_time \u003d 0;\nLOG_MGR/logging_rt_analyzer.c:67:    int current_wall_time \u003d 0;\nLOG_MGR/logging_rt_analyzer.c:91:                write_wall_time \u003d 0;\nLOG_MGR/logging_rt_analyzer.c:92:                read_wall_time \u003d 0;\nLOG_MGR/logging_rt_analyzer.c:125:                current_wall_time +\u003d CELL_READ_DELAY;\nLOG_MGR/logging_rt_analyzer.c:126:                read_wall_time +\u003d current_wall_time;\nLOG_MGR/logging_rt_analyzer.c:127:                current_wall_time \u003d 0;\nLOG_MGR/logging_rt_analyzer.c:133:                current_wall_time +\u003d CELL_PROGRAM_DELAY;\nLOG_MGR/logging_rt_analyzer.c:134:                write_wall_time +\u003d current_wall_time;\nLOG_MGR/logging_rt_analyzer.c:135:                current_wall_time \u003d 0;\nLOG_MGR/logging_rt_analyzer.c:147:                current_wall_time +\u003d REG_READ_DELAY;\nLOG_MGR/logging_rt_analyzer.c:151:                current_wall_time +\u003d REG_WRITE_DELAY;\nLOG_MGR/logging_rt_analyzer.c:156:                current_wall_time +\u003d BLOCK_ERASE_DELAY;\nLOG_MGR/logging_rt_analyzer.c:160:                current_wall_time +\u003d CHANNEL_SWITCH_DELAY_R;\nLOG_MGR/logging_rt_analyzer.c:164:                current_wall_time +\u003d CHANNEL_SWITCH_DELAY_W;\nLOG_MGR/logging_rt_analyzer.c:177:        if (read_wall_time \u003d\u003d 0)\nLOG_MGR/logging_rt_analyzer.c:181:                ((double) stats.read_count) / read_wall_time\nLOG_MGR/logging_rt_analyzer.c:184:        if (write_wall_time \u003d\u003d 0)\nLOG_MGR/logging_rt_analyzer.c:188:                ((double) stats.write_count) / write_wall_time\n\n\n\nSeems that you have cretaed your own fork",
+      "range": {
+        "startLine": 110,
+        "startChar": 0,
+        "endLine": 136,
+        "endChar": 18
+      },
+      "revId": "c020fe3cdef1cf1a83645a30cfcba559af74d168",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "d227078e_251b0e16",
+        "filename": "eVSSIM/LOG_MGR/logging_rt_analyzer.c",
+        "patchSetId": 5
+      },
+      "lineNbr": 43,
+      "author": {
+        "id": 1007990
+      },
+      "writtenOn": "2019-01-22T12:57:29Z",
+      "side": 1,
+      "message": "see comment on line 75",
+      "revId": "c020fe3cdef1cf1a83645a30cfcba559af74d168",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "0e26376a_493f2f89",
+        "filename": "eVSSIM/LOG_MGR/logging_rt_analyzer.c",
+        "patchSetId": 5
+      },
+      "lineNbr": 75,
+      "author": {
+        "id": 1007990
+      },
+      "writtenOn": "2019-01-22T12:57:29Z",
+      "side": 1,
+      "message": "once again this is not the way that rt loop should work (not real time). See my pervous comments on this review and read again the crarifications you asked on whatsup. You need to add additional  (internal, i.e non ssd command induced) log entry that accounts for the written pages for block X on die number Y.",
+      "range": {
+        "startLine": 73,
+        "startChar": 0,
+        "endLine": 75,
+        "endChar": 75
+      },
+      "revId": "c020fe3cdef1cf1a83645a30cfcba559af74d168",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "4f252968_c73a70a1",
+        "filename": "eVSSIM/SSD_MODULE/ssd_io_manager.c",
+        "patchSetId": 5
+      },
+      "lineNbr": 177,
+      "author": {
+        "id": 1007990
+      },
+      "writtenOn": "2019-01-22T12:57:29Z",
+      "side": 1,
+      "message": "nit: indentation",
+      "range": {
+        "startLine": 101,
+        "startChar": 0,
+        "endLine": 177,
+        "endChar": 0
+      },
+      "revId": "c020fe3cdef1cf1a83645a30cfcba559af74d168",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "38748ad0_58be42a7",
+        "filename": "eVSSIM/tests/host/rt_analyzer_subscriber.cc",
+        "patchSetId": 5
+      },
+      "lineNbr": 215,
+      "author": {
+        "id": 1007990
+      },
+      "writtenOn": "2019-01-22T12:57:29Z",
+      "side": 1,
+      "message": "die or flash?",
+      "revId": "c020fe3cdef1cf1a83645a30cfcba559af74d168",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "a2b737d0_63ef910d",
         "filename": "eVSSIM/tests/host/ssd_io_emulator_tests.cc",
         "patchSetId": 5
