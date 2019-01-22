@@ -1,0 +1,90 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "a2b737d0_63ef910d",
+        "filename": "eVSSIM/tests/host/ssd_io_emulator_tests.cc",
+        "patchSetId": 5
+      },
+      "lineNbr": 75,
+      "author": {
+        "id": 1007990
+      },
+      "writtenOn": "2019-01-22T12:35:52Z",
+      "side": 1,
+      "message": "mixing 2 different things. introducing delay (ONITOR_SYNC_DELAY) is different from statistics update",
+      "range": {
+        "startLine": 63,
+        "startChar": 0,
+        "endLine": 75,
+        "endChar": 5
+      },
+      "revId": "c020fe3cdef1cf1a83645a30cfcba559af74d168",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "ed93d3c6_6549f9bf",
+        "filename": "eVSSIM/tests/host/ssd_io_emulator_tests.cc",
+        "patchSetId": 5
+      },
+      "lineNbr": 299,
+      "author": {
+        "id": 1007990
+      },
+      "writtenOn": "2019-01-22T12:35:52Z",
+      "side": 1,
+      "message": "must be a function of PAGE_NB (what if one changes the PAGE_NB to be 2 pages)?",
+      "range": {
+        "startLine": 297,
+        "startChar": 0,
+        "endLine": 299,
+        "endChar": 36
+      },
+      "revId": "c020fe3cdef1cf1a83645a30cfcba559af74d168",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "2e048890_3b174ffa",
+        "filename": "eVSSIM/tests/host/ssd_io_emulator_tests.cc",
+        "patchSetId": 5
+      },
+      "lineNbr": 312,
+      "author": {
+        "id": 1007990
+      },
+      "writtenOn": "2019-01-22T12:35:52Z",
+      "side": 1,
+      "message": "also \nplease use here something like",
+      "range": {
+        "startLine": 312,
+        "startChar": 27,
+        "endLine": 312,
+        "endChar": 39
+      },
+      "revId": "c020fe3cdef1cf1a83645a30cfcba559af74d168",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "4d36a267_491d941e",
+        "filename": "eVSSIM/tests/host/ssd_io_emulator_tests.cc",
+        "patchSetId": 5
+      },
+      "lineNbr": 335,
+      "author": {
+        "id": 1007990
+      },
+      "writtenOn": "2019-01-22T12:35:52Z",
+      "side": 1,
+      "message": "please implement more tests (as asked in my previous comment).\nYou are proposing relatively big change and it has to be covered by complex tests rather them by simplistic page writes. Fill in more (to the SSD) to see that calculations are ok.",
+      "revId": "c020fe3cdef1cf1a83645a30cfcba559af74d168",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    }
+  ]
+}
