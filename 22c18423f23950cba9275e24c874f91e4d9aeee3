@@ -1,0 +1,44 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "cd4d0644_31d43b3a",
+        "filename": "eVSSIM/SSD_MODULE/ssd_io_manager.c",
+        "patchSetId": 6
+      },
+      "lineNbr": 187,
+      "author": {
+        "id": 1007990
+      },
+      "writtenOn": "2019-01-23T05:24:02Z",
+      "side": 1,
+      "message": "for consistency sake mode switch log entry comes before programming entry.",
+      "range": {
+        "startLine": 180,
+        "startChar": 0,
+        "endLine": 187,
+        "endChar": 42
+      },
+      "revId": "22c18423f23950cba9275e24c874f91e4d9aeee3",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "ad475605_4f0561c6",
+        "filename": "eVSSIM/SSD_MODULE/ssd_io_manager.h",
+        "patchSetId": 6
+      },
+      "lineNbr": 33,
+      "author": {
+        "id": 1007990
+      },
+      "writtenOn": "2019-01-23T05:24:02Z",
+      "side": 1,
+      "message": "leftover",
+      "revId": "22c18423f23950cba9275e24c874f91e4d9aeee3",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    }
+  ]
+}
