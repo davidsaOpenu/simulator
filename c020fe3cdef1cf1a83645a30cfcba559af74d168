@@ -19,6 +19,24 @@
     },
     {
       "key": {
+        "uuid": "1ef803ad_2c632c45",
+        "filename": "eVSSIM/LOG_MGR/logging_backend.c",
+        "patchSetId": 5
+      },
+      "lineNbr": 237,
+      "author": {
+        "id": 1014550
+      },
+      "writtenOn": "2019-01-23T18:52:51Z",
+      "side": 1,
+      "message": "important thing is to let log-\u003etail increment, so this line cannot be at the start of the function. this way, we can \"read\" the logs without actually copy its all contents",
+      "parentUuid": "c6c7e456_2f2f36c6",
+      "revId": "c020fe3cdef1cf1a83645a30cfcba559af74d168",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "a3d02f30_c81b38f8",
         "filename": "eVSSIM/LOG_MGR/logging_backend.h",
         "patchSetId": 5
@@ -30,6 +48,30 @@
       "writtenOn": "2019-01-22T12:57:29Z",
       "side": 1,
       "message": "a) please use same naming conventions as found in this file. \nb) have you refactored all the places where the variables appear? \n\nLOG_MGR/logging_manager.c:101:        double write_wall_time \u003d 0;\nLOG_MGR/logging_manager.c:102:        double read_wall_time \u003d 0;\nLOG_MGR/logging_manager.c:120:                write_wall_time +\u003d current_stats.write_count / current_stats.write_speed;\nLOG_MGR/logging_manager.c:122:                read_wall_time +\u003d current_stats.read_count / current_stats.read_speed;\nLOG_MGR/logging_manager.c:130:        if (write_wall_time \u003d\u003d 0)\nLOG_MGR/logging_manager.c:133:            stats.write_speed \u003d ((double) stats.write_count) / write_wall_time;\nLOG_MGR/logging_manager.c:135:        if (read_wall_time \u003d\u003d 0)\nLOG_MGR/logging_manager.c:138:            stats.read_speed \u003d ((double) stats.read_count) / read_wall_time;\nLOG_MGR/logging_rt_analyzer.c:65:    int write_wall_time \u003d 0;\nLOG_MGR/logging_rt_analyzer.c:66:    int read_wall_time \u003d 0;\nLOG_MGR/logging_rt_analyzer.c:67:    int current_wall_time \u003d 0;\nLOG_MGR/logging_rt_analyzer.c:91:                write_wall_time \u003d 0;\nLOG_MGR/logging_rt_analyzer.c:92:                read_wall_time \u003d 0;\nLOG_MGR/logging_rt_analyzer.c:125:                current_wall_time +\u003d CELL_READ_DELAY;\nLOG_MGR/logging_rt_analyzer.c:126:                read_wall_time +\u003d current_wall_time;\nLOG_MGR/logging_rt_analyzer.c:127:                current_wall_time \u003d 0;\nLOG_MGR/logging_rt_analyzer.c:133:                current_wall_time +\u003d CELL_PROGRAM_DELAY;\nLOG_MGR/logging_rt_analyzer.c:134:                write_wall_time +\u003d current_wall_time;\nLOG_MGR/logging_rt_analyzer.c:135:                current_wall_time \u003d 0;\nLOG_MGR/logging_rt_analyzer.c:147:                current_wall_time +\u003d REG_READ_DELAY;\nLOG_MGR/logging_rt_analyzer.c:151:                current_wall_time +\u003d REG_WRITE_DELAY;\nLOG_MGR/logging_rt_analyzer.c:156:                current_wall_time +\u003d BLOCK_ERASE_DELAY;\nLOG_MGR/logging_rt_analyzer.c:160:                current_wall_time +\u003d CHANNEL_SWITCH_DELAY_R;\nLOG_MGR/logging_rt_analyzer.c:164:                current_wall_time +\u003d CHANNEL_SWITCH_DELAY_W;\nLOG_MGR/logging_rt_analyzer.c:177:        if (read_wall_time \u003d\u003d 0)\nLOG_MGR/logging_rt_analyzer.c:181:                ((double) stats.read_count) / read_wall_time\nLOG_MGR/logging_rt_analyzer.c:184:        if (write_wall_time \u003d\u003d 0)\nLOG_MGR/logging_rt_analyzer.c:188:                ((double) stats.write_count) / write_wall_time\n\n\n\nSeems that you have cretaed your own fork",
+      "range": {
+        "startLine": 110,
+        "startChar": 0,
+        "endLine": 136,
+        "endChar": 18
+      },
+      "revId": "c020fe3cdef1cf1a83645a30cfcba559af74d168",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "e757bdac_3e8225b3",
+        "filename": "eVSSIM/LOG_MGR/logging_backend.h",
+        "patchSetId": 5
+      },
+      "lineNbr": 136,
+      "author": {
+        "id": 1014550
+      },
+      "writtenOn": "2019-01-23T18:52:51Z",
+      "side": 1,
+      "message": "I not sure I am understanding your intent,\n\na) should I move RTLogStatistics to another file.\nb) I didn\u0027t refactor those variable, should I refactor those variable into RTLogStatistics object?",
+      "parentUuid": "a3d02f30_c81b38f8",
       "range": {
         "startLine": 110,
         "startChar": 0,
@@ -59,6 +101,24 @@
     },
     {
       "key": {
+        "uuid": "b66d04e6_2234768d",
+        "filename": "eVSSIM/LOG_MGR/logging_rt_analyzer.c",
+        "patchSetId": 5
+      },
+      "lineNbr": 43,
+      "author": {
+        "id": 1014550
+      },
+      "writtenOn": "2019-01-23T18:52:51Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "d227078e_251b0e16",
+      "revId": "c020fe3cdef1cf1a83645a30cfcba559af74d168",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "0e26376a_493f2f89",
         "filename": "eVSSIM/LOG_MGR/logging_rt_analyzer.c",
         "patchSetId": 5
@@ -70,6 +130,30 @@
       "writtenOn": "2019-01-22T12:57:29Z",
       "side": 1,
       "message": "once again this is not the way that rt loop should work (not real time). See my pervous comments on this review and read again the crarifications you asked on whatsup. You need to add additional  (internal, i.e non ssd command induced) log entry that accounts for the written pages for block X on die number Y.",
+      "range": {
+        "startLine": 73,
+        "startChar": 0,
+        "endLine": 75,
+        "endChar": 75
+      },
+      "revId": "c020fe3cdef1cf1a83645a30cfcba559af74d168",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "c481bcd0_5a061762",
+        "filename": "eVSSIM/LOG_MGR/logging_rt_analyzer.c",
+        "patchSetId": 5
+      },
+      "lineNbr": 75,
+      "author": {
+        "id": 1014550
+      },
+      "writtenOn": "2019-01-23T18:52:51Z",
+      "side": 1,
+      "message": "Fixed",
+      "parentUuid": "0e26376a_493f2f89",
       "range": {
         "startLine": 73,
         "startChar": 0,
@@ -105,6 +189,30 @@
     },
     {
       "key": {
+        "uuid": "d3688f19_7cf32d13",
+        "filename": "eVSSIM/SSD_MODULE/ssd_io_manager.c",
+        "patchSetId": 5
+      },
+      "lineNbr": 177,
+      "author": {
+        "id": 1014550
+      },
+      "writtenOn": "2019-01-23T18:52:51Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "4f252968_c73a70a1",
+      "range": {
+        "startLine": 101,
+        "startChar": 0,
+        "endLine": 177,
+        "endChar": 0
+      },
+      "revId": "c020fe3cdef1cf1a83645a30cfcba559af74d168",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "38748ad0_58be42a7",
         "filename": "eVSSIM/tests/host/rt_analyzer_subscriber.cc",
         "patchSetId": 5
@@ -122,6 +230,24 @@
     },
     {
       "key": {
+        "uuid": "cee10038_276a64e3",
+        "filename": "eVSSIM/tests/host/rt_analyzer_subscriber.cc",
+        "patchSetId": 5
+      },
+      "lineNbr": 215,
+      "author": {
+        "id": 1014550
+      },
+      "writtenOn": "2019-01-23T18:52:51Z",
+      "side": 1,
+      "message": "die was here at first, didn\u0027t add it, just change the value",
+      "parentUuid": "38748ad0_58be42a7",
+      "revId": "c020fe3cdef1cf1a83645a30cfcba559af74d168",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "a2b737d0_63ef910d",
         "filename": "eVSSIM/tests/host/ssd_io_emulator_tests.cc",
         "patchSetId": 5
@@ -133,6 +259,30 @@
       "writtenOn": "2019-01-22T12:35:52Z",
       "side": 1,
       "message": "mixing 2 different things. introducing delay (ONITOR_SYNC_DELAY) is different from statistics update",
+      "range": {
+        "startLine": 63,
+        "startChar": 0,
+        "endLine": 75,
+        "endChar": 5
+      },
+      "revId": "c020fe3cdef1cf1a83645a30cfcba559af74d168",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "a7f0db87_c6ee0eee",
+        "filename": "eVSSIM/tests/host/ssd_io_emulator_tests.cc",
+        "patchSetId": 5
+      },
+      "lineNbr": 75,
+      "author": {
+        "id": 1014550
+      },
+      "writtenOn": "2019-01-23T18:52:51Z",
+      "side": 1,
+      "message": "Fixed",
+      "parentUuid": "a2b737d0_63ef910d",
       "range": {
         "startLine": 63,
         "startChar": 0,
@@ -168,6 +318,30 @@
     },
     {
       "key": {
+        "uuid": "79537605_7d1b5cc8",
+        "filename": "eVSSIM/tests/host/ssd_io_emulator_tests.cc",
+        "patchSetId": 5
+      },
+      "lineNbr": 299,
+      "author": {
+        "id": 1014550
+      },
+      "writtenOn": "2019-01-23T18:52:51Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "ed93d3c6_6549f9bf",
+      "range": {
+        "startLine": 297,
+        "startChar": 0,
+        "endLine": 299,
+        "endChar": 36
+      },
+      "revId": "c020fe3cdef1cf1a83645a30cfcba559af74d168",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "2e048890_3b174ffa",
         "filename": "eVSSIM/tests/host/ssd_io_emulator_tests.cc",
         "patchSetId": 5
@@ -191,6 +365,30 @@
     },
     {
       "key": {
+        "uuid": "431a3dc9_d5dfe12e",
+        "filename": "eVSSIM/tests/host/ssd_io_emulator_tests.cc",
+        "patchSetId": 5
+      },
+      "lineNbr": 312,
+      "author": {
+        "id": 1014550
+      },
+      "writtenOn": "2019-01-23T18:52:51Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "2e048890_3b174ffa",
+      "range": {
+        "startLine": 312,
+        "startChar": 27,
+        "endLine": 312,
+        "endChar": 39
+      },
+      "revId": "c020fe3cdef1cf1a83645a30cfcba559af74d168",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "4d36a267_491d941e",
         "filename": "eVSSIM/tests/host/ssd_io_emulator_tests.cc",
         "patchSetId": 5
@@ -202,6 +400,24 @@
       "writtenOn": "2019-01-22T12:35:52Z",
       "side": 1,
       "message": "please implement more tests (as asked in my previous comment).\nYou are proposing relatively big change and it has to be covered by complex tests rather them by simplistic page writes. Fill in more (to the SSD) to see that calculations are ok.",
+      "revId": "c020fe3cdef1cf1a83645a30cfcba559af74d168",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "3b5c58b7_384329b1",
+        "filename": "eVSSIM/tests/host/ssd_io_emulator_tests.cc",
+        "patchSetId": 5
+      },
+      "lineNbr": 335,
+      "author": {
+        "id": 1014550
+      },
+      "writtenOn": "2019-01-23T18:52:51Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "4d36a267_491d941e",
       "revId": "c020fe3cdef1cf1a83645a30cfcba559af74d168",
       "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
       "unresolved": false
