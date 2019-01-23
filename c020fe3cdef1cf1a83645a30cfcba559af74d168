@@ -37,6 +37,23 @@
     },
     {
       "key": {
+        "uuid": "59e09be0_4ddf6603",
+        "filename": "eVSSIM/LOG_MGR/logging_backend.c",
+        "patchSetId": 5
+      },
+      "lineNbr": 237,
+      "author": {
+        "id": 1011209
+      },
+      "writtenOn": "2019-01-23T19:16:19Z",
+      "side": 1,
+      "message": "If you do that then you don\u0027t really read the log and this data will be lost. I think that if the buffer is not valid then you can\u0027t read any thing and as a result logger_read() should return 0 because it was not able to fulfill it\u0027s purpose.",
+      "revId": "c020fe3cdef1cf1a83645a30cfcba559af74d168",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "a3d02f30_c81b38f8",
         "filename": "eVSSIM/LOG_MGR/logging_backend.h",
         "patchSetId": 5
