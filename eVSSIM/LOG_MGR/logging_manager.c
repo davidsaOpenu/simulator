@@ -98,9 +98,7 @@ void log_manager_loop(LogManager* manager, int max_loops) {
         ssd.current_stats = &stats;
 
         // additional variables needed to calculate the statistics
-        unsigned int logical_write_count = 0;
-        double write_wall_time = 0;
-        double read_wall_time = 0;
+        RTLogStatistics rt_stats = rt_stats_init();
 
         unsigned int analyzer_id;
         // update the statistics according to the different analyzers
@@ -115,28 +113,28 @@ void log_manager_loop(LogManager* manager, int max_loops) {
             stats.garbage_collection_count += current_stats.garbage_collection_count;
             stats.utilization += current_stats.utilization;
 
-            logical_write_count += (unsigned int)
+            rt_stats.logical_write_count += (unsigned int)
                     (current_stats.write_count / current_stats.write_amplification);
             if (current_stats.write_count > 0)
-                write_wall_time += current_stats.write_count / current_stats.write_speed;
+                rt_stats.write_wall_time += current_stats.write_count / current_stats.write_speed;
             if (current_stats.read_count > 0)
-                read_wall_time += current_stats.read_count / current_stats.read_speed;
+                rt_stats.read_wall_time += current_stats.read_count / current_stats.read_speed;
         }
 
-        if (logical_write_count == 0)
+        if (rt_stats.logical_write_count == 0)
             stats.write_amplification = 0.0;
         else
-            stats.write_amplification = ((double) stats.write_count) / logical_write_count;
+            stats.write_amplification = ((double) stats.write_count) / rt_stats.logical_write_count;
 
-        if (write_wall_time == 0)
+        if (rt_stats.write_wall_time == 0)
             stats.write_speed = 0.0;
         else
-            stats.write_speed = ((double) stats.write_count) / write_wall_time;
+            stats.write_speed = ((double) stats.write_count) / rt_stats.write_wall_time;
 
-        if (read_wall_time == 0)
+        if (rt_stats.read_wall_time == 0)
             stats.read_speed = 0.0;
         else
-            stats.read_speed = ((double) stats.read_count) / read_wall_time;
+            stats.read_speed = ((double) stats.read_count) / rt_stats.read_wall_time;
 
         unsigned int subscriber_id;
         // call present hooks if the statistics changed

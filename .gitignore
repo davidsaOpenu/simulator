@@ -78,6 +78,8 @@ eVSSIM/QEMU/hw/logging_parser.c
 eVSSIM/QEMU/hw/logging_parser.h
 eVSSIM/QEMU/hw/logging_rt_analyzer.c
 eVSSIM/QEMU/hw/logging_rt_analyzer.h
+eVSSIM/QEMU/hw/logging_rt_statistics.h
+eVSSIM/QEMU/hw/logging_rt_statistics.c
 eVSSIM/QEMU/hw/logging_offline_analyzer.c
 eVSSIM/QEMU/hw/logging_offline_analyzer.h
 eVSSIM/QEMU/hw/logging_server.c
@@ -93,10 +95,13 @@ eVSSIM/tests/host/log_mgr_tests
 eVSSIM/tests/host/unit_tests
 eVSSIM/tests/host/sector_tests
 eVSSIM/tests/host/object_tests
+eVSSIM/tests/host/ssd_io_emulator_tests
 eVSSIM/tests/host/data
 eVSSIM/tests/host/common.h
 eVSSIM/tests/host/logging_rt_analyzer.h
 eVSSIM/tests/host/logging_rt_analyzer.c
+eVSSIM/tests/host/logging_rt_statistics.h
+eVSSIM/tests/host/logging_rt_statistics.c
 eVSSIM/tests/host/logging_offline_analyzer.c
 eVSSIM/tests/host/logging_offline_analyzer.h
 eVSSIM/tests/host/logging_parser.h

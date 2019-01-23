@@ -466,6 +466,7 @@ namespace log_mgr_tests {
             .channel = 6,
             .die = 352,
             .block = 947,
+            .erased_pages = 1,
             .metadata = {start, start+1}
         };
         LOG_BLOCK_ERASE(_logger, log);
