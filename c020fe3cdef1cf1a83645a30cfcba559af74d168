@@ -54,6 +54,24 @@
     },
     {
       "key": {
+        "uuid": "85d3e6a1_c2c356ce",
+        "filename": "eVSSIM/LOG_MGR/logging_backend.c",
+        "patchSetId": 5
+      },
+      "lineNbr": 237,
+      "author": {
+        "id": 1007990
+      },
+      "writtenOn": "2019-01-24T15:56:47Z",
+      "side": 1,
+      "message": "Good catch, David.",
+      "parentUuid": "59e09be0_4ddf6603",
+      "revId": "c020fe3cdef1cf1a83645a30cfcba559af74d168",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "a3d02f30_c81b38f8",
         "filename": "eVSSIM/LOG_MGR/logging_backend.h",
         "patchSetId": 5
@@ -89,6 +107,30 @@
       "side": 1,
       "message": "I not sure I am understanding your intent,\n\na) should I move RTLogStatistics to another file.\nb) I didn\u0027t refactor those variable, should I refactor those variable into RTLogStatistics object?",
       "parentUuid": "a3d02f30_c81b38f8",
+      "range": {
+        "startLine": 110,
+        "startChar": 0,
+        "endLine": 136,
+        "endChar": 18
+      },
+      "revId": "c020fe3cdef1cf1a83645a30cfcba559af74d168",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "e51f1328_94071630",
+        "filename": "eVSSIM/LOG_MGR/logging_backend.h",
+        "patchSetId": 5
+      },
+      "lineNbr": 136,
+      "author": {
+        "id": 1007990
+      },
+      "writtenOn": "2019-01-24T15:56:47Z",
+      "side": 1,
+      "message": "a) no. Just take a look on the naming convention used for other struct here (RT_Log_Statistics)\n\nb) that\u0027s what I saw. This scruct created a duplication and confusion. Old variables are apart from new ones. So the answer to the refactoring question is affirmative.",
+      "parentUuid": "e757bdac_3e8225b3",
       "range": {
         "startLine": 110,
         "startChar": 0,
@@ -259,6 +301,24 @@
       "side": 1,
       "message": "die was here at first, didn\u0027t add it, just change the value",
       "parentUuid": "38748ad0_58be42a7",
+      "revId": "c020fe3cdef1cf1a83645a30cfcba559af74d168",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "7bd463ac_6ed13328",
+        "filename": "eVSSIM/tests/host/rt_analyzer_subscriber.cc",
+        "patchSetId": 5
+      },
+      "lineNbr": 215,
+      "author": {
+        "id": 1007990
+      },
+      "writtenOn": "2019-01-24T15:56:47Z",
+      "side": 1,
+      "message": "Don\u0027t you think it will be better to use consistent naming replacing die with flash?",
+      "parentUuid": "cee10038_276a64e3",
       "revId": "c020fe3cdef1cf1a83645a30cfcba559af74d168",
       "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
       "unresolved": false
