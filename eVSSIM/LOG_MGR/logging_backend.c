@@ -234,7 +234,8 @@ int logger_read(Logger_Pool* logger_pool, Byte* buffer, int length) {
                     return (length-number_of_bytes_to_read);
                 }
 
-                memcpy((void*) buffer, (void*) log->tail, number_of_bytes_to_read);
+                if( buffer != NULL )
+                    memcpy((void*) buffer, (void*) log->tail, number_of_bytes_to_read);
                 log->tail += number_of_bytes_to_read;
                 // we read all the needed bytes
                 number_of_bytes_to_read = 0;
@@ -250,8 +251,10 @@ int logger_read(Logger_Pool* logger_pool, Byte* buffer, int length) {
                     return (length-number_of_bytes_to_read);
                 }
 
-                memcpy((void*) buffer, (void*) log->tail, number_bytes_to_read_in_log);
-                buffer += number_bytes_to_read_in_log;
+                if( buffer != NULL ) {
+                    memcpy((void*) buffer, (void*) log->tail, number_bytes_to_read_in_log);
+                    buffer += number_bytes_to_read_in_log;
+                }
                 log->tail += number_bytes_to_read_in_log;
                 number_of_bytes_to_read -= number_bytes_to_read_in_log;
             }

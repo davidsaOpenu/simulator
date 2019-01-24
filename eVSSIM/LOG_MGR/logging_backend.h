@@ -21,6 +21,7 @@
 #include <stdbool.h>
 #include <time.h>
 #include <pthread.h>
+#include "logging_rt_statistics.h"
 
 /**
  * The backend logging mechanism is implemented using pool of logs each one of size LOG_SIZE.
@@ -137,7 +138,10 @@ typedef struct {
      * This number changes each time we allocate more Logs
      */
     unsigned int current_number_of_logs;
-
+    /**
+     * RT log statistics
+     */
+    RTLogStatistics rt_log_stats;
     /**
      * The lock of the logger pool to update it safely from
      * threads
