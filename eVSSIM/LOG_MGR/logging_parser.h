@@ -219,6 +219,10 @@ typedef struct {
      */
     unsigned int block;
     /**
+     * The number of written pages in block before erase
+     */
+    unsigned int erased_pages;
+    /**
      * Log metadata
      */
     LogMetadata metadata;
@@ -316,5 +320,7 @@ _LOGS_DEFINITIONS(_LOGS_WRITER_DECLARATION_APPLIER)
  * The customized NEXT_X_LOG definitions, for type-safe logging
  */
 _LOGS_DEFINITIONS(_LOGS_READER_DECLARATION_APPLIER)
+
+unsigned int NEXT_BLOCK_ERASE_LOG_ERASED_PAGES(Logger_Pool* logger);
 
 #endif

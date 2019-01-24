@@ -19,6 +19,7 @@
 
 #include "logging_parser.h"
 #include "logging_statistics.h"
+#include "logging_rt_statistics.h"
 
 /**
  * A monitor hook
@@ -63,20 +64,6 @@ typedef struct {
      */
     unsigned int reset_flag: 1;
 } RTLogAnalyzer;
-
-
-/**
- *
- */
-typedef struct {
-
-	unsigned int logical_write_count;
-	int write_wall_time;
-	int read_wall_time;
-	int current_wall_time;
-	long occupied_pages;
-
-} RTLogStatistics;
 
 /**
  * Create a new real time log analyzer

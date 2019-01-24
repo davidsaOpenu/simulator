@@ -52,7 +52,23 @@ _LOGS_DEFINITIONS(_LOGS_WRITER_DEFINITION_APPLIER)
 #define _LOGS_READER_DEFINITION_APPLIER(structure, name)            \
     structure CONCAT(NEXT_, CONCAT(name, _LOG))(Logger_Pool* logger) {   \
         structure res;                                              \
-        logger_busy_read(logger, (Byte*) &res, sizeof(structure));  \
+        logger_busy_read(logger, (void *)&res, sizeof(structure));  \
         return res;                                                 \
     }
 _LOGS_DEFINITIONS(_LOGS_READER_DEFINITION_APPLIER)
+
+unsigned int NEXT_BLOCK_ERASE_LOG_ERASED_PAGES(Logger_Pool* logger) {
+
+    unsigned int erased_pages;
+
+    // skip first 3 BlockEraseLog members
+    logger_busy_read(logger, NULL, sizeof(int) * 3);
+    // read BlockEraseLog.erased_pages
+    logger_busy_read(logger, (void *)&erased_pages, sizeof(int));
+    // skip left BlockEraseLog buffer
+    logger_busy_read(logger, NULL, sizeof(BlockEraseLog) - sizeof(int) * 4);
+
+    return erased_pages;
+}
+
+
