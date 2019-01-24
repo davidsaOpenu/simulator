@@ -71,6 +71,8 @@ namespace {
 
     /**
      * @brief testing delay caused by single page write
+     * - execute 2 sequential page write
+     * - execute 2 sequential page read
      * - execute page write
      * - verify QT monitor total write bandwidth delay is \expected_write_duration
      * - verify Browser monitor total write bandwidth delay is \expected_write_duration
@@ -83,11 +85,14 @@ namespace {
         int offset = 0;
 
         SSD_PAGE_WRITE(flash_nb,block_nb,page_nb,offset, WRITE, IO_PAGE_NB);
+        SSD_PAGE_WRITE(flash_nb,block_nb,page_nb,offset, WRITE, IO_PAGE_NB);
         SSD_PAGE_READ(flash_nb,block_nb,page_nb,offset, READ, IO_PAGE_NB);
+        SSD_PAGE_READ(flash_nb,block_nb,page_nb,offset, READ, IO_PAGE_NB);
+        SSD_PAGE_WRITE(flash_nb,block_nb,page_nb,offset, WRITE, IO_PAGE_NB);
 
         // single write page delay
-        int expected_write_duration = REG_WRITE_DELAY + CELL_PROGRAM_DELAY;
-        int expected_read_duration = CHANNEL_SWITCH_DELAY_R + REG_READ_DELAY + CELL_READ_DELAY;
+        int expected_write_duration = CHANNEL_SWITCH_DELAY_W + (REG_WRITE_DELAY + CELL_PROGRAM_DELAY) * 3;
+        int expected_read_duration = CHANNEL_SWITCH_DELAY_R + (REG_READ_DELAY + CELL_READ_DELAY) * 2;
 
         // wait for new monitor sync
         MONITOR_SYNC_DELAY(expected_write_duration + expected_read_duration);
