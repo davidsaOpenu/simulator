@@ -5,7 +5,7 @@ VSSIM_OBJ = vssim_config_manager.o \
 			ssd_log_manager.o ssd_io_manager.o \
 			ftl_sect_strategy.o ftl_obj_strategy.o \
 			logging_backend.o logging_parser.o logging_rt_analyzer.o logging_offline_analyzer.o \
-			logging_manager.o logging_server.o logging_statistics.o
+			logging_manager.o logging_server.o logging_statistics.o logging_rt_statistics.o
 
 CFLAGS = -I/opt/gtest/include -I$(VSSIM_HOME)/osc-osd -I$(VSSIM_HOME)/osc-osd/osd-target -I$(VSSIM_HOME)/QEMU -g -DGTEST -DCOMPLIANCE_TESTS -L/opt/gtest/lib -L$(VSSIM_HOME)/osc-osd/osd-util -L$(VSSIM_HOME)/osc-osd/osd-target -I/opt/libwebsockets/include -L/opt/libwebsockets/lib -Wl,-R/opt/libwebsockets/lib -g -m64 -pipe -O2 -Wall -W -D_REENTRANT -fPIE -DQT_NO_DEBUG -DQT_WIDGETS_LIB -DQT_NETWORK_LIB -DQT_GUI_LIB -DQT_CORE_LIB
 MONITOR_DIR = ../../MONITOR/SSD_MONITOR_PM
@@ -47,7 +47,8 @@ distclean: clean
         logging_parser.h logging_parser.c logging_backend.h logging_backend.c \
         logging_rt_analyzer.h logging_rt_analyzer.c logging_offline_analyzer.h logging_offline_analyzer.c \
 		monitor_test.h logging_manager.h logging_manager.c \
-        logging_server.h logging_server.c www logging_statistics.c logging_statistics.h
+        logging_server.h logging_server.c www logging_statistics.c logging_statistics.h \
+        logging_rt_statistics.h logging_rt_statistics.c
 
 mklink:
 	ln -sf $(VSSIM_HOME)/SSD_MODULE/ssd_io_manager.h
@@ -57,6 +58,8 @@ mklink:
 	ln -sf $(VSSIM_HOME)/SSD_MODULE/ssd_util.h
 	ln -sf $(VSSIM_HOME)/LOG_MGR/logging_rt_analyzer.h
 	ln -sf $(VSSIM_HOME)/LOG_MGR/logging_rt_analyzer.c
+	ln -sf $(VSSIM_HOME)/LOG_MGR/logging_rt_statistics.h
+	ln -sf $(VSSIM_HOME)/LOG_MGR/logging_rt_statistics.c
 	ln -sf $(VSSIM_HOME)/LOG_MGR/logging_offline_analyzer.h
 	ln -sf $(VSSIM_HOME)/LOG_MGR/logging_offline_analyzer.c
 	ln -sf $(VSSIM_HOME)/LOG_MGR/logging_parser.h

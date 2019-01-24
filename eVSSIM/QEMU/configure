@@ -3563,6 +3563,8 @@ if test "$vssim" = "yes" ; then
     symlink "$source_path/../LOG_MGR/logging_statistics.h" "$source_path/hw/logging_statistics.h"
     symlink "$source_path/../LOG_MGR/logging_rt_analyzer.c" "$source_path/hw/logging_rt_analyzer.c"
     symlink "$source_path/../LOG_MGR/logging_rt_analyzer.h" "$source_path/hw/logging_rt_analyzer.h"
+    symlink "$source_path/../LOG_MGR/logging_rt_statistics.c" "$source_path/hw/logging_rt_statistics.c"
+    symlink "$source_path/../LOG_MGR/logging_rt_statistics.h" "$source_path/hw/logging_rt_statistics.h"
     symlink "$source_path/../LOG_MGR/logging_offline_analyzer.c" "$source_path/hw/logging_offline_analyzer.c"
     symlink "$source_path/../LOG_MGR/logging_offline_analyzer.h" "$source_path/hw/logging_offline_analyzer.h"
     symlink "$source_path/../MONITOR/SERVER/logging_server.c" "$source_path/hw/logging_server.c"
