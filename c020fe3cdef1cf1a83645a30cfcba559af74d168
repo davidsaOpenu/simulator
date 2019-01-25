@@ -108,6 +108,24 @@
     },
     {
       "key": {
+        "uuid": "3ae454af_62e5c7ab",
+        "filename": "eVSSIM/LOG_MGR/logging_backend.c",
+        "patchSetId": 5
+      },
+      "lineNbr": 237,
+      "author": {
+        "id": 1014550
+      },
+      "writtenOn": "2019-01-25T11:10:14Z",
+      "side": 1,
+      "message": "The methods defined by #define _LOGS_READER_DEFINITION_APPLIER(structure, name) \non eVSSIM/LOG_MGR/logging_parser.c +52 is used by rt_analyzer loop and returns a loaded log struct. As I understand from your comment those methods should not return structs but specific data from the buffer, based on: \"I guess here one needs to change the way NEXT_BLOCK_ERAZE works to get the only the desired field.\" (https://review.gerrithub.io/c/davidsaOpenu/simulator/+/441205/3/eVSSIM/LOG_MGR/logging_rt_analyzer.c#166), What kind of change should I use here?",
+      "parentUuid": "d0ef483a_ba7cfc64",
+      "revId": "c020fe3cdef1cf1a83645a30cfcba559af74d168",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "a3d02f30_c81b38f8",
         "filename": "eVSSIM/LOG_MGR/logging_backend.h",
         "patchSetId": 5
