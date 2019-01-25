@@ -90,6 +90,24 @@
     },
     {
       "key": {
+        "uuid": "d0ef483a_ba7cfc64",
+        "filename": "eVSSIM/LOG_MGR/logging_backend.c",
+        "patchSetId": 5
+      },
+      "lineNbr": 237,
+      "author": {
+        "id": 1007990
+      },
+      "writtenOn": "2019-01-25T08:25:08Z",
+      "side": 1,
+      "message": "Daniel, could you please clarify why we need to skip \"unused\" buffer and how you define it? Thanks.",
+      "parentUuid": "f058a7f7_b764a0e9",
+      "revId": "c020fe3cdef1cf1a83645a30cfcba559af74d168",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "a3d02f30_c81b38f8",
         "filename": "eVSSIM/LOG_MGR/logging_backend.h",
         "patchSetId": 5
