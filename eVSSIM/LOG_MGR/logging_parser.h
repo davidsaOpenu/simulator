@@ -167,9 +167,9 @@ typedef struct {
      */
     unsigned int channel;
     /**
-     * The die number of the register read
+     * The flash number of the register read
      */
-    unsigned int die;
+    unsigned int flash;
     /**
      * The register number of the register read
      */
@@ -189,9 +189,9 @@ typedef struct {
      */
     unsigned int channel;
     /**
-     * The die number of the written register
+     * The flash number of the written register
      */
-    unsigned int die;
+    unsigned int flash;
     /**
      * The register number of the written register
      */
@@ -211,13 +211,17 @@ typedef struct {
      */
     unsigned int channel;
     /**
-     * The die number of the erased block
+     * The flash number of the erased block
      */
-    unsigned int die;
+    unsigned int flash;
     /**
      * The block number of the erased block
      */
     unsigned int block;
+    /**
+     * The number of written pages in block before erase
+     */
+    unsigned int erased_pages;
     /**
      * Log metadata
      */
@@ -316,5 +320,7 @@ _LOGS_DEFINITIONS(_LOGS_WRITER_DECLARATION_APPLIER)
  * The customized NEXT_X_LOG definitions, for type-safe logging
  */
 _LOGS_DEFINITIONS(_LOGS_READER_DECLARATION_APPLIER)
+
+unsigned int NEXT_BLOCK_ERASE_LOG_ERASED_PAGES(Logger_Pool* logger);
 
 #endif
