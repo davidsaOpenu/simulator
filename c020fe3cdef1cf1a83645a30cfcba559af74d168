@@ -197,6 +197,30 @@
     },
     {
       "key": {
+        "uuid": "284f5416_61d2f46e",
+        "filename": "eVSSIM/LOG_MGR/logging_backend.h",
+        "patchSetId": 5
+      },
+      "lineNbr": 136,
+      "author": {
+        "id": 1014550
+      },
+      "writtenOn": "2019-01-26T08:29:35Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "e51f1328_94071630",
+      "range": {
+        "startLine": 110,
+        "startChar": 0,
+        "endLine": 136,
+        "endChar": 18
+      },
+      "revId": "c020fe3cdef1cf1a83645a30cfcba559af74d168",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "d227078e_251b0e16",
         "filename": "eVSSIM/LOG_MGR/logging_rt_analyzer.c",
         "patchSetId": 5
@@ -373,6 +397,24 @@
       "side": 1,
       "message": "Don\u0027t you think it will be better to use consistent naming replacing die with flash?",
       "parentUuid": "cee10038_276a64e3",
+      "revId": "c020fe3cdef1cf1a83645a30cfcba559af74d168",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "06e80354_7bd8d9ac",
+        "filename": "eVSSIM/tests/host/rt_analyzer_subscriber.cc",
+        "patchSetId": 5
+      },
+      "lineNbr": 215,
+      "author": {
+        "id": 1014550
+      },
+      "writtenOn": "2019-01-26T08:29:35Z",
+      "side": 1,
+      "message": "Fixed",
+      "parentUuid": "7bd463ac_6ed13328",
       "revId": "c020fe3cdef1cf1a83645a30cfcba559af74d168",
       "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
       "unresolved": false
