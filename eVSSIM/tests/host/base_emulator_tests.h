@@ -14,6 +14,9 @@
  * limitations under the License.
  */
 
+#ifndef __BASE_EMULATOR_TESTS_H__
+#define __BASE_EMULATOR_TESTS_H__
+
 extern "C" {
 
 #include "common.h"
@@ -129,3 +132,5 @@ namespace {
     }; // OccupySpaceStressTest
 
 } //namespace
+
+#endif

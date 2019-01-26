@@ -14,6 +14,20 @@ extern double ssd_util;
 
 write_amplification_counters wa_counters;
 extern ssd_disk ssd;
+GCAlgorithm gc_algo;
+
+void INIT_GC_MANAGER(void) {
+    gc_algo.gc_collection = &GARBAGE_COLLECTION_DEFAULT;
+    gc_algo.get_new_page = &GET_NEW_PAGE_DEFAULT;
+}
+void GC_SET_COLLETION_ALGO(ftl_ret_val (*gc_collection)(int, int, bool)) {
+    gc_algo.gc_collection = gc_collection;
+}
+
+void GC_SET_GET_NEW_PAGE_ALGO(ftl_ret_val (*get_new_page)(int, int, uint32_t*)) {
+    gc_algo.get_new_page = get_new_page;
+}
+
 
 void GC_CHECK(unsigned int phy_flash_nb, unsigned int phy_block_nb, bool force, bool isObjectStrategy)
 {
@@ -24,7 +38,7 @@ void GC_CHECK(unsigned int phy_flash_nb, unsigned int phy_block_nb, bool force, 
 	if(force || total_empty_block_nb < GC_THRESHOLD_BLOCK_NB){
         int l2 = total_empty_block_nb < GC_L2_THRESHOLD_BLOCK_NB;
 		for(i=0; i<GC_VICTIM_NB; i++){
-			ret = GARBAGE_COLLECTION(mapping_index, l2, isObjectStrategy);
+		        ret = GARBAGE_COLLECTION(mapping_index, l2, isObjectStrategy);
 			if(ret == FTL_FAILURE){
 				break;
 			}
@@ -32,7 +46,11 @@ void GC_CHECK(unsigned int phy_flash_nb, unsigned int phy_block_nb, bool force, 
 	}
 }
 
-ftl_ret_val GARBAGE_COLLECTION(int mapping_index, int l2, bool isObjectStrategy)
+ftl_ret_val GARBAGE_COLLECTION(int mapping_index, int l2, bool isObjectStrategy){
+    return gc_algo.gc_collection(mapping_index, l2, isObjectStrategy);
+}
+
+ftl_ret_val GARBAGE_COLLECTION_DEFAULT(int mapping_index, int l2, bool isObjectStrategy)
 {
 	int i;
 	int ret;
