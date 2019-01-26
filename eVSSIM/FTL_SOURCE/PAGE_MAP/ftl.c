@@ -32,6 +32,7 @@ void FTL_INIT(void)
 		INIT_EMPTY_BLOCK_LIST();
 		INIT_VICTIM_BLOCK_LIST();
 		INIT_PERF_CHECKER();
+                INIT_GC_MANAGER();
 		
 		//Initialize The Statistics gathering component.
 		FTL_INIT_STATS();
