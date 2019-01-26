@@ -107,6 +107,47 @@ namespace {
     }
 
     /**
+     * @brief testing delay caused erase before & after page write / read
+     * - execute page write
+     * - execute block erase
+     * - execute page write
+     * - execute read write
+     * - execute block erase
+     * - verify QT monitor total write bandwidth delay is \expected_write_duration
+     * - verify Browser monitor total write bandwidth delay is \expected_write_duration
+     * - verify QT monitor total read bandwidth delay is \expected_read_duration
+     * - verify Browser monitor total read bandwidth delay is \expected_read_duration
+     */
+    TEST_P(SSDIoEmulatorUnitTest, BWCase4) {
+
+        int flash_nb = 0;
+        int block_nb = 0;
+        int page_nb = 0;
+        int offset = 0;
+
+        SSD_PAGE_WRITE(flash_nb,block_nb,page_nb,offset, WRITE, IO_PAGE_NB);
+        SSD_BLOCK_ERASE(flash_nb,block_nb);
+        SSD_PAGE_WRITE(flash_nb,block_nb,page_nb,offset, WRITE, IO_PAGE_NB);
+        SSD_PAGE_READ(flash_nb,block_nb,page_nb,offset, READ, IO_PAGE_NB);
+        SSD_BLOCK_ERASE(flash_nb,block_nb);
+
+        // single write page delay
+        int expected_write_duration = (REG_WRITE_DELAY + CELL_PROGRAM_DELAY) * 2 + BLOCK_ERASE_DELAY;
+        int expected_read_duration = CHANNEL_SWITCH_DELAY_R + REG_READ_DELAY + CELL_READ_DELAY;
+
+        // wait for new monitor sync
+        MONITOR_SYNC_DELAY(expected_write_duration + expected_read_duration);
+        // new monitor write delay
+        ASSERT_LE(abs(rt_log_stats.write_wall_time - expected_write_duration), DELAY_THRESHOLD);
+        // new monitor read delay
+        ASSERT_LE(abs(rt_log_stats.read_wall_time - expected_read_duration), DELAY_THRESHOLD);
+        // QT monitor write delay
+        ASSERT_LE(abs((int)total_write_delay - expected_write_duration), DELAY_THRESHOLD);
+        // QT monitor read delay
+        ASSERT_LE(abs((int)total_read_delay - expected_read_duration), DELAY_THRESHOLD);
+    }
+
+    /**
      * @brief testing ssd utilization caused by occupied page
      * - execute page write
      * - verify QT monitor ssd utilization equals \ssd_utils
