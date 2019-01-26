@@ -55,6 +55,24 @@
     },
     {
       "key": {
+        "uuid": "2d37d7ad_b9031e43",
+        "filename": "eVSSIM/FTL_SOURCE/PERF_MODULE/ftl_perf_manager.c",
+        "patchSetId": 2
+      },
+      "lineNbr": 105,
+      "author": {
+        "id": 1014550
+      },
+      "writtenOn": "2019-01-26T08:29:14Z",
+      "side": 1,
+      "message": "Fixed",
+      "parentUuid": "cf13f7bb_d4a74d69",
+      "revId": "6d706de3433e6ced62a1f8809de04b1a516f1ea7",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "1bf0b5d2_fe0b28cd",
         "filename": "eVSSIM/FTL_SOURCE/PERF_MODULE/ftl_perf_manager.c",
         "patchSetId": 2
@@ -66,6 +84,24 @@
       "writtenOn": "2019-01-18T12:54:43Z",
       "side": 1,
       "message": "same here",
+      "revId": "6d706de3433e6ced62a1f8809de04b1a516f1ea7",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "b049b208_0da01785",
+        "filename": "eVSSIM/FTL_SOURCE/PERF_MODULE/ftl_perf_manager.c",
+        "patchSetId": 2
+      },
+      "lineNbr": 138,
+      "author": {
+        "id": 1014550
+      },
+      "writtenOn": "2019-01-26T08:29:14Z",
+      "side": 1,
+      "message": "Fixed",
+      "parentUuid": "1bf0b5d2_fe0b28cd",
       "revId": "6d706de3433e6ced62a1f8809de04b1a516f1ea7",
       "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
       "unresolved": false
@@ -89,6 +125,24 @@
     },
     {
       "key": {
+        "uuid": "a754d79d_e8a9b013",
+        "filename": "eVSSIM/LOG_MGR/logging_rt_analyzer.c",
+        "patchSetId": 2
+      },
+      "lineNbr": 158,
+      "author": {
+        "id": 1014550
+      },
+      "writtenOn": "2019-01-26T08:29:14Z",
+      "side": 1,
+      "message": "Fixed",
+      "parentUuid": "a353f207_156642ce",
+      "revId": "6d706de3433e6ced62a1f8809de04b1a516f1ea7",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "6172cca6_84b891e0",
         "filename": "eVSSIM/tests/host/ssd_io_emulator_tests.cc",
         "patchSetId": 2
@@ -100,6 +154,30 @@
       "writtenOn": "2019-01-18T12:54:43Z",
       "side": 1,
       "message": "Please rewrite those and above computations as commented https://review.gerrithub.io/#/c/davidsaOpenu/simulator/+/440415/",
+      "range": {
+        "startLine": 219,
+        "startChar": 0,
+        "endLine": 227,
+        "endChar": 80
+      },
+      "revId": "6d706de3433e6ced62a1f8809de04b1a516f1ea7",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "59c57378_169a5517",
+        "filename": "eVSSIM/tests/host/ssd_io_emulator_tests.cc",
+        "patchSetId": 2
+      },
+      "lineNbr": 227,
+      "author": {
+        "id": 1014550
+      },
+      "writtenOn": "2019-01-26T08:29:14Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "6172cca6_84b891e0",
       "range": {
         "startLine": 219,
         "startChar": 0,
