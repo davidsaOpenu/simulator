@@ -271,6 +271,7 @@ ftl_ret_val SSD_BLOCK_ERASE(unsigned int flash_nb, unsigned int block_nb)
 	/* Record Time Stamp */
 	SSD_REG_RECORD(reg, ERASE, ERASE, -1, channel);
 	SSD_CELL_RECORD(reg, ERASE, channel);
+	SSD_BLOCK_ERASE_DELAY(reg);
 
     TIME_MICROSEC(_end);
 
@@ -716,13 +717,16 @@ int SSD_BLOCK_ERASE_DELAY(int reg)
 	/* Block Erase Delay */
 	start = get_usec();
 	diff = get_usec() - cell_io_time[reg];
+	int64_t delay = 0;
 	if( diff < BLOCK_ERASE_DELAY){
+	        delay = BLOCK_ERASE_DELAY - diff;
 		while(diff < BLOCK_ERASE_DELAY){
 			diff = get_usec() - time_stamp;
 		}
 		ret = 1;
 	}
 	end = get_usec();
+	SEND_TO_PERF_CHECKER(reg_io_type[reg], delay, REG_OP);
 
 	/* Update IO Overhead */
 	cell_io_time[reg] = -1;

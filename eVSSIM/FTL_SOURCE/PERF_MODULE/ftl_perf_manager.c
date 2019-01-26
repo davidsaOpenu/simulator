@@ -6,6 +6,8 @@
 #include "common.h"
 
 /* Average IO Time */
+double total_current_delay;
+
 double avg_write_delay;
 double total_write_count;
 double total_write_delay;
@@ -43,6 +45,8 @@ int64_t written_page_nb;
 void INIT_PERF_CHECKER(void){
 
 	/* Average IO Time */
+        total_current_delay = 0;
+
 	avg_write_delay = 0;
 	total_write_count = 0;
 	total_write_delay = 0;
@@ -92,16 +96,21 @@ void SEND_TO_PERF_CHECKER(int op_type, int64_t op_delay, int type){
 	if(type == CH_OP){
 		switch(op_type){
 			case READ:
+			        total_read_delay += total_current_delay;
+			        total_current_delay = 0;
 				total_read_delay += delay;
 				total_read_count++;
 				avg_read_delay = total_read_delay / total_read_count;
 				break;
 
 			case WRITE:
+			        total_write_delay += total_current_delay;
+			        total_current_delay = 0;
 				total_write_delay += delay;
 				break;
 
 			case ERASE:
+			        total_current_delay += delay;
 				break;
 
 			case GC_READ:
@@ -120,10 +129,14 @@ void SEND_TO_PERF_CHECKER(int op_type, int64_t op_delay, int type){
 	else if(type == REG_OP){
 		switch (op_type){
 			case READ:
+			        total_read_delay += total_current_delay;
+			        total_current_delay = 0;
 				total_read_delay += delay;
 				break;
 
 			case WRITE:
+			        total_write_delay += total_current_delay;
+			        total_current_delay = 0;
 				total_write_delay += delay;
 				total_write_count++;
 				avg_write_delay = total_write_delay / total_write_count;
@@ -133,6 +146,7 @@ void SEND_TO_PERF_CHECKER(int op_type, int64_t op_delay, int type){
 				break;
 
 			case ERASE:
+			        total_current_delay += delay;
 				written_page_nb -= PAGE_NB;
 				WRITE_LOG("ERASE 1");
 				break;
