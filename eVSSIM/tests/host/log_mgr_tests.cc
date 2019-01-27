@@ -426,7 +426,7 @@ namespace log_mgr_tests {
         TIME_MICROSEC(start);
         RegisterReadLog log = {
             .channel = 10,
-            .die = 15,
+            .flash = 15,
             .reg = 37,
             .metadata = {start, start+1}
         };
@@ -434,7 +434,7 @@ namespace log_mgr_tests {
         ASSERT_EQ(REGISTER_READ_LOG_UID, next_log_type(_logger));
         RegisterReadLog res = NEXT_REGISTER_READ_LOG(_logger);
         ASSERT_EQ(log.channel, res.channel);
-        ASSERT_EQ(log.die, res.die);
+        ASSERT_EQ(log.flash, res.flash);
         ASSERT_EQ(log.reg, res.reg);
     }
     /**
@@ -445,7 +445,7 @@ namespace log_mgr_tests {
         TIME_MICROSEC(start);
         RegisterWriteLog log = {
             .channel = 87013,
-            .die = 225034,
+            .flash = 225034,
             .reg = 4,
             .metadata = {start, start+1}
         };
@@ -453,7 +453,7 @@ namespace log_mgr_tests {
         ASSERT_EQ(REGISTER_WRITE_LOG_UID, next_log_type(_logger));
         RegisterWriteLog res = NEXT_REGISTER_WRITE_LOG(_logger);
         ASSERT_EQ(log.channel, res.channel);
-        ASSERT_EQ(log.die, res.die);
+        ASSERT_EQ(log.flash, res.flash);
         ASSERT_EQ(log.reg, res.reg);
     }
     /**
@@ -464,15 +464,16 @@ namespace log_mgr_tests {
         TIME_MICROSEC(start);
         BlockEraseLog log = {
             .channel = 6,
-            .die = 352,
+            .flash = 352,
             .block = 947,
+            .erased_pages = 1,
             .metadata = {start, start+1}
         };
         LOG_BLOCK_ERASE(_logger, log);
         ASSERT_EQ(BLOCK_ERASE_LOG_UID, next_log_type(_logger));
         BlockEraseLog res = NEXT_BLOCK_ERASE_LOG(_logger);
         ASSERT_EQ(log.channel, res.channel);
-        ASSERT_EQ(log.die, res.die);
+        ASSERT_EQ(log.flash, res.flash);
         ASSERT_EQ(log.block, res.block);
     }
     /**
