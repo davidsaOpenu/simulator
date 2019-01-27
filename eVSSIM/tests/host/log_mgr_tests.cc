@@ -188,11 +188,129 @@ namespace log_mgr_tests {
         }
     }
     /**
-     * Test reducing logger size and cleaning the logs
+     * Test cleaning logger if RT Analyzer didn't finish it's work
+     * on the current logger pool.
+     * log->rt_analyzer_done = false at this test.
+     * - make sure that logger_clean() doesn't clean any logs
+     */
+    TEST_P(LogMgrUnitTest, CleanRTAnalyzerNotDone)
+    {
+        Byte placeholder = 'x';
+        int number_of_free_logs;
+
+        // write full log
+        for (unsigned long int i = 0; i < ((LOG_SIZE * _logger->number_of_allocated_logs)); i++) {
+            ASSERT_EQ(0, logger_write(_logger, &placeholder, 1));
+        }
+
+        // save this number to make sure that logger clean function
+        // didn't had any affect
+        number_of_free_logs = _logger-> number_of_free_logs;
+
+        // test the logger_clean function
+        logger_clean(_logger);
+        ASSERT_EQ(_logger->number_of_free_logs, number_of_free_logs);
+    }
+    /**
+     * Test cleaning logger if Offline Analyzer didn't finish it's work
+     * on the current logger pool, but RT Analyzer did finish it's work.
+     * log->rt_analyzer_done = true and log->offline_analyzer_done = false
+     * at this test.
+     * - make sure that logger_clean() doesn't clean any logs
+     */
+    TEST_P(LogMgrUnitTest, CleanOfflineAnalyzerNotDone)
+    {
+        Byte placeholder = 'x';
+        char read_res[1];
+        int number_of_free_logs;
+
+        // write full log
+        for (unsigned long int i = 0; i < ((LOG_SIZE * _logger->number_of_allocated_logs)); i++) {
+            ASSERT_EQ(0, logger_write(_logger, &placeholder, 1));
+        }
+        // read full log
+        for (unsigned long int i = 0; i < (LOG_SIZE * _logger->number_of_allocated_logs); i++) {
+            ASSERT_EQ(1, logger_read(_logger, (Byte*)read_res, 1));
+        }
+
+        // save this number to make sure that logger clean function
+        // didn't had any affect
+        number_of_free_logs = _logger-> number_of_free_logs;
+
+        // test the logger_clean function
+        logger_clean(_logger);
+        ASSERT_EQ(_logger->number_of_free_logs, number_of_free_logs);
+    }
+    /**
+     * Test cleaning half of the logs
+     * - make sure that exectly half of the logs are cleaned
+     *   the rest of the logs should not be valid for cleaning
+     */
+    TEST_P(LogMgrUnitTest, CleanHalfOfTheLogger)
+    {
+        Byte placeholder = 'x';
+        char read_res[1];
+        Log* log;
+
+        // write full log
+        for (unsigned long int i = 0; i < ((LOG_SIZE * _logger->number_of_allocated_logs)); i++) {
+            ASSERT_EQ(0, logger_write(_logger, &placeholder, 1));
+        }
+
+        // read half log
+        for (unsigned long int i = 0; i < ((LOG_SIZE * _logger->number_of_allocated_logs)/2); i++) {
+            ASSERT_EQ(1, logger_read(_logger, (Byte*)read_res, 1));
+        }
+
+        // mark half of the logs as being done analyzing by the offline analyzer
+        log = _logger->dummy_log->next;
+        for(int i = 0; (i < (_logger->number_of_allocated_logs/2)) && (log != _logger->dummy_log); i++) {
+            log->offline_analyzer_done = true;
+            log = log->next;
+        }
+
+        // test number of free logs before executing logger_clean
+        ASSERT_EQ(_logger->number_of_free_logs, 1);
+
+        // test the logger_clean() function
+        logger_clean(_logger);
+        ASSERT_EQ(_logger->number_of_free_logs, ((_logger->number_of_allocated_logs/2)+1));
+    }
+    /**
+     * Test reducing logger size without sleep
      *  - make sure logger_reduce_size() function works
      *  - make sure logger_clean() function works
      */
-    TEST_P(LogMgrUnitTest, CleanReduceLogger)
+    TEST_P(LogMgrUnitTest, ReduceLoggerWithNoSleep)
+    {
+        Byte placeholder = 'x';
+        char read_res[1];
+        int logger_size_before_reduce;
+
+        // write full log
+        for (unsigned long int i = 0; i < ((LOG_SIZE * _logger->number_of_allocated_logs)); i++) {
+            ASSERT_EQ(0, logger_write(_logger, &placeholder, 1));
+        }
+        // read full log
+        for (unsigned long int i = 0; i < (LOG_SIZE * _logger->number_of_allocated_logs); i++) {
+            ASSERT_EQ(1, logger_read(_logger, (Byte*)read_res, 1));
+        }
+
+        // save current number of logs before reduction
+        logger_size_before_reduce = _logger->current_number_of_logs;
+
+        // try to reduce logger size without a sleep
+        // logger_reduce_size should not reduce any logs
+        // on this test
+        logger_reduce_size(_logger);
+        ASSERT_EQ(logger_size_before_reduce, _logger->current_number_of_logs);
+    }
+    /**
+     * Test reducing logger size and cleaning the logs with sleep
+     *  - make sure logger_reduce_size() function works
+     *  - make sure logger_clean() function works
+     */
+    TEST_P(LogMgrUnitTest, CleanReduceOneLogWithSleep)
     {
         Byte placeholder = 'x';
         char read_res[1];
@@ -208,30 +326,88 @@ namespace log_mgr_tests {
             ASSERT_EQ(1, logger_read(_logger, (Byte*)read_res, 1));
         }
 
-        // try to reduce logger size with out a sleep
-        // logger_reduce_size should not reduce any logs
-        // on this test
-        logger_reduce_size(_logger);
-        logger_size_before_reduce = _logger->current_number_of_logs;
-        ASSERT_EQ(logger_size_before_reduce, _logger->current_number_of_logs);
-
         // sleep for LOG_MAX_UNUSED_TIME_SECONDS to test
-        // logger_reduce_size function
-        logger_size_before_reduce = _logger->current_number_of_logs;
         sleep(LOG_MAX_UNUSED_TIME_SECONDS+1);
+
+        // mark all logs as being done analyzing by the offline analyzer
         log = _logger->dummy_log->next;
         while( log != _logger->dummy_log)
         {
             log->offline_analyzer_done = true;
             log = log->next;
         }
+
+        // save current number of logs before reduction
+        logger_size_before_reduce = _logger->current_number_of_logs;
+
+        // try to reduce the size of the logger
+        // there should have been allocated one extra log
+        // check that it is reduced
         logger_reduce_size(_logger);
         ASSERT_EQ(logger_size_before_reduce-1, _logger->current_number_of_logs);
 
-        // test the logger_clean function
+        // test number of free logs before executing logger_clean
+        ASSERT_EQ(_logger->number_of_free_logs, 1);
+
+        // test the logger_clean() function.
+        // number of free logs after the clean should equal number of allocated logs
+        // because all logs have been written to and read by both the RT and Offline
+        // analyzers
         logger_clean(_logger);
-        ASSERT_EQ(_logger->number_of_free_logs, _logger->current_number_of_logs);
+        ASSERT_EQ(_logger->number_of_free_logs, _logger->number_of_allocated_logs);
     }
+    /**
+     * Test reducing multipule number of logs
+     *  - make sure logger_reduce_size() function works
+     *  - make sure logger_clean() function works
+     */
+    TEST_P(LogMgrUnitTest, CleanReduceMultipuleLogsWithSleep)
+    {
+        Byte placeholder = 'x';
+        char read_res[1];
+        int logger_size_before_reduce;
+        Log* log;
+
+        // write full log
+        for (unsigned long int i = 0; i < ((2 * LOG_SIZE * _logger->number_of_allocated_logs)); i++) {
+            ASSERT_EQ(0, logger_write(_logger, &placeholder, 1));
+        }
+        // read full log
+        for (unsigned long int i = 0; i < (2 * LOG_SIZE * _logger->number_of_allocated_logs); i++) {
+            ASSERT_EQ(1, logger_read(_logger, (Byte*)read_res, 1));
+        }
+
+        // sleep for LOG_MAX_UNUSED_TIME_SECONDS to test
+        sleep(LOG_MAX_UNUSED_TIME_SECONDS+1);
+
+        // mark all logs as being done analyzing by the offline analyzer
+        log = _logger->dummy_log->next;
+        while( log != _logger->dummy_log)
+        {
+            log->offline_analyzer_done = true;
+            log = log->next;
+        }
+
+        // save current number of logs before reduction
+        logger_size_before_reduce = _logger->current_number_of_logs;
+
+        // try to reduce the size of the logger
+        // there should have been allocated 2*number_of_originally_allocated extra logs
+        // check that they are all reduced
+        logger_reduce_size(_logger);
+        ASSERT_EQ(((logger_size_before_reduce-1)/2), _logger->current_number_of_logs);
+
+        // test number of free logs before executing logger_clean
+        ASSERT_EQ(_logger->number_of_free_logs, 1);
+
+        // test the logger_clean() function.
+        // number of free logs after the clean should equal number of allocated logs
+        // because all logs have been written to and read by both the RT and Offline
+        // analyzers
+        logger_clean(_logger);
+        ASSERT_EQ(_logger->number_of_free_logs, _logger->number_of_allocated_logs);
+    }
+
     /**
      * Test filling up the log and then writting more data:
      * - make sure filling up the buffer returns zero

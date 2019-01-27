@@ -196,7 +196,7 @@ void logger_free(Logger_Pool* logger_pool);
 void logger_reduce_size(Logger_Pool* logger_pool);
 
 /**
- * Clean log's that was wriiten to and read by
+ * Clean logs that were written and read by
  * the real time analyzer and the offline analyzer
  * logger_clean() must be called after logger_reduce_size() for the
  * reduction of the logger size to have affect

@@ -25,20 +25,23 @@
 
 /**
  * Return the number of empty bytes in the log
- * @param {Log*} log to chcek
+ * @param {Log*} log to check
  * @return the number of empty bytes in the log
  */
 #define NUMBER_OF_BYTES_TO_WRITE(log) (LOG_SIZE - (log->head - log->buffer))
 
 /**
  * Return the number of full bytes that left to read in the log
- * @param {Log*} log to chcek
+ * @param {Log*} log to check
  * @return the number of full bytes that left to read in the log
  */
 #define NUMBER_OF_BYTES_TO_READ(log) (LOG_SIZE - (log->tail - log->buffer))
 
 /**
- *
+ * Return true if current number of allocated logs in the logger pool
+ * bigger then the number of allocated logs
+ * @param {Logger_Pool*} logger pool to test if can reduce number of allocated logs
+ * @return true if can reduce number of logs false otherwise
  */
 #define REDUCE_LOGGER_POOL(logger_pool) \
     ((logger_pool->current_number_of_logs > logger_pool->number_of_allocated_logs) ? true : false)
@@ -347,7 +350,6 @@ void logger_reduce_size(Logger_Pool* logger_pool) {
 
     // unlock logger pool
     pthread_mutex_unlock(&logger_pool->lock);
-
 }
 
 void logger_clean(Logger_Pool* logger_pool) {
