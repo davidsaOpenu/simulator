@@ -126,6 +126,24 @@
     },
     {
       "key": {
+        "uuid": "dc668b62_37a81782",
+        "filename": "eVSSIM/LOG_MGR/logging_backend.c",
+        "patchSetId": 5
+      },
+      "lineNbr": 237,
+      "author": {
+        "id": 1007990
+      },
+      "writtenOn": "2019-01-27T15:21:15Z",
+      "side": 1,
+      "message": "If you are implementing internal commands that say write command enlarged the number of occupied pages by 1 page, there is no need to extract particular field. So it depends on your implementation and seems that there is no need in this change at all.",
+      "parentUuid": "3ae454af_62e5c7ab",
+      "revId": "c020fe3cdef1cf1a83645a30cfcba559af74d168",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "a3d02f30_c81b38f8",
         "filename": "eVSSIM/LOG_MGR/logging_backend.h",
         "patchSetId": 5
