@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "e5129403_e5882b5e",
+        "filename": "eVSSIM/FTL_SOURCE/PERF_MODULE/ftl_perf_manager.c",
+        "patchSetId": 5
+      },
+      "lineNbr": 149,
+      "author": {
+        "id": 1007990
+      },
+      "writtenOn": "2019-01-27T15:26:44Z",
+      "side": 1,
+      "message": "Could you please explain what are you trying to do here? Looks hard to maintain/expand because it requires some taking in account what happens in all permutations of the commands",
+      "range": {
+        "startLine": 48,
+        "startChar": 0,
+        "endLine": 149,
+        "endChar": 40
+      },
+      "revId": "95e8386eec65c7a178d2f6d871ca4ad33a4106f4",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    }
+  ]
+}
