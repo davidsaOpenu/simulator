@@ -19,7 +19,6 @@ extern "C" {
 #include "common.h"
 }
 bool g_ci_mode = false;
-bool g_monitor_mode = false;
 bool g_server_mode = false;
 
 #include "rt_analyzer_subscriber.h"
@@ -73,20 +72,9 @@ namespace log_mgr_tests {
                     printf("Browse to http://127.0.0.1:%d/ to see the statistics\n",
                             LOG_SERVER_PORT);
                 }
-
-                if (g_monitor_mode) {
-                    pthread_create(&_monitor, NULL, run_monitor, NULL);
-                    printf("Monitor opened\n");
-                }
             }
 
             virtual void TearDown() {
-
-                if (g_monitor_mode) {
-                    printf("Waiting for monitor to close...\n");
-                    pthread_join(_monitor, NULL);
-                    printf("Monitor closed\n");
-                }
 
                 if (g_server_mode) {
                     printf("Waiting for server to close...\n");
@@ -512,8 +500,6 @@ namespace log_mgr_tests {
     TEST_P(LogMgrUnitTest, BasicRTAnalyzer) {
         RTLogAnalyzer* analyzer = rt_log_analyzer_init(_logger);
         rt_subscriber::subscribe(analyzer);
-        if (g_monitor_mode)
-            rt_log_analyzer_subscribe(analyzer, update_stats, NULL);
         if (g_server_mode)
             rt_log_analyzer_subscribe(analyzer, log_server_update, NULL);
         rt_subscriber::write();
@@ -559,8 +545,6 @@ namespace log_mgr_tests {
     TEST_P(LogMgrUnitTest, BasicLogManager) {
         LogManager* manager = log_manager_init();
         manager_subscriber::init(manager);
-        if (g_monitor_mode)
-            log_manager_subscribe(manager, update_stats, NULL);
         if (g_server_mode)
             log_manager_subscribe(manager, log_server_update, NULL);
         manager_subscriber::run();
@@ -581,9 +565,6 @@ int main(int argc, char **argv) {
     for (int i = 0; i < argc; i++) {
         if (strcmp(argv[i], "--ci") == 0) {
             g_ci_mode = true;
-        }
-        else if (strcmp(argv[i], "--show-monitor") == 0) {
-            g_monitor_mode = true;
         }
         else if (strcmp(argv[i], "--run-server") == 0) {
             g_server_mode = true;
