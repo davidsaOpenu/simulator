@@ -1,0 +1,209 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "e4f2a4b8_d589555b",
+        "filename": "eVSSIM/LOG_MGR/logging_backend.h",
+        "patchSetId": 1
+      },
+      "lineNbr": 199,
+      "author": {
+        "id": 1007990
+      },
+      "writtenOn": "2019-01-28T11:30:21Z",
+      "side": 1,
+      "message": "should it be \"Clean logs that were written and read by\"?",
+      "range": {
+        "startLine": 199,
+        "startChar": 4,
+        "endLine": 199,
+        "endChar": 46
+      },
+      "revId": "efda2494cd18c1301418996ffc70bc2951139c77",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "c81cba4c_61e4ed96",
+        "filename": "eVSSIM/tests/host/log_mgr_tests.cc",
+        "patchSetId": 1
+      },
+      "lineNbr": 203,
+      "author": {
+        "id": 1007990
+      },
+      "writtenOn": "2019-01-28T11:30:21Z",
+      "side": 1,
+      "message": "Worth testing that logger-\u003enumber_of_allocated_logs is X (ge then 1) before logger clean.",
+      "revId": "efda2494cd18c1301418996ffc70bc2951139c77",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "33a311b7_6f10bb8f",
+        "filename": "eVSSIM/tests/host/log_mgr_tests.cc",
+        "patchSetId": 1
+      },
+      "lineNbr": 225,
+      "author": {
+        "id": 1007990
+      },
+      "writtenOn": "2019-01-28T11:30:21Z",
+      "side": 1,
+      "message": "Seems that this test is more general then the one in line 195. Why we need the one in line 195? Looks like I\u0027m missing something.",
+      "range": {
+        "startLine": 218,
+        "startChar": 0,
+        "endLine": 225,
+        "endChar": 9
+      },
+      "revId": "efda2494cd18c1301418996ffc70bc2951139c77",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "c8b70493_38c92a89",
+        "filename": "eVSSIM/tests/host/log_mgr_tests.cc",
+        "patchSetId": 1
+      },
+      "lineNbr": 226,
+      "author": {
+        "id": 1007990
+      },
+      "writtenOn": "2019-01-28T11:30:21Z",
+      "side": 1,
+      "message": "Worth testing that logger-\u003enumber_of_allocated_logs is X (ge then 1) before logger clean.",
+      "revId": "efda2494cd18c1301418996ffc70bc2951139c77",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "5a971ec1_bd24114c",
+        "filename": "eVSSIM/tests/host/log_mgr_tests.cc",
+        "patchSetId": 1
+      },
+      "lineNbr": 258,
+      "author": {
+        "id": 1007990
+      },
+      "writtenOn": "2019-01-28T11:30:21Z",
+      "side": 1,
+      "message": "same. Let\u0027s addd validation before the logger_clean fucntion as well",
+      "revId": "efda2494cd18c1301418996ffc70bc2951139c77",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "ae398072_fb2385bb",
+        "filename": "eVSSIM/tests/host/log_mgr_tests.cc",
+        "patchSetId": 1
+      },
+      "lineNbr": 285,
+      "author": {
+        "id": 1007990
+      },
+      "writtenOn": "2019-01-28T11:30:21Z",
+      "side": 1,
+      "message": "same. Let\u0027s addd validation before the logger_clean fucntion as well",
+      "revId": "efda2494cd18c1301418996ffc70bc2951139c77",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "1cab5a9f_337811ef",
+        "filename": "eVSSIM/tests/host/log_mgr_tests.cc",
+        "patchSetId": 1
+      },
+      "lineNbr": 289,
+      "author": {
+        "id": 1007990
+      },
+      "writtenOn": "2019-01-28T11:30:21Z",
+      "side": 1,
+      "message": "good one!",
+      "range": {
+        "startLine": 286,
+        "startChar": 0,
+        "endLine": 289,
+        "endChar": 27
+      },
+      "revId": "efda2494cd18c1301418996ffc70bc2951139c77",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "3cab07e2_8da9b438",
+        "filename": "eVSSIM/tests/host/log_mgr_tests.cc",
+        "patchSetId": 1
+      },
+      "lineNbr": 326,
+      "author": {
+        "id": 1007990
+      },
+      "writtenOn": "2019-01-28T11:30:21Z",
+      "side": 1,
+      "message": "same. Let\u0027s addd validation before the logger_clean fucntion as well",
+      "revId": "efda2494cd18c1301418996ffc70bc2951139c77",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "d37a74f5_06a47fce",
+        "filename": "eVSSIM/tests/host/log_mgr_tests.cc",
+        "patchSetId": 1
+      },
+      "lineNbr": 330,
+      "author": {
+        "id": 1007990
+      },
+      "writtenOn": "2019-01-28T11:30:21Z",
+      "side": 1,
+      "message": "same. Let\u0027s addd validation before the logger_clean fucntion as well",
+      "revId": "efda2494cd18c1301418996ffc70bc2951139c77",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fd3bfe1a_8e727e0d",
+        "filename": "eVSSIM/tests/host/log_mgr_tests.cc",
+        "patchSetId": 1
+      },
+      "lineNbr": 369,
+      "author": {
+        "id": 1007990
+      },
+      "writtenOn": "2019-01-28T11:30:21Z",
+      "side": 1,
+      "message": "same. Let\u0027s addd validation before the logger_clean fucntion as well",
+      "revId": "efda2494cd18c1301418996ffc70bc2951139c77",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "d7b3ee71_d0a1b6fa",
+        "filename": "eVSSIM/tests/host/log_mgr_tests.cc",
+        "patchSetId": 1
+      },
+      "lineNbr": 373,
+      "author": {
+        "id": 1007990
+      },
+      "writtenOn": "2019-01-28T11:30:21Z",
+      "side": 1,
+      "message": "same. Let\u0027s addd validation before the logger_clean fucntion as well",
+      "revId": "efda2494cd18c1301418996ffc70bc2951139c77",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    }
+  ]
+}
