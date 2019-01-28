@@ -22,6 +22,30 @@
       "revId": "95e8386eec65c7a178d2f6d871ca4ad33a4106f4",
       "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "3f156ecd_74143258",
+        "filename": "eVSSIM/FTL_SOURCE/PERF_MODULE/ftl_perf_manager.c",
+        "patchSetId": 5
+      },
+      "lineNbr": 149,
+      "author": {
+        "id": 1014550
+      },
+      "writtenOn": "2019-01-28T05:48:44Z",
+      "side": 1,
+      "message": "I trying to imitate the calculations at loop: eVSSIM/LOG_MGR/logging_rt_analyzer.c where block erase added to \"current delay sum\", then, on write / read page the sum of \"current delay sum\" added to \"write delay sum\" or \"read delay sum\"",
+      "parentUuid": "e5129403_e5882b5e",
+      "range": {
+        "startLine": 48,
+        "startChar": 0,
+        "endLine": 149,
+        "endChar": 40
+      },
+      "revId": "95e8386eec65c7a178d2f6d871ca4ad33a4106f4",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
     }
   ]
 }
