@@ -48,6 +48,54 @@
     },
     {
       "key": {
+        "uuid": "fc8fe09a_b6522921",
+        "filename": "eVSSIM/FTL_SOURCE/PAGE_MAP/ftl_gc_manager.h",
+        "patchSetId": 7
+      },
+      "lineNbr": 20,
+      "author": {
+        "id": 1014550
+      },
+      "writtenOn": "2019-01-28T14:27:34Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "f55daa6c_18b7383c",
+      "range": {
+        "startLine": 20,
+        "startChar": 27,
+        "endLine": 20,
+        "endChar": 71
+      },
+      "revId": "d82e6ce99b8bfdc337bc5bed4c00d925daf32608",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "a605c4ef_be233636",
+        "filename": "eVSSIM/FTL_SOURCE/PAGE_MAP/ftl_gc_manager.h",
+        "patchSetId": 7
+      },
+      "lineNbr": 20,
+      "author": {
+        "id": 1014550
+      },
+      "writtenOn": "2019-01-28T14:27:34Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "4a6e4ec1_27068329",
+      "range": {
+        "startLine": 20,
+        "startChar": 5,
+        "endLine": 20,
+        "endChar": 26
+      },
+      "revId": "d82e6ce99b8bfdc337bc5bed4c00d925daf32608",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "193000b2_30e3bc98",
         "filename": "eVSSIM/FTL_SOURCE/PAGE_MAP/ftl_gc_manager.h",
         "patchSetId": 7
@@ -71,6 +119,30 @@
     },
     {
       "key": {
+        "uuid": "1a148c86_4d193e36",
+        "filename": "eVSSIM/FTL_SOURCE/PAGE_MAP/ftl_gc_manager.h",
+        "patchSetId": 7
+      },
+      "lineNbr": 24,
+      "author": {
+        "id": 1014550
+      },
+      "writtenOn": "2019-01-28T14:27:34Z",
+      "side": 1,
+      "message": "Fixed",
+      "parentUuid": "193000b2_30e3bc98",
+      "range": {
+        "startLine": 24,
+        "startChar": 5,
+        "endLine": 24,
+        "endChar": 29
+      },
+      "revId": "d82e6ce99b8bfdc337bc5bed4c00d925daf32608",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "4e29342e_06b5090a",
         "filename": "eVSSIM/FTL_SOURCE/PAGE_MAP/ftl_gc_manager.h",
         "patchSetId": 7
@@ -82,6 +154,30 @@
       "writtenOn": "2019-01-28T08:28:21Z",
       "side": 1,
       "message": "What is the difference bw GARBAGE_COLLECTION_DEFAULT  and  GARBAGE_COLLECTION? Please resolve the confusion opting for better naming.",
+      "range": {
+        "startLine": 30,
+        "startChar": 0,
+        "endLine": 33,
+        "endChar": 81
+      },
+      "revId": "d82e6ce99b8bfdc337bc5bed4c00d925daf32608",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "42d6f915_5fe996e0",
+        "filename": "eVSSIM/FTL_SOURCE/PAGE_MAP/ftl_gc_manager.h",
+        "patchSetId": 7
+      },
+      "lineNbr": 33,
+      "author": {
+        "id": 1014550
+      },
+      "writtenOn": "2019-01-28T14:27:34Z",
+      "side": 1,
+      "message": "Fixed",
+      "parentUuid": "4e29342e_06b5090a",
       "range": {
         "startLine": 30,
         "startChar": 0,
