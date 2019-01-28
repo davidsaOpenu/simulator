@@ -25,6 +25,30 @@
     },
     {
       "key": {
+        "uuid": "b66f9c15_c1e9ff64",
+        "filename": "eVSSIM/LOG_MGR/logging_backend.h",
+        "patchSetId": 1
+      },
+      "lineNbr": 199,
+      "author": {
+        "id": 1011209
+      },
+      "writtenOn": "2019-01-28T18:48:41Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "e4f2a4b8_d589555b",
+      "range": {
+        "startLine": 199,
+        "startChar": 4,
+        "endLine": 199,
+        "endChar": 46
+      },
+      "revId": "efda2494cd18c1301418996ffc70bc2951139c77",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "c81cba4c_61e4ed96",
         "filename": "eVSSIM/tests/host/log_mgr_tests.cc",
         "patchSetId": 1
@@ -36,6 +60,24 @@
       "writtenOn": "2019-01-28T11:30:21Z",
       "side": 1,
       "message": "Worth testing that logger-\u003enumber_of_allocated_logs is X (ge then 1) before logger clean.",
+      "revId": "efda2494cd18c1301418996ffc70bc2951139c77",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "004a7492_369df641",
+        "filename": "eVSSIM/tests/host/log_mgr_tests.cc",
+        "patchSetId": 1
+      },
+      "lineNbr": 203,
+      "author": {
+        "id": 1011209
+      },
+      "writtenOn": "2019-01-28T18:48:41Z",
+      "side": 1,
+      "message": "logger clean should not affect the number of allocated logs. You probably meant to check that number of free logs is X, but number of free logs should be actually 1 after writing the full logger. I will save the number of free logs before the logger clean and compare this number to logger-\u003enumber_of_free_logs after the clean.",
+      "parentUuid": "c81cba4c_61e4ed96",
       "revId": "efda2494cd18c1301418996ffc70bc2951139c77",
       "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
       "unresolved": false
@@ -65,6 +107,30 @@
     },
     {
       "key": {
+        "uuid": "dfd14326_ab98fbde",
+        "filename": "eVSSIM/tests/host/log_mgr_tests.cc",
+        "patchSetId": 1
+      },
+      "lineNbr": 225,
+      "author": {
+        "id": 1011209
+      },
+      "writtenOn": "2019-01-28T18:48:41Z",
+      "side": 1,
+      "message": "They check 2 different things : \nCleanRTAnalyzerNotDone - checks that if the RT Analyzer is not done yet nothing will be cleaned from the logger pool. log-\u003ert_analyzer_done \u003d false here. \nCleanOfflineAnalyzerNotDone - does basically the same but here RT analyzer will allready finish it\u0027s work because we did full write and then read of the logger.log-\u003eoffline_analyzer_done \u003d false here but log-\u003ert_analyzer_done \u003d true. \n\nSo this two tests are not really the same and they test different stages that the system may be in.",
+      "parentUuid": "33a311b7_6f10bb8f",
+      "range": {
+        "startLine": 218,
+        "startChar": 0,
+        "endLine": 225,
+        "endChar": 9
+      },
+      "revId": "efda2494cd18c1301418996ffc70bc2951139c77",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "c8b70493_38c92a89",
         "filename": "eVSSIM/tests/host/log_mgr_tests.cc",
         "patchSetId": 1
@@ -76,6 +142,24 @@
       "writtenOn": "2019-01-28T11:30:21Z",
       "side": 1,
       "message": "Worth testing that logger-\u003enumber_of_allocated_logs is X (ge then 1) before logger clean.",
+      "revId": "efda2494cd18c1301418996ffc70bc2951139c77",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "31feba97_73f3033c",
+        "filename": "eVSSIM/tests/host/log_mgr_tests.cc",
+        "patchSetId": 1
+      },
+      "lineNbr": 226,
+      "author": {
+        "id": 1011209
+      },
+      "writtenOn": "2019-01-28T18:48:41Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "c8b70493_38c92a89",
       "revId": "efda2494cd18c1301418996ffc70bc2951139c77",
       "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
       "unresolved": false
@@ -99,6 +183,24 @@
     },
     {
       "key": {
+        "uuid": "90dd59f0_bf45f566",
+        "filename": "eVSSIM/tests/host/log_mgr_tests.cc",
+        "patchSetId": 1
+      },
+      "lineNbr": 258,
+      "author": {
+        "id": 1011209
+      },
+      "writtenOn": "2019-01-28T18:48:41Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "5a971ec1_bd24114c",
+      "revId": "efda2494cd18c1301418996ffc70bc2951139c77",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "ae398072_fb2385bb",
         "filename": "eVSSIM/tests/host/log_mgr_tests.cc",
         "patchSetId": 1
@@ -110,6 +212,24 @@
       "writtenOn": "2019-01-28T11:30:21Z",
       "side": 1,
       "message": "same. Let\u0027s addd validation before the logger_clean fucntion as well",
+      "revId": "efda2494cd18c1301418996ffc70bc2951139c77",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "3228b096_55cd6d2f",
+        "filename": "eVSSIM/tests/host/log_mgr_tests.cc",
+        "patchSetId": 1
+      },
+      "lineNbr": 285,
+      "author": {
+        "id": 1011209
+      },
+      "writtenOn": "2019-01-28T18:48:41Z",
+      "side": 1,
+      "message": "there is no logger_clean function here, only reduce. I am saving the number of current logs before trying to reduce and making sure that it is the same after the reduce.",
+      "parentUuid": "ae398072_fb2385bb",
       "revId": "efda2494cd18c1301418996ffc70bc2951139c77",
       "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
       "unresolved": false
@@ -156,6 +276,24 @@
     },
     {
       "key": {
+        "uuid": "2da0d4c6_b1f8c835",
+        "filename": "eVSSIM/tests/host/log_mgr_tests.cc",
+        "patchSetId": 1
+      },
+      "lineNbr": 326,
+      "author": {
+        "id": 1011209
+      },
+      "writtenOn": "2019-01-28T18:48:41Z",
+      "side": 1,
+      "message": "i am checking against logger_size_before_reduce which is saved before calling reduce().",
+      "parentUuid": "3cab07e2_8da9b438",
+      "revId": "efda2494cd18c1301418996ffc70bc2951139c77",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "d37a74f5_06a47fce",
         "filename": "eVSSIM/tests/host/log_mgr_tests.cc",
         "patchSetId": 1
@@ -167,6 +305,24 @@
       "writtenOn": "2019-01-28T11:30:21Z",
       "side": 1,
       "message": "same. Let\u0027s addd validation before the logger_clean fucntion as well",
+      "revId": "efda2494cd18c1301418996ffc70bc2951139c77",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "52f66596_58f9606d",
+        "filename": "eVSSIM/tests/host/log_mgr_tests.cc",
+        "patchSetId": 1
+      },
+      "lineNbr": 330,
+      "author": {
+        "id": 1011209
+      },
+      "writtenOn": "2019-01-28T18:48:41Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "d37a74f5_06a47fce",
       "revId": "efda2494cd18c1301418996ffc70bc2951139c77",
       "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
       "unresolved": false
@@ -190,6 +346,24 @@
     },
     {
       "key": {
+        "uuid": "abffe450_2f06b087",
+        "filename": "eVSSIM/tests/host/log_mgr_tests.cc",
+        "patchSetId": 1
+      },
+      "lineNbr": 369,
+      "author": {
+        "id": 1011209
+      },
+      "writtenOn": "2019-01-28T18:48:41Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "fd3bfe1a_8e727e0d",
+      "revId": "efda2494cd18c1301418996ffc70bc2951139c77",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "d7b3ee71_d0a1b6fa",
         "filename": "eVSSIM/tests/host/log_mgr_tests.cc",
         "patchSetId": 1
@@ -201,6 +375,24 @@
       "writtenOn": "2019-01-28T11:30:21Z",
       "side": 1,
       "message": "same. Let\u0027s addd validation before the logger_clean fucntion as well",
+      "revId": "efda2494cd18c1301418996ffc70bc2951139c77",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "09284f9b_bfdfc176",
+        "filename": "eVSSIM/tests/host/log_mgr_tests.cc",
+        "patchSetId": 1
+      },
+      "lineNbr": 373,
+      "author": {
+        "id": 1011209
+      },
+      "writtenOn": "2019-01-28T18:48:41Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "d7b3ee71_d0a1b6fa",
       "revId": "efda2494cd18c1301418996ffc70bc2951139c77",
       "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
       "unresolved": false
