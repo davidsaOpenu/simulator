@@ -46,6 +46,30 @@
       "revId": "95e8386eec65c7a178d2f6d871ca4ad33a4106f4",
       "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "0b4913f6_54c7712f",
+        "filename": "eVSSIM/FTL_SOURCE/PERF_MODULE/ftl_perf_manager.c",
+        "patchSetId": 5
+      },
+      "lineNbr": 149,
+      "author": {
+        "id": 1007990
+      },
+      "writtenOn": "2019-01-28T08:12:19Z",
+      "side": 1,
+      "message": "It requires  taking in account what happens in all permutations of the commands. And there are no tests for those permutations that test the correctness. I guess we need better solution or more work done on tests. This case switch is at the very core of the simulator and this code is looks very dangerous.",
+      "parentUuid": "3f156ecd_74143258",
+      "range": {
+        "startLine": 48,
+        "startChar": 0,
+        "endLine": 149,
+        "endChar": 40
+      },
+      "revId": "95e8386eec65c7a178d2f6d871ca4ad33a4106f4",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
     }
   ]
 }
