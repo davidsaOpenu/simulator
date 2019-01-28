@@ -144,6 +144,24 @@
     },
     {
       "key": {
+        "uuid": "1ce03a0a_e7616cf1",
+        "filename": "eVSSIM/LOG_MGR/logging_backend.c",
+        "patchSetId": 5
+      },
+      "lineNbr": 237,
+      "author": {
+        "id": 1014550
+      },
+      "writtenOn": "2019-01-28T14:28:21Z",
+      "side": 1,
+      "message": "Fixed",
+      "parentUuid": "dc668b62_37a81782",
+      "revId": "c020fe3cdef1cf1a83645a30cfcba559af74d168",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "a3d02f30_c81b38f8",
         "filename": "eVSSIM/LOG_MGR/logging_backend.h",
         "patchSetId": 5
