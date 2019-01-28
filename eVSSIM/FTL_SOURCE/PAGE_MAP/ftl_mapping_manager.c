@@ -7,6 +7,7 @@
 
 uint32_t* mapping_table;
 void* block_table_start;
+extern GCAlgorithm gc_algo;
 
 void INIT_MAPPING_TABLE(void)
 {
@@ -55,6 +56,11 @@ uint32_t GET_MAPPING_INFO(uint32_t lpn)
 }
 
 ftl_ret_val GET_NEW_PAGE(int mode, int mapping_index, uint32_t* ppn)
+{
+    return gc_algo.next_page(mode, mapping_index, ppn);
+}
+
+ftl_ret_val DEFAULT_NEXT_PAGE_ALGO(int mode, int mapping_index, uint32_t* ppn)
 {
 	empty_block_entry* curr_empty_block;
 
