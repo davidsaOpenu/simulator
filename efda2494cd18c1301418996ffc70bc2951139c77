@@ -84,6 +84,24 @@
     },
     {
       "key": {
+        "uuid": "8097c2da_d65a1bb4",
+        "filename": "eVSSIM/tests/host/log_mgr_tests.cc",
+        "patchSetId": 1
+      },
+      "lineNbr": 203,
+      "author": {
+        "id": 1007990
+      },
+      "writtenOn": "2019-01-29T20:39:58Z",
+      "side": 1,
+      "message": "I see. Great.",
+      "parentUuid": "004a7492_369df641",
+      "revId": "efda2494cd18c1301418996ffc70bc2951139c77",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "33a311b7_6f10bb8f",
         "filename": "eVSSIM/tests/host/log_mgr_tests.cc",
         "patchSetId": 1
@@ -119,6 +137,30 @@
       "side": 1,
       "message": "They check 2 different things : \nCleanRTAnalyzerNotDone - checks that if the RT Analyzer is not done yet nothing will be cleaned from the logger pool. log-\u003ert_analyzer_done \u003d false here. \nCleanOfflineAnalyzerNotDone - does basically the same but here RT analyzer will allready finish it\u0027s work because we did full write and then read of the logger.log-\u003eoffline_analyzer_done \u003d false here but log-\u003ert_analyzer_done \u003d true. \n\nSo this two tests are not really the same and they test different stages that the system may be in.",
       "parentUuid": "33a311b7_6f10bb8f",
+      "range": {
+        "startLine": 218,
+        "startChar": 0,
+        "endLine": 225,
+        "endChar": 9
+      },
+      "revId": "efda2494cd18c1301418996ffc70bc2951139c77",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "c0910d12_c0d68205",
+        "filename": "eVSSIM/tests/host/log_mgr_tests.cc",
+        "patchSetId": 1
+      },
+      "lineNbr": 225,
+      "author": {
+        "id": 1007990
+      },
+      "writtenOn": "2019-01-29T20:39:58Z",
+      "side": 1,
+      "message": "Thanks. I guess then it worth putting those explanations in the description of the CleanRTAnalyzerNotDone and CleanOfflineAnalyzerNotDone",
+      "parentUuid": "dfd14326_ab98fbde",
       "range": {
         "startLine": 218,
         "startChar": 0,
@@ -230,6 +272,24 @@
       "side": 1,
       "message": "there is no logger_clean function here, only reduce. I am saving the number of current logs before trying to reduce and making sure that it is the same after the reduce.",
       "parentUuid": "ae398072_fb2385bb",
+      "revId": "efda2494cd18c1301418996ffc70bc2951139c77",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "94b88c71_0bda3c51",
+        "filename": "eVSSIM/tests/host/log_mgr_tests.cc",
+        "patchSetId": 1
+      },
+      "lineNbr": 285,
+      "author": {
+        "id": 1007990
+      },
+      "writtenOn": "2019-01-29T20:39:58Z",
+      "side": 1,
+      "message": "Okie Dokie. Seems that this explanation is a better description of what is tested. Maybe it worth putting as a function description and to explain why this is the expected behavior?",
+      "parentUuid": "3228b096_55cd6d2f",
       "revId": "efda2494cd18c1301418996ffc70bc2951139c77",
       "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
       "unresolved": false
