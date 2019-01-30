@@ -1,0 +1,193 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "99002f5f_3946bd3c",
+        "filename": "eVSSIM/LOG_MGR/logging_rt_analyzer.c",
+        "patchSetId": 16
+      },
+      "lineNbr": 147,
+      "author": {
+        "id": 1007990
+      },
+      "writtenOn": "2019-01-30T05:35:11Z",
+      "side": 1,
+      "message": "Better something like this\nBlockEraseLog *bel \u003d NEXT_BLOCK_ERASE_LOG(analyzer-\u003elogger);\n\nbel-\u003eerazed_pages to avoid extra cycles if the struct becomes bigger.",
+      "revId": "622c29e17af5a3fd5762291a9a755b5d75a88750",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "edde8874_6a0fecb4",
+        "filename": "eVSSIM/tests/host/ssd_io_emulator_tests.cc",
+        "patchSetId": 16
+      },
+      "lineNbr": 76,
+      "author": {
+        "id": 1007990
+      },
+      "writtenOn": "2019-01-30T05:35:11Z",
+      "side": 1,
+      "message": "extra cycles. Seems that pointer to the struct can be easily used instead.",
+      "range": {
+        "startLine": 57,
+        "startChar": 0,
+        "endLine": 76,
+        "endChar": 5
+      },
+      "revId": "622c29e17af5a3fd5762291a9a755b5d75a88750",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "9dedaef8_3ded0985",
+        "filename": "eVSSIM/tests/host/ssd_io_emulator_tests.cc",
+        "patchSetId": 16
+      },
+      "lineNbr": 139,
+      "author": {
+        "id": 1007990
+      },
+      "writtenOn": "2019-01-30T05:35:11Z",
+      "side": 1,
+      "message": "Please add a description in a doxigen style.",
+      "revId": "622c29e17af5a3fd5762291a9a755b5d75a88750",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "d3e8555e_5dc423fe",
+        "filename": "eVSSIM/tests/host/ssd_io_emulator_tests.cc",
+        "patchSetId": 16
+      },
+      "lineNbr": 151,
+      "author": {
+        "id": 1007990
+      },
+      "writtenOn": "2019-01-30T05:35:11Z",
+      "side": 1,
+      "message": "Unnecessary computation. is not logical_page_writes \u003d\u003d FLASH_NB*BLOCK_NB*PAGE_NB? what is the reason for logical_page_writes++?",
+      "range": {
+        "startLine": 151,
+        "startChar": 20,
+        "endLine": 151,
+        "endChar": 39
+      },
+      "revId": "622c29e17af5a3fd5762291a9a755b5d75a88750",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "b607ba39_d4679ab3",
+        "filename": "eVSSIM/tests/host/ssd_io_emulator_tests.cc",
+        "patchSetId": 16
+      },
+      "lineNbr": 152,
+      "author": {
+        "id": 1007990
+      },
+      "writtenOn": "2019-01-30T05:35:11Z",
+      "side": 1,
+      "message": "what is the reason for this sleep here?",
+      "revId": "622c29e17af5a3fd5762291a9a755b5d75a88750",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "4a16cbb2_7604a3d3",
+        "filename": "eVSSIM/tests/host/ssd_io_emulator_tests.cc",
+        "patchSetId": 16
+      },
+      "lineNbr": 162,
+      "author": {
+        "id": 1007990
+      },
+      "writtenOn": "2019-01-30T05:35:11Z",
+      "side": 1,
+      "message": "Unnecessary computation.",
+      "range": {
+        "startLine": 162,
+        "startChar": 20,
+        "endLine": 162,
+        "endChar": 38
+      },
+      "revId": "622c29e17af5a3fd5762291a9a755b5d75a88750",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "321ed9ee_82cb4069",
+        "filename": "eVSSIM/tests/host/ssd_io_emulator_tests.cc",
+        "patchSetId": 16
+      },
+      "lineNbr": 414,
+      "author": {
+        "id": 1007990
+      },
+      "writtenOn": "2019-01-30T05:35:11Z",
+      "side": 1,
+      "message": "Unnecessary computation.",
+      "range": {
+        "startLine": 414,
+        "startChar": 20,
+        "endLine": 414,
+        "endChar": 34
+      },
+      "revId": "622c29e17af5a3fd5762291a9a755b5d75a88750",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "bdbb0640_e2105c1b",
+        "filename": "eVSSIM/tests/host/ssd_io_emulator_tests.cc",
+        "patchSetId": 16
+      },
+      "lineNbr": 419,
+      "author": {
+        "id": 1007990
+      },
+      "writtenOn": "2019-01-30T05:35:11Z",
+      "side": 1,
+      "message": "We need to check the expected value at the end rather then in every iteration.",
+      "range": {
+        "startLine": 418,
+        "startChar": 0,
+        "endLine": 419,
+        "endChar": 53
+      },
+      "revId": "622c29e17af5a3fd5762291a9a755b5d75a88750",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "7662cac5_b1023cae",
+        "filename": "eVSSIM/tests/host/ssd_io_emulator_tests.cc",
+        "patchSetId": 16
+      },
+      "lineNbr": 431,
+      "author": {
+        "id": 1007990
+      },
+      "writtenOn": "2019-01-30T05:35:11Z",
+      "side": 1,
+      "message": "same here",
+      "range": {
+        "startLine": 431,
+        "startChar": 0,
+        "endLine": 431,
+        "endChar": 49
+      },
+      "revId": "622c29e17af5a3fd5762291a9a755b5d75a88750",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    }
+  ]
+}
