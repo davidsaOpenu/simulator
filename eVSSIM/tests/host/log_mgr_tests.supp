@@ -1,0 +1,210 @@
+{
+   <insert_a_suppression_name_here>
+   Memcheck:Leak
+   match-leak-kinds: definite
+   fun:malloc
+   fun:NEXT_GARBAGE_COLLECTION_LOG
+   fun:_ZN13log_mgr_tests37LogMgrUnitTest_GarbageCollection_Test8TestBodyEv
+   fun:_ZN7testing8internal38HandleSehExceptionsInMethodIfSupportedINS_4TestEvEET0_PT_MS4_FS3_vEPKc
+   fun:_ZN7testing8internal35HandleExceptionsInMethodIfSupportedINS_4TestEvEET0_PT_MS4_FS3_vEPKc
+   fun:_ZN7testing4Test3RunEv
+   fun:_ZN7testing8TestInfo3RunEv
+   fun:_ZN7testing8TestCase3RunEv
+   fun:_ZN7testing8internal12UnitTestImpl11RunAllTestsEv
+   fun:_ZN7testing8internal38HandleSehExceptionsInMethodIfSupportedINS0_12UnitTestImplEbEET0_PT_MS4_FS3_vEPKc
+   fun:_ZN7testing8internal35HandleExceptionsInMethodIfSupportedINS0_12UnitTestImplEbEET0_PT_MS4_FS3_vEPKc
+   fun:_ZN7testing8UnitTest3RunEv
+}
+{
+   <insert_a_suppression_name_here>
+   Memcheck:Leak
+   match-leak-kinds: possible
+   fun:malloc
+   fun:realloc
+   fun:g_realloc
+   obj:/usr/lib/x86_64-linux-gnu/libgobject-2.0.so.0.4002.0
+   fun:g_type_register_static
+   fun:g_type_plugin_get_type
+   obj:/usr/lib/x86_64-linux-gnu/libgobject-2.0.so.0.4002.0
+   fun:call_init.part.0
+   fun:call_init
+   fun:_dl_init
+   obj:/lib/x86_64-linux-gnu/ld-2.19.so
+}
+{
+   <insert_a_suppression_name_here>
+   Memcheck:Leak
+   match-leak-kinds: possible
+   fun:malloc
+   fun:realloc
+   fun:g_realloc
+   obj:/usr/lib/x86_64-linux-gnu/libgobject-2.0.so.0.4002.0
+   fun:g_type_register_static
+   fun:g_boxed_type_register_static
+   fun:g_value_array_get_type
+   obj:/usr/lib/x86_64-linux-gnu/libgobject-2.0.so.0.4002.0
+   obj:/usr/lib/x86_64-linux-gnu/libgobject-2.0.so.0.4002.0
+   fun:call_init.part.0
+   fun:call_init
+   fun:_dl_init
+   obj:/lib/x86_64-linux-gnu/ld-2.19.so
+}
+{
+   <insert_a_suppression_name_here>
+   Memcheck:Leak
+   match-leak-kinds: possible
+   fun:malloc
+   fun:realloc
+   fun:g_realloc
+   obj:/usr/lib/x86_64-linux-gnu/libgobject-2.0.so.0.4002.0
+   fun:g_type_register_static
+   fun:g_pointer_type_register_static
+   fun:g_gtype_get_type
+   obj:/usr/lib/x86_64-linux-gnu/libgobject-2.0.so.0.4002.0
+   obj:/usr/lib/x86_64-linux-gnu/libgobject-2.0.so.0.4002.0
+   fun:call_init.part.0
+   fun:call_init
+   fun:_dl_init
+   obj:/lib/x86_64-linux-gnu/ld-2.19.so
+}
+{
+   <insert_a_suppression_name_here>
+   Memcheck:Leak
+   match-leak-kinds: possible
+   fun:calloc
+   fun:g_malloc0
+   obj:/usr/lib/x86_64-linux-gnu/libgobject-2.0.so.0.4002.0
+   fun:g_type_register_fundamental
+   obj:/usr/lib/x86_64-linux-gnu/libgobject-2.0.so.0.4002.0
+   obj:/usr/lib/x86_64-linux-gnu/libgobject-2.0.so.0.4002.0
+   fun:call_init.part.0
+   fun:call_init
+   fun:_dl_init
+   obj:/lib/x86_64-linux-gnu/ld-2.19.so
+}
+{
+   <insert_a_suppression_name_here>
+   Memcheck:Leak
+   match-leak-kinds: possible
+   fun:malloc
+   fun:realloc
+   fun:g_realloc
+   obj:/usr/lib/x86_64-linux-gnu/libgobject-2.0.so.0.4002.0
+   fun:g_type_register_fundamental
+   obj:/usr/lib/x86_64-linux-gnu/libgobject-2.0.so.0.4002.0
+   obj:/usr/lib/x86_64-linux-gnu/libgobject-2.0.so.0.4002.0
+   fun:call_init.part.0
+   fun:call_init
+   fun:_dl_init
+   obj:/lib/x86_64-linux-gnu/ld-2.19.so
+}
+{
+   <insert_a_suppression_name_here>
+   Memcheck:Leak
+   match-leak-kinds: possible
+   fun:calloc
+   fun:g_malloc0
+   obj:/usr/lib/x86_64-linux-gnu/libgobject-2.0.so.0.4002.0
+   obj:/usr/lib/x86_64-linux-gnu/libgobject-2.0.so.0.4002.0
+   obj:/usr/lib/x86_64-linux-gnu/libgobject-2.0.so.0.4002.0
+   fun:call_init.part.0
+   fun:call_init
+   fun:_dl_init
+   obj:/lib/x86_64-linux-gnu/ld-2.19.so
+}
+{
+   <insert_a_suppression_name_here>
+   Memcheck:Leak
+   match-leak-kinds: possible
+   fun:calloc
+   fun:g_malloc0
+   obj:/usr/lib/x86_64-linux-gnu/libgobject-2.0.so.0.4002.0
+   obj:/usr/lib/x86_64-linux-gnu/libgobject-2.0.so.0.4002.0
+   fun:g_type_register_fundamental
+   obj:/usr/lib/x86_64-linux-gnu/libgobject-2.0.so.0.4002.0
+   obj:/usr/lib/x86_64-linux-gnu/libgobject-2.0.so.0.4002.0
+   fun:call_init.part.0
+   fun:call_init
+   fun:_dl_init
+   obj:/lib/x86_64-linux-gnu/ld-2.19.so
+}
+{
+   <insert_a_suppression_name_here>
+   Memcheck:Leak
+   match-leak-kinds: definite
+   fun:malloc
+   fun:NEXT_PHYSICAL_CELL_READ_LOG
+   fun:_ZN13log_mgr_tests36LogMgrUnitTest_PhysicalCellRead_Test8TestBodyEv
+   fun:_ZN7testing8internal38HandleSehExceptionsInMethodIfSupportedINS_4TestEvEET0_PT_MS4_FS3_vEPKc
+   fun:_ZN7testing8internal35HandleExceptionsInMethodIfSupportedINS_4TestEvEET0_PT_MS4_FS3_vEPKc
+   fun:_ZN7testing4Test3RunEv
+   fun:_ZN7testing8TestInfo3RunEv
+   fun:_ZN7testing8TestCase3RunEv
+   fun:_ZN7testing8internal12UnitTestImpl11RunAllTestsEv
+   fun:_ZN7testing8internal38HandleSehExceptionsInMethodIfSupportedINS0_12UnitTestImplEbEET0_PT_MS4_FS3_vEPKc
+   fun:_ZN7testing8internal35HandleExceptionsInMethodIfSupportedINS0_12UnitTestImplEbEET0_PT_MS4_FS3_vEPKc
+   fun:_ZN7testing8UnitTest3RunEv
+}
+{
+   <insert_a_suppression_name_here>
+   Memcheck:Leak
+   match-leak-kinds: definite
+   fun:malloc
+   fun:NEXT_PHYSICAL_CELL_PROGRAM_LOG
+   fun:_ZN13log_mgr_tests39LogMgrUnitTest_PhysicalCellProgram_Test8TestBodyEv
+   fun:_ZN7testing8internal38HandleSehExceptionsInMethodIfSupportedINS_4TestEvEET0_PT_MS4_FS3_vEPKc
+   fun:_ZN7testing8internal35HandleExceptionsInMethodIfSupportedINS_4TestEvEET0_PT_MS4_FS3_vEPKc
+   fun:_ZN7testing4Test3RunEv
+   fun:_ZN7testing8TestInfo3RunEv
+   fun:_ZN7testing8TestCase3RunEv
+   fun:_ZN7testing8internal12UnitTestImpl11RunAllTestsEv
+   fun:_ZN7testing8internal38HandleSehExceptionsInMethodIfSupportedINS0_12UnitTestImplEbEET0_PT_MS4_FS3_vEPKc
+   fun:_ZN7testing8internal35HandleExceptionsInMethodIfSupportedINS0_12UnitTestImplEbEET0_PT_MS4_FS3_vEPKc
+   fun:_ZN7testing8UnitTest3RunEv
+}
+{
+   <insert_a_suppression_name_here>
+   Memcheck:Leak
+   match-leak-kinds: definite
+   fun:malloc
+   fun:NEXT_LOGICAL_CELL_PROGRAM_LOG
+   fun:_ZN13log_mgr_tests38LogMgrUnitTest_LogicalCellProgram_Test8TestBodyEv
+   fun:_ZN7testing8internal38HandleSehExceptionsInMethodIfSupportedINS_4TestEvEET0_PT_MS4_FS3_vEPKc
+   fun:_ZN7testing8internal35HandleExceptionsInMethodIfSupportedINS_4TestEvEET0_PT_MS4_FS3_vEPKc
+   fun:_ZN7testing4Test3RunEv
+   fun:_ZN7testing8TestInfo3RunEv
+   fun:_ZN7testing8TestCase3RunEv
+   fun:_ZN7testing8internal12UnitTestImpl11RunAllTestsEv
+   fun:_ZN7testing8internal38HandleSehExceptionsInMethodIfSupportedINS0_12UnitTestImplEbEET0_PT_MS4_FS3_vEPKc
+   fun:_ZN7testing8internal35HandleExceptionsInMethodIfSupportedINS0_12UnitTestImplEbEET0_PT_MS4_FS3_vEPKc
+   fun:_ZN7testing8UnitTest3RunEv
+}
+{
+   <insert_a_suppression_name_here>
+   Memcheck:Leak
+   match-leak-kinds: possible
+   fun:calloc
+   fun:g_malloc0
+   obj:/usr/lib/x86_64-linux-gnu/libgobject-2.0.so.0.4002.0
+   obj:/usr/lib/x86_64-linux-gnu/libgobject-2.0.so.0.4002.0
+   fun:call_init.part.0
+   fun:call_init
+   fun:_dl_init
+   obj:/lib/x86_64-linux-gnu/ld-2.19.so
+}
+{
+   <insert_a_suppression_name_here>
+   Memcheck:Leak
+   match-leak-kinds: possible
+   fun:realloc
+   fun:g_realloc
+   obj:/usr/lib/x86_64-linux-gnu/libgobject-2.0.so.0.4002.0
+   fun:g_type_register_static
+   fun:g_param_type_register_static
+   obj:/usr/lib/x86_64-linux-gnu/libgobject-2.0.so.0.4002.0
+   obj:/usr/lib/x86_64-linux-gnu/libgobject-2.0.so.0.4002.0
+   fun:call_init.part.0
+   fun:call_init
+   fun:_dl_init
+   obj:/lib/x86_64-linux-gnu/ld-2.19.so
+}
