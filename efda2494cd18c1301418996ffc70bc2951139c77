@@ -173,6 +173,30 @@
     },
     {
       "key": {
+        "uuid": "3b01a6d9_0f67022b",
+        "filename": "eVSSIM/tests/host/log_mgr_tests.cc",
+        "patchSetId": 1
+      },
+      "lineNbr": 225,
+      "author": {
+        "id": 1011209
+      },
+      "writtenOn": "2019-01-30T20:00:28Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "c0910d12_c0d68205",
+      "range": {
+        "startLine": 218,
+        "startChar": 0,
+        "endLine": 225,
+        "endChar": 9
+      },
+      "revId": "efda2494cd18c1301418996ffc70bc2951139c77",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "c8b70493_38c92a89",
         "filename": "eVSSIM/tests/host/log_mgr_tests.cc",
         "patchSetId": 1
@@ -290,6 +314,24 @@
       "side": 1,
       "message": "Okie Dokie. Seems that this explanation is a better description of what is tested. Maybe it worth putting as a function description and to explain why this is the expected behavior?",
       "parentUuid": "3228b096_55cd6d2f",
+      "revId": "efda2494cd18c1301418996ffc70bc2951139c77",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "848b4e6a_6aed89d9",
+        "filename": "eVSSIM/tests/host/log_mgr_tests.cc",
+        "patchSetId": 1
+      },
+      "lineNbr": 285,
+      "author": {
+        "id": 1011209
+      },
+      "writtenOn": "2019-01-30T20:00:28Z",
+      "side": 1,
+      "message": "I gone over all the comments and tried to make them more clear. Hopefully all the comments are clear and helpful now.",
+      "parentUuid": "94b88c71_0bda3c51",
       "revId": "efda2494cd18c1301418996ffc70bc2951139c77",
       "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
       "unresolved": false
