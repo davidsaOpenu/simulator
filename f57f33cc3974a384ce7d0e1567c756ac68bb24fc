@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "3e807aa4_665b78bb",
+        "filename": "eVSSIM/LOG_MGR/logging_parser.c",
+        "patchSetId": 18
+      },
+      "lineNbr": 54,
+      "author": {
+        "id": 1007990
+      },
+      "writtenOn": "2019-02-01T09:13:19Z",
+      "side": 1,
+      "message": "Log manager allocates only log pools in big allocation requests, remember?",
+      "revId": "f57f33cc3974a384ce7d0e1567c756ac68bb24fc",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    }
+  ]
+}
