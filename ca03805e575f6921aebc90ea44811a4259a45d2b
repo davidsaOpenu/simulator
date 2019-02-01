@@ -46,6 +46,30 @@
       "revId": "ca03805e575f6921aebc90ea44811a4259a45d2b",
       "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "40cc606c_2f400be1",
+        "filename": "eVSSIM/FTL_SOURCE/PAGE_MAP/ftl_gc_manager.h",
+        "patchSetId": 8
+      },
+      "lineNbr": 23,
+      "author": {
+        "id": 1007990
+      },
+      "writtenOn": "2019-02-01T09:26:31Z",
+      "side": 1,
+      "message": "s/COLLETION/COLLECTION",
+      "parentUuid": "40488b51_d6f9118d",
+      "range": {
+        "startLine": 23,
+        "startChar": 5,
+        "endLine": 23,
+        "endChar": 22
+      },
+      "revId": "ca03805e575f6921aebc90ea44811a4259a45d2b",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
     }
   ]
 }
