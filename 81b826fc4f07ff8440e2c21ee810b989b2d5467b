@@ -2,6 +2,29 @@
   "comments": [
     {
       "key": {
+        "uuid": "e816d451_1678b174",
+        "filename": "/COMMIT_MSG",
+        "patchSetId": 3
+      },
+      "lineNbr": 7,
+      "author": {
+        "id": 1007990
+      },
+      "writtenOn": "2019-02-01T09:07:10Z",
+      "side": 1,
+      "message": "Have you also changed the treatment of compilation warning as errors for the log manager to get rid of the warnings?",
+      "range": {
+        "startLine": 7,
+        "startChar": 4,
+        "endLine": 7,
+        "endChar": 24
+      },
+      "revId": "81b826fc4f07ff8440e2c21ee810b989b2d5467b",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "eaaf9e9e_396c499c",
         "filename": "eVSSIM/tests/host/log_mgr_tests.supp",
         "patchSetId": 3
