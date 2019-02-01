@@ -1,0 +1,72 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "eaaf9e9e_396c499c",
+        "filename": "eVSSIM/tests/host/log_mgr_tests.supp",
+        "patchSetId": 3
+      },
+      "lineNbr": 7,
+      "author": {
+        "id": 1007990
+      },
+      "writtenOn": "2019-02-01T07:40:59Z",
+      "side": 1,
+      "message": "Not a libgoobj",
+      "revId": "81b826fc4f07ff8440e2c21ee810b989b2d5467b",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "a20be74e_beac4ac4",
+        "filename": "eVSSIM/tests/host/log_mgr_tests.supp",
+        "patchSetId": 3
+      },
+      "lineNbr": 136,
+      "author": {
+        "id": 1007990
+      },
+      "writtenOn": "2019-02-01T07:40:59Z",
+      "side": 1,
+      "message": "Not a libgoobj",
+      "revId": "81b826fc4f07ff8440e2c21ee810b989b2d5467b",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "b1f2ecb2_67394199",
+        "filename": "eVSSIM/tests/host/log_mgr_tests.supp",
+        "patchSetId": 3
+      },
+      "lineNbr": 153,
+      "author": {
+        "id": 1007990
+      },
+      "writtenOn": "2019-02-01T07:40:59Z",
+      "side": 1,
+      "message": "Not a libgoobj",
+      "revId": "81b826fc4f07ff8440e2c21ee810b989b2d5467b",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "e348d72a_b03378ba",
+        "filename": "eVSSIM/tests/host/log_mgr_tests.supp",
+        "patchSetId": 3
+      },
+      "lineNbr": 171,
+      "author": {
+        "id": 1007990
+      },
+      "writtenOn": "2019-02-01T07:40:59Z",
+      "side": 1,
+      "message": "Not a libgoobj",
+      "revId": "81b826fc4f07ff8440e2c21ee810b989b2d5467b",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": true
+    }
+  ]
+}
