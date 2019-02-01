@@ -16,6 +16,40 @@
       "revId": "f57f33cc3974a384ce7d0e1567c756ac68bb24fc",
       "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "51c01896_86fefae1",
+        "filename": "eVSSIM/LOG_MGR/logging_rt_analyzer.c",
+        "patchSetId": 18
+      },
+      "lineNbr": 115,
+      "author": {
+        "id": 1007990
+      },
+      "writtenOn": "2019-02-01T09:20:11Z",
+      "side": 1,
+      "message": "same with free in all those places. Malloc and free can\u0027t be used during the operation of the rt manager.",
+      "revId": "f57f33cc3974a384ce7d0e1567c756ac68bb24fc",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "55376c67_bd168da8",
+        "filename": "eVSSIM/tests/host/log_mgr_tests.cc",
+        "patchSetId": 18
+      },
+      "lineNbr": 439,
+      "author": {
+        "id": 1007990
+      },
+      "writtenOn": "2019-02-01T09:20:11Z",
+      "side": 1,
+      "message": "The need of to call \u0027free\u0027 after each withdrawal from the log is unaligned with the idea of rt log manager. You must get rid of the malloc.",
+      "revId": "f57f33cc3974a384ce7d0e1567c756ac68bb24fc",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
     }
   ]
 }
