@@ -218,9 +218,8 @@ int logger_read(Logger_Pool* logger_pool, Byte* buffer, int length) {
 
     while(number_of_bytes_to_read > 0)
     {
-        // if the log is not clean and the real time analyzer didn't
-        // finish to read from it
-        // we can read from it length bytes of data
+        // if the log is not clean and the real time analyzer have not
+        // finished to read from it then read length bytes of data
         if(!(log->clean) && !(log->rt_analyzer_done))
         {
             // check how many bytes left to read in this log

@@ -64,7 +64,7 @@ void offline_log_analyzer_loop(OfflineLogAnalyzer* analyzer) {
 
         // go into penalty timeoff after each iteration of the analyzer loop
         // in order to let the rt analyzer complete it's operation on more logs
-        (void)usleep(100000);
+        (void)usleep(OFFLINE_ANALYZER_LOOP_TIMEOUT_US);
     }
 
     analyzer->exit_loop_flag = 0;

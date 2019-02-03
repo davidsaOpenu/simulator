@@ -19,6 +19,12 @@
 
 #include "logging_parser.h"
 
+/*
+ * offline analyzer loop timeout in microsecond intervals
+ * used to not busy waiting
+ */
+#define OFFLINE_ANALYZER_LOOP_TIMEOUT_US 100000
+
 /**
  * The offline log analyzer structure
  */
@@ -35,14 +41,14 @@ typedef struct {
 
 /**
  * Create a new offline log analyzer
- * @param logger the logger pool to analyze
+ * @param logger_pool the logger pool to analyze
  * @return the newly created real time log analyzer
  */
 OfflineLogAnalyzer* offline_log_analyzer_init(Logger_Pool* logger_pool);
 
 /**
  * run the log analyzer
- * @param OfflineLogAnalyzer
+ * @param analyzer
  * @return NULL
  */
 void* offline_log_analyzer_run(void* analyzer);
