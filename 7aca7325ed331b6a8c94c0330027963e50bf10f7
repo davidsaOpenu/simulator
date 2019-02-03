@@ -25,6 +25,30 @@
     },
     {
       "key": {
+        "uuid": "65e070d1_45a8d022",
+        "filename": "eVSSIM/LOG_MGR/logging_backend.c",
+        "patchSetId": 11
+      },
+      "lineNbr": 219,
+      "author": {
+        "id": 1011209
+      },
+      "writtenOn": "2019-02-03T17:57:35Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "a4eeacaf_6661c72d",
+      "range": {
+        "startLine": 218,
+        "startChar": 62,
+        "endLine": 219,
+        "endChar": 16
+      },
+      "revId": "7aca7325ed331b6a8c94c0330027963e50bf10f7",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "a53f4375_07f9ff91",
         "filename": "eVSSIM/LOG_MGR/logging_offline_analyzer.c",
         "patchSetId": 11
@@ -36,6 +60,30 @@
       "writtenOn": "2018-12-14T07:01:01Z",
       "side": 1,
       "message": "1. let\u0027s define macro with meaningful name\n2. how this param correlates with 60 secs value of the LOG_MAX_UNUSED_TIME_SECONDS?",
+      "range": {
+        "startLine": 67,
+        "startChar": 21,
+        "endLine": 67,
+        "endChar": 27
+      },
+      "revId": "7aca7325ed331b6a8c94c0330027963e50bf10f7",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "16373702_8ed17e65",
+        "filename": "eVSSIM/LOG_MGR/logging_offline_analyzer.c",
+        "patchSetId": 11
+      },
+      "lineNbr": 67,
+      "author": {
+        "id": 1011209
+      },
+      "writtenOn": "2019-02-03T17:57:35Z",
+      "side": 1,
+      "message": "1.done.\n2. it does not correlate in any way. The idea behind this is to not busy wait.",
+      "parentUuid": "a53f4375_07f9ff91",
       "range": {
         "startLine": 67,
         "startChar": 21,
@@ -65,6 +113,24 @@
     },
     {
       "key": {
+        "uuid": "b371a526_6baafe72",
+        "filename": "eVSSIM/LOG_MGR/logging_offline_analyzer.c",
+        "patchSetId": 11
+      },
+      "lineNbr": 74,
+      "author": {
+        "id": 1011209
+      },
+      "writtenOn": "2019-02-03T17:57:35Z",
+      "side": 1,
+      "message": "Do you mean logger_free() ? if so i dont see what it is the responsibility of offline_log_analyzer_free(). the offline log analyzer gets a pointer to a Logger_Pool when initiated so trying to free it may not be a good idea because it didn\u0027t allocated the memory, and has no idea what is being done with this memory after the offline log analyzer is freed. \n\nIf we are talking about logger_clean() i dont see how can this help either or do any thing, because the logs will be cleaned only if they have been read by the RT analyzer and the offline analyzer and this conditions are not guaranteed here.",
+      "parentUuid": "912c04a6_7d9de35d",
+      "revId": "7aca7325ed331b6a8c94c0330027963e50bf10f7",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "e4542e27_155ed133",
         "filename": "eVSSIM/LOG_MGR/logging_offline_analyzer.h",
         "patchSetId": 11
@@ -76,6 +142,30 @@
       "writtenOn": "2018-12-14T07:01:01Z",
       "side": 1,
       "message": "s/logger/logger_pool",
+      "range": {
+        "startLine": 38,
+        "startChar": 10,
+        "endLine": 38,
+        "endChar": 16
+      },
+      "revId": "7aca7325ed331b6a8c94c0330027963e50bf10f7",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "714dbe59_875c6395",
+        "filename": "eVSSIM/LOG_MGR/logging_offline_analyzer.h",
+        "patchSetId": 11
+      },
+      "lineNbr": 38,
+      "author": {
+        "id": 1011209
+      },
+      "writtenOn": "2019-02-03T17:57:35Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "e4542e27_155ed133",
       "range": {
         "startLine": 38,
         "startChar": 10,
@@ -111,6 +201,30 @@
     },
     {
       "key": {
+        "uuid": "ed0e22fb_ac6a21f0",
+        "filename": "eVSSIM/LOG_MGR/logging_offline_analyzer.h",
+        "patchSetId": 11
+      },
+      "lineNbr": 45,
+      "author": {
+        "id": 1011209
+      },
+      "writtenOn": "2019-02-03T17:57:35Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "7bb8066a_81a9595d",
+      "range": {
+        "startLine": 45,
+        "startChar": 10,
+        "endLine": 45,
+        "endChar": 28
+      },
+      "revId": "7aca7325ed331b6a8c94c0330027963e50bf10f7",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "306cdfec_e582093b",
         "filename": "eVSSIM/LOG_MGR/logging_offline_analyzer.h",
         "patchSetId": 11
@@ -122,6 +236,30 @@
       "writtenOn": "2018-12-14T07:01:01Z",
       "side": 1,
       "message": "Do you have plans to extend and change the return value to some struct pointer? Maybe worth to change to void?",
+      "range": {
+        "startLine": 46,
+        "startChar": 2,
+        "endLine": 46,
+        "endChar": 15
+      },
+      "revId": "7aca7325ed331b6a8c94c0330027963e50bf10f7",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "08718b0d_277d063b",
+        "filename": "eVSSIM/LOG_MGR/logging_offline_analyzer.h",
+        "patchSetId": 11
+      },
+      "lineNbr": 46,
+      "author": {
+        "id": 1011209
+      },
+      "writtenOn": "2019-02-03T17:57:35Z",
+      "side": 1,
+      "message": "this function is passed as a parameter to pthread_create and because of that this is the type of the function. Same as void* rt_log_analyzer_run(void* analyzer);",
+      "parentUuid": "306cdfec_e582093b",
       "range": {
         "startLine": 46,
         "startChar": 2,
@@ -157,6 +295,30 @@
     },
     {
       "key": {
+        "uuid": "1c4aecad_6db19dee",
+        "filename": "eVSSIM/SSD_MODULE/ssd_log_manager.c",
+        "patchSetId": 11
+      },
+      "lineNbr": 138,
+      "author": {
+        "id": 1011209
+      },
+      "writtenOn": "2019-02-03T17:57:35Z",
+      "side": 1,
+      "message": "It doesn\u0027t really matters regarding aggregating data into ELK. ELK can deal with multiple sources of data and in this way it is easier to handle the existing logger pools for each FLASH.",
+      "parentUuid": "ac90238f_e2440579",
+      "range": {
+        "startLine": 138,
+        "startChar": 7,
+        "endLine": 138,
+        "endChar": 22
+      },
+      "revId": "7aca7325ed331b6a8c94c0330027963e50bf10f7",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "c41eb33d_2350a5b9",
         "filename": "eVSSIM/tests/guest/nvme_compliance_tests/test_nvme_compliance.py",
         "patchSetId": 11
@@ -180,6 +342,30 @@
     },
     {
       "key": {
+        "uuid": "6c1ae87c_2d0bdd45",
+        "filename": "eVSSIM/tests/guest/nvme_compliance_tests/test_nvme_compliance.py",
+        "patchSetId": 11
+      },
+      "lineNbr": 26,
+      "author": {
+        "id": 1011209
+      },
+      "writtenOn": "2019-02-03T17:57:35Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "c41eb33d_2350a5b9",
+      "range": {
+        "startLine": 26,
+        "startChar": 22,
+        "endLine": 26,
+        "endChar": 24
+      },
+      "revId": "7aca7325ed331b6a8c94c0330027963e50bf10f7",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "a0356beb_7471f8cd",
         "filename": "eVSSIM/tests/host/log_mgr_tests.cc",
         "patchSetId": 11
@@ -191,6 +377,30 @@
       "writtenOn": "2018-12-14T07:01:01Z",
       "side": 1,
       "message": "let\u0027s chat regarding those test cases. I think we need more scenarios to be simulated by the testsuite.",
+      "range": {
+        "startLine": 195,
+        "startChar": 27,
+        "endLine": 195,
+        "endChar": 44
+      },
+      "revId": "7aca7325ed331b6a8c94c0330027963e50bf10f7",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "cdd666b7_fab2f904",
+        "filename": "eVSSIM/tests/host/log_mgr_tests.cc",
+        "patchSetId": 11
+      },
+      "lineNbr": 195,
+      "author": {
+        "id": 1011209
+      },
+      "writtenOn": "2019-02-03T17:57:35Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "a0356beb_7471f8cd",
       "range": {
         "startLine": 195,
         "startChar": 27,
