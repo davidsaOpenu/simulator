@@ -30,8 +30,6 @@
 #define PAGES_IN_USEC_TO_MBS(x) \
     ((((double) (x)) * (GET_PAGE_SIZE()) * (SECOND_IN_USEC)) / (MEGABYTE_IN_BYTES))
 
-RTLogStatistics rt_log_stats;
-
 RTLogAnalyzer* rt_log_analyzer_init(Logger_Pool* logger) {
     RTLogAnalyzer* analyzer = (RTLogAnalyzer*) malloc(sizeof(RTLogAnalyzer));
     if (analyzer == NULL)
@@ -40,6 +38,7 @@ RTLogAnalyzer* rt_log_analyzer_init(Logger_Pool* logger) {
     analyzer->subscribers_count = 0;
     analyzer->exit_loop_flag = 0;
     analyzer->reset_flag = 0;
+
     return analyzer;
 }
 
@@ -61,19 +60,13 @@ void rt_log_analyzer_loop(RTLogAnalyzer* analyzer, int max_logs) {
     SSDStatistics stats = stats_init();
     SSDStatistics old_stats = stats_init();
 
-    // init additional variables
-    rt_log_stats.logical_write_count = 0;
-    rt_log_stats.write_wall_time = 0;
-    rt_log_stats.read_wall_time = 0;
-    rt_log_stats.current_wall_time = 0;
-    rt_log_stats.occupied_pages = 0;
-
     unsigned int subscriber_id;
 
     // run as long as necessary
     int first_loop = 1;
     int logs_read = 0;
     while (max_logs < 0 || logs_read < max_logs) {
+
         // read the log type, while listening to analyzer->exit_loop_flag
         int log_type;
         int bytes_read = 0;
@@ -89,9 +82,7 @@ void rt_log_analyzer_loop(RTLogAnalyzer* analyzer, int max_logs) {
                 old_stats = stats_init();
                 stats = stats_init();
                 stats.utilization = old_stats.utilization = util;
-                rt_log_stats.write_wall_time = 0;
-                rt_log_stats.read_wall_time = 0;
-                rt_log_stats.logical_write_count = 0;
+
                 for (subscriber_id = 0; subscriber_id < analyzer->subscribers_count; subscriber_id++)
                     analyzer->hooks[subscriber_id](stats, analyzer->hooks_ids[subscriber_id]);
             }
@@ -123,21 +114,21 @@ void rt_log_analyzer_loop(RTLogAnalyzer* analyzer, int max_logs) {
             case PHYSICAL_CELL_READ_LOG_UID:
                 NEXT_PHYSICAL_CELL_READ_LOG(analyzer->logger);
                 stats.read_count++;
-                rt_log_stats.current_wall_time += CELL_READ_DELAY;
-                rt_log_stats.read_wall_time += rt_log_stats.current_wall_time;
-                rt_log_stats.current_wall_time = 0;
+                stats.current_wall_time += CELL_READ_DELAY;
+                stats.read_wall_time += stats.current_wall_time;
+                stats.current_wall_time = 0;
                 break;
             case PHYSICAL_CELL_PROGRAM_LOG_UID:
                 NEXT_PHYSICAL_CELL_PROGRAM_LOG(analyzer->logger);
                 stats.write_count++;
-                rt_log_stats.occupied_pages++;
-                rt_log_stats.current_wall_time += CELL_PROGRAM_DELAY;
-                rt_log_stats.write_wall_time += rt_log_stats.current_wall_time;
-                rt_log_stats.current_wall_time = 0;
+                stats.occupied_pages++;
+                stats.current_wall_time += CELL_PROGRAM_DELAY;
+                stats.write_wall_time += stats.current_wall_time;
+                stats.current_wall_time = 0;
                 break;
             case LOGICAL_CELL_PROGRAM_LOG_UID:
                 NEXT_LOGICAL_CELL_PROGRAM_LOG(analyzer->logger);
-                rt_log_stats.logical_write_count++;
+                stats.logical_write_count++;
                 break;
             case GARBAGE_COLLECTION_LOG_UID:
                 NEXT_GARBAGE_COLLECTION_LOG(analyzer->logger);
@@ -145,24 +136,26 @@ void rt_log_analyzer_loop(RTLogAnalyzer* analyzer, int max_logs) {
                 break;
             case REGISTER_READ_LOG_UID:
                 NEXT_REGISTER_READ_LOG(analyzer->logger);
-                rt_log_stats.current_wall_time += REG_READ_DELAY;
+                stats.current_wall_time += REG_READ_DELAY;
                 break;
             case REGISTER_WRITE_LOG_UID:
                 NEXT_REGISTER_WRITE_LOG(analyzer->logger);
-                rt_log_stats.current_wall_time += REG_WRITE_DELAY;
+                stats.current_wall_time += REG_WRITE_DELAY;
                 break;
             case BLOCK_ERASE_LOG_UID:
-                NEXT_BLOCK_ERASE_LOG(analyzer->logger);
-                rt_log_stats.occupied_pages -= PAGE_NB;
-                rt_log_stats.current_wall_time += BLOCK_ERASE_DELAY;
+            {
+                BlockEraseLog* bel = NEXT_BLOCK_ERASE_LOG(analyzer->logger);
+                stats.occupied_pages -= bel->erased_pages;
+                stats.current_wall_time += BLOCK_ERASE_DELAY;
                 break;
+            }
             case CHANNEL_SWITCH_TO_READ_LOG_UID:
                 NEXT_CHANNEL_SWITCH_TO_READ_LOG(analyzer->logger);
-                rt_log_stats.current_wall_time += CHANNEL_SWITCH_DELAY_R;
+                stats.current_wall_time += CHANNEL_SWITCH_DELAY_R;
                 break;
             case CHANNEL_SWITCH_TO_WRITE_LOG_UID:
                 NEXT_CHANNEL_SWITCH_TO_WRITE_LOG(analyzer->logger);
-                rt_log_stats.current_wall_time += CHANNEL_SWITCH_DELAY_W;
+                stats.current_wall_time += CHANNEL_SWITCH_DELAY_W;
                 break;
             default:
                 fprintf(stderr, "WARNING: unknown log type id! [%d]\n", log_type);
@@ -170,27 +163,26 @@ void rt_log_analyzer_loop(RTLogAnalyzer* analyzer, int max_logs) {
                 break;
         }
 
-        if (rt_log_stats.logical_write_count == 0)
+        if (stats.logical_write_count == 0)
             stats.write_amplification = 0.0;
         else
-            stats.write_amplification = ((double) stats.write_count) / rt_log_stats.logical_write_count;
+            stats.write_amplification = ((double) stats.write_count) / stats.logical_write_count;
 
-        if (rt_log_stats.read_wall_time == 0)
+        if (stats.read_wall_time == 0)
             stats.read_speed = 0.0;
         else
             stats.read_speed = PAGES_IN_USEC_TO_MBS(
-                ((double) stats.read_count) / rt_log_stats.read_wall_time
+                ((double) stats.read_count) / stats.read_wall_time
             );
 
-        if (rt_log_stats.write_wall_time == 0)
+        if (stats.write_wall_time == 0)
             stats.write_speed = 0.0;
         else
             stats.write_speed = PAGES_IN_USEC_TO_MBS(
-                ((double) stats.write_count) / rt_log_stats.write_wall_time
+                ((double) stats.write_count) / stats.write_wall_time
             );
 
-        stats.utilization = ((double) rt_log_stats.occupied_pages) / PAGES_IN_SSD;
-
+        stats.utilization = ((double) stats.occupied_pages) / PAGES_IN_SSD;
 
         // call present hooks if the statistics changed
         if (first_loop || !stats_equal(old_stats, stats))

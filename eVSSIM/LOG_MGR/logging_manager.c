@@ -97,11 +97,6 @@ void log_manager_loop(LogManager* manager, int max_loops) {
         SSDStatistics stats = stats_init();
         ssd.current_stats = &stats;
 
-        // additional variables needed to calculate the statistics
-        unsigned int logical_write_count = 0;
-        double write_wall_time = 0;
-        double read_wall_time = 0;
-
         unsigned int analyzer_id;
         // update the statistics according to the different analyzers
         for (analyzer_id = 0; analyzer_id < manager->analyzers_count; analyzer_id++) {
@@ -114,29 +109,25 @@ void log_manager_loop(LogManager* manager, int max_loops) {
             stats.read_count += current_stats.read_count;
             stats.garbage_collection_count += current_stats.garbage_collection_count;
             stats.utilization += current_stats.utilization;
-
-            logical_write_count += (unsigned int)
-                    (current_stats.write_count / current_stats.write_amplification);
-            if (current_stats.write_count > 0)
-                write_wall_time += current_stats.write_count / current_stats.write_speed;
-            if (current_stats.read_count > 0)
-                read_wall_time += current_stats.read_count / current_stats.read_speed;
+            stats.logical_write_count += current_stats.logical_write_count;
+            stats.write_wall_time += current_stats.write_wall_time;
+            stats.read_wall_time += current_stats.read_wall_time;
         }
 
-        if (logical_write_count == 0)
+        if (stats.logical_write_count == 0)
             stats.write_amplification = 0.0;
         else
-            stats.write_amplification = ((double) stats.write_count) / logical_write_count;
+            stats.write_amplification = ((double) stats.write_count) / stats.logical_write_count;
 
-        if (write_wall_time == 0)
+        if (stats.write_wall_time == 0)
             stats.write_speed = 0.0;
         else
-            stats.write_speed = ((double) stats.write_count) / write_wall_time;
+            stats.write_speed = ((double) stats.write_count) / stats.write_wall_time * 1000000.0;
 
-        if (read_wall_time == 0)
+        if (stats.read_wall_time == 0)
             stats.read_speed = 0.0;
         else
-            stats.read_speed = ((double) stats.read_count) / read_wall_time;
+            stats.read_speed = ((double) stats.read_count) / stats.read_wall_time * 1000000.0;
 
         unsigned int subscriber_id;
         // call present hooks if the statistics changed

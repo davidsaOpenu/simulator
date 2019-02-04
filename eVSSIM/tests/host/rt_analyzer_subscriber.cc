@@ -140,7 +140,7 @@ namespace rt_subscriber {
                     .read_speed = (1.0 / (REG_READ_DELAY + CELL_READ_DELAY)) * SEC_IN_USEC,
                     .garbage_collection_count = 1,
                     .write_amplification = 1.0,
-                    .utilization = 0.0 / PAGES_IN_SSD
+                    .utilization = 1.0 / PAGES_IN_SSD
             },
             // physical cell read
             {
@@ -150,7 +150,7 @@ namespace rt_subscriber {
                     .read_speed = (2.0 / (REG_READ_DELAY + CELL_READ_DELAY + BLOCK_ERASE_DELAY + CHANNEL_SWITCH_DELAY_R + CELL_READ_DELAY)) * SEC_IN_USEC,
                     .garbage_collection_count = 1,
                     .write_amplification = 1.0,
-                    .utilization = 0.0 / PAGES_IN_SSD
+                    .utilization = 1.0 / PAGES_IN_SSD
             },
             // garbage collection
             {
@@ -160,7 +160,7 @@ namespace rt_subscriber {
                     .read_speed = (2.0 / (REG_READ_DELAY + CELL_READ_DELAY + BLOCK_ERASE_DELAY + CHANNEL_SWITCH_DELAY_R + CELL_READ_DELAY)) * SEC_IN_USEC,
                     .garbage_collection_count = 2,
                     .write_amplification = 1.0,
-                    .utilization = 0.0 / PAGES_IN_SSD
+                    .utilization = 1.0 / PAGES_IN_SSD
             }
     };
 
@@ -172,7 +172,7 @@ namespace rt_subscriber {
 
         TIME_MICROSEC(end1);
         LOG_REGISTER_READ(logger, (RegisterReadLog) {
-            .channel = 19, .die = 20, .reg = 21,
+            .channel = 19, .flash = 20, .reg = 21,
             .metadata = {start, end1}
         });
         TIME_MICROSEC(end2);
@@ -198,7 +198,7 @@ namespace rt_subscriber {
         });
         TIME_MICROSEC(end6);
         LOG_REGISTER_WRITE(logger, (RegisterWriteLog) {
-            .channel = 22, .die = 23, .reg = 24,
+            .channel = 22, .flash = 23, .reg = 24,
             .metadata = {start, end6}
         });
         TIME_MICROSEC(end7);
@@ -213,7 +213,7 @@ namespace rt_subscriber {
         });
         TIME_MICROSEC(end9);
         LOG_BLOCK_ERASE(logger, (BlockEraseLog) {
-            .channel = 25, .die = 26, .block = 27,
+            .channel = 25, .flash=26, .block = 27, .erased_pages = 1,
             .metadata = {start, end9}
         });
         TIME_MICROSEC(end10);
