@@ -361,10 +361,10 @@ namespace log_mgr_tests {
         };
         LOG_PHYSICAL_CELL_READ(_logger, log);
         ASSERT_EQ(PHYSICAL_CELL_READ_LOG_UID, next_log_type(_logger));
-        PhysicalCellReadLog res = NEXT_PHYSICAL_CELL_READ_LOG(_logger);
-        ASSERT_EQ(log.channel, res.channel);
-        ASSERT_EQ(log.block, res.block);
-        ASSERT_EQ(log.page, res.page);
+        PhysicalCellReadLog* res = NEXT_PHYSICAL_CELL_READ_LOG(_logger);
+        ASSERT_EQ(log.channel, res->channel);
+        ASSERT_EQ(log.block, res->block);
+        ASSERT_EQ(log.page, res->page);
     }
     /**
      * Test writing and reading a physical cell program log
@@ -380,10 +380,10 @@ namespace log_mgr_tests {
         };
         LOG_PHYSICAL_CELL_PROGRAM(_logger, log);
         ASSERT_EQ(PHYSICAL_CELL_PROGRAM_LOG_UID, next_log_type(_logger));
-        PhysicalCellProgramLog res = NEXT_PHYSICAL_CELL_PROGRAM_LOG(_logger);
-        ASSERT_EQ(log.channel, res.channel);
-        ASSERT_EQ(log.block, res.block);
-        ASSERT_EQ(log.page, res.page);
+        PhysicalCellProgramLog* res = NEXT_PHYSICAL_CELL_PROGRAM_LOG(_logger);
+        ASSERT_EQ(log.channel, res->channel);
+        ASSERT_EQ(log.block, res->block);
+        ASSERT_EQ(log.page, res->page);
     }
     /**
      * Test writing and reading a logical cell program log
@@ -399,10 +399,10 @@ namespace log_mgr_tests {
         };
         LOG_LOGICAL_CELL_PROGRAM(_logger, log);
         ASSERT_EQ(LOGICAL_CELL_PROGRAM_LOG_UID, next_log_type(_logger));
-        LogicalCellProgramLog res = NEXT_LOGICAL_CELL_PROGRAM_LOG(_logger);
-        ASSERT_EQ(log.channel, res.channel);
-        ASSERT_EQ(log.block, res.block);
-        ASSERT_EQ(log.page, res.page);
+        LogicalCellProgramLog* res = NEXT_LOGICAL_CELL_PROGRAM_LOG(_logger);
+        ASSERT_EQ(log.channel, res->channel);
+        ASSERT_EQ(log.block, res->block);
+        ASSERT_EQ(log.page, res->page);
     }
     /**
      * Test writing and reading a garbage collection log
@@ -426,16 +426,16 @@ namespace log_mgr_tests {
         TIME_MICROSEC(start);
         RegisterReadLog log = {
             .channel = 10,
-            .die = 15,
+            .flash = 15,
             .reg = 37,
             .metadata = {start, start+1}
         };
         LOG_REGISTER_READ(_logger, log);
         ASSERT_EQ(REGISTER_READ_LOG_UID, next_log_type(_logger));
-        RegisterReadLog res = NEXT_REGISTER_READ_LOG(_logger);
-        ASSERT_EQ(log.channel, res.channel);
-        ASSERT_EQ(log.die, res.die);
-        ASSERT_EQ(log.reg, res.reg);
+        RegisterReadLog* res = NEXT_REGISTER_READ_LOG(_logger);
+        ASSERT_EQ(log.channel, res->channel);
+        ASSERT_EQ(log.flash, res->flash);
+        ASSERT_EQ(log.reg, res->reg);
     }
     /**
      * Test writing and reading a register write log
@@ -445,16 +445,16 @@ namespace log_mgr_tests {
         TIME_MICROSEC(start);
         RegisterWriteLog log = {
             .channel = 87013,
-            .die = 225034,
+            .flash = 225034,
             .reg = 4,
             .metadata = {start, start+1}
         };
         LOG_REGISTER_WRITE(_logger, log);
         ASSERT_EQ(REGISTER_WRITE_LOG_UID, next_log_type(_logger));
-        RegisterWriteLog res = NEXT_REGISTER_WRITE_LOG(_logger);
-        ASSERT_EQ(log.channel, res.channel);
-        ASSERT_EQ(log.die, res.die);
-        ASSERT_EQ(log.reg, res.reg);
+        RegisterWriteLog* res = NEXT_REGISTER_WRITE_LOG(_logger);
+        ASSERT_EQ(log.channel, res->channel);
+        ASSERT_EQ(log.flash, res->flash);
+        ASSERT_EQ(log.reg, res->reg);
     }
     /**
      * Test writing and reading a block erase log
@@ -464,16 +464,17 @@ namespace log_mgr_tests {
         TIME_MICROSEC(start);
         BlockEraseLog log = {
             .channel = 6,
-            .die = 352,
+            .flash = 352,
             .block = 947,
+            .erased_pages = 1,
             .metadata = {start, start+1}
         };
         LOG_BLOCK_ERASE(_logger, log);
         ASSERT_EQ(BLOCK_ERASE_LOG_UID, next_log_type(_logger));
-        BlockEraseLog res = NEXT_BLOCK_ERASE_LOG(_logger);
-        ASSERT_EQ(log.channel, res.channel);
-        ASSERT_EQ(log.die, res.die);
-        ASSERT_EQ(log.block, res.block);
+        BlockEraseLog* res = NEXT_BLOCK_ERASE_LOG(_logger);
+        ASSERT_EQ(log.channel, res->channel);
+        ASSERT_EQ(log.flash, res->flash);
+        ASSERT_EQ(log.block, res->block);
     }
     /**
      * Test writing and reading a channel switch to read log
@@ -487,8 +488,8 @@ namespace log_mgr_tests {
         };
         LOG_CHANNEL_SWITCH_TO_READ(_logger, log);
         ASSERT_EQ(CHANNEL_SWITCH_TO_READ_LOG_UID, next_log_type(_logger));
-        ChannelSwitchToReadLog res = NEXT_CHANNEL_SWITCH_TO_READ_LOG(_logger);
-        ASSERT_EQ(log.channel, res.channel);
+        ChannelSwitchToReadLog* res = NEXT_CHANNEL_SWITCH_TO_READ_LOG(_logger);
+        ASSERT_EQ(log.channel, res->channel);
     }
     /**
      * Test writing and reading a channel switch to read write
@@ -502,8 +503,8 @@ namespace log_mgr_tests {
         };
         LOG_CHANNEL_SWITCH_TO_WRITE(_logger, log);
         ASSERT_EQ(CHANNEL_SWITCH_TO_WRITE_LOG_UID, next_log_type(_logger));
-        ChannelSwitchToWriteLog res = NEXT_CHANNEL_SWITCH_TO_WRITE_LOG(_logger);
-        ASSERT_EQ(log.channel, res.channel);
+        ChannelSwitchToWriteLog* res = NEXT_CHANNEL_SWITCH_TO_WRITE_LOG(_logger);
+        ASSERT_EQ(log.channel, res->channel);
     }
     /* Real Time Analyzer Tests */
     /**

@@ -27,7 +27,12 @@ SSDStatistics stats_init(void) {
             .read_speed = 0.0,
             .garbage_collection_count = 0,
             .write_amplification = 0.0,
-            .utilization = 0.0
+            .utilization = 0.0,
+            .logical_write_count = 0,
+            .write_wall_time = 0.0,
+            .read_wall_time = 0,
+            .current_wall_time = 0.0,
+            .occupied_pages = 0
     };
     return stats;
 }
