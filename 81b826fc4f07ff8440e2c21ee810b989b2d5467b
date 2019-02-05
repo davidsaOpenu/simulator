@@ -84,6 +84,24 @@
     },
     {
       "key": {
+        "uuid": "6911c0fe_6614a744",
+        "filename": "eVSSIM/tests/host/log_mgr_tests.supp",
+        "patchSetId": 3
+      },
+      "lineNbr": 7,
+      "author": {
+        "id": 1007990
+      },
+      "writtenOn": "2019-02-05T10:40:21Z",
+      "side": 1,
+      "message": "everything in this section and in general that is unrelated to libgobject has to be removed not only this line. Suppressing things that are not libgobject related will create a solid ground for future problems (if not already created)",
+      "parentUuid": "af46ce02_06f8e99c",
+      "revId": "81b826fc4f07ff8440e2c21ee810b989b2d5467b",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "a20be74e_beac4ac4",
         "filename": "eVSSIM/tests/host/log_mgr_tests.supp",
         "patchSetId": 3
@@ -113,6 +131,24 @@
       "side": 1,
       "message": "Done",
       "parentUuid": "a20be74e_beac4ac4",
+      "revId": "81b826fc4f07ff8440e2c21ee810b989b2d5467b",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "35981004_307f0ea8",
+        "filename": "eVSSIM/tests/host/log_mgr_tests.supp",
+        "patchSetId": 3
+      },
+      "lineNbr": 136,
+      "author": {
+        "id": 1007990
+      },
+      "writtenOn": "2019-02-05T10:40:21Z",
+      "side": 1,
+      "message": "same here",
+      "parentUuid": "f9eeb85e_57fee71c",
       "revId": "81b826fc4f07ff8440e2c21ee810b989b2d5467b",
       "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
       "unresolved": false
@@ -154,6 +190,24 @@
     },
     {
       "key": {
+        "uuid": "4b5ae042_d1d5ee02",
+        "filename": "eVSSIM/tests/host/log_mgr_tests.supp",
+        "patchSetId": 3
+      },
+      "lineNbr": 153,
+      "author": {
+        "id": 1007990
+      },
+      "writtenOn": "2019-02-05T10:40:21Z",
+      "side": 1,
+      "message": "same here",
+      "parentUuid": "5c26377a_8cb13d37",
+      "revId": "81b826fc4f07ff8440e2c21ee810b989b2d5467b",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "e348d72a_b03378ba",
         "filename": "eVSSIM/tests/host/log_mgr_tests.supp",
         "patchSetId": 3
@@ -183,6 +237,24 @@
       "side": 1,
       "message": "Done",
       "parentUuid": "e348d72a_b03378ba",
+      "revId": "81b826fc4f07ff8440e2c21ee810b989b2d5467b",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "f63fdf43_3784ee4e",
+        "filename": "eVSSIM/tests/host/log_mgr_tests.supp",
+        "patchSetId": 3
+      },
+      "lineNbr": 171,
+      "author": {
+        "id": 1007990
+      },
+      "writtenOn": "2019-02-05T10:40:21Z",
+      "side": 1,
+      "message": "same here.",
+      "parentUuid": "4dac36ff_96e4c257",
       "revId": "81b826fc4f07ff8440e2c21ee810b989b2d5467b",
       "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
       "unresolved": false
