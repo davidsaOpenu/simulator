@@ -88,7 +88,7 @@ apt -y install libxml++2.6-2 libboost-filesystem1.54.0
 apt -y install python python-pytest
 
 # Services which should run immediately
-RUNLEVEL=1 apt -y install ntp ntpdate
+# RUNLEVEL=1 apt -y install ntp ntpdate
 
 CHROOTED
 

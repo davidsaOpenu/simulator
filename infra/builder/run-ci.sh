@@ -21,4 +21,4 @@ export EVSSIM_RUNTIME_ALWAYS_RESET=yes
 # Run sanity and tests
 ./docker-run-sanity.sh
 ./docker-test-host.sh
-./docker-test-guest.sh
+# ./docker-test-guest.sh

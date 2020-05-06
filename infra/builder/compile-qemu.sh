@@ -12,4 +12,5 @@ evssim_run_at_folder $EVSSIM_QEMU_FOLDER ./configure \
     "--extra-cflags='-Wno-error=unused-but-set-variable -Wno-error=deprecated-declarations $COMPILATION_CFLAGS'"
 
 # Make
+evssim_run_at_folder $EVSSIM_QEMU_FOLDER make clean
 evssim_run_at_folder $EVSSIM_QEMU_FOLDER bear make
