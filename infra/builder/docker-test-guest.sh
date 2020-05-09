@@ -18,7 +18,7 @@ guest_test() {
     # Run tests inside the guest
     echo "INFO Running test id=$test_index strategy=$strategy simulator=$simulator test=$test_name"
     set +e
-    evssim_guest "cd ./guest; mkdir Logs; sudo VSSIM_NEXTGEN_BUILD_SYSTEM=1 python -m pytest -v --junit-xml=./Logs/results.xml --capture=sys $test_name"
+    evssim_guest "cd ./guest; mkdir Logs; sudo VSSIM_NEXTGEN_BUILD_SYSTEM=1 nosetests -v --with-xunit --xunit-file=guest_tests_results.xml $test_name"
     test_rc=$?
     set -e
 
