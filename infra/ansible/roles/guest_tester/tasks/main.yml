@@ -4,7 +4,7 @@
   with_items:
     - pwd
     - ls -all
-    - pip install pytest
+    - pip install nose
     - ./run_all_guest_tests.sh
   args:
      chdir: guest
