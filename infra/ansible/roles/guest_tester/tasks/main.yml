@@ -4,7 +4,6 @@
   with_items:
     - pwd
     - ls -all
-    - pip install pytest
     - ./run_all_guest_tests.sh
   args:
      chdir: guest
