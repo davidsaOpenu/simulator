@@ -1,3 +1,3 @@
 #!/bin/bash
-python -m pytest -v --junit-xml=./guest_tests_results.xml --capture=sys --ignore=objects_via_ioctl
+sudo nosetests -v --with-xunit --xunit-file=guest_tests_results.xml  --exclude==objects_via_ioctl
 exit $?
