@@ -2,13 +2,13 @@
 
 import os
 import time
-import pytest
 import subprocess
+import unittest
 
 VSSIM_NEXTGEN_BUILD_SYSTEM = "VSSIM_NEXTGEN_BUILD_SYSTEM" in os.environ
 
-old_qemu_only = pytest.mark.skipif(VSSIM_NEXTGEN_BUILD_SYSTEM, reason="Old qemu only")
-new_qemu_only = pytest.mark.skipif(not VSSIM_NEXTGEN_BUILD_SYSTEM, reason="New qemu only")
+old_qemu_only = unittest.skipIf(VSSIM_NEXTGEN_BUILD_SYSTEM, reason="Old qemu only")
+new_qemu_only = unittest.skipIf(not VSSIM_NEXTGEN_BUILD_SYSTEM, reason="New qemu only")
 
 NVME_COMPLIANCE_TEST_DIR = "/home/esd/nvmeCompl/"
 TEST_DIR = "/home/esd/guest/nvme_compliance_tests"
@@ -17,9 +17,7 @@ class TestNVMeCompliance:
     @old_qemu_only
     def test_NVMeCompliance_old(self):
         os.system("rmmod nvme")
-
-        os.chdir(NVME_COMPLIANCE_TEST_DIR + "dnvme")
-        os.system("insmod dnvme.ko")
+        os.system("insmod " + NVME_COMPLIANCE_TEST_DIR + "/dnvme/dnvme.ko")
 
         os.chdir(NVME_COMPLIANCE_TEST_DIR + "tnvme")
         assert 0 == os.system("mkdir -p ./Logs")
