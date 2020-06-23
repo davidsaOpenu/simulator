@@ -23,7 +23,8 @@ Some resources:
 ## Docker in this project ##
 Under infra/docker there are the Docker directories. Each directory contains the files to create a single image. At the time of writing this document the directories are:
 1. ubuntu – To build an Ubuntu 14.04 image
-2. centos – To build a CentOS 6.5 image
+2. ubuntu_20.04 - To build an Ubuntu 20.04 image
+3. centos – To build a CentOS 6.5 image
 
 #This project also contains aliases to help you work with Docker without learning all the commands.
 The aliases file is located under 'infra/aliases/'.  Install the aliases file ".os_aliases" using 'source .os_aliases' (or adding it to .bashrc for automatic loading).
@@ -64,6 +65,5 @@ Here are the main commands to run for copy\paste:
 2. Run a shell inside the image (dkr-os-<UBUNTU_OR_CENTOS>-shell)
 3. Run Ansible within that shell
 4. Debug like you would if this wasn't a container
-
 
 TODO remove obsolite/update
