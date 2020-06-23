@@ -1,0 +1,3 @@
+run-ansible(){
+    /code/simulator/infra/docker/ubuntu/run-ansible 
+}
