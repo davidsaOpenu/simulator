@@ -63,9 +63,6 @@ void rt_log_analyzer_loop(RTLogAnalyzer* analyzer, int max_logs) {
 
     // init additional variables
     rt_log_stats.logical_write_count = 0;
-    rt_log_stats.write_wall_time = 0;
-    rt_log_stats.read_wall_time = 0;
-    rt_log_stats.current_wall_time = 0;
     rt_log_stats.occupied_pages = 0;
 
     unsigned int subscriber_id;
