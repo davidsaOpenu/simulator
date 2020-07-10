@@ -186,7 +186,6 @@ ftl_ret_val SSD_PAGE_WRITE(unsigned int flash_nb, unsigned int block_nb, unsigne
 		});
 	}
 
-	WRITE_LOG("WRITE PAGE %d ", 1);
 	LOG_PHYSICAL_CELL_PROGRAM(GET_LOGGER(flash_nb), (PhysicalCellProgramLog) {
 	    .channel = channel, .block = block_nb, .page = page_nb,
         .metadata.logging_start_time = _start,

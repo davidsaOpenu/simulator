@@ -8,7 +8,6 @@ VSSIM_OBJ = vssim_config_manager.o \
 			logging_manager.o logging_server.o logging_statistics.o
 
 CFLAGS = -I/opt/gtest/include -I$(VSSIM_HOME)/osc-osd -I$(VSSIM_HOME)/osc-osd/osd-target -I$(VSSIM_HOME)/QEMU -g -DGTEST -DCOMPLIANCE_TESTS -L/opt/gtest/lib -L$(VSSIM_HOME)/osc-osd/osd-util -L$(VSSIM_HOME)/osc-osd/osd-target -I/opt/libwebsockets/include -L/opt/libwebsockets/lib -Wl,-R/opt/libwebsockets/lib -g -m64 -pipe -O2 -Wall -W -D_REENTRANT -fPIE -DQT_NO_DEBUG -DQT_WIDGETS_LIB -DQT_NETWORK_LIB -DQT_GUI_LIB -DQT_CORE_LIB
-MONITOR_DIR = ../../MONITOR/SSD_MONITOR_PM
 
 all: sector_tests object_tests log_mgr_tests ssd_io_emulator_tests
 
@@ -18,8 +17,8 @@ sector_tests: sector_tests.o $(VSSIM_OBJ)
 object_tests: object_tests.o $(VSSIM_OBJ)
 	g++ $(CFLAGS) -Wall -o object_tests object_tests.o $(VSSIM_OBJ) -Wl,-Bstatic -L$(VSSIM_HOME)/osc-osd/osd-util -L$(VSSIM_HOME)/osc-osd/osd-target -losdutil -losdtgt -Wl,-Bdynamic -lsqlite3 -lm -lpthread -lgtest -lgtest_main -lwebsockets
 
-log_mgr_tests: log_mgr_tests.o $(VSSIM_OBJ) rt_analyzer_subscriber.o log_manager_subscriber.o .MONITOR
-	g++ $(CFLAGS) -Wall -o log_mgr_tests log_mgr_tests.o rt_analyzer_subscriber.o log_manager_subscriber.o $(VSSIM_OBJ) $(MONITOR_DIR)/monitor_test.o $(MONITOR_DIR)/form1.o $(MONITOR_DIR)/moc_form1.o -L/usr/X11R6/lib64 -lXext -lX11 -lm -lpthread -lgtest -lgtest_main -losdutil -losdtgt -lsqlite3 -lwebsockets -lQt5Widgets -L/usr/lib/x86_64-linux-gnu -lQt5Network -lQt5Gui -lQt5Core
+log_mgr_tests: log_mgr_tests.o $(VSSIM_OBJ) rt_analyzer_subscriber.o log_manager_subscriber.o
+	g++ $(CFLAGS) -Wall -o log_mgr_tests log_mgr_tests.o rt_analyzer_subscriber.o log_manager_subscriber.o $(VSSIM_OBJ) -L/usr/X11R6/lib64 -lXext -lX11 -lm -lpthread -lgtest -lgtest_main -losdutil -losdtgt -lsqlite3 -lwebsockets -lQt5Widgets -L/usr/lib/x86_64-linux-gnu -lQt5Network -lQt5Gui -lQt5Core
 
 ssd_io_emulator_tests: ssd_io_emulator_tests.o $(VSSIM_OBJ)
 	g++ $(CFLAGS) -Wall -o ssd_io_emulator_tests ssd_io_emulator_tests.o $(VSSIM_OBJ) -lpthread -lgtest -lgtest_main -losdutil -losdtgt -lsqlite3 -lwebsockets
@@ -29,9 +28,6 @@ ssd_io_emulator_tests: ssd_io_emulator_tests.o $(VSSIM_OBJ)
 
 %.o: %.c
 	gcc -Wall $(CFLAGS) -c $<
-
-.MONITOR:
-	cd $(MONITOR_DIR) && qmake -o Makefile ssd_monitor_p.pro && make
 
 .PHONY: clean distclean mklink
 
@@ -86,8 +82,6 @@ mklink:
 	ln -sf $(VSSIM_HOME)/FTL_SOURCE/PERF_MODULE/ftl_perf_manager.c
 	ln -sf $(VSSIM_HOME)/CONFIG/vssim_config_manager.h
 	ln -sf $(VSSIM_HOME)/CONFIG/vssim_config_manager.c
-	ln -sf $(VSSIM_HOME)/MONITOR/SSD_MONITOR_PM/ssd_monitor_p ssd_monitor
-	ln -sf $(VSSIM_HOME)/MONITOR/SSD_MONITOR_PM/monitor_test.h
 	ln -sf $(VSSIM_HOME)/MONITOR/SERVER/logging_server.h
 	ln -sf $(VSSIM_HOME)/MONITOR/SERVER/logging_server.c
 	ln -sf $(VSSIM_HOME)/MONITOR/SERVER/www
