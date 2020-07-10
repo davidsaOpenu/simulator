@@ -269,4 +269,74 @@ namespace {
         ASSERT_EQ(rt_log_stats.logical_write_count, logical_page_writes);
     }
 
+    TEST_P(SSDIoEmulatorUnitTest, WriteRead1) {
+        int flash_nb = 0;
+        int block_nb = 0;
+        int expected_write_duration = (REG_WRITE_DELAY + CELL_PROGRAM_DELAY) * CONST_PAGES_PER_BLOCK;
+        int expected_read_duration = CHANNEL_SWITCH_DELAY_R + (REG_READ_DELAY + CELL_READ_DELAY) * CONST_PAGES_PER_BLOCK;
+        int expected_rw = CONST_PAGES_PER_BLOCK;
+
+        // Write all pages in the block
+        for (size_t i = 0; i < CONST_PAGES_PER_BLOCK; i++) {
+            SSD_PAGE_WRITE(flash_nb, block_nb, i, 0, WRITE, IO_PAGE_NB);
+        }
+
+        // Read all pages in the block
+        for (size_t i = 0; i < CONST_PAGES_PER_BLOCK; i++) {
+            SSD_PAGE_READ(flash_nb, block_nb, i, 0, READ, IO_PAGE_NB);
+        }
+
+        MONITOR_SYNC_DELAY(expected_write_duration + expected_read_duration);
+
+        ASSERT_EQ(expected_rw, ssd.current_stats->write_count);
+        ASSERT_EQ(expected_rw, ssd.current_stats->read_count);
+
+    }
+
+    TEST_P(SSDIoEmulatorUnitTest, WriteRead2) {
+        std::pair<size_t,size_t> params = GetParam();
+        size_t flash_num = params.second;
+        size_t block_x_flash = pages_ / CONST_PAGES_PER_BLOCK;
+        size_t blocks_per_flash = block_x_flash / flash_num;
+
+        int expected_rw = CONST_PAGES_PER_BLOCK * blocks_per_flash;
+        int expected_write_duration = (REG_WRITE_DELAY + CELL_PROGRAM_DELAY) * expected_rw;
+        int expected_read_duration = CHANNEL_SWITCH_DELAY_R + (REG_READ_DELAY + CELL_READ_DELAY) * expected_rw;
+
+
+        // Write all blocks in the channel
+        for (size_t i = 0; i < blocks_per_flash; i++) {
+            for (size_t j = 0; j < CONST_PAGES_PER_BLOCK; j++) {
+                SSD_PAGE_WRITE(0, i, j, 0, WRITE, IO_PAGE_NB);
+            }
+        }
+
+        // Read all blocks in the channel
+        for (size_t i = 0; i < blocks_per_flash; i++) {
+            for (size_t j = 0; j < CONST_PAGES_PER_BLOCK; j++) {
+                SSD_PAGE_READ(0, i, j, 0, READ, IO_PAGE_NB);
+            }
+        }
+
+        MONITOR_SYNC_DELAY(expected_write_duration + expected_read_duration);
+
+        ASSERT_EQ(expected_rw, ssd.current_stats->write_count);
+        ASSERT_EQ(expected_rw, ssd.current_stats->read_count);
+
+    }
+
+    TEST_P(SSDIoEmulatorUnitTest, WriteAmplificationTest) {
+        int expected_write_amplification = 1;
+
+        // Write all flash
+        for(int x=0; x<2; x++){
+            for(size_t p=0; p < pages_; p++){
+                ASSERT_EQ(FTL_SUCCESS, _FTL_WRITE_SECT(p * CONST_PAGE_SIZE_IN_BYTES, 1));
+            }
+        }
+
+        // Assert w.a. is greater then 1
+        ASSERT_LT(expected_write_amplification, ssd.current_stats->write_amplification);
+    }
+
 } //namespace

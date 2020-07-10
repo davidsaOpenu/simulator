@@ -17,7 +17,6 @@
 
 void INIT_LOG_MANAGER(void);
 void TERM_LOG_MANAGER(void);
-void WRITE_LOG(const char *fmt, ...);
 
 void THREAD_SERVER(void);
 void THREAD_CLIENT(void *arg);

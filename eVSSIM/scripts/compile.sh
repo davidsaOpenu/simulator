@@ -11,11 +11,6 @@ make distclean || { echo 'eVSSIM/tests/host distclean failed' ; exit 1; }
 make mklink || { echo 'eVSSIM/tests/host mklink failed' ; exit 1; }
 make || { echo 'eVSSIM/tests/host make failed' ; exit 1; }
 
-compile monitor
-cd ../../MONITOR/SSD_MONITOR_PM
-qmake -o Makefile ssd_monitor_p.pro || { echo 'eVSSIM/MONITOR/SSD_MONITOR_PM qmake failed' ; exit 1; }
-make || { echo 'eVSSIM/MONITOR/SSD_MONITOR_PM make failed' ; exit 1; }
-
 #compile QEMU
 cd ../../QEMU
 make distclean || { echo '../../QEMU make distclean failed' ; exit 1; }
