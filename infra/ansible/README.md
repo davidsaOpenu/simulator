@@ -93,6 +93,34 @@ Prepare role arguments:
 | --- | --- |
 | `build_ssd_monitor` | Determines whether to build ssd_monitor. Defaults to build_ssd_monitor=false |
 
+## Example
+In order to run nvme complience tests in centos docker container the following commands can be executed
+
+A. Clone projects
+  1. clone related projects to $(pwd)
+
+B. Run docker container and get a bash prompt
+  1. export WORKSPACE=$(pwd)
+  2. cd ${WORKSPACE}/simulator
+  3. echo RUN groupadd `stat -c "%G" .` -g `stat -c "%g" .` >> ${WORKSPACE}/simulator/infra/docker/centos/Dockerfile
+  4. echo RUN useradd -ms /bin/bash `stat -c "%U" .` -u `stat -c "%u" .` -g `stat -c "%g" .` -G wheel >> ${WORKSPACE}/simulator/infra/docker/centos/Dockerfile 
+  5. docker build -t os-centos ${WORKSPACE}/simulator/infra/docker/centos
+  6. [ ! -d ${WORKSPACE}/hda/ ] && mkdir ${WORKSPACE}/hda/
+  7. [ ! -f ${WORKSPACE}/hda/hda_clean.qcow2 ] && cp ~jenkins/hda_clean.qcow2 ${WORKSPACE}/hda/
+  8. docker run -u `stat -c "%u:%g" .` -it  -v /tmp/.X11-unix:/tmp/.X11-unix -v ${WORKSPACE}:/code --cap-add SYS_PTRACE --privileged=true os-centos /bin/bash 
+
+C. Setup test environment
+  1. ansible-playbook -K -i hosts prepare.yml
+  2. ansible-playbook -i hosts playbooks/run_full_setup.yml  --extra-vars "dest=/code/simulator" --extra-vars "@centos.yml" --extra-vars "@global_vars.yml"
+
+D. ssh to the VM
+  1. make shure VM is running (ps -ef | grep qemu)
+  2. ssh -p 2222 esd@127.0.0.1
+
+E. run tests/nvme-cli util
+  1. ~/nvme-cli
+  2. ~/guest/run_all_guest_tests.sh
+
 ## TODO
 
 - Add a public key to the guest VM image's `~esd/.ssh/authorized_keys` and get rid of `sshpass`.
