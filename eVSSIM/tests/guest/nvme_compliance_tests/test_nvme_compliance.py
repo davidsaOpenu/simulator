@@ -21,10 +21,17 @@ class TestNVMeCompliance:
 
         os.chdir(NVME_COMPLIANCE_TEST_DIR + "tnvme")
         assert 0 == os.system("mkdir -p ./Logs")
-        skipSuites = [16, 17]
+
+        skipSingleTests = ['5:5.10.0', '16:1.0.0', '17:1.0.0']
+        f= open("skipTests","w+")
+        for test in skipSingleTests:
+            f.write("%s\n" % test)
+        f.close()
+
+        skipEntireSuites = []
         for suiteNum in range(0, 24):
-            if suiteNum not in skipSuites:
-                cmd = "./tnvme --test=%d > test%d.txt 2>&1" % (suiteNum, suiteNum)
+            if suiteNum not in skipEntireSuites:
+                cmd = "./tnvme --test=%d --skiptest=skipTests > test%d.txt 2>&1" % (suiteNum, suiteNum)
                 print cmd
                 assert 0 == os.system(cmd)
 
