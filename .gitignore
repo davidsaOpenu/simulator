@@ -10,13 +10,8 @@
 eVSSIM/RAMDISK/rd
 
 # QMake-generated makefiles
-eVSSIM/MONITOR/SSD_MONITOR_PM/Makefile
 eVSSIM/QEMU/roms/seabios/Makefile
 eVSSIM/QEMU/roms/vgabios/Makefile
-
-# monitor executable and files
-eVSSIM/MONITOR/SSD_MONITOR_PM/ssd_monitor_p
-eVSSIM/MONITOR/SSD_MONITOR_PM/moc_form1.cpp
 
 # qemu configure-created files
 eVSSIM/QEMU/config-host.mak
@@ -62,14 +57,12 @@ eVSSIM/QEMU/hw/ftl_obj_strategy.c
 eVSSIM/QEMU/hw/ftl_perf_manager.c
 eVSSIM/QEMU/hw/ssd_io_manager.c
 eVSSIM/QEMU/hw/ssd_log_manager.c
-eVSSIM/QEMU/x86_64-softmmu/ssd_monitor
 eVSSIM/QEMU/x86_64-softmmu/data/ssd.conf
 eVSSIM/QEMU/hw/vssim_config_manager.h
 eVSSIM/QEMU/hw/vssim_config_manager.c
 eVSSIM/QEMU/hw/uthash.h
 eVSSIM/QEMU/hw/ssd.c
 eVSSIM/QEMU/hw/ssd.h
-eVSSIM/QEMU/hw/ssd_monitor
 eVSSIM/QEMU/hw/logging_backend.c
 eVSSIM/QEMU/hw/logging_backend.h
 eVSSIM/QEMU/hw/logging_manager.c
@@ -129,7 +122,6 @@ eVSSIM/tests/host/ssd_io_manager.c
 eVSSIM/tests/host/ssd_io_manager.h
 eVSSIM/tests/host/ssd_log_manager.c
 eVSSIM/tests/host/ssd_log_manager.h
-eVSSIM/tests/host/ssd_monitor
 eVSSIM/tests/host/ssd_util.h
 eVSSIM/tests/host/uthash.h
 eVSSIM/tests/host/vssim_config_manager.c

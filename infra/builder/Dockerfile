@@ -52,16 +52,8 @@ RUN mkdir -p $GTEST_HOME/gtest/lib && cd $GTEST_HOME/gtest/lib && cmake .. && ma
 RUN git clone --branch v2.4-stable https://github.com/warmcat/libwebsockets.git /opt/libwebsockets && \
     cd /opt/libwebsockets && cmake . && make && make install
 
-# Old Monitor Support
 RUN apt-get update && DEBIAN_FRONTEND=noninteractive apt-get install -y \
-    libpixman-1-dev libxft-dev libaudio-dev libcups2-dev libcups2-dev libcups2 \
-    libjpeg62 libaudio2 libfontconfig1 libfreetype6 libice6 libice-dev libsm6 \
-    libsm-dev libxcursor1 libxcursor-dev libxft2 libxi6 libxi-dev libxinerama1 \
-    libxinerama-dev libxrandr2 libxrandr-dev fontconfig libxmu6 libxmu-dev \
-    liblcms1 liblcms-dev libfontconfig1-dev
-
-RUN apt-get update && DEBIAN_FRONTEND=noninteractive apt-get install -y \
-    qtdeclarative5-dev qt5-default qttools5-dev-tools
+    libpixman-1-dev
 
 # Copy our folder into the scripts folder
 ADD docker /scripts

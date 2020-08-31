@@ -142,12 +142,7 @@ ftl_ret_val DEFAULT_GC_COLLECTION_ALGO(int mapping_index, int l2, bool isObjectS
 	INSERT_EMPTY_BLOCK(victim_phy_flash_nb, victim_phy_block_nb);
 
 	gc_count++;
-	WRITE_LOG("GC ");
 	LOG_GARBAGE_COLLECTION(GET_LOGGER(victim_phy_flash_nb), (GarbageCollectionLog) empty_log);
-
-//	WRITE_LOG("WB AMP %d", copy_page_nb);
-	WRITE_LOG("WB AMP %f", (float)ssd.physical_page_writes / (float)ssd.logical_page_writes);
-
 
 	return FTL_SUCCESS;
 }

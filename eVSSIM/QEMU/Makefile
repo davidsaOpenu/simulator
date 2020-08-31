@@ -203,7 +203,6 @@ distclean: clean
 	rm -f hw/logging_server.{h,c}
 	rm -f hw/logging_statistics.{h,c}
 	rm -rf hw/www
-	rm -f hw/ssd_monitor
 	rm -f config-host.mak config-host.h* config-host.ld $(DOCS) qemu-options.texi qemu-img-cmds.texi qemu-monitor.texi
 	rm -f config-all-devices.mak
 	rm -f roms/seabios/config.mak roms/vgabios/config.mak
