@@ -24,7 +24,6 @@ bool g_server_mode = false;
 
 #include "rt_analyzer_subscriber.h"
 #include "log_manager_subscriber.h"
-#include "monitor_test.h"
 #include "logging_parser.h"
 
 #include <gtest/gtest.h>
@@ -72,11 +71,6 @@ namespace log_mgr_tests {
                     printf("Server opened\n");
                     printf("Browse to http://127.0.0.1:%d/ to see the statistics\n",
                             LOG_SERVER_PORT);
-                }
-
-                if (g_monitor_mode) {
-                    pthread_create(&_monitor, NULL, run_monitor, NULL);
-                    printf("Monitor opened\n");
                 }
             }
 
@@ -696,15 +690,15 @@ namespace log_mgr_tests {
      * Do a simple test of the real time log analyzer
      */
     TEST_P(LogMgrUnitTest, BasicRTAnalyzer) {
-        RTLogAnalyzer* analyzer = rt_log_analyzer_init(_logger);
+        RTLogAnalyzer* analyzer = rt_log_analyzer_init(_logger, 0);
+        rt_log_stats_init();
         rt_subscriber::subscribe(analyzer);
-        if (g_monitor_mode)
-            rt_log_analyzer_subscribe(analyzer, update_stats, NULL);
         if (g_server_mode)
             rt_log_analyzer_subscribe(analyzer, log_server_update, NULL);
         rt_subscriber::write();
         rt_subscriber::read();
         rt_log_analyzer_free(analyzer, 0);
+        rt_log_stats_free();
     }
     /* offline Analyzer Tests */
     /**
@@ -745,8 +739,6 @@ namespace log_mgr_tests {
     TEST_P(LogMgrUnitTest, BasicLogManager) {
         LogManager* manager = log_manager_init();
         manager_subscriber::init(manager);
-        if (g_monitor_mode)
-            log_manager_subscribe(manager, update_stats, NULL);
         if (g_server_mode)
             log_manager_subscribe(manager, log_server_update, NULL);
         manager_subscriber::run();

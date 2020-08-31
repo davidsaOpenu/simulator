@@ -3552,7 +3552,6 @@ if test "$vssim" = "yes" ; then
     symlink "$source_path/../FTL_SOURCE/PERF_MODULE/ftl_perf_manager.c" "$source_path/hw/ftl_perf_manager.c"
     symlink "$source_path/../CONFIG/vssim_config_manager.c" "$source_path/hw/vssim_config_manager.c"
     symlink "$source_path/../CONFIG/vssim_config_manager.h" "$source_path/hw/vssim_config_manager.h"
-    symlink "$source_path/../MONITOR/SSD_MONITOR_PM/ssd_monitor_p" "$source_path/hw/ssd_monitor"
     symlink "$source_path/../LOG_MGR/logging_backend.c" "$source_path/hw/logging_backend.c"
     symlink "$source_path/../LOG_MGR/logging_backend.h" "$source_path/hw/logging_backend.h"
     symlink "$source_path/../LOG_MGR/logging_manager.c" "$source_path/hw/logging_manager.c"
