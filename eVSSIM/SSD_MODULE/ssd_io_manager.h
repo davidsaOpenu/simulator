@@ -1,4 +1,4 @@
-// Copyright(c)2013 
+// Copyright(c)2013
 //
 // Hanyang University, Seoul, Korea
 // Embedded Software Systems Lab. All right reserved
@@ -18,6 +18,10 @@
  *  Member 'physical_page_writes' holds sum of all page writes
  *  @var int logical_page_writes
  *  Member 'logical_page_writes' holds sum of logical only page writes
+ *  *  @var int prev_channel_mode
+ *  Member 'prev_channel_mode' holds the previous command that ran on this channel
+ *  @var int prev_channel_mode
+ *  Member 'cur_channel_mode' holds the current command that runs on this channel
  *  @var SSDStatistics* current_stats
  *  Member 'current_stats' holds stats of browser monitor
  */
@@ -26,7 +30,8 @@ typedef struct {
     int occupied_pages_counter;
     int physical_page_writes;
     int logical_page_writes;
-    int* channel_mode;
+    int* prev_channel_mode;
+    int* cur_channel_mode;
     SSDStatistics* current_stats;
 
 } ssd_disk;
@@ -70,9 +75,7 @@ int SSD_CELL_READ_DELAY(int reg);
 int SSD_BLOCK_ERASE_DELAY(int reg);
 
 /* Mark Time Stamp */
-int SSD_CH_RECORD(int channel, int cmd, int offset, int ret);
-int SSD_REG_RECORD(int reg, int cmd, int type, int offset, int channel);
-int SSD_CELL_RECORD(int reg, int cmd, int channel);
+ftl_ret_val SSD_REG_RECORD(int reg, int type, int offset, int channel);
 
 /* Check Read Operation in the Same Channel  */
 int SSD_CH_ACCESS(unsigned int flash_nb, int channel);

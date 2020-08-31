@@ -98,8 +98,8 @@ namespace manager_subscriber {
         updates_done = 0;
         logger1 = logger_init(LOGGER_TEST_POOL_SIZE);
         logger2 = logger_init(LOGGER_TEST_POOL_SIZE);
-        analyzer1 = rt_log_analyzer_init(logger1);
-        analyzer2 = rt_log_analyzer_init(logger2);
+        analyzer1 = rt_log_analyzer_init(logger1, 0);
+        analyzer2 = rt_log_analyzer_init(logger2, 1);
         log_manager_add_analyzer(manager, analyzer1);
         log_manager_add_analyzer(manager, analyzer2);
         log_manager_subscribe(manager, (MonitorHook) on_update, NULL);
