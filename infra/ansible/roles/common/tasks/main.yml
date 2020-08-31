@@ -7,5 +7,3 @@
 - include: bear.yml
 # Verify libwebsockets exist
 - include: libwebsockets.yml
-# Verify qt exist
-- include: qt.yml

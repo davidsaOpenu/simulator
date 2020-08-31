@@ -72,11 +72,6 @@ RUN wget https://codeload.github.com/warmcat/libwebsockets/zip/v2.4-stable && \
     make && \
     make install
 
-# Install qt5
-RUN yum install -y qt5-qtbase-devel
-RUN ln -s /usr/lib64/qt5/bin/qmake /bin/uic && \
-    ln -s /usr/lib64/qt5/bin/qmake /bin/qmake
-
 ADD container_aliases /root/.bash_aliases
 WORKDIR /code
 ENTRYPOINT ["/code/simulator/infra/docker/centos/entry_point.sh"]
@@ -85,4 +80,3 @@ RUN echo "ALL            ALL = (ALL) NOPASSWD: ALL" >> /etc/sudoers
 #those lines are appended from outside
 #echo RUN groupadd `stat -c "%G" .` -g `stat -c "%g" .` >> ${WORKSPACE}/simulator/infra/docker/centos/Dockerfile
 #echo RUN useradd -ms /bin/bash `stat -c "%U" .` -u `stat -c "%u" .` -g `stat -c "%g" .` -G wheel >> ${WORKSPACE}/simulator/infra/docker/centos/Dockerfile
-

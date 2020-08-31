@@ -14,7 +14,6 @@ export EVSSIM_RUNTIME_ALWAYS_RESET=yes
 # Compile all modules
 ./compile-kernel.sh
 ./compile-qemu.sh
-./compile-monitor.sh
 ./compile-nvme-tools.sh
 ./compile-tests.sh
 

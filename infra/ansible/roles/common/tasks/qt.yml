@@ -1,7 +1,0 @@
-- name: check whether qt3 exists
-  command: test -x /usr/bin/qmake
-  register: qt3_reg
-
-- fail:
-    msg: "qt3 binaries are required."
-  when: qt3_reg.rc != 0
