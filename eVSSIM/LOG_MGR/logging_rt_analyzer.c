@@ -40,6 +40,11 @@ RTLogAnalyzer* rt_log_analyzer_init(Logger_Pool* logger) {
     analyzer->subscribers_count = 0;
     analyzer->exit_loop_flag = 0;
     analyzer->reset_flag = 0;
+
+    rt_log_stats.logical_write_count = 0;
+    rt_log_stats.write_wall_time = 0;
+    rt_log_stats.read_wall_time = 0;
+    rt_log_stats.current_wall_time = 0;
     return analyzer;
 }
 
@@ -62,11 +67,12 @@ void rt_log_analyzer_loop(RTLogAnalyzer* analyzer, int max_logs) {
     SSDStatistics old_stats = stats_init();
 
     // init additional variables
-    rt_log_stats.logical_write_count = 0;
-    rt_log_stats.write_wall_time = 0;
-    rt_log_stats.read_wall_time = 0;
-    rt_log_stats.current_wall_time = 0;
+    //rt_log_stats.logical_write_count = 0;
+    //rt_log_stats.write_wall_time = 0;
+    //rt_log_stats.read_wall_time = 0;
+    //rt_log_stats.current_wall_time = 0;
     rt_log_stats.occupied_pages = 0;
+    unsigned int logical_write_count = 0;
 
     unsigned int subscriber_id;
 
@@ -138,6 +144,7 @@ void rt_log_analyzer_loop(RTLogAnalyzer* analyzer, int max_logs) {
             case LOGICAL_CELL_PROGRAM_LOG_UID:
                 NEXT_LOGICAL_CELL_PROGRAM_LOG(analyzer->logger);
                 rt_log_stats.logical_write_count++;
+                logical_write_count++;
                 break;
             case GARBAGE_COLLECTION_LOG_UID:
                 NEXT_GARBAGE_COLLECTION_LOG(analyzer->logger);
@@ -173,7 +180,7 @@ void rt_log_analyzer_loop(RTLogAnalyzer* analyzer, int max_logs) {
         if (rt_log_stats.logical_write_count == 0)
             stats.write_amplification = 0.0;
         else
-            stats.write_amplification = ((double) stats.write_count) / rt_log_stats.logical_write_count;
+            stats.write_amplification = ((double) stats.write_count) / logical_write_count; // was rt_log_stats.logical_write_count
 
         if (rt_log_stats.read_wall_time == 0)
             stats.read_speed = 0.0;

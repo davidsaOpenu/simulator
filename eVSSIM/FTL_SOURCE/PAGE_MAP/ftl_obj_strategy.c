@@ -123,8 +123,6 @@ ftl_ret_val _FTL_OBJ_READ(obj_id_t obj_loc, buf_ptr_t buf, offset_t offset, leng
     
     INCREASE_IO_REQUEST_SEQ_NB();
 
-	WRITE_LOG("READ PAGE %d ", length);
-
 	PDBG_FTL("Complete\n");
 
 	return ret;
@@ -230,8 +228,6 @@ ftl_ret_val _FTL_OBJ_WRITE(obj_id_t object_loc, buf_ptr_t buf, offset_t offset, 
     }
 
     INCREASE_IO_REQUEST_SEQ_NB();
-
-	WRITE_LOG("WB CORRECT %d", curr_io_page_nb);
 
 	PDBG_FTL("Complete\n");
 
