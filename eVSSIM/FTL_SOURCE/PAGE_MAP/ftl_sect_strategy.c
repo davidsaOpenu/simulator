@@ -77,8 +77,6 @@ ftl_ret_val _FTL_READ_SECT(uint64_t sector_nb, unsigned int length)
 
 	INCREASE_IO_REQUEST_SEQ_NB();
 
-	WRITE_LOG("READ PAGE %d ", length);
-
 	PDBG_FTL("Complete\n");
 
 	return ret;
@@ -165,9 +163,6 @@ ftl_ret_val _FTL_WRITE_SECT(uint64_t sector_nb, unsigned int length)
 	GC_CHECK(CALC_FLASH(new_ppn), CALC_BLOCK(new_ppn), false, false); // is this a bug? gc will only happen on the last page's flash and block
 #endif
 
-//    WRITE_LOG("WB CORRECT %d", write_page_nb);
-	//also update the write amplifications status here
-	WRITE_LOG("WB AMP %f", (float)ssd.physical_page_writes / (float)ssd.logical_page_writes);
     PDBG_FTL("Complete\n");
 
 	return ret;

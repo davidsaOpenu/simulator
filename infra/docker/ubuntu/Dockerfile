@@ -59,11 +59,6 @@ RUN git clone --branch v2.4-stable https://github.com/warmcat/libwebsockets.git 
     make && \
     make install
 
-# Install qt5
-RUN echo "deb http://archive.ubuntu.com/ubuntu trusty main universe multiverse" | tee /etc/apt/sources.list.d/trusty.list && \
-    apt-get update && \
-    apt-get -y install qtdeclarative5-dev qt5-default qttools5-dev-tools
-
 ADD container_aliases /root/.bash_aliases
 WORKDIR /code
 ENTRYPOINT ["/code/simulator/infra/docker/ubuntu/entry_point.sh"]

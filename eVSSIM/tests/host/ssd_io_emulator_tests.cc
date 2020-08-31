@@ -28,13 +28,9 @@ extern int clientSock;
 //logger_monitor log_monitor;
 extern int errno;
 
-// QT monitor delay values
-extern double total_write_delay;
-extern double total_read_delay;
-
 extern ssd_disk ssd;
 extern write_amplification_counters wa_counters;
-RTLogStatistics rt_log_stats;
+extern RTLogStatistics *rt_log_stats;
 
 // New browser delay values
 extern int write_wall_time;
@@ -42,7 +38,7 @@ extern int read_wall_time;
 //extern unsigned int logical_write_count;
 
 #define MONITOR_SYNC_DELAY_USEC 150000
-#define DELAY_THRESHOLD 2
+#define DELAY_THRESHOLD 0
 
 void MONITOR_SYNC_DELAY(int expected_duration) {
     usleep(expected_duration + MONITOR_SYNC_DELAY_USEC);
@@ -71,10 +67,75 @@ namespace {
 
     /**
      * @brief testing delay caused by single page write
+     * - execute 3 sequential page write
+     * - verify Browser monitor total write bandwidth delay is \expected_write_duration
+     */
+    TEST_P(SSDIoEmulatorUnitTest, BWCaseWritesOnly1) {
+
+        int flash_nb = 0;
+        int block_nb = 0;
+        int page_nb = 0;
+        int offset = 0;
+        int num_of_writes = 3;
+        int write_wall_time = 0;
+
+        SSD_PAGE_WRITE(flash_nb,block_nb,page_nb,offset, WRITE, IO_PAGE_NB);
+        SSD_PAGE_WRITE(flash_nb,block_nb,page_nb,offset, WRITE, IO_PAGE_NB);
+        SSD_PAGE_WRITE(flash_nb,block_nb,page_nb,offset, WRITE, IO_PAGE_NB);
+
+        // single write page delay
+        int expected_write_duration = (REG_WRITE_DELAY + CELL_PROGRAM_DELAY) * num_of_writes;
+
+        // wait for new monitor sync
+        MONITOR_SYNC_DELAY(expected_write_duration);
+
+        int i;
+
+        for (i = 0; i < FLASH_NB; i++) {
+            write_wall_time += rt_log_stats[i].write_wall_time;
+        }
+        // new monitor write delay
+        ASSERT_LE(write_wall_time - expected_write_duration, DELAY_THRESHOLD);
+    }
+
+    /**
+     * @brief testing delay caused by single page read
+     * - execute 3 sequential page read
+     * - verify Browser monitor total write bandwidth delay is \expected_read_duration
+     */
+    TEST_P(SSDIoEmulatorUnitTest, BWCaseReadsOnly1) {
+
+        int flash_nb = 0;
+        int block_nb = 0;
+        int page_nb = 0;
+        int offset = 0;
+        int num_of_reads = 3;
+        int read_wall_time = 0;
+
+        SSD_PAGE_READ(flash_nb,block_nb,page_nb,offset, READ, IO_PAGE_NB);
+        SSD_PAGE_READ(flash_nb,block_nb,page_nb,offset, READ, IO_PAGE_NB);
+        SSD_PAGE_READ(flash_nb,block_nb,page_nb,offset, READ, IO_PAGE_NB);
+
+        // single read page delay
+        int expected_read_duration = CHANNEL_SWITCH_DELAY_R + (REG_READ_DELAY + CELL_READ_DELAY) * num_of_reads;
+
+        // wait for new monitor sync
+        MONITOR_SYNC_DELAY(expected_read_duration);
+
+        int i;
+
+        for (i = 0; i < FLASH_NB; i++) {
+            read_wall_time += rt_log_stats[i].read_wall_time;
+        }
+        // new monitor read delay
+        ASSERT_LE(read_wall_time - expected_read_duration, DELAY_THRESHOLD);
+    }
+
+    /**
+     * @brief testing delay caused by single page write
      * - execute 2 sequential page write
      * - execute 2 sequential page read
      * - execute page write
-     * - verify QT monitor total write bandwidth delay is \expected_write_duration
      * - verify Browser monitor total write bandwidth delay is \expected_write_duration
      */
     TEST_P(SSDIoEmulatorUnitTest, BWCase1) {
@@ -83,6 +144,10 @@ namespace {
         int block_nb = 0;
         int page_nb = 0;
         int offset = 0;
+        int num_of_writes = 3;
+        int num_of_reads = 2;
+        int write_wall_time = 0;
+        int read_wall_time = 0;
 
         SSD_PAGE_WRITE(flash_nb,block_nb,page_nb,offset, WRITE, IO_PAGE_NB);
         SSD_PAGE_WRITE(flash_nb,block_nb,page_nb,offset, WRITE, IO_PAGE_NB);
@@ -91,19 +156,22 @@ namespace {
         SSD_PAGE_WRITE(flash_nb,block_nb,page_nb,offset, WRITE, IO_PAGE_NB);
 
         // single write page delay
-        int expected_write_duration = CHANNEL_SWITCH_DELAY_W + (REG_WRITE_DELAY + CELL_PROGRAM_DELAY) * 3;
-        int expected_read_duration = CHANNEL_SWITCH_DELAY_R + (REG_READ_DELAY + CELL_READ_DELAY) * 2;
+        int expected_write_duration = CHANNEL_SWITCH_DELAY_W + (REG_WRITE_DELAY + CELL_PROGRAM_DELAY) * num_of_writes;
+        int expected_read_duration = CHANNEL_SWITCH_DELAY_R + (REG_READ_DELAY + CELL_READ_DELAY) * num_of_reads;
 
         // wait for new monitor sync
         MONITOR_SYNC_DELAY(expected_write_duration + expected_read_duration);
+
+        int i;
+
+        for (i = 0; i < FLASH_NB; i++) {
+            write_wall_time += rt_log_stats[i].write_wall_time;
+            read_wall_time += rt_log_stats[i].read_wall_time;
+        }
         // new monitor write delay
-        ASSERT_LE(abs(rt_log_stats.write_wall_time - expected_write_duration), DELAY_THRESHOLD);
+        ASSERT_LE(write_wall_time - expected_write_duration, DELAY_THRESHOLD);
         // new monitor read delay
-        ASSERT_LE(abs(rt_log_stats.read_wall_time - expected_read_duration), DELAY_THRESHOLD);
-        // QT monitor write delay
-        ASSERT_LE(abs((int)total_write_delay - expected_write_duration), DELAY_THRESHOLD);
-        // QT monitor read delay
-        ASSERT_LE(abs((int)total_read_delay - expected_read_duration), DELAY_THRESHOLD);
+        ASSERT_LE(abs(read_wall_time - expected_read_duration), DELAY_THRESHOLD);
     }
 
     /**
@@ -227,6 +295,7 @@ namespace {
         int flash_nb = 0;
         int block_nb = 0;
         int page_nb = 0;
+        unsigned int logical_write_count = 0;
         int logical_page_writes = 1;
         int physical_page_writes = 1;
         int expected_write_duration = REG_WRITE_DELAY + CELL_PROGRAM_DELAY;
@@ -235,11 +304,17 @@ namespace {
         // wait for new monitor sync
         MONITOR_SYNC_DELAY(expected_write_duration);
 
+        int i;
+
+        for (i = 0; i < FLASH_NB; i++) {
+            logical_write_count += rt_log_stats[i].logical_write_count;
+        }
+
         ASSERT_EQ(ssd.physical_page_writes, physical_page_writes);
         ASSERT_EQ(ssd.current_stats->write_count, physical_page_writes);
 
         ASSERT_EQ(ssd.logical_page_writes, logical_page_writes);
-        ASSERT_EQ(rt_log_stats.logical_write_count, logical_page_writes);
+        ASSERT_EQ(logical_write_count, logical_page_writes);
     }
 
     /**
@@ -253,6 +328,7 @@ namespace {
         int flash_nb = 0;
         int block_nb = 0;
         int page_nb = 0;
+        unsigned int logical_write_count = 0;
 
         int logical_page_writes = 0;
         int physical_page_writes = 1;
@@ -262,11 +338,105 @@ namespace {
         SSD_PAGE_WRITE(flash_nb,block_nb,page_nb,0, GC_WRITE, GC_IO_PAGE_NB);
 
         MONITOR_SYNC_DELAY(expected_write_duration);
+
+        int i;
+
+        for (i = 0; i < FLASH_NB; i++) {
+            logical_write_count += rt_log_stats[i].logical_write_count;
+        }
+
         ASSERT_EQ(physical_page_writes, ssd.physical_page_writes);
         ASSERT_EQ(physical_page_writes, ssd.current_stats->write_count);
 
         ASSERT_EQ(ssd.logical_page_writes, logical_page_writes);
-        ASSERT_EQ(rt_log_stats.logical_write_count, logical_page_writes);
+        ASSERT_EQ(logical_write_count, logical_page_writes);
+    }
+
+    /**
+     * testing the statistics mechanism by issuing a full block write/read and validate them
+     * - issue full block write
+     * - issue full block read
+     * - validate statistics
+     */
+    TEST_P(SSDIoEmulatorUnitTest, WriteRead1) {
+        int flash_nb = 0;
+        int block_nb = 0;
+        int expected_write_duration = (REG_WRITE_DELAY + CELL_PROGRAM_DELAY) * CONST_PAGES_PER_BLOCK;
+        int expected_read_duration = CHANNEL_SWITCH_DELAY_R + (REG_READ_DELAY + CELL_READ_DELAY) * CONST_PAGES_PER_BLOCK;
+        int expected_rw = CONST_PAGES_PER_BLOCK;
+
+        // Write all pages in the block
+        for (size_t i = 0; i < CONST_PAGES_PER_BLOCK; i++) {
+            SSD_PAGE_WRITE(flash_nb, block_nb, i, 0, WRITE, IO_PAGE_NB);
+        }
+
+        // Read all pages in the block
+        for (size_t i = 0; i < CONST_PAGES_PER_BLOCK; i++) {
+            SSD_PAGE_READ(flash_nb, block_nb, i, 0, READ, IO_PAGE_NB);
+        }
+
+        MONITOR_SYNC_DELAY(expected_write_duration + expected_read_duration);
+
+        ASSERT_EQ(expected_rw, ssd.current_stats->write_count);
+        ASSERT_EQ(expected_rw, ssd.current_stats->read_count);
+
+    }
+
+    /**
+     * testing the statistics mechanism by issuing a full channel write/read and validate them
+     * - issue full channel write
+     * - issue full channel read
+     * - validate statistics
+     */
+    TEST_P(SSDIoEmulatorUnitTest, WriteRead2) {
+        std::pair<size_t,size_t> params = GetParam();
+        size_t flash_num = params.second;
+        size_t block_x_flash = pages_ / CONST_PAGES_PER_BLOCK;
+        size_t blocks_per_flash = block_x_flash / flash_num;
+
+        int expected_rw = CONST_PAGES_PER_BLOCK * blocks_per_flash;
+        int expected_write_duration = (REG_WRITE_DELAY + CELL_PROGRAM_DELAY) * expected_rw;
+        int expected_read_duration = CHANNEL_SWITCH_DELAY_R + (REG_READ_DELAY + CELL_READ_DELAY) * expected_rw;
+
+
+        // Write all blocks in the channel
+        for (size_t i = 0; i < blocks_per_flash; i++) {
+            for (size_t j = 0; j < CONST_PAGES_PER_BLOCK; j++) {
+                SSD_PAGE_WRITE(0, i, j, 0, WRITE, IO_PAGE_NB);
+            }
+        }
+
+        // Read all blocks in the channel
+        for (size_t i = 0; i < blocks_per_flash; i++) {
+            for (size_t j = 0; j < CONST_PAGES_PER_BLOCK; j++) {
+                SSD_PAGE_READ(0, i, j, 0, READ, IO_PAGE_NB);
+            }
+        }
+
+        MONITOR_SYNC_DELAY(expected_write_duration + expected_read_duration);
+
+        ASSERT_EQ(expected_rw, ssd.current_stats->write_count);
+        ASSERT_EQ(expected_rw, ssd.current_stats->read_count);
+
+    }
+
+    /**
+     * testing the write amplification calculation by writing over the whole flash twice
+     * - write over flash twice using the FTL layer
+     * - validate statistics
+     */
+    TEST_P(SSDIoEmulatorUnitTest, WriteAmplificationTest) {
+        int expected_write_amplification = 1;
+
+        // Write all flash
+        for(int x=0; x<2; x++){
+            for(size_t p=0; p < pages_; p++){
+                ASSERT_EQ(FTL_SUCCESS, _FTL_WRITE_SECT(p * CONST_PAGE_SIZE_IN_BYTES, 1));
+            }
+        }
+
+        // Assert w.a. is greater then 1
+        ASSERT_LT(expected_write_amplification, ssd.current_stats->write_amplification);
     }
 
 } //namespace
