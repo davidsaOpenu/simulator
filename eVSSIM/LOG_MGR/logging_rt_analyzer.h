@@ -55,6 +55,11 @@ typedef struct {
      */
     unsigned int subscribers_count;
     /**
+     * Real Time Analyzer ID.
+     * We can use this to differentiate between one analyzer thread to another.
+     */
+    unsigned int rt_analyzer_id;
+    /**
      * Whether the analyzer should stop looping ASAP
      */
     unsigned int exit_loop_flag : 1;
@@ -81,9 +86,16 @@ typedef struct {
 /**
  * Create a new real time log analyzer
  * @param logger the logger to analyze
+ * @param analyzer_id Logger analyzer ID
  * @return the newly created real time log analyzer
  */
-RTLogAnalyzer* rt_log_analyzer_init(Logger_Pool* logger);
+RTLogAnalyzer* rt_log_analyzer_init(Logger_Pool* logger, unsigned int analyzer_id);
+
+/**
+ * @brief Initializes real time log statistics
+ *
+ */
+void rt_log_stats_init(void);
 
 /**
  * Subscribe to the log analyzer
@@ -114,5 +126,11 @@ void rt_log_analyzer_loop(RTLogAnalyzer* analyzer, int max_logs);
  * @param free_logger whether to free the logger the analyzer uses
  */
 void rt_log_analyzer_free(RTLogAnalyzer* analyzer, int free_logger);
+
+/**
+ * @brief Free RT Log stats
+ *
+ */
+void rt_log_stats_free(void);
 
 #endif
