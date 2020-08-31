@@ -30,9 +30,9 @@
 #define PAGES_IN_USEC_TO_MBS(x) \
     ((((double) (x)) * (GET_PAGE_SIZE()) * (SECOND_IN_USEC)) / (MEGABYTE_IN_BYTES))
 
-RTLogStatistics rt_log_stats;
+RTLogStatistics *rt_log_stats;
 
-RTLogAnalyzer* rt_log_analyzer_init(Logger_Pool* logger) {
+RTLogAnalyzer* rt_log_analyzer_init(Logger_Pool* logger, unsigned int analyzer_id) {
     RTLogAnalyzer* analyzer = (RTLogAnalyzer*) malloc(sizeof(RTLogAnalyzer));
     if (analyzer == NULL)
         return NULL;
@@ -40,8 +40,25 @@ RTLogAnalyzer* rt_log_analyzer_init(Logger_Pool* logger) {
     analyzer->subscribers_count = 0;
     analyzer->exit_loop_flag = 0;
     analyzer->reset_flag = 0;
+    analyzer->rt_analyzer_id = analyzer_id;
+
     return analyzer;
 }
+
+void rt_log_stats_init(void) {
+    rt_log_stats = (RTLogStatistics*) malloc(sizeof(RTLogStatistics) * FLASH_NB);
+
+    int i;
+
+    for (i = 0; i < FLASH_NB; i++) {
+        rt_log_stats[i].current_wall_time = 0;
+        rt_log_stats[i].logical_write_count = 0;
+        rt_log_stats[i].occupied_pages = 0;
+        rt_log_stats[i].read_wall_time = 0;
+        rt_log_stats[i].write_wall_time = 0;
+    }
+}
+
 
 int rt_log_analyzer_subscribe(RTLogAnalyzer* analyzer, MonitorHook hook, void* uid) {
     if (analyzer->subscribers_count >= MAX_SUBSCRIBERS)
@@ -62,11 +79,7 @@ void rt_log_analyzer_loop(RTLogAnalyzer* analyzer, int max_logs) {
     SSDStatistics old_stats = stats_init();
 
     // init additional variables
-    rt_log_stats.logical_write_count = 0;
-    rt_log_stats.write_wall_time = 0;
-    rt_log_stats.read_wall_time = 0;
-    rt_log_stats.current_wall_time = 0;
-    rt_log_stats.occupied_pages = 0;
+    unsigned int logical_write_count = 0;
 
     unsigned int subscriber_id;
 
@@ -89,9 +102,10 @@ void rt_log_analyzer_loop(RTLogAnalyzer* analyzer, int max_logs) {
                 old_stats = stats_init();
                 stats = stats_init();
                 stats.utilization = old_stats.utilization = util;
-                rt_log_stats.write_wall_time = 0;
-                rt_log_stats.read_wall_time = 0;
-                rt_log_stats.logical_write_count = 0;
+                rt_log_stats[analyzer->rt_analyzer_id].write_wall_time = 0;
+                rt_log_stats[analyzer->rt_analyzer_id].read_wall_time = 0;
+                rt_log_stats[analyzer->rt_analyzer_id].logical_write_count = 0;
+                logical_write_count = 0;
                 for (subscriber_id = 0; subscriber_id < analyzer->subscribers_count; subscriber_id++)
                     analyzer->hooks[subscriber_id](stats, analyzer->hooks_ids[subscriber_id]);
             }
@@ -123,21 +137,22 @@ void rt_log_analyzer_loop(RTLogAnalyzer* analyzer, int max_logs) {
             case PHYSICAL_CELL_READ_LOG_UID:
                 NEXT_PHYSICAL_CELL_READ_LOG(analyzer->logger);
                 stats.read_count++;
-                rt_log_stats.current_wall_time += CELL_READ_DELAY;
-                rt_log_stats.read_wall_time += rt_log_stats.current_wall_time;
-                rt_log_stats.current_wall_time = 0;
+                rt_log_stats[analyzer->rt_analyzer_id].current_wall_time += CELL_READ_DELAY;
+                rt_log_stats[analyzer->rt_analyzer_id].read_wall_time += rt_log_stats[analyzer->rt_analyzer_id].current_wall_time;
+                rt_log_stats[analyzer->rt_analyzer_id].current_wall_time = 0;
                 break;
             case PHYSICAL_CELL_PROGRAM_LOG_UID:
                 NEXT_PHYSICAL_CELL_PROGRAM_LOG(analyzer->logger);
                 stats.write_count++;
-                rt_log_stats.occupied_pages++;
-                rt_log_stats.current_wall_time += CELL_PROGRAM_DELAY;
-                rt_log_stats.write_wall_time += rt_log_stats.current_wall_time;
-                rt_log_stats.current_wall_time = 0;
+                rt_log_stats[analyzer->rt_analyzer_id].occupied_pages++;
+                rt_log_stats[analyzer->rt_analyzer_id].current_wall_time += CELL_PROGRAM_DELAY;
+                rt_log_stats[analyzer->rt_analyzer_id].write_wall_time += rt_log_stats[analyzer->rt_analyzer_id].current_wall_time;
+                rt_log_stats[analyzer->rt_analyzer_id].current_wall_time = 0;
                 break;
             case LOGICAL_CELL_PROGRAM_LOG_UID:
                 NEXT_LOGICAL_CELL_PROGRAM_LOG(analyzer->logger);
-                rt_log_stats.logical_write_count++;
+                rt_log_stats[analyzer->rt_analyzer_id].logical_write_count++;
+                logical_write_count++;
                 break;
             case GARBAGE_COLLECTION_LOG_UID:
                 NEXT_GARBAGE_COLLECTION_LOG(analyzer->logger);
@@ -145,24 +160,24 @@ void rt_log_analyzer_loop(RTLogAnalyzer* analyzer, int max_logs) {
                 break;
             case REGISTER_READ_LOG_UID:
                 NEXT_REGISTER_READ_LOG(analyzer->logger);
-                rt_log_stats.current_wall_time += REG_READ_DELAY;
+                rt_log_stats[analyzer->rt_analyzer_id].current_wall_time += REG_READ_DELAY;
                 break;
             case REGISTER_WRITE_LOG_UID:
                 NEXT_REGISTER_WRITE_LOG(analyzer->logger);
-                rt_log_stats.current_wall_time += REG_WRITE_DELAY;
+                rt_log_stats[analyzer->rt_analyzer_id].current_wall_time += REG_WRITE_DELAY;
                 break;
             case BLOCK_ERASE_LOG_UID:
                 NEXT_BLOCK_ERASE_LOG(analyzer->logger);
-                rt_log_stats.occupied_pages -= PAGE_NB;
-                rt_log_stats.current_wall_time += BLOCK_ERASE_DELAY;
+                rt_log_stats[analyzer->rt_analyzer_id].occupied_pages -= PAGE_NB;
+                rt_log_stats[analyzer->rt_analyzer_id].current_wall_time += BLOCK_ERASE_DELAY;
                 break;
             case CHANNEL_SWITCH_TO_READ_LOG_UID:
                 NEXT_CHANNEL_SWITCH_TO_READ_LOG(analyzer->logger);
-                rt_log_stats.current_wall_time += CHANNEL_SWITCH_DELAY_R;
+                rt_log_stats[analyzer->rt_analyzer_id].current_wall_time += CHANNEL_SWITCH_DELAY_R;
                 break;
             case CHANNEL_SWITCH_TO_WRITE_LOG_UID:
                 NEXT_CHANNEL_SWITCH_TO_WRITE_LOG(analyzer->logger);
-                rt_log_stats.current_wall_time += CHANNEL_SWITCH_DELAY_W;
+                rt_log_stats[analyzer->rt_analyzer_id].current_wall_time += CHANNEL_SWITCH_DELAY_W;
                 break;
             default:
                 fprintf(stderr, "WARNING: unknown log type id! [%d]\n", log_type);
@@ -170,26 +185,26 @@ void rt_log_analyzer_loop(RTLogAnalyzer* analyzer, int max_logs) {
                 break;
         }
 
-        if (rt_log_stats.logical_write_count == 0)
+        if (rt_log_stats[analyzer->rt_analyzer_id].logical_write_count == 0)
             stats.write_amplification = 0.0;
         else
-            stats.write_amplification = ((double) stats.write_count) / rt_log_stats.logical_write_count;
+            stats.write_amplification = ((double) stats.write_count) / logical_write_count;
 
-        if (rt_log_stats.read_wall_time == 0)
+        if (rt_log_stats[analyzer->rt_analyzer_id].read_wall_time == 0)
             stats.read_speed = 0.0;
         else
             stats.read_speed = PAGES_IN_USEC_TO_MBS(
-                ((double) stats.read_count) / rt_log_stats.read_wall_time
+                ((double) stats.read_count) / rt_log_stats[analyzer->rt_analyzer_id].read_wall_time
             );
 
-        if (rt_log_stats.write_wall_time == 0)
+        if (rt_log_stats[analyzer->rt_analyzer_id].write_wall_time == 0)
             stats.write_speed = 0.0;
         else
             stats.write_speed = PAGES_IN_USEC_TO_MBS(
-                ((double) stats.write_count) / rt_log_stats.write_wall_time
+                ((double) stats.write_count) / rt_log_stats[analyzer->rt_analyzer_id].write_wall_time
             );
 
-        stats.utilization = ((double) rt_log_stats.occupied_pages) / PAGES_IN_SSD;
+        stats.utilization = ((double) rt_log_stats[analyzer->rt_analyzer_id].occupied_pages) / PAGES_IN_SSD;
 
 
         // call present hooks if the statistics changed
@@ -207,7 +222,12 @@ void rt_log_analyzer_loop(RTLogAnalyzer* analyzer, int max_logs) {
 }
 
 void rt_log_analyzer_free(RTLogAnalyzer* analyzer, int free_logger) {
-    if (free_logger)
+    if (free_logger) {
         logger_free(analyzer->logger);
+    }
     free((void*) analyzer);
+}
+
+void rt_log_stats_free(void) {
+    free(rt_log_stats);
 }

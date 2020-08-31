@@ -134,7 +134,6 @@ void SEND_TO_PERF_CHECKER(int op_type, int64_t op_delay, int type){
 
 			case ERASE:
 				written_page_nb -= PAGE_NB;
-				WRITE_LOG("ERASE 1");
 				break;
 
 			case GC_READ:
@@ -165,13 +164,10 @@ void SEND_TO_PERF_CHECKER(int op_type, int64_t op_delay, int type){
 				avg_read_latency = (avg_read_latency * read_latency_count + delay)/(read_latency_count + 1);
 
 				read_latency_count++;
-				WRITE_LOG("READ BW %lf ", GET_IO_BANDWIDTH(avg_read_delay));
 				break;
 			case WRITE:
 				avg_write_latency = (avg_write_latency * write_latency_count + delay)/(write_latency_count + 1);
 				write_latency_count++;
-				WRITE_LOG("WRITE BW %lf ", GET_IO_BANDWIDTH(avg_write_delay));
-				WRITE_LOG("UTIL %lf ", SSD_UTIL());
 				break;
 			default:
 				break;
