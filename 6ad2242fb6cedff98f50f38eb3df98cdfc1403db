@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "38a6d3c8_305a68b1",
+        "filename": "eVSSIM/LOG_MGR/logging_rt_analyzer.c",
+        "patchSetId": 4
+      },
+      "lineNbr": 55,
+      "author": {
+        "id": 1017913
+      },
+      "writtenOn": "2020-09-07T17:43:08Z",
+      "side": 1,
+      "message": "i think this block can be moved to another place. This will be called for each thread, that way we initialize it many times.\nAny suggestions where to?",
+      "range": {
+        "startLine": 47,
+        "startChar": 4,
+        "endLine": 55,
+        "endChar": 5
+      },
+      "revId": "6ad2242fb6cedff98f50f38eb3df98cdfc1403db",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": true
+    }
+  ]
+}
