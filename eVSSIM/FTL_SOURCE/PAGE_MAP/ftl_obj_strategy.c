@@ -76,36 +76,36 @@ void TERM_OBJ_STRATEGY(void)
     free_page_table();
 }
 
-ftl_ret_val _FTL_OBJ_READ(obj_id_t obj_loc, buf_ptr_t buf, offset_t offset, length_t length)
+ftl_ret_val _FTL_OBJ_READ(obj_id_t obj_loc, offset_t offset, length_t length)
 {
     stored_object *object;
     page_node *current_page;
     int io_page_nb;
     int curr_io_page_nb;
     unsigned int ret = FTL_FAILURE;
-    
+
     object = lookup_object(obj_loc.object_id);
-    
+
     // file not found
     if (object == NULL)
         return FTL_FAILURE;
     // object not big enough
     if (object->size < (offset + length))
         return FTL_FAILURE;
-    
+
     if(!(current_page = page_by_offset(object, offset)))
     {
         RERR(FTL_FAILURE, "%u lookup page by offset failed \n", current_page->page_id);
     }
-    
+
     // just calculate the overhead of allocating the request. io_page_nb will be the total number of pages we're gonna read
 	io_alloc_overhead = ALLOC_IO_REQUEST(current_page->page_id * SECTORS_PER_PAGE, length, READ, &io_page_nb);
-    
+
     for (curr_io_page_nb = 0; curr_io_page_nb < io_page_nb; curr_io_page_nb++)
     {
         // simulate the page read
-        ret = SSD_PAGE_READ(CALC_FLASH(current_page->page_id), CALC_BLOCK(current_page->page_id), CALC_PAGE(current_page->page_id), curr_io_page_nb, READ, io_page_nb);
-        
+        ret = SSD_PAGE_READ(CALC_FLASH(current_page->page_id), CALC_BLOCK(current_page->page_id), CALC_PAGE(current_page->page_id), curr_io_page_nb, READ);
+
 		// send a physical read action being done to the statistics gathering
 		if (ret == FTL_SUCCESS)
 		{
@@ -116,11 +116,11 @@ ftl_ret_val _FTL_OBJ_READ(obj_id_t obj_loc, buf_ptr_t buf, offset_t offset, leng
 		{
 			PDBG_FTL("Error %u page read fail \n", current_page->page_id);
 		}
-        
+
         // get the next page
         current_page = current_page->next;
     }
-    
+
     INCREASE_IO_REQUEST_SEQ_NB();
 
 	PDBG_FTL("Complete\n");
@@ -136,17 +136,18 @@ ftl_ret_val _FTL_OBJ_WRITE(obj_id_t object_loc, buf_ptr_t buf, offset_t offset, 
     int io_page_nb;
     int curr_io_page_nb;
     unsigned int ret = FTL_FAILURE;
-    
+    (void) buf; // Not Used Variable
+
     object = lookup_object(object_loc.object_id);
-    
+
     // file not found
     if (object == NULL)
     	RERR(FTL_FAILURE, "failed lookup\n");
 
-    
+
     // calculate the overhead of allocating the request. io_page_nb will be the total number of pages we're gonna write
     io_alloc_overhead = ALLOC_IO_REQUEST(offset, length, WRITE, &io_page_nb);
-    
+
     // if the offset is past the current size of the stored_object we need to append new pages until we can start writing
     while (offset > object->size)
     {
@@ -157,7 +158,7 @@ ftl_ret_val _FTL_OBJ_WRITE(obj_id_t object_loc, buf_ptr_t buf, offset_t offset, 
         }
         if(!add_page(object, page_id))
             return FTL_FAILURE;
-        
+
         // mark new page as valid and used
         UPDATE_NEW_PAGE_MAPPING_NO_LOGICAL(page_id);
     }
@@ -169,7 +170,7 @@ ftl_ret_val _FTL_OBJ_WRITE(obj_id_t object_loc, buf_ptr_t buf, offset_t offset, 
             current_page = page_by_offset(object, offset);
         else
             current_page = current_page->next;
-        
+
         // get the pge we'll be writing to
         if (GET_NEW_PAGE(VICTIM_OVERALL, EMPTY_TABLE_ENTRY_NB, &page_id) == FTL_FAILURE)
         {
@@ -204,15 +205,15 @@ ftl_ret_val _FTL_OBJ_WRITE(obj_id_t object_loc, buf_ptr_t buf, offset_t offset, 
             // probably gonna add an array to hold the unique ones and in the end GC all of them
             GC_CHECK(CALC_FLASH(current_page->page_id), CALC_BLOCK(current_page->page_id), false, true);
 #endif
-        
-        ret = SSD_PAGE_WRITE(CALC_FLASH(page_id), CALC_BLOCK(page_id), CALC_PAGE(page_id), curr_io_page_nb, WRITE, io_page_nb);
-        
+
+        ret = SSD_PAGE_WRITE(CALC_FLASH(page_id), CALC_BLOCK(page_id), CALC_PAGE(page_id), curr_io_page_nb, WRITE);
+
 		// send a physical write action being done to the statistics gathering
 		if (ret == FTL_SUCCESS)
 		{
 			FTL_STATISTICS_GATHERING(page_id , PHYSICAL_WRITE);
 		}
-        
+
         // TODO: fix
         if (ret == FTL_FAILURE)
         {
@@ -250,9 +251,9 @@ ftl_ret_val _FTL_OBJ_COPYBACK(int32_t source, int32_t destination)
         UPDATE_NEW_PAGE_MAPPING_NO_LOGICAL(destination);
 
         // change the object's page mapping to the new page
-        HASH_DEL(global_page_table, source_p); 
+        HASH_DEL(global_page_table, source_p);
         source_p->page_id = destination;
-        HASH_ADD_INT(global_page_table, page_id, source_p); 
+        HASH_ADD_INT(global_page_table, page_id, source_p);
     }
     else
     {
@@ -265,13 +266,13 @@ ftl_ret_val _FTL_OBJ_COPYBACK(int32_t source, int32_t destination)
 bool _FTL_OBJ_CREATE(obj_id_t obj_loc, size_t size)
 {
     stored_object *new_object;
-    
+
     new_object = create_object(obj_loc.object_id, size);
-    
+
     if (new_object == NULL) {
         return false;
     }
-    
+
     return true;
 }
 
@@ -279,9 +280,9 @@ ftl_ret_val _FTL_OBJ_DELETE(obj_id_t obj_loc)
 {
     stored_object *object;
     object_map *obj_map;
-    
+
     object = lookup_object(obj_loc.object_id);
-    
+
     // object not found
     if (object == NULL)
     	return FTL_FAILURE;
@@ -298,10 +299,10 @@ ftl_ret_val _FTL_OBJ_DELETE(obj_id_t obj_loc)
 stored_object *lookup_object(object_id_t object_id)
 {
     stored_object *object;
-    
+
     // try to find it in our hashtable. NULL will be returned if key not found
     HASH_FIND_INT(objects_table, &object_id, object);
-    
+
     return object;
 }
 
@@ -344,7 +345,7 @@ stored_object *create_object(object_id_t obj_id, size_t size)
     obj->pages = NULL;
 
     // add the new object to the objects' hashtable
-    HASH_ADD_INT(objects_table, id, obj); 
+    HASH_ADD_INT(objects_table, id, obj);
 
     while(size > obj->size)
     {
@@ -357,7 +358,7 @@ stored_object *create_object(object_id_t obj_id, size_t size)
 
         if(!add_page(obj, page_id))
             return NULL;
-        
+
         // mark new page as valid and used
         UPDATE_NEW_PAGE_MAPPING_NO_LOGICAL(page_id);
     }
@@ -378,7 +379,7 @@ int remove_object(stored_object *object, object_map *obj_map)
     if (object && (object->hh.tbl != NULL))
         HASH_DEL(objects_table, object);
 
-    
+
     if (obj_map && (obj_map->hh.tbl != NULL)){
     	HASH_DEL(objects_mapping, obj_map);
     	free(obj_map);
@@ -404,10 +405,10 @@ int remove_object(stored_object *object, object_map *obj_map)
 
         free(invalidated_page);
     }
-    
+
     // free the object's memory
     free(object);
-    
+
     return FTL_SUCCESS;
 }
 
@@ -434,7 +435,7 @@ page_node *add_page(stored_object *object, uint32_t page_id)
     if(object->pages == NULL)
     {
         page = allocate_new_page(object->id,page_id);
-        HASH_ADD_INT(global_page_table, page_id, page); 
+        HASH_ADD_INT(global_page_table, page_id, page);
         object->pages = page;
         return object->pages;
     }
@@ -446,7 +447,7 @@ page_node *add_page(stored_object *object, uint32_t page_id)
     }
 
     page = allocate_new_page(object->id,page_id);
-    HASH_ADD_INT(global_page_table, page_id, page); 
+    HASH_ADD_INT(global_page_table, page_id, page);
     curr->next = page;
     return curr->next;
 }
@@ -603,10 +604,12 @@ void OSD_READ_OBJ(object_location obj_loc, unsigned int length, uint64_t addr, u
 		PINFO("osd_read() was successful. %lu bytes were read !\n", len);
 
 #ifndef COMPLIANCE_TESTS
-		cpu_physical_memory_rw(addr, rdbuf, len, 1);
+    cpu_physical_memory_rw(addr, rdbuf, len, 1);
+#else
+    (void) addr; // Not Used Variable
 #endif
 
-		printMemoryDump(rdbuf, length);
+    printMemoryDump(rdbuf, length);
 
 	}
 	free(rdbuf);
@@ -615,15 +618,15 @@ void OSD_READ_OBJ(object_location obj_loc, unsigned int length, uint64_t addr, u
 page_node *page_by_offset(stored_object *object, unsigned int offset)
 {
     page_node *page;
-    
+
     // check if out of bounds
     if(offset > object->size)
         return NULL;
-    
+
     // skim through pages until offset is less than a page's size
     for(page = object->pages; page && offset >= GET_PAGE_SIZE(); offset -= GET_PAGE_SIZE(), page = page->next)
         ;
-    
+
     // if page==NULL then page collection < size - report error? or assume it's valid? - this technically shouldn't happen after the if at the beginning. just return NULL if it does
     return page;
 }

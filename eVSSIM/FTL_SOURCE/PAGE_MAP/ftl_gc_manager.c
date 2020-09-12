@@ -1,4 +1,4 @@
-// Copyright(c)2013 
+// Copyright(c)2013
 //
 // Hanyang University, Seoul, Korea
 // Embedded Software Systems Lab. All right reserved
@@ -18,7 +18,7 @@ GCAlgorithm gc_algo;
 
 void INIT_GC_MANAGER(void) {
     gc_algo.collection = &DEFAULT_GC_COLLECTION_ALGO;
-    gc_algo.next_page = &DEFAULT_NEXT_PAGE_ALGO;
+    gc_algo.next_page = (gc_next_page_algo) &DEFAULT_NEXT_PAGE_ALGO;
 }
 
 void GC_CHECK(unsigned int phy_flash_nb, unsigned int phy_block_nb, bool force, bool isObjectStrategy)
@@ -26,7 +26,7 @@ void GC_CHECK(unsigned int phy_flash_nb, unsigned int phy_block_nb, bool force, 
 	int i, ret;
 	int plane_nb = phy_block_nb % PLANES_PER_FLASH;
 	int mapping_index = plane_nb * FLASH_NB + phy_flash_nb;
-	
+
 	if(force || total_empty_block_nb < GC_THRESHOLD_BLOCK_NB){
         int l2 = total_empty_block_nb < GC_L2_THRESHOLD_BLOCK_NB;
 		for(i=0; i<GC_VICTIM_NB; i++){
@@ -44,7 +44,7 @@ ftl_ret_val GARBAGE_COLLECTION(int mapping_index, int l2, bool isObjectStrategy)
 
 ftl_ret_val DEFAULT_GC_COLLECTION_ALGO(int mapping_index, int l2, bool isObjectStrategy)
 {
-	int i;
+	uint32_t i;
 	int ret;
 	uint32_t lpn;
 	uint32_t old_ppn;
@@ -73,20 +73,20 @@ ftl_ret_val DEFAULT_GC_COLLECTION_ALGO(int mapping_index, int l2, bool isObjectS
 		if (valid_array[i] == PAGE_VALID){
 
 
-// This is original vssim code without copyback            
+// This is original vssim code without copyback
 //            ret = GET_NEW_PAGE(VICTIM_OVERALL, mapping_index, &new_ppn);
 //            if(ret == FAIL){
 //                printf("ERROR[%s] Get new page fail\n",__FUNCTION__);
 //                return FAIL;
 //            }
-//            SSD_PAGE_READ(victim_phy_flash_nb, victim_phy_block_nb, i, i, GC_READ, -1);
-//            SSD_PAGE_WRITE(CALC_FLASH(new_ppn), CALC_BLOCK(new_ppn), CALC_PAGE(new_ppn), i, GC_WRITE, -1);
+//            SSD_PAGE_READ(victim_phy_flash_nb, victim_phy_block_nb, i, i, GC_READ);
+//            SSD_PAGE_WRITE(CALC_FLASH(new_ppn), CALC_BLOCK(new_ppn), CALC_PAGE(new_ppn), i, GC_WRITE);
 //
 //            old_ppn = victim_phy_flash_nb*PAGES_PER_FLASH + victim_phy_block_nb*PAGE_NB + i;
 //
 //            lpn = GET_INVERSE_MAPPING_INFO(old_ppn);
 //            UPDATE_NEW_PAGE_MAPPING(lpn, new_ppn);
-// End of original vssim code without copyback            
+// End of original vssim code without copyback
 
 
 
@@ -100,8 +100,8 @@ ftl_ret_val DEFAULT_GC_COLLECTION_ALGO(int mapping_index, int l2, bool isObjectS
                 if(ret == FTL_FAILURE)
 				    RERR(FTL_FAILURE, "GET_NEW_PAGE(VICTIM_OVERALL, EMPTY_TABLE_ENTRY_NB): failed\n");
 
-                SSD_PAGE_READ(victim_phy_flash_nb, victim_phy_block_nb, i, i, GC_READ, -1);
-                SSD_PAGE_WRITE(CALC_FLASH(new_ppn), CALC_BLOCK(new_ppn), CALC_PAGE(new_ppn), i, GC_WRITE, -1);
+                SSD_PAGE_READ(victim_phy_flash_nb, victim_phy_block_nb, i, i, GC_READ);
+                SSD_PAGE_WRITE(CALC_FLASH(new_ppn), CALC_BLOCK(new_ppn), CALC_PAGE(new_ppn), i, GC_WRITE);
                 old_ppn = victim_phy_flash_nb*PAGES_PER_FLASH + victim_phy_block_nb*PAGE_NB + i;
                 lpn = GET_INVERSE_MAPPING_INFO(old_ppn);
                 UPDATE_NEW_PAGE_MAPPING(lpn, new_ppn);
@@ -115,8 +115,8 @@ ftl_ret_val DEFAULT_GC_COLLECTION_ALGO(int mapping_index, int l2, bool isObjectS
 
                 if(ret == FTL_FAILURE){
                     PDBG_FTL("failed to copyback\n");
-                    SSD_PAGE_READ(victim_phy_flash_nb, victim_phy_block_nb, i, i, GC_READ, -1);
-                    SSD_PAGE_WRITE(CALC_FLASH(new_ppn), CALC_BLOCK(new_ppn), CALC_PAGE(new_ppn), i, GC_WRITE, -1);
+                    SSD_PAGE_READ(victim_phy_flash_nb, victim_phy_block_nb, i, i, GC_READ);
+                    SSD_PAGE_WRITE(CALC_FLASH(new_ppn), CALC_BLOCK(new_ppn), CALC_PAGE(new_ppn), i, GC_WRITE);
                     old_ppn = victim_phy_flash_nb*PAGES_PER_FLASH + victim_phy_block_nb*PAGE_NB + i;
                     lpn = GET_INVERSE_MAPPING_INFO(old_ppn);
                     UPDATE_NEW_PAGE_MAPPING(lpn, new_ppn);
@@ -151,8 +151,8 @@ ftl_ret_val DEFAULT_GC_COLLECTION_ALGO(int mapping_index, int l2, bool isObjectS
 /* Greedy Garbage Collection Algorithm */
 ftl_ret_val SELECT_VICTIM_BLOCK(unsigned int* phy_flash_nb, unsigned int* phy_block_nb)
 {
-	int i, j;
-	int entry_nb = 0;
+	uint32_t i, j;
+	uint32_t entry_nb = 0;
 
 	victim_block_root* curr_root;
 	victim_block_entry* curr_victim_entry;
@@ -166,7 +166,7 @@ ftl_ret_val SELECT_VICTIM_BLOCK(unsigned int* phy_flash_nb, unsigned int* phy_bl
 	/* if GC_TRIGGER_OVERALL is defined, then */
 	curr_root = (victim_block_root*)victim_block_table_start;
 
-	for(i=0;i<VICTIM_TABLE_ENTRY_NB;i++){
+	for (i=0;i<VICTIM_TABLE_ENTRY_NB;i++) {
 
 		if(curr_root->victim_block_nb != 0){
 			entry_nb = curr_root->victim_block_nb;
@@ -187,7 +187,7 @@ ftl_ret_val SELECT_VICTIM_BLOCK(unsigned int* phy_flash_nb, unsigned int* phy_bl
 		}
 		curr_root += 1;
 	}
-	if(*(victim_block->valid_page_nb) == PAGE_NB){
+	if (*(victim_block->valid_page_nb) == PAGE_NB) {
 		fail_cnt++;
 		return FTL_FAILURE;
 	}

@@ -79,9 +79,9 @@ namespace {
         int num_of_writes = 3;
         int write_wall_time = 0;
 
-        SSD_PAGE_WRITE(flash_nb,block_nb,page_nb,offset, WRITE, IO_PAGE_NB);
-        SSD_PAGE_WRITE(flash_nb,block_nb,page_nb,offset, WRITE, IO_PAGE_NB);
-        SSD_PAGE_WRITE(flash_nb,block_nb,page_nb,offset, WRITE, IO_PAGE_NB);
+        SSD_PAGE_WRITE(flash_nb,block_nb,page_nb,offset, WRITE);
+        SSD_PAGE_WRITE(flash_nb,block_nb,page_nb,offset, WRITE);
+        SSD_PAGE_WRITE(flash_nb,block_nb,page_nb,offset, WRITE);
 
         // single write page delay
         int expected_write_duration = (REG_WRITE_DELAY + CELL_PROGRAM_DELAY) * num_of_writes;
@@ -89,7 +89,7 @@ namespace {
         // wait for new monitor sync
         MONITOR_SYNC_DELAY(expected_write_duration);
 
-        int i;
+        uint32_t i;
 
         for (i = 0; i < FLASH_NB; i++) {
             write_wall_time += rt_log_stats[i].write_wall_time;
@@ -112,9 +112,9 @@ namespace {
         int num_of_reads = 3;
         int read_wall_time = 0;
 
-        SSD_PAGE_READ(flash_nb,block_nb,page_nb,offset, READ, IO_PAGE_NB);
-        SSD_PAGE_READ(flash_nb,block_nb,page_nb,offset, READ, IO_PAGE_NB);
-        SSD_PAGE_READ(flash_nb,block_nb,page_nb,offset, READ, IO_PAGE_NB);
+        SSD_PAGE_READ(flash_nb,block_nb,page_nb,offset, READ);
+        SSD_PAGE_READ(flash_nb,block_nb,page_nb,offset, READ);
+        SSD_PAGE_READ(flash_nb,block_nb,page_nb,offset, READ);
 
         // single read page delay
         int expected_read_duration = CHANNEL_SWITCH_DELAY_R + (REG_READ_DELAY + CELL_READ_DELAY) * num_of_reads;
@@ -122,7 +122,7 @@ namespace {
         // wait for new monitor sync
         MONITOR_SYNC_DELAY(expected_read_duration);
 
-        int i;
+        uint32_t i;
 
         for (i = 0; i < FLASH_NB; i++) {
             read_wall_time += rt_log_stats[i].read_wall_time;
@@ -149,11 +149,11 @@ namespace {
         int write_wall_time = 0;
         int read_wall_time = 0;
 
-        SSD_PAGE_WRITE(flash_nb,block_nb,page_nb,offset, WRITE, IO_PAGE_NB);
-        SSD_PAGE_WRITE(flash_nb,block_nb,page_nb,offset, WRITE, IO_PAGE_NB);
-        SSD_PAGE_READ(flash_nb,block_nb,page_nb,offset, READ, IO_PAGE_NB);
-        SSD_PAGE_READ(flash_nb,block_nb,page_nb,offset, READ, IO_PAGE_NB);
-        SSD_PAGE_WRITE(flash_nb,block_nb,page_nb,offset, WRITE, IO_PAGE_NB);
+        SSD_PAGE_WRITE(flash_nb,block_nb,page_nb,offset, WRITE);
+        SSD_PAGE_WRITE(flash_nb,block_nb,page_nb,offset, WRITE);
+        SSD_PAGE_READ(flash_nb,block_nb,page_nb,offset, READ);
+        SSD_PAGE_READ(flash_nb,block_nb,page_nb,offset, READ);
+        SSD_PAGE_WRITE(flash_nb,block_nb,page_nb,offset, WRITE);
 
         // single write page delay
         int expected_write_duration = CHANNEL_SWITCH_DELAY_W + (REG_WRITE_DELAY + CELL_PROGRAM_DELAY) * num_of_writes;
@@ -162,7 +162,7 @@ namespace {
         // wait for new monitor sync
         MONITOR_SYNC_DELAY(expected_write_duration + expected_read_duration);
 
-        int i;
+        uint32_t i;
 
         for (i = 0; i < FLASH_NB; i++) {
             write_wall_time += rt_log_stats[i].write_wall_time;
@@ -188,7 +188,7 @@ namespace {
         double ssd_utils = (double)occupied_pages / PAGES_IN_SSD;
         int expected_write_duration = REG_WRITE_DELAY + CELL_PROGRAM_DELAY;
 
-        SSD_PAGE_WRITE(flash_nb,block_nb,page_nb,0, WRITE, IO_PAGE_NB);
+        SSD_PAGE_WRITE(flash_nb,block_nb,page_nb,0, WRITE);
 
         // wait for new monitor sync
         MONITOR_SYNC_DELAY(expected_write_duration);
@@ -212,7 +212,7 @@ namespace {
         double ssd_utils = (double)occupied_pages / PAGES_IN_SSD;
         int expected_write_duration = REG_WRITE_DELAY + CELL_PROGRAM_DELAY;
 
-        SSD_PAGE_WRITE(flash_nb,block_nb,page_nb,0, GC_WRITE, GC_IO_PAGE_NB);
+        SSD_PAGE_WRITE(flash_nb,block_nb,page_nb,0, GC_WRITE);
 
         // wait for new monitor sync
         MONITOR_SYNC_DELAY(expected_write_duration);
@@ -237,7 +237,7 @@ namespace {
         double ssd_utils = (double)occupied_pages / PAGES_IN_SSD;
         int expected_write_duration = REG_WRITE_DELAY + CELL_PROGRAM_DELAY + BLOCK_ERASE_DELAY;
 
-        SSD_PAGE_WRITE(flash_nb,block_nb,page_nb,0, WRITE, IO_PAGE_NB);
+        SSD_PAGE_WRITE(flash_nb,block_nb,page_nb,0, WRITE);
         SSD_BLOCK_ERASE(flash_nb,block_nb);
 
         // wait for new monitor sync
@@ -266,8 +266,8 @@ namespace {
         double ssd_utils = 0;
         int expected_write_duration = (REG_WRITE_DELAY + CELL_PROGRAM_DELAY) * 2;
 
-        SSD_PAGE_WRITE(flash_nb,block_nb,page_nb,0, WRITE, IO_PAGE_NB);
-        SSD_PAGE_WRITE(flash_nb,block_nb+1,page_nb,0, WRITE, IO_PAGE_NB);
+        SSD_PAGE_WRITE(flash_nb,block_nb,page_nb,0, WRITE);
+        SSD_PAGE_WRITE(flash_nb,block_nb+1,page_nb,0, WRITE);
         occupied_pages = 2;
         ASSERT_EQ((double)occupied_pages / PAGES_IN_SSD, SSD_UTIL());
         SSD_BLOCK_ERASE(flash_nb,block_nb);
@@ -300,11 +300,11 @@ namespace {
         int physical_page_writes = 1;
         int expected_write_duration = REG_WRITE_DELAY + CELL_PROGRAM_DELAY;
 
-        SSD_PAGE_WRITE(flash_nb,block_nb,page_nb,0, WRITE, IO_PAGE_NB);
+        SSD_PAGE_WRITE(flash_nb,block_nb,page_nb,0, WRITE);
         // wait for new monitor sync
         MONITOR_SYNC_DELAY(expected_write_duration);
 
-        int i;
+        uint32_t i;
 
         for (i = 0; i < FLASH_NB; i++) {
             logical_write_count += rt_log_stats[i].logical_write_count;
@@ -335,11 +335,11 @@ namespace {
         int expected_write_duration = REG_WRITE_DELAY + CELL_PROGRAM_DELAY;
 
         // wait for new monitor sync
-        SSD_PAGE_WRITE(flash_nb,block_nb,page_nb,0, GC_WRITE, GC_IO_PAGE_NB);
+        SSD_PAGE_WRITE(flash_nb,block_nb,page_nb,0, GC_WRITE);
 
         MONITOR_SYNC_DELAY(expected_write_duration);
 
-        int i;
+        uint32_t i;
 
         for (i = 0; i < FLASH_NB; i++) {
             logical_write_count += rt_log_stats[i].logical_write_count;
@@ -367,12 +367,12 @@ namespace {
 
         // Write all pages in the block
         for (size_t i = 0; i < CONST_PAGES_PER_BLOCK; i++) {
-            SSD_PAGE_WRITE(flash_nb, block_nb, i, 0, WRITE, IO_PAGE_NB);
+            SSD_PAGE_WRITE(flash_nb, block_nb, i, 0, WRITE);
         }
 
         // Read all pages in the block
         for (size_t i = 0; i < CONST_PAGES_PER_BLOCK; i++) {
-            SSD_PAGE_READ(flash_nb, block_nb, i, 0, READ, IO_PAGE_NB);
+            SSD_PAGE_READ(flash_nb, block_nb, i, 0, READ);
         }
 
         MONITOR_SYNC_DELAY(expected_write_duration + expected_read_duration);
@@ -402,14 +402,14 @@ namespace {
         // Write all blocks in the channel
         for (size_t i = 0; i < blocks_per_flash; i++) {
             for (size_t j = 0; j < CONST_PAGES_PER_BLOCK; j++) {
-                SSD_PAGE_WRITE(0, i, j, 0, WRITE, IO_PAGE_NB);
+                SSD_PAGE_WRITE(0, i, j, 0, WRITE);
             }
         }
 
         // Read all blocks in the channel
         for (size_t i = 0; i < blocks_per_flash; i++) {
             for (size_t j = 0; j < CONST_PAGES_PER_BLOCK; j++) {
-                SSD_PAGE_READ(0, i, j, 0, READ, IO_PAGE_NB);
+                SSD_PAGE_READ(0, i, j, 0, READ);
             }
         }
 

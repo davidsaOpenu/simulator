@@ -11,7 +11,7 @@ int* reg_io_type;	// SEQ, RAN, MERGE, GC, etc..
 int64_t* reg_io_time;
 int64_t* cell_io_time;
 
-int** access_nb;
+uint32_t** access_nb;
 int64_t* io_overhead;
 
 int old_channel_nb;
@@ -45,7 +45,7 @@ int64_t get_usec(void)
 
 int SSD_IO_INIT(void){
 
-	int i= 0;
+	uint32_t i= 0;
 
 	/* Print SSD version */
 	PINFO("SSD Emulator Version: %s ver. (%s)\n", ssd_version, ssd_date);
@@ -84,11 +84,11 @@ int SSD_IO_INIT(void){
 	}
 
 	/* Init Access sequence_nb */
-	access_nb = (int **)malloc(sizeof(int*) * FLASH_NB * PLANES_PER_FLASH);
+	access_nb = (uint32_t **)malloc(sizeof(uint32_t*) * FLASH_NB * PLANES_PER_FLASH);
 	for(i=0; i< FLASH_NB*PLANES_PER_FLASH; i++){
-		*(access_nb + i) = (int*)malloc(sizeof(int)*2);
-		access_nb[i][0] = -1;
-		access_nb[i][1] = -1;
+		*(access_nb + i) = (uint32_t*)malloc(sizeof(uint32_t)*2);
+		access_nb[i][0] = UINT32_MAX;
+		access_nb[i][1] = UINT32_MAX;
 	}
 
 	/* Init IO Overhead */
@@ -112,7 +112,7 @@ int SSD_IO_TERM(void)
 	free(reg_io_type);
 	free(reg_io_time);
 	free(cell_io_time);
-	int i;
+	uint32_t i;
 	for(i=0; i< FLASH_NB*PLANES_PER_FLASH; i++)
 		free(access_nb[i]);
 	free(access_nb);
@@ -159,9 +159,9 @@ static int SSD_CH_RECORD(int channel, int offset, int ret)
 	return FTL_SUCCESS;
 }
 
-ftl_ret_val SSD_PAGE_WRITE(unsigned int flash_nb, unsigned int block_nb, unsigned int page_nb, int offset, int type, int io_page_nb)
+ftl_ret_val SSD_PAGE_WRITE(unsigned int flash_nb, unsigned int block_nb, unsigned int page_nb, int offset, int type)
 {
-	int channel, reg;
+	uint32_t channel, reg;
 	int ret = FTL_FAILURE;
 	int delay_ret;
 
@@ -193,19 +193,12 @@ ftl_ret_val SSD_PAGE_WRITE(unsigned int flash_nb, unsigned int block_nb, unsigne
 	SSD_REG_RECORD(reg, type, offset, channel);
 	SSD_REG_ACCESS(flash_nb, channel, reg);
 
-#ifdef O_DIRECT_VSSIM
-	if(offset == io_page_nb-1){
-		SSD_REMAIN_IO_DELAY(flash_nb, channel, reg);
-	}
-#endif
-
     TIME_MICROSEC(_end);
 
     if (ssd.prev_channel_mode[channel] == READ) {
         LOG_CHANNEL_SWITCH_TO_WRITE(GET_LOGGER(flash_nb), (ChannelSwitchToWriteLog) {
             .channel = channel,
-            .metadata.logging_start_time = _start,
-            .metadata.logging_end_time = _end
+			.metadata = {_start, _end}
         });
     }
     ssd.prev_channel_mode[channel] = WRITE;
@@ -218,21 +211,19 @@ ftl_ret_val SSD_PAGE_WRITE(unsigned int flash_nb, unsigned int block_nb, unsigne
 
 		LOG_LOGICAL_CELL_PROGRAM(GET_LOGGER(flash_nb),(LogicalCellProgramLog) {
 		    .channel = channel, .block = block_nb, .page = page_nb,
-            .metadata.logging_start_time = _start,
-            .metadata.logging_end_time = _end
+            .metadata = {_start, _end}
 		});
 	}
 
 	LOG_PHYSICAL_CELL_PROGRAM(GET_LOGGER(flash_nb), (PhysicalCellProgramLog) {
 	    .channel = channel, .block = block_nb, .page = page_nb,
-        .metadata.logging_start_time = _start,
-        .metadata.logging_end_time = _end
+        .metadata = {_start, _end}
 	});
 
 	return ret;
 }
 
-ftl_ret_val SSD_PAGE_READ(unsigned int flash_nb, unsigned int block_nb, unsigned int page_nb, int offset, int type, int io_page_nb)
+ftl_ret_val SSD_PAGE_READ(unsigned int flash_nb, unsigned int block_nb, unsigned int page_nb, int offset, int type)
 {
 	int channel, reg;
 	int delay_ret;
@@ -261,27 +252,19 @@ ftl_ret_val SSD_PAGE_READ(unsigned int flash_nb, unsigned int block_nb, unsigned
 	SSD_REG_RECORD(reg, type, offset, channel);
 	SSD_REG_ACCESS(flash_nb, channel, reg);
 
-#ifdef O_DIRECT_VSSIM
-	if(offset == io_page_nb - 1){
-		SSD_REMAIN_IO_DELAY(flash_nb, channel, reg);
-	}
-#endif
-
     TIME_MICROSEC(_end);
 
         if (ssd.prev_channel_mode[channel] != READ && ssd.prev_channel_mode[channel] != NOOP) {
             LOG_CHANNEL_SWITCH_TO_READ(GET_LOGGER(flash_nb), (ChannelSwitchToReadLog) {
                 .channel = channel,
-                .metadata.logging_start_time = _start,
-                .metadata.logging_end_time = _end
+                .metadata = {_start, _end}
             });
         }
         ssd.prev_channel_mode[channel] = READ;
 
 	LOG_PHYSICAL_CELL_READ(GET_LOGGER(flash_nb), (PhysicalCellReadLog) {
 	    .channel = channel, .block = block_nb, .page = page_nb,
-        .metadata.logging_start_time = _start,
-        .metadata.logging_end_time = _end
+        .metadata = {_start, _end}
 	});
 
 	return FTL_SUCCESS;
@@ -317,22 +300,21 @@ ftl_ret_val SSD_BLOCK_ERASE(unsigned int flash_nb, unsigned int block_nb)
 
     LOG_BLOCK_ERASE(GET_LOGGER(flash_nb), (BlockEraseLog) {
 	    .channel = channel, .die = flash_nb, .block = block_nb,
-        .metadata.logging_start_time = _start,
-        .metadata.logging_end_time = _end
+        .metadata = {_start, _end}
 	});
 
 	return FTL_SUCCESS;
 }
 
-int SSD_FLASH_ACCESS(unsigned int flash_nb, int channel, int reg)
+int SSD_FLASH_ACCESS(unsigned int flash_nb, unsigned int channel, unsigned int reg)
 {
-	int i;
-	int r_num = flash_nb * PLANES_PER_FLASH;
+	uint32_t i;
+	uint32_t r_num = flash_nb * PLANES_PER_FLASH;
 	int ret = 0;
 
-	for(i=0;i<PLANES_PER_FLASH;i++){
+	for (i=0;i<PLANES_PER_FLASH;i++) {
 
-		if(r_num != reg && access_nb[r_num][0] == io_request_seq_nb){
+		if (r_num != reg && access_nb[r_num][0] == io_request_seq_nb) {
 			/* That's OK */
 		}
 		else{
@@ -366,13 +348,11 @@ int SSD_REG_ACCESS(unsigned int flash_nb, int channel, int reg)
 
 int SSD_CH_ENABLE(unsigned int flash_nb, int channel)
 {
-	int64_t do_delay = 0;
-
 	if(CHANNEL_SWITCH_DELAY_R == 0 && CHANNEL_SWITCH_DELAY_W == 0)
 		return FTL_SUCCESS;
 
 	if(old_channel_nb != channel){
-		do_delay = SSD_CH_SWITCH_DELAY(flash_nb, channel);
+		SSD_CH_SWITCH_DELAY(flash_nb, channel);
 	}
 
 	return FTL_SUCCESS;
@@ -400,8 +380,8 @@ ftl_ret_val SSD_REG_RECORD(int reg, int type, int offset, int channel)
 				SSD_UPDATE_IO_OVERHEAD(reg, io_update_overhead);
 			}
 			else{
-				access_nb[reg][0] = -1;
-				access_nb[reg][1] = -1;
+				access_nb[reg][0] = UINT32_MAX;
+				access_nb[reg][1] = UINT32_MAX;
 			}
 		break;
 	case READ:
@@ -417,14 +397,14 @@ ftl_ret_val SSD_REG_RECORD(int reg, int type, int offset, int channel)
 				SSD_UPDATE_IO_OVERHEAD(reg, io_update_overhead);
 			}
 			else{
-				access_nb[reg][0] = -1;
-				access_nb[reg][1] = -1;
+				access_nb[reg][0] = UINT32_MAX;
+				access_nb[reg][1] = UINT32_MAX;
 			}
 		break;
 	case ERASE:
 		/* Update SATA request Info */
-		access_nb[reg][0] = -1;
-		access_nb[reg][1] = -1;
+		access_nb[reg][0] = UINT32_MAX;
+		access_nb[reg][1] = UINT32_MAX;
 		break;
 	case COPYBACK:
 		reg_io_time[reg] = cell_io_time[reg] + CELL_READ_DELAY;
@@ -443,11 +423,11 @@ ftl_ret_val SSD_REG_RECORD(int reg, int type, int offset, int channel)
 
 int SSD_CH_ACCESS(unsigned int flash_nb, int channel)
 {
-	int i, j;
+	uint32_t i, j;
 	int ret = FTL_SUCCESS;
-	int r_num;
+	uint32_t r_num;
 
-	for(i=0;i<WAY_NB;i++){
+	for (i=0;i<WAY_NB;i++) {
 		r_num = channel*PLANES_PER_FLASH + i*CHANNEL_NB*PLANES_PER_FLASH;
 		for(j=0;j<PLANES_PER_FLASH;j++){
 			if(reg_io_time[r_num] <= get_usec() && reg_io_time[r_num] != -1){
@@ -514,14 +494,12 @@ int64_t SSD_CH_SWITCH_DELAY(unsigned int flash_nb, int channel)
 	if (ssd.prev_channel_mode[channel] == WRITE)
 	    LOG_CHANNEL_SWITCH_TO_READ(GET_LOGGER(flash_nb), (ChannelSwitchToReadLog) {
 	        .channel = channel,
-            .metadata.logging_start_time = _start,
-            .metadata.logging_end_time = _end
+            .metadata = {_start, _end}
 	    });
 	else if (ssd.prev_channel_mode[channel] == READ)
 	    LOG_CHANNEL_SWITCH_TO_WRITE(GET_LOGGER(flash_nb), (ChannelSwitchToWriteLog) {
 	        .channel = channel,
-            .metadata.logging_start_time = _start,
-            .metadata.logging_end_time = _end
+            .metadata = {_start, _end}
 	    });
 
 	return end-start;
@@ -560,6 +538,7 @@ int SSD_REG_WRITE_DELAY(unsigned int flash_nb, int channel, int reg)
 		ret = 1;
 	}
 	end = get_usec();
+	(void) end; // Not Used Variable
 
 	/* Send Delay Info To Perf Checker */
     SEND_TO_PERF_CHECKER(reg_io_type[reg], delay, CH_OP);
@@ -572,8 +551,7 @@ int SSD_REG_WRITE_DELAY(unsigned int flash_nb, int channel, int reg)
 
 	LOG_REGISTER_WRITE(GET_LOGGER(flash_nb), (RegisterWriteLog) {
 	    .channel = channel, .die = flash_nb, .reg = reg,
-        .metadata.logging_start_time = _start,
-        .metadata.logging_end_time = _end
+        .metadata = {_start, _end}
 	});
 
 	return ret;
@@ -621,8 +599,7 @@ int SSD_REG_READ_DELAY(unsigned int flash_nb, int channel, int reg)
 
 	LOG_REGISTER_READ(GET_LOGGER(flash_nb), (RegisterReadLog) {
 	    .channel = channel, .die = flash_nb, .reg = reg,
-        .metadata.logging_start_time = _start,
-        .metadata.logging_end_time = _end
+        .metadata = {_start, _end}
 	});
 
 	return ret;
@@ -658,6 +635,7 @@ int SSD_CELL_WRITE_DELAY(int reg)
 		ret = 1;
 	}
 	end = get_usec();
+	(void) end; // Not Used Variable
 
 	/* Send Delay Info To Perf Checker */
 	SEND_TO_PERF_CHECKER(reg_io_type[reg], diff, REG_OP);
@@ -741,6 +719,8 @@ int SSD_BLOCK_ERASE_DELAY(int reg)
 		ret = 1;
 	}
 	end = get_usec();
+	(void) start; // Not Used Variable
+	(void) end; // Not Used Variable
 
 	/* Update IO Overhead */
 	cell_io_time[reg] = -1;
@@ -752,8 +732,8 @@ int SSD_BLOCK_ERASE_DELAY(int reg)
 
 int64_t SSD_GET_CH_ACCESS_TIME_FOR_READ(int channel, int reg)
 {
-	int i, j;
-	int r_num;
+	uint32_t i, j;
+	uint32_t r_num;
 	int64_t latest_time = cell_io_time[reg] + CELL_READ_DELAY;
 
 	int64_t temp_time = 0;
@@ -782,8 +762,8 @@ int64_t SSD_GET_CH_ACCESS_TIME_FOR_READ(int channel, int reg)
 
 void SSD_UPDATE_CH_ACCESS_TIME(int channel, int64_t current_time)
 {
-	int i, j;
-	int r_num;
+	uint32_t i, j;
+	uint32_t r_num;
 
 	for(i=0;i<WAY_NB;i++){
 		r_num = channel*PLANES_PER_FLASH + i*CHANNEL_NB*PLANES_PER_FLASH;
@@ -802,12 +782,12 @@ void SSD_UPDATE_IO_REQUEST(int reg)
 	if(init_diff_reg != 0){
 		io_update_overhead = UPDATE_IO_REQUEST(access_nb[reg][0], access_nb[reg][1], curr_time, UPDATE_END_TIME);
 		SSD_UPDATE_IO_OVERHEAD(reg, io_update_overhead);
-		access_nb[reg][0] = -1;
+		access_nb[reg][0] = UINT32_MAX;
 	}
 	else{
 		io_update_overhead = UPDATE_IO_REQUEST(access_nb[reg][0], access_nb[reg][1], 0, UPDATE_END_TIME);
 		SSD_UPDATE_IO_OVERHEAD(reg, io_update_overhead);
-		access_nb[reg][0] = -1;
+		access_nb[reg][0] = UINT32_MAX;
 	}
 }
 
@@ -844,9 +824,9 @@ void SSD_UPDATE_QEMU_OVERHEAD(int64_t delay)
 
 ftl_ret_val SSD_PAGE_COPYBACK(uint32_t source, uint32_t destination, int type){
 
-	int flash_nb;
-	int source_plane, destination_plane;
-	int reg , channel , delay_ret;
+	uint32_t flash_nb;
+	uint32_t source_plane, destination_plane;
+	uint32_t reg , channel , delay_ret;
 
 	//Check source and destination pages are at the same plane.
 	source_plane = CALC_FLASH(source)*PLANES_PER_FLASH + CALC_BLOCK(source)%PLANES_PER_FLASH;

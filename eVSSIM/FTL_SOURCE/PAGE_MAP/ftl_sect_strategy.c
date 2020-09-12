@@ -41,7 +41,7 @@ ftl_ret_val _FTL_READ_SECT(uint64_t sector_nb, unsigned int length)
 		{
 			right_skip = SECTORS_PER_PAGE - left_skip - remain;
 		}
-		
+
 		read_sects = SECTORS_PER_PAGE - left_skip - right_skip;
 
 		lpn = lba / (int32_t)SECTORS_PER_PAGE;
@@ -53,7 +53,7 @@ ftl_ret_val _FTL_READ_SECT(uint64_t sector_nb, unsigned int length)
 		if (ppn == -1)
 			RDBG_FTL(FTL_FAILURE, "No Mapping info\n");
 
-		ret = SSD_PAGE_READ(CALC_FLASH(ppn), CALC_BLOCK(ppn), CALC_PAGE(ppn), read_page_nb, READ, io_page_nb);
+		ret = SSD_PAGE_READ(CALC_FLASH(ppn), CALC_BLOCK(ppn), CALC_PAGE(ppn), read_page_nb, READ);
 		//Send a physical read action being done to the statistics gathering
 		if (ret == FTL_SUCCESS)
 		{
@@ -82,7 +82,7 @@ ftl_ret_val _FTL_READ_SECT(uint64_t sector_nb, unsigned int length)
 	return ret;
 }
 
-ftl_ret_val _FTL_WRITE(uint64_t sector_nb, unsigned int offset, unsigned int length)
+ftl_ret_val _FTL_WRITE(uint64_t sector_nb, unsigned int length)
 {
     return _FTL_WRITE_SECT(sector_nb, length);
 }
@@ -125,9 +125,9 @@ ftl_ret_val _FTL_WRITE_SECT(uint64_t sector_nb, unsigned int length)
 
 		ret = GET_NEW_PAGE(VICTIM_OVERALL, EMPTY_TABLE_ENTRY_NB, &new_ppn);
 		if (ret == FTL_FAILURE)
-			RERR(FTL_FAILURE, "[FTL_WRITE] Get new page fail \n"); 
+			RERR(FTL_FAILURE, "[FTL_WRITE] Get new page fail \n");
 
-		ret = SSD_PAGE_WRITE(CALC_FLASH(new_ppn), CALC_BLOCK(new_ppn), CALC_PAGE(new_ppn), write_page_nb, WRITE, io_page_nb);
+		ret = SSD_PAGE_WRITE(CALC_FLASH(new_ppn), CALC_BLOCK(new_ppn), CALC_PAGE(new_ppn), write_page_nb, WRITE);
 
 		//we caused a block write -> update the logical block_write counter + update the physical block write counter
 		wa_counters.logical_block_write_counter++;
@@ -176,10 +176,10 @@ ftl_ret_val _FTL_COPYBACK(int32_t source, int32_t destination)
 
 	//Handle copyback delays
 	ret = SSD_PAGE_COPYBACK(source, destination, COPYBACK);
-    
+
     // actual page swap, go korea
-    /*SSD_PAGE_READ(CALC_FLASH(source), CALC_BLOCK(source), CALC_PAGE(source), 0, GC_READ, -1);
-    SSD_PAGE_WRITE(CALC_FLASH(destination), CALC_BLOCK(destination), CALC_PAGE(destination), 0, GC_WRITE, -1);
+    /*SSD_PAGE_READ(CALC_FLASH(source), CALC_BLOCK(source), CALC_PAGE(source), 0, GC_READ);
+    SSD_PAGE_WRITE(CALC_FLASH(destination), CALC_BLOCK(destination), CALC_PAGE(destination), 0, GC_WRITE);
     lpn = GET_INVERSE_MAPPING_INFO(source);
     UPDATE_NEW_PAGE_MAPPING(lpn, destination);*/
 
@@ -199,13 +199,13 @@ ftl_ret_val _FTL_COPYBACK(int32_t source, int32_t destination)
 	return ret;
 }
 
-ftl_ret_val _FTL_CREATE(size_t size)
+ftl_ret_val _FTL_CREATE(void)
 {
     // no "creation" in address-based storage
     return FTL_SUCCESS;
 }
 
-ftl_ret_val _FTL_DELETE(uint64_t id)
+ftl_ret_val _FTL_DELETE(void)
 {
     // no "deletion" in address-based storage
     return FTL_SUCCESS;

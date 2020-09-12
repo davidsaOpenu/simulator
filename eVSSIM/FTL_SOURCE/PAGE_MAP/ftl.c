@@ -1,4 +1,4 @@
-// Copyright(c)2013 
+// Copyright(c)2013
 //
 // Hanyang University, Seoul, Korea
 // Embedded Software Systems Lab. All right reserved
@@ -33,10 +33,10 @@ void FTL_INIT(void)
 		INIT_VICTIM_BLOCK_LIST();
 		INIT_PERF_CHECKER();
                 INIT_GC_MANAGER();
-		
+
 		//Initialize The Statistics gathering component.
 		FTL_INIT_STATS();
-		
+
 		g_init = 1;
 
 		SSD_IO_INIT();
@@ -63,8 +63,8 @@ void FTL_TERM(void)
 
 void FTL_TERM_STRATEGY(void)
 {
-	// As we can't figure out the storage strategy at this point, 
-	// We can terminate the object strategy anyway... at the worst 
+	// As we can't figure out the storage strategy at this point,
+	// We can terminate the object strategy anyway... at the worst
 	// case where we're actually using the sector strtegy, it won't do
 	// anything and return
 	TERM_OBJ_STRATEGY();
@@ -165,7 +165,8 @@ uint32_t FTL_STATISTICS_QUERY	(uint32_t address, int scope , int type){
 	//The first address in the scope start at address 0.
 
 	//int i , j , scopeFirstPage , planeNumber;
-	int i, j, scopeFirstPage;
+	uint32_t i, j;
+	uint32_t scopeFirstPage;
 	uint32_t actionSum;
 	actionSum = 0;
 

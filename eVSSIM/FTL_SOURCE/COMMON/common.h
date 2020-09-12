@@ -1,7 +1,7 @@
-// Copyright(c)2013 
+// Copyright(c)2013
 //
 // Hanyang University, Seoul, Korea
-// Embedded Software Systems Lab. All right reserved 
+// Embedded Software Systems Lab. All right reserved
 
 #ifndef _COMMON_H_
 #define _COMMON_H_
@@ -23,7 +23,6 @@
 #define GC_ON 1			/* Garbage Collection for PAGE MAP */
 #endif
 #define DEL_QEMU_OVERHEAD
-//#define O_DIRECT_VSSIM			/* O_DIRECT IO mode */
 
 #include "vssim_config_manager.h"
 #include "ftl.h"
