@@ -129,7 +129,7 @@ namespace {
             virtual void osd_init() {
                 const char *root = "/tmp/osd/";
                 int ret_sys_val = system("rm -rf /tmp/osd");
-                printf("Remove of /tmp/osd return value is %d\n", ret_sys_val);
+                (void) ret_sys_val; // Not Used Variable
                 assert(!osd_open(root, &osd));
                 osd_sense = (uint8_t*)Calloc(1, 1024);
                 assert(!osd_create_partition(&osd, PARTITION_PID_LB, cdb_cont_len, osd_sense));
@@ -239,7 +239,7 @@ namespace {
 
         // Write GET_PAGE_SIZE() data to each one
         for(unsigned long p=1; p < objects_in_ssd_/2; p++){
-            ASSERT_EQ(FTL_SUCCESS, _FTL_OBJ_WRITE(objects[p],(buf_ptr_t) wrbuf,0,GET_PAGE_SIZE()));
+            ASSERT_EQ(FTL_SUCCESS, _FTL_OBJ_WRITE(objects[p],0,GET_PAGE_SIZE()));
 #ifndef NO_OSD
             ASSERT_EQ(0, osd_write(&osd, USEROBJECT_PID_LB, USEROBJECT_OID_LB + objects[p].object_id,
                         GET_PAGE_SIZE(), 0, (uint8_t *)wrbuf, 0, osd_sense, DDT_CONTIG));
@@ -378,7 +378,7 @@ namespace {
         unsigned int size = object_size_;
         // continuously extend it with object_size_bytes_ chunks
         while (size < final_object_size) {
-            ASSERT_EQ(FTL_SUCCESS, _FTL_OBJ_WRITE(tempObj,(buf_ptr_t)wrbuf, size, object_size_));
+            ASSERT_EQ(FTL_SUCCESS, _FTL_OBJ_WRITE(tempObj, size, object_size_));
             size += object_size_;
 #ifndef NO_OSD
             ASSERT_EQ(0, osd_write(&osd, USEROBJECT_PID_LB, USEROBJECT_OID_LB + tempObj.object_id,
