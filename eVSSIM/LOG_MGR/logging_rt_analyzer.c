@@ -91,6 +91,9 @@ void rt_log_analyzer_loop(RTLogAnalyzer* analyzer, int max_logs) {
         int log_type;
         uint32_t bytes_read = 0;
         int bytes_read_last_read = 0;
+
+        char json_buf[1024];
+
         while (bytes_read < sizeof(log_type)) {
             if (analyzer->exit_loop_flag)
                 break;
@@ -135,55 +138,93 @@ void rt_log_analyzer_loop(RTLogAnalyzer* analyzer, int max_logs) {
         // update the statistics according to the log
         switch (log_type) {
             case PHYSICAL_CELL_READ_LOG_UID:
-                NEXT_PHYSICAL_CELL_READ_LOG(analyzer->logger);
+            {
+                PhysicalCellReadLog res;
+                NEXT_PHYSICAL_CELL_READ_LOG(analyzer->logger, &res);
+                JSON_PHYSICAL_CELL_READ(&res, json_buf);
                 stats.read_count++;
                 rt_log_stats[analyzer->rt_analyzer_id].current_wall_time += CELL_READ_DELAY;
                 rt_log_stats[analyzer->rt_analyzer_id].read_wall_time += rt_log_stats[analyzer->rt_analyzer_id].current_wall_time;
                 rt_log_stats[analyzer->rt_analyzer_id].current_wall_time = 0;
                 break;
+            }
             case PHYSICAL_CELL_PROGRAM_LOG_UID:
-                NEXT_PHYSICAL_CELL_PROGRAM_LOG(analyzer->logger);
+            {
+                PhysicalCellProgramLog res;
+                NEXT_PHYSICAL_CELL_PROGRAM_LOG(analyzer->logger, &res);
+                JSON_PHYSICAL_CELL_PROGRAM(&res, json_buf);
                 stats.write_count++;
                 rt_log_stats[analyzer->rt_analyzer_id].occupied_pages++;
                 rt_log_stats[analyzer->rt_analyzer_id].current_wall_time += CELL_PROGRAM_DELAY;
                 rt_log_stats[analyzer->rt_analyzer_id].write_wall_time += rt_log_stats[analyzer->rt_analyzer_id].current_wall_time;
                 rt_log_stats[analyzer->rt_analyzer_id].current_wall_time = 0;
                 break;
+            }
             case LOGICAL_CELL_PROGRAM_LOG_UID:
-                NEXT_LOGICAL_CELL_PROGRAM_LOG(analyzer->logger);
+            {
+                LogicalCellProgramLog res;
+                NEXT_LOGICAL_CELL_PROGRAM_LOG(analyzer->logger, &res);
+                JSON_LOGICAL_CELL_PROGRAM(&res, json_buf);
                 rt_log_stats[analyzer->rt_analyzer_id].logical_write_count++;
                 logical_write_count++;
                 break;
+            }
             case GARBAGE_COLLECTION_LOG_UID:
-                NEXT_GARBAGE_COLLECTION_LOG(analyzer->logger);
+            {
+                GarbageCollectionLog res;
+                NEXT_GARBAGE_COLLECTION_LOG(analyzer->logger, &res);
+                JSON_GARBAGE_COLLECTION(&res, json_buf);
                 stats.garbage_collection_count++;
                 break;
+            }
             case REGISTER_READ_LOG_UID:
-                NEXT_REGISTER_READ_LOG(analyzer->logger);
+            {
+                RegisterReadLog res;
+                NEXT_REGISTER_READ_LOG(analyzer->logger, &res);
+                JSON_REGISTER_READ(&res, json_buf);
                 rt_log_stats[analyzer->rt_analyzer_id].current_wall_time += REG_READ_DELAY;
                 break;
+            }
             case REGISTER_WRITE_LOG_UID:
-                NEXT_REGISTER_WRITE_LOG(analyzer->logger);
+            {
+                RegisterWriteLog res;
+                NEXT_REGISTER_WRITE_LOG(analyzer->logger, &res);
+                JSON_REGISTER_WRITE(&res, json_buf);
                 rt_log_stats[analyzer->rt_analyzer_id].current_wall_time += REG_WRITE_DELAY;
                 break;
+            }
             case BLOCK_ERASE_LOG_UID:
-                NEXT_BLOCK_ERASE_LOG(analyzer->logger);
+            {
+                BlockEraseLog res;
+                NEXT_BLOCK_ERASE_LOG(analyzer->logger, &res);
+                JSON_BLOCK_ERASE(&res, json_buf);
                 rt_log_stats[analyzer->rt_analyzer_id].occupied_pages -= PAGE_NB;
                 rt_log_stats[analyzer->rt_analyzer_id].current_wall_time += BLOCK_ERASE_DELAY;
                 break;
+            }
             case CHANNEL_SWITCH_TO_READ_LOG_UID:
-                NEXT_CHANNEL_SWITCH_TO_READ_LOG(analyzer->logger);
+            {
+                ChannelSwitchToReadLog res;
+                NEXT_CHANNEL_SWITCH_TO_READ_LOG(analyzer->logger, &res);
+                JSON_CHANNEL_SWITCH_TO_READ(&res, json_buf);
                 rt_log_stats[analyzer->rt_analyzer_id].current_wall_time += CHANNEL_SWITCH_DELAY_R;
                 break;
+            }
             case CHANNEL_SWITCH_TO_WRITE_LOG_UID:
-                NEXT_CHANNEL_SWITCH_TO_WRITE_LOG(analyzer->logger);
+            {
+                ChannelSwitchToWriteLog res;
+                NEXT_CHANNEL_SWITCH_TO_WRITE_LOG(analyzer->logger, &res);
+                JSON_CHANNEL_SWITCH_TO_WRITE(&res, json_buf);
                 rt_log_stats[analyzer->rt_analyzer_id].current_wall_time += CHANNEL_SWITCH_DELAY_W;
                 break;
+            }
             default:
                 fprintf(stderr, "WARNING: unknown log type id! [%d]\n", log_type);
                 fprintf(stderr, "WARNING: rt_log_analyzer_loop may not be up to date!\n");
                 break;
         }
+
+        logger_writer_save_log_to_file((Byte *)json_buf, strlen(json_buf));
 
         if (rt_log_stats[analyzer->rt_analyzer_id].logical_write_count == 0)
             stats.write_amplification = 0.0;

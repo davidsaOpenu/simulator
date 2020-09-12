@@ -104,7 +104,7 @@ ftl_ret_val _FTL_OBJ_READ(obj_id_t obj_loc, offset_t offset, length_t length)
     for (curr_io_page_nb = 0; curr_io_page_nb < io_page_nb; curr_io_page_nb++)
     {
         // simulate the page read
-        ret = SSD_PAGE_READ(CALC_FLASH(current_page->page_id), CALC_BLOCK(current_page->page_id), CALC_PAGE(current_page->page_id), curr_io_page_nb, READ);
+            ret = SSD_PAGE_READ(CALC_FLASH(current_page->page_id), CALC_BLOCK(current_page->page_id), CALC_PAGE(current_page->page_id), curr_io_page_nb, READ);
 
 		// send a physical read action being done to the statistics gathering
 		if (ret == FTL_SUCCESS)

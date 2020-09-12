@@ -36,6 +36,63 @@ int next_log_type(Logger_Pool* logger) {
     return type;
 }
 
+/**
+ * Json serializing functions for the various log types
+ */
+void JSON_PHYSICAL_CELL_READ(PhysicalCellReadLog *src, char *dst)
+{
+    const char *fmt = "{ \"name:\": \"physical_cell_read\", \"channel\": \"%d\", \"block\": \"%d\", \"page\": \"%d\" }";
+    sprintf(dst, fmt, src->channel, src->block, src->page);
+}
+
+void JSON_PHYSICAL_CELL_PROGRAM(PhysicalCellProgramLog *src, char *dst)
+{
+    const char *fmt = "{ \"name:\": \"physical_cell_program\", \"channel\": \"%d\", \"block\": \"%d\", \"page\": \"%d\" }";
+    sprintf(dst, fmt, src->channel, src->block, src->page);
+}
+
+void JSON_LOGICAL_CELL_PROGRAM(LogicalCellProgramLog *src, char *dst)
+{
+    const char *fmt = "{ \"name:\": \"logical_cell_program\", \"channel\": \"%d\", \"block\": \"%d\", \"page\": \"%d\" }";
+    sprintf(dst, fmt, src->channel, src->block, src->page);
+}
+
+void JSON_GARBAGE_COLLECTION(GarbageCollectionLog *src, char *dst)
+{
+    const char *fmt = "{ \"name:\": \"garbage_collection\" }";
+    strcpy(dst, fmt);
+    (void) src;
+}
+
+void JSON_REGISTER_READ(RegisterReadLog *src, char *dst)
+{
+    const char *fmt = "{ \"name:\": \"register_read\", \"channel\": \"%d\", \"block\": \"%d\", \"page\": \"%d\" }";
+    sprintf(dst, fmt, src->channel, src->die, src->reg);
+}
+
+void JSON_REGISTER_WRITE(RegisterWriteLog *src, char *dst)
+{
+    const char *fmt = "{ \"name:\": \"register_write\", \"channel\": \"%d\", \"die\": \"%d\", \"reg\": \"%d\" }";
+    sprintf(dst, fmt, src->channel, src->die, src->reg);
+}
+
+void JSON_BLOCK_ERASE(BlockEraseLog *src, char *dst)
+{
+    const char *fmt = "{ \"name:\": \"block_erase\", \"channel\": \"%d\", \"die\": \"%d\", \"block\": \"%d\" }";
+    sprintf(dst, fmt, src->channel, src->die, src->block);
+}
+
+void JSON_CHANNEL_SWITCH_TO_READ(ChannelSwitchToReadLog *src, char *dst)
+{
+    const char *fmt = "{ \"name:\": \"channel_switch_to_read\", \"channel\": \"%d\" }";
+    sprintf(dst, fmt, src->channel);
+}
+
+void JSON_CHANNEL_SWITCH_TO_WRITE(ChannelSwitchToWriteLog *src, char *dst)
+{
+    const char *fmt = "{ \"name:\": \"channel_switch_to_write\", \"channel\": \"%d\" }";
+    sprintf(dst, fmt, src->channel);
+}
 
 #define _LOGS_WRITER_DEFINITION_APPLIER(structure, name)            \
     void CONCAT(LOG_, name)(Logger_Pool* logger, structure buffer) {     \
@@ -50,9 +107,7 @@ _LOGS_DEFINITIONS(_LOGS_WRITER_DEFINITION_APPLIER)
 
 
 #define _LOGS_READER_DEFINITION_APPLIER(structure, name)            \
-    structure CONCAT(NEXT_, CONCAT(name, _LOG))(Logger_Pool* logger) {   \
-        structure res;                                              \
-        logger_busy_read(logger, (Byte*) &res, sizeof(structure));  \
-        return res;                                                 \
+    void CONCAT(NEXT_, CONCAT(name, _LOG))(Logger_Pool* logger, structure *buf) {   \
+        logger_busy_read(logger, (Byte*) buf, sizeof(structure));  \
     }
 _LOGS_DEFINITIONS(_LOGS_READER_DEFINITION_APPLIER)
