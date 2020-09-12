@@ -193,6 +193,14 @@ ftl_ret_val SSD_PAGE_WRITE(unsigned int flash_nb, unsigned int block_nb, unsigne
 	SSD_REG_RECORD(reg, type, offset, channel);
 	SSD_REG_ACCESS(flash_nb, channel, reg);
 
+#ifdef O_DIRECT_VSSIM
+	if (offset == io_page_nb-1) {
+		SSD_REMAIN_IO_DELAY(flash_nb, channel, reg);
+	}
+#else
+	(void) io_page_nb; // Not Used Variable
+#endif
+
     TIME_MICROSEC(_end);
 
     if (ssd.prev_channel_mode[channel] == READ) {
@@ -252,6 +260,17 @@ ftl_ret_val SSD_PAGE_READ(unsigned int flash_nb, unsigned int block_nb, unsigned
 	SSD_REG_RECORD(reg, type, offset, channel);
 	SSD_REG_ACCESS(flash_nb, channel, reg);
 
+<<<<<<< HEAD
+=======
+#ifdef O_DIRECT_VSSIM
+	if(offset == io_page_nb - 1){
+		SSD_REMAIN_IO_DELAY(flash_nb, channel, reg);
+	}
+#else
+	(void) io_page_nb; // Unused Variable
+#endif
+
+>>>>>>> bb29490... Maman12 - Linting
     TIME_MICROSEC(_end);
 
         if (ssd.prev_channel_mode[channel] != READ && ssd.prev_channel_mode[channel] != NOOP) {
@@ -348,12 +367,18 @@ int SSD_REG_ACCESS(unsigned int flash_nb, int channel, int reg)
 
 int SSD_CH_ENABLE(unsigned int flash_nb, int channel)
 {
+<<<<<<< HEAD
+=======
+	int64_t do_delay;
+
+>>>>>>> bb29490... Maman12 - Linting
 	if(CHANNEL_SWITCH_DELAY_R == 0 && CHANNEL_SWITCH_DELAY_W == 0)
 		return FTL_SUCCESS;
 
 	if(old_channel_nb != channel){
 		SSD_CH_SWITCH_DELAY(flash_nb, channel);
 	}
+	(void) do_delay; // Not Used Variable
 
 	return FTL_SUCCESS;
 }

@@ -49,7 +49,7 @@ void FREE_DUMMY_IO_REQUEST(void);
 void FREE_IO_REQUEST(io_request* request);
 int64_t UPDATE_IO_REQUEST(uint32_t request_nb, int offset, int64_t time, int type);
 void INCREASE_IO_REQUEST_SEQ_NB(void);
-io_request* LOOKUP_IO_REQUEST(uint32_t request_nb);
+io_request* LOOKUP_IO_REQUEST(uint32_t request_nb, int type);
 int64_t CALC_IO_LATENCY(io_request* request);
 
 #endif

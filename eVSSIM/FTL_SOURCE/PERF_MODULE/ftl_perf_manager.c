@@ -387,11 +387,12 @@ void INCREASE_IO_REQUEST_SEQ_NB(void)
 	}
 }
 
-io_request* LOOKUP_IO_REQUEST(uint32_t request_nb)
+io_request* LOOKUP_IO_REQUEST(uint32_t request_nb, int type)
 {
 	uint32_t i;
 	uint32_t total_request=0;
 	io_request* curr_request = NULL;
+	(void) type; // Unused variable
 
 	if(io_request_start != NULL){
 		curr_request = io_request_start;

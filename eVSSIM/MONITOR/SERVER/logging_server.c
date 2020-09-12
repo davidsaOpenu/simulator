@@ -236,7 +236,9 @@ int log_server_init(void) {
     return 0;
 }
 
-void log_server_update(SSDStatistics stats) {
+void log_server_update(SSDStatistics stats, void* uid) {
+    (void) uid; // Unused Parameter
+
     if (!stats_equal(log_server.stats, stats)) {
         pthread_mutex_lock(&log_server.lock);
         log_server.stats = stats;
@@ -252,8 +254,13 @@ ResetHook log_server_on_reset(ResetHook hook) {
     return old_hook;
 }
 
+<<<<<<< HEAD
 void* log_server_run(void *param) {
     (void) param; // variable unused
+=======
+void* log_server_run(void* param) {
+    (void) param; // Unused Parameter
+>>>>>>> bb29490... Maman12 - Linting
     log_server_loop(-1);
     return NULL;
 }

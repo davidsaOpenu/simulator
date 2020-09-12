@@ -84,6 +84,7 @@ ftl_ret_val _FTL_READ_SECT(uint64_t sector_nb, unsigned int length)
 
 ftl_ret_val _FTL_WRITE(uint64_t sector_nb, unsigned int length)
 {
+	(void) offset; // Not Used Variable
     return _FTL_WRITE_SECT(sector_nb, length);
 }
 
@@ -202,11 +203,13 @@ ftl_ret_val _FTL_COPYBACK(int32_t source, int32_t destination)
 ftl_ret_val _FTL_CREATE(void)
 {
     // no "creation" in address-based storage
+	(void) size; // Not Used Variable
     return FTL_SUCCESS;
 }
 
 ftl_ret_val _FTL_DELETE(void)
 {
     // no "deletion" in address-based storage
+	(void) id; // Not Used Variable
     return FTL_SUCCESS;
 }

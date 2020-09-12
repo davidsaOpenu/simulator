@@ -83,6 +83,7 @@ ftl_ret_val _FTL_OBJ_READ(obj_id_t obj_loc, offset_t offset, length_t length)
     int io_page_nb;
     int curr_io_page_nb;
     unsigned int ret = FTL_FAILURE;
+    (void) buf; // Not Used Variable
 
     object = lookup_object(obj_loc.object_id);
 
@@ -104,7 +105,11 @@ ftl_ret_val _FTL_OBJ_READ(obj_id_t obj_loc, offset_t offset, length_t length)
     for (curr_io_page_nb = 0; curr_io_page_nb < io_page_nb; curr_io_page_nb++)
     {
         // simulate the page read
+<<<<<<< HEAD
         ret = SSD_PAGE_READ(CALC_FLASH(current_page->page_id), CALC_BLOCK(current_page->page_id), CALC_PAGE(current_page->page_id), curr_io_page_nb, READ);
+=======
+        ret = SSD_PAGE_READ(CALC_FLASH(current_page->page_id), CALC_BLOCK(current_page->page_id), CALC_PAGE(current_page->page_id), curr_io_page_nb, READ, io_page_nb);
+>>>>>>> bb29490... Maman12 - Linting
 
 		// send a physical read action being done to the statistics gathering
 		if (ret == FTL_SUCCESS)
@@ -206,7 +211,11 @@ ftl_ret_val _FTL_OBJ_WRITE(obj_id_t object_loc, buf_ptr_t buf, offset_t offset, 
             GC_CHECK(CALC_FLASH(current_page->page_id), CALC_BLOCK(current_page->page_id), false, true);
 #endif
 
+<<<<<<< HEAD
         ret = SSD_PAGE_WRITE(CALC_FLASH(page_id), CALC_BLOCK(page_id), CALC_PAGE(page_id), curr_io_page_nb, WRITE);
+=======
+        ret = SSD_PAGE_WRITE(CALC_FLASH(page_id), CALC_BLOCK(page_id), CALC_PAGE(page_id), curr_io_page_nb, WRITE, io_page_nb);
+>>>>>>> bb29490... Maman12 - Linting
 
 		// send a physical write action being done to the statistics gathering
 		if (ret == FTL_SUCCESS)

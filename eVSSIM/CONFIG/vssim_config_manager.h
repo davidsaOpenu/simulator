@@ -76,7 +76,7 @@ typedef struct config_param
 
 
 /* SSD Configuration - functions */
-uint32_t GET_SECTOR_SIZE(void);
+int GET_SECTOR_SIZE(void);
 uint32_t GET_PAGE_SIZE(void);
 
 
