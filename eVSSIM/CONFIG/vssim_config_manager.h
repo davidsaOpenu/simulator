@@ -1,4 +1,4 @@
-// Copyright(c)2013 
+// Copyright(c)2013
 //
 // Hanyang University, Seoul, Korea
 // Embedded Software Systems Lab. All right reserved
@@ -10,29 +10,29 @@
 #include <limits.h>
 
 /* SSD Configuration */
-extern int64_t SECTOR_NB;
-extern int PAGE_NB;
-extern int FLASH_NB;
-extern int BLOCK_NB;
-extern int CHANNEL_NB;
-extern int PLANES_PER_FLASH;
+extern uint64_t SECTOR_NB;
+extern uint32_t PAGE_NB;
+extern uint32_t FLASH_NB;
+extern uint32_t BLOCK_NB;
+extern uint32_t CHANNEL_NB;
+extern uint32_t PLANES_PER_FLASH;
 
-extern int SECTORS_PER_PAGE;
-extern int PAGES_PER_FLASH;
+extern uint32_t SECTORS_PER_PAGE;
+extern uint32_t PAGES_PER_FLASH;
 extern int64_t PAGES_IN_SSD;
 
-extern int WAY_NB;
+extern uint32_t WAY_NB;
 
 /* Mapping Table */
-extern int DATA_BLOCK_NB;
+extern uint32_t DATA_BLOCK_NB;
 extern int64_t BLOCK_MAPPING_ENTRY_NB;		// added by js
 
 #ifdef PAGE_MAP
 extern int64_t PAGE_MAPPING_ENTRY_NB; 		// added by js
 extern int64_t EACH_EMPTY_TABLE_ENTRY_NB;	// added by js
 
-extern int EMPTY_TABLE_ENTRY_NB;
-extern int VICTIM_TABLE_ENTRY_NB;
+extern uint32_t EMPTY_TABLE_ENTRY_NB;
+extern uint32_t VICTIM_TABLE_ENTRY_NB;
 #endif
 
 /* NAND Flash Delay */
@@ -76,8 +76,8 @@ typedef struct config_param
 
 
 /* SSD Configuration - functions */
-int GET_SECTOR_SIZE(void);
-int GET_PAGE_SIZE(void);
+uint32_t GET_SECTOR_SIZE(void);
+uint32_t GET_PAGE_SIZE(void);
 
 
 #endif
