@@ -36,6 +36,87 @@ int next_log_type(Logger_Pool* logger) {
     return type;
 }
 
+#define TIME_BUF_LEN (80)
+char* timestamp_to_str(int64_t cur_ts, char *buf) {
+    //setenv("TZ", "GMT+1", 1);
+    //time_t now;
+    struct tm  *ts;
+    int64_t cur_ts_secs = cur_ts / 1000000;
+
+    ts = localtime(&cur_ts_secs);
+
+    strftime(buf, TIME_BUF_LEN, "%Y-%m-%d %H:%M:%S", ts);
+    //printf("%s", buf);
+    return buf;
+}
+
+#define TIME_FORMAT "\"logging_time\"  : \"%s\""
+
+/**
+ * Json serializing functions for the various log types
+ */
+void JSON_PHYSICAL_CELL_READ(PhysicalCellReadLog *src, char *dst)
+{
+    char time_buf[TIME_BUF_LEN];
+    const char *fmt = "{ \"type:\": \"PhysicalCellReadLog\", \"channel\": %d, \"block\": %d, \"page\": %d, " TIME_FORMAT " }\n";
+    sprintf(dst, fmt, src->channel, src->block, src->page, timestamp_to_str(src->metadata.logging_start_time,time_buf));
+}
+
+void JSON_PHYSICAL_CELL_PROGRAM(PhysicalCellProgramLog *src, char *dst)
+{
+    char time_buf[TIME_BUF_LEN];
+    const char *fmt = "{ \"type:\": \"PhysicalCellProgramLog\", \"channel\": %d, \"block\": %d, \"page\": %d , " TIME_FORMAT "}\n";
+    sprintf(dst, fmt, src->channel, src->block, src->page, timestamp_to_str(src->metadata.logging_start_time,time_buf));
+}
+
+void JSON_LOGICAL_CELL_PROGRAM(LogicalCellProgramLog *src, char *dst)
+{
+    char time_buf[TIME_BUF_LEN];
+    const char *fmt = "{ \"type:\": \"LogicalCellProgramLog\", \"channel\": %d, \"block\": %d, \"page\": %d , " TIME_FORMAT "}\n";
+    sprintf(dst, fmt, src->channel, src->block, src->page, timestamp_to_str(src->metadata.logging_start_time,time_buf));
+}
+
+void JSON_GARBAGE_COLLECTION(GarbageCollectionLog *src, char *dst)
+{
+    const char *fmt = "{ \"type:\": \"GarbageCollectionLog\" }\n";
+    strcpy(dst, fmt);
+    (void) src;
+}
+
+void JSON_REGISTER_READ(RegisterReadLog *src, char *dst)
+{
+    char time_buf[TIME_BUF_LEN];
+    const char *fmt = "{ \"type:\": \"RegisterReadLog\", \"channel\": %d, \"block\": %d, \"page\": %d , " TIME_FORMAT "}\n";
+    sprintf(dst, fmt, src->channel, src->die, src->reg, timestamp_to_str(src->metadata.logging_start_time,time_buf));
+}
+
+void JSON_REGISTER_WRITE(RegisterWriteLog *src, char *dst)
+{
+    char time_buf[TIME_BUF_LEN];
+    const char *fmt = "{ \"type:\": \"RegisterWriteLog\", \"channel\": %d, \"die\": %d, \"reg\": %d , " TIME_FORMAT "}\n";
+    sprintf(dst, fmt, src->channel, src->die, src->reg, timestamp_to_str(src->metadata.logging_start_time,time_buf));
+}
+
+void JSON_BLOCK_ERASE(BlockEraseLog *src, char *dst)
+{
+    char time_buf[TIME_BUF_LEN];
+    const char *fmt = "{ \"type:\": \"BlockEraseLog\", \"channel\": %d, \"die\": %d, \"block\": %d , " TIME_FORMAT "}\n";
+    sprintf(dst, fmt, src->channel, src->die, src->block, timestamp_to_str(src->metadata.logging_start_time,time_buf));
+}
+
+void JSON_CHANNEL_SWITCH_TO_READ(ChannelSwitchToReadLog *src, char *dst)
+{
+    char time_buf[TIME_BUF_LEN];
+    const char *fmt = "{ \"type:\": \"ChannelSwitchToReadLog\", \"channel\": %d , " TIME_FORMAT "}\n";
+    sprintf(dst, fmt, src->channel, timestamp_to_str(src->metadata.logging_start_time,time_buf));
+}
+
+void JSON_CHANNEL_SWITCH_TO_WRITE(ChannelSwitchToWriteLog *src, char *dst)
+{
+    char time_buf[TIME_BUF_LEN];
+    const char *fmt = "{ \"type:\": \"ChannelSwitchToWriteLog\", \"channel\": %d , " TIME_FORMAT "}\n";
+    sprintf(dst, fmt, src->channel, timestamp_to_str(src->metadata.logging_start_time,time_buf));
+}
 
 #define _LOGS_WRITER_DEFINITION_APPLIER(structure, name)            \
     void CONCAT(LOG_, name)(Logger_Pool* logger, structure buffer) {     \
@@ -50,9 +131,7 @@ _LOGS_DEFINITIONS(_LOGS_WRITER_DEFINITION_APPLIER)
 
 
 #define _LOGS_READER_DEFINITION_APPLIER(structure, name)            \
-    structure CONCAT(NEXT_, CONCAT(name, _LOG))(Logger_Pool* logger) {   \
-        structure res;                                              \
-        logger_busy_read(logger, (Byte*) &res, sizeof(structure));  \
-        return res;                                                 \
+    void CONCAT(NEXT_, CONCAT(name, _LOG))(Logger_Pool* logger, structure *buf) {   \
+        logger_busy_read(logger, (Byte*) buf, sizeof(structure));  \
     }
 _LOGS_DEFINITIONS(_LOGS_READER_DEFINITION_APPLIER)
