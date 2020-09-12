@@ -91,7 +91,7 @@ static const char *md = "md";
 static const char *dbname = "osd.db";
 static const char *dfiles = "dfiles";
 static const char *stranded = "stranded";
-static char * const argv[] = { "osd-target", NULL };
+static const char *argv[] = { "osd-target", NULL };
 
 static inline uint8_t get_obj_type(struct osd_device *osd,
 				   uint64_t pid, uint64_t oid)
@@ -1354,7 +1354,7 @@ out_cdb_err:
 }
 
 int osd_append(struct osd_device *osd, uint64_t pid, uint64_t oid,
-	       uint64_t len, const uint8_t *appenddata, uint32_t cdb_cont_len, 
+	       uint64_t len, const uint8_t *appenddata, uint32_t cdb_cont_len,
 	       uint8_t *sense, uint8_t ddt)
 {
 	/*figure out what kind of write it is based on ddt and call appropriate
@@ -1370,7 +1370,7 @@ int osd_append(struct osd_device *osd, uint64_t pid, uint64_t oid,
 					  appenddata+cdb_cont_len, sense);
 		}
 		case DDT_VEC: {
-			return vec_append(osd, pid, oid, len, appenddata, 
+			return vec_append(osd, pid, oid, len, appenddata,
 					  sense);
 		}
 		default: {
@@ -1463,19 +1463,19 @@ int osd_clear(struct osd_device *osd, uint64_t pid, uint64_t oid,
 
 	if (dinbuf == NULL)
 	        goto out_hw_err;
-	
+
 	osd_debug("%s: pid %llu oid %llu len %llu offset %llu",
 		  __func__, llu(pid), llu(oid), llu(len), llu(offset));
-	
+
 	assert(osd && osd->root && osd->dbc && sense);
 
 	if (!(pid >= USEROBJECT_PID_LB && oid >= USEROBJECT_OID_LB))
 	        goto out_cdb_err;
 
 	get_dfile_name(path, osd->root, pid, oid);
-	
+
 	fd = open(path, O_RDWR|O_LARGEFILE); /* fails on non-existent obj */
-	
+
 	if (fd < 0)
 		goto out_cdb_err;
 
@@ -1483,11 +1483,11 @@ int osd_clear(struct osd_device *osd, uint64_t pid, uint64_t oid,
 
 	if (ret < 0 || (uint64_t)ret != len)
 		goto out_hw_err;
-	
+
 	ret = close(fd);
 	if (ret != 0)
 		goto out_hw_err;
-	        
+
 	fill_ccap(&osd->ccap, NULL, USEROBJECT, pid, oid, 0);
 
 	free(dinbuf);
@@ -1497,7 +1497,7 @@ int osd_clear(struct osd_device *osd, uint64_t pid, uint64_t oid,
 out_hw_err:
 	ret = sense_build_sdd(sense, OSD_SSK_HARDWARE_ERROR,
 		     OSD_ASC_INVALID_FIELD_IN_CDB, pid, oid);
-	if(fd >= 0) 
+	if(fd >= 0)
 	        close(fd);
 	if(dinbuf != NULL)
 	        free(dinbuf);
@@ -1515,7 +1515,7 @@ out_cdb_err:
  * XXX: get/set attributes to be handled in cdb.c
  */
 
-int osd_copy_user_objects(struct osd_device *osd, uint64_t pid, uint64_t requested_oid, 
+int osd_copy_user_objects(struct osd_device *osd, uint64_t pid, uint64_t requested_oid,
 			  const struct copy_user_object_source *cuos,
 			  uint8_t dupl_method, uint8_t *sense)
 {
@@ -1527,13 +1527,13 @@ int osd_copy_user_objects(struct osd_device *osd, uint64_t pid, uint64_t request
 
 	osd_debug("%s: pid: %llu cid %llu", __func__, llu(pid),
 		  llu(requested_oid));
-	
+
 	if (pid == 0 || pid < COLLECTION_PID_LB)
 	          goto out_cdb_err;
 
 	if (requested_oid != 0 && requested_oid < USEROBJECT_OID_LB)
 	          goto out_cdb_err;
-	
+
 	source_pid = get_ntohll(&cuos->source_pid);
 	source_oid = get_ntohll(&cuos->source_oid);
 
@@ -1565,7 +1565,7 @@ int osd_copy_user_objects(struct osd_device *osd, uint64_t pid, uint64_t request
 		if (oid == 1) {
 			oid = USEROBJECT_OID_LB; /* first oid in partition */
 			osd->ic.next_id = oid + 1;
-		}  
+		}
 	} else {
 	        ret = obj_ispresent(osd->dbc, pid, requested_oid, &present);
 		if (ret != OSD_OK || present)
@@ -1575,17 +1575,17 @@ int osd_copy_user_objects(struct osd_device *osd, uint64_t pid, uint64_t request
 		/*XXX: invalidate cache */
 		osd->ic.cur_pid = osd->ic.next_id = 0;
 	}
- 
+
 	if (dupl_method == DEFAULT) {
-	        /* call function to copy userobject data from source object in source partition 
+	        /* call function to copy userobject data from source object in source partition
 		   to destination object in destination partition */
 	}
 	if (cuos->cpy_attr == 1) {
-	        /* call function to copy attribute data from source object in source partition 
+	        /* call function to copy attribute data from source object in source partition
 		   to destination object in destination partition */
 	}
 
-	fill_ccap(&osd->ccap, NULL, USEROBJECT, pid, oid, 0);	
+	fill_ccap(&osd->ccap, NULL, USEROBJECT, pid, oid, 0);
 	return OSD_OK; /* success */
 
 
@@ -1598,7 +1598,7 @@ out_hw_err:
 	return sense_build_sdd(sense, OSD_SSK_HARDWARE_ERROR,
 			       OSD_ASC_INVALID_FIELD_IN_CDB,
 			       pid, requested_oid);
-  
+
         return ret;
 }
 
@@ -1618,7 +1618,7 @@ int osd_create(struct osd_device *osd, uint64_t pid, uint64_t requested_oid,
 
 	if (pid == 0 || pid < USEROBJECT_PID_LB)
 		goto out_illegal_req;
-                
+
 	if (requested_oid != 0 && requested_oid < USEROBJECT_OID_LB)
 		goto out_illegal_req;
 
@@ -1876,7 +1876,7 @@ static inline int is_spontaneous_coll(uint64_t source_cid)
         return source_cid < TRACKING_COLLECTION_OID_LB;
 }
 
-int osd_create_user_tracking_collection(struct osd_device *osd, uint64_t pid, 
+int osd_create_user_tracking_collection(struct osd_device *osd, uint64_t pid,
 					uint64_t requested_cid,	uint64_t source_cid,
 				        uint32_t cdb_cont_len, uint8_t *sense)
 {
@@ -1909,9 +1909,9 @@ int osd_create_user_tracking_collection(struct osd_device *osd, uint64_t pid,
 	/* Checks on cdb_cont_len */
 	if (((source_cid != 0) && (cdb_cont_len == 0)) || ((source_cid == 0) && (cdb_cont_len != 0)))
 	        goto out_cdb_err;
-		
+
 	/* to_do_1 = CDB continuation segment does not contain one extension capabilities CDB continuation descriptor(5.4.6)
-	   to_do_2 = CDB continuation segment contains any cdb continuation descriptor other than the extension capabilities CDB 
+	   to_do_2 = CDB continuation segment contains any cdb continuation descriptor other than the extension capabilities CDB
 	   continuation descriptor */
 	if ((cdb_cont_len !=0) && (to_do_1 || to_do_2))
 	        goto out_cdb_err;
@@ -1921,14 +1921,14 @@ int osd_create_user_tracking_collection(struct osd_device *osd, uint64_t pid,
 
 	        if ((! is_linked_coll(source_cid)) && (! is_tracking_coll(source_cid)) && (! is_spontaneous_coll(source_cid)))
 		        goto out_cdb_err;
-	
+
 		/* to_do_3 = the active command status attribute in the Command Tracking attribute page(7.1.3.20) is not set to zero*/
 		else if (is_tracking_coll(source_cid) && to_do_3)
-		        goto out_cdb_err;  
+		        goto out_cdb_err;
 	}
 
 	if (requested_cid == 0) {
-		
+
 		if (osd->ic.cur_pid == pid) { /* cache hit */
 		        cid = osd->ic.next_id;
 			osd->ic.next_id++;
@@ -1942,8 +1942,8 @@ int osd_create_user_tracking_collection(struct osd_device *osd, uint64_t pid,
 		if (cid == 1) {
 		        cid = COLLECTION_OID_LB; /* first id in partition */
 			osd->ic.next_id = cid + 1;
-		} 
-	}		  
+		}
+	}
 
 	else {
 		/* Make sure requested_cid doesn't already exist */
@@ -1955,9 +1955,9 @@ int osd_create_user_tracking_collection(struct osd_device *osd, uint64_t pid,
 		/*XXX: invalidate cache */
 		osd->ic.cur_pid = osd->ic.next_id = 0;
 	}
-	
+
 	if (source_cid != 0) {
-	        /* Copy source collection members to destination collection */ 
+	        /* Copy source collection members to destination collection */
 	        ret = coll_copyoids(osd->dbc, pid, cid, source_cid);
 		if (ret != 0)
 		        goto out_hw_err;
@@ -1976,7 +1976,7 @@ out_cdb_err:
 			       OSD_ASC_INVALID_FIELD_IN_CDB,
 			       requested_cid, 0);
 out_hw_err:
-	osd->ic.cur_pid = osd->ic.next_id = 0; 
+	osd->ic.cur_pid = osd->ic.next_id = 0;
 	return sense_build_sdd(sense, OSD_SSK_HARDWARE_ERROR,
 			       OSD_ASC_INVALID_FIELD_IN_CDB,
 			       requested_cid, 0);
@@ -1989,7 +1989,7 @@ int osd_flush(struct osd_device *osd, uint64_t pid, uint64_t oid,
 	char path[MAXNAMELEN];
 	int ret, fd=-1;
 	struct stat sb;
-	
+
 	osd_debug("%s: pid %llu oid %llu scope %d", __func__, llu(pid),
 		  llu(oid), flush_scope);
 
@@ -2011,17 +2011,17 @@ int osd_flush(struct osd_device *osd, uint64_t pid, uint64_t oid,
 	}
 
 	else if (flush_scope == 2) {  /* flush user object data range & attributes */
-                
+
 	        ret = stat(path, &sb);
 		if(ret) {
 		        close(fd);
 		        return OSD_ERROR;
 		}
-	
+
 	        /* Offset beyond user object length */
 	        if(offset > (uint64_t)sb.st_size)
-	                goto out_cdb_err; 
-	  
+	                goto out_cdb_err;
+
 	        /* Designated bytes beyond object length, only flush bytes within length */
 		else if(len > ((uint64_t)sb.st_size - offset)) {
 		        ret = sync_file_range(fd, offset, sb.st_size - offset, 0);
@@ -2031,20 +2031,20 @@ int osd_flush(struct osd_device *osd, uint64_t pid, uint64_t oid,
 		        ret = close(fd);
 		        return OSD_OK;  /* success */
 		}
-		
+
 		/* Normal Flush */
-		ret = sync_file_range(fd, offset, len, 0);  
+		ret = sync_file_range(fd, offset, len, 0);
 		if (ret)
 		        goto out_hw_err;
 		/* flush attribute to be implemented */
 	}
-	
+
 	else {  /* flush_scope = 1, flush attribute only */
 	        /* flush attribute to be implemented */
 	  	osd_debug(__func__);
 	        return osd_error_unimplemented(0, sense);
 	}
-		      
+
 	/* attributes always flushed?  need sqlite call here? */
 
 	ret = close(fd);
@@ -2390,7 +2390,7 @@ out_hw_err:
  */
 int osd_getattr_page(struct osd_device *osd, uint64_t pid, uint64_t oid,
 		     uint32_t page, void *outbuf, uint64_t outlen,
-		     uint8_t isembedded, uint32_t *used_outlen, 
+		     uint8_t isembedded, uint32_t *used_outlen,
 		     uint32_t cdb_cont_len, uint8_t *sense)
 {
 	int ret = 0;
@@ -2479,7 +2479,7 @@ int osd_list(struct osd_device *osd, uint8_t list_attr, uint64_t pid,
 	uint64_t add_len = 0;
 	uint64_t cont_id = 0;
 
-	assert(osd && osd->root && osd->dbc && get_attr && outdata 
+	assert(osd && osd->root && osd->dbc && get_attr && outdata
 	       && used_outlen && sense);
 
 	if (alloc_len == 0)
@@ -2583,7 +2583,7 @@ int osd_list_collection(struct osd_device *osd, uint8_t list_attr,
 	uint64_t add_len = 0;
 	uint64_t cont_id = 0;
 
-	assert(osd && osd->root && osd->dbc && get_attr && outdata 
+	assert(osd && osd->root && osd->dbc && get_attr && outdata
 	       && used_outlen && sense);
 
 	if (alloc_len == 0)
@@ -2652,109 +2652,109 @@ out_hw_err:
 int osd_punch(struct osd_device *osd, uint64_t pid, uint64_t oid, uint64_t len,
 	      uint64_t offset, uint32_t cdb_cont_len, uint8_t *sense)
 {
-	struct stat sb;       
+	struct stat sb;
         ssize_t readlen;
         int ret,fd=-1;
 	uint64_t new_offset,new_len;
 	char path[MAXNAMELEN];
 	char *buf = NULL;
-       
+
         osd_debug("%s: pid %llu oid %llu len %llu offset %llu", __func__, llu(pid),
                   llu(oid), llu(len), llu(offset));
 
 	assert(osd && osd->root && osd->dbc && sense);
 
-	if (!(pid >= USEROBJECT_PID_LB && oid >= USEROBJECT_OID_LB))	  
+	if (!(pid >= USEROBJECT_PID_LB && oid >= USEROBJECT_OID_LB))
 	        goto out_cdb_err;
-	  
+
 	get_dfile_name(path, osd->root, pid, oid);
-	
+
 	fd = open(path, O_RDWR|O_LARGEFILE); /* fails on non-existent obj */
-	
+
 	if (fd < 0)
 	        goto out_cdb_err;
 
-	new_offset = len + offset;	 
-	
+	new_offset = len + offset;
+
 	ret = stat(path, &sb);
-	
+
 	if(ret != 0) {
 	        close(fd);
 	        return OSD_ERROR;
 	}
-	
+
 	/* Handling Illegal Operation */
 	if(offset > (uint64_t)sb.st_size)
-	        goto out_cdb_err; 
-	  
+	        goto out_cdb_err;
+
 	/* Handling Special Case */
 	else if(new_offset > (uint64_t)sb.st_size) {
 	        ret = truncate(path, offset);
 	        if (ret < 0)
 		        goto out_hw_err;
-	      	    
+
 		ret = close(fd);
-	    
+
 		if (ret != 0)
 		        goto out_hw_err;
-		
+
 		return OSD_OK;  /* success */
 	}
-	
+
 	/* Regular Cases */
 	new_len = sb.st_size - new_offset;
 
 	buf = malloc(new_len);
-	
+
 	if(buf == NULL)
 	        goto out_hw_err;
-	  	
+
 	/* Read section following the bytes to be removed */
 	readlen = pread(fd, buf, new_len, new_offset);
-	
-	if (readlen < 0) 
+
+	if (readlen < 0)
 	        goto out_hw_err;
-	
-	
+
+
 	/* Overwrite the bytes to be removed and concatenate to new length */
 	ret = pwrite(fd, buf, new_len, offset);
-	
+
 	if (ret < 0 || (uint64_t)ret != new_len)
 	        goto out_hw_err;
-	  	
+
 	ret = truncate(path, offset + new_len);
-	
+
 	if (ret < 0)
 	        goto out_hw_err;
-	  
+
 	ret = close(fd);
-	
+
 	if (ret != 0)
 	        goto out_hw_err;
-	  
+
 	if (buf != NULL)
 	        free(buf);
-	  	
+
 	return OSD_OK;  /* success */
-	
+
  out_hw_err:
 	ret = sense_build_sdd(sense, OSD_SSK_HARDWARE_ERROR,
 			      OSD_ASC_INVALID_FIELD_IN_CDB, pid, oid);
 	if(fd >= 0)
 	        close(fd);
-	 
+
 	if(buf != NULL)
 	        free(buf);
 
 	return ret;
-	
+
  out_cdb_err:
 	ret = sense_build_sdd(sense, OSD_SSK_ILLEGAL_REQUEST,
 			      OSD_ASC_INVALID_FIELD_IN_CDB, pid, oid);
 
 	if(fd >= 0)
 	        close(fd);
-	  
+
 	return ret;
 }
 
@@ -2915,8 +2915,8 @@ out_cdb_err:
  * ==0: success, used_outlen is set
  * > 0: error, sense is set
  */
-static int contig_read(struct osd_device *osd, uint64_t pid, uint64_t oid, 
-		       uint64_t len, uint64_t offset, uint8_t *outdata, 
+static int contig_read(struct osd_device *osd, uint64_t pid, uint64_t oid,
+		       uint64_t len, uint64_t offset, uint8_t *outdata,
 		       uint64_t *used_outlen, uint8_t *sense)
 {
 	ssize_t readlen;
@@ -2926,7 +2926,7 @@ static int contig_read(struct osd_device *osd, uint64_t pid, uint64_t oid,
 	osd_debug("%s: pid %llu oid %llu len %llu offset %llu", __func__,
 		  llu(pid), llu(oid), llu(len), llu(offset));
 
-	assert(osd && osd->root && osd->dbc && outdata && used_outlen 
+	assert(osd && osd->root && osd->dbc && outdata && used_outlen
 	       && sense);
 
 	if (!(pid >= USEROBJECT_PID_LB && oid >= USEROBJECT_OID_LB))
@@ -2970,7 +2970,7 @@ out_cdb_err:
 
 }
 
-static int sgl_read(struct osd_device *osd, uint64_t pid, uint64_t oid, 
+static int sgl_read(struct osd_device *osd, uint64_t pid, uint64_t oid,
 		    uint64_t len, uint64_t offset, const struct sg_list *sglist,
 		    uint8_t *outdata, uint64_t *used_outlen, uint8_t *sense)
 {
@@ -2983,7 +2983,7 @@ static int sgl_read(struct osd_device *osd, uint64_t pid, uint64_t oid,
 	osd_debug("%s: pid %llu oid %llu len %llu offset %llu", __func__,
 		  llu(pid), llu(oid), llu(len), llu(offset));
 
-	assert(osd && osd->root && osd->dbc && outdata && used_outlen 
+	assert(osd && osd->root && osd->dbc && outdata && used_outlen
 	       && sense);
 
 	pairs = sglist->num_entries;
@@ -3058,7 +3058,7 @@ out_cdb_err:
 
 }
 
-static int vec_read(struct osd_device *osd, uint64_t pid, uint64_t oid, 
+static int vec_read(struct osd_device *osd, uint64_t pid, uint64_t oid,
 		    uint64_t len, uint64_t offset, const uint8_t *indata,
 		    uint8_t *outdata, uint64_t *used_outlen, uint8_t *sense)
 {
@@ -3071,14 +3071,14 @@ static int vec_read(struct osd_device *osd, uint64_t pid, uint64_t oid,
 	osd_debug("%s: pid %llu oid %llu len %llu offset %llu", __func__,
 		  llu(pid), llu(oid), llu(len), llu(offset));
 
-	assert(osd && osd->root && osd->dbc && outdata && used_outlen 
+	assert(osd && osd->root && osd->dbc && outdata && used_outlen
 	       && sense);
 
 	stride = get_ntohll(indata);
 	hdr_offset = sizeof(uint64_t);
 	length = get_ntohll(indata + hdr_offset);
 
-	osd_debug("%s: stride is %llu and len is %llu", __func__, llu(stride), 
+	osd_debug("%s: stride is %llu and len is %llu", __func__, llu(stride),
 		  llu(length));
 
 	if (!(pid >= USEROBJECT_PID_LB && oid >= USEROBJECT_OID_LB))
@@ -3213,42 +3213,42 @@ int osd_read_map(struct osd_device *osd, uint64_t pid, uint64_t oid, uint64_t al
 	fd = open(path, O_RDONLY|O_LARGEFILE); /* fails on non-existent obj */
 	if (fd < 0)
 		goto out_cdb_err;
-		
+
 	ret = stat(path, &sb);
-	
+
 	if (ret != 0) {
 	        close(fd);
 		return OSD_ERROR;
 	}
-	
+
 	if (offset > (uint64_t)sb.st_size)
-	        goto out_cdb_err; 
+	        goto out_cdb_err;
 
 	file_size = (uint64_t)sb.st_size - offset; /* Adjust to the offset */
 
-	if (map_type == WRITTEN_DATA) { 
-  
+	if (map_type == WRITTEN_DATA) {
+
 		pt = outdata + 8; /* Skip addtional length for now */
 		byte_offset = 8;
-		
-		while(file_size > 0) { 
+
+		while(file_size > 0) {
 		        if(file_size <= dscptr_size) { /* one descriptor */
 		                data_len = file_size;
 				file_size = 0;
-			
+
 			}else {
 			        data_len = dscptr_size;
 			        file_size -= dscptr_size;
 			}
-						
+
 			set_dscptr(map_type, data_len, byte_offset, pt);
 			byte_offset += 16;
 			pt += 16;
 			add_len++;
 		}
-		
+
 		*used_outlen = 8 + (add_len * 16); /* Report total buffer len used */
-		
+
 		if((add_len * 16) > 0xffffffff )
 		        set_htonll(outdata, 0xffffffff);
 		else
@@ -3267,7 +3267,7 @@ int osd_read_map(struct osd_device *osd, uint64_t pid, uint64_t oid, uint64_t al
 	  	osd_debug(__func__);
 		return osd_error_unimplemented(0, sense);
 	}
-	
+
 	ret = close(fd);
 	if (ret)
 		goto out_hw_err;
@@ -3477,7 +3477,7 @@ out_not_empty:
  */
 int osd_set_attributes(struct osd_device *osd, uint64_t pid, uint64_t oid,
 		       uint32_t page, uint32_t number, const void *val,
-		       uint16_t len, uint8_t isembedded, uint32_t cdb_cont_len, 
+		       uint16_t len, uint8_t isembedded, uint32_t cdb_cont_len,
 		       uint8_t *sense)
 {
 	int ret = 0;
@@ -3709,8 +3709,8 @@ out_cdb_err:
  * @dinbuf: pointer to start of the Data-in-buffer: source of data
  */
 
-static int contig_write(struct osd_device *osd, uint64_t pid, uint64_t oid, 
-			uint64_t len, uint64_t offset, const uint8_t *dinbuf, 
+static int contig_write(struct osd_device *osd, uint64_t pid, uint64_t oid,
+			uint64_t len, uint64_t offset, const uint8_t *dinbuf,
 			uint8_t *sense)
 {
 	int ret;
@@ -3753,10 +3753,10 @@ out_cdb_err:
 
 }
 
-static int sgl_write(struct osd_device *osd, uint64_t pid, uint64_t oid, 
+static int sgl_write(struct osd_device *osd, uint64_t pid, uint64_t oid,
 		     uint64_t len, uint64_t offset, const uint8_t *dinbuf,
 		     const struct sg_list *sglist,
-		     uint8_t *sense) 
+		     uint8_t *sense)
 {
 	int ret;
 	int fd;
@@ -3895,8 +3895,8 @@ out_cdb_err:
 }
 
 
-int osd_write(struct osd_device *osd, uint64_t pid, uint64_t oid, 
-	      uint64_t len, uint64_t offset, const uint8_t *dinbuf, 
+int osd_write(struct osd_device *osd, uint64_t pid, uint64_t oid,
+	      uint64_t len, uint64_t offset, const uint8_t *dinbuf,
 	      const struct sg_list *sglist, uint8_t *sense, uint8_t ddt)
 {
 
@@ -3955,14 +3955,14 @@ int osd_cas(struct osd_device *osd, uint64_t pid, uint64_t oid, uint64_t cmp,
 			   sizeof(val), &val, &usedlen);
 	if (ret != -ENOENT && ret != OSD_OK)
 		goto out_hw_err;
-	/* 
+	/*
 	 * XXX:SD we do a lazy initialization of atomics page. Hence attr
 	 * might not be defined before. In that case we define it and proceed
 	 * with rest of the operation
 	 */
 	if (ret == -ENOENT) {
 		val = 0;
-		ret = attr_set_attr(osd->dbc, pid, oid, USER_ATOMICS_PG, 
+		ret = attr_set_attr(osd->dbc, pid, oid, USER_ATOMICS_PG,
 				    UAP_CAS, &val, sizeof(val));
 		if (ret != OSD_OK)
 			goto out_hw_err;
@@ -4023,14 +4023,14 @@ int osd_fa(struct osd_device *osd, uint64_t pid, uint64_t oid, int64_t add,
 			   sizeof(val), &val, &usedlen);
 	if (ret != -ENOENT && ret != OSD_OK)
 		goto out_hw_err;
-	/* 
+	/*
 	 * XXX:SD we do a lazy initialization of atomics page. Hence attr
 	 * might not be defined before. In that case we define it and proceed
 	 * with rest of the operation
 	 */
 	if (ret == -ENOENT) {
 		val = 0;
-		ret = attr_set_attr(osd->dbc, pid, oid, USER_ATOMICS_PG, 
+		ret = attr_set_attr(osd->dbc, pid, oid, USER_ATOMICS_PG,
 				    UAP_FA, &val, sizeof(val));
 		if (ret != OSD_OK)
 			goto out_hw_err;

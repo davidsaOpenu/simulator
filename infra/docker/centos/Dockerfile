@@ -64,13 +64,11 @@ RUN mkdir -p $GTEST_HOME/gtest/lib && \
     make
 
 # Install websockets
-RUN wget https://codeload.github.com/warmcat/libwebsockets/zip/v2.4-stable && \
-    rm -rf /opt/libwebsockets && \
-    unzip v2.4-stable -d /opt && \
-    mv /opt/libwebsockets-2.4-stable /opt/libwebsockets && \
+RUN git clone --branch v4.1-stable https://github.com/warmcat/libwebsockets.git /opt/libwebsockets && \
     cd /opt/libwebsockets && cmake . && \
     make && \
-    make install
+    make install && \
+    ldconfig
 
 ADD container_aliases /root/.bash_aliases
 WORKDIR /code

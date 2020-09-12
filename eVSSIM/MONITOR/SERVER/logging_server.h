@@ -75,8 +75,9 @@ int log_server_init(void);
 /**
  * Update the statistics sent by the logging server
  * @param stats the new statistics to use
+ * @param uid a pointer to user defined data
  */
-void log_server_update(SSDStatistics stats, void*);
+void log_server_update(SSDStatistics stats, void *uid);
 
 /**
  * Update the current reset hook of the logging server
@@ -88,8 +89,9 @@ ResetHook log_server_on_reset(ResetHook hook);
 /**
  * Run the logging server in the current thread;
  * The same as `log_server_loop(-1)`
+ * @param param - User provided parameter to thread function handler
  */
-void* log_server_run(void*);
+void* log_server_run(void *param);
 
 /**
  * Do the main loop of the logging server
