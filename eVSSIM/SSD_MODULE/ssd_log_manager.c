@@ -69,14 +69,14 @@ pthread_t log_manager_thread;
 pthread_t log_server_thread;
 
 void reset_analyzers(void) {
-    int i;
+    uint32_t i;
     for (i = 0; i < FLASH_NB; i++)
         analyzers_storage[i].rt_log_analyzer->reset_flag = 1;
 }
 
 void INIT_LOG_MANAGER(void)
 {
-    int i;
+    uint32_t i;
 
     // allocate memory
     analyzers_storage = (LoggerAnalyzerStorage*) malloc(sizeof(LoggerAnalyzerStorage) * FLASH_NB);
@@ -107,7 +107,7 @@ void INIT_LOG_MANAGER(void)
     for (i = 0; i < FLASH_NB; i++) {
         log_manager_add_analyzer(log_manager, analyzers_storage[i].rt_log_analyzer);
     }
-    log_manager_subscribe(log_manager, log_server_update, NULL);
+    log_manager_subscribe(log_manager, (MonitorHook) log_server_update, NULL);
     log_server_on_reset(reset_analyzers);
 
     // run the threads
@@ -128,7 +128,7 @@ void INIT_LOG_MANAGER(void)
 
 void TERM_LOG_MANAGER(void)
 {
-    int i;
+    uint32_t i;
 
     // alert the different threads to stop
     for (i = 0; i < FLASH_NB; i++)

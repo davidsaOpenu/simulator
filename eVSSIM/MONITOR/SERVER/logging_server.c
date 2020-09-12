@@ -71,6 +71,12 @@ typedef struct {
 static int callback_http(struct lws *wsi, enum lws_callback_reasons reason, void *user,
                          void *in_message, size_t len) {
     // we do not care about requests which are not caught by the mount - not in the file system
+    (void) wsi; // Not Used Variable
+    (void) reason; // Not Used Variable
+    (void) user; // Not Used Variable
+    (void) user; // Not Used Variable
+    (void) in_message; // Not Used Variable
+    (void) len; // Not Used Variable
     return 0;
 }
 
@@ -143,15 +149,21 @@ static struct lws_protocols ws_protocols[] = {
         "http-only",    // the name of the protocol
         callback_http,  // the callback the protocol uses
         0,              // the size of the per-session data
-        0               // the maximum frame size sent by the protocol
+        0,              // the maximum frame size sent by the protocol
+        0,              // id, ignored by lws, here due to warning during compilation
+        NULL,           // User, ignored by lws, here due to warning during compilation
+        0               // tx_packet_size, 0 indicates restrict send() size to .rx_buffer_size for backwards- compatibility.
     },
     {
         "evssim-monitor",
         callback_evssim_monitor,
         sizeof(WSSession),
-        MAX_FRAME_SIZE
+        MAX_FRAME_SIZE,
+        0,
+        NULL,
+        0
     },
-    { NULL, NULL, 0, 0 }    // the array terminator
+    { NULL, NULL, 0, 0, 0, NULL, 0}    // the array terminator
 };
 
 /**
@@ -159,7 +171,7 @@ static struct lws_protocols ws_protocols[] = {
  */
 static const struct lws_extension ws_extensions[] = {
     // we support no web socket extensions
-    { NULL, NULL, NULL} // the array terminator
+{ NULL, NULL, NULL} // the array terminator
 };
 
 /**
@@ -224,7 +236,9 @@ int log_server_init(void) {
     return 0;
 }
 
-void log_server_update(SSDStatistics stats, void* ___) {
+void log_server_update(SSDStatistics stats, void* uid) {
+    (void) uid; // Unused Parameter
+
     if (!stats_equal(log_server.stats, stats)) {
         pthread_mutex_lock(&log_server.lock);
         log_server.stats = stats;
@@ -240,7 +254,8 @@ ResetHook log_server_on_reset(ResetHook hook) {
     return old_hook;
 }
 
-void* log_server_run(void* ___) {
+void* log_server_run(void* param) {
+    (void) param; // Unused Parameter
     log_server_loop(-1);
     return NULL;
 }

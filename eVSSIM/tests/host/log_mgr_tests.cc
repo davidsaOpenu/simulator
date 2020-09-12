@@ -262,7 +262,7 @@ namespace log_mgr_tests {
 
         // mark half of the logs as being done analyzing by the offline analyzer
         log = _logger->dummy_log->next;
-        for(int i = 0; (i < (_logger->number_of_allocated_logs/2)) && (log != _logger->dummy_log); i++) {
+        for(uint32_t i = 0; (i < (_logger->number_of_allocated_logs/2)) && (log != _logger->dummy_log); i++) {
             log->offline_analyzer_done = true;
             log = log->next;
         }
@@ -694,7 +694,7 @@ namespace log_mgr_tests {
         rt_log_stats_init();
         rt_subscriber::subscribe(analyzer);
         if (g_server_mode)
-            rt_log_analyzer_subscribe(analyzer, log_server_update, NULL);
+            rt_log_analyzer_subscribe(analyzer, (MonitorHook) log_server_update, NULL);
         rt_subscriber::write();
         rt_subscriber::read();
         rt_log_analyzer_free(analyzer, 0);
@@ -740,7 +740,7 @@ namespace log_mgr_tests {
         LogManager* manager = log_manager_init();
         manager_subscriber::init(manager);
         if (g_server_mode)
-            log_manager_subscribe(manager, log_server_update, NULL);
+            log_manager_subscribe(manager, (MonitorHook) log_server_update, NULL);
         manager_subscriber::run();
         manager_subscriber::free();
         log_manager_free(manager);

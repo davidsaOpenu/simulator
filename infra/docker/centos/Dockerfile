@@ -64,13 +64,11 @@ RUN mkdir -p $GTEST_HOME/gtest/lib && \
     make
 
 # Install websockets
-RUN wget https://codeload.github.com/warmcat/libwebsockets/zip/v2.4-stable && \
-    rm -rf /opt/libwebsockets && \
-    unzip v2.4-stable -d /opt && \
-    mv /opt/libwebsockets-2.4-stable /opt/libwebsockets && \
+RUN git clone --branch v4.1-stable https://github.com/warmcat/libwebsockets.git /opt/libwebsockets && \
     cd /opt/libwebsockets && cmake . && \
     make && \
-    make install
+    make install && \
+    ldconfig
 
 # Install qt5
 RUN yum install -y qt5-qtbase-devel
@@ -85,4 +83,3 @@ RUN echo "ALL            ALL = (ALL) NOPASSWD: ALL" >> /etc/sudoers
 #those lines are appended from outside
 #echo RUN groupadd `stat -c "%G" .` -g `stat -c "%g" .` >> ${WORKSPACE}/simulator/infra/docker/centos/Dockerfile
 #echo RUN useradd -ms /bin/bash `stat -c "%U" .` -u `stat -c "%u" .` -g `stat -c "%g" .` -G wheel >> ${WORKSPACE}/simulator/infra/docker/centos/Dockerfile
-
