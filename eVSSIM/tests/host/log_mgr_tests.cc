@@ -541,7 +541,8 @@ namespace log_mgr_tests {
         };
         LOG_PHYSICAL_CELL_READ(_logger, log);
         ASSERT_EQ(PHYSICAL_CELL_READ_LOG_UID, next_log_type(_logger));
-        PhysicalCellReadLog res = NEXT_PHYSICAL_CELL_READ_LOG(_logger);
+        PhysicalCellReadLog res;
+		NEXT_PHYSICAL_CELL_READ_LOG(_logger, &res);
         ASSERT_EQ(log.channel, res.channel);
         ASSERT_EQ(log.block, res.block);
         ASSERT_EQ(log.page, res.page);
@@ -560,7 +561,8 @@ namespace log_mgr_tests {
         };
         LOG_PHYSICAL_CELL_PROGRAM(_logger, log);
         ASSERT_EQ(PHYSICAL_CELL_PROGRAM_LOG_UID, next_log_type(_logger));
-        PhysicalCellProgramLog res = NEXT_PHYSICAL_CELL_PROGRAM_LOG(_logger);
+        PhysicalCellProgramLog res;
+		NEXT_PHYSICAL_CELL_PROGRAM_LOG(_logger, &res);
         ASSERT_EQ(log.channel, res.channel);
         ASSERT_EQ(log.block, res.block);
         ASSERT_EQ(log.page, res.page);
@@ -579,7 +581,8 @@ namespace log_mgr_tests {
         };
         LOG_LOGICAL_CELL_PROGRAM(_logger, log);
         ASSERT_EQ(LOGICAL_CELL_PROGRAM_LOG_UID, next_log_type(_logger));
-        LogicalCellProgramLog res = NEXT_LOGICAL_CELL_PROGRAM_LOG(_logger);
+        LogicalCellProgramLog res;
+		NEXT_LOGICAL_CELL_PROGRAM_LOG(_logger, &res);
         ASSERT_EQ(log.channel, res.channel);
         ASSERT_EQ(log.block, res.block);
         ASSERT_EQ(log.page, res.page);
@@ -595,7 +598,8 @@ namespace log_mgr_tests {
         // due to the fact that the struct is empty
         Byte placeholder;
         ASSERT_EQ(0, logger_read(_logger, &placeholder, 0));
-        NEXT_GARBAGE_COLLECTION_LOG(_logger);
+        GarbageCollectionLog res;
+        NEXT_GARBAGE_COLLECTION_LOG(_logger, &res);
         ASSERT_EQ(0, logger_read(_logger, &placeholder, 0));
     }
     /**
@@ -612,7 +616,8 @@ namespace log_mgr_tests {
         };
         LOG_REGISTER_READ(_logger, log);
         ASSERT_EQ(REGISTER_READ_LOG_UID, next_log_type(_logger));
-        RegisterReadLog res = NEXT_REGISTER_READ_LOG(_logger);
+        RegisterReadLog res;
+		NEXT_REGISTER_READ_LOG(_logger, &res);
         ASSERT_EQ(log.channel, res.channel);
         ASSERT_EQ(log.die, res.die);
         ASSERT_EQ(log.reg, res.reg);
@@ -631,7 +636,8 @@ namespace log_mgr_tests {
         };
         LOG_REGISTER_WRITE(_logger, log);
         ASSERT_EQ(REGISTER_WRITE_LOG_UID, next_log_type(_logger));
-        RegisterWriteLog res = NEXT_REGISTER_WRITE_LOG(_logger);
+        RegisterWriteLog res;
+		NEXT_REGISTER_WRITE_LOG(_logger, &res);
         ASSERT_EQ(log.channel, res.channel);
         ASSERT_EQ(log.die, res.die);
         ASSERT_EQ(log.reg, res.reg);
@@ -650,7 +656,8 @@ namespace log_mgr_tests {
         };
         LOG_BLOCK_ERASE(_logger, log);
         ASSERT_EQ(BLOCK_ERASE_LOG_UID, next_log_type(_logger));
-        BlockEraseLog res = NEXT_BLOCK_ERASE_LOG(_logger);
+        BlockEraseLog res;
+		NEXT_BLOCK_ERASE_LOG(_logger, &res);
         ASSERT_EQ(log.channel, res.channel);
         ASSERT_EQ(log.die, res.die);
         ASSERT_EQ(log.block, res.block);
@@ -667,7 +674,8 @@ namespace log_mgr_tests {
         };
         LOG_CHANNEL_SWITCH_TO_READ(_logger, log);
         ASSERT_EQ(CHANNEL_SWITCH_TO_READ_LOG_UID, next_log_type(_logger));
-        ChannelSwitchToReadLog res = NEXT_CHANNEL_SWITCH_TO_READ_LOG(_logger);
+        ChannelSwitchToReadLog res;
+		NEXT_CHANNEL_SWITCH_TO_READ_LOG(_logger, &res);
         ASSERT_EQ(log.channel, res.channel);
     }
     /**
@@ -682,7 +690,8 @@ namespace log_mgr_tests {
         };
         LOG_CHANNEL_SWITCH_TO_WRITE(_logger, log);
         ASSERT_EQ(CHANNEL_SWITCH_TO_WRITE_LOG_UID, next_log_type(_logger));
-        ChannelSwitchToWriteLog res = NEXT_CHANNEL_SWITCH_TO_WRITE_LOG(_logger);
+        ChannelSwitchToWriteLog res;
+		NEXT_CHANNEL_SWITCH_TO_WRITE_LOG(_logger, &res);
         ASSERT_EQ(log.channel, res.channel);
     }
     /* Real Time Analyzer Tests */
@@ -690,6 +699,7 @@ namespace log_mgr_tests {
      * Do a simple test of the real time log analyzer
      */
     TEST_P(LogMgrUnitTest, BasicRTAnalyzer) {
+        logger_writer_init();
         RTLogAnalyzer* analyzer = rt_log_analyzer_init(_logger, 0);
         rt_log_stats_init();
         rt_subscriber::subscribe(analyzer);
@@ -699,6 +709,7 @@ namespace log_mgr_tests {
         rt_subscriber::read();
         rt_log_analyzer_free(analyzer, 0);
         rt_log_stats_free();
+        logger_writer_free();
     }
     /* offline Analyzer Tests */
     /**
@@ -737,6 +748,7 @@ namespace log_mgr_tests {
      * Do a simple test of the log manager
      */
     TEST_P(LogMgrUnitTest, BasicLogManager) {
+        logger_writer_init();
         LogManager* manager = log_manager_init();
         manager_subscriber::init(manager);
         if (g_server_mode)
@@ -744,6 +756,7 @@ namespace log_mgr_tests {
         manager_subscriber::run();
         manager_subscriber::free();
         log_manager_free(manager);
+        logger_writer_free();
     }
 } //namespace
 

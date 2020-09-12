@@ -75,6 +75,8 @@ void logger_busy_read(Logger_Pool* logger, Byte* buffer, int length);
  */
 int next_log_type(Logger_Pool* logger);
 
+char* timestamp_to_str(int64_t cur_ts, char *buf);
+
 /**
  * A log which contains no attributes; should be an alias to every log which has no attributes
  */
@@ -310,11 +312,24 @@ _LOGS_DEFINITIONS(_LOGS_WRITER_DECLARATION_APPLIER)
  * @param name the name of the log type
  */
 #define _LOGS_READER_DECLARATION_APPLIER(structure, name)           \
-    structure CONCAT(NEXT_, CONCAT(name, _LOG))(Logger_Pool* logger);
+    void CONCAT(NEXT_, CONCAT(name, _LOG))(Logger_Pool* logger, structure *buf);
 
 /**
  * The customized NEXT_X_LOG definitions, for type-safe logging
  */
 _LOGS_DEFINITIONS(_LOGS_READER_DECLARATION_APPLIER)
+
+/**
+ * The json log applier; used to create a json serializing function for the different log types
+ * @param structure the structure associated with the log type
+ * @param name the name of the log type
+ */
+#define _LOGS_JSON_DECLARATION_APPLIER(structure, name)           \
+    void CONCAT(JSON_, name)(structure *src, char *dst);
+
+/**
+ * The customized NEXT_X_LOG definitions, for type-safe logging
+ */
+_LOGS_DEFINITIONS(_LOGS_JSON_DECLARATION_APPLIER)
 
 #endif

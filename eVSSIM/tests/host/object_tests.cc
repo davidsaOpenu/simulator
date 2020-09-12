@@ -129,7 +129,7 @@ namespace {
             virtual void osd_init() {
                 const char *root = "/tmp/osd/";
                 int ret_sys_val = system("rm -rf /tmp/osd");
-                printf("Remove of /tmp/osd return value is %d\n", ret_sys_val);
+                (void) ret_sys_val; // Not Used Variable
                 assert(!osd_open(root, &osd));
                 osd_sense = (uint8_t*)Calloc(1, 1024);
                 assert(!osd_create_partition(&osd, PARTITION_PID_LB, cdb_cont_len, osd_sense));
