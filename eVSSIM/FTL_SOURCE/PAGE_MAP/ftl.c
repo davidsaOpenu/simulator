@@ -166,7 +166,7 @@ uint32_t FTL_STATISTICS_QUERY	(uint32_t address, int scope , int type){
 
 	//int i , j , scopeFirstPage , planeNumber;
 	uint32_t i, j;
-	uint32_t scopeFirstPage;
+	int scopeFirstPage;
 	uint32_t actionSum;
 	actionSum = 0;
 
