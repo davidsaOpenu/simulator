@@ -57,7 +57,7 @@ ftl_ret_val SSD_PAGE_COPYBACK(uint32_t source, uint32_t destination, int type);
 int SSD_CH_ENABLE(unsigned int flash_nb, int channel);
 
 /* Flash or Register Access */
-int SSD_FLASH_ACCESS(unsigned int flash_nb, int channel, int reg);
+int SSD_FLASH_ACCESS(unsigned int flash_nb, unsigned int channel, unsigned int reg);
 int SSD_REG_ACCESS(unsigned int flash_nb, int channel, int reg);
 
 /* Channel Delay */

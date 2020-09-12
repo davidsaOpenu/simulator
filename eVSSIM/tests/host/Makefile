@@ -12,22 +12,22 @@ CFLAGS = -I/opt/gtest/include -I$(VSSIM_HOME)/osc-osd -I$(VSSIM_HOME)/osc-osd/os
 all: sector_tests object_tests log_mgr_tests ssd_io_emulator_tests
 
 sector_tests: sector_tests.o $(VSSIM_OBJ)
-	g++ $(CFLAGS) -Wall -o sector_tests sector_tests.o $(VSSIM_OBJ) -lpthread -lgtest -lgtest_main -losdutil -losdtgt -lsqlite3 -lwebsockets
+	g++ $(CFLAGS) -Wall -Werror -o sector_tests sector_tests.o $(VSSIM_OBJ) -lpthread -lgtest -lgtest_main -losdutil -losdtgt -lsqlite3 -lwebsockets
 
 object_tests: object_tests.o $(VSSIM_OBJ)
-	g++ $(CFLAGS) -Wall -o object_tests object_tests.o $(VSSIM_OBJ) -Wl,-Bstatic -L$(VSSIM_HOME)/osc-osd/osd-util -L$(VSSIM_HOME)/osc-osd/osd-target -losdutil -losdtgt -Wl,-Bdynamic -lsqlite3 -lm -lpthread -lgtest -lgtest_main -lwebsockets
+	g++ $(CFLAGS) -Wall -Werror -o object_tests object_tests.o $(VSSIM_OBJ) -Wl,-Bstatic -L$(VSSIM_HOME)/osc-osd/osd-util -L$(VSSIM_HOME)/osc-osd/osd-target -losdutil -losdtgt -Wl,-Bdynamic -lsqlite3 -lm -lpthread -lgtest -lgtest_main -lwebsockets
 
 log_mgr_tests: log_mgr_tests.o $(VSSIM_OBJ) rt_analyzer_subscriber.o log_manager_subscriber.o
-	g++ $(CFLAGS) -Wall -o log_mgr_tests log_mgr_tests.o rt_analyzer_subscriber.o log_manager_subscriber.o $(VSSIM_OBJ) -L/usr/X11R6/lib64 -lXext -lX11 -lm -lpthread -lgtest -lgtest_main -losdutil -losdtgt -lsqlite3 -lwebsockets -L/usr/lib/x86_64-linux-gnu
+	g++ $(CFLAGS) -Wall -Werror -o log_mgr_tests log_mgr_tests.o rt_analyzer_subscriber.o log_manager_subscriber.o $(VSSIM_OBJ) -L/usr/X11R6/lib64 -lXext -lX11 -lm -lpthread -lgtest -lgtest_main -losdutil -losdtgt -lsqlite3 -lwebsockets -L/usr/lib/x86_64-linux-gnu
 
 ssd_io_emulator_tests: ssd_io_emulator_tests.o $(VSSIM_OBJ)
-	g++ $(CFLAGS) -Wall -o ssd_io_emulator_tests ssd_io_emulator_tests.o $(VSSIM_OBJ) -lpthread -lgtest -lgtest_main -losdutil -losdtgt -lsqlite3 -lwebsockets
+	g++ $(CFLAGS) -Wall -Werror -o ssd_io_emulator_tests ssd_io_emulator_tests.o $(VSSIM_OBJ) -lpthread -lgtest -lgtest_main -losdutil -losdtgt -lsqlite3 -lwebsockets
 
 %.o: %.cc
-	g++ -Wall $(CFLAGS) -c $<
+	g++ -Wall -Werror $(CFLAGS) -c $<
 
 %.o: %.c
-	gcc -Wall $(CFLAGS) -c $<
+	gcc -Wall -Werror $(CFLAGS) -c $<
 
 .PHONY: clean distclean mklink
 
