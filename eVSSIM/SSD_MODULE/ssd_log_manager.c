@@ -98,6 +98,7 @@ void INIT_LOG_MANAGER(void)
     }
 
     rt_log_stats_init();
+    logger_writer_init();
     log_manager = log_manager_init();
     if (log_manager == NULL)
         PERR("Couldn't create the log manager: %s\n", strerror(errno));

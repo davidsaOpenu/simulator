@@ -79,6 +79,10 @@
     node->clean = is_clean; \
 }
 
+
+static logger_writer logger_writer_obj;
+
+
 Logger_Pool* logger_init(unsigned int number_of_logs) {
     Byte *buffer;
     Log *log, *dummy;
@@ -319,6 +323,8 @@ void logger_free(Logger_Pool* logger_pool) {
     pthread_mutex_unlock(&logger_pool->lock);
 
     free(logger_pool);
+
+    logger_writer_free();
 }
 
 void logger_reduce_size(Logger_Pool* logger_pool) {
@@ -379,4 +385,100 @@ void logger_clean(Logger_Pool* logger_pool) {
 
     // unlock logger pool
     pthread_mutex_unlock(&logger_pool->lock);
+}
+
+
+static int logger_writer_open_file_for_write(void) {
+    uint8_t file_num = 0;
+
+    while (file_num < NUM_LOG_FILES) {
+        logger_writer_obj.log_file[file_num] = fopen(logger_writer_obj.log_file_path[file_num], "w");
+
+        if (NULL == logger_writer_obj.log_file[file_num]) {
+            uint8_t file_to_close = 0;
+            while (file_to_close <= file_num) {
+                if (fclose(logger_writer_obj.log_file[file_to_close]) != 0) {
+                }
+                file_to_close++;
+            }
+            return -1;
+        } else {
+            file_num++;
+        }
+    }
+
+    return 0;
+}
+
+static void logger_writer_close_file(void) {
+    uint8_t file_to_close = 0;
+
+    while (file_to_close < NUM_LOG_FILES) {
+        fclose(logger_writer_obj.log_file[file_to_close]);
+        file_to_close++;
+    }
+}
+
+void logger_writer_init(void) {
+    // MB: see following comment
+    //  srand(time(0));
+    //  int random_index;
+    uint8_t file_index = 0;
+
+    while (file_index < NUM_LOG_FILES) {
+        // MB: Random index may cause collisions in file path, thus commented:
+        //  random_index = rand() % 100;
+        sprintf(logger_writer_obj.log_file_path[file_index], "/tmp/log_file_%d.log", file_index);
+        file_index++;
+    }
+
+    logger_writer_obj.log_file_size = 1024 * 1024;
+
+    logger_writer_obj.curr_log_file = 0;
+    logger_writer_obj.curr_size = 0;
+    int retval = logger_writer_open_file_for_write();
+
+    if (retval == -1) {
+        logger_writer_free();
+        return;
+    }
+}
+
+void logger_writer_free(void) {
+    logger_writer_close_file();
+}
+
+char *logger_writer_get_current_log_file_path(void) {
+    return logger_writer_obj.log_file_path[logger_writer_obj.curr_log_file];
+}
+
+char *logger_writer_get_log_file_path_at_index(uint8_t file_index) {
+    char *log_file_path = NULL;
+
+    if (file_index < NUM_LOG_FILES) {
+        log_file_path = logger_writer_obj.log_file_path[file_index];
+    }
+    return log_file_path;
+}
+
+void logger_writer_save_log_to_file(Byte *buffer, int length) {
+    int file_to_write;
+
+    if (NULL != buffer) {
+        // I lock here in order to prevent collisions between the different rt_analyzer threads while the touch
+        //  writer_obj related members.
+        pthread_mutex_lock(&logger_writer_obj.lock);
+        // Check if there is enought space in the current log file to write log
+        if (length + logger_writer_obj.curr_size > logger_writer_obj.log_file_size) {
+            logger_writer_obj.curr_size = 0;
+            logger_writer_obj.curr_log_file = (logger_writer_obj.curr_log_file + 1) % NUM_LOG_FILES;
+        }
+        file_to_write = logger_writer_obj.curr_log_file;
+
+        // Increase the size of current log_file by the buffer's size
+        logger_writer_obj.curr_size += length;
+        pthread_mutex_unlock(&logger_writer_obj.lock);
+
+        fwrite(buffer, sizeof(Byte), length, logger_writer_obj.log_file[file_to_write]);
+    }
 }
