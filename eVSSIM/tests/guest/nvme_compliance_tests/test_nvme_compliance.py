@@ -42,7 +42,7 @@ class TestNVMeCompliance:
             os.system("rmmod nvme")
             os.system("insmod dnvme.ko")
 
-        skip_suits = {19, 22, 23, 24}
+        skip_suits = {}
         for suiteNum in range(1, 28):
             if suiteNum not in skip_suits:
                 cmd = "./tnvme --rev=1.2 --test=%d > ./Logs/test%d.txt 2>&1" % (suiteNum, suiteNum)
