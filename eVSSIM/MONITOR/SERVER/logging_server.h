@@ -75,8 +75,9 @@ int log_server_init(void);
 /**
  * Update the statistics sent by the logging server
  * @param stats the new statistics to use
+ * @param uid a pointer to user defined data
  */
-void log_server_update(SSDStatistics stats);
+void log_server_update(SSDStatistics stats, void *uid);
 
 /**
  * Update the current reset hook of the logging server
