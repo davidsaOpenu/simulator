@@ -28,7 +28,10 @@ RUN apt-get update && DEBIAN_FRONTEND=noninteractive apt-get -y install \
   libboost-all-dev \
   eatmydata \
   strace \
-  lsof
+  lsof \
+  libjson-c-dev \
+  flex \
+  bison
 
 
 # Install build packages
