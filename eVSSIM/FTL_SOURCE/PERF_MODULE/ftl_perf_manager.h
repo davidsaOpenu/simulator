@@ -1,4 +1,4 @@
-// Copyright(c)2013 
+// Copyright(c)2013
 //
 // Hanyang University, Seoul, Korea
 // Embedded Software Systems Lab. All right reserved
@@ -47,9 +47,9 @@ void SEND_TO_PERF_CHECKER(int op_type, int64_t op_delay, int type);
 int64_t ALLOC_IO_REQUEST(uint32_t sector_nb, unsigned int length, int io_type, int* page_nb);
 void FREE_DUMMY_IO_REQUEST(int type);
 void FREE_IO_REQUEST(io_request* request);
-int64_t UPDATE_IO_REQUEST(int request_nb, int offset, int64_t time, int type);
+int64_t UPDATE_IO_REQUEST(uint32_t request_nb, int offset, int64_t time, int type);
 void INCREASE_IO_REQUEST_SEQ_NB(void);
-io_request* LOOKUP_IO_REQUEST(int request_nb, int type);
+io_request* LOOKUP_IO_REQUEST(uint32_t request_nb, int type);
 int64_t CALC_IO_LATENCY(io_request* request);
 
 #endif

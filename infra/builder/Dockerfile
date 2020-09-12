@@ -49,7 +49,7 @@ RUN wget -qO- https://github.com/google/googletest/archive/release-1.7.0.tar.gz 
 RUN mkdir -p $GTEST_HOME/gtest/lib && cd $GTEST_HOME/gtest/lib && cmake .. && make
 
 # Install websockets
-RUN git clone --branch v2.4-stable https://github.com/warmcat/libwebsockets.git /opt/libwebsockets && \
+RUN git clone --branch v4.1-stable https://github.com/warmcat/libwebsockets.git /opt/libwebsockets && \
     cd /opt/libwebsockets && cmake . && make && make install
 
 RUN apt-get update && DEBIAN_FRONTEND=noninteractive apt-get install -y \

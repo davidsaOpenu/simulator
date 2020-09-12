@@ -128,7 +128,8 @@ namespace {
             }
             virtual void osd_init() {
                 const char *root = "/tmp/osd/";
-                system("rm -rf /tmp/osd");
+                int ret_sys_val = system("rm -rf /tmp/osd");
+                assert(ret_sys_val != 0);
                 assert(!osd_open(root, &osd));
                 osd_sense = (uint8_t*)Calloc(1, 1024);
                 assert(!osd_create_partition(&osd, PARTITION_PID_LB, cdb_cont_len, osd_sense));
@@ -395,5 +396,3 @@ namespace {
     }
 
 } //namespace
-
-

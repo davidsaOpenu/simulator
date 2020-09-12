@@ -89,7 +89,7 @@ namespace {
         // wait for new monitor sync
         MONITOR_SYNC_DELAY(expected_write_duration);
 
-        int i;
+        uint32_t i;
 
         for (i = 0; i < FLASH_NB; i++) {
             write_wall_time += rt_log_stats[i].write_wall_time;
@@ -122,7 +122,7 @@ namespace {
         // wait for new monitor sync
         MONITOR_SYNC_DELAY(expected_read_duration);
 
-        int i;
+        uint32_t i;
 
         for (i = 0; i < FLASH_NB; i++) {
             read_wall_time += rt_log_stats[i].read_wall_time;
@@ -162,7 +162,7 @@ namespace {
         // wait for new monitor sync
         MONITOR_SYNC_DELAY(expected_write_duration + expected_read_duration);
 
-        int i;
+        uint32_t i;
 
         for (i = 0; i < FLASH_NB; i++) {
             write_wall_time += rt_log_stats[i].write_wall_time;
@@ -304,7 +304,7 @@ namespace {
         // wait for new monitor sync
         MONITOR_SYNC_DELAY(expected_write_duration);
 
-        int i;
+        uint32_t i;
 
         for (i = 0; i < FLASH_NB; i++) {
             logical_write_count += rt_log_stats[i].logical_write_count;
@@ -339,7 +339,7 @@ namespace {
 
         MONITOR_SYNC_DELAY(expected_write_duration);
 
-        int i;
+        uint32_t i;
 
         for (i = 0; i < FLASH_NB; i++) {
             logical_write_count += rt_log_stats[i].logical_write_count;

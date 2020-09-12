@@ -1,4 +1,4 @@
-// Copyright(c)2013 
+// Copyright(c)2013
 //
 // Hanyang University, Seoul, Korea
 // Embedded Software Systems Lab. All right reserved
@@ -20,7 +20,7 @@ void TERM_MAPPING_TABLE(void);
 
 uint32_t GET_MAPPING_INFO(uint32_t lpn);
 ftl_ret_val GET_NEW_PAGE(int mode, int mapping_index, uint32_t* ppn);
-ftl_ret_val DEFAULT_NEXT_PAGE_ALGO(int mode, int mapping_index, uint32_t* ppn);
+ftl_ret_val DEFAULT_NEXT_PAGE_ALGO(int mode, uint32_t mapping_index, uint32_t* ppn);
 
 int UPDATE_OLD_PAGE_MAPPING(uint32_t lpn);
 int UPDATE_NEW_PAGE_MAPPING(uint32_t lpn, uint32_t ppn);

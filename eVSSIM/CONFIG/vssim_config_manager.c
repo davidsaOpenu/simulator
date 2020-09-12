@@ -1,4 +1,4 @@
-// Copyright(c)2013 
+// Copyright(c)2013
 //
 // Hanyang University, Seoul, Korea
 // Embedded Software Systems Lab. All right reserved
@@ -6,32 +6,32 @@
 #include "common.h"
 
 /* SSD Configuration */
-int SECTOR_SIZE;
-int PAGE_SIZE;
+uint32_t SECTOR_SIZE;
+uint32_t PAGE_SIZE;
 
-int64_t SECTOR_NB;
-int PAGE_NB;
-int FLASH_NB;
-int BLOCK_NB;
-int CHANNEL_NB;
-int PLANES_PER_FLASH;
+uint64_t SECTOR_NB;
+uint32_t PAGE_NB;
+uint32_t FLASH_NB;
+uint32_t BLOCK_NB;
+uint32_t CHANNEL_NB;
+uint32_t PLANES_PER_FLASH;
 
-int SECTORS_PER_PAGE;
-int PAGES_PER_FLASH;
+uint32_t SECTORS_PER_PAGE;
+uint32_t PAGES_PER_FLASH;
 int64_t PAGES_IN_SSD;
 
-int WAY_NB;
+uint32_t WAY_NB;
 
 /* Mapping Table */
-int DATA_BLOCK_NB;
+uint32_t DATA_BLOCK_NB;
 int64_t BLOCK_MAPPING_ENTRY_NB;		// added by js
 
 #ifdef PAGE_MAP
 int64_t PAGE_MAPPING_ENTRY_NB;		// added by js
 int64_t EACH_EMPTY_TABLE_ENTRY_NB;	// added by js
 
-int EMPTY_TABLE_ENTRY_NB;		// added by js
-int VICTIM_TABLE_ENTRY_NB;		// added by js
+uint32_t EMPTY_TABLE_ENTRY_NB;		// added by js
+uint32_t VICTIM_TABLE_ENTRY_NB;		// added by js
 #endif
 
 /* NAND Flash Delay */
@@ -121,7 +121,7 @@ void INIT_SSD_CONFIG(void)
             if (fgets(OSD_PATH, PATH_MAX, pfData) == NULL)
                 RERR(, "Can't read OSD_PATH\n");
             continue;
-        }		
+        }
         for (i = 0; options[i].name != NULL; i++)
             if (strcmp(szCommand, options[i].name) == 0)
                 break;
@@ -143,7 +143,7 @@ void INIT_SSD_CONFIG(void)
 	/* SSD Configuration */
 	SECTORS_PER_PAGE = PAGE_SIZE / SECTOR_SIZE;
 	PAGES_PER_FLASH = PAGE_NB * BLOCK_NB;
-	SECTOR_NB = (int64_t)SECTORS_PER_PAGE * (int64_t)PAGE_NB * (int64_t)BLOCK_NB * (int64_t)FLASH_NB;
+	SECTOR_NB = (uint64_t)SECTORS_PER_PAGE * (uint64_t)PAGE_NB * (uint64_t)BLOCK_NB * (uint64_t)FLASH_NB;
 
 	/* Mapping Table */
 	BLOCK_MAPPING_ENTRY_NB = (int64_t)BLOCK_NB * (int64_t)FLASH_NB;
@@ -158,7 +158,7 @@ void INIT_SSD_CONFIG(void)
 
 	DATA_BLOCK_NB = BLOCK_NB;
 #endif
-	
+
 	/* Garbage Collection */
 #ifdef PAGE_MAP
 	GC_THRESHOLD = 0.3; // 70%
@@ -181,7 +181,6 @@ int GET_SECTOR_SIZE(void){
         return SECTOR_SIZE;
 }
 
-int GET_PAGE_SIZE(void){
+uint32_t GET_PAGE_SIZE(void){
         return PAGE_SIZE;
 }
-

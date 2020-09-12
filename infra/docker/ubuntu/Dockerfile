@@ -54,7 +54,7 @@ RUN mkdir -p $GTEST_HOME/gtest/lib && \
     make
 
 # Install websockets
-RUN git clone --branch v2.4-stable https://github.com/warmcat/libwebsockets.git /opt/libwebsockets && \
+RUN git clone --branch v4.1-stable https://github.com/warmcat/libwebsockets.git /opt/libwebsockets && \
     cd /opt/libwebsockets && cmake . && \
     make && \
     make install

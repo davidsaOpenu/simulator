@@ -48,7 +48,7 @@ RTLogAnalyzer* rt_log_analyzer_init(Logger_Pool* logger, unsigned int analyzer_i
 void rt_log_stats_init(void) {
     rt_log_stats = (RTLogStatistics*) malloc(sizeof(RTLogStatistics) * FLASH_NB);
 
-    int i;
+    uint32_t i;
 
     for (i = 0; i < FLASH_NB; i++) {
         rt_log_stats[i].current_wall_time = 0;
@@ -89,7 +89,7 @@ void rt_log_analyzer_loop(RTLogAnalyzer* analyzer, int max_logs) {
     while (max_logs < 0 || logs_read < max_logs) {
         // read the log type, while listening to analyzer->exit_loop_flag
         int log_type;
-        int bytes_read = 0;
+        uint32_t bytes_read = 0;
         int bytes_read_last_read = 0;
         while (bytes_read < sizeof(log_type)) {
             if (analyzer->exit_loop_flag)
