@@ -7,12 +7,12 @@
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation, version 2 of the License.
- * 
+ *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
@@ -38,7 +38,7 @@ double mhz = -1.0;
 /*
  * Set the program name, first statement of code usually.
  */
-void osd_set_progname(int argc __attribute__((unused)), char *const argv[])
+void osd_set_progname(int argc __attribute__((unused)), const char *argv[])
 {
 	const char *cp;
 
@@ -167,7 +167,7 @@ Malloc(size_t n)
 	} else {
 		x = malloc(n);
 		if (!x)
-			osd_error("%s: couldn't get %lu bytes", __func__, 
+			osd_error("%s: couldn't get %lu bytes", __func__,
 				  (unsigned long) n);
 	}
 	return x;
@@ -186,7 +186,7 @@ Calloc(size_t nmemb, size_t n)
 	else {
 		x = calloc(nmemb, n);
 		if (!x)
-			osd_error("%s: couldn't get %zu bytes", __func__, 
+			osd_error("%s: couldn't get %zu bytes", __func__,
 				  nmemb * n);
 	}
 	return x;
@@ -205,9 +205,9 @@ size_t osd_saferead(int fd, void *buf, size_t num)
 		if (i < 0)
 			osd_error_errno("%s: read %zu bytes", __func__, num);
 		if (i == 0) {
-			if (offset == 0) 
+			if (offset == 0)
 				return 0; /* end of file on a block boundary */
-			osd_error("%s: EOF, only %d of %d bytes", __func__, 
+			osd_error("%s: EOF, only %d of %d bytes", __func__,
 				  offset, total);
 		}
 		num -= i;
@@ -539,7 +539,7 @@ double mean(double *v, int N)
 	return mu/N;
 }
 
-double stddev(double *v, double mu, int N) 
+double stddev(double *v, double mu, int N)
 {
 	int i = 0;
 	double sd = 0.0;
@@ -558,7 +558,7 @@ static double partition(double *a, int left, int right, int pi)
 {
 	int i, ind;
 	double pv, tmp;
-	
+
 	pv = a[pi];
 
 	tmp = a[right];
@@ -598,7 +598,7 @@ static double selectmedian(double *a, int k, int left, int right)
 	}
 }
 
-/* 
+/*
  * Median algo is based on selection algorithm by Blum et. al. Psuedo-code is
  * availble at: http://en.wikipedia.org/wiki/Selection_algorithm
  */
@@ -607,7 +607,7 @@ double median(double *v, int N)
 	int mindx;
 	double median;
 	double *a;
-	
+
 	a = Malloc(sizeof(*a)*N);
 	if (!a)
 		osd_error_fatal("Out of memory");
@@ -690,7 +690,7 @@ no_cpufrequency:
 		osd_error("\"cpu MHz\" line not found\n");
 
 no_cpufrequency:
-	fclose(fp); 
+	fclose(fp);
 #endif /*  else defined(__FreeBSD__) || defined(__APPLE__) */
 
 	return mhz != 0 ? mhz : cpufrequency_not_found ;
@@ -718,4 +718,3 @@ uint32_t jenkins_one_at_a_time_hash(uint8_t *key, size_t key_len)
 
 	return hash;
 }
-

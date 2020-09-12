@@ -17,6 +17,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <stdint.h>
 #include <unistd.h>
 #include <sys/types.h>
 #include <linux/unistd.h>
@@ -81,7 +82,7 @@
 Logger_Pool* logger_init(unsigned int number_of_logs) {
     Byte *buffer;
     Log *log, *dummy;
-    int i;
+    uint32_t i;
 
     // There has to be at least one log in the pool
     if(number_of_logs == 0)
@@ -90,21 +91,24 @@ Logger_Pool* logger_init(unsigned int number_of_logs) {
     // allocate memory for the dummy log
     // the dummy log will act as a linked list sentinel
     dummy = (Log*) malloc(sizeof(Log));
-    if(dummy == NULL)
+    if (dummy == NULL) {
         return NULL;
+    }
 
     // initialize the dummy log
     dummy->next = dummy;
     dummy->prev = dummy;
 
     //try to allocate number_of_logs
-    for(i=0; i<number_of_logs; i++) {
+    for (i=0; i<number_of_logs; i++) {
         log = (Log*) malloc(sizeof(Log));
-        if(log == NULL)
+        if (log == NULL) {
             return NULL;
+        }
 
-        if (posix_memalign((void**) &buffer, LOGGER_BUFFER_ALIGNMENT, LOG_SIZE))
+        if (posix_memalign((void**) &buffer, LOGGER_BUFFER_ALIGNMENT, LOG_SIZE)) {
             return NULL;
+        }
 
         INSERT_NODE(log, dummy, buffer);
     }

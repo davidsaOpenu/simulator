@@ -1,4 +1,4 @@
-// Copyright(c)2013 
+// Copyright(c)2013
 //
 // Hanyang University, Seoul, Korea
 // Embedded Software Systems Lab. All right reserved
@@ -20,7 +20,7 @@ extern unsigned int empty_block_table_index;
 
 typedef struct inverse_block_mapping_entry
 {
-	int valid_page_nb;
+	uint32_t valid_page_nb;
 	int type;
 	unsigned int erase_count;
 	char* valid_array;
@@ -54,7 +54,7 @@ typedef struct victim_block_entry
 {
 	unsigned int phy_flash_nb;
 	unsigned int phy_block_nb;
-	int *valid_page_nb;
+	uint32_t *valid_page_nb;
 	struct victim_block_entry* prev;
 	struct victim_block_entry* next;
 }victim_block_entry;
@@ -74,7 +74,7 @@ void TERM_EMPTY_BLOCK_LIST(void);
 void TERM_VICTIM_BLOCK_LIST(void);
 void TERM_VALID_ARRAY(void);
 
-empty_block_entry* GET_EMPTY_BLOCK(int mode, int mapping_index);
+empty_block_entry* GET_EMPTY_BLOCK(int mode, uint32_t mapping_index);
 ftl_ret_val INSERT_EMPTY_BLOCK(unsigned int phy_flash_nb, unsigned int phy_block_nb);
 
 ftl_ret_val INSERT_VICTIM_BLOCK(empty_block_entry* full_block);

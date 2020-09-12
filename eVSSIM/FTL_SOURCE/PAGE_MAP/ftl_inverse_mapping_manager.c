@@ -1,4 +1,4 @@
-// Copyright(c)2013 
+// Copyright(c)2013
 //
 // Hanyang University, Seoul, Korea
 // Embedded Software Systems Lab. All right reserved
@@ -90,13 +90,13 @@ void INIT_VALID_ARRAY(void)
 			curr_mapping_entry->valid_array = valid_array;
 
 			curr_mapping_entry += 1;
-		}			
+		}
 	}
 }
 
 void INIT_EMPTY_BLOCK_LIST(void)
 {
-	int i, j, k;
+	uint32_t i, j, k;
 
 	empty_block_entry* curr_entry;
 	empty_block_root* curr_root;
@@ -132,7 +132,7 @@ void INIT_EMPTY_BLOCK_LIST(void)
 					if(k == curr_root->empty_block_nb){
 						curr_root->next = curr_entry;
 						curr_root->tail = curr_entry;
-					}					
+					}
 					else{
 						curr_root->tail->next = curr_entry;
 						curr_root->tail = curr_entry;
@@ -146,7 +146,7 @@ void INIT_EMPTY_BLOCK_LIST(void)
 		fclose(fp);
 	}
 	else{
-		curr_root = (empty_block_root*)empty_block_table_start;		
+		curr_root = (empty_block_root*)empty_block_table_start;
 
 		for(i=0;i<PLANES_PER_FLASH;i++){
 
@@ -154,12 +154,12 @@ void INIT_EMPTY_BLOCK_LIST(void)
 
 				for(k=i;k<BLOCK_NB;k+=PLANES_PER_FLASH){
 
-					curr_entry = (empty_block_entry*)calloc(1, sizeof(empty_block_entry));	
+					curr_entry = (empty_block_entry*)calloc(1, sizeof(empty_block_entry));
 					if(curr_entry == NULL){
 						PERR("Calloc fail\n");
 						break;
 					}
-	
+
 					if(k==i){
 						curr_root->next = curr_entry;
 						curr_root->tail = curr_entry;
@@ -189,7 +189,7 @@ void INIT_EMPTY_BLOCK_LIST(void)
 
 void INIT_VICTIM_BLOCK_LIST(void)
 {
-	int i, j, k;
+	uint32_t i, j, k;
 
 	victim_block_entry* curr_entry;
 	victim_block_root* curr_root;
@@ -226,7 +226,7 @@ void INIT_VICTIM_BLOCK_LIST(void)
 					if(k == curr_root->victim_block_nb){
 						curr_root->next = curr_entry;
 						curr_root->tail = curr_entry;
-					}					
+					}
 					else{
 						curr_root->tail->next = curr_entry;
 						curr_entry->prev = curr_root->tail;
@@ -240,7 +240,7 @@ void INIT_VICTIM_BLOCK_LIST(void)
 		fclose(fp);
 	}
 	else{
-		curr_root = (victim_block_root*)victim_block_table_start;		
+		curr_root = (victim_block_root*)victim_block_table_start;
 
 		for(i=0;i<PLANES_PER_FLASH;i++){
 
@@ -296,7 +296,7 @@ void TERM_VALID_ARRAY(void)
 	FILE* fp = fopen("./data/valid_array.dat","w");
         if (fp == NULL)
 		RERR(, "File open fail\n");
- 
+
 	for(i=0;i<BLOCK_MAPPING_ENTRY_NB;i++){
 		valid_array = curr_mapping_entry->valid_array;
 		if(fwrite(valid_array, sizeof(char), PAGE_NB, fp) <= 0)
@@ -309,7 +309,7 @@ void TERM_VALID_ARRAY(void)
 
 void TERM_EMPTY_BLOCK_LIST(void)
 {
-	int i, j, k;
+	uint32_t i, j, k;
 
 	empty_block_entry* curr_entry, *tmp_entry;
 	empty_block_root* curr_root;
@@ -349,7 +349,7 @@ void TERM_EMPTY_BLOCK_LIST(void)
 
 void TERM_VICTIM_BLOCK_LIST(void)
 {
-	int i, j, k;
+	uint32_t i, j, k;
 
 	victim_block_entry* curr_entry, *tmp_entry;
 	victim_block_root* curr_root;
@@ -391,12 +391,12 @@ void TERM_VICTIM_BLOCK_LIST(void)
 // (one with an empty page available) is returned from a different
 // flash plane each time, sequentially (wraps at the end and starts
 // all over again)
-empty_block_entry* GET_EMPTY_BLOCK(int mode, int mapping_index)
+empty_block_entry* GET_EMPTY_BLOCK(int mode, uint32_t mapping_index)
 {
 	if (total_empty_block_nb == 0)
 		RERR(NULL, "There is no empty block\n");
 
-	int input_mapping_index = mapping_index;
+	uint32_t input_mapping_index = mapping_index;
 
 	empty_block_entry* curr_empty_block;
 	empty_block_root* curr_root_entry;
@@ -426,7 +426,7 @@ empty_block_entry* GET_EMPTY_BLOCK(int mode, int mapping_index)
 						curr_root_entry->next = curr_empty_block->next;
 						curr_root_entry->empty_block_nb -= 1;
 					}
-				
+
 					/* Eject Empty Block from the list */
 					INSERT_VICTIM_BLOCK(curr_empty_block);
 
@@ -462,7 +462,7 @@ empty_block_entry* GET_EMPTY_BLOCK(int mode, int mapping_index)
 			else{
 				curr_empty_block = curr_root_entry->next;
 				if(curr_empty_block->curr_phy_page_nb == PAGE_NB){
-					
+
 					/* Update Empty Block List */
 					if(curr_root_entry->empty_block_nb == 1){
 						curr_root_entry->next = NULL;
@@ -486,7 +486,7 @@ empty_block_entry* GET_EMPTY_BLOCK(int mode, int mapping_index)
 				}
 
 				return curr_empty_block;
-			}	
+			}
 		}
 
 		else if(mode == VICTIM_NOPARAL){
@@ -496,7 +496,7 @@ empty_block_entry* GET_EMPTY_BLOCK(int mode, int mapping_index)
 
 				mapping_index++;
 				empty_block_table_index++;
-				if(mapping_index == EMPTY_TABLE_ENTRY_NB){
+				if (mapping_index == EMPTY_TABLE_ENTRY_NB) {
 					mapping_index = 0;
 					empty_block_table_index = 0;
 				}
@@ -505,7 +505,7 @@ empty_block_entry* GET_EMPTY_BLOCK(int mode, int mapping_index)
 			else{
 				curr_empty_block = curr_root_entry->next;
 				if(curr_empty_block->curr_phy_page_nb == PAGE_NB){
-					
+
 					/* Update Empty Block List */
 					if(curr_root_entry->empty_block_nb == 1){
 						curr_root_entry->next = NULL;
@@ -529,7 +529,7 @@ empty_block_entry* GET_EMPTY_BLOCK(int mode, int mapping_index)
 				}
 
 				return curr_empty_block;
-			}	
+			}
 		}
 	}
 
@@ -588,9 +588,10 @@ ftl_ret_val INSERT_VICTIM_BLOCK(empty_block_entry* full_block){
 
 	/* Alloc New victim block entry */
 	new_victim_block = (victim_block_entry*)calloc(1, sizeof(victim_block_entry));
-	if (new_victim_block == NULL)
-
+	if (new_victim_block == NULL) {
 		RERR(FTL_FAILURE, "Calloc fail\n");
+	}
+
 
 	/* Copy the full block address */
 	new_victim_block->phy_flash_nb = full_block->phy_flash_nb;
@@ -692,11 +693,11 @@ int UPDATE_INVERSE_PAGE_MAPPING(uint32_t ppn,  uint32_t lpn)
 
 int UPDATE_INVERSE_BLOCK_MAPPING(unsigned int phy_flash_nb, unsigned int phy_block_nb, int type)
 {
-        int i;
+        uint32_t i;
         inverse_block_mapping_entry* mapping_entry = GET_INVERSE_BLOCK_MAPPING_ENTRY(phy_flash_nb, phy_block_nb);
 
         mapping_entry->type = type;
-	
+
         if(type == EMPTY_BLOCK){
                 for(i=0;i<PAGE_NB;i++){
                         UPDATE_INVERSE_BLOCK_VALIDITY(phy_flash_nb, phy_block_nb, i, PAGE_ZERO);
@@ -709,13 +710,13 @@ int UPDATE_INVERSE_BLOCK_MAPPING(unsigned int phy_flash_nb, unsigned int phy_blo
 
 ftl_ret_val UPDATE_INVERSE_BLOCK_VALIDITY(unsigned int phy_flash_nb,
                                           unsigned int phy_block_nb,
-										  unsigned int phy_page_nb, 
+										  unsigned int phy_page_nb,
 										  char valid)
 {
 	if (phy_flash_nb >= FLASH_NB || phy_block_nb >= BLOCK_NB || phy_page_nb >= PAGE_NB)
 		RERR(FTL_FAILURE, "Wrong physical address\n");
 
-	inverse_block_mapping_entry *mapping_entry = 
+	inverse_block_mapping_entry *mapping_entry =
 		GET_INVERSE_BLOCK_MAPPING_ENTRY(phy_flash_nb, phy_block_nb);
 	char old_state = mapping_entry->valid_array[phy_page_nb];
 	if ((valid == PAGE_VALID) && (old_state != PAGE_VALID))
