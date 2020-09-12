@@ -19,6 +19,8 @@
 
 #include <stdlib.h>
 #include <stdbool.h>
+#include <stdint.h>
+#include <stdio.h>
 #include <time.h>
 #include <pthread.h>
 
@@ -54,6 +56,10 @@
  */
 typedef unsigned char Byte;
 
+/* Size of file path */
+#define SCRATCHBOOK_SIZE 256
+/* number of log files */
+#define NUM_LOG_FILES 2
 
 /**
  * The Log structure
@@ -145,6 +151,23 @@ typedef struct {
     pthread_mutex_t lock;
 } Logger_Pool;
 
+typedef struct {
+    /** File that the LoggerWriter works with */
+    FILE *log_file[NUM_LOG_FILES];
+    /** Curr log file to be used */
+    int curr_log_file;
+    /** File path that the LoggerWriter works with */
+    char log_file_path[NUM_LOG_FILES][SCRATCHBOOK_SIZE];
+    /** Maximum size of a single log file */
+    uint32_t log_file_size;
+    /** Current log file size */
+    uint32_t curr_size;
+    /**
+     * The lock of the logger writer to update logger file safely from threads
+     */
+    pthread_mutex_t lock;
+} logger_writer;
+
 /**
  * Create a new logger
  * @param number_of_logs the number of logs to allocate at this logger pool
@@ -203,5 +226,38 @@ void logger_reduce_size(Logger_Pool* logger_pool);
  * @param logger_pool the logger pool that hold's the log's to clean
  */
 void logger_clean(Logger_Pool* logger_pool);
+
+/**
+ * @brief Creator of LoggerWriter object
+ */
+void logger_writer_init(void);
+
+/**
+ * @brief Destructor of LoggerWriter object
+ */
+void logger_writer_free(void);
+
+/**
+ * @brief Getter for file name the LoggerWriter works with
+ *
+ * @param obj LoggerWriter object
+ * @return char* The file path LoggerWriter is working with
+ */
+char *logger_writer_get_current_log_file_path(void);
+
+/**
+ * @brief Get Logging Writer file path at index
+ *
+ * @param[in] file_index Index of a file to get file path of
+ * @return On success returns path to a file, otherwise NULL
+ */
+char *logger_writer_get_log_file_path_at_index(uint8_t file_index);
+
+/**
+ * @brief Save a log to Logger file
+ *
+ * @param log_obj Pointer to Log Object to be saved
+ */
+void logger_writer_save_log_to_file(Byte *buffer, int length);
 
 #endif
