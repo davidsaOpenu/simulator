@@ -1,0 +1,188 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "f60add46_f793240f",
+        "filename": "eVSSIM/SSD_MODULE/ssd_io_manager.c",
+        "patchSetId": 10
+      },
+      "lineNbr": 105,
+      "author": {
+        "id": 1017913
+      },
+      "writtenOn": "2020-09-22T19:26:28Z",
+      "side": 1,
+      "message": "tabs a bit messy here",
+      "range": {
+        "startLine": 102,
+        "startChar": 1,
+        "endLine": 105,
+        "endChar": 3
+      },
+      "revId": "66dc360e5739c33dea99cdbe5b182667427bc6b8",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "9c4ee656_8efcd6f8",
+        "filename": "eVSSIM/SSD_MODULE/ssd_io_manager.c",
+        "patchSetId": 10
+      },
+      "lineNbr": 120,
+      "author": {
+        "id": 1017913
+      },
+      "writtenOn": "2020-09-22T19:26:28Z",
+      "side": 1,
+      "message": "missing tab",
+      "range": {
+        "startLine": 120,
+        "startChar": 3,
+        "endLine": 120,
+        "endChar": 9
+      },
+      "revId": "66dc360e5739c33dea99cdbe5b182667427bc6b8",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "13368c71_c1dc1aea",
+        "filename": "eVSSIM/SSD_MODULE/ssd_io_manager.c",
+        "patchSetId": 10
+      },
+      "lineNbr": 141,
+      "author": {
+        "id": 1017913
+      },
+      "writtenOn": "2020-09-22T19:26:28Z",
+      "side": 1,
+      "message": "add break for default case",
+      "range": {
+        "startLine": 141,
+        "startChar": 3,
+        "endLine": 141,
+        "endChar": 24
+      },
+      "revId": "66dc360e5739c33dea99cdbe5b182667427bc6b8",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "749a694e_9e26a4d7",
+        "filename": "eVSSIM/SSD_MODULE/ssd_io_manager.c",
+        "patchSetId": 10
+      },
+      "lineNbr": 363,
+      "author": {
+        "id": 1017913
+      },
+      "writtenOn": "2020-09-22T19:26:28Z",
+      "side": 1,
+      "message": "align this line",
+      "range": {
+        "startLine": 363,
+        "startChar": 3,
+        "endLine": 363,
+        "endChar": 12
+      },
+      "revId": "66dc360e5739c33dea99cdbe5b182667427bc6b8",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "9ba6fef5_a57a7c2d",
+        "filename": "eVSSIM/SSD_MODULE/ssd_io_manager.h",
+        "patchSetId": 10
+      },
+      "lineNbr": 21,
+      "author": {
+        "id": 1017913
+      },
+      "writtenOn": "2020-09-22T19:26:28Z",
+      "side": 1,
+      "message": "align this line",
+      "range": {
+        "startLine": 21,
+        "startChar": 4,
+        "endLine": 21,
+        "endChar": 7
+      },
+      "revId": "66dc360e5739c33dea99cdbe5b182667427bc6b8",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "28e1eb61_02bd2026",
+        "filename": "eVSSIM/tests/host/ssd_io_emulator_tests.cc",
+        "patchSetId": 10
+      },
+      "lineNbr": 120,
+      "author": {
+        "id": 1017913
+      },
+      "writtenOn": "2020-09-22T19:26:28Z",
+      "side": 1,
+      "message": "investigate why do we have switch in here, since it is only READs i believe there is no need for switch channel.\n@David, i do remember there was some issue with READ start right after NOOP. This SWITCH was added in that case, is it expected behavior? Investigate?\nIf investigate i would suggest merge the patch and add a TODO for followup. also note this is a new test.",
+      "range": {
+        "startLine": 120,
+        "startChar": 37,
+        "endLine": 120,
+        "endChar": 59
+      },
+      "revId": "66dc360e5739c33dea99cdbe5b182667427bc6b8",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "cef8a93d_c09fc32e",
+        "filename": "eVSSIM/tests/host/ssd_io_emulator_tests.cc",
+        "patchSetId": 10
+      },
+      "lineNbr": 355,
+      "author": {
+        "id": 1017913
+      },
+      "writtenOn": "2020-09-22T19:26:28Z",
+      "side": 1,
+      "message": "please, add a comment for this test. What does it check?",
+      "range": {
+        "startLine": 355,
+        "startChar": 4,
+        "endLine": 355,
+        "endChar": 47
+      },
+      "revId": "66dc360e5739c33dea99cdbe5b182667427bc6b8",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "8ea70a32_12533123",
+        "filename": "eVSSIM/tests/host/ssd_io_emulator_tests.cc",
+        "patchSetId": 10
+      },
+      "lineNbr": 379,
+      "author": {
+        "id": 1017913
+      },
+      "writtenOn": "2020-09-22T19:26:28Z",
+      "side": 1,
+      "message": "same, please document what it does.",
+      "range": {
+        "startLine": 379,
+        "startChar": 4,
+        "endLine": 379,
+        "endChar": 10
+      },
+      "revId": "66dc360e5739c33dea99cdbe5b182667427bc6b8",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": true
+    }
+  ]
+}
