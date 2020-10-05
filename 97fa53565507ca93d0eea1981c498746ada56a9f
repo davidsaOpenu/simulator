@@ -2,6 +2,23 @@
   "comments": [
     {
       "key": {
+        "uuid": "1baf653b_1f61edae",
+        "filename": "eVSSIM/CONFIG/vssim_config_manager.c",
+        "patchSetId": 4
+      },
+      "lineNbr": 180,
+      "author": {
+        "id": 1017902
+      },
+      "writtenOn": "2020-10-05T09:23:26Z",
+      "side": 1,
+      "message": "Don\u0027t you want it here to be uint32_t as well?",
+      "revId": "97fa53565507ca93d0eea1981c498746ada56a9f",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "3726e8aa_e326c726",
         "filename": "eVSSIM/CONFIG/vssim_config_manager.h",
         "patchSetId": 4
