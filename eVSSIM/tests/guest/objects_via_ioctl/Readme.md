@@ -1,6 +1,4 @@
-Run the guest tests like so:
+Run the objects_via_ioctl tests like so:
 
-	sudo py.test -x --nvme-cli-dir=<directory of nvme-cli executable>
+sudo nosetests -v --with-xunit --xunit-file=objects_tests_results.xml
 
-The last parameter can be excluded if the tests are being run from the directory containing
-the nvme-cli executable.
