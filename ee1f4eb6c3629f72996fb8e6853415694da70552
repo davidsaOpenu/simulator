@@ -1,0 +1,61 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "3b5b7f6b_bd30d796",
+        "filename": "eVSSIM/tests/guest/objects_via_ioctl/test_nvme_cli.py",
+        "patchSetId": 1
+      },
+      "lineNbr": 68,
+      "author": {
+        "id": 1007990
+      },
+      "writtenOn": "2020-10-08T06:12:50Z",
+      "side": 1,
+      "message": "i guess it should be obj (ID)  rather then size according to the trello card",
+      "revId": "ee1f4eb6c3629f72996fb8e6853415694da70552",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "274ec3dd_9ee29cc6",
+        "filename": "eVSSIM/tests/guest/objects_via_ioctl/test_nvme_cli.py",
+        "patchSetId": 1
+      },
+      "lineNbr": 70,
+      "author": {
+        "id": 1007990
+      },
+      "writtenOn": "2020-10-08T06:12:50Z",
+      "side": 1,
+      "message": "what do you mean under sector-based?",
+      "range": {
+        "startLine": 70,
+        "startChar": 13,
+        "endLine": 70,
+        "endChar": 27
+      },
+      "revId": "ee1f4eb6c3629f72996fb8e6853415694da70552",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "58da33ef_65554e1c",
+        "filename": "eVSSIM/tests/guest/objects_via_ioctl/test_nvme_cli.py",
+        "patchSetId": 1
+      },
+      "lineNbr": 116,
+      "author": {
+        "id": 1007990
+      },
+      "writtenOn": "2020-10-08T06:12:50Z",
+      "side": 1,
+      "message": "wouldn\u0027t it be easer to use create_and_write_object method here?",
+      "revId": "ee1f4eb6c3629f72996fb8e6853415694da70552",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": true
+    }
+  ]
+}
