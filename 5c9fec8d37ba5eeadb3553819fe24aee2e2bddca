@@ -16,6 +16,222 @@
       "revId": "5c9fec8d37ba5eeadb3553819fe24aee2e2bddca",
       "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "e467d551_66d82c74",
+        "filename": "eVSSIM/FTL_SOURCE/PAGE_MAP/ftl_obj_strategy.c",
+        "patchSetId": 5
+      },
+      "lineNbr": 86,
+      "author": {
+        "id": 1007990
+      },
+      "writtenOn": "2020-10-21T08:38:48Z",
+      "side": 1,
+      "message": "why this one is needed?",
+      "range": {
+        "startLine": 86,
+        "startChar": 4,
+        "endLine": 86,
+        "endChar": 36
+      },
+      "revId": "5c9fec8d37ba5eeadb3553819fe24aee2e2bddca",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "0e15ea33_27ab6ab6",
+        "filename": "eVSSIM/FTL_SOURCE/PAGE_MAP/ftl_obj_strategy.c",
+        "patchSetId": 5
+      },
+      "lineNbr": 610,
+      "author": {
+        "id": 1007990
+      },
+      "writtenOn": "2020-10-21T08:38:48Z",
+      "side": 1,
+      "message": "why this one is needed?",
+      "revId": "5c9fec8d37ba5eeadb3553819fe24aee2e2bddca",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "2d2e4974_f0701216",
+        "filename": "eVSSIM/FTL_SOURCE/PAGE_MAP/ftl_sect_strategy.c",
+        "patchSetId": 5
+      },
+      "lineNbr": 87,
+      "author": {
+        "id": 1007990
+      },
+      "writtenOn": "2020-10-21T08:38:48Z",
+      "side": 1,
+      "message": "why this one is needed?",
+      "revId": "5c9fec8d37ba5eeadb3553819fe24aee2e2bddca",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "114bde62_a32c6059",
+        "filename": "eVSSIM/FTL_SOURCE/PAGE_MAP/ftl_sect_strategy.c",
+        "patchSetId": 5
+      },
+      "lineNbr": 206,
+      "author": {
+        "id": 1007990
+      },
+      "writtenOn": "2020-10-21T08:38:48Z",
+      "side": 1,
+      "message": "why this one is needed?",
+      "revId": "5c9fec8d37ba5eeadb3553819fe24aee2e2bddca",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "84f6b14e_e544ca1c",
+        "filename": "eVSSIM/FTL_SOURCE/PAGE_MAP/ftl_sect_strategy.c",
+        "patchSetId": 5
+      },
+      "lineNbr": 213,
+      "author": {
+        "id": 1007990
+      },
+      "writtenOn": "2020-10-21T08:38:48Z",
+      "side": 1,
+      "message": "why this one is needed?",
+      "revId": "5c9fec8d37ba5eeadb3553819fe24aee2e2bddca",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "9d177971_4a2d8b80",
+        "filename": "eVSSIM/FTL_SOURCE/PERF_MODULE/ftl_perf_manager.c",
+        "patchSetId": 5
+      },
+      "lineNbr": 395,
+      "author": {
+        "id": 1007990
+      },
+      "writtenOn": "2020-10-21T08:38:48Z",
+      "side": 1,
+      "message": "why this one is needed?",
+      "revId": "5c9fec8d37ba5eeadb3553819fe24aee2e2bddca",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "2f619712_a602c16b",
+        "filename": "eVSSIM/MONITOR/SERVER/logging_server.c",
+        "patchSetId": 5
+      },
+      "lineNbr": 79,
+      "author": {
+        "id": 1007990
+      },
+      "writtenOn": "2020-10-21T08:38:48Z",
+      "side": 1,
+      "message": "why those are needed?",
+      "range": {
+        "startLine": 74,
+        "startChar": 0,
+        "endLine": 79,
+        "endChar": 36
+      },
+      "revId": "5c9fec8d37ba5eeadb3553819fe24aee2e2bddca",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "ca50c1a2_29583e3c",
+        "filename": "eVSSIM/MONITOR/SERVER/logging_server.c",
+        "patchSetId": 5
+      },
+      "lineNbr": 240,
+      "author": {
+        "id": 1007990
+      },
+      "writtenOn": "2020-10-21T08:38:48Z",
+      "side": 1,
+      "message": "why this one is needed?",
+      "revId": "5c9fec8d37ba5eeadb3553819fe24aee2e2bddca",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "4bc48040_11432dc2",
+        "filename": "eVSSIM/MONITOR/SERVER/logging_server.c",
+        "patchSetId": 5
+      },
+      "lineNbr": 258,
+      "author": {
+        "id": 1007990
+      },
+      "writtenOn": "2020-10-21T08:38:48Z",
+      "side": 1,
+      "message": "why this one is needed?",
+      "revId": "5c9fec8d37ba5eeadb3553819fe24aee2e2bddca",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "1ada7783_642891ff",
+        "filename": "eVSSIM/SSD_MODULE/ssd_io_manager.c",
+        "patchSetId": 5
+      },
+      "lineNbr": 268,
+      "author": {
+        "id": 1007990
+      },
+      "writtenOn": "2020-10-21T08:38:48Z",
+      "side": 1,
+      "message": "here as well",
+      "revId": "5c9fec8d37ba5eeadb3553819fe24aee2e2bddca",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "fba46ac6_be7724fa",
+        "filename": "eVSSIM/SSD_MODULE/ssd_io_manager.c",
+        "patchSetId": 5
+      },
+      "lineNbr": 375,
+      "author": {
+        "id": 1007990
+      },
+      "writtenOn": "2020-10-21T08:38:48Z",
+      "side": 1,
+      "message": "and here",
+      "revId": "5c9fec8d37ba5eeadb3553819fe24aee2e2bddca",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "3528ab4b_15824763",
+        "filename": "eVSSIM/tests/host/object_tests.cc",
+        "patchSetId": 5
+      },
+      "lineNbr": 132,
+      "author": {
+        "id": 1007990
+      },
+      "writtenOn": "2020-10-21T08:38:48Z",
+      "side": 1,
+      "message": "same here.  either remove unused vars or let\u0027s use them",
+      "revId": "5c9fec8d37ba5eeadb3553819fe24aee2e2bddca",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": true
     }
   ]
 }
