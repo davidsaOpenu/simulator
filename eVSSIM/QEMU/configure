@@ -3554,6 +3554,8 @@ if test "$vssim" = "yes" ; then
     symlink "$source_path/../CONFIG/vssim_config_manager.h" "$source_path/hw/vssim_config_manager.h"
     symlink "$source_path/../LOG_MGR/logging_backend.c" "$source_path/hw/logging_backend.c"
     symlink "$source_path/../LOG_MGR/logging_backend.h" "$source_path/hw/logging_backend.h"
+    symlink "$source_path/../LOG_MGR/logging_writer.c" "$source_path/hw/logging_writer.c"
+    symlink "$source_path/../LOG_MGR/logging_writer.h" "$source_path/hw/logging_writer.h"
     symlink "$source_path/../LOG_MGR/logging_manager.c" "$source_path/hw/logging_manager.c"
     symlink "$source_path/../LOG_MGR/logging_manager.h" "$source_path/hw/logging_manager.h"
     symlink "$source_path/../LOG_MGR/logging_parser.c" "$source_path/hw/logging_parser.c"
