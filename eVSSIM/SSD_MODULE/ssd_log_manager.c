@@ -4,6 +4,7 @@
 // Embedded Software Systems Lab. All right reserved
 
 #include "ssd_log_manager.h"
+#include "logging_writer.h"
 #include "common.h"
 
 #include <unistd.h>
@@ -98,6 +99,7 @@ void INIT_LOG_MANAGER(void)
     }
 
     rt_log_stats_init();
+    logging_writer_init();
     log_manager = log_manager_init();
     if (log_manager == NULL)
         PERR("Couldn't create the log manager: %s\n", strerror(errno));
@@ -147,6 +149,7 @@ void TERM_LOG_MANAGER(void)
         offline_log_analyzer_free(analyzers_storage[i].offline_log_analyzer);
     }
     rt_log_stats_free();
+    logging_writer_free();
     pthread_join(log_manager_thread, NULL);
     log_manager_free(log_manager);
     pthread_join(log_server_thread, NULL);
