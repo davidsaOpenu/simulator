@@ -43,6 +43,7 @@ int next_log_type(Logger_Pool* logger) {
         if (logger == NULL)                                         \
             return;                                                 \
         int type = CONCAT(name, _LOG_UID);                          \
+        fprintf(stdout, "MESHI, type is = %d\n", type);             \
         logger_write(logger, (Byte*) &type, sizeof(type));          \
         logger_write(logger, (Byte*) &buffer, sizeof(structure));   \
     }
