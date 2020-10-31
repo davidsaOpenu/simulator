@@ -23,6 +23,7 @@
 #include <linux/unistd.h>
 
 #include "logging_backend.h"
+#include "logging_writer.h"
 
 /**
  * Return the number of empty bytes in the log
@@ -37,6 +38,13 @@
  * @return the number of full bytes that left to read in the log
  */
 #define NUMBER_OF_BYTES_TO_READ(log) (LOG_SIZE - (log->tail - log->buffer))
+
+/**
+ * Return the number of full bytes that left to read in the log
+ * @param {Log*} log to check
+ * @return the number of full bytes that left to read in the log
+ */
+#define NUMBER_OF_BYTES_TO_SAVE_TO_FILE(log) (log->head - log->tail)
 
 /**
  * Return true if current number of allocated logs in the logger pool
@@ -59,6 +67,7 @@
     node->clean = true; \
     node->rt_analyzer_done = false; \
     node->offline_analyzer_done = false; \
+    node->logging_writer_done = false; \
     node->head = node->tail = node->buffer = buf; \
 }
 
@@ -175,7 +184,12 @@ int logger_write(Logger_Pool* logger_pool, Byte* buffer, int length) {
     {
         memcpy((void*) logger_pool->free_log->head, (void*) buffer, length);
 
+
         UPDATE_NODE(logger_pool->free_log, false, length);
+
+        /* Save the log to file */
+        // logging_writer_save_log_to_file(logger_pool->free_log);
+        logging_writer_enqueue_log_for_write(logger_pool->free_log , NUMBER_OF_BYTES_TO_SAVE_TO_FILE(logger_pool->free_log));
 
         //chek if this log is full
         if(NUMBER_OF_BYTES_TO_WRITE(logger_pool->free_log) == 0)
@@ -202,6 +216,10 @@ int logger_write(Logger_Pool* logger_pool, Byte* buffer, int length) {
                 (length-number_of_bytes_to_write));
 
         UPDATE_NODE(logger_pool->free_log, false, (length-number_of_bytes_to_write));
+
+        /* Save the log to file */
+        // logging_writer_save_log_to_file(logger_pool->free_log);
+        logging_writer_enqueue_log_for_write(logger_pool->free_log , NUMBER_OF_BYTES_TO_SAVE_TO_FILE(logger_pool->free_log));
     }
 
     // unlock logger pool
@@ -337,7 +355,7 @@ void logger_reduce_size(Logger_Pool* logger_pool) {
         temp_log = log->next;
         // make sure that the analayzers are done with this log
         // and that it wasn't used for at least LOG_MAX_UNUSED_TIME_SECONDS
-        if(!(log->clean) && log->rt_analyzer_done && log->offline_analyzer_done &&
+        if(!(log->clean) && log->rt_analyzer_done && log->offline_analyzer_done && log->logging_writer_done &&
                 ((time(NULL) - log->last_used_timestamp) > LOG_MAX_UNUSED_TIME_SECONDS))
         {
             DISCONNECT_NODE(log);
@@ -368,7 +386,7 @@ void logger_clean(Logger_Pool* logger_pool) {
         // check if both rt_analayzer and offline_analyzer
         // done reading from the log
         // if true clean the log for next reuse
-        if(!(log->clean) && log->rt_analyzer_done && log->offline_analyzer_done)
+        if(!(log->clean) && log->rt_analyzer_done && log->offline_analyzer_done && log->logging_writer_done)
         {
             DISCONNECT_NODE(log);
             INSERT_NODE(log, logger_pool->dummy_log, log->buffer);
@@ -379,4 +397,20 @@ void logger_clean(Logger_Pool* logger_pool) {
 
     // unlock logger pool
     pthread_mutex_unlock(&logger_pool->lock);
+}
+
+Byte *logging_backend_read_log(Log *log, uint32_t *buffer_size) {
+    Byte *buffer = NULL;
+
+    if (NULL != log) {
+        *buffer_size = NUMBER_OF_BYTES_TO_SAVE_TO_FILE(log);
+
+        buffer = (Byte *) malloc(sizeof(Byte) * (*buffer_size));
+
+        if (NULL != buffer) {
+            memcpy((void*) buffer, (void*) log->tail, *buffer_size);
+        }
+    }
+
+    return buffer;
 }

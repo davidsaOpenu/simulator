@@ -196,6 +196,7 @@ distclean: clean
 	rm -f hw/ftl_perf_manager.{h,c}
 	rm -f hw/vssim_config_manager.{h,c}
 	rm -f hw/logging_backend.{h,c}
+	rm -f hw/logging_writer.{h,c}
 	rm -f hw/logging_manager.{h,c}
 	rm -f hw/logging_parser.{h,c}
 	rm -f hw/logging_rt_analyzer.{h,c}

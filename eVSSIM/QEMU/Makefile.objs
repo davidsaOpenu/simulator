@@ -305,7 +305,7 @@ hw-obj-$(CONFIG_VSSIM) += ftl.o ftl_mapping_manager.o ftl_inverse_mapping_manage
 hw-obj-$(CONFIG_VSSIM) += ftl_obj_strategy.o ftl_sect_strategy.o
 hw-obj-$(CONFIG_VSSIM) += ftl_gc_manager.o ftl_perf_manager.o
 hw-obj-$(CONFIG_VSSIM) += ssd_log_manager.o ssd_io_manager.o
-hw-obj-$(CONFIG_VSSIM) += logging_backend.o logging_manager.o logging_parser.o logging_rt_analyzer.o
+hw-obj-$(CONFIG_VSSIM) += logging_backend.o logging_writer.o logging_manager.o logging_parser.o logging_rt_analyzer.o
 hw-obj-$(CONFIG_VSSIM) += logging_server.o logging_statistics.o logging_offline_analyzer.o
 
 ######################################################################
@@ -388,4 +388,3 @@ libcacard-y = cac.o event.o vcard.o vreader.o vcard_emul_nss.o vcard_emul_type.o
 vl.o: QEMU_CFLAGS+=$(GPROF_CFLAGS)
 
 vl.o: QEMU_CFLAGS+=$(SDL_CFLAGS)
-

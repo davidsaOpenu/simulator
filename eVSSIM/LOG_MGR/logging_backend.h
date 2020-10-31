@@ -19,6 +19,7 @@
 
 #include <stdlib.h>
 #include <stdbool.h>
+#include <stdint.h>
 #include <time.h>
 #include <pthread.h>
 
@@ -104,13 +105,19 @@ struct Log {
      * done reading this log
      */
     bool offline_analyzer_done;
+    /**
+     * Flag that indicates if the Logging Writer
+     * done reading this log
+     */
+    bool logging_writer_done;
 };
 
 /**
  * The Logger Pool structure
  * Each logger pool holds number_of_allocated_logs Logs
  */
-typedef struct {
+typedef struct Logger_Pool Logger_Pool;
+struct Logger_Pool {
     /**
      * Next free log of Logger pool
      */
@@ -143,7 +150,7 @@ typedef struct {
      * threads
      */
     pthread_mutex_t lock;
-} Logger_Pool;
+};
 
 /**
  * Create a new logger
@@ -203,5 +210,14 @@ void logger_reduce_size(Logger_Pool* logger_pool);
  * @param logger_pool the logger pool that hold's the log's to clean
  */
 void logger_clean(Logger_Pool* logger_pool);
+
+/**
+ * @brief Reads a Log object to buffer.
+ *
+ * @param[in] log Log object to be read
+ * @param[out] buffer_size Size of Log that is to be read
+ * @return Byte* Pointer to Log buffer
+ */
+Byte *logging_backend_read_log(Log *log, uint32_t *buffer_size);
 
 #endif
