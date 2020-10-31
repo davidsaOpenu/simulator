@@ -17,6 +17,7 @@
 extern "C" {
 
 #include "common.h"
+#include "logging_writer.h"
 }
 
 #include <gtest/gtest.h>
@@ -101,6 +102,7 @@ namespace manager_subscriber {
         analyzer1 = rt_log_analyzer_init(logger1, 0);
         analyzer2 = rt_log_analyzer_init(logger2, 1);
         rt_log_stats_init();
+        logging_writer_init();
         log_manager_add_analyzer(manager, analyzer1);
         log_manager_add_analyzer(manager, analyzer2);
         log_manager_subscribe(manager, (MonitorHook) on_update, NULL);
@@ -160,5 +162,6 @@ namespace manager_subscriber {
         rt_log_analyzer_free(analyzer1, 1);
         rt_log_analyzer_free(analyzer2, 1);
         rt_log_stats_free();
+        logging_writer_free();
     }
 }
