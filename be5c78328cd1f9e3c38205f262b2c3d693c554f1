@@ -1,0 +1,95 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "f5a37c7c_c1ea5398",
+        "filename": ".gitignore",
+        "patchSetId": 7
+      },
+      "lineNbr": 69,
+      "author": {
+        "id": 1007990
+      },
+      "writtenOn": "2020-11-15T19:13:36Z",
+      "side": 1,
+      "message": "is it necessary to add new files for this functionality?",
+      "range": {
+        "startLine": 68,
+        "startChar": 0,
+        "endLine": 69,
+        "endChar": 31
+      },
+      "revId": "be5c78328cd1f9e3c38205f262b2c3d693c554f1",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "da3db2a8_d4d83078",
+        "filename": "eVSSIM/LOG_MGR/logging_writer.c",
+        "patchSetId": 7
+      },
+      "lineNbr": 41,
+      "author": {
+        "id": 1007990
+      },
+      "writtenOn": "2020-11-15T19:13:36Z",
+      "side": 1,
+      "message": "calling to malloc will slow everything down. We already have events allocated in memory. \nI think that the initial suggestion to go over Logger_Pool instances and to serialize events  in json format was much more effective performance wise.",
+      "revId": "be5c78328cd1f9e3c38205f262b2c3d693c554f1",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "31bef0e9_1d720be8",
+        "filename": "eVSSIM/LOG_MGR/logging_writer.c",
+        "patchSetId": 7
+      },
+      "lineNbr": 89,
+      "author": {
+        "id": 1007990
+      },
+      "writtenOn": "2020-11-15T19:13:36Z",
+      "side": 1,
+      "message": "implementing the initial suggestion (see the comment from ll 41) also eliminates the need of locking and having additional pthread spawned.",
+      "revId": "be5c78328cd1f9e3c38205f262b2c3d693c554f1",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "a5fcb77d_2ce77eb6",
+        "filename": "eVSSIM/LOG_MGR/logging_writer.c",
+        "patchSetId": 7
+      },
+      "lineNbr": 259,
+      "author": {
+        "id": 1007990
+      },
+      "writtenOn": "2020-11-15T19:13:36Z",
+      "side": 1,
+      "message": "IIRIC, logs to be serialized in json format.",
+      "revId": "be5c78328cd1f9e3c38205f262b2c3d693c554f1",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "e0168146_444f0df9",
+        "filename": "eVSSIM/LOG_MGR/logging_writer.c",
+        "patchSetId": 7
+      },
+      "lineNbr": 269,
+      "author": {
+        "id": 1007990
+      },
+      "writtenOn": "2020-11-15T19:13:36Z",
+      "side": 1,
+      "message": "in general, mallocs usage is discouraged by log manager",
+      "revId": "be5c78328cd1f9e3c38205f262b2c3d693c554f1",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": true
+    }
+  ]
+}
