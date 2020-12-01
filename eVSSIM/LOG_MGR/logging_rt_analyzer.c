@@ -119,6 +119,8 @@ void rt_log_analyzer_loop(RTLogAnalyzer* analyzer, int max_logs) {
             bytes_read += bytes_read_last_read;
         }
 
+        logger_writer_save_log_to_file((Byte*)&log_type, bytes_read);
+
         // exit if needed
         if (analyzer->exit_loop_flag) {
             analyzer->exit_loop_flag = 0;
