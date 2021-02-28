@@ -1,6 +1,7 @@
 {
   "comments": [
     {
+      "unresolved": true,
       "key": {
         "uuid": "1baf653b_1f61edae",
         "filename": "eVSSIM/CONFIG/vssim_config_manager.c",
@@ -14,10 +15,28 @@
       "side": 1,
       "message": "Don\u0027t you want it here to be uint32_t as well?",
       "revId": "97fa53565507ca93d0eea1981c498746ada56a9f",
-      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
-      "unresolved": true
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "30ef06d5_b20c0fc9",
+        "filename": "eVSSIM/CONFIG/vssim_config_manager.c",
+        "patchSetId": 4
+      },
+      "lineNbr": 180,
+      "author": {
+        "id": 1017913
+      },
+      "writtenOn": "2021-02-28T19:01:28Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "1baf653b_1f61edae",
+      "revId": "97fa53565507ca93d0eea1981c498746ada56a9f",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
+    },
+    {
+      "unresolved": true,
       "key": {
         "uuid": "3726e8aa_e326c726",
         "filename": "eVSSIM/CONFIG/vssim_config_manager.h",
@@ -37,10 +56,10 @@
         "endChar": 15
       },
       "revId": "97fa53565507ca93d0eea1981c498746ada56a9f",
-      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
-      "unresolved": true
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
     },
     {
+      "unresolved": true,
       "key": {
         "uuid": "2f2d40d5_d98b1aed",
         "filename": "eVSSIM/FTL_SOURCE/PAGE_MAP/ftl_gc_manager.c",
@@ -60,8 +79,7 @@
         "endChar": 10
       },
       "revId": "97fa53565507ca93d0eea1981c498746ada56a9f",
-      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
-      "unresolved": true
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
     }
   ]
 }
