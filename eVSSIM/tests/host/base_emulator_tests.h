@@ -22,7 +22,6 @@ extern "C" {
 extern "C" int g_init;
 extern "C" int clientSock;
 extern "C" int g_init_log_server;
-bool g_nightly_mode = false;
 
 #define GTEST_DONT_DEFINE_FAIL 1
 #include <gtest/gtest.h>

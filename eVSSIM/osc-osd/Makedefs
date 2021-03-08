@@ -2,8 +2,8 @@
 # Common defines for all projects.  This is the place to turn on or off
 # debugging and optimization for everything.
 #
-OPT := -g
-# OPT := -O3 -DNDEBUG
+#OPT := -g
+OPT := -O3 -DNDEBUG
 # OPT := -O3
 
 # Backend configuration flags
