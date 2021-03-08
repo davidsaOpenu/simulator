@@ -17,8 +17,6 @@
 #include "base_emulator_tests.h"
 #include <stdlib.h>
 
-// default value for flash number
-#define DEFAULT_FLASH_NB 4
 #define IO_PAGE_NB 0
 #define GC_IO_PAGE_NB -1
 
@@ -44,26 +42,33 @@ void MONITOR_SYNC_DELAY(int expected_duration) {
     usleep(expected_duration + MONITOR_SYNC_DELAY_USEC);
 }
 
-int main(int argc, char **argv) {
-    testing::InitGoogleTest(&argc, argv);
-    return RUN_ALL_TESTS();
-}
-
 using namespace std;
 
 namespace {
 
-    class SSDIoEmulatorUnitTest : public BaseEmulatorTests {};
+    class SSDIoEmulatorUnitTest : public BaseTest {
+        public:
+            virtual void SetUp() {
+                SSDConf test_params = GetParam();
+                BaseTest::SetUp(test_params);
+                INIT_LOG_MANAGER();
+            }
 
-    std::vector<std::pair<size_t,size_t> > GetParams() {
-        std::vector<std::pair<size_t,size_t> > list;
-        const int constFlashNum = DEFAULT_FLASH_NB;
-        unsigned int i = 0;
-        list.push_back(std::make_pair(parameters::Allsizemb[i], constFlashNum ));
-        return list;
+            virtual void TearDown() {
+                BaseTest::TearDown();
+                TERM_LOG_MANAGER();
+            }
+    };
+
+    std::vector<SSDConf> GetTestParams() {
+        std::vector<SSDConf> test_params;
+
+        test_params.push_back(SSDConf(parameters::Allsizemb[0], DEFAULT_FLASH_NB));
+
+        return test_params;
     }
 
-    INSTANTIATE_TEST_CASE_P(DiskSize, SSDIoEmulatorUnitTest, ::testing::ValuesIn(GetParams()));
+    INSTANTIATE_TEST_CASE_P(DiskSize, SSDIoEmulatorUnitTest, ::testing::ValuesIn(GetTestParams()));
 
     /**
      * @brief testing delay caused by single page write
@@ -359,19 +364,20 @@ namespace {
      * - validate statistics
      */
     TEST_P(SSDIoEmulatorUnitTest, WriteRead1) {
+        SSDConf test_params = GetParam();
         int flash_nb = 0;
         int block_nb = 0;
-        int expected_write_duration = (REG_WRITE_DELAY + CELL_PROGRAM_DELAY) * CONST_PAGES_PER_BLOCK;
-        int expected_read_duration = CHANNEL_SWITCH_DELAY_R + (REG_READ_DELAY + CELL_READ_DELAY) * CONST_PAGES_PER_BLOCK;
-        int expected_rw = CONST_PAGES_PER_BLOCK;
+        int expected_write_duration = (REG_WRITE_DELAY + CELL_PROGRAM_DELAY) * test_params.get_pages_per_block();
+        int expected_read_duration = CHANNEL_SWITCH_DELAY_R + (REG_READ_DELAY + CELL_READ_DELAY) * test_params.get_pages_per_block();
+        int expected_rw = test_params.get_pages_per_block();
 
         // Write all pages in the block
-        for (size_t i = 0; i < CONST_PAGES_PER_BLOCK; i++) {
+        for (size_t i = 0; i < test_params.get_pages_per_block(); i++) {
             SSD_PAGE_WRITE(flash_nb, block_nb, i, 0, WRITE);
         }
 
         // Read all pages in the block
-        for (size_t i = 0; i < CONST_PAGES_PER_BLOCK; i++) {
+        for (size_t i = 0; i < test_params.get_pages_per_block(); i++) {
             SSD_PAGE_READ(flash_nb, block_nb, i, 0, READ);
         }
 
@@ -389,26 +395,26 @@ namespace {
      * - validate statistics
      */
     TEST_P(SSDIoEmulatorUnitTest, WriteRead2) {
-        std::pair<size_t,size_t> params = GetParam();
-        size_t flash_num = params.second;
-        size_t block_x_flash = pages_ / CONST_PAGES_PER_BLOCK;
+        SSDConf test_params = GetParam();
+        size_t flash_num = test_params.get_flash_nb();
+        size_t block_x_flash = test_params.get_pages() / test_params.get_pages_per_block();
         size_t blocks_per_flash = block_x_flash / flash_num;
 
-        int expected_rw = CONST_PAGES_PER_BLOCK * blocks_per_flash;
+        int expected_rw = test_params.get_pages_per_block() * blocks_per_flash;
         int expected_write_duration = (REG_WRITE_DELAY + CELL_PROGRAM_DELAY) * expected_rw;
         int expected_read_duration = CHANNEL_SWITCH_DELAY_R + (REG_READ_DELAY + CELL_READ_DELAY) * expected_rw;
 
 
         // Write all blocks in the channel
         for (size_t i = 0; i < blocks_per_flash; i++) {
-            for (size_t j = 0; j < CONST_PAGES_PER_BLOCK; j++) {
+            for (size_t j = 0; j < test_params.get_pages_per_block(); j++) {
                 SSD_PAGE_WRITE(0, i, j, 0, WRITE);
             }
         }
 
         // Read all blocks in the channel
         for (size_t i = 0; i < blocks_per_flash; i++) {
-            for (size_t j = 0; j < CONST_PAGES_PER_BLOCK; j++) {
+            for (size_t j = 0; j < test_params.get_pages_per_block(); j++) {
                 SSD_PAGE_READ(0, i, j, 0, READ);
             }
         }
@@ -427,11 +433,12 @@ namespace {
      */
     TEST_P(SSDIoEmulatorUnitTest, WriteAmplificationTest) {
         int expected_write_amplification = 1;
+        SSDConf test_params = GetParam();
 
         // Write all flash
         for(int x=0; x<2; x++){
-            for(size_t p=0; p < pages_; p++){
-                ASSERT_EQ(FTL_SUCCESS, _FTL_WRITE_SECT(p * CONST_PAGE_SIZE_IN_BYTES, 1));
+            for(size_t p=0; p < test_params.get_pages(); p++){
+                ASSERT_EQ(FTL_SUCCESS, _FTL_WRITE_SECT(p * test_params.get_page_size(), 1));
             }
         }
 
