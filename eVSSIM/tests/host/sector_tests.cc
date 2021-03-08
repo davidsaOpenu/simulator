@@ -1,56 +1,48 @@
 
 #include "base_emulator_tests.h"
 
-int main(int argc, char **argv) {
-    // check if CI_MODE environment variable is set to NIGHTLY
-    const char* ci_mode = getenv("CI_MODE");
-    if(ci_mode != NULL && std::string(ci_mode) == "NIGHTLY")
-        g_nightly_mode = true;
-
-    for (int i = 0; i < argc; i++) {
-        if (strcmp(argv[i], "--nightly") == 0) {
-            g_nightly_mode = true;
-        }
-    }
-    testing::InitGoogleTest(&argc, argv);
-    return RUN_ALL_TESTS();
-}
-
+extern bool g_nightly_mode;
 
 using namespace std;
 
 namespace {
 
-    class SectorUnitTest : public BaseEmulatorTests {}; // OccupySpaceStressTest
+    class SectorUnitTest : public BaseEmulatorTests {
+        public:
+            virtual void SetUp() {
+                BaseEmulatorParams test_params = GetParam();
+                BaseEmulatorTests::SetUp(test_params);
+                INIT_LOG_MANAGER();
+            }
 
-    std::vector<std::pair<size_t,size_t> > GetParams() {
-        std::vector<std::pair<size_t,size_t> > list;
+            virtual void TearDown() {
+                BaseEmulatorTests::TearDown();
+                TERM_LOG_MANAGER();
+            }
+    }; // OccupySpaceStressTest
+
+    std::vector<BaseEmulatorParams> GetTestParams() {
+        std::vector<BaseEmulatorParams> test_params;
 
         if (g_nightly_mode) {
             printf("Running in Nightly mode\n");
 
-            for( unsigned int i = 0;
-                    i < sizeof(parameters::Allsizemb)/sizeof(parameters::Allsizemb[0]); i++ )
-            {
-                for( unsigned int j = 0;
-                        j < sizeof(parameters::Allflashnb)/sizeof(parameters::Allflashnb[0]); j++ )
-                    // first paramter in the pair is size of disk in mb
-                    // second paramter in the pair is number of flash memories in ssd
-                    list.push_back(std::make_pair(parameters::Allsizemb[i], parameters::Allflashnb[j] ));
+            for (unsigned int i = 0; i < sizeof(parameters::Allsizemb)/sizeof(parameters::Allsizemb[0]); i++) {
+                for (unsigned int j = 0; j < sizeof(parameters::Allflashnb)/sizeof(parameters::Allflashnb[0]); j++) {
+                    test_params.push_back(BaseEmulatorParams(parameters::Allsizemb[i], parameters::Allflashnb[j]));
+                }
             }
-
-            return list;
+        } else {
+            for (unsigned int i = 0; i < sizeof(parameters::Allsizemb)/sizeof(parameters::Allsizemb[0]); i++) {
+                test_params.push_back(BaseEmulatorParams(parameters::Allsizemb[i], DEFAULT_FLASH_NB));
+            }
         }
 
-        const int constFlashNum = DEFAULT_FLASH_NB;
-        for( unsigned int i = 0;
-                i < sizeof(parameters::Allsizemb)/sizeof(parameters::Allsizemb[0]); i++ )
-            list.push_back(std::make_pair(parameters::Allsizemb[i], constFlashNum ));
-
-        return list;
+        return test_params;
     }
 
-    INSTANTIATE_TEST_CASE_P(DiskSize, SectorUnitTest, ::testing::ValuesIn(GetParams()));
+    INSTANTIATE_TEST_CASE_P(DiskSize, SectorUnitTest, ::testing::ValuesIn(GetTestParams()));
+
     TEST_P(SectorUnitTest, SequentialOnePageAtTimeWrite) {
         for(int x=0; x<2 /*8*/; x++){
             for(size_t p=0; p < pages_; p++){

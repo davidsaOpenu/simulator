@@ -11,98 +11,25 @@ extern "C" {
 extern "C" int g_init;
 extern "C" int clientSock;
 extern "C" int g_init_log_server;
-bool g_nightly_mode = false;
+extern bool g_nightly_mode;
 
-#define GTEST_DONT_DEFINE_FAIL 1
+#include "base_emulator_tests.h"
 
-#include <gtest/gtest.h>
-
-#include <fstream>
-#include <cstdio>
-#include <cstdlib>
 #include <math.h>
 #include <assert.h>
 
-// default value for flash number
-#define DEFAULT_FLASH_NB 4
-
-/**
- * paramters that the tests run with
- * @param objsize - object size parameter
- *  testing object sizes of 2048 and 4098 megabytes
- * @param flashnb - number of flash memories
- *  testing flash numbers 2,4,8,16 and 32
- */
-namespace parameters
-{
-    enum objsize
-    {
-        os1 = 2048,
-        os2 = 4098
-    };
-
-    static const objsize Allobjsize[] = { os1, os2 };
-
-    enum flashnb
-    {
-        fnb1 = 2,
-        fnb2 = 4,
-        fnb3 = 8,
-        fnb4 = 16,
-        fnb5 = 32
-    };
-
-    static const flashnb Allflashnb[] = { fnb1, fnb2, fnb3, fnb4, fnb5};
-}
-
-int main(int argc, char **argv) {
-    // check if CI_MODE environment variable is set to NIGHTLY
-    const char* ci_mode = getenv("CI_MODE");
-    if(ci_mode != NULL && std::string(ci_mode) == "NIGHTLY")
-        g_nightly_mode = true;
-
-    for (int i = 0; i < argc; i++) {
-        if (strcmp(argv[i], "--nightly") == 0) {
-            g_nightly_mode = true;
-        }
-    }
-    testing::InitGoogleTest(&argc, argv);
-    return RUN_ALL_TESTS();
-}
 
 using namespace std;
 
 namespace {
-    class ObjectUnitTest : public ::testing::TestWithParam<std::pair<size_t,size_t> > {
+    class ObjectUnitTest : public BaseEmulatorTests {
         public:
             virtual void SetUp() {
-                std::pair<size_t,size_t> params = GetParam();
-                size_t flash_nb = params.second;
-                ofstream ssd_conf("data/ssd.conf", ios_base::out | ios_base::trunc);
-                ssd_conf << "FILE_NAME ./data/ssd.img\n"
-                    "PAGE_SIZE 4096\n"
-                    "PAGE_NB 10\n"
-                    "SECTOR_SIZE 1\n"
-                    "FLASH_NB " << flash_nb << "\n"
-                    "BLOCK_NB 128\n"
-                    "PLANES_PER_FLASH 1\n"
-                    "REG_WRITE_DELAY 82\n"
-                    "CELL_PROGRAM_DELAY 900\n"
-                    "REG_READ_DELAY 82\n"
-                    "CELL_READ_DELAY 50\n"
-                    "BLOCK_ERASE_DELAY 2000\n"
-                    "CHANNEL_SWITCH_DELAY_R 16\n"
-                    "CHANNEL_SWITCH_DELAY_W 33\n"
-                    "CHANNEL_NB " << flash_nb << "\n"
-                    "STAT_TYPE 15\n"
-                    "STAT_SCOPE 62\n"
-                    "STAT_PATH /tmp/stat.csv\n"
-                    "STORAGE_STRATEGY 2\n"; // object strategy
-                ssd_conf.close();
-                FTL_INIT();
+                BaseEmulatorParams test_params = GetParam();
+                BaseEmulatorTests::SetUp(test_params);
                 INIT_OBJ_STRATEGY();
                 INIT_LOG_MANAGER();
-                object_size_ = params.first;
+                object_size_ = test_params.get_object_size();
                 int object_pages = (int)ceil(1.0 * object_size_ / GET_PAGE_SIZE()); // ceil because we can't have a page belong to 2 objects
                 objects_in_ssd_ = (unsigned int)((PAGES_IN_SSD - BLOCK_NB)/ object_pages); //over-provisioning of exactly one block
 #ifndef NO_OSD
@@ -110,18 +37,8 @@ namespace {
 #endif
             }
             virtual void TearDown() {
-                FTL_TERM();
+                BaseEmulatorTests::TearDown();
                 TERM_LOG_MANAGER();
-                remove("data/empty_block_list.dat");
-                remove("data/inverse_block_mapping.dat");
-                remove("data/inverse_page_mapping.dat");
-                remove("data/mapping_table.dat");
-                remove("data/valid_array.dat");
-                remove("data/victim_block_list.dat");
-                remove("data/ssd.conf");
-                g_init = 0;
-                clientSock = 0;
-                g_init_log_server = 0;
 #ifndef NO_OSD
                 osd_term();
 #endif
@@ -147,35 +64,39 @@ namespace {
             struct osd_device osd;
     }; // OccupySpaceStressTest
 
-    std::vector<std::pair<size_t,size_t> > GetParams() {
-        std::vector<std::pair<size_t,size_t> > list;
+    std::vector<BaseEmulatorParams> GetParams() {
+        std::vector<BaseEmulatorParams> test_params;
+
+        size_t page_size = 4096;
+        size_t sector_size = 1;
+        size_t page_nb = 10;
+        size_t block_nb = 128;
 
         if (g_nightly_mode) {
             printf("Running in Nightly mode\n");
 
-            for( unsigned int i = 0;
-                    i < sizeof(parameters::Allobjsize)/sizeof(parameters::Allobjsize[0]); i++ )
-            {
-                for( unsigned int j = 0;
-                        j < sizeof(parameters::Allflashnb)/sizeof(parameters::Allflashnb[0]); j++ )
-                    // first paramter in the pair is the object size
-                    // second paramter in the pair is number of flash memories in ssd
-                    list.push_back(std::make_pair(parameters::Allobjsize[i], parameters::Allflashnb[j] ));
+            for (unsigned int i = 0; i < sizeof(parameters::Allobjsize)/sizeof(parameters::Allobjsize[0]); i++) {
+                for( unsigned int j = 0; j < sizeof(parameters::Allflashnb)/sizeof(parameters::Allflashnb[0]); j++ ) {
+                        BaseEmulatorParams param = BaseEmulatorParams(
+                                page_size, page_nb, sector_size, parameters::Allflashnb[j],
+                                block_nb, parameters::Allflashnb[j]);
+                        param.set_object_size(parameters::Allobjsize[i]);
+                        test_params.push_back(param);
+                }
             }
-
-            return list;
+        } else {
+            for( unsigned int i = 0; i < sizeof(parameters::Allobjsize)/sizeof(parameters::Allobjsize[0]); i++ ) {
+                BaseEmulatorParams param = BaseEmulatorParams(
+                        page_size, page_nb, sector_size, DEFAULT_FLASH_NB, block_nb, DEFAULT_FLASH_NB);
+                param.set_object_size(parameters::Allobjsize[i]);
+                test_params.push_back(param);
+            }
         }
-
-        const int constFlashNum = DEFAULT_FLASH_NB;
-        for( unsigned int i = 0;
-                i < sizeof(parameters::Allobjsize)/sizeof(parameters::Allobjsize[0]); i++ )
-            list.push_back(std::make_pair(parameters::Allobjsize[i], constFlashNum ));
-
-            return list;
-
+        return test_params;
     }
 
     INSTANTIATE_TEST_CASE_P(DiskSize, ObjectUnitTest, ::testing::ValuesIn(GetParams()));
+
     TEST_P(ObjectUnitTest, SimpleObjectCreate) {
         printf("SimpleObjectCreate test started\n");
         printf("Page no.:%ld\nPage size:%d\n",PAGES_IN_SSD,GET_PAGE_SIZE());
