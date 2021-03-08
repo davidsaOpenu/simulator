@@ -18,50 +18,27 @@ extern "C" {
 
 #include "common.h"
 }
-bool g_ci_mode = false;
-bool g_monitor_mode = false;
-bool g_server_mode = false;
+extern bool g_monitor_mode;
+extern bool g_server_mode;
 
+#include "base_emulator_tests.h"
 #include "rt_analyzer_subscriber.h"
 #include "log_manager_subscriber.h"
 #include "logging_parser.h"
 
-#include <gtest/gtest.h>
-
-#include <fstream>
-#include <cstdio>
-#include <cstdlib>
 #include <pthread.h>
 #include <unistd.h>
 
 using namespace std;
 
 namespace log_mgr_tests {
-
-    class LogMgrTestEnv : public ::testing::Environment {
+    class LogMgrUnitTest : public BaseTest {
         public:
+            const static char TEST_STRING[];
+
             virtual void SetUp() {
-                ofstream ssd_conf("data/ssd.conf", ios_base::out | ios_base::trunc);
-                ssd_conf << "FILE_NAME ./data/ssd.img\n"
-                    "PAGE_SIZE 1048576\n" // bytes in Mb
-                    "PAGE_NB 2\n"
-                    "SECTOR_SIZE 1048576\n" // bytes in Mb
-                    "FLASH_NB 4\n"
-                    "BLOCK_NB 8\n"
-                    "PLANES_PER_FLASH 1\n"
-                    "REG_WRITE_DELAY 82\n"
-                    "CELL_PROGRAM_DELAY 900\n"
-                    "REG_READ_DELAY 82\n"
-                    "CELL_READ_DELAY 50\n"
-                    "BLOCK_ERASE_DELAY 2000\n"
-                    "CHANNEL_SWITCH_DELAY_R 16\n"
-                    "CHANNEL_SWITCH_DELAY_W 33\n"
-                    "CHANNEL_NB 4\n"
-                    "STAT_TYPE 15\n"
-                    "STAT_SCOPE 62\n"
-                    "STAT_PATH /tmp/stat.csv\n"
-                    "STORAGE_STRATEGY 1\n";
-                ssd_conf.close();
+                SSDConf test_params = GetParam();
+                BaseTest::SetUp(test_params);
 
                 INIT_SSD_CONFIG();
 
@@ -72,11 +49,12 @@ namespace log_mgr_tests {
                     printf("Browse to http://127.0.0.1:%d/ to see the statistics\n",
                             LOG_SERVER_PORT);
                 }
+                _logger = logger_init(test_params.get_logger_size());
             }
-
             virtual void TearDown() {
-
-                if (g_monitor_mode) {
+                logger_free(_logger);
+                BaseTest::TearDown();
+                 if (g_monitor_mode) {
                     printf("Waiting for monitor to close...\n");
                     pthread_join(_monitor, NULL);
                     printf("Monitor closed\n");
@@ -88,29 +66,13 @@ namespace log_mgr_tests {
                     printf("Server closed\n");
                     log_server_free();
                 }
-
-                remove("./data/ssd.conf");
-            }
-        protected:
-            pthread_t _monitor;
-            pthread_t _server;
-    };
-    LogMgrTestEnv* testEnv;
-
-    class LogMgrUnitTest : public ::testing::TestWithParam<size_t> {
-        public:
-            const static char TEST_STRING[];
-
-            virtual void SetUp() {
-                size_t logger_size = GetParam();
-                _logger = logger_init(logger_size);
-            }
-            virtual void TearDown() {
-                logger_free(_logger);
             }
         protected:
             Logger_Pool* _logger;
+            pthread_t _monitor;
+            pthread_t _server;
     };
+
     const char LogMgrUnitTest::TEST_STRING[] = "Test Me Please";
 
 
@@ -118,19 +80,33 @@ namespace log_mgr_tests {
      * Calculate the different buffer sizes for the logger
      * @return the different buffer sizes for the logger
      */
-    std::vector<size_t> GetParams() {
-        std::vector<size_t> list;
+    std::vector<SSDConf> GetTestParams() {
+        std::vector<SSDConf> test_params;
 
-        // push the different sizes of the buffer, in bytes
-        list.push_back(1);
-        list.push_back(2);
-        list.push_back(3);
-        list.push_back(10);
+        size_t page_size = 1048576;
+        size_t sector_size = 1048576;
+        size_t page_nb = 2;
+        size_t flash_nb = 4;
+        size_t block_nb = 8;
+        size_t channel_nb = 4;
 
-        return list;
+        std::vector<size_t> log_sizes;
+        log_sizes.push_back(1);
+        log_sizes.push_back(2);
+        log_sizes.push_back(3);
+        log_sizes.push_back(10);
+
+        for (unsigned int i = 0; i < log_sizes.size(); i++) {
+            SSDConf param = SSDConf(page_size, page_nb, sector_size, flash_nb, block_nb, channel_nb);
+            param.set_logger_size(log_sizes[i]);
+            test_params.push_back(param);
+        }
+
+        return test_params;
     }
 
-    INSTANTIATE_TEST_CASE_P(LoggerSize, LogMgrUnitTest, ::testing::ValuesIn(GetParams()));
+    INSTANTIATE_TEST_CASE_P(LoggerSize, LogMgrUnitTest, ::testing::ValuesIn(GetTestParams()));
+
 
     /**
      * Test reading back a written string:
@@ -746,28 +722,3 @@ namespace log_mgr_tests {
         log_manager_free(manager);
     }
 } //namespace
-
-/**
- * Run the log manager tests
- * @param argc the number of parameters provided in `argv`
- * @param argv the parameters which can be provided to the script. Includes:
- *        - `--ci`: run the tests in continous integration mode. Currently changes nothing.
- *        - `--show-monitor`: display the QT monitor while running
- *        - `--run-server`: open the web server while running
- */
-int main(int argc, char **argv) {
-    for (int i = 0; i < argc; i++) {
-        if (strcmp(argv[i], "--ci") == 0) {
-            g_ci_mode = true;
-        }
-        else if (strcmp(argv[i], "--show-monitor") == 0) {
-            g_monitor_mode = true;
-        }
-        else if (strcmp(argv[i], "--run-server") == 0) {
-            g_server_mode = true;
-        }
-    }
-    testing::InitGoogleTest(&argc, argv);
-    log_mgr_tests::testEnv = (log_mgr_tests::LogMgrTestEnv*) testing::AddGlobalTestEnvironment(new log_mgr_tests::LogMgrTestEnv);
-    return RUN_ALL_TESTS();
-}
