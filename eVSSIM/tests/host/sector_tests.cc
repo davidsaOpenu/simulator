@@ -1,80 +1,68 @@
 
 #include "base_emulator_tests.h"
 
-int main(int argc, char **argv) {
-    // check if CI_MODE environment variable is set to NIGHTLY
-    const char* ci_mode = getenv("CI_MODE");
-    if(ci_mode != NULL && std::string(ci_mode) == "NIGHTLY")
-        g_nightly_mode = true;
-
-    for (int i = 0; i < argc; i++) {
-        if (strcmp(argv[i], "--nightly") == 0) {
-            g_nightly_mode = true;
-        }
-    }
-    testing::InitGoogleTest(&argc, argv);
-    return RUN_ALL_TESTS();
-}
-
-
 using namespace std;
 
-namespace {
+extern string g_tests_filter;
 
-    class SectorUnitTest : public BaseEmulatorTests {}; // OccupySpaceStressTest
+namespace sector_tests {
 
-    std::vector<std::pair<size_t,size_t> > GetParams() {
-        std::vector<std::pair<size_t,size_t> > list;
-
-        if (g_nightly_mode) {
-            printf("Running in Nightly mode\n");
-
-            for( unsigned int i = 0;
-                    i < sizeof(parameters::Allsizemb)/sizeof(parameters::Allsizemb[0]); i++ )
-            {
-                for( unsigned int j = 0;
-                        j < sizeof(parameters::Allflashnb)/sizeof(parameters::Allflashnb[0]); j++ )
-                    // first paramter in the pair is size of disk in mb
-                    // second paramter in the pair is number of flash memories in ssd
-                    list.push_back(std::make_pair(parameters::Allsizemb[i], parameters::Allflashnb[j] ));
+    class SectorUnitTest : public BaseTest {
+        public:
+            virtual void SetUp() {
+                BaseTest::SetUp();
+                INIT_LOG_MANAGER();
             }
 
-            return list;
+            virtual void TearDown() {
+                BaseTest::TearDown();
+                TERM_LOG_MANAGER();
+            }
+    }; // OccupySpaceStressTest
+
+    std::vector<SSDConf> GetTestParams() {
+        std::vector<SSDConf> ssd_configs;
+
+        for (unsigned int i = 0; i < BASE_TEST_ARRAY_SIZE(parameters::Allsizemb); i++) {
+            ssd_configs.push_back(SSDConf(parameters::Allsizemb[i]));
         }
 
-        const int constFlashNum = DEFAULT_FLASH_NB;
-        for( unsigned int i = 0;
-                i < sizeof(parameters::Allsizemb)/sizeof(parameters::Allsizemb[0]); i++ )
-            list.push_back(std::make_pair(parameters::Allsizemb[i], constFlashNum ));
-
-        return list;
+        return ssd_configs;
     }
 
-    INSTANTIATE_TEST_CASE_P(DiskSize, SectorUnitTest, ::testing::ValuesIn(GetParams()));
+    INSTANTIATE_TEST_CASE_P(DiskSize, SectorUnitTest, ::testing::ValuesIn(GetTestParams()));
+
     TEST_P(SectorUnitTest, SequentialOnePageAtTimeWrite) {
+        SSDConf* ssd_config = base_test_get_ssd_config();
+
         for(int x=0; x<2 /*8*/; x++){
-            for(size_t p=0; p < pages_; p++){
-                ASSERT_EQ(FTL_SUCCESS, _FTL_WRITE_SECT(p * CONST_PAGE_SIZE_IN_BYTES, 1));
+            for(size_t p=0; p < ssd_config->get_pages(); p++){
+                ASSERT_EQ(FTL_SUCCESS, _FTL_WRITE_SECT(p * ssd_config->get_page_size(), 1));
             }
         }
     }
 
     TEST_P(SectorUnitTest, RandomOnePageAtTimeWrite) {
+        SSDConf* ssd_config = base_test_get_ssd_config();
+
         for(int x=0; x<2 /*8*/; x++){
-            for(size_t p=0; p < pages_; p++){
-                ASSERT_EQ(FTL_SUCCESS, _FTL_WRITE_SECT((rand() % pages_) * CONST_PAGE_SIZE_IN_BYTES, 1));
+            for(size_t p=0; p < ssd_config->get_pages(); p++){
+                ASSERT_EQ(FTL_SUCCESS, _FTL_WRITE_SECT((rand() % ssd_config->get_pages()) * ssd_config->get_page_size(), 1));
             }
         }
     }
 
     TEST_P(SectorUnitTest, MixSequentialAndRandomOnePageAtTimeWrite) {
+        SSDConf* ssd_config = base_test_get_ssd_config();
+
         for(int x=0; x<2; x++){
-            for(size_t p=0; p < pages_; p++){
-                ASSERT_EQ(FTL_SUCCESS, _FTL_WRITE_SECT((rand() % pages_) * CONST_PAGE_SIZE_IN_BYTES, 1));
+            for(size_t p=0; p < ssd_config->get_pages(); p++){
+                ASSERT_EQ(FTL_SUCCESS, _FTL_WRITE_SECT((rand() % ssd_config->get_pages()) * ssd_config->get_page_size(), 1));
             }
-            for(size_t p=0; p < pages_; p++){
-                ASSERT_EQ(FTL_SUCCESS, _FTL_WRITE_SECT(p * CONST_PAGE_SIZE_IN_BYTES, 1));
+            for(size_t p=0; p < ssd_config->get_pages(); p++){
+                ASSERT_EQ(FTL_SUCCESS, _FTL_WRITE_SECT(p * ssd_config->get_page_size(), 1));
             }
         }
     }
+
 } //namespace
