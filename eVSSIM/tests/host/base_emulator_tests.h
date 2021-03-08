@@ -22,7 +22,6 @@ extern "C" {
 extern "C" int g_init;
 extern "C" int clientSock;
 extern "C" int g_init_log_server;
-bool g_nightly_mode = false;
 
 #define GTEST_DONT_DEFINE_FAIL 1
 #include <gtest/gtest.h>
@@ -40,6 +39,8 @@ bool g_nightly_mode = false;
  *  testing disk sizes of 1,2,4 and 8 megabyte
  * @param flashnb - number of flash memories
  *  testing flash numbers 2,4,8,16 and 32
+ * @param objsize - object size parameter
+ *  testing object sizes of 2048 and 4098 megabytes
  */
 namespace parameters
 {
@@ -63,36 +64,138 @@ namespace parameters
     };
 
     static const flashnb Allflashnb[] = { fnb1, fnb2, fnb3, fnb4, fnb5};
+
+        enum objsize
+    {
+        os1 = 2048,
+        os2 = 4098
+    };
+
+    static const objsize Allobjsize[] = { os1, os2 };
 }
 
 using namespace std;
 
 namespace {
+    class SSDConf {
+    private:
+        size_t page_size;
+        size_t page_nb;
+        size_t sector_size;
+        size_t flash_nb;
+        size_t block_nb;
+        size_t channel_nb;
+        size_t logger_size;
+        size_t object_size;
+        size_t pages_;
 
-    class BaseEmulatorTests : public ::testing::TestWithParam<std::pair<size_t,size_t> > {
+    public:
+        //const static size_t CONST_BLOCK_NB_PER_FLASH = 4096;
+        const static size_t CONST_PAGES_PER_BLOCK = 8; // external (non over-provisioned)
+        const static size_t CONST_PAGES_PER_BLOCK_OVERPROV = (CONST_PAGES_PER_BLOCK * 25) / 100; // 25 % of pages for over-provisioning
+        const static size_t CONST_PAGE_SIZE_IN_BYTES = 4096;
+
+        SSDConf(void) {
+            this->page_size = 0;
+            this->page_nb = 0;
+            this->sector_size = 0;
+            this->flash_nb = 0;
+            this->block_nb = 0;
+            this->channel_nb = 0;
+            this->logger_size = 0;
+            this->object_size = 0;
+        }
+
+        SSDConf(size_t size_mb, size_t flash_nb) {
+            this->pages_= size_mb * ((1024 * 1024) / CONST_PAGE_SIZE_IN_BYTES); // number_of_pages = disk_size (in MB) * 1048576 / page_size
+            size_t block_x_flash = this->pages_ / CONST_PAGES_PER_BLOCK; // all_blocks_on_all_flashes = number_of_pages / pages_in_block
+            //size_t flash = block_x_flash / CONST_BLOCK_NB_PER_FLASH; // number_of_flashes = all_blocks_on_all_flashes / number_of_blocks_in_flash
+            size_t blocks_per_flash = block_x_flash / flash_nb; // number_of_flashes = all_blocks_on_all_flashes / number_of_blocks_in_flash
+
+            this->page_size = CONST_PAGE_SIZE_IN_BYTES;
+            this->page_nb = CONST_PAGES_PER_BLOCK + CONST_PAGES_PER_BLOCK_OVERPROV;
+            this->flash_nb = flash_nb;
+            this->block_nb = blocks_per_flash;
+            this->channel_nb = flash_nb;
+            this->sector_size = 1;
+            this->object_size = 2048; // megabytes
+        }
+
+        SSDConf(size_t page_size, size_t page_nb, size_t sector_size, size_t flash_nb, size_t block_nb, size_t channel_nb) {
+            init(page_size, page_nb, sector_size, flash_nb, block_nb, channel_nb);
+        }
+
+        void init(size_t page_size, size_t page_nb, size_t sector_size, size_t flash_nb, size_t block_nb, size_t channel_nb) {
+            this->page_size = page_size;
+            this->page_nb = page_nb;
+            this->sector_size = sector_size;
+            this->flash_nb = flash_nb;
+            this->block_nb = block_nb;
+            this->channel_nb = channel_nb;
+        }
+
+        size_t get_page_size(void) {
+            return this->page_size;
+        }
+
+        size_t get_page_nb(void) {
+            return this->page_nb;
+        }
+
+        size_t get_sector_size(void) {
+            return this->sector_size;
+        }
+
+        size_t get_flash_nb(void) {
+            return this->flash_nb;
+        }
+
+        size_t get_block_nb(void) {
+            return this->block_nb;
+        }
+
+        size_t get_channel_nb(void) {
+            return this->channel_nb;
+        }
+
+        size_t get_logger_size(void) {
+            return this->logger_size;
+        }
+
+        size_t get_object_size(void) {
+            return this->object_size;
+        }
+
+        size_t get_pages(void) {
+            return this->pages_;
+        }
+
+        void set_logger_size(size_t val) {
+            this->logger_size = val;
+        }
+
+        void set_object_size(size_t val) {
+            this->object_size = val;
+        }
+    };
+
+    /* override due to valgrind error and gtest using this operator<< */
+    ostream& operator<<(ostream& os, const SSDConf& value) {
+        (void) value;
+        return os;
+    }
+
+    class BaseTest : public SSDConf, public ::testing::TestWithParam<SSDConf> {
         public:
 
-            //const static size_t CONST_BLOCK_NB_PER_FLASH = 4096;
-            const static size_t CONST_PAGES_PER_BLOCK = 8; // external (non over-provisioned)
-            const static size_t CONST_PAGES_PER_BLOCK_OVERPROV = (CONST_PAGES_PER_BLOCK * 25) / 100; // 25 % of pages for over-provisioning
-            const static size_t CONST_PAGE_SIZE_IN_BYTES = 4096;
-
-            virtual void SetUp() {
-                std::pair<size_t,size_t> params = GetParam();
-                size_t mb = params.first;
-                size_t flash_nb = params.second;
-                pages_= mb * ((1024 * 1024) / CONST_PAGE_SIZE_IN_BYTES); // number_of_pages = disk_size (in MB) * 1048576 / page_size
-                size_t block_x_flash = pages_ / CONST_PAGES_PER_BLOCK; // all_blocks_on_all_flashes = number_of_pages / pages_in_block
-                //size_t flash = block_x_flash / CONST_BLOCK_NB_PER_FLASH; // number_of_flashes = all_blocks_on_all_flashes / number_of_blocks_in_flash
-                size_t blocks_per_flash = block_x_flash / flash_nb; // number_of_flashes = all_blocks_on_all_flashes / number_of_blocks_in_flash
-
+            virtual void SetUp(SSDConf test_params) {
                 ofstream ssd_conf("data/ssd.conf", ios_base::out | ios_base::trunc);
                 ssd_conf << "FILE_NAME ./data/ssd.img\n"
-                    "PAGE_SIZE " << CONST_PAGE_SIZE_IN_BYTES << "\n"
-                    "PAGE_NB " << (CONST_PAGES_PER_BLOCK + CONST_PAGES_PER_BLOCK_OVERPROV) << "\n"
-                    "SECTOR_SIZE 1\n"
-                    "FLASH_NB " << flash_nb << "\n"
-                    "BLOCK_NB " << blocks_per_flash << "\n"
+                    "PAGE_SIZE " << test_params.get_page_size() << "\n"
+                    "PAGE_NB " << test_params.get_page_nb() << "\n"
+                    "SECTOR_SIZE " << test_params.get_sector_size() << "\n"
+                    "FLASH_NB " << test_params.get_flash_nb() << "\n"
+                    "BLOCK_NB " << test_params.get_block_nb() << "\n"
                     "PLANES_PER_FLASH 1\n"
                     "REG_WRITE_DELAY 82\n"
                     "CELL_PROGRAM_DELAY 900\n"
@@ -101,18 +204,17 @@ namespace {
                     "BLOCK_ERASE_DELAY 2000\n"
                     "CHANNEL_SWITCH_DELAY_R 16\n"
                     "CHANNEL_SWITCH_DELAY_W 33\n"
-                    "CHANNEL_NB " << flash_nb << "\n"
+                    "CHANNEL_NB " << test_params.get_channel_nb() << "\n"
                     "STAT_TYPE 15\n"
                     "STAT_SCOPE 62\n"
                     "STAT_PATH /tmp/stat.csv\n"
                     "STORAGE_STRATEGY 1\n"; // sector strategy
                 ssd_conf.close();
                 FTL_INIT();
-                INIT_LOG_MANAGER();
             }
+
             virtual void TearDown() {
                 FTL_TERM();
-                TERM_LOG_MANAGER();
                 remove("data/empty_block_list.dat");
                 remove("data/inverse_block_mapping.dat");
                 remove("data/inverse_page_mapping.dat");
@@ -124,8 +226,6 @@ namespace {
                 clientSock = 0;
                 g_init_log_server = 0;
             }
-        protected:
-            size_t pages_;
     }; // OccupySpaceStressTest
 
 } //namespace
