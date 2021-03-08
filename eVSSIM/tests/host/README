@@ -29,8 +29,10 @@ VSSIM unit tests
         make
 
 3. Run unit tests
-    Sector-based: ./sector_tests
-    Object-based: ./object_tests
+    Sector-based Tests: ./host_tests_main --sector-tests
+    Object-based Tests: ./host_tests_main --object-tests
+    Log Manager Tests: ./host_tests_main --log-mgr-tests
+    SSD IO Emulator Tests: ./host_tests_main --ssd-io-emulator-tests
 
 4. Unit tests distclean
     make distclean #will remove all generated VSSIM links
