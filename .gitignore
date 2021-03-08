@@ -82,11 +82,7 @@ eVSSIM/QEMU/hw/www
 
 # unit test files
 eVSSIM/tests/host/test_*.txt
-eVSSIM/tests/host/log_mgr_tests
-eVSSIM/tests/host/unit_tests
-eVSSIM/tests/host/sector_tests
-eVSSIM/tests/host/object_tests
-eVSSIM/tests/host/ssd_io_emulator_tests
+eVSSIM/tests/host/host_tests_main
 eVSSIM/tests/host/data
 eVSSIM/tests/host/common.h
 eVSSIM/tests/host/logging_rt_analyzer.h
