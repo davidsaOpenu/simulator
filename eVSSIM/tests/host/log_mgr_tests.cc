@@ -18,13 +18,13 @@ extern "C" {
 
 #include "common.h"
 }
-bool g_ci_mode = false;
-bool g_monitor_mode = false;
-bool g_server_mode = false;
+extern bool g_monitor_mode;
+extern bool g_server_mode;
 
 #include "rt_analyzer_subscriber.h"
 #include "log_manager_subscriber.h"
 #include "logging_parser.h"
+#include "log_mgr_tests.h"
 
 #include <gtest/gtest.h>
 
@@ -95,7 +95,12 @@ namespace log_mgr_tests {
             pthread_t _monitor;
             pthread_t _server;
     };
+
     LogMgrTestEnv* testEnv;
+
+    void init (void) {
+        testEnv = (LogMgrTestEnv*) testing::AddGlobalTestEnvironment(new LogMgrTestEnv);
+    }
 
     class LogMgrUnitTest : public ::testing::TestWithParam<size_t> {
         public:
@@ -746,28 +751,3 @@ namespace log_mgr_tests {
         log_manager_free(manager);
     }
 } //namespace
-
-/**
- * Run the log manager tests
- * @param argc the number of parameters provided in `argv`
- * @param argv the parameters which can be provided to the script. Includes:
- *        - `--ci`: run the tests in continous integration mode. Currently changes nothing.
- *        - `--show-monitor`: display the QT monitor while running
- *        - `--run-server`: open the web server while running
- */
-int main(int argc, char **argv) {
-    for (int i = 0; i < argc; i++) {
-        if (strcmp(argv[i], "--ci") == 0) {
-            g_ci_mode = true;
-        }
-        else if (strcmp(argv[i], "--show-monitor") == 0) {
-            g_monitor_mode = true;
-        }
-        else if (strcmp(argv[i], "--run-server") == 0) {
-            g_server_mode = true;
-        }
-    }
-    testing::InitGoogleTest(&argc, argv);
-    log_mgr_tests::testEnv = (log_mgr_tests::LogMgrTestEnv*) testing::AddGlobalTestEnvironment(new log_mgr_tests::LogMgrTestEnv);
-    return RUN_ALL_TESTS();
-}

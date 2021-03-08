@@ -44,11 +44,6 @@ void MONITOR_SYNC_DELAY(int expected_duration) {
     usleep(expected_duration + MONITOR_SYNC_DELAY_USEC);
 }
 
-int main(int argc, char **argv) {
-    testing::InitGoogleTest(&argc, argv);
-    return RUN_ALL_TESTS();
-}
-
 using namespace std;
 
 namespace {

@@ -11,7 +11,7 @@ extern "C" {
 extern "C" int g_init;
 extern "C" int clientSock;
 extern "C" int g_init_log_server;
-bool g_nightly_mode = false;
+extern bool g_nightly_mode;
 
 #define GTEST_DONT_DEFINE_FAIL 1
 
@@ -55,20 +55,6 @@ namespace parameters
     static const flashnb Allflashnb[] = { fnb1, fnb2, fnb3, fnb4, fnb5};
 }
 
-int main(int argc, char **argv) {
-    // check if CI_MODE environment variable is set to NIGHTLY
-    const char* ci_mode = getenv("CI_MODE");
-    if(ci_mode != NULL && std::string(ci_mode) == "NIGHTLY")
-        g_nightly_mode = true;
-
-    for (int i = 0; i < argc; i++) {
-        if (strcmp(argv[i], "--nightly") == 0) {
-            g_nightly_mode = true;
-        }
-    }
-    testing::InitGoogleTest(&argc, argv);
-    return RUN_ALL_TESTS();
-}
 
 using namespace std;
 
