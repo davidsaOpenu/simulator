@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "fd069171_cbfd0a9e",
+        "filename": "eVSSIM/LOG_MGR/logging_backend.c",
+        "patchSetId": 1
+      },
+      "lineNbr": 222,
+      "author": {
+        "id": 1017902
+      },
+      "writtenOn": "2021-03-18T14:29:26Z",
+      "side": 1,
+      "message": "I  think this line might save only part of the log, as this block handles the scenario that the current log doesn\u0027t have enough space to contain all of buffer\nMaybe we just want to send a buffer to logging_writer_save_log_to_file() and not a log object?",
+      "revId": "9d084bd4210a6db54b5df30c3ea1b957fbc8a205",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
+    }
+  ]
+}

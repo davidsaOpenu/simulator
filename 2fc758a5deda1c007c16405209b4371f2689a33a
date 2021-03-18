@@ -280,6 +280,30 @@
       },
       "revId": "2fc758a5deda1c007c16405209b4371f2689a33a",
       "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "6aac598e_1747fdd9",
+        "filename": "infra/builder/Dockerfile",
+        "patchSetId": 9
+      },
+      "lineNbr": 34,
+      "author": {
+        "id": 1017902
+      },
+      "writtenOn": "2021-03-18T14:29:26Z",
+      "side": 1,
+      "message": "libjson-c is actually a preparation for JSON that (at least i thought we were intended to use)\nalso, i added flex and bison because of a QEMU build  failure regarding those tools but i\u0027m not sure.. maybe this was another  problem.",
+      "parentUuid": "fd81e980_aa6a5e3c",
+      "range": {
+        "startLine": 31,
+        "startChar": 0,
+        "endLine": 34,
+        "endChar": 7
+      },
+      "revId": "2fc758a5deda1c007c16405209b4371f2689a33a",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
     }
   ]
 }
