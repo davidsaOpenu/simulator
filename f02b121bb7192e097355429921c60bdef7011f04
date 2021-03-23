@@ -150,6 +150,30 @@
       "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "5633b4ae_6eaada5f",
+        "filename": "eVSSIM/tests/host/base_emulator_tests.h",
+        "patchSetId": 4
+      },
+      "lineNbr": 80,
+      "author": {
+        "id": 1017913
+      },
+      "writtenOn": "2021-03-23T18:19:58Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "635c82b5_8c629863",
+      "range": {
+        "startLine": 80,
+        "startChar": 10,
+        "endLine": 80,
+        "endChar": 28
+      },
+      "revId": "f02b121bb7192e097355429921c60bdef7011f04",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "ee409d49_3f3088a0",
@@ -169,6 +193,24 @@
     {
       "unresolved": true,
       "key": {
+        "uuid": "dbceb8d6_03e8345e",
+        "filename": "eVSSIM/tests/host/base_emulator_tests.h",
+        "patchSetId": 4
+      },
+      "lineNbr": 101,
+      "author": {
+        "id": 1017913
+      },
+      "writtenOn": "2021-03-23T18:19:58Z",
+      "side": 1,
+      "message": "Seems that i can\u0027t remove the default constructor.\nMaybe it is gtest or something from C++, my C++ isn\u0027t great first time using it.\nFor now i leave it here otherwise it won\u0027t compile.",
+      "parentUuid": "ee409d49_3f3088a0",
+      "revId": "f02b121bb7192e097355429921c60bdef7011f04",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
+    },
+    {
+      "unresolved": true,
+      "key": {
         "uuid": "1e5bccc2_a3d8abbc",
         "filename": "eVSSIM/tests/host/base_emulator_tests.h",
         "patchSetId": 4
@@ -180,6 +222,24 @@
       "writtenOn": "2021-03-23T15:36:00Z",
       "side": 1,
       "message": "seems that all attributes have to be private or protected",
+      "revId": "f02b121bb7192e097355429921c60bdef7011f04",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "42cc9c1f_de2f4131",
+        "filename": "eVSSIM/tests/host/base_emulator_tests.h",
+        "patchSetId": 4
+      },
+      "lineNbr": 130,
+      "author": {
+        "id": 1017913
+      },
+      "writtenOn": "2021-03-23T18:19:58Z",
+      "side": 1,
+      "message": "had the \"pages_\"  in public, moved to private.",
+      "parentUuid": "1e5bccc2_a3d8abbc",
       "revId": "f02b121bb7192e097355429921c60bdef7011f04",
       "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
     },
@@ -225,6 +285,54 @@
         "startChar": 10,
         "endLine": 186,
         "endChar": 27
+      },
+      "revId": "f02b121bb7192e097355429921c60bdef7011f04",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "71042e5a_fe1f936e",
+        "filename": "eVSSIM/tests/host/base_emulator_tests.h",
+        "patchSetId": 4
+      },
+      "lineNbr": 186,
+      "author": {
+        "id": 1017913
+      },
+      "writtenOn": "2021-03-23T18:19:58Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "7a56e13f_4cd10e23",
+      "range": {
+        "startLine": 186,
+        "startChar": 10,
+        "endLine": 186,
+        "endChar": 27
+      },
+      "revId": "f02b121bb7192e097355429921c60bdef7011f04",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "e2cee871_713a629d",
+        "filename": "eVSSIM/tests/host/base_emulator_tests.h",
+        "patchSetId": 4
+      },
+      "lineNbr": 186,
+      "author": {
+        "id": 1017913
+      },
+      "writtenOn": "2021-03-23T18:19:58Z",
+      "side": 1,
+      "message": "BaseTest inherits SSDConf for SSD configuration parameters.\nBaseTest inherits Google Testing framework. The SetUp and TearDown are called per each test by using this framework.",
+      "parentUuid": "73b30291_379f9c34",
+      "range": {
+        "startLine": 186,
+        "startChar": 37,
+        "endLine": 186,
+        "endChar": 55
       },
       "revId": "f02b121bb7192e097355429921c60bdef7011f04",
       "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
