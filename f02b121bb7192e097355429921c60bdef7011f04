@@ -16,6 +16,218 @@
       "message": "recheck",
       "revId": "f02b121bb7192e097355429921c60bdef7011f04",
       "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "ac64d9f9_5e8ecb9c",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 4
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 1007990
+      },
+      "writtenOn": "2021-03-23T15:36:00Z",
+      "side": 1,
+      "message": "Thanks for working on this. Took a look on this code and I guess that OOD aspects require more attention. ",
+      "revId": "f02b121bb7192e097355429921c60bdef7011f04",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "86ee5232_3949a5fe",
+        "filename": "eVSSIM/tests/host/Makefile",
+        "patchSetId": 4
+      },
+      "lineNbr": 18,
+      "author": {
+        "id": 1007990
+      },
+      "writtenOn": "2021-03-23T15:36:00Z",
+      "side": 1,
+      "message": "let\u0027s call them TEST_OBJ",
+      "range": {
+        "startLine": 18,
+        "startChar": 17,
+        "endLine": 18,
+        "endChar": 104
+      },
+      "revId": "f02b121bb7192e097355429921c60bdef7011f04",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "3e46dc41_b01fee2b",
+        "filename": "eVSSIM/tests/host/Makefile",
+        "patchSetId": 4
+      },
+      "lineNbr": 18,
+      "author": {
+        "id": 1007990
+      },
+      "writtenOn": "2021-03-23T15:36:00Z",
+      "side": 1,
+      "message": "guess they belong to VSSIM_OBJ",
+      "range": {
+        "startLine": 18,
+        "startChar": 118,
+        "endLine": 18,
+        "endChar": 167
+      },
+      "revId": "f02b121bb7192e097355429921c60bdef7011f04",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "3fb60116_cd33a7ea",
+        "filename": "eVSSIM/tests/host/Makefile",
+        "patchSetId": 4
+      },
+      "lineNbr": 20,
+      "author": {
+        "id": 1007990
+      },
+      "writtenOn": "2021-03-23T15:36:00Z",
+      "side": 1,
+      "message": "and then all this will be readable",
+      "range": {
+        "startLine": 20,
+        "startChar": 2,
+        "endLine": 20,
+        "endChar": 105
+      },
+      "revId": "f02b121bb7192e097355429921c60bdef7011f04",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "3e56c02b_4e72fd71",
+        "filename": "eVSSIM/tests/host/Makefile",
+        "patchSetId": 4
+      },
+      "lineNbr": 48,
+      "author": {
+        "id": 1007990
+      },
+      "writtenOn": "2021-03-23T15:36:00Z",
+      "side": 1,
+      "message": "this one will benefit from the change as well",
+      "range": {
+        "startLine": 48,
+        "startChar": 7,
+        "endLine": 48,
+        "endChar": 174
+      },
+      "revId": "f02b121bb7192e097355429921c60bdef7011f04",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "635c82b5_8c629863",
+        "filename": "eVSSIM/tests/host/base_emulator_tests.h",
+        "patchSetId": 4
+      },
+      "lineNbr": 80,
+      "author": {
+        "id": 1007990
+      },
+      "writtenOn": "2021-03-23T15:36:00Z",
+      "side": 1,
+      "message": "what do you think about renaming it to SSDConf?",
+      "range": {
+        "startLine": 80,
+        "startChar": 10,
+        "endLine": 80,
+        "endChar": 28
+      },
+      "revId": "f02b121bb7192e097355429921c60bdef7011f04",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "ee409d49_3f3088a0",
+        "filename": "eVSSIM/tests/host/base_emulator_tests.h",
+        "patchSetId": 4
+      },
+      "lineNbr": 101,
+      "author": {
+        "id": 1007990
+      },
+      "writtenOn": "2021-03-23T15:36:00Z",
+      "side": 1,
+      "message": "seems have a lot of code duplication that can be avoided (in constructors)",
+      "revId": "f02b121bb7192e097355429921c60bdef7011f04",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "1e5bccc2_a3d8abbc",
+        "filename": "eVSSIM/tests/host/base_emulator_tests.h",
+        "patchSetId": 4
+      },
+      "lineNbr": 130,
+      "author": {
+        "id": 1007990
+      },
+      "writtenOn": "2021-03-23T15:36:00Z",
+      "side": 1,
+      "message": "seems that all attributes have to be private or protected",
+      "revId": "f02b121bb7192e097355429921c60bdef7011f04",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "73b30291_379f9c34",
+        "filename": "eVSSIM/tests/host/base_emulator_tests.h",
+        "patchSetId": 4
+      },
+      "lineNbr": 186,
+      "author": {
+        "id": 1007990
+      },
+      "writtenOn": "2021-03-23T15:36:00Z",
+      "side": 1,
+      "message": "BaseTest is a TestWithParam, and that\u0027s fine. \nBut why is it also BaseParam?",
+      "range": {
+        "startLine": 186,
+        "startChar": 37,
+        "endLine": 186,
+        "endChar": 55
+      },
+      "revId": "f02b121bb7192e097355429921c60bdef7011f04",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "7a56e13f_4cd10e23",
+        "filename": "eVSSIM/tests/host/base_emulator_tests.h",
+        "patchSetId": 4
+      },
+      "lineNbr": 186,
+      "author": {
+        "id": 1007990
+      },
+      "writtenOn": "2021-03-23T15:36:00Z",
+      "side": 1,
+      "message": "lets rename it to BaseTest",
+      "range": {
+        "startLine": 186,
+        "startChar": 10,
+        "endLine": 186,
+        "endChar": 27
+      },
+      "revId": "f02b121bb7192e097355429921c60bdef7011f04",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
     }
   ]
 }

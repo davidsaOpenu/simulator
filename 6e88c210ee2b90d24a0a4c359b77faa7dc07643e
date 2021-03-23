@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "8a389989_651efdc6",
+        "filename": "eVSSIM/tests/host/run_all_host_tests.sh",
+        "patchSetId": 4
+      },
+      "lineNbr": 7,
+      "author": {
+        "id": 1007990
+      },
+      "writtenOn": "2021-03-23T15:36:00Z",
+      "side": 0,
+      "message": "omitted on purpose?",
+      "range": {
+        "startLine": 7,
+        "startChar": 61,
+        "endLine": 7,
+        "endChar": 65
+      },
+      "revId": "6e88c210ee2b90d24a0a4c359b77faa7dc07643e",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
+    }
+  ]
+}
