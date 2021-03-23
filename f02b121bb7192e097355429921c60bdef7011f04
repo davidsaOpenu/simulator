@@ -81,6 +81,54 @@
       "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "d7b7beea_c5bdf215",
+        "filename": "eVSSIM/tests/host/Makefile",
+        "patchSetId": 4
+      },
+      "lineNbr": 18,
+      "author": {
+        "id": 1017913
+      },
+      "writtenOn": "2021-03-23T18:23:51Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "3e46dc41_b01fee2b",
+      "range": {
+        "startLine": 18,
+        "startChar": 118,
+        "endLine": 18,
+        "endChar": 167
+      },
+      "revId": "f02b121bb7192e097355429921c60bdef7011f04",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "a2157aaf_d700aba5",
+        "filename": "eVSSIM/tests/host/Makefile",
+        "patchSetId": 4
+      },
+      "lineNbr": 18,
+      "author": {
+        "id": 1017913
+      },
+      "writtenOn": "2021-03-23T18:23:51Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "86ee5232_3949a5fe",
+      "range": {
+        "startLine": 18,
+        "startChar": 17,
+        "endLine": 18,
+        "endChar": 104
+      },
+      "revId": "f02b121bb7192e097355429921c60bdef7011f04",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "3fb60116_cd33a7ea",
@@ -104,6 +152,30 @@
       "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "04b71a3d_936703e7",
+        "filename": "eVSSIM/tests/host/Makefile",
+        "patchSetId": 4
+      },
+      "lineNbr": 20,
+      "author": {
+        "id": 1017913
+      },
+      "writtenOn": "2021-03-23T18:23:51Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "3fb60116_cd33a7ea",
+      "range": {
+        "startLine": 20,
+        "startChar": 2,
+        "endLine": 20,
+        "endChar": 105
+      },
+      "revId": "f02b121bb7192e097355429921c60bdef7011f04",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "3e56c02b_4e72fd71",
@@ -117,6 +189,30 @@
       "writtenOn": "2021-03-23T15:36:00Z",
       "side": 1,
       "message": "this one will benefit from the change as well",
+      "range": {
+        "startLine": 48,
+        "startChar": 7,
+        "endLine": 48,
+        "endChar": 174
+      },
+      "revId": "f02b121bb7192e097355429921c60bdef7011f04",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "bc9fba3c_70db072a",
+        "filename": "eVSSIM/tests/host/Makefile",
+        "patchSetId": 4
+      },
+      "lineNbr": 48,
+      "author": {
+        "id": 1017913
+      },
+      "writtenOn": "2021-03-23T18:23:51Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "3e56c02b_4e72fd71",
       "range": {
         "startLine": 48,
         "startChar": 7,
