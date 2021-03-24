@@ -176,6 +176,30 @@
       },
       "revId": "49ef7f69402be2e08395debb62921d1a47fd63ad",
       "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "7ab9c109_be8e957f",
+        "filename": "eVSSIM/tests/host/sector_tests.cc",
+        "patchSetId": 6
+      },
+      "lineNbr": 15,
+      "author": {
+        "id": 1017913
+      },
+      "writtenOn": "2021-03-24T16:17:29Z",
+      "side": 1,
+      "message": "\u003e note that google testing framework calls SetUp() (without arguments) for every fixtute. \n\nRight, i kept the same name to save the concept of why we have BaseTest SetUp. Can rename if you believe it confuses more than helps.\n\n\u003e what you need is to have fixtures called with different SSDconf s and \n\u003e the direction of having SSDConf as parameter for parametrized tests is correct. \n\u003e \n\u003e Change SetUp to set the class attribute of type SSDConf from the parameter list for \n\u003e every fixture you need (as done in ObjectUnitTest::SetUp()).\n\u003e \n\u003e And create the list of SSDConfs like   std::vector\u003cSSDConf\u003e GetParams() {..} in a similar was as in line 150 in object_tests.cc\n\nI believe we need to talk, if I understood your comment right, this is the exact way it is already implemented as.\nWe have GetTestParams function that each test implements with each Test defines its needed parameters. We provide this function to Google test framework via: \nINSTANTIATE_TEST_CASE_P(DiskSize, ObjectUnitTest, ::testing::ValuesIn(GetParams()));\n\nThen while inside SetUp function or inside a Test function we can call GetParam() which is Google\u0027s API that provides us with the object that is of SSDConf class.\n\nAgain, this is the way it is already implemented, not clear what change is requested here.",
+      "parentUuid": "1009f39d_910ab7e6",
+      "range": {
+        "startLine": 13,
+        "startChar": 0,
+        "endLine": 15,
+        "endChar": 35
+      },
+      "revId": "49ef7f69402be2e08395debb62921d1a47fd63ad",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
     }
   ]
 }
