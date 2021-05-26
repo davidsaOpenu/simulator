@@ -22,6 +22,30 @@
       },
       "revId": "7188cbf96282485b63871c5588c3869acbe0327b",
       "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "f9295fea_9ee8ae5c",
+        "filename": "eVSSIM/tests/host/run_all_host_tests.sh",
+        "patchSetId": 16
+      },
+      "lineNbr": 4,
+      "author": {
+        "id": 1017913
+      },
+      "writtenOn": "2021-05-26T07:24:33Z",
+      "side": 1,
+      "message": "Yes, it runs all the tests.\nThe comment left for those who will want to quickly run a specific test suite, good for debug.\nAnother option is to move those comments to a documentation, but i wonder if it is a good solution. Some people might miss it.",
+      "parentUuid": "082348c6_5733d397",
+      "range": {
+        "startLine": 2,
+        "startChar": 0,
+        "endLine": 4,
+        "endChar": 9
+      },
+      "revId": "7188cbf96282485b63871c5588c3869acbe0327b",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
     }
   ]
 }
