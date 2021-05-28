@@ -52,6 +52,24 @@
       "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "5d3e0034_64ac892f",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 16
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 1017913
+      },
+      "writtenOn": "2021-05-28T14:06:17Z",
+      "side": 1,
+      "message": "How can I see what is the reason for this failure.\nAs for latest run it shows everything failed, how come? Locally and a few times we ran before we did pass CI.\nAbout ng-infra -- looks like it runs docker basic check, passes and then simply fails. Not clear why and how to reproduce.\nWhat does it mean:\n\"\neVSSIM Up \u0026 Running!\n08a75ab1dfc3b3b621b90e45767e358ed6c5c7daccea9c682ab2c4ed94c913a4\nTOOT\nWARNING Killed docker 08a75ab1dfc3b3b621b90e45767e358ed6c5c7daccea9c682ab2c4ed94c913a4\nBuild step \u0027Execute shell\u0027 marked build as failure\nDiscard old builds...\nFinished: FAILURE\n\"\n\n\nUnrelated, why do i see this print in the log? Shouldn\u0027t we map dist as tmpfs as it is suggested in documentation?\n\"\nWARNING dist folder is not tmpfs mapped. Consider executing\n        $ sudo mount -t tmpfs -o size\u003d4g tmpfs \"/var/lib/jenkins/workspace/simulator-docker-ng-infra/dist\"\n\"\n\nAnother thing, note that a patch we did merge before failed at docker-ng-infra too:\nhttps://review.gerrithub.io/c/davidsaOpenu/simulator/+/502190",
+      "parentUuid": "f4d1b777_c47ef2b9",
+      "revId": "7188cbf96282485b63871c5588c3869acbe0327b",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "082348c6_5733d397",
