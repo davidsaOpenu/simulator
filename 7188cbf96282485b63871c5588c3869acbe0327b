@@ -104,6 +104,42 @@
       "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "3c08c7a1_ffdd02a9",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 16
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 1007990
+      },
+      "writtenOn": "2021-05-30T10:32:05Z",
+      "side": 1,
+      "message": "a. It\u0027s failing on builder/builder.sh line 260\nb. good catch seems like a patch of infra/build/builder.sh has to be proposed to mount the dist.\nc. I don\u0027t remember whether the gate was ok or not back to the time when  502190 was merged. Anyways, the gate look ok without this patch. So we need to figure out why it fails on this patch.",
+      "parentUuid": "5d3e0034_64ac892f",
+      "revId": "7188cbf96282485b63871c5588c3869acbe0327b",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "7c06382b_9dba4120",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 16
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 1007990
+      },
+      "writtenOn": "2021-05-30T10:32:05Z",
+      "side": 1,
+      "message": "This on seems to be caused from a temporal network outage",
+      "parentUuid": "c7480d5a_b4f40d85",
+      "revId": "7188cbf96282485b63871c5588c3869acbe0327b",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "082348c6_5733d397",
