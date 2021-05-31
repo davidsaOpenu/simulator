@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/bin/bash -x
 source ./builder.sh
 
 DOCKER_ID=$(docker ps -f ancestor=$EVSSIM_DOCKER_IMAGE_NAME --format "{{.ID}}" -n 1)
