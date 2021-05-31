@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "7a3f876e_0cc0de2b",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 1019215
+      },
+      "writtenOn": "2021-05-31T19:43:24Z",
+      "side": 1,
+      "message": "Should I update nvme-cli-testsWrapper.py to python3?",
+      "revId": "021b63ea7895647df6d8c85fad410ecd22eaa00f",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
+    }
+  ]
+}
