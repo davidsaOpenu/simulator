@@ -1,8 +1,6 @@
-- name: get python-nose in an OS agnostic way
+- name: get python-nose
   become: true
-  package:
-    name: python-nose
-    state: present
+  command: apt -y install python python-nose
 
 - name: run all guest tests
   become: true
