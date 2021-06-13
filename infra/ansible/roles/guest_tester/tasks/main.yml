@@ -1,6 +1,18 @@
+- name: Fix Ubuntu main server details
+  become: true
+  lineinfile:
+    path: /etc/apt/sources.list
+    line: 'deb http://archive.ubuntu.com/ubuntu trusty main universe'
+
+- name: update cache
+  become: true
+  command: apt-get -y  update
+
 - name: get python-nose
   become: true
-  command: apt -y install python python-nose
+  package:
+    name: python-nose
+    state: present
 
 - name: run all guest tests
   become: true
