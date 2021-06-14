@@ -1,7 +1,5 @@
 git_in_ansible: false
 dest: "{{ ansible_env.HOME }}/simulator"
 ref: refs/heads/master
-# TODO: Remove this param when qt based mon is depricated
-build_ssd_monitor: false
 qemu_pid_file: "{{ dest }}/simulator_qemu.pid"
 cleanup_only: false

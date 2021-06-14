@@ -128,7 +128,8 @@ namespace {
             }
             virtual void osd_init() {
                 const char *root = "/tmp/osd/";
-                system("rm -rf /tmp/osd");
+                int ret_sys_val = system("rm -rf /tmp/osd");
+                printf("Remove of /tmp/osd return value is %d\n", ret_sys_val);
                 assert(!osd_open(root, &osd));
                 osd_sense = (uint8_t*)Calloc(1, 1024);
                 assert(!osd_create_partition(&osd, PARTITION_PID_LB, cdb_cont_len, osd_sense));
@@ -286,7 +287,7 @@ namespace {
 
         // Read GET_PAGE_SIZE()/2 data from each one
         for(unsigned long p=1; p < objects_in_ssd_/2; p++){
-            ASSERT_EQ(FTL_SUCCESS, _FTL_OBJ_READ(objects[p],(buf_ptr_t)rdbuf, 0,GET_PAGE_SIZE()));
+            ASSERT_EQ(FTL_SUCCESS, _FTL_OBJ_READ(objects[p], 0, GET_PAGE_SIZE()));
 #ifndef NO_OSD
             // read and compare with the expected unique data
             ASSERT_EQ(0, osd_read(&osd, USEROBJECT_PID_LB, USEROBJECT_OID_LB + objects[p].object_id,
@@ -395,5 +396,3 @@ namespace {
     }
 
 } //namespace
-
-

@@ -1,4 +1,4 @@
-// Copyright(c)2013 
+// Copyright(c)2013
 //
 // Hanyang University, Seoul, Korea
 // Embedded Software Systems Lab. All right reserved
@@ -134,7 +134,6 @@ void SEND_TO_PERF_CHECKER(int op_type, int64_t op_delay, int type){
 
 			case ERASE:
 				written_page_nb -= PAGE_NB;
-				WRITE_LOG("ERASE 1");
 				break;
 
 			case GC_READ:
@@ -165,13 +164,10 @@ void SEND_TO_PERF_CHECKER(int op_type, int64_t op_delay, int type){
 				avg_read_latency = (avg_read_latency * read_latency_count + delay)/(read_latency_count + 1);
 
 				read_latency_count++;
-				WRITE_LOG("READ BW %lf ", GET_IO_BANDWIDTH(avg_read_delay));
 				break;
 			case WRITE:
 				avg_write_latency = (avg_write_latency * write_latency_count + delay)/(write_latency_count + 1);
 				write_latency_count++;
-				WRITE_LOG("WRITE BW %lf ", GET_IO_BANDWIDTH(avg_write_delay));
-				WRITE_LOG("UTIL %lf ", SSD_UTIL());
 				break;
 			default:
 				break;
@@ -229,7 +225,7 @@ int64_t ALLOC_IO_REQUEST(uint32_t sector_nb, unsigned int length, int io_type, i
 	memset(end_time_arr, 0, io_page_nb);
 
 	curr_io_request->request_nb = io_request_seq_nb;
-	
+
 	curr_io_request->request_type = io_type;
 	curr_io_request->request_size = io_page_nb;
 	curr_io_request->start_count = 0;
@@ -247,19 +243,19 @@ int64_t ALLOC_IO_REQUEST(uint32_t sector_nb, unsigned int length, int io_type, i
 		io_request_end = curr_io_request;
 	}
 	io_request_nb++;
-	
+
 	int64_t end = get_usec();
 
 	return (end - start);
 }
 
-void FREE_DUMMY_IO_REQUEST(int type)
+void FREE_DUMMY_IO_REQUEST(void)
 {
-	int i;
+	uint32_t i;
 	int success = 0;
 	io_request* prev_request = io_request_start;
 
-	io_request* request = LOOKUP_IO_REQUEST(io_request_seq_nb, type);
+	io_request* request = LOOKUP_IO_REQUEST(io_request_seq_nb);
 
 
 	if(io_request_nb == 1){
@@ -302,7 +298,7 @@ void FREE_DUMMY_IO_REQUEST(int type)
 
 void FREE_IO_REQUEST(io_request* request)
 {
-	int i;
+	uint32_t i;
 	int success = 0;
 	io_request* prev_request = io_request_start;
 
@@ -344,24 +340,24 @@ void FREE_IO_REQUEST(io_request* request)
 	io_request_nb--;
 }
 
-int64_t UPDATE_IO_REQUEST(int request_nb, int offset, int64_t time, int type)
+int64_t UPDATE_IO_REQUEST(uint32_t request_nb, int offset, int64_t time, int type)
 {
 	int64_t start = get_usec();
 
 	int io_type;
 	int64_t latency=0;
-	int flag = 0;
 
-	if(request_nb == -1)
+	if(request_nb == UINT32_MAX) {
 		return 0;
+	}
 
-	io_request* curr_request = LOOKUP_IO_REQUEST(request_nb, type);
+	io_request* curr_request = LOOKUP_IO_REQUEST(request_nb);
 	if (curr_request == NULL)
 		RDBG_FTL(0, "No such io request, nb %d\n", request_nb);
 
 	if(type == UPDATE_START_TIME){
 		curr_request->start_time[offset] = time;
-		curr_request->start_count++;	
+		curr_request->start_count++;
 	}
 	else if(type == UPDATE_END_TIME){
 		curr_request->end_time[offset] = time;
@@ -375,7 +371,6 @@ int64_t UPDATE_IO_REQUEST(int request_nb, int offset, int64_t time, int type)
 		SEND_TO_PERF_CHECKER(io_type, latency, LATENCY_OP);
 
 		FREE_IO_REQUEST(curr_request);
-		flag = 1;
 	}
 	int64_t end = get_usec();
 
@@ -384,7 +379,7 @@ int64_t UPDATE_IO_REQUEST(int request_nb, int offset, int64_t time, int type)
 
 void INCREASE_IO_REQUEST_SEQ_NB(void)
 {
-	if(io_request_seq_nb == 0xffffffff){
+	if (io_request_seq_nb == UINT32_MAX) {
 		io_request_seq_nb = 0;
 	}
 	else{
@@ -392,10 +387,10 @@ void INCREASE_IO_REQUEST_SEQ_NB(void)
 	}
 }
 
-io_request* LOOKUP_IO_REQUEST(int request_nb, int type)
+io_request* LOOKUP_IO_REQUEST(uint32_t request_nb)
 {
-	int i;
-	int total_request=0;
+	uint32_t i;
+	uint32_t total_request=0;
 	io_request* curr_request = NULL;
 
 	if(io_request_start != NULL){
@@ -415,7 +410,7 @@ io_request* LOOKUP_IO_REQUEST(int request_nb, int type)
 		}
 		else{
 			return NULL;
-		}	
+		}
 	}
 
 	return NULL;
@@ -458,9 +453,8 @@ int64_t CALC_IO_LATENCY(io_request* request)
 			}
 		}
 	}
-	
+
 	latency = (max_end_time - min_start_time)/(request->request_size);
-	
+
 	return latency;
 }
-

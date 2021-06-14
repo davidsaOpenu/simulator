@@ -1,4 +1,4 @@
-// Copyright(c)2013 
+// Copyright(c)2013
 //
 // Hanyang University, Seoul, Korea
 // Embedded Software Systems Lab. All right reserved
@@ -18,6 +18,10 @@
  *  Member 'physical_page_writes' holds sum of all page writes
  *  @var int logical_page_writes
  *  Member 'logical_page_writes' holds sum of logical only page writes
+ *  *  @var int prev_channel_mode
+ *  Member 'prev_channel_mode' holds the previous command that ran on this channel
+ *  @var int prev_channel_mode
+ *  Member 'cur_channel_mode' holds the current command that runs on this channel
  *  @var SSDStatistics* current_stats
  *  Member 'current_stats' holds stats of browser monitor
  */
@@ -26,7 +30,8 @@ typedef struct {
     int occupied_pages_counter;
     int physical_page_writes;
     int logical_page_writes;
-    int* channel_mode;
+    int* prev_channel_mode;
+    int* cur_channel_mode;
     SSDStatistics* current_stats;
 
 } ssd_disk;
@@ -43,8 +48,8 @@ int SSD_IO_INIT(void);
 int SSD_IO_TERM(void);
 
 /* GET IO from FTL */
-ftl_ret_val SSD_PAGE_READ(unsigned int flash_nb, unsigned int block_nb, unsigned int page_nb, int offset, int type, int io_page_nb);
-ftl_ret_val SSD_PAGE_WRITE(unsigned int flash_nb, unsigned int block_nb, unsigned int page_nb, int offset, int type, int io_page_nb);
+ftl_ret_val SSD_PAGE_READ(unsigned int flash_nb, unsigned int block_nb, unsigned int page_nb, int offset, int type);
+ftl_ret_val SSD_PAGE_WRITE(unsigned int flash_nb, unsigned int block_nb, unsigned int page_nb, int offset, int type);
 ftl_ret_val SSD_BLOCK_ERASE(unsigned int flash_nb, unsigned int block_nb);
 ftl_ret_val SSD_PAGE_COPYBACK(uint32_t source, uint32_t destination, int type);
 
@@ -52,7 +57,7 @@ ftl_ret_val SSD_PAGE_COPYBACK(uint32_t source, uint32_t destination, int type);
 int SSD_CH_ENABLE(unsigned int flash_nb, int channel);
 
 /* Flash or Register Access */
-int SSD_FLASH_ACCESS(unsigned int flash_nb, int channel, int reg);
+int SSD_FLASH_ACCESS(unsigned int flash_nb, unsigned int channel, unsigned int reg);
 int SSD_REG_ACCESS(unsigned int flash_nb, int channel, int reg);
 
 /* Channel Delay */
@@ -70,9 +75,7 @@ int SSD_CELL_READ_DELAY(int reg);
 int SSD_BLOCK_ERASE_DELAY(int reg);
 
 /* Mark Time Stamp */
-int SSD_CH_RECORD(int channel, int cmd, int offset, int ret);
-int SSD_REG_RECORD(int reg, int cmd, int type, int offset, int channel);
-int SSD_CELL_RECORD(int reg, int cmd, int channel);
+ftl_ret_val SSD_REG_RECORD(int reg, int type, int offset, int channel);
 
 /* Check Read Operation in the Same Channel  */
 int SSD_CH_ACCESS(unsigned int flash_nb, int channel);

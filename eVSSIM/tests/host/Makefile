@@ -8,30 +8,26 @@ VSSIM_OBJ = vssim_config_manager.o \
 			logging_manager.o logging_server.o logging_statistics.o
 
 CFLAGS = -I/opt/gtest/include -I$(VSSIM_HOME)/osc-osd -I$(VSSIM_HOME)/osc-osd/osd-target -I$(VSSIM_HOME)/QEMU -g -DGTEST -DCOMPLIANCE_TESTS -L/opt/gtest/lib -L$(VSSIM_HOME)/osc-osd/osd-util -L$(VSSIM_HOME)/osc-osd/osd-target -I/opt/libwebsockets/include -L/opt/libwebsockets/lib -Wl,-R/opt/libwebsockets/lib -g -m64 -pipe -O2 -Wall -W -D_REENTRANT -fPIE -DQT_NO_DEBUG -DQT_WIDGETS_LIB -DQT_NETWORK_LIB -DQT_GUI_LIB -DQT_CORE_LIB
-MONITOR_DIR = ../../MONITOR/SSD_MONITOR_PM
 
 all: sector_tests object_tests log_mgr_tests ssd_io_emulator_tests
 
 sector_tests: sector_tests.o $(VSSIM_OBJ)
-	g++ $(CFLAGS) -Wall -o sector_tests sector_tests.o $(VSSIM_OBJ) -lpthread -lgtest -lgtest_main -losdutil -losdtgt -lsqlite3 -lwebsockets
+	g++ $(CFLAGS) -Wall -Werror -o sector_tests sector_tests.o $(VSSIM_OBJ) -lpthread -lgtest -lgtest_main -losdutil -losdtgt -lsqlite3 -lwebsockets
 
 object_tests: object_tests.o $(VSSIM_OBJ)
-	g++ $(CFLAGS) -Wall -o object_tests object_tests.o $(VSSIM_OBJ) -Wl,-Bstatic -L$(VSSIM_HOME)/osc-osd/osd-util -L$(VSSIM_HOME)/osc-osd/osd-target -losdutil -losdtgt -Wl,-Bdynamic -lsqlite3 -lm -lpthread -lgtest -lgtest_main -lwebsockets
+	g++ $(CFLAGS) -Wall -Werror -o object_tests object_tests.o $(VSSIM_OBJ) -Wl,-Bstatic -L$(VSSIM_HOME)/osc-osd/osd-util -L$(VSSIM_HOME)/osc-osd/osd-target -losdutil -losdtgt -Wl,-Bdynamic -lsqlite3 -lm -lpthread -lgtest -lgtest_main -lwebsockets
 
-log_mgr_tests: log_mgr_tests.o $(VSSIM_OBJ) rt_analyzer_subscriber.o log_manager_subscriber.o .MONITOR
-	g++ $(CFLAGS) -Wall -o log_mgr_tests log_mgr_tests.o rt_analyzer_subscriber.o log_manager_subscriber.o $(VSSIM_OBJ) $(MONITOR_DIR)/monitor_test.o $(MONITOR_DIR)/form1.o $(MONITOR_DIR)/moc_form1.o -L/usr/X11R6/lib64 -lXext -lX11 -lm -lpthread -lgtest -lgtest_main -losdutil -losdtgt -lsqlite3 -lwebsockets -lQt5Widgets -L/usr/lib/x86_64-linux-gnu -lQt5Network -lQt5Gui -lQt5Core
+log_mgr_tests: log_mgr_tests.o $(VSSIM_OBJ) rt_analyzer_subscriber.o log_manager_subscriber.o
+	g++ $(CFLAGS) -Wall -Werror -o log_mgr_tests log_mgr_tests.o rt_analyzer_subscriber.o log_manager_subscriber.o $(VSSIM_OBJ) -L/usr/X11R6/lib64 -lXext -lX11 -lm -lpthread -lgtest -lgtest_main -losdutil -losdtgt -lsqlite3 -lwebsockets -L/usr/lib/x86_64-linux-gnu
 
 ssd_io_emulator_tests: ssd_io_emulator_tests.o $(VSSIM_OBJ)
-	g++ $(CFLAGS) -Wall -o ssd_io_emulator_tests ssd_io_emulator_tests.o $(VSSIM_OBJ) -lpthread -lgtest -lgtest_main -losdutil -losdtgt -lsqlite3 -lwebsockets
+	g++ $(CFLAGS) -Wall -Werror -o ssd_io_emulator_tests ssd_io_emulator_tests.o $(VSSIM_OBJ) -lpthread -lgtest -lgtest_main -losdutil -losdtgt -lsqlite3 -lwebsockets
 
 %.o: %.cc
-	g++ -Wall $(CFLAGS) -c $<
+	g++ -Wall -Werror $(CFLAGS) -c $<
 
 %.o: %.c
-	gcc -Wall $(CFLAGS) -c $<
-
-.MONITOR:
-	cd $(MONITOR_DIR) && qmake -o Makefile ssd_monitor_p.pro && make
+	gcc -Wall -Werror $(CFLAGS) -c $<
 
 .PHONY: clean distclean mklink
 
@@ -43,7 +39,7 @@ distclean: clean
 		common.h ftl.h ftl.c ftl_sect_strategy.h ftl_sect_strategy.c ftl_obj_strategy.h \
 		ftl_obj_strategy.c ftl_type.h ftl_gc_manager.h ftl_gc_manager.c ftl_inverse_mapping_manager.h \
 		ftl_inverse_mapping_manager.c ftl_mapping_manager.h ftl_mapping_manager.c ftl_perf_manager.h \
-        ftl_perf_manager.c vssim_config_manager.h vssim_config_manager.c ssd_monitor uthash.h \
+        ftl_perf_manager.c vssim_config_manager.h vssim_config_manager.c uthash.h \
         logging_parser.h logging_parser.c logging_backend.h logging_backend.c \
         logging_rt_analyzer.h logging_rt_analyzer.c logging_offline_analyzer.h logging_offline_analyzer.c \
 		monitor_test.h logging_manager.h logging_manager.c \
@@ -86,8 +82,6 @@ mklink:
 	ln -sf $(VSSIM_HOME)/FTL_SOURCE/PERF_MODULE/ftl_perf_manager.c
 	ln -sf $(VSSIM_HOME)/CONFIG/vssim_config_manager.h
 	ln -sf $(VSSIM_HOME)/CONFIG/vssim_config_manager.c
-	ln -sf $(VSSIM_HOME)/MONITOR/SSD_MONITOR_PM/ssd_monitor_p ssd_monitor
-	ln -sf $(VSSIM_HOME)/MONITOR/SSD_MONITOR_PM/monitor_test.h
 	ln -sf $(VSSIM_HOME)/MONITOR/SERVER/logging_server.h
 	ln -sf $(VSSIM_HOME)/MONITOR/SERVER/logging_server.c
 	ln -sf $(VSSIM_HOME)/MONITOR/SERVER/www

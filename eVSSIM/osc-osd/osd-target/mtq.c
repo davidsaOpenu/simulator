@@ -6,12 +6,12 @@
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation, version 2 of the License.
- * 
+ *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
@@ -27,7 +27,7 @@
 #include "db.h"
 #include "obj.h"
 #include "attr.h"
-#include "coll.h" 
+#include "coll.h"
 #include "mtq.h"
 #include "osd-util/osd-util.h"
 #include "list-entry.h"
@@ -44,8 +44,8 @@
  * OSD_ERROR: some other error
  * OSD_OK: success
  */
-int mtq_run_query(struct db_context *dbc, uint64_t pid, uint64_t cid, 
-		  struct query_criteria *qc, void *outdata, 
+int mtq_run_query(struct db_context *dbc, uint64_t pid, uint64_t cid,
+		  struct query_criteria *qc, void *outdata,
 		  uint32_t alloc_len, uint64_t *used_outlen)
 {
 	int ret = 0;
@@ -63,7 +63,7 @@ int mtq_run_query(struct db_context *dbc, uint64_t pid, uint64_t cid,
 	const char *coll = coll_getname(dbc);
 	const char *attr = attr_getname(dbc);
 
-	assert(dbc && dbc->db && qc && outdata && used_outlen && coll 
+	assert(dbc && dbc->db && qc && outdata && used_outlen && coll
 	       && attr);
 
 	if (qc->query_type == 0) {
@@ -94,7 +94,7 @@ int mtq_run_query(struct db_context *dbc, uint64_t pid, uint64_t cid,
 		" WHERE coll.pid = coll.pid AND coll.oid = attr.oid AND "
 		" coll.pid = %llu AND coll.cid = %llu ", coll, attr,
 		llu(pid), llu(cid));
-	sprintf(cp, select_stmt);
+	sprintf(cp, "%s", select_stmt);
 	sqlen += strlen(cp);
 	cp += sqlen;
 	for (i = 0; i < qc->qc_cnt; i++) {
@@ -161,12 +161,12 @@ int mtq_run_query(struct db_context *dbc, uint64_t pid, uint64_t cid,
 
 	/* execute the query */
 	p = outdata;
-	p += ML_ODL_OFF; 
+	p += ML_ODL_OFF;
 	len = ML_ODL_OFF - 8; /* subtract len of addition_len */
 	*used_outlen = ML_ODL_OFF;
 	while ((ret = sqlite3_step(stmt)) == SQLITE_ROW) {
 		if ((alloc_len - len) > 8) {
-			/* 
+			/*
 			 * TODO: query is a multi-object command, so delete
 			 * the objects from the collection, once they are
 			 * selected
@@ -174,7 +174,7 @@ int mtq_run_query(struct db_context *dbc, uint64_t pid, uint64_t cid,
 			set_htonll(p, sqlite3_column_int64(stmt, 0));
 			*used_outlen += 8;
 		}
-		p += 8; 
+		p += 8;
 		/* handle overflow: osd2r01 Sec 6.18.3 */
 		if (len != (uint64_t) -1 && (len + 8) > len) {
 			len += 8;
@@ -211,8 +211,8 @@ out:
  */
 int mtq_list_oids_attr(struct db_context *dbc, uint64_t pid,
 		       uint64_t initial_oid, struct getattr_list *get_attr,
-		       uint64_t alloc_len, void *outdata, 
-		       uint64_t *used_outlen, uint64_t *add_len, 
+		       uint64_t alloc_len, void *outdata,
+		       uint64_t *used_outlen, uint64_t *add_len,
 		       uint64_t *cont_id)
 {
 	int ret = 0;
@@ -233,7 +233,7 @@ int mtq_list_oids_attr(struct db_context *dbc, uint64_t pid,
 	const char *obj = obj_getname(dbc);
 	const char *attr = attr_getname(dbc);
 
-	assert(dbc && dbc->db && get_attr && outdata && used_outlen 
+	assert(dbc && dbc->db && get_attr && outdata && used_outlen
 	       && add_len && obj && attr);
 
 	if (get_attr->sz == 0) {
@@ -247,7 +247,7 @@ int mtq_list_oids_attr(struct db_context *dbc, uint64_t pid,
 		goto out;
 	}
 
-	/* 
+	/*
 	 * For each attribute requested, create a select statement,
 	 * which will try to index into the attr table with a full key rather
 	 * than just (pid, oid) prefix key. Analogous to loop unrolling, we
@@ -285,7 +285,7 @@ int mtq_list_oids_attr(struct db_context *dbc, uint64_t pid,
 
 		cp = SQL + sqlen;
 	}
-	sprintf(cp, " ORDER BY myoid; "); 
+	sprintf(cp, " ORDER BY myoid; ");
 
 	ret = sqlite3_prepare(dbc->db, SQL, strlen(SQL)+1, &stmt, NULL);
 	if (ret != SQLITE_OK) {
@@ -302,7 +302,7 @@ int mtq_list_oids_attr(struct db_context *dbc, uint64_t pid,
 			continue;
 		} else if (ret != SQLITE_ROW) {
 			break;
-		} 
+		}
 		/* for the rest of loop body ret == SQLITE_ROW */
 
 		/*
@@ -350,16 +350,16 @@ int mtq_list_oids_attr(struct db_context *dbc, uint64_t pid,
 			} else {
 				/* terminate since add_len overflew */
 				*add_len = (uint64_t) -1;
-				ret = SQLITE_DONE; 
+				ret = SQLITE_DONE;
 				break;
 			}
 			continue;
-		} 
+		}
 		if (alloc_len >= 16) {
 			/* osd_debug("%s: oid %llu, page %u, number %u, len %u",
 				  __func__, llu(oid), page, number, len); */
 			val = sqlite3_column_blob(stmt, 3);
-			ret = le_pack_attr(tail, alloc_len, page, number, len, 
+			ret = le_pack_attr(tail, alloc_len, page, number, len,
 					   val);
 			assert (ret != -EOVERFLOW);
 			if (ret > 0) {
@@ -392,14 +392,14 @@ int mtq_list_oids_attr(struct db_context *dbc, uint64_t pid,
 			*add_len += roundup8(4+4+2+len);
 		} else {
 			/* terminate since add_len overflew */
-			*add_len = (uint64_t) -1; 
-			ret = SQLITE_DONE; 
+			*add_len = (uint64_t) -1;
+			ret = SQLITE_DONE;
 			break;
 		}
 	}
 	if (ret != SQLITE_DONE) {
 		error_sql(dbc->db, "%s: query execution failed. SQL %s, "
-			  " add_len %llu attr_list_len %u", __func__, SQL, 
+			  " add_len %llu attr_list_len %u", __func__, SQL,
 			  llu(*add_len), attr_list_len);
 		goto out_finalize;
 	}
@@ -432,7 +432,7 @@ out:
  * OSD_ERROR: some other error
  * OSD_OK: success
  */
-int mtq_set_member_attrs(struct db_context *dbc, uint64_t pid, uint64_t cid, 
+int mtq_set_member_attrs(struct db_context *dbc, uint64_t pid, uint64_t cid,
 			 struct setattr_list *set_attr)
 {
 	int ret = 0;
@@ -492,7 +492,7 @@ int mtq_set_member_attrs(struct db_context *dbc, uint64_t pid, uint64_t cid,
 
 	/* bind values */
 	for (i = 0; i < set_attr->sz; i++) {
-		ret = sqlite3_bind_blob(stmt, i+1, set_attr->le[i].cval, 
+		ret = sqlite3_bind_blob(stmt, i+1, set_attr->le[i].cval,
 					set_attr->le[i].len,
 					SQLITE_TRANSIENT);
 		if (ret != SQLITE_OK) {
@@ -519,5 +519,3 @@ out:
 	free(SQL);
 	return ret;
 }
-
-

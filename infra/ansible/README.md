@@ -10,7 +10,7 @@ brew install https://raw.githubusercontent.com/kadwanev/bigboybrew/master/Librar
 
 - On Ubuntu 12.04, run `sudo ./ansible_install.sh`
 
-## Preparing 
+## Preparing
 To configure all prerequisites needed for running the tests, run this command:
 
 ```sh
@@ -21,7 +21,7 @@ Note: you must specify sudo password for this command
 
 ## Running
 
-Modify 'hosts' file to containing your hosts configuration. 
+Modify 'hosts' file to containing your hosts configuration.
 It is currently configured to run on localhost.
 
 and then run:
@@ -59,7 +59,6 @@ Simulator role arguments:
 | `workspace` | Directory where all related projects are located. Defaults to workspace={{ ansible_env.HOME }}|
 | `dest` | Simulator output directory. Defaults to dest={{ workspace }}/simulator |
 | `ref` | Used where git_in_ansible=true, determines which ref to pull from repo. Defaults to ref=refs/heads/master |
-| `build_ssd_monitor` | Determines whether to build ssd_monitor. Defaults to build_ssd_monitor=false |
 | `qemu_pid_file` | Location of pid_file. Defaults to "{{ dest }}/simulator_qemu.pid" |
 | `cleanup_only` | This argument is used internally. Determines if to skip test's preparations steps and to perform cleanup steps only. Defaults to cleanup_only=false |
 

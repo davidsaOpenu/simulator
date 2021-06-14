@@ -1,9 +1,11 @@
-// Copyright(c)2013 
+// Copyright(c)2013
 //
 // Hanyang University, Seoul, Korea
 // Embedded Software Systems Lab. All right reserved
 
 #include "common.h"
+
+#define MAPPING_TABLE_INIT_VAL UINT32_MAX
 
 uint32_t* mapping_table;
 void* block_table_start;
@@ -17,7 +19,7 @@ void INIT_MAPPING_TABLE(void)
 		RERR(, "Calloc mapping table fail\n");
 
 	/* Initialization Mapping Table */
-	
+
 	/* If mapping_table.dat file exists */
 	FILE* fp = fopen("./data/mapping_table.dat","r");
 	if(fp != NULL){
@@ -25,10 +27,10 @@ void INIT_MAPPING_TABLE(void)
 			PERR("fread\n");
 		fclose(fp);
 	}
-	else{	
-		int i;	
+	else{
+		int i;
 		for(i=0;i<PAGE_MAPPING_ENTRY_NB;i++){
-			mapping_table[i] = -1;
+			mapping_table[i] = MAPPING_TABLE_INIT_VAL;
 		}
 	}
 }
@@ -60,7 +62,7 @@ ftl_ret_val GET_NEW_PAGE(int mode, int mapping_index, uint32_t* ppn)
     return gc_algo.next_page(mode, mapping_index, ppn);
 }
 
-ftl_ret_val DEFAULT_NEXT_PAGE_ALGO(int mode, int mapping_index, uint32_t* ppn)
+ftl_ret_val DEFAULT_NEXT_PAGE_ALGO(int mode, uint32_t mapping_index, uint32_t* ppn)
 {
 	empty_block_entry* curr_empty_block;
 
@@ -94,7 +96,7 @@ int UPDATE_OLD_PAGE_MAPPING(uint32_t lpn)
 
 	old_ppn = GET_MAPPING_INFO(lpn);
 
-	if (old_ppn == -1)
+	if (old_ppn == MAPPING_TABLE_INIT_VAL)
 
 		RDBG_FTL(FTL_FAILURE, "New page \n");
 
@@ -102,7 +104,7 @@ int UPDATE_OLD_PAGE_MAPPING(uint32_t lpn)
                                   CALC_BLOCK(old_ppn),
                                   CALC_PAGE(old_ppn),
                                   PAGE_INVALID);
-    UPDATE_INVERSE_PAGE_MAPPING(old_ppn, -1);
+    UPDATE_INVERSE_PAGE_MAPPING(old_ppn, MAPPING_TABLE_INIT_VAL);
 
 	return FTL_SUCCESS;
 }
@@ -133,7 +135,7 @@ unsigned int CALC_FLASH(uint32_t ppn)
 {
 	unsigned int flash_nb = (ppn/PAGE_NB)/BLOCK_NB;
 
-	if(flash_nb >= FLASH_NB){
+	if (flash_nb >= FLASH_NB) {
 		PERR("flash_nb %u\n", flash_nb);
 	}
 	return flash_nb;
