@@ -1,0 +1,78 @@
+{"ChannelSwitchToReadLog":{"channel":1,"metadata":{"logging_start_time":"Fri 2109-09-06 21:52:24","logging_end_time":"Fri 2109-09-06 21:52:24"}}}
+{"RegisterWriteLog":{"channel":1,"die":100,"reg":100,"metadata":{"logging_start_time":"Sun 15583-10-16 14:30:48","logging_end_time":"Sun 15583-10-16 14:30:48"}}}
+{"PhysicalCellProgramLog":{"channel":1,"block":100,"page":100,"metadata":{"logging_start_time":"Sun 15583-10-16 14:30:48","logging_end_time":"Sun 15583-10-16 14:30:48"}}}
+{"GarbageCollectionLog":{}}
+{"ChannelSwitchToReadLog":{"channel":1,"metadata":{"logging_start_time":"Fri 2109-09-06 21:52:24","logging_end_time":"Fri 2109-09-06 21:52:24"}}}
+{"RegisterWriteLog":{"channel":2,"die":100,"reg":100,"metadata":{"logging_start_time":"Sun 15583-10-16 14:30:48","logging_end_time":"Sun 15583-10-16 14:30:48"}}}
+{"PhysicalCellProgramLog":{"channel":2,"block":100,"page":100,"metadata":{"logging_start_time":"Sun 15583-10-16 14:30:48","logging_end_time":"Sun 15583-10-16 14:30:48"}}}
+{"GarbageCollectionLog":{}}
+{"ChannelSwitchToReadLog":{"channel":1,"metadata":{"logging_start_time":"Fri 2109-09-06 21:52:24","logging_end_time":"Fri 2109-09-06 21:52:24"}}}
+{"RegisterWriteLog":{"channel":3,"die":100,"reg":100,"metadata":{"logging_start_time":"Sun 15583-10-16 14:30:48","logging_end_time":"Sun 15583-10-16 14:30:48"}}}
+{"PhysicalCellProgramLog":{"channel":3,"block":100,"page":100,"metadata":{"logging_start_time":"Sun 15583-10-16 14:30:48","logging_end_time":"Sun 15583-10-16 14:30:48"}}}
+{"GarbageCollectionLog":{}}
+{"ChannelSwitchToReadLog":{"channel":1,"metadata":{"logging_start_time":"Fri 2109-09-06 21:52:24","logging_end_time":"Fri 2109-09-06 21:52:24"}}}
+{"RegisterWriteLog":{"channel":4,"die":100,"reg":100,"metadata":{"logging_start_time":"Sun 15583-10-16 14:30:48","logging_end_time":"Sun 15583-10-16 14:30:48"}}}
+{"PhysicalCellProgramLog":{"channel":4,"block":100,"page":100,"metadata":{"logging_start_time":"Sun 15583-10-16 14:30:48","logging_end_time":"Sun 15583-10-16 14:30:48"}}}
+{"GarbageCollectionLog":{}}
+{"BlockEraseLog":{"channel":1,"die":100,"block":100,"metadata":{"logging_start_time":"Sun 15583-10-16 14:30:48","logging_end_time":"Sun 15583-10-16 14:30:48"}}}
+{"GarbageCollectionLog":{}}
+{"BlockEraseLog":{"channel":2,"die":100,"block":100,"metadata":{"logging_start_time":"Sun 15583-10-16 14:30:48","logging_end_time":"Sun 15583-10-16 14:30:48"}}}
+{"GarbageCollectionLog":{}}
+{"BlockEraseLog":{"channel":3,"die":100,"block":100,"metadata":{"logging_start_time":"Sun 15583-10-16 14:30:48","logging_end_time":"Sun 15583-10-16 14:30:48"}}}
+{"GarbageCollectionLog":{}}
+{"BlockEraseLog":{"channel":4,"die":100,"block":100,"metadata":{"logging_start_time":"Sun 15583-10-16 14:30:48","logging_end_time":"Sun 15583-10-16 14:30:48"}}}
+{"GarbageCollectionLog":{}}
+{"PhysicalCellReadLog":{"channel":1,"block":100,"page":100,"metadata":{"logging_start_time":"Sun 15583-10-16 14:30:48","logging_end_time":"Sun 15583-10-16 14:30:48"}}}
+{"GarbageCollectionLog":{}}
+{"PhysicalCellReadLog":{"channel":2,"block":100,"page":100,"metadata":{"logging_start_time":"Sun 15583-10-16 14:30:48","logging_end_time":"Sun 15583-10-16 14:30:48"}}}
+{"GarbageCollectionLog":{}}
+{"PhysicalCellReadLog":{"channel":3,"block":100,"page":100,"metadata":{"logging_start_time":"Sun 15583-10-16 14:30:48","logging_end_time":"Sun 15583-10-16 14:30:48"}}}
+{"GarbageCollectionLog":{}}
+{"PhysicalCellReadLog":{"channel":4,"block":100,"page":100,"metadata":{"logging_start_time":"Sun 15583-10-16 14:30:48","logging_end_time":"Sun 15583-10-16 14:30:48"}}}
+{"GarbageCollectionLog":{}}
+{"ChannelSwitchToReadLog":{"channel":1,"metadata":{"logging_start_time":"Fri 2109-09-06 21:52:24","logging_end_time":"Fri 2109-09-06 21:52:24"}}}
+{"RegisterWriteLog":{"channel":1,"die":100,"reg":100,"metadata":{"logging_start_time":"Sun 15583-10-16 14:30:48","logging_end_time":"Sun 15583-10-16 14:30:48"}}}
+{"PhysicalCellProgramLog":{"channel":1,"block":100,"page":100,"metadata":{"logging_start_time":"Sun 15583-10-16 14:30:48","logging_end_time":"Sun 15583-10-16 14:30:48"}}}
+{"GarbageCollectionLog":{}}
+{"ChannelSwitchToReadLog":{"channel":1,"metadata":{"logging_start_time":"Fri 2109-09-06 21:52:24","logging_end_time":"Fri 2109-09-06 21:52:24"}}}
+{"RegisterWriteLog":{"channel":2,"die":100,"reg":100,"metadata":{"logging_start_time":"Sun 15583-10-16 14:30:48","logging_end_time":"Sun 15583-10-16 14:30:48"}}}
+{"PhysicalCellProgramLog":{"channel":2,"block":100,"page":100,"metadata":{"logging_start_time":"Sun 15583-10-16 14:30:48","logging_end_time":"Sun 15583-10-16 14:30:48"}}}
+{"GarbageCollectionLog":{}}
+{"ChannelSwitchToReadLog":{"channel":1,"metadata":{"logging_start_time":"Fri 2109-09-06 21:52:24","logging_end_time":"Fri 2109-09-06 21:52:24"}}}
+{"RegisterWriteLog":{"channel":3,"die":100,"reg":100,"metadata":{"logging_start_time":"Sun 15583-10-16 14:30:48","logging_end_time":"Sun 15583-10-16 14:30:48"}}}
+{"PhysicalCellProgramLog":{"channel":3,"block":100,"page":100,"metadata":{"logging_start_time":"Sun 15583-10-16 14:30:48","logging_end_time":"Sun 15583-10-16 14:30:48"}}}
+{"GarbageCollectionLog":{}}
+{"ChannelSwitchToReadLog":{"channel":1,"metadata":{"logging_start_time":"Fri 2109-09-06 21:52:24","logging_end_time":"Fri 2109-09-06 21:52:24"}}}
+{"RegisterWriteLog":{"channel":4,"die":100,"reg":100,"metadata":{"logging_start_time":"Sun 15583-10-16 14:30:48","logging_end_time":"Sun 15583-10-16 14:30:48"}}}
+{"PhysicalCellProgramLog":{"channel":4,"block":100,"page":100,"metadata":{"logging_start_time":"Sun 15583-10-16 14:30:48","logging_end_time":"Sun 15583-10-16 14:30:48"}}}
+{"GarbageCollectionLog":{}}
+{"ChannelSwitchToReadLog":{"channel":1,"metadata":{"logging_start_time":"Fri 2109-09-06 21:52:24","logging_end_time":"Fri 2109-09-06 21:52:24"}}}
+{"ChannelSwitchToWriteLog":{"channel":1,"metadata":{"logging_start_time":"Fri 2109-09-06 21:52:24","logging_end_time":"Fri 2109-09-06 21:52:24"}}}
+{"PhysicalCellProgramLog":{"channel":1,"block":100,"page":100,"metadata":{"logging_start_time":"Sun 15583-10-16 14:30:48","logging_end_time":"Sun 15583-10-16 14:30:48"}}}
+{"BlockEraseLog":{"channel":1,"die":100,"block":100,"metadata":{"logging_start_time":"Sun 15583-10-16 14:30:48","logging_end_time":"Sun 15583-10-16 14:30:48"}}}
+{"PhysicalCellProgramLog":{"channel":1,"block":100,"page":100,"metadata":{"logging_start_time":"Sun 15583-10-16 14:30:48","logging_end_time":"Sun 15583-10-16 14:30:48"}}}
+{"LogicalCellProgramLog":{"channel":1,"block":100,"page":100,"metadata":{"logging_start_time":"Sun 15583-10-16 14:30:48","logging_end_time":"Sun 15583-10-16 14:30:48"}}}
+{"GarbageCollectionLog":{}}
+{"ChannelSwitchToReadLog":{"channel":1,"metadata":{"logging_start_time":"Fri 2109-09-06 21:52:24","logging_end_time":"Fri 2109-09-06 21:52:24"}}}
+{"ChannelSwitchToWriteLog":{"channel":2,"metadata":{"logging_start_time":"Tue 2245-10-14 04:20:40","logging_end_time":"Tue 2245-10-14 04:20:40"}}}
+{"PhysicalCellProgramLog":{"channel":2,"block":100,"page":100,"metadata":{"logging_start_time":"Sun 15583-10-16 14:30:48","logging_end_time":"Sun 15583-10-16 14:30:48"}}}
+{"BlockEraseLog":{"channel":2,"die":100,"block":100,"metadata":{"logging_start_time":"Sun 15583-10-16 14:30:48","logging_end_time":"Sun 15583-10-16 14:30:48"}}}
+{"PhysicalCellProgramLog":{"channel":2,"block":100,"page":100,"metadata":{"logging_start_time":"Sun 15583-10-16 14:30:48","logging_end_time":"Sun 15583-10-16 14:30:48"}}}
+{"LogicalCellProgramLog":{"channel":2,"block":100,"page":100,"metadata":{"logging_start_time":"Sun 15583-10-16 14:30:48","logging_end_time":"Sun 15583-10-16 14:30:48"}}}
+{"GarbageCollectionLog":{}}
+{"ChannelSwitchToReadLog":{"channel":1,"metadata":{"logging_start_time":"Fri 2109-09-06 21:52:24","logging_end_time":"Fri 2109-09-06 21:52:24"}}}
+{"ChannelSwitchToWriteLog":{"channel":3,"metadata":{"logging_start_time":"Fri 2381-11-20 09:48:56","logging_end_time":"Fri 2381-11-20 09:48:56"}}}
+{"PhysicalCellProgramLog":{"channel":3,"block":100,"page":100,"metadata":{"logging_start_time":"Sun 15583-10-16 14:30:48","logging_end_time":"Sun 15583-10-16 14:30:48"}}}
+{"BlockEraseLog":{"channel":3,"die":100,"block":100,"metadata":{"logging_start_time":"Sun 15583-10-16 14:30:48","logging_end_time":"Sun 15583-10-16 14:30:48"}}}
+{"PhysicalCellProgramLog":{"channel":3,"block":100,"page":100,"metadata":{"logging_start_time":"Sun 15583-10-16 14:30:48","logging_end_time":"Sun 15583-10-16 14:30:48"}}}
+{"LogicalCellProgramLog":{"channel":3,"block":100,"page":100,"metadata":{"logging_start_time":"Sun 15583-10-16 14:30:48","logging_end_time":"Sun 15583-10-16 14:30:48"}}}
+{"GarbageCollectionLog":{}}
+{"ChannelSwitchToReadLog":{"channel":1,"metadata":{"logging_start_time":"Fri 2109-09-06 21:52:24","logging_end_time":"Fri 2109-09-06 21:52:24"}}}
+{"ChannelSwitchToWriteLog":{"channel":4,"metadata":{"logging_start_time":"Mon 2517-12-27 16:17:12","logging_end_time":"Mon 2517-12-27 16:17:12"}}}
+{"PhysicalCellProgramLog":{"channel":4,"block":100,"page":100,"metadata":{"logging_start_time":"Sun 15583-10-16 14:30:48","logging_end_time":"Sun 15583-10-16 14:30:48"}}}
+{"PhysicalCellProgramLog":{"channel":4,"block":100,"page":100,"metadata":{"logging_start_time":"Sun 15583-10-16 14:30:48","logging_end_time":"Sun 15583-10-16 14:30:48"}}}
+{"PhysicalCellProgramLog":{"channel":4,"block":100,"page":100,"metadata":{"logging_start_time":"Sun 15583-10-16 14:30:48","logging_end_time":"Sun 15583-10-16 14:30:48"}}}
+{"BlockEraseLog":{"channel":4,"die":100,"block":100,"metadata":{"logging_start_time":"Sun 15583-10-16 14:30:48","logging_end_time":"Sun 15583-10-16 14:30:48"}}}
+{"PhysicalCellProgramLog":{"channel":4,"block":100,"page":100,"metadata":{"logging_start_time":"Sun 15583-10-16 14:30:48","logging_end_time":"Sun 15583-10-16 14:30:48"}}}
+{"LogicalCellProgramLog":{"channel":4,"block":100,"page":100,"metadata":{"logging_start_time":"Sun 15583-10-16 14:30:48","logging_end_time":"Sun 15583-10-16 14:30:48"}}}
+{"GarbageCollectionLog":{}}
