@@ -3,6 +3,8 @@ set -e
 
 declare -x EVSSIM_DOCKER_UUID
 
+xhost +
+
 # Verify environment is loaded
 if [ -z $EVSSIM_ENVIRONMENT ]; then
     echo "ERROR Builder not running in evssim environment. Please execute 'source ./env.sh' first"

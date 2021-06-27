@@ -28,8 +28,8 @@ RUN apt-get update && DEBIAN_FRONTEND=noninteractive apt-get -y install \
   libboost-all-dev \
   eatmydata \
   strace \
-  lsof
-
+  lsof \
+  eclipse-cdt
 
 # Install build packages
 RUN apt-get update && DEBIAN_FRONTEND=noninteractive apt-get -y install \
