@@ -141,8 +141,6 @@ static uint8_t do_rw_prp(NVMEState *n, uint64_t mem_addr, uint64_t *data_size_p,
         return FAIL;
     }
 
-    printMemoryDump(mapping_addr + *file_offset_p,data_len);
-
     *file_offset_p = *file_offset_p + data_len;
     *data_size_p = *data_size_p - data_len;
     return NVME_SC_SUCCESS;
