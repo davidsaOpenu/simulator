@@ -1,0 +1,38 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "bbf9f4a4_b4f21651",
+        "filename": "infra/ansible/roles/guest_tester/tasks/main.yml",
+        "patchSetId": 1
+      },
+      "lineNbr": 1,
+      "author": {
+        "id": 1007990
+      },
+      "writtenOn": "2021-07-13T07:06:26Z",
+      "side": 1,
+      "message": "seems we have no need in this anymore",
+      "revId": "b390efdbe708a3fcf651387203299856e51c5ea0",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "3dc8b2f4_b11532c3",
+        "filename": "infra/builder/run-ci.sh",
+        "patchSetId": 1
+      },
+      "lineNbr": 21,
+      "author": {
+        "id": 1007990
+      },
+      "writtenOn": "2021-07-13T07:06:26Z",
+      "side": 1,
+      "message": "let\u0027s remove the comments in those 3 lines",
+      "revId": "b390efdbe708a3fcf651387203299856e51c5ea0",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
+    }
+  ]
+}
