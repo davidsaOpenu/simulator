@@ -21,3 +21,4 @@ export EVSSIM_RUNTIME_ALWAYS_RESET=yes
 ./docker-run-sanity.sh
 ./docker-test-host.sh
 ./docker-test-guest.sh
+./install_elk.sh
