@@ -6,6 +6,7 @@ guest_test() {
     local strategy=$2
     local simulator=$3
     local test_name=$4
+    local nose_tests=$5
 
     test_index=$(($test_index+1))
 
@@ -18,7 +19,11 @@ guest_test() {
     # Run tests inside the guest
     echo "INFO Running test id=$test_index strategy=$strategy simulator=$simulator test=$test_name"
     set +e
-    evssim_guest "cd ./guest; mkdir Logs; sudo VSSIM_NEXTGEN_BUILD_SYSTEM=1 nosetests -v --with-xunit --xunit-file=guest_tests_results.xml $test_name"
+    if [ $nose_tests -ne 0 ]; then
+        evssim_guest "cd ./guest; mkdir Logs; sudo VSSIM_NEXTGEN_BUILD_SYSTEM=1 nosetests -v --with-xunit --xunit-file=guest_tests_results.xml $test_name"
+    else
+        evssim_guest "cd ./guest; mkdir Logs; sudo VSSIM_NEXTGEN_BUILD_SYSTEM=1 py.test -v --junit-xml=./Logs/results.xml --capture=sys $test_name"
+    fi
     test_rc=$?
     set -e
 
@@ -42,8 +47,9 @@ guest_test() {
 test_directory_base="$EVSSIM_DOCKER_ROOT_PATH/$EVSSIM_LOGS_FOLDER/tests/$(date +'%Y-%m-%d-%H-%M-%S')"
 
 # Run disk tests
-guest_test "$test_directory_base" 1 on nvme_compliance_tests
-guest_test "$test_directory_base" 1 on fio_tests
+guest_test "$test_directory_base" 1 on nvme_compliance_tests 1
+guest_test "$test_directory_base" 1 on fio_tests 1
+guest_test "$test_directory_base" 2 on objects_via_ioctl 0
 
 # Run simulator specific tests (With different strategies)
 # NOTE This is mock for future tests
