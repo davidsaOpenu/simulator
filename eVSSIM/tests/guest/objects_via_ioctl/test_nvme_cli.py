@@ -8,7 +8,7 @@ import pytest
 
 
 BLOCK_SIZE = 512
-MAGIC = 'eVSSIM_MAGIC{object_id}_{partition_id}'
+MAGIC = 'eVSSIM_MAGIC{object_id}_{partition_id}!'
 
 
 MetaData = collections.namedtuple('MetaData', ['path', 'size'])
@@ -49,6 +49,7 @@ def metadata(object_id, partition_id):
     md = MAGIC.format(object_id=object_id, partition_id=partition_id)
     with tempfile.NamedTemporaryFile() as result:
         result.write(md)
+        result.flush()
         yield MetaData(path=result.name, size=len(md))
 
 
@@ -118,7 +119,7 @@ def device(request):
     return NvmeDevice(DEVICE_NAME, request.config.getoption('--nvme-cli-dir'))
 
 
-@pytest.fixture(params=[10 ** i for i in xrange(4)])
+@pytest.fixture(params=[(BLOCK_SIZE * 2) * i for i in xrange(2, 6)])
 def size(request):
     return request.param
 
@@ -137,11 +138,18 @@ class TestNvmeCli(object):
         """
         Test writing and reading random data to a random partition.
         """
+        os.system(
+            "sudo rmmod nvme; sudo insmod $(sudo find / -name 'nvme*ko') strategy=1;")
 
         partition = NvmeDevice.partition()
 
         for oid in xrange(1, count + 1):
-            with metadata(oid, partition) as md, data(size) as input:
+            with metadata(oid, partition) as md, data(size) as input, data(size / 2) as m_input:
                 device.write(md, input)
-                with open(input, 'rb') as src:
+                with open(input, 'rb+') as src, open(m_input, 'rb') as m_src:
+                    assert src.read() == device.read(md, size)
+                    src.seek(0)
+                    src.write(m_src.read())
+                    device.write(md, m_input)
+                    src.seek(0)
                     assert src.read() == device.read(md, size)
