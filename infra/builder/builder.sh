@@ -309,17 +309,44 @@ evssim_qemu_fresh_image () {
     evssim_copy_tools
 }
 
+# Get the amount of pages per block from ssd.conf
+# Prepare fio files (which later will be copied to guest) accordingly:
+#   Write 2**0 blocks
+#   Write 2**1 blocks
+#   ...
+#   Write 2**n blocks
+# And also for read
+#   Read 2**0 blocks
+#   Read 2**1 blocks
+#   ...
+#   Read 2**n blocks
+# Finally, for both read/write
+evssim_prepare_fio_bandwidth_files () {
+    # Generate the ssd config
+    evssim_build_ssd_conf > $EVSSIM_ROOT_PATH/$EVSSIM_SIMULATOR_FOLDER/eVSSIM/tests/fio_bandwidth/ssd.conf
+
+    # First clean the out directory
+    evssim_run_at_folder $EVSSIM_SIMULATOR_FOLDER/eVSSIM/tests/fio_bandwidth 'rm -rf output ; mkdir output'
+
+    # Then, generate all the fio files using the helper python scripts 
+    evssim_run_at_folder $EVSSIM_SIMULATOR_FOLDER/eVSSIM/tests/fio_bandwidth "python generate_fio.py"
+}
+
 # Copy NVME tools into the QEMU image
 # Copy into an offline image using mounting of the qemu image.
 # Parameters - None
 # Example
 #   evssim_guest ls -al
 evssim_copy_tools () {
+    evssim_prepare_fio_bandwidth_files
+
     evssim_run_mounted "mkdir -p guest && cp -Rt guest \
         $EVSSIM_DOCKER_ROOT_PATH/$EVSSIM_DIST_FOLDER/nvme \
         $EVSSIM_DOCKER_ROOT_PATH/$EVSSIM_DIST_FOLDER/tnvme \
         $EVSSIM_DOCKER_ROOT_PATH/$EVSSIM_DIST_FOLDER/dnvme.ko \
-        $EVSSIM_DOCKER_ROOT_PATH/$EVSSIM_SIMULATOR_FOLDER/eVSSIM/tests/guest/*"
+        $EVSSIM_DOCKER_ROOT_PATH/$EVSSIM_SIMULATOR_FOLDER/eVSSIM/tests/guest/* \
+        $EVSSIM_DOCKER_ROOT_PATH/$EVSSIM_SIMULATOR_FOLDER/eVSSIM/tests/elk/* \
+        $EVSSIM_DOCKER_ROOT_PATH/$EVSSIM_SIMULATOR_FOLDER/eVSSIM/tests/fio_bandwidth"
 
     evssim_run_mounted sudo rsync -qrptgo $EVSSIM_DOCKER_ROOT_PATH/$EVSSIM_DIST_FOLDER/kernel/lib/ $EVSSIM_GUEST_MOUNT_POINT/lib/
 }
