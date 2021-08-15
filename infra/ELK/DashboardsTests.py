@@ -29,7 +29,7 @@ class Dashboard_Test():
 		os.remove(csv_file)
 	
 	    # Parse time from string to datetime by format
-		self.JsonLog_DF .logging_time = pd.to_datetime(self.JsonLog_DF .logging_time,format="%Y-%m-%d %H:%M:%S.%f")
+		self.JsonLog_DF.logging_time = pd.to_datetime(self.JsonLog_DF .logging_time,format="%Y-%m-%d %H:%M:%S.%f")
 		PhysicalCellProgramLog_Dasboard['@timestamp per 100 milliseconds'] = pd.to_datetime(PhysicalCellProgramLog_Dasboard['@timestamp per 100 milliseconds'], format="%H:%M:%S.%f")
 		
 		# We are loading the logs from the ELK and it doesn't supply the year, month and day so we need to add them manually for the equality

@@ -1,0 +1,12 @@
+FROM python:3
+WORKDIR /Testing
+COPY requirements.txt .
+
+# install dependencies
+RUN pip install -r requirements.txt
+
+# copy the content of the local src directory to the working directory
+COPY *.py /Testing/
+
+CMD ["get_kibana_stats.py"]
+ENTRYPOINT ["python3"]
