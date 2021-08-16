@@ -14,7 +14,7 @@ from selenium.webdriver.common.action_chains import ActionChains
 
 import pandas as pd
 
-sleep_time = 3
+sleep_time = 5
 
 def is_port_in_use(port):
     import socket
@@ -23,7 +23,7 @@ def is_port_in_use(port):
 
 class SeleniumDriver:
     def __init__(self):
-        self.chrome_path=chromedriver_path
+        pass
 
     def create_driver(self):
         # To prevent download dialog
@@ -35,7 +35,6 @@ class SeleniumDriver:
         profile.set_preference("browser.helperApps.neverAsk.saveToDisk","text/plain, application/octet-stream, application/binary, text/csv, application/csv, application/excel, text/comma-separated-values, text/xml, application/xml")
         profile.set_preference("browser.download.manager.showWhenStarting", False)
         profile.set_preference("browser.preferences.instantApply", True)
-        #profile.set_preference("browser.helperApps.neverAsk.openFile","application/octet-stream;text/csv;text/plain");
         profile.set_preference("browser.helperApps.alwaysAsk.force", False)
         profile.set_preference("browser.download.manager.useWindow", False)
         profile.set_preference("browser.download.manager.focusWhenStarting", False)
@@ -105,9 +104,9 @@ class DashboardExporter:
         self.driver = kibanaLogin.loginPage()
         self.container_csv_dir = container_csv_dir
         self.host_csv_dir = host_csv_dir
-    def __del__(self):
-        #self.driver.quit()
-        pass
+    def __de__(self):
+        self.driver.quit()
+
     def scroll_shim(self, passed_in_driver, object):
         x = object.location['x']
         y = object.location['y']
@@ -122,78 +121,66 @@ class DashboardExporter:
     def firefox_button_click(self, button_elemnt):
         if 'firefox' in self.driver.capabilities['browserName']:
             self.scroll_shim(self.driver, button_elemnt)
+
         # scroll_shim is just scrolling it into view, you still need to hover over it to click using an action chain.
         actions = ActionChains(self.driver)
         actions.move_to_element(button_elemnt)
         actions.click()
         actions.perform()
+
     def copy_from_container_to_exports_dir(self): 
-        find_id = "nsenter -t 1 -m -u -n -i sh -c \"docker ps | awk '\\$2 ~ /^selenium/ { print \\$1 }\'\""
-        id = os.popen(find_id).read().strip()
+
+        # Get docker id, run the command on host, same as the next commmand
+        id = os.popen("nsenter -t 1 -m -u -n -i sh -c \"docker ps | awk '\\$2 ~ /^selenium/ { print \\$1 }\'\"").read().strip()
 
         # Copy from seluser directory to exports
-        print("Copying files from selenium container id " + id + " +  to host") 
+        print("Copying files from selenium container id " + id + " + to host") 
 
         # Copy the files, execute the cp command on host from container using some trick to get the permissions, docker run shuold be with --privileged for this to work
         os.popen("nsenter -t 1 -m -u -n -i sh -c \"docker cp " + id + ":/home/seluser " + self.host_csv_dir + "\"").read().strip()
 
-        #os.popen("mv " + os.path.join(self.host_csv_dir,"seluser") + "/*.csv " + self.host_csv_dir)
     def get_dashboard_csv(self,dashboard_path, dashboard_name):
+        print("Downloading Dashboard as CSV: " + dashboard_name)
 
         #Time it takes for the visualization to load, validate in server. Searching for HTML element isn't enough, data needs to be loaded
         sleep(sleep_time)
         self.driver.get(dashboard_path)
 
-        print("Taking screenshot")
+        sleep(sleep_time)
 
-        p = self.driver.get_screenshot_as_png()
-
-        sleep(6)
-        #p = self.driver.get_screenshot_as_png()
-        #with open("/logs/screenshot.png", "wb") as f:
-        #    f.write(p)
-        # Consider changing sleeps' to WebDriverWait
         #Open Panel menu
         self.driver.maximize_window()
-
+        print("Finding options button")
         self.firefox_button_click(self.driver.find_element_by_xpath("//button[@aria-label='Panel options for " + dashboard_name + "\']"))
 
-        #button = WebDriverWait(self.driver).until(EC.element_to_be_clickable((By.XPATH,"//button[@aria-label='Panel options for " + dashboard_name + "\']")))
-        #ActionChains(self.driver).move_to_element().click().perform()
-
-        #button = self.driver.find_element_by_xpath("//button[@aria-label='Panel options for " + dashboard_name + "\']")
-        #button.click()
         sleep(sleep_time)
         
-        #p = self.driver.get_screenshot_as_png()
-        #with open("/logs/screenshot2.png", "wb") as f:
-        #    f.write(p)
-
         #Click More button
+        print("Clicking More button")
+
         button = self.driver.find_element_by_xpath("//button[@class='euiContextMenuItem'][.='More']")
-        #button.click()
+
         self.firefox_button_click(button)
-        #sleep(sleep_time)
-        #p = self.driver.get_screenshot_as_png()
-        #with open("/logs/screenshot3.png", "wb") as f:
-        #    f.write(p)
+
         sleep(sleep_time)
 
         #Click Download as CSV
-        #<button class="euiContextMenuItem" type="button" data-test-subj="embeddablePanelAction-ACTION_EXPORT_CSV"><span class="euiContextMenu__itemLayout"><svg width="16" height="16" viewBox="0 0 16 16" xmlns="http://www.w3.org/2000/svg" class="euiIcon euiIcon--medium euiIcon-isLoaded euiContextMenu__icon" focusable="false" role="img" aria-hidden="true"><path d="M8.505 1c.422-.003.844.17 1.166.516l1.95 2.05c.213.228.213.6 0 .828a.52.52 0 01-.771 0L9 2.451v7.993c0 .307-.224.556-.5.556s-.5-.249-.5-.556v-7.96l-1.82 1.91a.52.52 0 01-.77 0 .617.617 0 010-.829l1.95-2.05A1.575 1.575 0 018.5 1h.005zM4.18 7c-.473 0-.88.294-.972.703l-1.189 5.25a.776.776 0 00-.019.172c0 .483.444.875.99.875H14.01c.065 0 .13-.006.194-.017.537-.095.885-.556.778-1.03l-1.19-5.25C13.7 7.294 13.293 7 12.822 7H4.18zM6 6v1h5V6h1.825c.946 0 1.76.606 1.946 1.447l1.19 5.4c.215.975-.482 1.923-1.556 2.118a2.18 2.18 0 01-.39.035H2.985C1.888 15 1 14.194 1 13.2c0-.119.013-.237.039-.353l1.19-5.4C2.414 6.606 3.229 6 4.174 6H6z"></path></svg><span class="euiContextMenuItem__text">Download as CSV</span></span></button>
+        print("Clicking download as CSV button")
         button = self.driver.find_element_by_xpath("//button[@data-test-subj='embeddablePanelAction-ACTION_EXPORT_CSV']")
         self.firefox_button_click(button)
 
-        #button.click()
         sleep(sleep_time)
-        #self.driver.quit()
 
         self.copy_from_container_to_exports_dir()
 
         #return handle to csv file
         csv_file = os.path.join(self.container_csv_dir, dashboard_name) + ".csv"
 
+        print("Finished downloading Dashboard as CSV: " + dashboard_name)
+
+
         print(csv_file)
-        print(open(csv_file,"r").read(20))
+        print("Log begin: " + open(csv_file,"r").read(20))
+
 
         return csv_file

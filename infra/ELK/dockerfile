@@ -6,7 +6,7 @@ COPY requirements.txt .
 RUN pip install -r requirements.txt
 
 # copy the content of the local src directory to the working directory
-COPY *.py /Testing/
+COPY DashboardsTests.py get_kibana_stats.py  SeleniumUtils.py ./
 
 CMD ["get_kibana_stats.py"]
 ENTRYPOINT ["python3"]
