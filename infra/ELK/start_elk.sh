@@ -49,23 +49,4 @@ docker pull docker.elastic.co/beats/filebeat:7.14.0
 docker run docker.elastic.co/beats/filebeat:7.14.0 setup -E setup.kibana.host=localhost:5601 -E output.elasticsearch.hosts=["localhost:9200"]  
 docker run -d --network host --volume=$1"/filebeat.yml:/usr/share/filebeat/filebeat.yml:ro" --volume="/var/lib/docker/containers:/var/lib/docker/containers:ro"  --volume="/var/run/docker.sock:/var/run/docker.sock:ro"  --volume=$1"/logs:/logs" docker.elastic.co/beats/filebeat:7.14.0 filebeat -e -strict.perms=false -E output.elasticsearch.hosts=["127.0.0.1:9200"]  
 
-########################################
-
-python3 check_count.py $1 $2
-
-# Create directory for CSV exports
-mkdir exports
-
-# Upload dashboards' setting 
-curl -X POST "http://localhost:5601/api/saved_objects/_import" -H "kbn-xsrf: true" -H "securitytenant: global" --form file=@real_logs_dashboard.ndjson -u elastic:changeme
-
-# Start   
-docker run -d  --network host --shm-size="2g" selenium/standalone-firefox:4.0.0-rc-1-prerelease-20210804
-
-# Shell on container 
-# docker exec -t -i 5cb14ca924db /bin/bash
-
-docker build -t automated_testing .
-docker run  --privileged --pid=host --network host -v $1/logs:/logs -v $1/exports/seluser:/exports -i -t automated_testing $1 $2
-
-
+echo "ELK Is ready to use! put your logs in "$1"/logs directory and they will be loaded to ELK"

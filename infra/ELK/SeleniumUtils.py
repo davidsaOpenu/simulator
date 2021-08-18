@@ -14,7 +14,7 @@ from selenium.webdriver.common.action_chains import ActionChains
 
 import pandas as pd
 
-sleep_time = 5
+sleep_time = 10
 
 def is_port_in_use(port):
     import socket
@@ -30,6 +30,7 @@ class SeleniumDriver:
         profile = webdriver.FirefoxProfile()
         firefox_options = webdriver.FirefoxOptions()
 
+        # Probably some of the are unncesary but you shouldn't check
         profile.set_preference("browser.download.folderList",2)
         profile.set_preference('browser.download.dir', '/home/seluser')
         profile.set_preference("browser.helperApps.neverAsk.saveToDisk","text/plain, application/octet-stream, application/binary, text/csv, application/csv, application/excel, text/comma-separated-values, text/xml, application/xml")
@@ -42,7 +43,6 @@ class SeleniumDriver:
         profile.set_preference("browser.download.manager.closeWhenDone", True)
 
         firefox_options.profile = profile
-
 
         try:
             print("Creating remote selenium driver")
@@ -151,12 +151,15 @@ class DashboardExporter:
         #Open Panel menu
         self.driver.maximize_window()
         print("Finding options button")
+        #WebDriverWait(self.driver,10).until(EC.presence_of_element_located((By.XPATH,"//button[@class='euiContextMenuItem'][.='More']")))
+
         self.firefox_button_click(self.driver.find_element_by_xpath("//button[@aria-label='Panel options for " + dashboard_name + "\']"))
 
         sleep(sleep_time)
         
         #Click More button
         print("Clicking More button")
+
 
         button = self.driver.find_element_by_xpath("//button[@class='euiContextMenuItem'][.='More']")
 
@@ -166,6 +169,8 @@ class DashboardExporter:
 
         #Click Download as CSV
         print("Clicking download as CSV button")
+        #WebDriverWait(self.driver,10).until(EC.presence_of_element_located((By.XPATH,"//button[@data-test-subj='embeddablePanelAction-ACTION_EXPORT_CSV']")))
+
         button = self.driver.find_element_by_xpath("//button[@data-test-subj='embeddablePanelAction-ACTION_EXPORT_CSV']")
         self.firefox_button_click(button)
 

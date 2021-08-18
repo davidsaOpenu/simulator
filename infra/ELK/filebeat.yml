@@ -2,7 +2,7 @@ filebeat.inputs:
 - type: log
   enabled: true
   paths:
-    - /Users/ilank/Documents/Openu/OSW/*_log.json
+    - /logs/*_log.json
   json.keys_under_root: true  
   json.add_error_key: true  
 filebeat.config.modules:
