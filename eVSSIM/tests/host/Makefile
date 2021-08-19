@@ -7,24 +7,27 @@ VSSIM_OBJ = vssim_config_manager.o \
 			logging_backend.o logging_parser.o logging_rt_analyzer.o logging_offline_analyzer.o \
 			logging_manager.o logging_server.o logging_statistics.o
 
-CFLAGS = -I/opt/gtest/include -I$(VSSIM_HOME)/osc-osd -I$(VSSIM_HOME)/osc-osd/osd-target -I$(VSSIM_HOME)/QEMU -g -DGTEST -DCOMPLIANCE_TESTS -L/opt/gtest/lib -L$(VSSIM_HOME)/osc-osd/osd-util -L$(VSSIM_HOME)/osc-osd/osd-target -I/opt/libwebsockets/include -L/opt/libwebsockets/lib -Wl,-R/opt/libwebsockets/lib -g -m64 -pipe -O2 -Wall -W -D_REENTRANT -fPIE -DQT_NO_DEBUG -DQT_WIDGETS_LIB -DQT_NETWORK_LIB -DQT_GUI_LIB -DQT_CORE_LIB
+CFLAGS = -I/opt/gtest/include -I$(VSSIM_HOME)/osc-osd -I$(VSSIM_HOME)/osc-osd/osd-target -I$(VSSIM_HOME)/QEMU -g -DGTEST -DCOMPLIANCE_TESTS -L/opt/gtest/lib -L$(VSSIM_HOME)/osc-osd/osd-util -L$(VSSIM_HOME)/osc-osd/osd-target -I/opt/libwebsockets/include -L/opt/libwebsockets/lib -Wl,-R/opt/libwebsockets/lib -g -m64 -pipe -O2 -Wall -W -D_REENTRANT -fPIE -DQT_NO_DEBUG -DQT_WIDGETS_LIB -DQT_NETWORK_LIB -DQT_GUI_LIB -DQT_CORE_LIB -I/usr/include/json-c/ -D__STDC_VERSION__=0
 
-all: sector_tests object_tests log_mgr_tests ssd_io_emulator_tests
+all: offline_logger_tests sector_tests object_tests log_mgr_tests ssd_io_emulator_tests
 
 sector_tests: sector_tests.o $(VSSIM_OBJ)
-	g++ $(CFLAGS) -Wall -Werror -o sector_tests sector_tests.o $(VSSIM_OBJ) -lpthread -lgtest -lgtest_main -losdutil -losdtgt -lsqlite3 -lwebsockets
+	g++ $(CFLAGS) -Wall -Werror -o sector_tests sector_tests.o $(VSSIM_OBJ) -lpthread -lgtest -lgtest_main -losdutil -losdtgt -lsqlite3 -lwebsockets -ljson-c
 
 object_tests: object_tests.o $(VSSIM_OBJ)
-	g++ $(CFLAGS) -Wall -Werror -o object_tests object_tests.o $(VSSIM_OBJ) -Wl,-Bstatic -L$(VSSIM_HOME)/osc-osd/osd-util -L$(VSSIM_HOME)/osc-osd/osd-target -losdutil -losdtgt -Wl,-Bdynamic -lsqlite3 -lm -lpthread -lgtest -lgtest_main -lwebsockets
+	g++ $(CFLAGS) -Wall -Werror -o object_tests object_tests.o $(VSSIM_OBJ) -Wl,-Bstatic -L$(VSSIM_HOME)/osc-osd/osd-util -L$(VSSIM_HOME)/osc-osd/osd-target -losdutil -losdtgt -Wl,-Bdynamic -lsqlite3 -lm -lpthread -lgtest -lgtest_main -lwebsockets -ljson-c
 
 log_mgr_tests: log_mgr_tests.o $(VSSIM_OBJ) rt_analyzer_subscriber.o log_manager_subscriber.o
-	g++ $(CFLAGS) -Wall -Werror -o log_mgr_tests log_mgr_tests.o rt_analyzer_subscriber.o log_manager_subscriber.o $(VSSIM_OBJ) -L/usr/X11R6/lib64 -lXext -lX11 -lm -lpthread -lgtest -lgtest_main -losdutil -losdtgt -lsqlite3 -lwebsockets -L/usr/lib/x86_64-linux-gnu
+	g++ $(CFLAGS) -Wall -Werror -o log_mgr_tests log_mgr_tests.o rt_analyzer_subscriber.o log_manager_subscriber.o $(VSSIM_OBJ) -L/usr/X11R6/lib64 -lXext -lX11 -lm -lpthread -lgtest -lgtest_main -losdutil -losdtgt -lsqlite3 -lwebsockets -L/usr/lib/x86_64-linux-gnu -ljson-c
 
 ssd_io_emulator_tests: ssd_io_emulator_tests.o $(VSSIM_OBJ)
-	g++ $(CFLAGS) -Wall -Werror -o ssd_io_emulator_tests ssd_io_emulator_tests.o $(VSSIM_OBJ) -lpthread -lgtest -lgtest_main -losdutil -losdtgt -lsqlite3 -lwebsockets
+	g++ $(CFLAGS) -Wall -Werror -o ssd_io_emulator_tests ssd_io_emulator_tests.o $(VSSIM_OBJ) -lpthread -lgtest -lgtest_main -losdutil -losdtgt -lsqlite3 -lwebsockets -ljson-c
+
+offline_logger_tests: offline_logger_tests.o $(VSSIM_OBJ)
+	g++ $(CFLAGS) -Wall -Werror -o offline_logger_tests offline_logger_tests.o $(VSSIM_OBJ) -lpthread -lgtest -lgtest_main -losdutil -losdtgt -lsqlite3 -lwebsockets -ljson-c
 
 %.o: %.cc
-	g++ -Wall -Werror $(CFLAGS) -c $<
+	g++ -Wall -Werror $(CFLAGS) -std=c++11 -c $<
 
 %.o: %.c
 	gcc -Wall -Werror $(CFLAGS) -c $<
@@ -32,7 +35,7 @@ ssd_io_emulator_tests: ssd_io_emulator_tests.o $(VSSIM_OBJ)
 .PHONY: clean distclean mklink
 
 clean:
-	rm -f object_tests sector_tests log_mgr_tests object_tests.o sector_tests.o log_mgr_tests.o ssd_io_emulator_tests.o rt_analyzer_subscriber.o log_manager_subscriber.o $(VSSIM_OBJ) data/*
+	rm -f offline_logger_tests object_tests sector_tests log_mgr_tests object_tests.o sector_tests.o log_mgr_tests.o ssd_io_emulator_tests.o rt_analyzer_subscriber.o log_manager_subscriber.o offline_logger_tests.o $(VSSIM_OBJ) data/*
 
 distclean: clean
 	rm -rf   ssd_io_manager.h ssd_io_manager.c ssd_log_manager.h ssd_log_manager.c ssd_util.h \
