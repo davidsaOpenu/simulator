@@ -31,6 +31,12 @@ if [ $CURR_RESULT -ne 0 ]; then
   RESULT=1
 fi
 
+./offline_logger_tests
+CURR_RESULT=$?
+if [ $CURR_RESULT -ne 0 ]; then
+  RESULT=1
+fi
+
 exit $RESULT
 
 
