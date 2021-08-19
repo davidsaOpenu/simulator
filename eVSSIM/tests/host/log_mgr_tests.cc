@@ -140,7 +140,7 @@ namespace log_mgr_tests {
     TEST_P(LogMgrUnitTest, NormalStringWriteRead) {
         ASSERT_EQ(0, logger_write(_logger, (Byte*) TEST_STRING, sizeof(TEST_STRING)));
         char res[2 * sizeof(TEST_STRING)];
-        ASSERT_EQ(sizeof(TEST_STRING), logger_read(_logger, (Byte*) res, sizeof(TEST_STRING)));
+        ASSERT_EQ(sizeof(TEST_STRING), logger_read(_logger, (Byte*) res, sizeof(TEST_STRING), 1));
         ASSERT_STREQ(res, TEST_STRING);
     }
     /**
@@ -155,8 +155,8 @@ namespace log_mgr_tests {
         for (unsigned int i = 0; i < ((LOG_SIZE)-1); i++)
             ASSERT_EQ(0, logger_write(_logger, &placeholder, 1));
         for (unsigned int i = 0; i < ((LOG_SIZE)-1); i++)
-            ASSERT_EQ(1, logger_read(_logger, (Byte *)res, 1));
-        ASSERT_EQ(0, logger_read(_logger, (Byte *)res, 5));
+            ASSERT_EQ(1, logger_read(_logger, (Byte *)res, 1, 1));
+        ASSERT_EQ(0, logger_read(_logger, (Byte *)res, 5, 1));
     }
     /**
      * Test filling all the allocated log's with test string and reading it back:
@@ -176,7 +176,7 @@ namespace log_mgr_tests {
                 i < (unsigned int)((LOG_SIZE * _logger->number_of_allocated_logs)/sizeof(TEST_STRING));
                 i++)
         {
-            ASSERT_EQ(sizeof(TEST_STRING), logger_read(_logger, (Byte*) res, sizeof(TEST_STRING)));
+            ASSERT_EQ(sizeof(TEST_STRING), logger_read(_logger, (Byte*) res, sizeof(TEST_STRING), 1));
             ASSERT_STREQ(res, TEST_STRING);
             memset(res,0, sizeof(TEST_STRING));
         }
@@ -225,7 +225,7 @@ namespace log_mgr_tests {
         }
         // read full log
         for (unsigned long int i = 0; i < (LOG_SIZE * _logger->number_of_allocated_logs); i++) {
-            ASSERT_EQ(1, logger_read(_logger, (Byte*)read_res, 1));
+            ASSERT_EQ(1, logger_read(_logger, (Byte*)read_res, 1, 1));
         }
 
         // save this number to make sure that logger clean function
@@ -257,7 +257,7 @@ namespace log_mgr_tests {
 
         // read half log
         for (unsigned long int i = 0; i < ((LOG_SIZE * _logger->number_of_allocated_logs)/2); i++) {
-            ASSERT_EQ(1, logger_read(_logger, (Byte*)read_res, 1));
+            ASSERT_EQ(1, logger_read(_logger, (Byte*)read_res, 1, 1));
         }
 
         // mark half of the logs as being done analyzing by the offline analyzer
@@ -294,7 +294,7 @@ namespace log_mgr_tests {
         }
         // read full log
         for (unsigned long int i = 0; i < (LOG_SIZE * _logger->number_of_allocated_logs); i++) {
-            ASSERT_EQ(1, logger_read(_logger, (Byte*)read_res, 1));
+            ASSERT_EQ(1, logger_read(_logger, (Byte*)read_res, 1, 1));
         }
 
         // save current number of logs before reduction
@@ -329,7 +329,7 @@ namespace log_mgr_tests {
         }
         // read full log
         for (unsigned long int i = 0; i < (LOG_SIZE * _logger->number_of_allocated_logs); i++) {
-            ASSERT_EQ(1, logger_read(_logger, (Byte*)read_res, 1));
+            ASSERT_EQ(1, logger_read(_logger, (Byte*)read_res, 1, 1));
         }
 
         // sleep for LOG_MAX_UNUSED_TIME_SECONDS to test
@@ -379,7 +379,7 @@ namespace log_mgr_tests {
         }
         // read full log
         for (unsigned long int i = 0; i < (2 * LOG_SIZE * _logger->number_of_allocated_logs); i++) {
-            ASSERT_EQ(1, logger_read(_logger, (Byte*)read_res, 1));
+            ASSERT_EQ(1, logger_read(_logger, (Byte*)read_res, 1, 1));
         }
 
         // sleep for LOG_MAX_UNUSED_TIME_SECONDS to test
@@ -421,7 +421,7 @@ namespace log_mgr_tests {
         Byte placeholder = 'y';
         // write and read the offset
         ASSERT_EQ(0, logger_write(_logger, offset, sizeof(offset)));
-        ASSERT_EQ(sizeof(offset), logger_read(_logger, offset, sizeof(offset)));
+        ASSERT_EQ(sizeof(offset), logger_read(_logger, offset, sizeof(offset), 1));
         // almost fill the buffer
         for (unsigned int i = 0; i < ((LOG_SIZE * _logger->number_of_allocated_logs)); i++)
             ASSERT_EQ(0, logger_write(_logger, &placeholder, 1));
@@ -444,11 +444,11 @@ namespace log_mgr_tests {
         ASSERT_EQ(0, logger_write(_logger, (Byte*) TEST_STRING, sizeof(TEST_STRING)));
         // read full log
         for (unsigned long int i = 0; i < (LOG_SIZE * _logger->number_of_allocated_logs); i++) {
-            ASSERT_EQ(1, logger_read(_logger, &placeholder, 1));
+            ASSERT_EQ(1, logger_read(_logger, &placeholder, 1, 1));
         }
         // read the written test string
         char res[2 * sizeof(TEST_STRING)];
-        ASSERT_EQ(sizeof(TEST_STRING), logger_read(_logger, (Byte*) res, sizeof(TEST_STRING)));
+        ASSERT_EQ(sizeof(TEST_STRING), logger_read(_logger, (Byte*) res, sizeof(TEST_STRING), 1));
         ASSERT_STREQ(res, TEST_STRING);
     }
     /**
@@ -464,12 +464,12 @@ namespace log_mgr_tests {
         }
         // increment the reader
         for (unsigned int i = 0; i < LOG_SIZE - (sizeof(TEST_STRING)); i++) {
-            ASSERT_EQ(1, logger_read(_logger, &placeholder, 1));
+            ASSERT_EQ(1, logger_read(_logger, &placeholder, 1, 1));
         }
         // write the string and read it back
         ASSERT_EQ(0, logger_write(_logger, (Byte*) TEST_STRING, sizeof(TEST_STRING)));
         char res[2 * sizeof(TEST_STRING)];
-        ASSERT_EQ(sizeof(TEST_STRING), logger_read(_logger, (Byte*) res, sizeof(TEST_STRING)));
+        ASSERT_EQ(sizeof(TEST_STRING), logger_read(_logger, (Byte*) res, sizeof(TEST_STRING), 1));
         ASSERT_STREQ(res, TEST_STRING);
     }
     /**
@@ -488,11 +488,11 @@ namespace log_mgr_tests {
 
         // increment the reader until the start fo the test string
         for (unsigned int i = 0; i < LOG_SIZE - (sizeof(TEST_STRING)/2); i++) {
-            ASSERT_EQ(1, logger_read(_logger, &placeholder, 1));
+            ASSERT_EQ(1, logger_read(_logger, &placeholder, 1, 1));
         }
         // read the string back
         char res[sizeof(TEST_STRING)];
-        ASSERT_EQ(sizeof(TEST_STRING), logger_read(_logger, (Byte*) res, sizeof(TEST_STRING)));
+        ASSERT_EQ(sizeof(TEST_STRING), logger_read(_logger, (Byte*) res, sizeof(TEST_STRING), 1));
         ASSERT_STREQ(res, TEST_STRING);
     }
     /**
@@ -507,8 +507,8 @@ namespace log_mgr_tests {
         Byte second_res;
         ASSERT_EQ(0, logger_write(_logger, &first, 1));
         ASSERT_EQ(0, logger_write(_logger, &second, 1));
-        ASSERT_EQ(1, logger_read(_logger, &first_res, 1));
-        ASSERT_EQ(1, logger_read(_logger, &second_res, 1));
+        ASSERT_EQ(1, logger_read(_logger, &first_res, 1, 1));
+        ASSERT_EQ(1, logger_read(_logger, &second_res, 1, 1));
         ASSERT_EQ(first, first_res);
         ASSERT_EQ(second, second_res);
     }
@@ -520,9 +520,9 @@ namespace log_mgr_tests {
     TEST_P(LogMgrUnitTest, ReadBeforeWrite) {
         Byte placeholder = 'J';
         Byte res;
-        ASSERT_EQ(0, logger_read(_logger, &res, 1));
+        ASSERT_EQ(0, logger_read(_logger, &res, 1, 1));
         ASSERT_EQ(0, logger_write(_logger, &placeholder, 1));
-        ASSERT_EQ(1, logger_read(_logger, &res, 1));
+        ASSERT_EQ(1, logger_read(_logger, &res, 1, 1));
         ASSERT_EQ(placeholder, res);
     }
 
@@ -541,7 +541,8 @@ namespace log_mgr_tests {
         };
         LOG_PHYSICAL_CELL_READ(_logger, log);
         ASSERT_EQ(PHYSICAL_CELL_READ_LOG_UID, next_log_type(_logger));
-        PhysicalCellReadLog res = NEXT_PHYSICAL_CELL_READ_LOG(_logger);
+        PhysicalCellReadLog res;
+		NEXT_PHYSICAL_CELL_READ_LOG(_logger, &res, 1);
         ASSERT_EQ(log.channel, res.channel);
         ASSERT_EQ(log.block, res.block);
         ASSERT_EQ(log.page, res.page);
@@ -560,7 +561,8 @@ namespace log_mgr_tests {
         };
         LOG_PHYSICAL_CELL_PROGRAM(_logger, log);
         ASSERT_EQ(PHYSICAL_CELL_PROGRAM_LOG_UID, next_log_type(_logger));
-        PhysicalCellProgramLog res = NEXT_PHYSICAL_CELL_PROGRAM_LOG(_logger);
+        PhysicalCellProgramLog res;
+		NEXT_PHYSICAL_CELL_PROGRAM_LOG(_logger, &res, 1);
         ASSERT_EQ(log.channel, res.channel);
         ASSERT_EQ(log.block, res.block);
         ASSERT_EQ(log.page, res.page);
@@ -579,7 +581,8 @@ namespace log_mgr_tests {
         };
         LOG_LOGICAL_CELL_PROGRAM(_logger, log);
         ASSERT_EQ(LOGICAL_CELL_PROGRAM_LOG_UID, next_log_type(_logger));
-        LogicalCellProgramLog res = NEXT_LOGICAL_CELL_PROGRAM_LOG(_logger);
+        LogicalCellProgramLog res;
+		NEXT_LOGICAL_CELL_PROGRAM_LOG(_logger, &res,1);
         ASSERT_EQ(log.channel, res.channel);
         ASSERT_EQ(log.block, res.block);
         ASSERT_EQ(log.page, res.page);
@@ -594,9 +597,10 @@ namespace log_mgr_tests {
         // test that NEXT_GARBAGE_COLLECTION_LOG actually does nothing,
         // due to the fact that the struct is empty
         Byte placeholder;
-        ASSERT_EQ(0, logger_read(_logger, &placeholder, 0));
-        NEXT_GARBAGE_COLLECTION_LOG(_logger);
-        ASSERT_EQ(0, logger_read(_logger, &placeholder, 0));
+        ASSERT_EQ(0, logger_read(_logger, &placeholder, 0, 1));
+        GarbageCollectionLog res;
+        NEXT_GARBAGE_COLLECTION_LOG(_logger, &res, 1);
+        ASSERT_EQ(0, logger_read(_logger, &placeholder, 0, 1));
     }
     /**
      * Test writing and reading a register read log
@@ -612,7 +616,8 @@ namespace log_mgr_tests {
         };
         LOG_REGISTER_READ(_logger, log);
         ASSERT_EQ(REGISTER_READ_LOG_UID, next_log_type(_logger));
-        RegisterReadLog res = NEXT_REGISTER_READ_LOG(_logger);
+        RegisterReadLog res;
+		NEXT_REGISTER_READ_LOG(_logger, &res, 1);
         ASSERT_EQ(log.channel, res.channel);
         ASSERT_EQ(log.die, res.die);
         ASSERT_EQ(log.reg, res.reg);
@@ -631,7 +636,8 @@ namespace log_mgr_tests {
         };
         LOG_REGISTER_WRITE(_logger, log);
         ASSERT_EQ(REGISTER_WRITE_LOG_UID, next_log_type(_logger));
-        RegisterWriteLog res = NEXT_REGISTER_WRITE_LOG(_logger);
+        RegisterWriteLog res;
+		NEXT_REGISTER_WRITE_LOG(_logger, &res, 1);
         ASSERT_EQ(log.channel, res.channel);
         ASSERT_EQ(log.die, res.die);
         ASSERT_EQ(log.reg, res.reg);
@@ -650,7 +656,8 @@ namespace log_mgr_tests {
         };
         LOG_BLOCK_ERASE(_logger, log);
         ASSERT_EQ(BLOCK_ERASE_LOG_UID, next_log_type(_logger));
-        BlockEraseLog res = NEXT_BLOCK_ERASE_LOG(_logger);
+        BlockEraseLog res;
+		NEXT_BLOCK_ERASE_LOG(_logger, &res, 1);
         ASSERT_EQ(log.channel, res.channel);
         ASSERT_EQ(log.die, res.die);
         ASSERT_EQ(log.block, res.block);
@@ -667,7 +674,8 @@ namespace log_mgr_tests {
         };
         LOG_CHANNEL_SWITCH_TO_READ(_logger, log);
         ASSERT_EQ(CHANNEL_SWITCH_TO_READ_LOG_UID, next_log_type(_logger));
-        ChannelSwitchToReadLog res = NEXT_CHANNEL_SWITCH_TO_READ_LOG(_logger);
+        ChannelSwitchToReadLog res;
+		NEXT_CHANNEL_SWITCH_TO_READ_LOG(_logger, &res, 1);
         ASSERT_EQ(log.channel, res.channel);
     }
     /**
@@ -682,7 +690,8 @@ namespace log_mgr_tests {
         };
         LOG_CHANNEL_SWITCH_TO_WRITE(_logger, log);
         ASSERT_EQ(CHANNEL_SWITCH_TO_WRITE_LOG_UID, next_log_type(_logger));
-        ChannelSwitchToWriteLog res = NEXT_CHANNEL_SWITCH_TO_WRITE_LOG(_logger);
+        ChannelSwitchToWriteLog res;
+		NEXT_CHANNEL_SWITCH_TO_WRITE_LOG(_logger, &res, 1);
         ASSERT_EQ(log.channel, res.channel);
     }
     /* Real Time Analyzer Tests */
@@ -690,6 +699,7 @@ namespace log_mgr_tests {
      * Do a simple test of the real time log analyzer
      */
     TEST_P(LogMgrUnitTest, BasicRTAnalyzer) {
+        logger_writer_init();
         RTLogAnalyzer* analyzer = rt_log_analyzer_init(_logger, 0);
         rt_log_stats_init();
         rt_subscriber::subscribe(analyzer);
@@ -699,6 +709,7 @@ namespace log_mgr_tests {
         rt_subscriber::read();
         rt_log_analyzer_free(analyzer, 0);
         rt_log_stats_free();
+        logger_writer_free();
     }
     /* offline Analyzer Tests */
     /**
@@ -724,7 +735,7 @@ namespace log_mgr_tests {
         }
         // read full log
         for (unsigned long int i = 0; i < (LOG_SIZE * _logger->number_of_allocated_logs); i++) {
-            ASSERT_EQ(1, logger_read(_logger, (Byte*)read_res, 1));
+            ASSERT_EQ(1, logger_read(_logger, (Byte*)read_res, 1, 1));
         }
 
         // free && clean up's of the offline log analyzer
@@ -737,6 +748,7 @@ namespace log_mgr_tests {
      * Do a simple test of the log manager
      */
     TEST_P(LogMgrUnitTest, BasicLogManager) {
+        logger_writer_init();
         LogManager* manager = log_manager_init();
         manager_subscriber::init(manager);
         if (g_server_mode)
@@ -744,6 +756,7 @@ namespace log_mgr_tests {
         manager_subscriber::run();
         manager_subscriber::free();
         log_manager_free(manager);
+        logger_writer_free();
     }
 } //namespace
 
