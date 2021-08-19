@@ -69,7 +69,7 @@ using namespace std;
 
 namespace {
 
-    class BaseEmulatorTests : public ::testing::TestWithParam<std::pair<size_t,size_t> > {
+    class BaseEmulatorTests : public ::testing::TestWithParam<std::tuple<size_t,size_t, int, int> > {
         public:
 
             //const static size_t CONST_BLOCK_NB_PER_FLASH = 4096;
@@ -77,12 +77,9 @@ namespace {
             const static size_t CONST_PAGES_PER_BLOCK_OVERPROV = (CONST_PAGES_PER_BLOCK * 25) / 100; // 25 % of pages for over-provisioning
             const static size_t CONST_PAGE_SIZE_IN_BYTES = 4096;
 
-            virtual void SetUp() {
-                std::pair<size_t,size_t> params = GetParam();
-                size_t mb = params.first;
-                size_t flash_nb = params.second;
-                pages_= mb * ((1024 * 1024) / CONST_PAGE_SIZE_IN_BYTES); // number_of_pages = disk_size (in MB) * 1048576 / page_size
-                size_t block_x_flash = pages_ / CONST_PAGES_PER_BLOCK; // all_blocks_on_all_flashes = number_of_pages / pages_in_block
+            static void SetUpEnv(size_t mb, size_t flash_nb) {
+                size_t l_pages = mb * ((1024 * 1024) / CONST_PAGE_SIZE_IN_BYTES); // number_of_pages = disk_size (in MB) * 1048576 / page_size
+                size_t block_x_flash = l_pages / CONST_PAGES_PER_BLOCK; // all_blocks_on_all_flashes = number_of_pages / pages_in_block
                 //size_t flash = block_x_flash / CONST_BLOCK_NB_PER_FLASH; // number_of_flashes = all_blocks_on_all_flashes / number_of_blocks_in_flash
                 size_t blocks_per_flash = block_x_flash / flash_nb; // number_of_flashes = all_blocks_on_all_flashes / number_of_blocks_in_flash
 
@@ -110,7 +107,8 @@ namespace {
                 FTL_INIT();
                 INIT_LOG_MANAGER();
             }
-            virtual void TearDown() {
+
+            static void TearDownEnv() {
                 FTL_TERM();
                 TERM_LOG_MANAGER();
                 remove("data/empty_block_list.dat");
@@ -122,8 +120,23 @@ namespace {
                 remove("data/ssd.conf");
                 g_init = 0;
                 clientSock = 0;
-                g_init_log_server = 0;
+                g_init_log_server = 0;                
             }
+
+            virtual void SetUp() {
+                std::tuple<size_t,size_t,int, int> params = GetParam();
+                size_t mb = std::get<0>(params);
+                size_t flash_nb = std::get<1>(params);;
+
+                pages_= mb * ((1024 * 1024) / CONST_PAGE_SIZE_IN_BYTES); // number_of_pages = disk_size (in MB) * 1048576 / page_size
+
+                SetUpEnv(mb, flash_nb);
+            }
+
+            virtual void TearDown() {
+                TearDownEnv();
+            }
+            
         protected:
             size_t pages_;
     }; // OccupySpaceStressTest

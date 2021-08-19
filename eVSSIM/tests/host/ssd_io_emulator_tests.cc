@@ -55,11 +55,11 @@ namespace {
 
     class SSDIoEmulatorUnitTest : public BaseEmulatorTests {};
 
-    std::vector<std::pair<size_t,size_t> > GetParams() {
-        std::vector<std::pair<size_t,size_t> > list;
+    std::vector<std::tuple<size_t,size_t, int, int> > GetParams() {
+        std::vector<std::tuple<size_t,size_t, int, int> > list;
         const int constFlashNum = DEFAULT_FLASH_NB;
         unsigned int i = 0;
-        list.push_back(std::make_pair(parameters::Allsizemb[i], constFlashNum ));
+        list.push_back(std::make_tuple(parameters::Allsizemb[i], constFlashNum, 0 , 0));
         return list;
     }
 
@@ -389,8 +389,8 @@ namespace {
      * - validate statistics
      */
     TEST_P(SSDIoEmulatorUnitTest, WriteRead2) {
-        std::pair<size_t,size_t> params = GetParam();
-        size_t flash_num = params.second;
+        std::tuple<size_t,size_t, int,int> params = GetParam();
+        size_t flash_num = std::get<1>(params);
         size_t block_x_flash = pages_ / CONST_PAGES_PER_BLOCK;
         size_t blocks_per_flash = block_x_flash / flash_num;
 
@@ -438,5 +438,4 @@ namespace {
         // Assert w.a. is greater then 1
         ASSERT_LT(expected_write_amplification, ssd.current_stats->write_amplification);
     }
-
 } //namespace
