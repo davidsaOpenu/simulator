@@ -19,6 +19,8 @@
 
 #include <stdlib.h>
 #include <stdbool.h>
+#include <stdint.h>
+#include <stdio.h>
 #include <time.h>
 #include <pthread.h>
 
@@ -37,12 +39,12 @@
 /**
  * The log size to use when allocating log's in the logger pool
  */
-#define LOG_SIZE (1 << 19)
+#define LOG_SIZE (1 << 15)
 
 /**
  * Defualt number of log's in each Looger Pool
  */
-#define DEFUALT_LOGGER_POOL_SIZE 20
+#define DEFUALT_LOGGER_POOL_SIZE 320
 
 /**
  * Maximum time that a log can be unused and not reduced
@@ -54,6 +56,8 @@
  */
 typedef unsigned char Byte;
 
+/* Size of file path */
+#define SCRATCHBOOK_SIZE 256
 
 /**
  * The Log structure
@@ -73,7 +77,8 @@ struct Log {
     /**
      * The next place to read a byte from the buffer
      */
-    Byte* tail;
+    Byte* rt_tail;
+    Byte* offline_tail;
     /**
      * The next log
      */
@@ -145,6 +150,19 @@ typedef struct {
     pthread_mutex_t lock;
 } Logger_Pool;
 
+typedef struct {
+    /** File that the LoggerWriter works with */
+    int log_file;
+    /** Maximum size of a single log file */
+    uint32_t log_file_size;
+    /** Current log file size */
+    uint32_t curr_size;
+    /**
+     * The lock of the logger writer to update logger file safely from threads
+     */
+    pthread_mutex_t lock;
+} logger_writer;
+
 /**
  * Create a new logger
  * @param number_of_logs the number of logs to allocate at this logger pool
@@ -168,9 +186,10 @@ int logger_write(Logger_Pool* logger_pool, Byte* buffer, int length);
  * @param logger_pool the logger pool to read the data from
  * @param buffer the buffer to write the data to
  * @param length the maximum number of bytes to read
+ * @param rt_analyzer if this read is from the rt analyzer or offline analyzer
  * @return the number of bytes read
  */
-int logger_read(Logger_Pool* logger_pool, Byte* buffer, int length);
+int logger_read(Logger_Pool* logger_pool, Byte* buffer, int length, int rt_analyzer);
 
 /**
  * Read a byte array from the log
@@ -203,5 +222,22 @@ void logger_reduce_size(Logger_Pool* logger_pool);
  * @param logger_pool the logger pool that hold's the log's to clean
  */
 void logger_clean(Logger_Pool* logger_pool);
+
+/**
+ * @brief Creator of LoggerWriter object
+ */
+void logger_writer_init(void);
+
+/**
+ * @brief Destructor of LoggerWriter object
+ */
+void logger_writer_free(void);
+
+/**
+ * @brief Save a log to Logger file
+ *
+ * @param log_obj Pointer to Log Object to be saved
+ */
+void logger_writer_save_log_to_file(Byte *buffer, int length);
 
 #endif
