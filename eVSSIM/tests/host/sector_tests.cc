@@ -23,8 +23,8 @@ namespace {
 
     class SectorUnitTest : public BaseEmulatorTests {}; // OccupySpaceStressTest
 
-    std::vector<std::pair<size_t,size_t> > GetParams() {
-        std::vector<std::pair<size_t,size_t> > list;
+    std::vector<std::tuple<size_t,size_t, int, int> > GetParams() {
+        std::vector<std::tuple<size_t,size_t, int, int> > list;
 
         if (g_nightly_mode) {
             printf("Running in Nightly mode\n");
@@ -36,7 +36,7 @@ namespace {
                         j < sizeof(parameters::Allflashnb)/sizeof(parameters::Allflashnb[0]); j++ )
                     // first paramter in the pair is size of disk in mb
                     // second paramter in the pair is number of flash memories in ssd
-                    list.push_back(std::make_pair(parameters::Allsizemb[i], parameters::Allflashnb[j] ));
+                    list.push_back(std::make_tuple(parameters::Allsizemb[i], parameters::Allflashnb[j], 0, 0 ));
             }
 
             return list;
@@ -45,7 +45,7 @@ namespace {
         const int constFlashNum = DEFAULT_FLASH_NB;
         for( unsigned int i = 0;
                 i < sizeof(parameters::Allsizemb)/sizeof(parameters::Allsizemb[0]); i++ )
-            list.push_back(std::make_pair(parameters::Allsizemb[i], constFlashNum ));
+            list.push_back(std::make_tuple(parameters::Allsizemb[i], constFlashNum, 0, 0 ));
 
         return list;
     }
