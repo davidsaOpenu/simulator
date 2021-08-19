@@ -37,6 +37,9 @@ extern int write_wall_time;
 extern int read_wall_time;
 //extern unsigned int logical_write_count;
 
+// For logger_writer
+extern logger_writer logger_writer_obj;
+
 #define MONITOR_SYNC_DELAY_USEC 150000
 #define DELAY_THRESHOLD 0
 
@@ -438,5 +441,29 @@ namespace {
         // Assert w.a. is greater then 1
         ASSERT_LT(expected_write_amplification, ssd.current_stats->write_amplification);
     }
+
+    // Dummy test for basic testing of logger_writer
+    TEST_P(SSDIoEmulatorUnitTest, LoggerWriterPageWriteTest) {
+        int flash_nb = 0;
+        int block_nb = 0;
+        int page_nb = 0;
+        int offset = 0;
+        //int expected_write_amplification = 1;
+        int sz;
+            int expected_write_duration = REG_WRITE_DELAY + CELL_PROGRAM_DELAY + 10000;
+
+        //FILE *fp;
+
+        SSD_PAGE_WRITE(flash_nb,block_nb,page_nb,offset, WRITE);
+
+        MONITOR_SYNC_DELAY(expected_write_duration);
+//        fp = fopen("/tmp/log_file_0.log", "w");
+//        fseek(fp, 0L, SEEK_END);
+//        sz = ftell(fp);
+//        fclose(fp);
+        sz = logger_writer_obj.curr_size;
+
+        ASSERT_NE(0, sz);
+    }    
 
 } //namespace
