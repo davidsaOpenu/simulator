@@ -27,7 +27,9 @@ RUN yum install -y vim \
   python-pip \
   python-setuptools \
   sudo \
-  ca-certificates
+  json-c-devel \
+  flex \
+  bison
 
 # Clean yum cache (making the image smaller)
 RUN yum clean all

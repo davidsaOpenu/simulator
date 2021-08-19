@@ -52,9 +52,17 @@ for folder in $EVSSIM_CREATE_FOLDERS; do
     if [ ! -d "$folder" ]; then mkdir "$folder"; fi
 done
 
+# Create or reset registry files for filebeat
+if [ -e "${EVSSIM_ROOT_PATH}/${EVSSIM_LOGS_FOLDER}/lastread.txt" ]; then rm "${EVSSIM_ROOT_PATH}/${EVSSIM_LOGS_FOLDER}/lastread.txt"; fi
+if [ -e "${EVSSIM_ROOT_PATH}/${EVSSIM_LOGS_FOLDER}/log.json" ]; then rm "${EVSSIM_ROOT_PATH}/${EVSSIM_LOGS_FOLDER}/log.json"; fi
+touch "${EVSSIM_ROOT_PATH}/${EVSSIM_LOGS_FOLDER}/log.json"
+if [ -e "${EVSSIM_ROOT_PATH}/${EVSSIM_LOGS_FOLDER}/meta.json" ]; then rm "${EVSSIM_ROOT_PATH}/${EVSSIM_LOGS_FOLDER}/meta.json"; fi
+touch "${EVSSIM_ROOT_PATH}/${EVSSIM_LOGS_FOLDER}/meta.json"
+echo "{\"version\":\"1\"}" >> "${EVSSIM_ROOT_PATH}/${EVSSIM_LOGS_FOLDER}/meta.json"
+
 evssim_elk_run_elasticsearch() {
     export ELASTICSEARCH_DOCKER_UUID=$(\
-            docker run --rm --publish=$ELK_ELASTICSEARCH_EXTERNAL_PORT:9200 \
+            docker run --name=es01 --rm --publish=$ELK_ELASTICSEARCH_EXTERNAL_PORT:9200 \
             --env discovery.type=single-node --env xpack.security.enabled=false \
             --detach $ELK_ELASTICSEARCH_IMAGE\
     )
@@ -62,7 +70,7 @@ evssim_elk_run_elasticsearch() {
 
 evssim_elk_run_kibana() {
     export KIBANA_DOCKER_UUID=$(\
-            docker run --rm --publish=$ELK_KIBANA_EXTERNAL_PORT:5601 \
+            docker run --name=kibana --rm --publish=$ELK_KIBANA_EXTERNAL_PORT:5601 \
             --env ELASTICSEARCH_HOSTS="http://host.docker.internal:$ELK_ELASTICSEARCH_EXTERNAL_PORT" \
             --add-host=host.docker.internal:host-gateway \
             --detach $ELK_KIBANA_IMAGE\
@@ -71,7 +79,9 @@ evssim_elk_run_kibana() {
 
 evssim_elk_run_filebeat() {
     export FILEBEAT_DOCKER_UUID=$(\
-            docker run --rm --env ELK_ELASTICSEARCH_EXTERNAL_PORT \
+            docker run --name=filebeat --rm --env ELK_ELASTICSEARCH_EXTERNAL_PORT \
+            --volume="${EVSSIM_ROOT_PATH}/${EVSSIM_LOGS_FOLDER}/log.json:/usr/share/filebeat/data/registry/filebeat/log.json" \
+            --volume="${EVSSIM_ROOT_PATH}/${EVSSIM_LOGS_FOLDER}/meta.json:/usr/share/filebeat/data/registry/filebeat/meta.json" \
             --volume="${EVSSIM_ROOT_PATH}/${EVSSIM_LOGS_FOLDER}:/logs/" \
             --volume="${ELK_FILEBEAT_CONF_PATH}:/usr/share/filebeat/filebeat.yml:ro" \
             --add-host=host.docker.internal:host-gateway \
@@ -80,6 +90,8 @@ evssim_elk_run_filebeat() {
     )
 }
 
+
+        
 evssim_run_elk_stack() {
     evssim_elk_run_elasticsearch
     evssim_elk_run_kibana
