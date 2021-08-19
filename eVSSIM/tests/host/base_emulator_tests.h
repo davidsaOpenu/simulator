@@ -69,7 +69,7 @@ using namespace std;
 
 namespace {
 
-    class BaseEmulatorTests : public ::testing::TestWithParam<std::pair<size_t,size_t> > {
+    class BaseEmulatorTests : public ::testing::TestWithParam<std::tuple<size_t,size_t, int, int> > {
         public:
 
             //const static size_t CONST_BLOCK_NB_PER_FLASH = 4096;
@@ -78,9 +78,10 @@ namespace {
             const static size_t CONST_PAGE_SIZE_IN_BYTES = 4096;
 
             virtual void SetUp() {
-                std::pair<size_t,size_t> params = GetParam();
-                size_t mb = params.first;
-                size_t flash_nb = params.second;
+                std::tuple<size_t,size_t,int, int> params = GetParam();
+                size_t mb = std::get<0>(params);
+                size_t flash_nb = std::get<1>(params);;
+
                 pages_= mb * ((1024 * 1024) / CONST_PAGE_SIZE_IN_BYTES); // number_of_pages = disk_size (in MB) * 1048576 / page_size
                 size_t block_x_flash = pages_ / CONST_PAGES_PER_BLOCK; // all_blocks_on_all_flashes = number_of_pages / pages_in_block
                 //size_t flash = block_x_flash / CONST_BLOCK_NB_PER_FLASH; // number_of_flashes = all_blocks_on_all_flashes / number_of_blocks_in_flash

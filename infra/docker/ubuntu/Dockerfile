@@ -24,7 +24,10 @@ RUN apt-get update && apt-get -y install \
   libvirt-bin \
   python-pip \
   python-setuptools \
-  sudo
+  sudo \
+  libjson-c-dev \
+  flex \
+  bison
 
 
 # Install build packages
