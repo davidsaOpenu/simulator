@@ -79,6 +79,10 @@
     node->clean = is_clean; \
 }
 
+
+logger_writer logger_writer_obj;
+
+
 Logger_Pool* logger_init(unsigned int number_of_logs) {
     Byte *buffer;
     Log *log, *dummy;
@@ -210,7 +214,7 @@ int logger_write(Logger_Pool* logger_pool, Byte* buffer, int length) {
     return res;
 }
 
-int logger_read(Logger_Pool* logger_pool, Byte* buffer, int length) {
+int logger_read(Logger_Pool* logger_pool, Byte* buffer, int length, int rt_analyzer) {
     Log *log, *temp_log;
     int number_bytes_to_read_in_log; // number of bytes that wasn't read yet in the log
     int number_of_bytes_to_read = length; // number of bytes that we still have to read
@@ -224,7 +228,10 @@ int logger_read(Logger_Pool* logger_pool, Byte* buffer, int length) {
     {
         // if the log is not clean and the real time analyzer have not
         // finished to read from it then read length bytes of data
-        if(!(log->clean) && !(log->rt_analyzer_done))
+        if (!(log->clean) && (
+            ( rt_analyzer && !(log->rt_analyzer_done) ) ||
+            ( !rt_analyzer && log->rt_analyzer_done && !(log->offline_analyzer_done) )
+           ))
         {
             // check how many bytes left to read in this log
             number_bytes_to_read_in_log = NUMBER_OF_BYTES_TO_READ(log);
@@ -267,8 +274,15 @@ int logger_read(Logger_Pool* logger_pool, Byte* buffer, int length) {
         temp_log = log->next;
 
         // check if we are done reading this log
-        if(NUMBER_OF_BYTES_TO_READ(log) == 0)
-            log->rt_analyzer_done = true;
+        if(NUMBER_OF_BYTES_TO_READ(log) == 0) {
+            if (rt_analyzer) {
+                log->rt_analyzer_done = true;
+                log->tail = log->buffer; // Zero tail so offline analyzer can play with it
+            }
+            else {
+                log->offline_analyzer_done = true;
+            }
+        }
 
         log = temp_log;
 
@@ -379,4 +393,76 @@ void logger_clean(Logger_Pool* logger_pool) {
 
     // unlock logger pool
     pthread_mutex_unlock(&logger_pool->lock);
+}
+
+#define LOGGER_WRITER_TIME_BUF_SIZE (0x80)
+static void logger_writer_get_time_string(char *buf)
+{
+    time_t timer;
+    struct tm* tm_info;
+
+    timer = time(NULL);
+    tm_info = localtime(&timer);
+
+    strftime(buf, LOGGER_WRITER_TIME_BUF_SIZE, "%Y-%m-%d_%H:%M:%S", tm_info);
+}
+
+#define LOGGER_WRITER_LOGS_PATH "/code/logs/"
+static int logger_writer_open_file_for_write(void) {
+    char buf[LOGGER_WRITER_TIME_BUF_SIZE];
+    char log_name[LOGGER_WRITER_TIME_BUF_SIZE+30];
+
+    logger_writer_get_time_string(buf);
+    sprintf(log_name, LOGGER_WRITER_LOGS_PATH "log_file-%s.log", buf);
+    logger_writer_obj.log_file = fopen(log_name, "w");
+
+    if (NULL == logger_writer_obj.log_file) {
+        return -1;
+    }
+
+    return 0;
+}
+
+static void logger_writer_close_file(void) {
+    if (NULL != logger_writer_obj.log_file)
+        fclose(logger_writer_obj.log_file);
+}
+
+void logger_writer_init(void) {
+    logger_writer_obj.log_file_size = 10 *1024 * 1024;
+    logger_writer_obj.curr_size = 0;
+
+    int retval = system("mkdir -p " LOGGER_WRITER_LOGS_PATH);
+    retval = system("rm -rf " LOGGER_WRITER_LOGS_PATH "*.log");
+
+    retval = logger_writer_open_file_for_write();
+
+    if (retval == -1) {
+        logger_writer_free();
+        return;
+    }
+}
+
+void logger_writer_free(void) {
+    logger_writer_close_file();
+}
+
+void logger_writer_save_log_to_file(Byte *buffer, int length) {
+    if (NULL != buffer) {
+        // I lock here in order to prevent collisions between the different rt_analyzer threads while the touch
+        //  writer_obj related members.
+        pthread_mutex_lock(&logger_writer_obj.lock);
+        // Check if there is enought space in the current log file to write log
+        if (length + logger_writer_obj.curr_size > logger_writer_obj.log_file_size) {
+            logger_writer_obj.curr_size = 0;
+            //logger_writer_obj.curr_log_file = (logger_writer_obj.curr_log_file + 1) % NUM_LOG_FILES;
+            logger_writer_close_file();
+            logger_writer_open_file_for_write();
+        }
+        // Increase the size of current log_file by the buffer's size
+        logger_writer_obj.curr_size += length;
+        fwrite(buffer, sizeof(Byte), length, logger_writer_obj.log_file);
+
+        pthread_mutex_unlock(&logger_writer_obj.lock);
+    }
 }
