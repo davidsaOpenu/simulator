@@ -37,6 +37,9 @@ extern int write_wall_time;
 extern int read_wall_time;
 //extern unsigned int logical_write_count;
 
+// For logger_writer
+extern elk_logger_writer elk_logger_writer_obj;
+
 #define MONITOR_SYNC_DELAY_USEC 150000
 #define DELAY_THRESHOLD 0
 
@@ -437,6 +440,68 @@ namespace {
 
         // Assert w.a. is greater then 1
         ASSERT_LT(expected_write_amplification, ssd.current_stats->write_amplification);
+    }
+
+    /**
+     * testing of the offline analyzer mechanism related to the json serialization
+     */
+    TEST_P(SSDIoEmulatorUnitTest, LoggerWriterPageWriteTest) {
+        int num_blocks = 1;
+        char cmd[256];
+        enum {MODE_R, MODE_W, MODE_RW };
+
+        /**
+         * Test outline:
+         *  for each pow of 2 from 0 to X:
+         *      for each mode r/w/rw:
+         *          run test for the mode
+         *          predict the sum of all read/writes/etc..
+         *          parse the json file and get the statistics
+         *          check wether the statistics are the same
+         *          for restarting  the environment:
+         *              logger_writer_free
+         *              logger_writer_init
+         */
+
+        // Iterate over all the powers of 2 from 0 to 16
+        for (int pow = 0; pow < 16; pow++) {
+            for (int mode = MODE_R; mode <= MODE_RW; mode++) {
+
+                // In case of r/w mode: read / write num_blocks
+                if (mode != MODE_RW) {
+                    for (int block_nb = 0; block_nb < num_blocks; block_nb++) {
+                        for (size_t i = 0; i < CONST_PAGES_PER_BLOCK; i++) {
+                            if (mode == MODE_R)
+                                SSD_PAGE_READ(0, block_nb, i, 0, READ);
+                            else if (mode == MODE_W)
+                                SSD_PAGE_WRITE(0, block_nb, i, 0, WRITE);
+                        }
+                    }
+                }
+                else { // In case of rw mode: read 1 block and then write 1 block...
+                    for (int block_nb = 0; block_nb < num_blocks; block_nb++) {
+                        for (size_t i = 0; i < CONST_PAGES_PER_BLOCK; i++) {
+                            SSD_PAGE_READ(0, block_nb, i, 0, READ);
+                        }
+                        for (size_t i = 0; i < CONST_PAGES_PER_BLOCK; i++) {
+                            SSD_PAGE_WRITE(0, block_nb, i, 0, WRITE);
+                        }
+                    }
+                }
+
+                // Prepare the python checker program command
+                sprintf(cmd, "/code/simulator/eVSSIM/tests/host/check_offline_logger_test_results.py /code/logs/ %d %d", num_blocks, mode );
+
+                // Check that the test passed OK
+                ASSERT_EQ(0, system(cmd));
+
+                // Reinitiate the logger_writer for next session (deletes existing log files ETC)
+                elk_logger_writer_free();
+                elk_logger_writer_init();
+            }
+
+            num_blocks *= 2;
+        }
     }
 
 } //namespace
