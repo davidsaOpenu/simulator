@@ -51,8 +51,6 @@ docker run -d --network host --volume=$1"/filebeat.yml:/usr/share/filebeat/fileb
 
 ########################################
 
-python3 check_count.py $1 $2
-
 # Create directory for CSV exports
 mkdir exports
 
@@ -65,7 +63,36 @@ docker run -d  --network host --shm-size="2g" selenium/standalone-firefox:4.0.0-
 # Shell on container 
 # docker exec -t -i 5cb14ca924db /bin/bash
 
+# Shell on container 
+# docker exec -t -i 5cb14ca924db /bin/bash
+
+
+#Generate logs for testing
+#for step 1 to 16
+#   bc =  * step
+
+#   for r/w/rw
+#      generate fio conf with bc
+#      docker-elk-create-bandwidth.sh
+#      run yoyr verification
 docker build -t automated_testing .
-docker run  --privileged --pid=host --network host -v $1/logs:/logs -v $1/exports/seluser:/exports -i -t automated_testing $1 $2
+chmod +x mockup-docker-elk-create-bandwidth.sh
 
+max=2
+for step in `seq 2 $max`
+do
+  #Generate FIO config
+  #./create-fio-config
 
+  ./mockup-docker-elk-create-bandwidth.sh
+  
+  start_time="2021-07-04T15:14:47.000Z"
+  end_time="2021-07-04T15:15:00.000Z"
+  log_file="real_test_log.json"
+
+  python3 check_count.py $1 $log_file
+
+  docker run  --privileged --pid=host --network host -v $1/logs:/logs -v $1/exports/seluser:/exports -i -t automated_testing $1 $log_file $start_time $end_time
+  rm "logs/"$log_file
+
+done

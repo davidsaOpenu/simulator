@@ -4,15 +4,6 @@ import datetime as dt
 from pandas.testing import assert_frame_equal
 import numpy as np
 
-
-
-# Get Stats
-"""ChannelSwitchToReadLog_agg = JsonLog_DF [JsonLog_DF .type=="ChannelSwitchToReadLog"].set_index('logging_time').resample('100ms').sum()
-ChannelSwitchToWriteLog_agg = JsonLog_DF [JsonLog_DF .type=="ChannelSwitchToWriteLog"].set_index('logging_time').resample('100ms').sum()
-BlockEraseLog_agg = JsonLog_DF [JsonLog_DF .type=="BlockEraseLog"].set_index('logging_time').resample('100ms').sum()
-RegisterWriteLog_agg = JsonLog_DF [JsonLog_DF .type=="RegisterWriteLog"].set_index('logging_time').resample('100ms').sum()
-RegisterReadLog_agg = JsonLog_DF [JsonLog_DF .type=="RegisterReadLog"].set_index('logging_time').resample('100ms').sum()
-"""
 class Dashboard_Test():
 	def __init__(self, de, JsonLog_DF, dashboard_path):
 		self.de = de
@@ -99,7 +90,7 @@ class Dashboard_Test():
 			print("Block_Writes Test Failed")
 	
 		print("Block_Writes Passed")
-	
+	"""
 	def Block_Reads(self, dashboard_name):
 		# Create Aggrigatoin on the json log, sum of page in every 100ms
 		PhysicalCellReadLog_agg = self.JsonLog_DF [self.JsonLog_DF.type=="PhysicalCellReadLog"].set_index('logging_time').resample('100ms').sum()
@@ -207,4 +198,4 @@ class Dashboard_Test():
 			print("Check_Page_Writes Test Failed")
 	
 		print("Check_Page_Writes Passed")
-
+"""
