@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "cdbe7541_5a9c5f2b",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 2
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 1017902
+      },
+      "writtenOn": "2021-08-26T18:59:02Z",
+      "side": 1,
+      "message": "I see that the current failure in the build is because it didn\u0027t find the header files of the libraries. The header files are imported in the qemu commit https://review.gerrithub.io/c/davidsaOpenu/qemu/+/522877 which this commit \"Depends-On\", maybe the keyword didn\u0027t work?",
+      "revId": "446c66b5af60974e9931ab96ee15f2b30451d2aa",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
+    }
+  ]
+}
