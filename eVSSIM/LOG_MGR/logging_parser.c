@@ -50,72 +50,141 @@ char* timestamp_to_str(int64_t cur_ts, char *buf) {
     return buf;
 }
 
-#define TIME_FORMAT "\"logging_time\"  : \"%s\" "
+void add_time_to_json_object(struct json_object *jobj, int64_t cur_ts)
+{
+    char time_buf[TIME_BUF_LEN];
+    json_object_object_add(jobj, "logging_time", json_object_new_string(timestamp_to_str(cur_ts, time_buf)));
+}
 
 /**
  * Json serializing functions for the various log types
  */
 void JSON_PHYSICAL_CELL_READ(PhysicalCellReadLog *src, char *dst)
 {
-    char time_buf[TIME_BUF_LEN];
-    const char *fmt = "{ \"type\": \"PhysicalCellReadLog\", \"channel\": %d, \"block\": %d, \"page\": %d, " TIME_FORMAT "}\n";
-    sprintf(dst, fmt, src->channel, src->block, src->page, timestamp_to_str(src->metadata.logging_start_time,time_buf));
+    struct json_object *jobj;
+
+    jobj = json_object_new_object();
+    json_object_object_add(jobj, "type", json_object_new_string("PhysicalCellReadLog"));
+    json_object_object_add(jobj, "channel", json_object_new_int(src->channel));
+    json_object_object_add(jobj, "block", json_object_new_int(src->block));
+    json_object_object_add(jobj, "page", json_object_new_int(src->page));
+    add_time_to_json_object(jobj, src->metadata.logging_start_time);
+
+    strcpy(dst, json_object_to_json_string_ext(jobj, JSON_C_TO_STRING_SPACED));
+    json_object_put(jobj); // Delete the json object
 }
 
 void JSON_PHYSICAL_CELL_PROGRAM(PhysicalCellProgramLog *src, char *dst)
 {
-    char time_buf[TIME_BUF_LEN];
-    const char *fmt = "{ \"type\": \"PhysicalCellProgramLog\", \"channel\": %d, \"block\": %d, \"page\": %d , " TIME_FORMAT "}\n";
-    sprintf(dst, fmt, src->channel, src->block, src->page, timestamp_to_str(src->metadata.logging_start_time,time_buf));
+    struct json_object *jobj;
+
+    jobj = json_object_new_object();
+    json_object_object_add(jobj, "type", json_object_new_string("PhysicalCellProgramLog"));
+    json_object_object_add(jobj, "channel", json_object_new_int(src->channel));
+    json_object_object_add(jobj, "block", json_object_new_int(src->block));
+    json_object_object_add(jobj, "page", json_object_new_int(src->page));
+    add_time_to_json_object(jobj, src->metadata.logging_start_time);
+
+    strcpy(dst, json_object_to_json_string_ext(jobj, JSON_C_TO_STRING_SPACED));
+    json_object_put(jobj); // Delete the json object
 }
 
 void JSON_LOGICAL_CELL_PROGRAM(LogicalCellProgramLog *src, char *dst)
 {
-    char time_buf[TIME_BUF_LEN];
-    const char *fmt = "{ \"type\": \"LogicalCellProgramLog\", \"channel\": %d, \"block\": %d, \"page\": %d , " TIME_FORMAT "}\n";
-    sprintf(dst, fmt, src->channel, src->block, src->page, timestamp_to_str(src->metadata.logging_start_time,time_buf));
+    struct json_object *jobj;
+
+    jobj = json_object_new_object();
+    json_object_object_add(jobj, "type", json_object_new_string("LogicalCellProgramLog"));
+    json_object_object_add(jobj, "channel", json_object_new_int(src->channel));
+    json_object_object_add(jobj, "block", json_object_new_int(src->block));
+    json_object_object_add(jobj, "page", json_object_new_int(src->page));
+    add_time_to_json_object(jobj, src->metadata.logging_start_time);
+
+    strcpy(dst, json_object_to_json_string_ext(jobj, JSON_C_TO_STRING_SPACED));
+    json_object_put(jobj); // Delete the json object
 }
 
 void JSON_GARBAGE_COLLECTION(GarbageCollectionLog *src, char *dst)
 {
-    const char *fmt = "{ \"type\": \"GarbageCollectionLog\" }\n";
-    strcpy(dst, fmt);
-    (void) src;
+    struct json_object *jobj;
+
+    jobj = json_object_new_object();
+    json_object_object_add(jobj, "type", json_object_new_string("GarbageCollectionLog"));
+    //add_time_to_json_object(jobj, src->metadata.logging_start_time);
+
+    strcpy(dst, json_object_to_json_string_ext(jobj, JSON_C_TO_STRING_SPACED));
+    json_object_put(jobj); // Delete the json object
 }
 
 void JSON_REGISTER_READ(RegisterReadLog *src, char *dst)
 {
-    char time_buf[TIME_BUF_LEN];
-    const char *fmt = "{ \"type\": \"RegisterReadLog\", \"channel\": %d, \"block\": %d, \"page\": %d , " TIME_FORMAT "}\n";
-    sprintf(dst, fmt, src->channel, src->die, src->reg, timestamp_to_str(src->metadata.logging_start_time,time_buf));
+    struct json_object *jobj;
+
+    jobj = json_object_new_object();
+    json_object_object_add(jobj, "type", json_object_new_string("RegisterReadLog"));
+    json_object_object_add(jobj, "channel", json_object_new_int(src->channel));
+    json_object_object_add(jobj, "die", json_object_new_int(src->die));
+    json_object_object_add(jobj, "reg", json_object_new_int(src->reg));
+    add_time_to_json_object(jobj, src->metadata.logging_start_time);
+
+    strcpy(dst, json_object_to_json_string_ext(jobj, JSON_C_TO_STRING_SPACED));
+    json_object_put(jobj); // Delete the json object
 }
 
 void JSON_REGISTER_WRITE(RegisterWriteLog *src, char *dst)
 {
-    char time_buf[TIME_BUF_LEN];
-    const char *fmt = "{ \"type\": \"RegisterWriteLog\", \"channel\": %d, \"die\": %d, \"reg\": %d , " TIME_FORMAT "}\n";
-    sprintf(dst, fmt, src->channel, src->die, src->reg, timestamp_to_str(src->metadata.logging_start_time,time_buf));
+    struct json_object *jobj;
+
+    jobj = json_object_new_object();
+    json_object_object_add(jobj, "type", json_object_new_string("RegisterWriteLog"));
+    json_object_object_add(jobj, "channel", json_object_new_int(src->channel));
+    json_object_object_add(jobj, "die", json_object_new_int(src->die));
+    json_object_object_add(jobj, "reg", json_object_new_int(src->reg));
+    add_time_to_json_object(jobj, src->metadata.logging_start_time);
+
+    strcpy(dst, json_object_to_json_string_ext(jobj, JSON_C_TO_STRING_SPACED));
+    json_object_put(jobj); // Delete the json object
 }
 
 void JSON_BLOCK_ERASE(BlockEraseLog *src, char *dst)
 {
-    char time_buf[TIME_BUF_LEN];
-    const char *fmt = "{ \"type\": \"BlockEraseLog\", \"channel\": %d, \"die\": %d, \"block\": %d , " TIME_FORMAT "}\n";
-    sprintf(dst, fmt, src->channel, src->die, src->block, timestamp_to_str(src->metadata.logging_start_time,time_buf));
+    struct json_object *jobj;
+
+    jobj = json_object_new_object();
+    json_object_object_add(jobj, "type", json_object_new_string("BlockEraseLog"));
+    json_object_object_add(jobj, "channel", json_object_new_int(src->channel));
+    json_object_object_add(jobj, "die", json_object_new_int(src->die));
+    json_object_object_add(jobj, "block", json_object_new_int(src->block));
+    add_time_to_json_object(jobj, src->metadata.logging_start_time);
+
+    strcpy(dst, json_object_to_json_string_ext(jobj, JSON_C_TO_STRING_SPACED));
+    json_object_put(jobj); // Delete the json object
 }
 
 void JSON_CHANNEL_SWITCH_TO_READ(ChannelSwitchToReadLog *src, char *dst)
 {
-    char time_buf[TIME_BUF_LEN];
-    const char *fmt = "{ \"type\": \"ChannelSwitchToReadLog\", \"channel\": %d , " TIME_FORMAT "}\n";
-    sprintf(dst, fmt, src->channel, timestamp_to_str(src->metadata.logging_start_time,time_buf));
+    struct json_object *jobj;
+
+    jobj = json_object_new_object();
+    json_object_object_add(jobj, "type", json_object_new_string("ChannelSwitchToReadLog"));
+    json_object_object_add(jobj, "channel", json_object_new_int(src->channel));
+    add_time_to_json_object(jobj, src->metadata.logging_start_time);
+
+    strcpy(dst, json_object_to_json_string_ext(jobj, JSON_C_TO_STRING_SPACED));
+    json_object_put(jobj); // Delete the json object
 }
 
 void JSON_CHANNEL_SWITCH_TO_WRITE(ChannelSwitchToWriteLog *src, char *dst)
 {
-    char time_buf[TIME_BUF_LEN];
-    const char *fmt = "{ \"type\": \"ChannelSwitchToWriteLog\", \"channel\": %d , " TIME_FORMAT "}\n";
-    sprintf(dst, fmt, src->channel, timestamp_to_str(src->metadata.logging_start_time,time_buf));
+    struct json_object *jobj;
+
+    jobj = json_object_new_object();
+    json_object_object_add(jobj, "type", json_object_new_string("ChannelSwitchToWriteLog"));
+    json_object_object_add(jobj, "channel", json_object_new_int(src->channel));
+    add_time_to_json_object(jobj, src->metadata.logging_start_time);
+
+    strcpy(dst, json_object_to_json_string_ext(jobj, JSON_C_TO_STRING_SPACED));
+    json_object_put(jobj); // Delete the json object
 }
 
 #define _LOGS_WRITER_DEFINITION_APPLIER(structure, name)            \

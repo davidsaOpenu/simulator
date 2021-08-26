@@ -18,6 +18,7 @@
 #define __LOGGING_PARSER_H__
 
 #include "logging_backend.h"
+#include <json.h>
 #include <sys/time.h>
 
 /**
@@ -76,6 +77,7 @@ void logger_busy_read(Logger_Pool* logger, Byte* buffer, int length);
 int next_log_type(Logger_Pool* logger);
 
 char* timestamp_to_str(int64_t cur_ts, char *buf);
+void add_time_to_json_object(struct json_object *jobj, int64_t cur_ts);
 
 /**
  * A log which contains no attributes; should be an alias to every log which has no attributes
