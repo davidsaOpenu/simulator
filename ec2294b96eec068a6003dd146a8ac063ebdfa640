@@ -1,0 +1,38 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "88431619_1a970db1",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 1007990
+      },
+      "writtenOn": "2021-09-05T05:41:02Z",
+      "side": 1,
+      "message": "this change will be obsolete if Meital will merge similar change form the eVSSIM side",
+      "revId": "ec2294b96eec068a6003dd146a8ac063ebdfa640",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "4d7c65f7_d2fd10f0",
+        "filename": "eVSSIM/LOG_MGR/Logs_Generator/json-maker.h",
+        "patchSetId": 1
+      },
+      "lineNbr": 67,
+      "author": {
+        "id": 1007990
+      },
+      "writtenOn": "2021-09-05T05:41:02Z",
+      "side": 1,
+      "message": "nits",
+      "revId": "ec2294b96eec068a6003dd146a8ac063ebdfa640",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
+    }
+  ]
+}
