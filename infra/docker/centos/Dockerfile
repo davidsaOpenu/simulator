@@ -33,10 +33,10 @@ RUN yum clean all
 
 # Install Bear
 ENV BEAR_ZIP_FILENAME bear.zip
-RUN wget https://github.com/rizsotto/Bear/archive/master.zip -O $BEAR_ZIP_FILENAME; \
+RUN wget https://github.com/rizsotto/Bear/archive/refs/tags/2.4.4.zip -O $BEAR_ZIP_FILENAME; \
   unzip $BEAR_ZIP_FILENAME; \
   rm $BEAR_ZIP_FILENAME && \
-  cd Bear-master && cmake . && \
+  cd Bear-2.4.4 && cmake . && \
   make install && \
   ln -s /usr/local/bin/bear /usr/bin/bear && \
   sed  -i -e "s/env\ python/env python2.7/g" /usr/local/bin/bear
