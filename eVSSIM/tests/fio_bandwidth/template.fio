@@ -1,0 +1,13 @@
+[rw_bandwidth<ID>]
+group_reporting=1
+filename=/dev/nvme0n1
+direct=1
+randrepeat=1 
+ioengine=libaio
+bs=<BLOCK_SIZE>
+rw=<MODE>
+iodepth=8
+numjobs=8
+runtime=180
+group_reporting=1
+size=<TEST_SIZE>
