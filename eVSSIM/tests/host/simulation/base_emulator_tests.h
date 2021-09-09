@@ -21,7 +21,11 @@ extern "C" {
 
 #include "common.h"
 #include "ftl_sect_strategy.h"
+#include <uuid/uuid.h>
+
 }
+#include "test_context.h"
+
 extern "C" int g_init;
 extern "C" int clientSock;
 extern "C" int g_init_log_server;
@@ -32,7 +36,8 @@ extern "C" int g_init_log_server;
 #include <fstream>
 #include <cstdio>
 #include <cstdlib>
-
+#include <string>
+#include <time.h>
 
 #define BASE_TEST_ARRAY_SIZE(array) (sizeof(array) / sizeof(array[0]))
 
@@ -40,6 +45,21 @@ extern "C" int g_init_log_server;
 #define DEFAULT_FLASH_NB 8
 
 #define READ_MAPPING_INFO_FROM_FILES false
+
+// gtest renamed test_case_name() -> test_suite_name() in newer releases.
+// Provide a compatibility wrapper so this file builds with both versions.
+#if defined(GTEST_MAJOR_) && defined(GTEST_MINOR_)
+  // If googletest >= 1.10 (or whichever release introduced test_suite_name),
+  // prefer test_suite_name(); otherwise use test_case_name().
+  #if (GTEST_MAJOR_ > 1) || (GTEST_MAJOR_ == 1 && GTEST_MINOR_ >= 10)
+    #define GTEST_TEST_SUITE_OR_CASE_NAME(ti) ((ti)->test_suite_name())
+  #else
+    #define GTEST_TEST_SUITE_OR_CASE_NAME(ti) ((ti)->test_case_name())
+  #endif
+#else
+  // If version macros are not present, default to the older name (most common).
+  #define GTEST_TEST_SUITE_OR_CASE_NAME(ti) ((ti)->test_case_name())
+#endif
 
 /**
  * paramters that the tests run with
@@ -269,13 +289,43 @@ namespace {
 
         public:
             virtual void SetUp(void) {
+                // Get SSD config
                 ssd_config = GetParam();
+
+                // Get test information
+                const ::testing::TestInfo* ti = ::testing::UnitTest::GetInstance()->current_test_info();
+
+                // Generate UUID for the test
+                char run_uuid[37];
+                uuid_t u;
+                uuid_generate(u);
+                uuid_unparse_lower(u, run_uuid);
+
+                // Calculate size of disk
+                uint64_t total_bytes = (uint64_t)ssd_config->get_pages() * (uint64_t)ssd_config->get_page_size();
+                struct timeval tv;
+
+                // Capture timestamp for test
+                gettimeofday(&tv, nullptr);
+                int64_t t0_us = (int64_t)tv.tv_sec * 1000000LL + (int64_t)tv.tv_usec;
                 ssd_config->ssd_conf_serialize();
+
+                // Populate test execution context
+                test_execution_context_t ctx;
+                memset(&ctx, 0, sizeof(ctx));
+                ctx.test_name               = ti ? ti->name() : "unknown";
+                ctx.test_case_name          = ti ? GTEST_TEST_SUITE_OR_CASE_NAME(ti) : "unknown";
+                ctx.test_run_uuid           = run_uuid;
+                ctx.ssd_total_size_bytes    = total_bytes;
+                ctx.test_start_timestamp_us = t0_us;
+                SSD_SET_TEST_CONTEXT(&ctx);
+
                 FTL_INIT();
             }
 
             virtual void TearDown() {
                 FTL_TERM();
+                SSD_CLEAR_TEST_CONTEXT();
                 remove("data/empty_block_list.dat");
                 remove("data/inverse_block_mapping.dat");
                 remove("data/inverse_page_mapping.dat");

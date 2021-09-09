@@ -21,7 +21,7 @@ VSSIM_OBJ := vssim_config_manager.o \
 			ftl_sect_strategy.o ftl_obj_strategy.o \
 			logging_backend.o logging_parser.o logging_rt_analyzer.o logging_offline_analyzer.o \
 			logging_manager.o logging_server.o logging_statistics.o \
-			ssd_file_operations.o
+			ssd_file_operations.o test_context.o
 
 CFLAGS := -I/opt/gtest/include -I$(VSSIM_HOME) -I$(VSSIM_HOME)/osc-osd -I$(VSSIM_HOME)/osc-osd/osd-target -I$(VSSIM_HOME)/QEMU \
 	-g -DGTEST -DCOMPLIANCE_TESTS -L/opt/gtest/lib -L$(VSSIM_HOME)/osc-osd/osd-util -L$(VSSIM_HOME)/osc-osd/osd-target \
@@ -29,7 +29,7 @@ CFLAGS := -I/opt/gtest/include -I$(VSSIM_HOME) -I$(VSSIM_HOME)/osc-osd -I$(VSSIM
 	-D_REENTRANT -fPIE -DQT_NO_DEBUG -DQT_WIDGETS_LIB -DQT_NETWORK_LIB -DQT_GUI_LIB -DQT_CORE_LIB \
 	-I/usr/include/json-c/ -D__STDC_VERSION__=0
 
-COMMON_FLAGS := -lpthread -lgtest -lgtest_main -losdutil -losdtgt -lsqlite3 -lwebsockets -ljson-c
+COMMON_FLAGS := -lpthread -lgtest -lgtest_main -losdutil -losdtgt -lsqlite3 -lwebsockets -ljson-c -luuid
 
 W_ALL_ERR := -Wall -Werror
 
@@ -47,6 +47,8 @@ mklink:
 	ln -sf $(VSSIM_HOME)/SSD_MODULE/ssd_log_manager.h
 	ln -sf $(VSSIM_HOME)/SSD_MODULE/ssd_log_manager.c
 	ln -sf $(VSSIM_HOME)/SSD_MODULE/ssd_util.h
+	ln -sf $(VSSIM_HOME)/SSD_MODULE/test_context.h
+	ln -sf $(VSSIM_HOME)/SSD_MODULE/test_context.c
 	ln -sf $(VSSIM_HOME)/LOG_MGR/logging_rt_analyzer.h
 	ln -sf $(VSSIM_HOME)/LOG_MGR/logging_rt_analyzer.c
 	ln -sf $(VSSIM_HOME)/LOG_MGR/logging_offline_analyzer.h
@@ -97,7 +99,7 @@ distclean: clean
         logging_parser.h logging_parser.c logging_backend.h logging_backend.c \
         logging_rt_analyzer.h logging_rt_analyzer.c logging_offline_analyzer.h logging_offline_analyzer.c \
 		monitor_test.h logging_manager.h logging_manager.c \
-        logging_server.h logging_server.c www logging_statistics.c logging_statistics.h
+        logging_server.h logging_server.c www logging_statistics.c logging_statistics.h test_context.h test_context.c
 
 %.o: %.cc
 	g++ $(W_ALL_ERR) $(CFLAGS) -std=c++11 -c $<
