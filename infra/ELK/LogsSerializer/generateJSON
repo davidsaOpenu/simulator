@@ -1,0 +1,126 @@
+
+#define FACTOR 1
+
+#define CH_NUM 4 * FACTOR
+"PAGE_SIZE " << CONST_PAGE_SIZE_IN_BYTES << "\n"
+                    "PAGE_NB " << (CONST_PAGES_PER_BLOCK + CONST_PAGES_PER_BLOCK_OVERPROV) << "\n"
+                    "SECTOR_SIZE 1\n"
+                    "FLASH_NB " << flash_nb << "\n"
+                    "BLOCK_NB " << blocks_per_flash << "\n"
+                    "PLANES_PER_FLASH 1\n"
+                    "REG_WRITE_DELAY 82\n"
+                    "CELL_PROGRAM_DELAY 900\n"
+                    "REG_READ_DELAY 82\n"
+                    "CELL_READ_DELAY 50\n"
+                    "BLOCK_ERASE_DELAY 2000\n"
+                    "CHANNEL_SWITCH_DELAY_R 16\n"
+                    "CHANNEL_SWITCH_DELAY_W 33\n"
+                    
+//FLASH = DIE
+#define DIE_NUM 4 * FACTOR
+#blocks_per_flash 512 * FACTOR
+#pages_per_block 128 * FACTOR
+// channel,reg = channel,die
+
+g_reg_status[CH_NUM][DIE_NUM]; // W/R
+
+// Channel status isn't useful, we need to have die status
+g_channel_status[CH_NUM]; // W/R
+
+progarmPage(int ch_num)
+  if(g_reg_status[CH_NUM] == R)
+    dump REGISTER_WRITE(ch_num, die, reg)
+  dump PHYSICAL_CELL_PROGRAM
+
+
+readPage (int ch_num)
+  if(g_reg_status[CH_NUM] == W)
+    dump CHANNEL_SWITCH_TO_READ
+  dump PHYSICAL_CELL_READ
+
+
+
+eraze block (in ch_num)
+  dump BLOCK_ERASE
+
+
+logicalWrite(int ch_num)
+    if(g_reg_status[CH_NUM] == R)
+     dump CHANNEL_SWITCH_TO_WRITE
+    // copy from a block to be erazed 
+    for r = rand (5)
+       dump PHYSICAL_CELL_PROGRAM (from the block to be erazed to several block that contain free pages)
+    
+    dump BLOCK_ERASE // the blck that pages we copied where located in 
+
+    
+    dump PHYSICAL_CELL_PROGRAM / to the erazed block)
+    
+    dump LOGICAL_CELL_PROGRAM
+
+
+chSwich(int ch_num, int operation )
+  if g_channel_status[ch_num] != operation)
+     choose top dump CHANNEL_SWITCH_TO_WRITE or to dump CHANNEL_SWITCH_TO_READ
+
+    
+
+// suppose on each channel we have 50 pages 
+ina main ()(
+
+  // fill the disk 
+  chSwich
+  50 progarmPage ch 1
+  chSwich
+  50 progarmPage ch 2
+  chSwich
+  50 progarmPage ch 3
+  chSwich
+  50 progarmPage ch 4
+
+
+  // eraze to sumulate GC
+  25 eraze block (1)
+  25 dump GARBAGE_COLLECTION 
+  25 eraze block (2)
+  25 dump GARBAGE_COLLECTION 
+  25 eraze block (3)
+  25 dump GARBAGE_COLLECTION 
+  25 eraze block (4)
+  25 dump GARBAGE_COLLECTION 
+
+  // reads
+  chSwich
+  500 readPage ch 1
+  chSwich
+  500 readPage ch 2
+  chSwich
+  500 readPage ch 3
+  chSwich
+  500 readPage ch 4  
+
+  // refill the disk 
+  chSwich
+  25 progarmPage ch 1
+  chSwich
+  25 progarmPage ch 2
+  chSwich
+  25 progarmPage ch 3
+  chSwich
+  25 progarmPage ch 4
+
+  
+  chSwich
+  25 logicalWrite ch 1
+  chSwich
+  25 logicalWrite ch 2
+  chSwich
+  25 logicalWrite ch 3
+  chSwich
+  25 logicalWrite ch 4
+
+
+}
+ 
+
+
