@@ -33,7 +33,8 @@ RUN apt-get update && DEBIAN_FRONTEND=noninteractive apt-get -y install \
   libjson-c-dev \
   flex \
   bison \
-  libelf-dev
+  libelf-dev \
+  uuid-dev
 
 # Install build packages
 RUN apt-get update && DEBIAN_FRONTEND=noninteractive apt-get -y install \
