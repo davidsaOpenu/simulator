@@ -149,3 +149,5 @@ eVSSIM/osc-osd/osd-target/osd-schema.c
 !bios.bin
 
 infra/builder/env_dump
+infra/ELK/docker-elk
+infra/ELK/filebeat-data

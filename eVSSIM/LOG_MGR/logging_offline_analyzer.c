@@ -178,6 +178,13 @@ void offline_log_analyzer_loop(OfflineLogAnalyzer* analyzer) {
                     JSON_LOG_SYNC(&res, &json_buf);
                     break;
                 }
+                case SSD_UTILIZATION_LOG_UID:
+                {
+                    SsdUtilizationLog log;
+                    NEXT_SSD_UTILIZATION_LOG(analyzer->logger_pool, &log, OFFLINE_ANALYZER);
+                    JSON_SSD_UTILIZATION(&log, &json_buf);
+                    break;
+                }
                 default:
                     fprintf(stderr, "WARNING: unknown log type id! [%d]\n", log_type);
                     fprintf(stderr, "WARNING: rt_log_analyzer_loop may not be up to date!\n");
