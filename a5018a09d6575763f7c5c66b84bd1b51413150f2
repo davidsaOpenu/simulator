@@ -1,0 +1,239 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "28bde0c2_94954c98",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 1007990
+      },
+      "writtenOn": "2021-09-26T12:27:36Z",
+      "side": 1,
+      "message": "Thanks for working on this. \n\nFirst set of general and infile comments: \n\n1. chmod +x *.sh\n\n2. start_elk.sh is 50% identical to the elk_installer.sh. Let\u0027s add a parameter or split into non-overlapping scripts.\n\n\n3. docker_kill.sh isn\u0027t it enough to run docker-compose down? \n\n4. Let\u0027s add the script that launches containers and runs tests to the run-ci.sh script.\n   Must run several times to verify the robustness to avoid CI failures.\n\n5. Is is necessary to run docker_kill.sh at the end of the run-ci.sh script? If it is, why?",
+      "revId": "a5018a09d6575763f7c5c66b84bd1b51413150f2",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "bdadd2ff_ebab9701",
+        "filename": "infra/ELK/elk_installer.sh",
+        "patchSetId": 1
+      },
+      "lineNbr": 1,
+      "author": {
+        "id": 1007990
+      },
+      "writtenOn": "2021-09-26T12:27:36Z",
+      "side": 1,
+      "message": "nit: whitespace",
+      "range": {
+        "startLine": 1,
+        "startChar": 37,
+        "endLine": 1,
+        "endChar": 40
+      },
+      "revId": "a5018a09d6575763f7c5c66b84bd1b51413150f2",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "f10a3e17_5c1ee8f9",
+        "filename": "infra/ELK/elk_installer.sh",
+        "patchSetId": 1
+      },
+      "lineNbr": 1,
+      "author": {
+        "id": 1007990
+      },
+      "writtenOn": "2021-09-26T12:27:36Z",
+      "side": 1,
+      "message": "please add at the beginning\n#!/bin/bash\nset -e",
+      "revId": "a5018a09d6575763f7c5c66b84bd1b51413150f2",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "3f1613c9_0ca12082",
+        "filename": "infra/ELK/elk_installer.sh",
+        "patchSetId": 1
+      },
+      "lineNbr": 28,
+      "author": {
+        "id": 1007990
+      },
+      "writtenOn": "2021-09-26T12:27:36Z",
+      "side": 1,
+      "message": "nit: whitespace",
+      "range": {
+        "startLine": 28,
+        "startChar": 34,
+        "endLine": 28,
+        "endChar": 37
+      },
+      "revId": "a5018a09d6575763f7c5c66b84bd1b51413150f2",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "63ffee24_ade48c58",
+        "filename": "infra/ELK/elk_installer.sh",
+        "patchSetId": 1
+      },
+      "lineNbr": 47,
+      "author": {
+        "id": 1007990
+      },
+      "writtenOn": "2021-09-26T12:27:36Z",
+      "side": 1,
+      "message": "here and in lines 49-66 as well",
+      "range": {
+        "startLine": 47,
+        "startChar": 16,
+        "endLine": 47,
+        "endChar": 17
+      },
+      "revId": "a5018a09d6575763f7c5c66b84bd1b51413150f2",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "cfd51ba4_1186166e",
+        "filename": "infra/ELK/elk_installer.sh",
+        "patchSetId": 1
+      },
+      "lineNbr": 49,
+      "author": {
+        "id": 1007990
+      },
+      "writtenOn": "2021-09-26T12:27:36Z",
+      "side": 1,
+      "message": "lets change it to the same version that github.com/deviantony/docker-elk.git have downloaded (something like ver\u003d$(docker images docker.elastic.co/elasticsearch/elasticsearch --format\u003d\"{{ .Tag }}\")",
+      "range": {
+        "startLine": 48,
+        "startChar": 45,
+        "endLine": 49,
+        "endChar": 51
+      },
+      "revId": "a5018a09d6575763f7c5c66b84bd1b51413150f2",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "cb060aab_d6229e8a",
+        "filename": "infra/ELK/elk_installer.sh",
+        "patchSetId": 1
+      },
+      "lineNbr": 67,
+      "author": {
+        "id": 1007990
+      },
+      "writtenOn": "2021-09-26T12:27:36Z",
+      "side": 1,
+      "message": "leftovers\nor consider to to add to README",
+      "range": {
+        "startLine": 63,
+        "startChar": 0,
+        "endLine": 67,
+        "endChar": 42
+      },
+      "revId": "a5018a09d6575763f7c5c66b84bd1b51413150f2",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "bccc38c7_a36f3516",
+        "filename": "infra/ELK/elk_installer.sh",
+        "patchSetId": 1
+      },
+      "lineNbr": 77,
+      "author": {
+        "id": 1007990
+      },
+      "writtenOn": "2021-09-26T12:27:36Z",
+      "side": 1,
+      "message": "leftover?",
+      "range": {
+        "startLine": 70,
+        "startChar": 0,
+        "endLine": 77,
+        "endChar": 28
+      },
+      "revId": "a5018a09d6575763f7c5c66b84bd1b51413150f2",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "0f04953b_b821534d",
+        "filename": "infra/ELK/elk_installer.sh",
+        "patchSetId": 1
+      },
+      "lineNbr": 79,
+      "author": {
+        "id": 1007990
+      },
+      "writtenOn": "2021-09-26T12:27:36Z",
+      "side": 1,
+      "message": "no need in this line. just make sure that all *.sh files have x turned on in the next change request",
+      "revId": "a5018a09d6575763f7c5c66b84bd1b51413150f2",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "970f53a0_efd61566",
+        "filename": "infra/ELK/elk_installer.sh",
+        "patchSetId": 1
+      },
+      "lineNbr": 81,
+      "author": {
+        "id": 1007990
+      },
+      "writtenOn": "2021-09-26T12:27:36Z",
+      "side": 1,
+      "message": "I guess max should be 32 or more",
+      "range": {
+        "startLine": 81,
+        "startChar": 0,
+        "endLine": 81,
+        "endChar": 5
+      },
+      "revId": "a5018a09d6575763f7c5c66b84bd1b51413150f2",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "5f56419c_8093bd3e",
+        "filename": "infra/ELK/elk_installer.sh",
+        "patchSetId": 1
+      },
+      "lineNbr": 87,
+      "author": {
+        "id": 1007990
+      },
+      "writtenOn": "2021-09-26T12:27:36Z",
+      "side": 1,
+      "message": "the file name is not reflecting its content.\nand, maybe, better to copy its content instead of calling another script at all?",
+      "range": {
+        "startLine": 87,
+        "startChar": 0,
+        "endLine": 87,
+        "endChar": 41
+      },
+      "revId": "a5018a09d6575763f7c5c66b84bd1b51413150f2",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
+    }
+  ]
+}
