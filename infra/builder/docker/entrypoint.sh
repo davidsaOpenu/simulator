@@ -35,6 +35,16 @@ if [ -f /tmp/.Xauthority ]; then
     chown external:external /home/external/.Xauthority
 fi
 
+set +e
+grep binutils /home/external/.bashrc
+RESULT=$?
+set -e
+if [ $RESULT -ne 0 ]; then
+  # https://programmerah.com/unrecognized-relocation-0x2a-in-section-text-5565/
+  # prepend to have the binutils-2.26 PATH in both interactive and non-interactive cases
+  sed -i '1s;^;PATH=/usr/lib/binutils-2.26/bin:$PATH\n;' /home/external/.bashrc
+fi
+
 # Give permissions to the kvm
 chmod 777 /dev/kvm
 
