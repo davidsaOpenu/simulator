@@ -25,8 +25,8 @@ source env.sh
 ./compile-kernel.sh
 ./compile-qemu.sh
 ./compile-monitor.sh
-./compile-nvme-tools.sh
-./compile-tests.sh
+./compile-guest-tests.sh
+./compile-host-tests.sh
 
 ./docker-run-sanity.sh
 
@@ -111,8 +111,8 @@ guest (Including nvme cli, nvme compliance) and available in /home/esd/guest.
 ./compile-kernel.sh - Compile kernel and created images in dist
 ./compile-qemu.sh - Compile qemu
 ./compile-monitor.sh - Compile monitoring related code
-./compile-nvme-tools.sh - Compile nvme tools
-./compile-tests.sh - Compile test related code
+./compile-guest-tests.sh - Compile nvme tools and nvme compliance related code
+./compile-host-tests.sh - Compile osc-osd and tests that use google testing framework
 
 
 == Tests
