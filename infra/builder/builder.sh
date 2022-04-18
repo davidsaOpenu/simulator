@@ -81,7 +81,8 @@ evssim_run_at_folder () {
 evssim_run_at_path () {
     local path=$1
     local args="${@:2}"
-    docker run --rm -i $docker_extra_tty --net=host $EVSSIM_DOCKER_XOPTIONS --privileged --env-file <(evssim_all_env) -v $EVSSIM_ROOT_PATH:$EVSSIM_DOCKER_ROOT_PATH $EVSSIM_DOCKER_IMAGE_NAME bash -c "cd $path; $args"
+    # to read .bashrc for non-interactive shell use --login option
+    docker run --rm -i $docker_extra_tty --net=host $EVSSIM_DOCKER_XOPTIONS --privileged --env-file <(evssim_all_env) -v $EVSSIM_ROOT_PATH:$EVSSIM_DOCKER_ROOT_PATH $EVSSIM_DOCKER_IMAGE_NAME bash --login -c "cd $path; $args"
 }
 
 # Run

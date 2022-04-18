@@ -7,29 +7,35 @@ RUN apt-get update && DEBIAN_FRONTEND=noninteractive apt-get -y install \
   vim \
   wget \
   build-essential \
-  gcc-4.6 \
   cmake \
-  g++ \
   unzip \
   libsqlite3-dev \
   libxen-dev \
   zlib1g-dev \
   libsdl-image1.2-dev \
   libgnutls-dev \
+  #libgnutls28-dev for 18.04 \
   libvncserver-dev \
   libpci-dev \
   libaio-dev \
   libssl-dev \
   sshpass \
   libvirt-bin \
+  #libvirt-clients for 18.04\
+  #bridge-utils for 18.04\
+  #virt-manager for 18.04\
   python-pip \
   python-setuptools \
   libxml++2.6-dev \
   libboost-all-dev \
   eatmydata \
   strace \
-  lsof
-
+  lsof \
+  binutils-2.26 \
+  gcc \
+  g++
+  #sudo for 18.04\
+  #apt-utils for 18.04
 
 # Install build packages
 RUN apt-get update && DEBIAN_FRONTEND=noninteractive apt-get -y install \
@@ -53,15 +59,15 @@ RUN git clone --branch v4.1-stable https://github.com/warmcat/libwebsockets.git 
     cd /opt/libwebsockets && cmake . && make && make install && ldconfig
 
 RUN apt-get update && DEBIAN_FRONTEND=noninteractive apt-get install -y \
-    libpixman-1-dev
+    libpixman-1-dev libjson-c-dev
+
+# Remove kernel scripts
+RUN rm -rf /etc/kernel/postinst.d/*
 
 # Copy our folder into the scripts folder
 ADD docker /scripts
 ADD env.sh /scripts
 RUN chmod -R 777 /scripts
-
-# Remove kernel scripts
-RUN rm -rf /etc/kernel/postinst.d/*
 
 # Install python libraries
 RUN pip install -r /scripts/requirements.txt
