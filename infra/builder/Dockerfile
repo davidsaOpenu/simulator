@@ -55,13 +55,13 @@ RUN git clone --branch v4.1-stable https://github.com/warmcat/libwebsockets.git 
 RUN apt-get update && DEBIAN_FRONTEND=noninteractive apt-get install -y \
     libpixman-1-dev
 
+# Remove kernel scripts
+RUN rm -rf /etc/kernel/postinst.d/*
+
 # Copy our folder into the scripts folder
 ADD docker /scripts
 ADD env.sh /scripts
 RUN chmod -R 777 /scripts
-
-# Remove kernel scripts
-RUN rm -rf /etc/kernel/postinst.d/*
 
 # Install python libraries
 RUN pip install -r /scripts/requirements.txt

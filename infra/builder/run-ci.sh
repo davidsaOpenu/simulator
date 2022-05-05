@@ -14,8 +14,8 @@ export EVSSIM_RUNTIME_ALWAYS_RESET=yes
 # Compile all modules
 ./compile-kernel.sh
 ./compile-qemu.sh
-./compile-nvme-tools.sh
-./compile-tests.sh
+./compile-host-tests.sh
+./compile-guest-tests.sh
 
 # Run sanity and tests
 ./docker-run-sanity.sh
