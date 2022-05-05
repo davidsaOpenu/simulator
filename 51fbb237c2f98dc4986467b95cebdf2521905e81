@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "7909af96_a459abfa",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 3
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 1007990
+      },
+      "writtenOn": "2022-05-05T17:16:47Z",
+      "side": 1,
+      "message": "gcc-4.6 depend on older binutils. Installing binutils-2.26 solves relocation issue but evenually ends in qemu crash and as a consequence no /dev/nvme0n1 is detected by the docker-run-sanity.sh. \n\nThe problem was fixed by  https://review.gerrithub.io/c/davidsaOpenu/qemu/+/537416 \nthat removed the compilation flag that referenced the 32 bit library.\n\nSo just the renaming part of the change makes sence.",
+      "revId": "51fbb237c2f98dc4986467b95cebdf2521905e81",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
+    }
+  ]
+}
