@@ -26,7 +26,8 @@ RUN yum install -y vim \
   libvirt-client \
   python-pip \
   python-setuptools \
-  sudo
+  sudo \
+  ca-certificates
 
 # Clean yum cache (making the image smaller)
 RUN yum clean all
