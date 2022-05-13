@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "924d4938_4ace6b61",
+        "filename": "infra/builder/builder.sh",
+        "patchSetId": 4
+      },
+      "lineNbr": 144,
+      "author": {
+        "id": 1007990
+      },
+      "writtenOn": "2022-05-13T04:09:01Z",
+      "side": 1,
+      "message": "what was the error when using python 3?",
+      "range": {
+        "startLine": 144,
+        "startChar": 0,
+        "endLine": 144,
+        "endChar": 38
+      },
+      "revId": "ce0e865f35b608c55d1e129affecbaceb73afed9",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
+    }
+  ]
+}
