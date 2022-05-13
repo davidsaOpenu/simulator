@@ -22,6 +22,30 @@
       },
       "revId": "ce0e865f35b608c55d1e129affecbaceb73afed9",
       "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "a8886332_a0640cea",
+        "filename": "infra/builder/builder.sh",
+        "patchSetId": 4
+      },
+      "lineNbr": 144,
+      "author": {
+        "id": 1020114
+      },
+      "writtenOn": "2022-05-13T05:21:53Z",
+      "side": 1,
+      "message": "There was no error - it\u0027s just that in Ubuntu 22.04 there is no default `python`, there\u0027s `python2.7` or `python3.10` - so I changed to explicitly use python2.7 as I assumed that was the original intention.\nI can check it with python3 and try again if you think it is important.",
+      "parentUuid": "924d4938_4ace6b61",
+      "range": {
+        "startLine": 144,
+        "startChar": 0,
+        "endLine": 144,
+        "endChar": 38
+      },
+      "revId": "ce0e865f35b608c55d1e129affecbaceb73afed9",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
     }
   ]
 }
