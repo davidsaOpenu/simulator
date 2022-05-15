@@ -334,5 +334,5 @@ evssim_guest () {
     if [ -t 0 ]; then
         ssh_extra_tty=-t
     fi
-    ssh -q $ssh_extra_tty -i $EVSSIM_ROOT_PATH/$EVSSIM_BUILDER_FOLDER/docker/id_rsa -p 2222 -o ConnectionAttempts=1024 -o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no -o PasswordAuthentication=no $EVSSIM_QEMU_UBUNTU_USERNAME@localhost bash -c \"$@\"
+    ssh -q $ssh_extra_tty -i $EVSSIM_ROOT_PATH/$EVSSIM_BUILDER_FOLDER/docker/id_rsa -p 2222 -o ConnectionAttempts=1024 -o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no -o PasswordAuthentication=no -o PubkeyAcceptedKeyTypes=+ssh-rsa $EVSSIM_QEMU_UBUNTU_USERNAME@localhost bash -c \"$@\"
 }
