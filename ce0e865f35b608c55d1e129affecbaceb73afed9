@@ -46,6 +46,30 @@
       },
       "revId": "ce0e865f35b608c55d1e129affecbaceb73afed9",
       "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "44c3f468_0c98db8c",
+        "filename": "infra/builder/builder.sh",
+        "patchSetId": 4
+      },
+      "lineNbr": 144,
+      "author": {
+        "id": 1007990
+      },
+      "writtenOn": "2022-05-15T13:07:08Z",
+      "side": 1,
+      "message": "Thanks. In that case better to use update-alternatives --install /usr/bin/python python /usr/bin/python3.X to have python3 as a default. \nLet\u0027s leave only the ssh part of the change.",
+      "parentUuid": "a8886332_a0640cea",
+      "range": {
+        "startLine": 144,
+        "startChar": 0,
+        "endLine": 144,
+        "endChar": 38
+      },
+      "revId": "ce0e865f35b608c55d1e129affecbaceb73afed9",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
     }
   ]
 }
