@@ -70,6 +70,30 @@
       },
       "revId": "ce0e865f35b608c55d1e129affecbaceb73afed9",
       "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "4c1f962f_cc3f7d5b",
+        "filename": "infra/builder/builder.sh",
+        "patchSetId": 4
+      },
+      "lineNbr": 144,
+      "author": {
+        "id": 1020114
+      },
+      "writtenOn": "2022-05-15T16:38:07Z",
+      "side": 1,
+      "message": "Very well.\nDeleted it and ran the `update-alternatives` command on my local machine.\nI will add it to the FAQ as well.",
+      "parentUuid": "44c3f468_0c98db8c",
+      "range": {
+        "startLine": 144,
+        "startChar": 0,
+        "endLine": 144,
+        "endChar": 38
+      },
+      "revId": "ce0e865f35b608c55d1e129affecbaceb73afed9",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
     }
   ]
 }
