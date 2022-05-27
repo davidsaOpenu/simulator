@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "37526376_42477f4c",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 6
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 1020114
+      },
+      "writtenOn": "2022-05-27T21:09:46Z",
+      "side": 1,
+      "message": "Seems working - and fixed your note - now containing only the ssh option change",
+      "revId": "ee64b01907a1f74a7c6a189e0923f949c74e3c4a",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
+    }
+  ]
+}
