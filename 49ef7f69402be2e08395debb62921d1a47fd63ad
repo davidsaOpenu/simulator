@@ -107,6 +107,24 @@
       "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "62abe2de_5f367d60",
+        "filename": "eVSSIM/tests/host/base_emulator_tests.h",
+        "patchSetId": 6
+      },
+      "lineNbr": 188,
+      "author": {
+        "id": 1020114
+      },
+      "writtenOn": "2022-05-27T22:30:40Z",
+      "side": 1,
+      "message": "Was already done",
+      "parentUuid": "f82c6b02_5ed8d83f",
+      "revId": "49ef7f69402be2e08395debb62921d1a47fd63ad",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "e12ba2ef_c1a13fc2",
