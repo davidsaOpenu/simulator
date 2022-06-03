@@ -218,6 +218,30 @@
       },
       "revId": "49ef7f69402be2e08395debb62921d1a47fd63ad",
       "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "f58001c4_140ed22f",
+        "filename": "eVSSIM/tests/host/sector_tests.cc",
+        "patchSetId": 6
+      },
+      "lineNbr": 15,
+      "author": {
+        "id": 1020114
+      },
+      "writtenOn": "2022-06-03T19:53:22Z",
+      "side": 1,
+      "message": "It seems like this comment is no longer relevant, as it was changed since as necessary.\nRe-open if it\u0027s still relevant :)",
+      "parentUuid": "7ab9c109_be8e957f",
+      "range": {
+        "startLine": 13,
+        "startChar": 0,
+        "endLine": 15,
+        "endChar": 35
+      },
+      "revId": "49ef7f69402be2e08395debb62921d1a47fd63ad",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
     }
   ]
 }
