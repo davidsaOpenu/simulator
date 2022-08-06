@@ -1,4 +1,6 @@
-FROM ubuntu:14.04
+FROM ubuntu:18.04
+
+ENV DEBIAN_FRONTEND=noninteractive
 
 # Install base packages
 RUN apt-get update && apt-get -y install \
@@ -7,7 +9,7 @@ RUN apt-get update && apt-get -y install \
   vim \
   wget \
   build-essential \
-  gcc-4.6 \
+  gcc \
   cmake \
   g++ \
   unzip \
@@ -15,7 +17,7 @@ RUN apt-get update && apt-get -y install \
   libxen-dev \
   zlib1g-dev \
   libsdl-image1.2-dev \
-  libgnutls-dev \
+  libgnutls28-dev \
   libvncserver-dev \
   libpci-dev \
   libaio-dev \
@@ -68,3 +70,5 @@ RUN echo "ALL            ALL = (ALL) NOPASSWD: ALL" >> /etc/sudoers
 #those lines are appended from outside
 #echo RUN groupadd `stat -c "%G" .` -g `stat -c "%g" .` >> ${WORKSPACE}/simulator/infra/docker/ubuntu/Dockerfile
 #echo RUN useradd -ms /bin/bash `stat -c "%U" .` -u `stat -c "%u" .` -g `stat -c "%g" .` -G sudo >> ${WORKSPACE}/simulator/infra/docker/ubuntu/Dockerfile
+RUN groupadd yannay -g 1000
+RUN useradd -ms /bin/bash yannay -u 1000 -g 1000 -G sudo
