@@ -1,21 +1,24 @@
-FROM ubuntu:14.04
+FROM ubuntu:18.04
+
+ENV DEBIAN_FRONTEND=noninteractive
+
+RUN apt-get update && apt-get -y install software-properties-common && add-apt-repository ppa:ubuntu-toolchain-r/ppa
 
 # Install base packages
 RUN apt-get update && apt-get -y install \
-  software-properties-common \
   git \
   vim \
   wget \
   build-essential \
-  gcc-4.6 \
+  gcc-4.8 \
   cmake \
-  g++ \
+  g++-4.8 \
   unzip \
   libsqlite3-dev \
   libxen-dev \
   zlib1g-dev \
   libsdl-image1.2-dev \
-  libgnutls-dev \
+  libgnutls28-dev \
   libvncserver-dev \
   libpci-dev \
   libaio-dev \
@@ -68,3 +71,4 @@ RUN echo "ALL            ALL = (ALL) NOPASSWD: ALL" >> /etc/sudoers
 #those lines are appended from outside
 #echo RUN groupadd `stat -c "%G" .` -g `stat -c "%g" .` >> ${WORKSPACE}/simulator/infra/docker/ubuntu/Dockerfile
 #echo RUN useradd -ms /bin/bash `stat -c "%U" .` -u `stat -c "%u" .` -g `stat -c "%g" .` -G sudo >> ${WORKSPACE}/simulator/infra/docker/ubuntu/Dockerfile
+RUN groupadd yannay -g 1000
