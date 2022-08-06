@@ -1,6 +1,0 @@
-- name: configure prerequisites
-  hosts: [host_testers, guest_testers]
-  roles:
-    - system_setup
-    - elk_docker_setup
-  tags: [host, guest, common]

@@ -8,6 +8,12 @@
     https_proxy: "{{ lookup('env','http_proxy') }}"
   tags: [host, guest, common]
 
+- name: run elk stack
+  hosts: host_testers
+  roles:
+    - elk_docker_setup
+  tags: host
+
 - name: perform host tests
   hosts: host_testers
   roles:
