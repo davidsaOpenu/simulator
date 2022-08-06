@@ -1,21 +1,27 @@
-FROM ubuntu:14.04
+FROM ubuntu:18.04
+
+ENV DEBIAN_FRONTEND=noninteractive
+
+RUN apt-get update && \
+    apt-get -y install software-properties-common && \
+    add-apt-repository "deb http://archive.ubuntu.com/ubuntu/ trusty main" && \
+    add-apt-repository "deb http://archive.ubuntu.com/ubuntu/ trusty universe"
 
 # Install base packages
 RUN apt-get update && apt-get -y install \
-  software-properties-common \
   git \
   vim \
   wget \
   build-essential \
   gcc-4.6 \
   cmake \
-  g++ \
+  g++-4.6 \
   unzip \
   libsqlite3-dev \
   libxen-dev \
   zlib1g-dev \
   libsdl-image1.2-dev \
-  libgnutls-dev \
+  libgnutls28-dev \
   libvncserver-dev \
   libpci-dev \
   libaio-dev \
@@ -34,6 +40,9 @@ RUN apt-get update && apt-get -y install \
   qemu-kvm \
   valgrind \
   curl
+
+RUN update-alternatives --install /usr/bin/gcc gcc /usr/bin/gcc-4.6 1 && \
+    update-alternatives --install /usr/bin/g++ g++ /usr/bin/g++-4.6 1
 
 
 
