@@ -1,0 +1,21 @@
+- name: system agnostic installation of docker
+  shell: "{{ item }}"
+  become: true
+  with_items:
+      - 'curl -fsSL get.docker.com -o get-docker.sh'
+      - 'sh get-docker.sh'
+      - 'nohup dockerd --storage-driver vfs &'
+
+- name: system agnostic installation of pip
+  shell: "{{ item }}"
+  become: true
+  with_items:
+      - 'curl -fsSL https://bootstrap.pypa.io/pip/2.7/get-pip.py -o get-pip.py'
+      - 'python get-pip.py'
+
+- name: install docker-py
+  become: yes
+  pip:
+    name: docker
+    state:
+      present

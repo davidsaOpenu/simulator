@@ -4,14 +4,21 @@
 #
 
 - name: Start filebeat container, connect to network and link
+  become: yes
+  retries: 10
+  delay: 10
   docker_container:
    name: filebeat
-   image: docker.elastic.co/beats/filebeat:5.6.2
-   hostname: filebeat
+   image: docker.elastic.co/beats/filebeat:8.3.2
    state: started
    auto_remove: yes
    links:
-    - "logstash:logstash"
+    - "elasticsearch:elasticsearch"
+   command:
+    - filebeat
+    - -e
+    - --strict.perms=false
    volumes:
-    - "{{ ansible_env.HOME }}/elk-config/filebeat/logs:/usr/share/filebeat/log_d"
-    - "{{ ansible_env.HOME }}/elk-config/filebeat/config/filebeat.yml:/usr/share/filebeat/filebeat.yml"
+    - "/code/logs/:/logs/"
+    - "{{ ansible_env.HOME }}/elk-config/filebeat/filebeat-conf.yml:/usr/share/filebeat/filebeat.yml"
+   timeout: 300

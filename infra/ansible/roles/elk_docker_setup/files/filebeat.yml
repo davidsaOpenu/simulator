@@ -1,6 +1,0 @@
-filebeat.prospectors:
-- input_type: log
-  paths:
-    - /usr/share/filebeat/log_d/*.log
-output.logstash:
-  hosts: ["logstash:5043"]
