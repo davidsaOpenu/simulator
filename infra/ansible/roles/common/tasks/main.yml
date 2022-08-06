@@ -7,3 +7,5 @@
 - include: bear.yml
 # Verify libwebsockets exist
 - include: libwebsockets.yml
+# Verify docker running
+- include: docker.yml
