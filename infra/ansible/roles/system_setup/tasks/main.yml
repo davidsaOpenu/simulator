@@ -1,6 +1,0 @@
-- name: system agnostic prep
-  command: "{{ item }}"
-  become: true
-  with_items:
-      - 'curl -fsSL get.docker.com -o get-docker.sh'
-      - 'sh get-docker.sh'
