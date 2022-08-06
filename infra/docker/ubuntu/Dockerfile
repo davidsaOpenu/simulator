@@ -1,4 +1,6 @@
-FROM ubuntu:14.04
+FROM ubuntu:18.04
+
+ENV DEBIAN_FRONTEND=noninteractive
 
 # Install base packages
 RUN apt-get update && apt-get -y install \
@@ -7,7 +9,7 @@ RUN apt-get update && apt-get -y install \
   vim \
   wget \
   build-essential \
-  gcc-4.6 \
+  gcc \
   cmake \
   g++ \
   unzip \
@@ -15,7 +17,7 @@ RUN apt-get update && apt-get -y install \
   libxen-dev \
   zlib1g-dev \
   libsdl-image1.2-dev \
-  libgnutls-dev \
+  libgnutls28-dev \
   libvncserver-dev \
   libpci-dev \
   libaio-dev \
