@@ -1,0 +1,72 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "2f3f9cb1_4034aead",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 3
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 1020114
+      },
+      "writtenOn": "2022-08-06T17:56:07Z",
+      "side": 1,
+      "message": "The build itself worked locally well, on both ubuntu and centos.\nI am not sure why it doesn\u0027t work via Jenkins, but I think that\u0027s a local issue with the machine running Jenkins?",
+      "revId": "c3afbc88967730e937f25b358a5bd6f647e8abf7",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "f7387d7b_2fae5a0a",
+        "filename": "infra/ansible/roles/common/tasks/docker.yml",
+        "patchSetId": 3
+      },
+      "lineNbr": 7,
+      "author": {
+        "id": 1020114
+      },
+      "writtenOn": "2022-08-06T17:56:07Z",
+      "side": 1,
+      "message": "Running docker-in-docker in order to run the ELK stack and mount the `/logs` directory from within the container to the filebeat container",
+      "revId": "c3afbc88967730e937f25b358a5bd6f647e8abf7",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "b06c43c6_b4e7ce1a",
+        "filename": "infra/ansible/roles/common/tasks/docker.yml",
+        "patchSetId": 3
+      },
+      "lineNbr": 16,
+      "author": {
+        "id": 1020114
+      },
+      "writtenOn": "2022-08-06T17:56:07Z",
+      "side": 1,
+      "message": "Installing pip to install docker-py :)\nInstalling docker-py in order to be able to use the `docker_container` ansible module.",
+      "revId": "c3afbc88967730e937f25b358a5bd6f647e8abf7",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "7f1f6400_41423283",
+        "filename": "infra/docker/ubuntu/Dockerfile",
+        "patchSetId": 3
+      },
+      "lineNbr": 1,
+      "author": {
+        "id": 1020114
+      },
+      "writtenOn": "2022-08-06T17:56:07Z",
+      "side": 1,
+      "message": "This is due to get-docker.sh not working on ubuntu:14.04 - as it is currently EOL.\nLocally it worked well with this dockerfile (the build, and ansible run)",
+      "revId": "c3afbc88967730e937f25b358a5bd6f647e8abf7",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
+    }
+  ]
+}
