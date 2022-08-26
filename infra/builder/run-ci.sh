@@ -2,7 +2,7 @@
 set -e
 
 # Configure a unique image name for the test
-export EVSSIM_DOCKER_IMAGE_NAME=evssim:ci-$(date "+%Y.%m.%d-%H.%M.%S")
+export EVSSIM_DOCKER_IMAGE_NAME=evssim:ci-latest #$(date "+%Y.%m.%d-%H.%M.%S")
 
 # Make sure every run we get a new clear runtime folder
 export EVSSIM_RUNTIME_ALWAYS_RESET=yes
