@@ -10,15 +10,6 @@ brew install https://raw.githubusercontent.com/kadwanev/bigboybrew/master/Librar
 
 - On Ubuntu 12.04, run `sudo ./ansible_install.sh`
 
-## Preparing
-To configure all prerequisites needed for running the tests, run this command:
-
-```sh
-ansible-playbook -K -i hosts prepare.yml
-```
-
-Note: you must specify sudo password for this command
-
 ## Running
 
 Modify 'hosts' file to containing your hosts configuration.
@@ -109,8 +100,7 @@ B. Run docker container and get a bash prompt
   8. docker run -u `stat -c "%u:%g" .` -it  -v /tmp/.X11-unix:/tmp/.X11-unix -v ${WORKSPACE}:/code --cap-add SYS_PTRACE --privileged=true os-centos /bin/bash
 
 C. Setup test environment
-  1. ansible-playbook -K -i hosts prepare.yml
-  2. ansible-playbook -i hosts playbooks/run_full_setup.yml  --extra-vars "dest=/code/simulator" --extra-vars "@centos.yml" --extra-vars "@global_vars.yml"
+  1. ansible-playbook -i hosts playbooks/run_full_setup.yml  --extra-vars "dest=/code/simulator" --extra-vars "@centos.yml" --extra-vars "@global_vars.yml"
 
 D. ssh to the VM
   1. make shure VM is running (ps -ef | grep qemu)
