@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "395727f1_50ba8a95",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 1020114
+      },
+      "writtenOn": "2022-08-27T17:01:33Z",
+      "side": 1,
+      "message": "Added a simple docker-compose.yml that runs ELK stack for the old build system and added it to the centos \u0026 ubuntu run-ci.sh\n\nMight fail if there is no docker-compose in the Jenkins environment, but it worked well in my system.\n",
+      "revId": "aa63affd956ba2044b18f8c56bc7f698502b34ee",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
+    }
+  ]
+}
