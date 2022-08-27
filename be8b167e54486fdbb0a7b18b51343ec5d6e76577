@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "3ebb5695_4e627cbc",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 7
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 1020114
+      },
+      "writtenOn": "2022-08-27T17:00:04Z",
+      "side": 1,
+      "message": "The PR is marked as ready to merge, but was not merged yet.",
+      "revId": "be8b167e54486fdbb0a7b18b51343ec5d6e76577",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
+    }
+  ]
+}
