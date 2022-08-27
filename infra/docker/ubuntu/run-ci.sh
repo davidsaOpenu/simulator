@@ -16,8 +16,14 @@ then
   cp ${WORKSPACE}/../hda/hda_clean.qcow2  ${WORKSPACE}/hda
 fi
 
+pushd ${WORKSPACE}/simulator/infra/docker/elk
+docker-compose -p evssim-elk-ubuntu up --detach
+
 #-u `stat -c "%u:%g" .`
 docker run --rm -u `stat -c "%u:%g" .` -i  -v /tmp/.X11-unix:/tmp/.X11-unix -v ${WORKSPACE}:/code --cap-add SYS_PTRACE --privileged=true os-ubuntu /bin/bash -C "/code/simulator/infra/docker/ubuntu/run-ansible"
+
+docker-compose -p evssim-elk-ubuntu down
+popd
 
 # run cppcheck (ignore for now)
 #/opt/cppcheck/cppcheck --enable=all --inconclusive --xml --xml-version=2  ${WORKSPACE}/simulator/eVSSIM/QEMU/hw 2> ${WORKSPACE}/cppcheck.xml
