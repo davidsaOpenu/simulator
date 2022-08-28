@@ -16,6 +16,23 @@
       "message": "The PR is marked as ready to merge, but was not merged yet.",
       "revId": "be8b167e54486fdbb0a7b18b51343ec5d6e76577",
       "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "33b9e4e8_c8978dda",
+        "filename": "infra/docker/centos/run-ci.sh",
+        "patchSetId": 7
+      },
+      "lineNbr": 1,
+      "author": {
+        "id": 1020444
+      },
+      "writtenOn": "2022-08-28T05:46:21Z",
+      "side": 1,
+      "message": "Maybe we want to add set -x so when any line fails the script will crash?\nCurrently the build relies only on the last line.",
+      "revId": "be8b167e54486fdbb0a7b18b51343ec5d6e76577",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
     }
   ]
 }
