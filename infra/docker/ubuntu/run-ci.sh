@@ -2,6 +2,9 @@
 
 set -e
 
+DOCKER_COMPOSE_PROJECT='evssim-elk-ubuntu'
+DOCKER_COMPOSE_BINARY=`whereis -b docker-compose | cut -d ' ' -f2
+
 cd ${WORKSPACE}/simulator
 
 echo RUN groupadd `stat -c "%G" .` -g `stat -c "%g" .` >> ${WORKSPACE}/simulator/infra/docker/ubuntu/Dockerfile
@@ -17,12 +20,12 @@ then
 fi
 
 pushd ${WORKSPACE}/simulator/infra/docker/elk
-docker-compose -p evssim-elk-ubuntu up --detach
+$DOCKER_COMPOSE_BINARY -p $DOCKER_COMPOSE_PROJECT up --detach
 
 #-u `stat -c "%u:%g" .`
 docker run --rm -u `stat -c "%u:%g" .` -i  -v /tmp/.X11-unix:/tmp/.X11-unix -v ${WORKSPACE}:/code --cap-add SYS_PTRACE --privileged=true os-ubuntu /bin/bash -C "/code/simulator/infra/docker/ubuntu/run-ansible"
 
-docker-compose -p evssim-elk-ubuntu down
+$DOCKER_COMPOSE_BINARY -p $DOCKER_COMPOSE_PROJECT down
 popd
 
 # run cppcheck (ignore for now)
