@@ -2,6 +2,9 @@
 
 set -e
 
+export DOCKER_COMPOSE_PROJECT='evssim-elk-centos'
+DOCKER_COMPOSE_BINARY=`whereis -b docker-compose | cut -d ' ' -f2`
+
 cd ${WORKSPACE}/simulator
 
 echo RUN groupadd `stat -c "%G" .` -g `stat -c "%g" .` >> ${WORKSPACE}/simulator/infra/docker/centos/Dockerfile
@@ -18,11 +21,11 @@ then
 fi
 
 pushd ${WORKSPACE}/simulator/infra/docker/elk
-docker-compose -p evssim-elk-centos up --detach
+$DOCKER_COMPOSE_BINARY -p $DOCKER_COMPOSE_PROJECT up --detach
 
-docker run --rm -u `stat -c "%u:%g" .` -i  -v /tmp/.X11-unix:/tmp/.X11-unix -v ${WORKSPACE}:/code --cap-add SYS_PTRACE --privileged=true os-centos /bin/bash -C "/code/simulator/infra/docker/centos/run-ansible"
+docker run --network=$DOCKER_COMPOSE_PROJECT --rm -u `stat -c "%u:%g" .` -i  -v /tmp/.X11-unix:/tmp/.X11-unix -v ${WORKSPACE}:/code --cap-add SYS_PTRACE --privileged=true os-centos /bin/bash -C "/code/simulator/infra/docker/centos/run-ansible"
 
-docker-compose -p evssim-elk-centos down
+$DOCKER_COMPOSE_BINARY -p $DOCKER_COMPOSE_PROJECT down
 popd
 
 # run cppcheck (ignore for now)
