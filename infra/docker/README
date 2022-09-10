@@ -23,12 +23,12 @@ Some resources:
 ## Docker in this project ##
 Under infra/docker there are the Docker directories. Each directory contains the files to create a single image. At the time of writing this document the directories are:
 1. ubuntu – To build an Ubuntu 14.04 image
-2. centos – To build a CentOS 6.5 image
+2. centos – To build a CentOS 7 image
 
-#This project also contains aliases to help you work with Docker without learning all the commands.
-The aliases file is located under 'infra/aliases/'.  Install the aliases file ".os_aliases" using 'source .os_aliases' (or adding it to .bashrc for automatic loading).
+## This project also contains aliases to help you work with Docker without learning all the commands. ##
+The aliases file is located under 'infra/aliases/'.  Install the aliases file ".os_aliases" using `source .os_aliases` (or adding it to .bashrc for automatic loading).
 
-## The aliases file will provide the following commands ##
+### The aliases file will provide the following commands ###
 dkb-os-ubutnu - Build the Docker image for Ubuntu
 dkr-os-ubuntu-shell - Will open a shell inside a new Ubuntu container with the pre-loaded command "run-ansible"
 
@@ -37,15 +37,36 @@ dkr-os-centos-shell - Will open a shell inside a new CentOS container with the p
 
 dk-help - will show all the available commands
 
-## If you're not using the aliases, below are the commands used to build and run the Dockers ##
-#Build Image
-sudo docker build -t <NAME_FOR_IMAGE> <SIMULATOR_REPO>/infra/docker/<OS_DIR>
+## If you're not using the aliases, there are two possible wats to  build and run the Dockers ##
 
-#Run a container from that image using:
-sudo docker run -t -i -e DISPLAY=$DISPLAY -v /tmp/.X11-unix:/tmp/.X11-unix -v <YOUR_CODE_REPO>:/code --cap-add SYS_PTRACE --privileged=true <NAME_FOR_IMAGE>
+1. Build and run the images using docker commands:
+   
+   Building the container:
+   ```bash
+   sudo docker build -t <NAME_FOR_IMAGE> <SIMULATOR_REPO>/infra/docker/<OS_DIR>
+   ```
 
-#Notice that the flags here are meant for interactive usage (i.e by a human), for automatic runs like Jenkins omit the following:
-'-t -e DISPLAY=$DISPLAY'
+   Running a container from that image:
+   ```bash
+    sudo docker run -t -i -e DISPLAY=$DISPLAY -v /tmp/.X11-unix:/tmp/.X11-unix -v <YOUR_CODE_REPO>:/code --cap-add SYS_PTRACE --privileged=true <NAME_FOR_IMAGE>
+    ```
+
+   Notice that the flags here are meant for interactive usage (i.e by a human), for automatic runs like Jenkins omit the following:
+`-t -e DISPLAY=$DISPLAY`.
+2. Use the run-ci.sh script, which is ran on each change on Jenkins.
+
+   Note that the vm image should reside on the `${WORKSPACE}/../hda/hda_clean.qcow2` path.
+   The second line in the script handles the download of the vm image. It only has to be ran once.
+   For ubuntu -
+   ```bash
+   export WORKSPACE='<your workspace dir>'
+   wget --output-document=${WORKSPACE}/../hda/hda_clean.qcow2 http://192.114.0.189/hda_clean.qcow2  # Run only on the first time
+   ${WORKSPACE}/simulator/infra/docker/ubuntu/run-ci.sh
+   ```
+   For centos - do exactly the same, but use the centos directory.
+   
+   
+
 
 
 ## Troubleshooting ##

@@ -1,23 +1,29 @@
-== Initial Installation
+## Initial Installation
 The following is the expected folder structure on initial installation
-    root/
-        qemu/ - git@openu/qemu
-        simulator/ - git@openu/simulator
-        nvme-cli/ - git@openu/nvme-cli
-        nvmeCompl/
-            dnvme/ - git@openu/dnvme
-            tnvme/ - git@openu/tnvme
-        3.16.2/ - git@openu/3.16.2 (Linux Kernel)
+```
+<workspace>/
+    qemu/ - git@openu/qemu
+    simulator/ - git@openu/simulator
+    nvme-cli/ - git@openu/nvme-cli
+    nvmeCompl/
+        dnvme/ - git@openu/dnvme
+        tnvme/ - git@openu/tnvme
+    3.16.2/ - git@openu/3.16.2 (Linux Kernel)
+```
 
-All compiled binaries go into the "dist" folder. To speed up build,
-we suggest mounting the dist folder as tmpfs as follows
-    $ sudo mount -t tmpfs -o size=32g tmpfs /path/to/dist
+All compiled binaries go into the "dist" folder.
+
+To speed up build - we suggest mounting the dist folder as tmpfs as follows:
+```bash
+$ sudo mount -t tmpfs -o size=32g tmpfs /path/to/dist
+```
 
 All environment configuration exist in env.sh. The script should be sourced prior to running
 any script.
 
 
 The following is the recommended initial run including a sanity test
+```bash
 source env.sh
 ./build-docker-image.sh
 ./build-qemu-image.sh
@@ -29,98 +35,108 @@ source env.sh
 ./compile-host-tests.sh
 
 ./docker-run-sanity.sh
+```
 
-== Running QEMU
+## Running QEMU
 Every QEMU run uses a fresh copy of the QEMU guest image pre-made by build-qemu-image.sh.
 Additionally ALL necessary binaries are copied into the home directory of the
 guest (Including nvme cli, nvme compliance) and available in /home/esd/guest.
 
-./docker-run-qemu.sh
-    - Run qemu attached to the console
-    - Accessible via ssh @ port 2222
-    - Accessible via vnc @ port 5900
-    - Monitors
-        - New logging server http port 2003 (If compiled)
-        - Old monitoring (If compiled) via Xserver (If available)
-    - CTRL+C To stop
+1. `./docker-run-qemu.sh`:
+  - Run qemu attached to the console
+  - Accessible via ssh @ port 2222
+  - Accessible via vnc @ port 5900
+  - Monitors
+      - New logging server http port 2003 (If compiled)
+      - Old monitoring (If compiled) via Xserver (If available)
+  - CTRL+C To stop
+  - While QEMU is running, the following scripts are available
+      - `./docker-enter.sh` - Enter into the running QEMU container image (Host)
+      - `./guest-entry.sh` - Enter using SSH into the running QEMU virtual machine (Guest)
 
-    - While QEMU is running, the following scripts are available
-        ./docker-enter.sh - Enter into the running QEMU container image (Host)
-        ./guest-entry.sh - Enter using SSH into the running QEMU virtual machine (Guest)
-
-./docker-run-qemu-enter-guest.sh
+2. `./docker-run-qemu-enter-guest.sh`
     - Same as above but will run qemu detached and open a shell in the guest
 
-./docker-copy-into-guest.sh
+3. `./docker-copy-into-guest.sh`
     - Copies compiled binaries such nvme cli and nvme compliance into the QEMU image.
     - This can be used EXPLICITLY for debugging purposes
     - All the qemu running commands do this IMPLICITLY
 
-== Advanced Running
-    * gdb
-        While qemu is running, its easy to attach with gdb to qemu by attaching to the docker
-            $ ./docker-enter.sh
-            # gdb -p $(cat /tmp/qemu.pid)
+## Advanced Running
+* gdb:
+  
+    While qemu is running, its easy to attach with gdb to qemu by attaching to the docker
+    ```bash
+    $ ./docker-enter.sh
+    # gdb -p $(cat /tmp/qemu.pid)
+    ```
 
-    * Tracing
-        QEMU has an extensive tracing facilities. The following environment
-        variables gives a quick access to enabeling them.
-            # Trace NVME module
-            EVSSIM_QEMU_TRACE_NVME=yes/no
+* Tracing:
+  
+    QEMU has an extensive tracing facilities. The following environment
+    variables gives a quick access to enabeling them.
+    ```
+    # Trace NVME module
+    EVSSIM_QEMU_TRACE_NVME=yes/no
 
-            # Trace VSSIM module (Block driver)
-            EVSSIM_QEMU_TRACE_VSSIM=yes/no
+    # Trace VSSIM module (Block driver)
+    EVSSIM_QEMU_TRACE_VSSIM=yes/no
 
-            # Trace Block module
-            EVSSIM_QEMU_TRACE_BLOCK=yes/no
+    # Trace Block module
+    EVSSIM_QEMU_TRACE_BLOCK=yes/no
+    ```
 
-        Environment could be altered through env.sh or directly
-            $ EVSSIM_QEMU_TRACE_VSSIM=yes ./docker-run-qemu.sh
+    Environment could be altered through env.sh or directly
+    ```bash
+    $ EVSSIM_QEMU_TRACE_VSSIM=yes ./docker-run-qemu.sh
+    ```
 
-    * Simulator Toggle
-    Simulator could be toggled on and off (Without recompilation) using the
-    following environment. Default is yes.
-        EVSSIM_QEMU_SIMULATOR_ENABLED=yes/no
+* Simulator Toggle:
+  
+  Simulator could be toggled on and off (Without recompilation) using the following environment: (Default is yes)
+    `EVSSIM_QEMU_SIMULATOR_ENABLED=yes/no`
 
-    * Disk size
-    When simulator is turned OFF the nvme disk size is taken from
-        EVSSIM_QEMU_DEFAULT_DISK_SIZE
-    and defaulted to 1M.
-    When simulator is turned ON the nvme disk size is CALCULATED
-    from the ssd configuration.
+* Disk size:
+  
+  When simulator is turned OFF the nvme disk size is taken from EVSSIM_QEMU_DEFAULT_DISK_SIZE and defaulted to 1M.
 
-    * Reset Simulator
-    By default, every run of qemu will clear any simulator runtime files (Such as FTL mapping).
-    The variable EVSSIM_RUNTIME_ALWAYS_RESET=yes/no controls that behaviour.
+  When simulator is turned ON the nvme disk size is CALCULATED from the ssd configuration.
 
-    * Strategy
-    Strategy is configures using EVSSIM_RUNTIME_STORAGE_STRATEGY
-    Available values are
-        1 - Sector
-        2 - Object
+* Reset Simulator:
+  
+  By default, every run of qemu will clear any simulator runtime files (Such as FTL mapping).
+  The variable EVSSIM_RUNTIME_ALWAYS_RESET=yes/no controls that behaviour.
 
-    * SSD Configuration
-        The template for the configuration exists in ssd.conf.template
+* Strategy:
+  
+  Strategy is configures using EVSSIM_RUNTIME_STORAGE_STRATEGY
+  Available values are:
+    1. Sector
+    2. Object
 
-== Running docker
-./docker-run-bash.sh - Run bash inside an empty docker
-./docker-run-bash-chrooted.sh - Run bash inside the image of the QEMU guest
+* SSD Configuration
+    The template for the configuration exists in ssd.conf.template
 
-== Compilation
+## Running docker
+- `./docker-run-bash.sh` - Run bash inside an empty docker
+- `./docker-run-bash-chrooted.sh` - Run bash inside the image of the QEMU guest
 
-./compile-kernel.sh - Compile kernel and created images in dist
-./compile-qemu.sh - Compile qemu
-./compile-monitor.sh - Compile monitoring related code
-./compile-guest-tests.sh - Compile nvme tools and nvme compliance related code
-./compile-host-tests.sh - Compile osc-osd and tests that use google testing framework
+## Compilation
 
-== Tests
-./docker-test-host.sh - Host tests
-./docker-test-guest.sh - Guest tests using QEMU. Each test is saved into the "dist/tests"
+- `./compile-kernel.sh` - Compile kernel and created images in dist
+- `./compile-qemu.sh` - Compile qemu
+- `./compile-monitor.sh` - Compile monitoring related code
+- `./compile-guest-tests.sh` - Compile nvme tools and nvme compliance related code
+- `./compile-host-tests.sh` - Compile osc-osd and tests that use google testing framework
+
+## Tests
+- `./docker-test-host.sh` - Host tests
+- `./docker-test-guest.sh` - Guest tests using QEMU. Each test is saved into the "dist/tests"
 unique test folder.
 
-== Builder Framework
-=== Docker
+## Builder Framework
+### Docker
+
 We use the Docker solely for the purpose of mimicking a build environment. The Dockerfile
 represents an environment which has all the necessary tools to compile and execute QEMU
 and the VSSIM. The builder.sh framework contains various functions which allow easily
@@ -141,7 +157,7 @@ user is selected by the EVSSIM_RUN_SUDO environment. The builder.sh functions ha
 For conviniance, all docker executing are attached to the host network, any listening
 socket inside the docker is automatically exposed to the host.
 
-== QEMU
+### QEMU
 QEMU is compiled and executed inside the docker with the VSSIM module. Execution of QEMU
 consists of three parts (1) Kernel (2) Init FS and (3) Image.
 The kernel and the init fs are compiled under the "./compile-kernel.sh" step and stored
@@ -164,34 +180,85 @@ but for convenience it is allowed to mount the image while its not running and a
 Because the user inside the QEMU image has the SAME uid and gid as the external user,
 after mapping, all files should be accessible to the executing user.
 
-== Tasks
+### Tasks
 The following are the most important functionality of the builder
 
-=== Execution in Docker
+#### Execution in Docker
 Will execute the command under a new docker environment.
-    $ evssim_run bash
+```bash
+$ evssim_run bash
+```
 
-=== Executing in Docker under Chroot to QEMU Image
+#### Executing in Docker under Chroot to QEMU Image
 Will execute the command under a new docker environment inside chroot
 of the qemu image.
-    $ evssim_run_chrooted bash
+```bash
+$ evssim_run_chrooted bash
+```
 
-=== Use a clean QEMU image
+#### Use a clean QEMU image
 After image is built, a template is saved. Any editing to the image can be wiped out.
-    $ evssim_qemu_fresh_image
+```bash
+$ evssim_qemu_fresh_image
+```
 
-=== Execute QEMU image
+#### Execute QEMU image
 Execute synchronously the QEMU image. Ctrl+C to stop
-    $ evssim_qemu_attached
+```bash
+$ evssim_qemu_attached
+```
 
-=== Execute QEMU asynchronously
+#### Execute QEMU asynchronously
 Execution of the docker as a detached docker container.
-    $ evssim_qemu_detached
+```bash
+$ evssim_qemu_detached
+```
 
 Stop detached execution
-    $ evssim_qemu_stop
+```bash
+$ evssim_qemu_stop
+```
 
-=== Guest Execution
+#### Guest Execution
 Execution command inside QEMU virtual machine while running.
-    $ evssim_guest bash
+```bash
+$ evssim_guest bash
+```
 
+### ELK
+In the new build system there is also an additional framework - for creating an ELK stack.
+The ELK stack in this project is intended for log aggregation and analysis from the simulation.
+The stack contains Elasticsearch for log storage, Kibana for visualization and analysis, and Filebeat for scraping the logs from the simulator.
+
+The framework is importable using `source elk.sh`, and the following commands are then available:
+
+Creating an entire ELK stack:
+```bash
+evssim_run_elk_stack
+```
+
+Stopping the entire ELK stack:
+```bash
+evssim_stop_elk_stack
+```
+
+In order to run only one of the components, the following commands are available:
+```bash
+evssim_elk_run_elasticsearch
+evssim_elk_run_kibana
+evssim_elk_run_filebeat
+```
+
+Note that kibana and filebeat are dependant on elasticsearch, so running those individually might crash.
+
+The container ID's are saved to the following environment variables, respectively:
+```
+ELASTICSEARCH_DOCKER_UUID
+KIBANA_DOCKER_UUID
+FILEBEAT_DOCKER_UUID
+```
+
+All docker commands are available on those containers. For example, in order to view the containers logs, the following command can be ran:
+```bash
+docker logs $FILEBEAT_DOCKER_UUID
+```
