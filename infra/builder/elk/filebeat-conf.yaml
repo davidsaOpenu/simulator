@@ -1,12 +1,24 @@
 filebeat.inputs:
-- type: log
-  enabled: true
-  paths:
-    - /logs/*.log
-  json.keys_under_root: true
-  json.expand_keys: true
-  json.add_error_key: true
+  - type: log
+    enabled: true
+    paths:
+      - /logs/*.log
+    json.keys_under_root: true
+    json.expand_keys: true
+    json.add_error_key: true
 
 output.elasticsearch:
   hosts:
-    - 'http://host.docker.internal:${ELK_ELASTICSEARCH_EXTERNAL_PORT}/'
+    - "http://host.docker.internal:${ELK_ELASTICSEARCH_EXTERNAL_PORT}/"
+
+processors:
+  - timestamp:
+      field: logging_time
+      layouts:
+        - "2006-01-02 15:04:05"
+        - "2006-01-02 15:04:05.999"
+      test:
+        - "2021-07-31 13:49:27.000"
+        - "2022-06-17 08:29:27"
+  - drop_fields:
+      fields: [logging_time]
