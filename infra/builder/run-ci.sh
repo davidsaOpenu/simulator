@@ -1,6 +1,8 @@
 #!/bin/bash
 set -e
 
+source ./elk.sh
+
 # Configure a unique image name for the test
 export EVSSIM_DOCKER_IMAGE_NAME=evssim:ci-latest #$(date "+%Y.%m.%d-%H.%M.%S")
 
@@ -19,5 +21,9 @@ export EVSSIM_RUNTIME_ALWAYS_RESET=yes
 
 # Run sanity and tests
 ./docker-run-sanity.sh
+
+trap evssim_stop_elk_stack EXIT
+evssim_run_elk_stack
+
 ./docker-test-host.sh
 ./docker-test-guest.sh
