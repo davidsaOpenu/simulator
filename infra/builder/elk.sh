@@ -45,7 +45,7 @@ if [ -t 0 ]; then
 fi
 
 # Change to project root
-cd "$EVSSIM_ROOT_PATH"
+pushd "$EVSSIM_ROOT_PATH"
 
 # Create output folders (Might already exist)
 for folder in $EVSSIM_CREATE_FOLDERS; do
@@ -54,19 +54,21 @@ done
 
 evssim_elk_run_elasticsearch() {
     export ELASTICSEARCH_DOCKER_UUID=$(\
-            docker run --rm --publish=$ELK_ELASTICSEARCH_EXTERNAL_PORT:9200 \
+            docker run --rm --publish 9200 \
             --env discovery.type=single-node --env xpack.security.enabled=false \
             --detach $ELK_ELASTICSEARCH_IMAGE\
     )
+    export ELK_ELASTICSEARCH_EXTERNAL_PORT=$(docker port $ELASTICSEARCH_DOCKER_UUID 9200 | grep "0.0.0.0" | cut -d: -f2)
 }
 
 evssim_elk_run_kibana() {
     export KIBANA_DOCKER_UUID=$(\
-            docker run --rm --publish=$ELK_KIBANA_EXTERNAL_PORT:5601 \
+            docker run --rm --publish 5601 \
             --env ELASTICSEARCH_HOSTS="http://host.docker.internal:$ELK_ELASTICSEARCH_EXTERNAL_PORT" \
             --add-host=host.docker.internal:host-gateway \
             --detach $ELK_KIBANA_IMAGE\
     )
+    export ELK_KIBANA_EXTERNAL_PORT=$(docker port $KIBANA_DOCKER_UUID 5601 | grep "0.0.0.0" | cut -d: -f2)
 }
 
 evssim_elk_run_filebeat() {
@@ -99,3 +101,5 @@ evssim_stop_elk_stack() {
     export KIBANA_DOCKER_UUID=""
     export FILEBEAT_DOCKER_UUID=""
 }
+
+popd
