@@ -136,3 +136,5 @@ eVSSIM/osc-osd/osd-target/osd-schema.c
 # infra/ansible files
 *.retry
 !bios.bin
+
+infra/builder/env_dump
