@@ -61,9 +61,6 @@ export ELK_ELASTICSEARCH_IMAGE="docker.elastic.co/elasticsearch/elasticsearch:8.
 export ELK_KIBANA_IMAGE="docker.elastic.co/kibana/kibana:8.3.2"
 export ELK_FILEBEAT_IMAGE="docker.elastic.co/beats/filebeat:8.3.2"
 
-export ELK_ELASTICSEARCH_EXTERNAL_PORT=9200
-export ELK_KIBANA_EXTERNAL_PORT=5601
-
 export ELK_FILEBEAT_CONF_PATH=$EVSSIM_ROOT_PATH/$EVSSIM_BUILDER_FOLDER/elk/filebeat-conf.yaml
 
 export EVSSIM_CREATE_FOLDERS="$EVSSIM_DATA_FOLDER $EVSSIM_DIST_FOLDER $EVSSIM_LOGS_FOLDER"
