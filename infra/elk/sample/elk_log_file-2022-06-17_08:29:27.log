@@ -1,0 +1,10 @@
+{ "type": "RegisterWriteLog", "channel": 0, "die": 0, "reg": 0, "logging_time": "2022-06-17 08:29:27" }
+{ "type": "RegisterWriteLog", "channel": 3, "die": 3, "reg": 3, "logging_time": "2022-06-17 08:29:27" }
+{ "type": "RegisterWriteLog", "channel": 2, "die": 2, "reg": 2, "logging_time": "2022-06-17 08:29:27" }
+{ "type": "LogicalCellProgramLog", "channel": 2, "block": 0, "page": 0, "logging_time": "2022-06-17 08:29:27" }
+{ "type": "PhysicalCellProgramLog", "channel": 2, "block": 0, "page": 0, "logging_time": "2022-06-17 08:29:27" }
+{ "type": "ChannelSwitchToReadLog", "channel": 2, "logging_time": "2022-06-17 08:29:27" }
+{ "type": "RegisterWriteLog", "channel": 2, "die": 2, "reg": 2, "logging_time": "2022-06-17 08:29:27" }
+{ "type": "LogicalCellProgramLog", "channel": 2, "block": 0, "page": 1, "logging_time": "2022-06-17 08:29:27" }
+{ "type": "PhysicalCellProgramLog", "channel": 2, "block": 0, "page": 1, "logging_time": "2022-06-17 08:29:27" }
+{ "type": "ChannelSwitchToReadLog", "channel": 2, "logging_time": "2022-06-17 08:29:27" }

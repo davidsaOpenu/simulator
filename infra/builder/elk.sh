@@ -76,6 +76,7 @@ evssim_elk_run_kibana() {
 evssim_elk_run_filebeat() {
     export FILEBEAT_DOCKER_UUID=$(\
             docker run --rm --env ELK_ELASTICSEARCH_EXTERNAL_PORT \
+            --env ELK_ELASTICSEARCH_HOSTNAME=host.docker.internal \
             --volume="${EVSSIM_ROOT_PATH}/${EVSSIM_LOGS_FOLDER}:/logs/" \
             --volume="${ELK_FILEBEAT_CONF_PATH}:/usr/share/filebeat/filebeat.yml:ro" \
             --add-host=host.docker.internal:host-gateway \
@@ -84,13 +85,13 @@ evssim_elk_run_filebeat() {
     )
 }
 
-evssim_run_elk_stack() {
+evssim_elk_run_stack() {
     evssim_elk_run_elasticsearch
     evssim_elk_run_kibana
     evssim_elk_run_filebeat
 }
 
-evssim_stop_elk_stack() {
+evssim_elk_stop_stack() {
     for container_uuid in $(echo $ELASTICSEARCH_DOCKER_UUID $KIBANA_DOCKER_UUID $FILEBEAT_DOCKER_UUID); do
         if [ ! -z $container_uuid ]; then
             if docker ps -q --no-trunc | grep $container_uuid > /dev/null; then
@@ -102,4 +103,23 @@ evssim_stop_elk_stack() {
     export ELASTICSEARCH_DOCKER_UUID=""
     export KIBANA_DOCKER_UUID=""
     export FILEBEAT_DOCKER_UUID=""
+}
+
+evssim_elk_build_test_image() {
+    docker build $EVSSIM_ROOT_PATH/$EVSSIM_ELK_FOLDER/tests -t $ELK_TESTS_IMAGE
+}
+
+evssim_elk_run_tests() {
+    # Copy samples
+    rm -rf ${EVSSIM_ROOT_PATH}/${EVSSIM_LOGS_FOLDER}/*
+    cp -a $EVSSIM_ROOT_PATH/$EVSSIM_ELK_FOLDER/sample/* ${EVSSIM_ROOT_PATH}/${EVSSIM_LOGS_FOLDER}
+
+    docker run --rm \
+        --volume="${EVSSIM_ROOT_PATH}/${EVSSIM_LOGS_FOLDER}:/logs/" \
+        --add-host=host.docker.internal:host-gateway \
+        $ELK_TESTS_IMAGE \
+        --logs-directory /logs/ \
+        --elasticsearch-host host.docker.internal \
+        --elasticsearch-port $ELK_ELASTICSEARCH_EXTERNAL_PORT \
+        --elasticsearch-index-template filebeat-*
 }

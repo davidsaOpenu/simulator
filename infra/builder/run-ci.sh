@@ -12,6 +12,7 @@ export EVSSIM_RUNTIME_ALWAYS_RESET=yes
 # Build images
 ./build-docker-image.sh
 ./build-qemu-image.sh
+./build-elk-test-image.sh
 
 # Compile all modules
 ./compile-kernel.sh
@@ -22,8 +23,13 @@ export EVSSIM_RUNTIME_ALWAYS_RESET=yes
 # Run sanity and tests
 ./docker-run-sanity.sh
 
-trap evssim_stop_elk_stack EXIT
-evssim_run_elk_stack
-
 ./docker-test-host.sh
 ./docker-test-guest.sh
+
+
+# ELK stack tests
+trap ./elk-stop-stack.sh EXIT
+
+# We source this script since it defines some env-vars that we need, such as ELK ports and container names
+source ./elk-run-stack.sh
+./elk-run-tests.sh
