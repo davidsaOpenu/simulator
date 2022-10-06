@@ -57,19 +57,19 @@ RUN yum install -y ansible
 # Install Gtest
 ENV GTEST_HOME /opt
 RUN wget -qO- https://github.com/google/googletest/archive/release-1.7.0.tar.gz |tar xz -C $GTEST_HOME/ && \
-mv $GTEST_HOME/googletest-release-1.7.0 $GTEST_HOME/gtest
+  mv $GTEST_HOME/googletest-release-1.7.0 $GTEST_HOME/gtest
 
 RUN mkdir -p $GTEST_HOME/gtest/lib && \
-    cd $GTEST_HOME/gtest/lib && \
-    cmake .. && \
-    make
+  cd $GTEST_HOME/gtest/lib && \
+  cmake .. && \
+  make
 
 # Install websockets
 RUN git clone --branch v4.1-stable https://github.com/warmcat/libwebsockets.git /opt/libwebsockets && \
-    cd /opt/libwebsockets && cmake . && \
-    make && \
-    make install && \
-    ldconfig
+  cd /opt/libwebsockets && cmake . && \
+  make && \
+  make install && \
+  ldconfig
 
 ADD container_aliases /root/.bash_aliases
 WORKDIR /code
@@ -79,3 +79,5 @@ RUN echo "ALL            ALL = (ALL) NOPASSWD: ALL" >> /etc/sudoers
 #those lines are appended from outside
 #echo RUN groupadd `stat -c "%G" .` -g `stat -c "%g" .` >> ${WORKSPACE}/simulator/infra/docker/centos/Dockerfile
 #echo RUN useradd -ms /bin/bash `stat -c "%U" .` -u `stat -c "%u" .` -g `stat -c "%g" .` -G wheel >> ${WORKSPACE}/simulator/infra/docker/centos/Dockerfile
+RUN groupadd yannay -g 1000
+RUN useradd -ms /bin/bash yannay -u 1000 -g 1000 -G wheel
