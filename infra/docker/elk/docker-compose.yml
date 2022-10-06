@@ -15,9 +15,12 @@ services:
       ELASTICSEARCH_HOSTS: "http://elasticsearch:9200/"
   filebeat:
     image: "docker.elastic.co/beats/filebeat:8.3.2"
+    environment:
+      ELK_ELASTICSEARCH_HOSTNAME: "elasticsearch"
+      ELK_ELASTICSEARCH_EXTERNAL_PORT: "9200"
     volumes:
       - "${WORKSPACE}/logs:/logs/"
-      - "./config/filebeat-conf.yaml:/usr/share/filebeat/filebeat.yml:ro"
+      - "${WORKSPACE}/simulator/infra/elk/config/filebeat-conf.yaml:/usr/share/filebeat/filebeat.yml:ro"
     command:
       - filebeat
       - -e

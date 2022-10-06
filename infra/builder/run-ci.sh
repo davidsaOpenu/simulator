@@ -12,6 +12,7 @@ export EVSSIM_RUNTIME_ALWAYS_RESET=yes
 # Build images
 ./build-docker-image.sh
 ./build-qemu-image.sh
+evssim_elk_build_test_image
 
 # Compile all modules
 ./compile-kernel.sh
@@ -22,8 +23,13 @@ export EVSSIM_RUNTIME_ALWAYS_RESET=yes
 # Run sanity and tests
 ./docker-run-sanity.sh
 
-trap evssim_stop_elk_stack EXIT
-evssim_run_elk_stack
-
 ./docker-test-host.sh
 ./docker-test-guest.sh
+
+trap evssim_elk_stop_stack EXIT
+
+rm -rf ${EVSSIM_ROOT_PATH}/${EVSSIM_LOGS_FOLDER}/*
+cp -a $EVSSIM_ROOT_PATH/$EVSSIM_ELK_FOLDER/sample/* ${EVSSIM_ROOT_PATH}/${EVSSIM_LOGS_FOLDER}
+
+evssim_elk_run_stack
+evssim_elk_run_tests
