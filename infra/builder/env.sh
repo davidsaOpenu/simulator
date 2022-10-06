@@ -14,6 +14,7 @@ export EVSSIM_ENV_PATH=$(readlink -f $(pwd)/env.sh)
 export EVSSIM_ENV_HASH=$(md5sum $EVSSIM_ENV_PATH | cut -d " " -f 1)
 
 export EVSSIM_SIMULATOR_FOLDER=simulator
+export EVSSIM_ELK_FOLDER=simulator/infra/elk
 export EVSSIM_BUILDER_FOLDER=simulator/infra/builder
 export EVSSIM_KERNEL_DIST=3.16.2
 export EVSSIM_KERNEL_FOLDER=3.16.2/linux-3.16.2
@@ -60,8 +61,9 @@ export COMPILATION_CFLAGS=-Wno-error=cpp
 export ELK_ELASTICSEARCH_IMAGE="docker.elastic.co/elasticsearch/elasticsearch:8.3.2"
 export ELK_KIBANA_IMAGE="docker.elastic.co/kibana/kibana:8.3.2"
 export ELK_FILEBEAT_IMAGE="docker.elastic.co/beats/filebeat:8.3.2"
+export ELK_TESTS_IMAGE="evssim-elk-tests"
 
-export ELK_FILEBEAT_CONF_PATH=$EVSSIM_ROOT_PATH/$EVSSIM_BUILDER_FOLDER/elk/filebeat-conf.yaml
+export ELK_FILEBEAT_CONF_PATH=$EVSSIM_ROOT_PATH/$EVSSIM_ELK_FOLDER/filebeat/filebeat-conf.yaml
 
 export EVSSIM_CREATE_FOLDERS="$EVSSIM_DATA_FOLDER $EVSSIM_DIST_FOLDER $EVSSIM_LOGS_FOLDER"
 export EVSSIM_DATA_LINKED_FOLDER="$EVSSIM_ROOT_PATH/$EVSSIM_QEMU_FOLDER/hw/data $EVSSIM_ROOT_PATH/$EVSSIM_SIMULATOR_FOLDER/eVSSIM/tests/host/data"
