@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "0aaf6e02_888841b2",
+        "filename": "infra/builder/elk.sh",
+        "patchSetId": 8
+      },
+      "lineNbr": 105,
+      "author": {
+        "id": 1007990
+      },
+      "writtenOn": "2022-10-07T07:24:29Z",
+      "side": 1,
+      "message": "let\u0027s reduce the \"scope\"",
+      "revId": "dc5fe73ac8fa8372c9c028e40749ee43bfa07807",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
+    }
+  ]
+}
