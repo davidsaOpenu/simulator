@@ -33,6 +33,24 @@
       "message": "let\u0027s reduce the \"scope\"",
       "revId": "dc5fe73ac8fa8372c9c028e40749ee43bfa07807",
       "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "4258e94a_8785e707",
+        "filename": "infra/builder/elk.sh",
+        "patchSetId": 8
+      },
+      "lineNbr": 105,
+      "author": {
+        "id": 1007990
+      },
+      "writtenOn": "2022-10-07T07:51:12Z",
+      "side": 1,
+      "message": "multitasking leftover :-)",
+      "parentUuid": "0aaf6e02_888841b2",
+      "revId": "dc5fe73ac8fa8372c9c028e40749ee43bfa07807",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
     }
   ]
 }
