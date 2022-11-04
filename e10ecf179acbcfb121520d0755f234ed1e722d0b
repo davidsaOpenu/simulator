@@ -33,6 +33,23 @@
       "message": "recheck",
       "revId": "e10ecf179acbcfb121520d0755f234ed1e722d0b",
       "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "404e81b2_94c41768",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 11
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 1007990
+      },
+      "writtenOn": "2022-11-04T07:40:17Z",
+      "side": 1,
+      "message": "following the job reconfiguration (timeout increase)",
+      "revId": "e10ecf179acbcfb121520d0755f234ed1e722d0b",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
     }
   ]
 }
