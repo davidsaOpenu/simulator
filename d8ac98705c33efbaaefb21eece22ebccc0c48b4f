@@ -53,6 +53,24 @@
       "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "0171e9a3_e36db382",
+        "filename": "infra/builder/run-ci.sh",
+        "patchSetId": 1
+      },
+      "lineNbr": 15,
+      "author": {
+        "id": 1007990
+      },
+      "writtenOn": "2022-11-04T07:57:04Z",
+      "side": 1,
+      "message": "Ack",
+      "parentUuid": "d02ffebe_44729cb4",
+      "revId": "d8ac98705c33efbaaefb21eece22ebccc0c48b4f",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "2c79ce5a_e8f2985e",
@@ -66,6 +84,24 @@
       "writtenOn": "2022-10-06T18:16:09Z",
       "side": 1,
       "message": "Maybe we need a better sample - used one from a few months ago I generated",
+      "revId": "d8ac98705c33efbaaefb21eece22ebccc0c48b4f",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "ca9b2990_a989f555",
+        "filename": "infra/elk/sample/elk_log_file-2022-06-17_08:29:27.log",
+        "patchSetId": 1
+      },
+      "lineNbr": 1,
+      "author": {
+        "id": 1007990
+      },
+      "writtenOn": "2022-11-04T07:57:04Z",
+      "side": 1,
+      "message": "for the basic test of line count, it looks an overkill indeed. But let\u0027s outline all the tests we will add and see. We probably can avoid lengthy log files from residing in the repo by calling log generator every time we need it.",
+      "parentUuid": "2c79ce5a_e8f2985e",
       "revId": "d8ac98705c33efbaaefb21eece22ebccc0c48b4f",
       "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
     }
