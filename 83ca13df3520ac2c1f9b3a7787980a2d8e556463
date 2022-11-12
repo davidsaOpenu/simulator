@@ -1,0 +1,55 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "0a3ae2e6_2edd4c68",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 22
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 1020444
+      },
+      "writtenOn": "2022-11-12T10:07:59Z",
+      "side": 1,
+      "message": "Also, not all conflicts were resolved.",
+      "revId": "83ca13df3520ac2c1f9b3a7787980a2d8e556463",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "59f302dc_7ccf5609",
+        "filename": "eVSSIM/tests/host/offline_logger_tests.cc",
+        "patchSetId": 22
+      },
+      "lineNbr": 46,
+      "author": {
+        "id": 1020444
+      },
+      "writtenOn": "2022-11-12T10:07:59Z",
+      "side": 1,
+      "message": "You should also add this class to `host_tests_main.cc` filters.",
+      "revId": "83ca13df3520ac2c1f9b3a7787980a2d8e556463",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "3b518f9c_63fa5a6a",
+        "filename": "infra/builder/elk.sh",
+        "patchSetId": 22
+      },
+      "lineNbr": 56,
+      "author": {
+        "id": 1020444
+      },
+      "writtenOn": "2022-11-12T10:07:59Z",
+      "side": 1,
+      "message": "I think it should be in the `evssim_elk_run_filebeat` method and not when sourcing the script.\nYou don\u0027t want sourcing the script to change the filebeat settings.",
+      "revId": "83ca13df3520ac2c1f9b3a7787980a2d8e556463",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
+    }
+  ]
+}
