@@ -31,7 +31,7 @@
 extern elk_logger_writer elk_logger_writer_obj;
 extern int auto_delete;
 
-int const MAX_POW = 12;
+int const MAX_POW = 8;
 int const MAX_MODE = 3;
 
 #define MONITOR_SYNC_DELAY_USEC 150000
@@ -166,22 +166,28 @@ namespace {
 
     std::unordered_map<std::string, int> get_test_stats(std::vector<std::string> log_files) {
         std::unordered_map<std::string, int> stats = get_new_stats();
-
+		json_object *j_obj, *type_obj; 
+		//j_obj = json_object_new_object();
+		//type_obj = json_object_new_object();
+		
         for(auto &log_file : log_files) {
             ifstream log_file_is(log_file);
             std::string line;
 
             while (getline(log_file_is, line)) {
-                json_object *j_obj, *type_obj; 
 
                 j_obj = json_tokener_parse(line.c_str());
                 json_object_object_get_ex(j_obj, "type", &type_obj);
-
+				
                 std::string type = std::string(json_object_get_string(type_obj));
                 stats[type]++;
+                
+                //json_object_put(type_obj);
+				json_object_put(j_obj);
             }
         }
-
+        
+		
         return stats;
     }
 
