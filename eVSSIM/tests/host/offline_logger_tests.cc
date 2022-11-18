@@ -228,6 +228,7 @@ namespace {
      */
     TEST_P(OfflineLoggerTest, LoggerWriterPageWriteTest) {
         std::tuple<size_t,size_t, int, int> params = GetParam();
+        
         //int flash_nb = std::get<1>(params);
         int pow = std::get<2>(params);
         int mode = std::get<3>(params);
