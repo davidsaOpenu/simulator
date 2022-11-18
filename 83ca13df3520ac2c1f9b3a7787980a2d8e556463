@@ -20,6 +20,144 @@
     {
       "unresolved": true,
       "key": {
+        "uuid": "b16647bf_41dff143",
+        "filename": "eVSSIM/LOG_MGR/logging_backend.c",
+        "patchSetId": 22
+      },
+      "lineNbr": 22,
+      "author": {
+        "id": 1007990
+      },
+      "writtenOn": "2022-11-18T08:16:19Z",
+      "side": 1,
+      "message": "leftover",
+      "range": {
+        "startLine": 22,
+        "startChar": 0,
+        "endLine": 22,
+        "endChar": 27
+      },
+      "revId": "83ca13df3520ac2c1f9b3a7787980a2d8e556463",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "50015264_b6d21d5d",
+        "filename": "eVSSIM/LOG_MGR/logging_backend.c",
+        "patchSetId": 22
+      },
+      "lineNbr": 40,
+      "author": {
+        "id": 1007990
+      },
+      "writtenOn": "2022-11-18T08:16:19Z",
+      "side": 1,
+      "message": "wondering why this change is required. After all the computation is similar in both cases. Putting is differently why not just having log-\u003etail rather then log-\u003ert_tail and log-\u003eoffline_tail fields?",
+      "range": {
+        "startLine": 38,
+        "startChar": 0,
+        "endLine": 40,
+        "endChar": 119
+      },
+      "revId": "83ca13df3520ac2c1f9b3a7787980a2d8e556463",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "2a9adead_b7c567ab",
+        "filename": "eVSSIM/LOG_MGR/logging_backend.h",
+        "patchSetId": 22
+      },
+      "lineNbr": 83,
+      "author": {
+        "id": 1007990
+      },
+      "writtenOn": "2022-11-18T08:16:19Z",
+      "side": 1,
+      "message": "offline_tail - missing description",
+      "range": {
+        "startLine": 82,
+        "startChar": 0,
+        "endLine": 83,
+        "endChar": 23
+      },
+      "revId": "83ca13df3520ac2c1f9b3a7787980a2d8e556463",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "55e6e1f9_78eceba9",
+        "filename": "eVSSIM/LOG_MGR/logging_backend.h",
+        "patchSetId": 22
+      },
+      "lineNbr": 157,
+      "author": {
+        "id": 1007990
+      },
+      "writtenOn": "2022-11-18T08:16:19Z",
+      "side": 1,
+      "message": "s/File/File descriptor",
+      "range": {
+        "startLine": 156,
+        "startChar": 0,
+        "endLine": 157,
+        "endChar": 17
+      },
+      "revId": "83ca13df3520ac2c1f9b3a7787980a2d8e556463",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "a99b91d5_2e0356ed",
+        "filename": "eVSSIM/LOG_MGR/logging_backend.h",
+        "patchSetId": 22
+      },
+      "lineNbr": 159,
+      "author": {
+        "id": 1007990
+      },
+      "writtenOn": "2022-11-18T08:16:19Z",
+      "side": 1,
+      "message": "s/log_file_size/max_log_file_size to avoid confusion with curr_size",
+      "range": {
+        "startLine": 159,
+        "startChar": 13,
+        "endLine": 159,
+        "endChar": 26
+      },
+      "revId": "83ca13df3520ac2c1f9b3a7787980a2d8e556463",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "f60f096d_5d686df6",
+        "filename": "eVSSIM/LOG_MGR/logging_backend.h",
+        "patchSetId": 22
+      },
+      "lineNbr": 191,
+      "author": {
+        "id": 1007990
+      },
+      "writtenOn": "2022-11-18T08:16:19Z",
+      "side": 1,
+      "message": "lets improve the description and make it clear what\u0027s the type of the rt_analyzer and how the parameter alters logger_read behavior",
+      "range": {
+        "startLine": 191,
+        "startChar": 22,
+        "endLine": 191,
+        "endChar": 78
+      },
+      "revId": "83ca13df3520ac2c1f9b3a7787980a2d8e556463",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
+    },
+    {
+      "unresolved": true,
+      "key": {
         "uuid": "59f302dc_7ccf5609",
         "filename": "eVSSIM/tests/host/offline_logger_tests.cc",
         "patchSetId": 22
