@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "ff0b7ace_02aa8b8d",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 1007990
+      },
+      "writtenOn": "2022-11-27T12:39:21Z",
+      "side": 1,
+      "message": "could you please abandon or resue the change id for an additional patch?",
+      "revId": "85fea07717779402e4e35be9ffeeade6d714bd83",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
+    }
+  ]
+}
