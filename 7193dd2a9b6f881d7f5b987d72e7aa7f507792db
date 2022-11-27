@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "a8f8dc2a_6829186b",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 1007990
+      },
+      "writtenOn": "2022-11-27T12:42:13Z",
+      "side": 1,
+      "message": "seems to be a part of https://review.gerrithub.io/c/davidsaOpenu/simulator/+/522563. since 522563 can\u0027t be merged without passing valgrind check. could you please squash this with 522563?",
+      "revId": "7193dd2a9b6f881d7f5b987d72e7aa7f507792db",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
+    }
+  ]
+}
