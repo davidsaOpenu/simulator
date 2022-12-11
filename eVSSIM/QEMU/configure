@@ -2545,6 +2545,11 @@ if test "$cpu" = "ppc64" -a "$targetos" != "Darwin" ; then
   roms="$roms spapr-rtas"
 fi
 
+if test "$vssim" = "yes" ; then
+    QEMU_CFLAGS="-I/usr/include/json-c/ -D__STDC_VERSION__=0 $QEMU_CFLAGS"
+    LIBS="-ljson-c $LIBS"
+fi
+
 echo "Install prefix    $prefix"
 echo "BIOS directory    `eval echo $datadir`"
 echo "binary directory  `eval echo $bindir`"
@@ -3567,6 +3572,7 @@ if test "$vssim" = "yes" ; then
     symlink "$source_path/../MONITOR/SERVER/logging_server.c" "$source_path/hw/logging_server.c"
     symlink "$source_path/../MONITOR/SERVER/logging_server.h" "$source_path/hw/logging_server.h"
     symlink "$source_path/../MONITOR/SERVER/www" "$source_path/hw/www"
+
 fi
 
 d=libuser
