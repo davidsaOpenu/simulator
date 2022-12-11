@@ -42,7 +42,7 @@ guest_test() {
 test_directory_base="$EVSSIM_DOCKER_ROOT_PATH/$EVSSIM_LOGS_FOLDER/tests/$(date +'%Y-%m-%d-%H-%M-%S')"
 
 # Run disk tests
-guest_test "$test_directory_base" 1 on nvme_compliance_tests
+#guest_test "$test_directory_base" 1 on nvme_compliance_tests
 guest_test "$test_directory_base" 1 on fio_tests
 
 # Run simulator specific tests (With different strategies)
