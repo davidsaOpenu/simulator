@@ -19,7 +19,7 @@ def parse_args():
         "-t",
         "--timeout",
         type=int,
-        default=300,
+        default=600,
         help="Amount of time to wait for elasticsearch to start. -1 for infinte, 0 for none",
     )
 
