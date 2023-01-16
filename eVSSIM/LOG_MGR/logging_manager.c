@@ -113,7 +113,7 @@ void log_manager_loop(LogManager* manager, int max_loops) {
             stats.write_count += current_stats.write_count;
             stats.read_count += current_stats.read_count;
             stats.garbage_collection_count += current_stats.garbage_collection_count;
-            stats.utilization += current_stats.utilization;
+            stats.utilization = current_stats.utilization;//+= current_stats.utilization;
 
             logical_write_count += (unsigned int)
                     (current_stats.write_count / current_stats.write_amplification);

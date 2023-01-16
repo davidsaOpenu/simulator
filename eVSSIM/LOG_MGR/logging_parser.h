@@ -252,6 +252,52 @@ typedef struct {
     LogMetadata metadata;
 } ChannelSwitchToWriteLog;
 
+typedef struct{
+	/**
+	 *	The id of the object that the page is added to
+	 */
+	uint64_t object_id;
+ 	/**
+     * The channel number of the written register
+     */
+    unsigned int channel;
+    /**
+     * The die number of the written register
+     */
+    unsigned int die;
+    /**
+     * The page number of the added page
+     */
+    uint32_t page;
+    /**
+     * Log metadata
+     */
+    LogMetadata metadata;
+}ObjectAddPageLog;
+
+typedef struct{
+ 	/**
+     * The channel number of the written register
+     */
+    unsigned int channel;
+    /**
+     * The page id of the source
+     */
+    uint32_t source;
+    /**
+     *the block number of the source page
+     */
+    uint32_t block;
+    /**
+     * The page id of the destination
+     */
+    uint32_t destination;
+     /**
+     * Log metadata
+     */
+    LogMetadata metadata;
+}ObjectCopyback;
+
 /**
  * All the logs definitions; used to easily add more log types
  * Each line should contain a call to the applier, with the structure and name of the log
@@ -267,7 +313,9 @@ APPLIER(RegisterReadLog, REGISTER_READ)                     \
 APPLIER(RegisterWriteLog, REGISTER_WRITE)                   \
 APPLIER(BlockEraseLog, BLOCK_ERASE)                         \
 APPLIER(ChannelSwitchToReadLog, CHANNEL_SWITCH_TO_READ)     \
-APPLIER(ChannelSwitchToWriteLog, CHANNEL_SWITCH_TO_WRITE)
+APPLIER(ChannelSwitchToWriteLog, CHANNEL_SWITCH_TO_WRITE)	\
+APPLIER(ObjectAddPageLog, OBJECT_ADD_PAGE)					\
+APPLIER(ObjectCopyback, OBJECT_COPYBACK)					\
 
 /**
  * The enum log applier; used to create an enum of the log types' ids

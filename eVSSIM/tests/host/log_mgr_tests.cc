@@ -109,6 +109,32 @@ namespace log_mgr_tests {
     INSTANTIATE_TEST_CASE_P(LoggerSize, LogMgrUnitTest, ::testing::ValuesIn(GetTestParams()));
 
 
+	TEST_P(LogMgrUnitTest, BasicRTAnalyzer) {
+        elk_logger_writer_init();
+        RTLogAnalyzer* analyzer = rt_log_analyzer_init(_logger, 0);
+        rt_log_stats_init();
+        rt_subscriber::subscribe(analyzer);
+        if (g_server_mode)
+            rt_log_analyzer_subscribe(analyzer, (MonitorHook) log_server_update, NULL);
+        rt_subscriber::write();
+        rt_subscriber::read();
+        rt_log_analyzer_free(analyzer, 0);
+        rt_log_stats_free();
+        elk_logger_writer_free();
+    }
+    
+    TEST_P(LogMgrUnitTest, BasicLogManager) {
+        elk_logger_writer_init();
+        LogManager* manager = log_manager_init();
+        manager_subscriber::init(manager);
+        if (g_server_mode)
+            log_manager_subscribe(manager, (MonitorHook) log_server_update, NULL);
+        manager_subscriber::run();
+        manager_subscriber::free();
+        log_manager_free(manager);
+        elk_logger_writer_free();
+    }
+
     /**
      * Test reading back a written string:
      * - make sure normal writing works
@@ -677,6 +703,7 @@ namespace log_mgr_tests {
         rt_log_analyzer_free(analyzer, 0);
         rt_log_stats_free();
     }
+
     /* offline Analyzer Tests */
     /**
      * Do a simple sanity test of the offline time log analyzer

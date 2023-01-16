@@ -18,7 +18,8 @@
 #include <string.h>
 
 #include "logging_server.h"
-
+#include "logging_rt_analyzer.h"
+#include "vssim_config_manager.h"
 
 /**
  * The time between server loops, in milliseconds
@@ -36,6 +37,8 @@
 #else
     #define WWW_DIR "./www"
 #endif
+
+extern RTLogStatistics *rt_log_stats;
 
 
 LogServer log_server;
@@ -237,13 +240,27 @@ int log_server_init(void) {
 }
 
 void log_server_update(SSDStatistics stats) {
+	
     if (!stats_equal(log_server.stats, stats)) {
         pthread_mutex_lock(&log_server.lock);
         log_server.stats = stats;
+        accurate_log_server_update();
         pthread_mutex_unlock(&log_server.lock);
         // schedule a write on all the clients connected to the evssim-monitor protocol
         lws_callback_on_writable_all_protocol(log_server.context, &ws_protocols[1]);
     }
+}
+
+//updates the utilization according to the data stored in the analyzers rather than the data received
+void accurate_log_server_update(void) {
+
+	long occupied_pages=0;
+	unsigned int i;
+	for(i = 0; i<FLASH_NB;i++){
+		occupied_pages += rt_log_stats[i].occupied_pages;
+	}
+	
+	log_server.stats.utilization = ((double)occupied_pages)/PAGES_IN_SSD;
 }
 
 ResetHook log_server_on_reset(ResetHook hook) {

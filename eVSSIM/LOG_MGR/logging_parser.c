@@ -37,6 +37,40 @@ int next_log_type(Logger_Pool* logger) {
 }
 
 
+void JSON_OBJECT_ADD_PAGE(ObjectAddPageLog *src, char *dst)
+{
+    struct json_object *jobj;
+
+    jobj = json_object_new_object();
+    json_object_object_add(jobj, "type", json_object_new_string("ObjectAddPageLog"));
+    json_object_object_add(jobj, "object id", json_object_new_int(src->object_id));
+    json_object_object_add(jobj, "channel", json_object_new_int(src->channel));
+    json_object_object_add(jobj, "page", json_object_new_int(src->page));
+    add_time_to_json_object(jobj, src->metadata.logging_start_time);
+
+    strcpy(dst, json_object_to_json_string_ext(jobj, JSON_C_TO_STRING_SPACED));
+    strcat(dst, "\n");
+    json_object_put(jobj); // Delete the json object
+}
+
+void JSON_OBJECT_COPYBACK(ObjectCopyback *src, char *dst)
+{
+    struct json_object *jobj;
+
+    jobj = json_object_new_object();
+    json_object_object_add(jobj, "type", json_object_new_string("ObjectCopyback"));
+    json_object_object_add(jobj, "channel", json_object_new_int(src->channel));
+    json_object_object_add(jobj, "source", json_object_new_int(src->source));
+    json_object_object_add(jobj, "block", json_object_new_int(src->block));
+    json_object_object_add(jobj, "destination", json_object_new_int(src->destination));
+    add_time_to_json_object(jobj, src->metadata.logging_start_time);
+
+    strcpy(dst, json_object_to_json_string_ext(jobj, JSON_C_TO_STRING_SPACED));
+    strcat(dst, "\n");
+    json_object_put(jobj); // Delete the json object
+}
+
+
 #define _LOGS_WRITER_DEFINITION_APPLIER(structure, name)            \
     void CONCAT(LOG_, name)(Logger_Pool* logger, structure buffer) {     \
         /*fprintf(stderr, "%p: " # name "\n", logger);*/            \
