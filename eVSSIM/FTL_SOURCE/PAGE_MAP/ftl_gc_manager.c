@@ -133,8 +133,7 @@ ftl_ret_val DEFAULT_GC_COLLECTION_ALGO(int mapping_index, int l2, bool isObjectS
 	if (copy_page_nb != valid_page_nb)
 
 		RERR(FTL_FAILURE, "The number of valid page is not correct copy_page_nb (%d) != valid_page_nb (%d)\n", copy_page_nb, valid_page_nb);
-
-
+	
 	SSD_BLOCK_ERASE(victim_phy_flash_nb, victim_phy_block_nb);
 	//update the physical block write counter as we're deleting the victim block which we're freeing during the GC procedure
 	wa_counters.physical_block_write_counter++;

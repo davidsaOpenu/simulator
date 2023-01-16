@@ -68,3 +68,7 @@ RUN echo "ALL            ALL = (ALL) NOPASSWD: ALL" >> /etc/sudoers
 #those lines are appended from outside
 #echo RUN groupadd `stat -c "%G" .` -g `stat -c "%g" .` >> ${WORKSPACE}/simulator/infra/docker/ubuntu/Dockerfile
 #echo RUN useradd -ms /bin/bash `stat -c "%U" .` -u `stat -c "%u" .` -g `stat -c "%g" .` -G sudo >> ${WORKSPACE}/simulator/infra/docker/ubuntu/Dockerfile
+RUN groupadd tomer -g 1000
+RUN useradd -ms /bin/bash tomer -u 1000 -g 1000 -G sudo
+RUN groupadd tomer -g 1000
+RUN useradd -ms /bin/bash tomer -u 1000 -g 1000 -G sudo

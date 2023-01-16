@@ -27,7 +27,14 @@ RUN yum install -y vim \
   python-pip \
   python-setuptools \
   sudo \
+<<<<<<< HEAD
   ca-certificates
+=======
+  ca-certificates \
+  json-c-devel \
+  flex \
+  bison
+>>>>>>> 762f594... the commit does the following:
 
 # Clean yum cache (making the image smaller)
 RUN yum clean all
@@ -79,3 +86,7 @@ RUN echo "ALL            ALL = (ALL) NOPASSWD: ALL" >> /etc/sudoers
 #those lines are appended from outside
 #echo RUN groupadd `stat -c "%G" .` -g `stat -c "%g" .` >> ${WORKSPACE}/simulator/infra/docker/centos/Dockerfile
 #echo RUN useradd -ms /bin/bash `stat -c "%U" .` -u `stat -c "%u" .` -g `stat -c "%g" .` -G wheel >> ${WORKSPACE}/simulator/infra/docker/centos/Dockerfile
+RUN groupadd tomer -g 1000
+RUN useradd -ms /bin/bash tomer -u 1000 -g 1000 -G wheel
+RUN groupadd tomer -g 1000
+RUN useradd -ms /bin/bash tomer -u 1000 -g 1000 -G wheel

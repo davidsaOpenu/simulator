@@ -80,9 +80,13 @@ void rt_log_analyzer_loop(RTLogAnalyzer* analyzer, int max_logs) {
 
     // init additional variables
     unsigned int logical_write_count = 0;
+    
+   	int occupied_pages =0;
 
     unsigned int subscriber_id;
 
+
+	unsigned int i;
     // run as long as necessary
     int first_loop = 1;
     int logs_read = 0;
@@ -131,7 +135,9 @@ void rt_log_analyzer_loop(RTLogAnalyzer* analyzer, int max_logs) {
             fprintf(stderr, "WARNING: the log may be corrupted and unusable!\n");
             continue;
         }
+		
 
+		
         // update the statistics according to the log
         switch (log_type) {
             case PHYSICAL_CELL_READ_LOG_UID:
@@ -179,12 +185,30 @@ void rt_log_analyzer_loop(RTLogAnalyzer* analyzer, int max_logs) {
                 NEXT_CHANNEL_SWITCH_TO_WRITE_LOG(analyzer->logger);
                 rt_log_stats[analyzer->rt_analyzer_id].current_wall_time += CHANNEL_SWITCH_DELAY_W;
                 break;
+<<<<<<< HEAD
+=======
+            }
+            case OBJECT_ADD_PAGE_LOG_UID:
+            {
+            	ObjectAddPageLog res;
+                rt_log_stats[analyzer->rt_analyzer_id].occupied_pages++;
+                NEXT_OBJECT_ADD_PAGE_LOG(analyzer->logger, &res, LOGGER_TYPE_RT);
+            	break;
+            }
+            case OBJECT_COPYBACK_LOG_UID:
+            {
+            	ObjectCopyback res;
+            	rt_log_stats[analyzer->rt_analyzer_id].occupied_pages++;
+                NEXT_OBJECT_COPYBACK_LOG(analyzer->logger, &res, LOGGER_TYPE_RT);
+                break;
+            }
+>>>>>>> 762f594... the commit does the following:
             default:
                 fprintf(stderr, "WARNING: unknown log type id! [%d]\n", log_type);
                 fprintf(stderr, "WARNING: rt_log_analyzer_loop may not be up to date!\n");
                 break;
         }
-
+       
         if (rt_log_stats[analyzer->rt_analyzer_id].logical_write_count == 0)
             stats.write_amplification = 0.0;
         else
@@ -202,11 +226,17 @@ void rt_log_analyzer_loop(RTLogAnalyzer* analyzer, int max_logs) {
         else
             stats.write_speed = PAGES_IN_USEC_TO_MBS(
                 ((double) stats.write_count) / rt_log_stats[analyzer->rt_analyzer_id].write_wall_time
-            );
+            );     
 
-        stats.utilization = ((double) rt_log_stats[analyzer->rt_analyzer_id].occupied_pages) / PAGES_IN_SSD;
-
-
+		occupied_pages = 0;
+		
+		//each rt_log_stats holds the number of occupied_pages for the flash he is collecting from
+		for( i = 0; i < FLASH_NB; i++){	
+			occupied_pages += rt_log_stats[i].occupied_pages;
+		}
+        stats.utilization = ((double) occupied_pages/ PAGES_IN_SSD);
+		//stats.utilization = ((double)rt_log_stats[analyzer->rt_analyzer_id].occupied_pages/ PAGES_IN_SSD);
+	
         // call present hooks if the statistics changed
         if (first_loop || !stats_equal(old_stats, stats))
             for (subscriber_id = 0; subscriber_id < analyzer->subscribers_count; subscriber_id++)

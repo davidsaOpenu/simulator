@@ -25,6 +25,8 @@ extern "C" {
 #include <cstdio>
 #include <cstdlib>
 
+extern RTLogStatistics *rt_log_stats;
+extern LogServer log_server;
 
 using namespace std;
 
@@ -190,6 +192,7 @@ namespace rt_subscriber {
             .channel = 4, .block = 5, .page = 6,
             .metadata = {start, end4}
         });
+        
         TIME_MICROSEC(end5);
         LOG_GARBAGE_COLLECTION(logger, (GarbageCollectionLog) empty_log);
         LOG_LOGICAL_CELL_PROGRAM(logger, (LogicalCellProgramLog) {
