@@ -6,6 +6,8 @@ object_map *objects_mapping = NULL;
 page_node *global_page_table = NULL;
 object_id_t current_id;
 
+//todo: fix object page add and copyback so that the occupied pages in ssd_io_manager.c will be updated
+
 void INIT_OBJ_STRATEGY(void)
 {
     current_id = 1;
@@ -179,6 +181,7 @@ ftl_ret_val _FTL_OBJ_WRITE(obj_id_t object_loc, offset_t offset, length_t length
 #ifdef GC_ON
         // must improve this because it is very possible that we will do multiple GCs on the same flash chip and block
         // probably gonna add an array to hold the unique ones and in the end GC all of them
+        
         GC_CHECK(CALC_FLASH(current_page->page_id), CALC_BLOCK(current_page->page_id), false, true);
 #endif
 
@@ -233,6 +236,7 @@ ftl_ret_val _FTL_OBJ_COPYBACK(int32_t source, int32_t destination)
     else
     {
         PDBG_FTL("Warning %u copyback page not mapped to an object \n", source);
+        return FTL_FAILURE;
     }
 
     return FTL_SUCCESS;
@@ -321,7 +325,7 @@ stored_object *create_object(object_id_t obj_id, size_t size)
 
     // add the new object to the objects' hashtable
     HASH_ADD_INT(objects_table, id, obj);
-
+    
     while (size > obj->size)
     {
         if (GET_NEW_PAGE(VICTIM_OVERALL, EMPTY_TABLE_ENTRY_NB, &page_id) == FTL_FAILURE)
@@ -330,7 +334,7 @@ stored_object *create_object(object_id_t obj_id, size_t size)
             remove_object(obj, obj_map);
             return NULL;
         }
-
+        
         if (!add_page(obj, page_id))
             return NULL;
 
@@ -399,7 +403,7 @@ page_node *allocate_new_page(object_id_t object_id, uint32_t page_id)
 page_node *add_page(stored_object *object, uint32_t page_id)
 {
     page_node *curr, *page;
-
+    
     HASH_FIND_INT(global_page_table, &page_id, page);
     if (page)
     {
@@ -411,6 +415,7 @@ page_node *add_page(stored_object *object, uint32_t page_id)
     {
         page = allocate_new_page(object->id, page_id);
         HASH_ADD_INT(global_page_table, page_id, page);
+                
         object->pages = page;
         return object->pages;
     }
@@ -420,8 +425,9 @@ page_node *add_page(stored_object *object, uint32_t page_id)
     {
         RERR(NULL, "[add_page] Object %lu already contains page %d\n", page->object_id, page_id);
     }
-
+    
     page = allocate_new_page(object->id, page_id);
+        
     HASH_ADD_INT(global_page_table, page_id, page);
     curr->next = page;
     return curr->next;

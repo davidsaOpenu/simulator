@@ -19,8 +19,11 @@
 
 #include <stdlib.h>
 #include <stdbool.h>
+#include <stdint.h>
+#include <stdio.h>
 #include <time.h>
 #include <pthread.h>
+#include <limits.h>
 
 /**
  * The backend logging mechanism is implemented using pool of logs each one of size LOG_SIZE.
@@ -28,6 +31,15 @@
  * The number of logs in each Looger_Pool allocated according to the request of each consumer.
  */
 
+
+/**
+ * enumerator for the analyzer types
+ */
+typedef enum {
+    OFFLINE_ANALYZER,
+    RT_ANALYZER,
+    analyzers_num
+} AnalyzerType;
 
 /**
  * The alignment to use when allocating the logger's buffer
@@ -54,6 +66,8 @@
  */
 typedef unsigned char Byte;
 
+/* The pattern for the names of created log files*/
+#define LOG_NAME_PATTERN "%Y-%m-%d_%H:%M:%S"
 
 /**
  * The Log structure
@@ -71,9 +85,9 @@ struct Log {
      */
     Byte* head;
     /**
-     * The next place to read a byte from the buffer
+     * An array of the next place for the analyzers to read a byte from the buffer
      */
-    Byte* tail;
+    Byte* tails[analyzers_num];
     /**
      * The next log
      */
@@ -95,15 +109,10 @@ struct Log {
      */
     bool clean;
     /**
-     * Flag that indicates if the real time analyzer
+     * An array of flags that indicates if the analyzer
      * done reading this log
      */
-    bool rt_analyzer_done;
-    /**
-     * Flag that indicates if the offline analyzer
-     * done reading this log
-     */
-    bool offline_analyzer_done;
+    bool analyzer_done[analyzers_num];
 };
 
 /**
@@ -145,6 +154,19 @@ typedef struct {
     pthread_mutex_t lock;
 } Logger_Pool;
 
+typedef struct {
+    /** File that the LoggerWriter works with */
+    int log_file;
+    /** Maximum size of a single log file */
+    uint32_t log_file_size;
+    /** Current log file size */
+    uint32_t curr_size;
+    /**
+     * The lock of the logger writer to update logger file safely from threads
+     */
+    pthread_mutex_t lock;
+} elk_logger_writer;
+
 /**
  * Create a new logger
  * @param number_of_logs the number of logs to allocate at this logger pool
@@ -164,13 +186,16 @@ Logger_Pool* logger_init(unsigned int number_of_logs);
 int logger_write(Logger_Pool* logger_pool, Byte* buffer, int length);
 
 /**
+ * Used by offline analyzer
  * Read a byte array from the logger
  * @param logger_pool the logger pool to read the data from
  * @param buffer the buffer to write the data to
  * @param length the maximum number of bytes to read
+ * @param analyzer the type of analyzer
  * @return the number of bytes read
  */
-int logger_read(Logger_Pool* logger_pool, Byte* buffer, int length);
+int logger_read(Logger_Pool* logger_pool, Byte* buffer, int length, AnalyzerType analyzer);
+
 
 /**
  * Read a byte array from the log
