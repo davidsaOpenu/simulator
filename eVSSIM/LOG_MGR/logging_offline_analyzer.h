@@ -19,6 +19,21 @@
 
 #include "logging_parser.h"
 
+// The maximum size of a time buffer for the log_file filenames
+#define ELK_LOGGER_WRITER_TIME_BUF_SIZE (0x80)
+
+// The path for all the log filess
+#define ELK_LOGGER_WRITER_LOGS_PATH "/code/logs/"
+
+#define FILEBEAT_LOG_PATH "/logs/"
+/**
+* maximum number of acceptable unshipped logs by elk
+*/
+#define MAX_UNSHIPPED_LOGS 3
+
+//the maximum size for the name of a log file
+#define LOG_FILE_NAME_SIZE 37
+
 /*
  * offline analyzer loop timeout in microsecond intervals
  * used to not busy waiting
@@ -63,5 +78,22 @@ void offline_log_analyzer_loop(OfflineLogAnalyzer* analyzer);
  * @param analyzer the offline analyzer to free
  */
 void offline_log_analyzer_free(OfflineLogAnalyzer* analyzer);
+
+/**
+ * @brief Creator of LoggerWriter object
+ */
+void elk_logger_writer_init(void);
+
+/**
+ * @brief Destructor of LoggerWriter object
+ */
+void elk_logger_writer_free(void);
+
+/**
+ * @brief Save a log to Logger file
+ *
+ * @param log_obj Pointer to Log Object to be saved
+ */
+void elk_logger_writer_save_log_to_file(Byte *buffer, int length);
 
 #endif
