@@ -98,6 +98,7 @@ void INIT_LOG_MANAGER(void)
     }
 
     rt_log_stats_init();
+    elk_logger_writer_init();
     log_manager = log_manager_init();
     if (log_manager == NULL)
         PERR("Couldn't create the log manager: %s\n", strerror(errno));
@@ -151,6 +152,8 @@ void TERM_LOG_MANAGER(void)
     log_manager_free(log_manager);
     pthread_join(log_server_thread, NULL);
     log_server_free();
+
+    elk_logger_writer_free();
 
     // free allocated memory
     free(analyzers_storage);
