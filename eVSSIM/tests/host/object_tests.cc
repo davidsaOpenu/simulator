@@ -96,6 +96,7 @@ namespace object_tests {
         char *wrbuf = (char *)Calloc(1, object_size_);
 #endif
 
+		//is p=1 intentional?
         // Fill the disk with objects
         for(unsigned long p=1; p < objects_in_ssd_; p++){
             object_locator.object_id = p;
@@ -110,7 +111,11 @@ namespace object_tests {
 #ifndef NO_OSD
         free(wrbuf);
 #endif
-
+		//check disk utilization got updated
+		double pages_per_object = ceil((double)object_size_/GET_PAGE_SIZE());
+		
+		ASSERT_EQ((pages_per_object*(objects_in_ssd_-1)/PAGES_IN_SSD), SSD_UTIL());
+	
         // At this step there shouldn't be any free page
         //ASSERT_EQ(FAIL, _FTL_OBJ_CREATE(object_size_));
         printf("SimpleObjectCreate test ended\n");
