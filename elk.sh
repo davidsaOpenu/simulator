@@ -133,3 +133,4 @@ evssim_elk_run_tests() {
         --elasticsearch-port $ELK_ELASTICSEARCH_EXTERNAL_PORT \
         --elasticsearch-index-template filebeat-*
 }
+
