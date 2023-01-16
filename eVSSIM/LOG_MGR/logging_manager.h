@@ -19,18 +19,20 @@
 
 #include "logging_rt_analyzer.h"
 
-
 /**
  * The maximum number of analyzers a LogManager can hold
  */
 #define MAX_ANALYZERS 16
-
 
 /**
  * The number of statistics slots in the handler
  */
 #define HANDLER_SIZE 4
 
+/**
+ * the time that the loop should wait for interupts each cycle
+ */
+#define MANGER_LOOP_SLEEP 500
 
 /**
  * A structure used by the RTLogAnalyzer, to store the data while the manager is running
@@ -45,7 +47,6 @@ typedef struct {
      */
     unsigned int current_slot;
 } AnalyzerHandler;
-
 
 /**
  * The log manager structure
@@ -76,7 +77,6 @@ typedef struct {
      */
     unsigned int exit_loop_flag : 1;
 } LogManager;
-
 
 /**
  * Create a new log manager
