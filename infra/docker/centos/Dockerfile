@@ -27,8 +27,9 @@ RUN yum install -y vim \
   python-pip \
   python-setuptools \
   sudo \
-  ca-certificates
-
+  ca-certificates \
+  json-c-devel
+  
 # Clean yum cache (making the image smaller)
 RUN yum clean all
 
@@ -52,7 +53,6 @@ RUN wget http://python.org/ftp/python/2.7.6/Python-2.7.6.tar.xz && \
 
 # Install Ansible
 RUN yum install -y ansible
-
 
 # Install Gtest
 ENV GTEST_HOME /opt
