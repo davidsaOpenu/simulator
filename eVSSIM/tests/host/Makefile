@@ -7,18 +7,19 @@ VSSIM_OBJ = vssim_config_manager.o \
 			logging_backend.o logging_parser.o logging_rt_analyzer.o logging_offline_analyzer.o \
 			logging_manager.o logging_server.o logging_statistics.o
 
-
 TEST_OBJ =  object_tests.o sector_tests.o log_mgr_tests.o ssd_io_emulator_tests.o \
-			rt_analyzer_subscriber.o log_manager_subscriber.o host_tests_main.o
+			rt_analyzer_subscriber.o log_manager_subscriber.o host_tests_main.o   \
+			offline_logger_tests.o 
 
 CFLAGS = -I/opt/gtest/include -I$(VSSIM_HOME)/osc-osd -I$(VSSIM_HOME)/osc-osd/osd-target -I$(VSSIM_HOME)/QEMU \
 	-g -DGTEST -DCOMPLIANCE_TESTS -L/opt/gtest/lib -L$(VSSIM_HOME)/osc-osd/osd-util -L$(VSSIM_HOME)/osc-osd/osd-target \
-	-I/opt/libwebsockets/include -L/opt/libwebsockets/lib -Wl,-R/opt/libwebsockets/lib -g -m64 -pipe -O2 -Wall -W \
-	-D_REENTRANT -fPIE -DQT_NO_DEBUG -DQT_WIDGETS_LIB -DQT_NETWORK_LIB -DQT_GUI_LIB -DQT_CORE_LIB
+	-I/opt/libwebsockets/include -L/opt/libwebsockets/lib -L/usr/lib/x86_64-linux-gnu -Wl,-R/opt/libwebsockets/lib -g -m64 -pipe -O2 -Wall -W \
+	-D_REENTRANT -fPIE -DQT_NO_DEBUG -DQT_WIDGETS_LIB -DQT_NETWORK_LIB -DQT_GUI_LIB -DQT_CORE_LIB \
+	-I/usr/include/json-c/ -D__STDC_VERSION__=0 
 
-COMMON_FLAGS = -lpthread -lgtest -lgtest_main -losdutil -losdtgt -lsqlite3 -lwebsockets
+COMMON_FLAGS = -lpthread -lgtest -lgtest_main -losdutil -losdtgt -lsqlite3 -lwebsockets -ljson-c
 
-W_ALL_ERR = -Wall -Werror
+W_ALL_ERR = -Wall -Werror 
 
 all: host_tests_main
 
@@ -26,7 +27,7 @@ host_tests_main:  $(TEST_OBJ) $(VSSIM_OBJ)
 	g++ $(CFLAGS) $(W_ALL_ERR) -o host_tests_main $(TEST_OBJ) $(VSSIM_OBJ) $(COMMON_FLAGS)
 
 %.o: %.cc
-	g++ $(W_ALL_ERR) $(CFLAGS) -c $<
+	g++ $(W_ALL_ERR) $(CFLAGS) -std=c++11 -c $<
 
 %.o: %.c
 	gcc $(W_ALL_ERR) $(CFLAGS) -c $<
@@ -88,3 +89,4 @@ mklink:
 	ln -sf $(VSSIM_HOME)/MONITOR/SERVER/logging_server.c
 	ln -sf $(VSSIM_HOME)/MONITOR/SERVER/www
 	touch ssd.conf
+        
