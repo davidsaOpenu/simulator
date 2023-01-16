@@ -95,9 +95,8 @@ namespace object_tests {
 #ifndef NO_OSD
         char *wrbuf = (char *)Calloc(1, object_size_);
 #endif
-
         // Fill the disk with objects
-        for(unsigned long p=1; p < objects_in_ssd_; p++){
+        for(unsigned long p=0; p < objects_in_ssd_; p++){
             object_locator.object_id = p;
             bool res = _FTL_OBJ_CREATE(object_locator, object_size_);
             ASSERT_TRUE(res);
@@ -110,7 +109,7 @@ namespace object_tests {
 #ifndef NO_OSD
         free(wrbuf);
 #endif
-
+	
         // At this step there shouldn't be any free page
         //ASSERT_EQ(FAIL, _FTL_OBJ_CREATE(object_size_));
         printf("SimpleObjectCreate test ended\n");
