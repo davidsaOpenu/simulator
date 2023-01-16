@@ -19,6 +19,8 @@
 
 #include <stdlib.h>
 #include <stdbool.h>
+#include <stdint.h>
+#include <stdio.h>
 #include <time.h>
 #include <pthread.h>
 
@@ -28,6 +30,8 @@
  * The number of logs in each Looger_Pool allocated according to the request of each consumer.
  */
 
+#define LOGGER_TYPE_OFFLINE (0)
+#define LOGGER_TYPE_RT      (1)
 
 /**
  * The alignment to use when allocating the logger's buffer
@@ -54,6 +58,8 @@
  */
 typedef unsigned char Byte;
 
+/* Size of file path */
+#define SCRATCHBOOK_SIZE 256
 
 /**
  * The Log structure
@@ -73,7 +79,8 @@ struct Log {
     /**
      * The next place to read a byte from the buffer
      */
-    Byte* tail;
+    Byte* rt_tail;
+    Byte* offline_tail;
     /**
      * The next log
      */
@@ -145,6 +152,19 @@ typedef struct {
     pthread_mutex_t lock;
 } Logger_Pool;
 
+typedef struct {
+    /** File that the LoggerWriter works with */
+    int log_file;
+    /** Maximum size of a single log file */
+    uint32_t log_file_size;
+    /** Current log file size */
+    uint32_t curr_size;
+    /**
+     * The lock of the logger writer to update logger file safely from threads
+     */
+    pthread_mutex_t lock;
+} elk_logger_writer;
+
 /**
  * Create a new logger
  * @param number_of_logs the number of logs to allocate at this logger pool
@@ -168,9 +188,10 @@ int logger_write(Logger_Pool* logger_pool, Byte* buffer, int length);
  * @param logger_pool the logger pool to read the data from
  * @param buffer the buffer to write the data to
  * @param length the maximum number of bytes to read
+ * @param rt_analyzer if this read is from the rt analyzer or offline analyzer
  * @return the number of bytes read
  */
-int logger_read(Logger_Pool* logger_pool, Byte* buffer, int length);
+int logger_read(Logger_Pool* logger_pool, Byte* buffer, int length, int rt_analyzer);
 
 /**
  * Read a byte array from the log
