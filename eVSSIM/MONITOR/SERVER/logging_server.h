@@ -20,7 +20,8 @@
 #include <libwebsockets.h>
 
 #include "logging_statistics.h"
-
+#include "vssim_config_manager.h"
+#include "logging_rt_analyzer.h"
 
 /**
  * The port to be used by the server
@@ -103,5 +104,6 @@ void log_server_loop(int max_loops);
  */
 void log_server_free(void);
 
+void accurate_log_server_update(void);
 
 #endif
