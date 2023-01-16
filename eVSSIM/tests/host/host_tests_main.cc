@@ -25,6 +25,12 @@ int main(int argc, char **argv) {
         } else if (strcmp(argv[i], "--ssd-io-emulator-tests") == 0) {
             tests_filter = "*SSDIoEmulatorUnitTest*";
         }
+        else if (strcmp(argv[i], "--offline_logger_tests") == 0) {
+            tests_filter = "*OfflineLoggerTest*";
+        }
+        else if (strcmp(argv[i], "--ssd_write_read_test") == 0) {
+            tests_filter = "*WriteReadTest*";
+        }
     }
 
     testing::GTEST_FLAG(filter) = tests_filter;
