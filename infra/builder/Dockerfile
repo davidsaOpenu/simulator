@@ -29,8 +29,10 @@ RUN apt-get update && DEBIAN_FRONTEND=noninteractive apt-get -y install \
   eatmydata \
   strace \
   lsof \
-  eclipse-cdt
-
+  eclipse-cdt \
+  libjson-c-dev \
+  flex \
+  bison
 
 # Install build packages
 RUN apt-get update && DEBIAN_FRONTEND=noninteractive apt-get -y install \
