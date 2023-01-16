@@ -91,6 +91,10 @@ void SSD_UPDATE_QEMU_OVERHEAD(int64_t delay);
 /* SSD Module Debugging */
 void SSD_PRINT_STAMP(void);
 
+void SSD_OBJECT_ADD_PAGE(uint64_t object_id, uint32_t page_id);
+
+void SSD_OBJECT_COPYBACK(uint32_t source, uint32_t destination);
+
 double SSD_UTIL(void);
 
 #endif
