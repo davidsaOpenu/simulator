@@ -125,7 +125,9 @@ namespace {
         SSDConf(size_t page_size, size_t page_nb, size_t sector_size,
                 size_t flash_nb, size_t block_nb, size_t channel_nb)
                 : page_size(page_size), page_nb(page_nb), sector_size(sector_size),
-                  flash_nb(flash_nb), block_nb(block_nb), channel_nb(channel_nb) {}
+                  flash_nb(flash_nb), block_nb(block_nb), channel_nb(channel_nb) {
+				  this->pages = page_nb * block_nb * flash_nb;
+                  }
 
         size_t get_page_size(void) {
             return this->page_size;
