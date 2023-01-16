@@ -24,7 +24,10 @@ RUN apt-get update && apt-get -y install \
   libvirt-bin \
   python-pip \
   python-setuptools \
-  sudo
+  sudo \
+  libjson-c-dev \
+  flex \
+  bison
 
 
 # Install build packages
@@ -55,7 +58,7 @@ RUN mkdir -p $GTEST_HOME/gtest/lib && \
 
 # Install websockets
 RUN git clone --branch v4.1-stable https://github.com/warmcat/libwebsockets.git /opt/libwebsockets && \
-    cd /opt/libwebsockets && cmake . && \
+    cd /opt/libwebsockets && cmake . -DLWS_WITHOUT_EXTENSIONS=0 && \
     make && \
     make install &&\
     ldconfig
