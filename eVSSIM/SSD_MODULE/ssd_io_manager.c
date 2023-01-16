@@ -194,7 +194,6 @@ ftl_ret_val SSD_PAGE_WRITE(unsigned int flash_nb, unsigned int block_nb, unsigne
 	SSD_REG_ACCESS(flash_nb, channel, reg);
 
     TIME_MICROSEC(_end);
-
     if (ssd.prev_channel_mode[channel] == READ) {
         LOG_CHANNEL_SWITCH_TO_WRITE(GET_LOGGER(flash_nb), (ChannelSwitchToWriteLog) {
             .channel = channel,
@@ -271,7 +270,7 @@ ftl_ret_val SSD_PAGE_READ(unsigned int flash_nb, unsigned int block_nb, unsigned
 }
 
 ftl_ret_val SSD_BLOCK_ERASE(unsigned int flash_nb, unsigned int block_nb)
-{
+{	
 	int channel, reg;
 
     TIME_MICROSEC(_start);
@@ -351,6 +350,7 @@ int SSD_CH_ENABLE(unsigned int flash_nb, int channel)
 	if(CHANNEL_SWITCH_DELAY_R == 0 && CHANNEL_SWITCH_DELAY_W == 0)
 		return FTL_SUCCESS;
 
+	//todo: fix, causes channel switch
 	if(old_channel_nb != channel){
 		SSD_CH_SWITCH_DELAY(flash_nb, channel);
 	}
@@ -463,11 +463,11 @@ int64_t SSD_CH_SWITCH_DELAY(unsigned int flash_nb, int channel)
 	int64_t switch_delay = 0;
 
     TIME_MICROSEC(_start);
-	if (ssd.prev_channel_mode[channel] == READ ) {
-		switch_delay = CHANNEL_SWITCH_DELAY_W;
-	}
-	else if (ssd.prev_channel_mode[channel] == WRITE) {
+	if (ssd.cur_channel_mode[channel] == READ ) {
 		switch_delay = CHANNEL_SWITCH_DELAY_R;
+	}
+	else if (ssd.cur_channel_mode[channel] == WRITE) {
+		switch_delay = CHANNEL_SWITCH_DELAY_W;
 	}
 	else{
 		return 0;
@@ -491,17 +491,19 @@ int64_t SSD_CH_SWITCH_DELAY(unsigned int flash_nb, int channel)
 
     TIME_MICROSEC(_end);
 
-	if (ssd.prev_channel_mode[channel] == WRITE)
+	
+	if (ssd.cur_channel_mode[channel] == READ){
 	    LOG_CHANNEL_SWITCH_TO_READ(GET_LOGGER(flash_nb), (ChannelSwitchToReadLog) {
 	        .channel = channel,
             .metadata = {_start, _end}
 	    });
-	else if (ssd.prev_channel_mode[channel] == READ)
+	}
+	else if (ssd.cur_channel_mode[channel] == WRITE){
 	    LOG_CHANNEL_SWITCH_TO_WRITE(GET_LOGGER(flash_nb), (ChannelSwitchToWriteLog) {
 	        .channel = channel,
             .metadata = {_start, _end}
 	    });
-
+	}
 	return end-start;
 }
 

@@ -141,8 +141,10 @@ void log_manager_loop(LogManager* manager, int max_loops) {
         unsigned int subscriber_id;
         // call present hooks if the statistics changed
         if (first_loop || !stats_equal(old_stats, stats))
-            for (subscriber_id = 0; subscriber_id < manager->subscribers_count; subscriber_id++)
+            for (subscriber_id = 0; subscriber_id < manager->subscribers_count; subscriber_id++){
                 manager->hooks[subscriber_id](stats, manager->hooks_ids[subscriber_id]);
+            }
+
 
         // update `loops` only if necessary (in order to avoid overflow)
         if (max_loops >= 0)
@@ -156,9 +158,9 @@ void log_manager_loop(LogManager* manager, int max_loops) {
             manager->exit_loop_flag = 0;
             break;
         }
-
+        
         // wait before going to the next loop
-        if (usleep(50000))  // sleep 50 milliseconds
+        if (usleep(MANGER_LOOP_SLEEP))
             break;          // if an error occurred (probably a signal interrupt) just exit
     }
 }
