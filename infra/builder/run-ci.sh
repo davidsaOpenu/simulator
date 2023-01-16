@@ -22,6 +22,11 @@ export EVSSIM_RUNTIME_ALWAYS_RESET=yes
 ./compile-guest-tests.sh
 
 # Run sanity and tests
+
+# We source this script since it defines some env-vars that we need, such as ELK ports and container names
+source ./elk-run-stack.sh
+./elk-run-tests.sh
+
 ./docker-run-sanity.sh
 
 ./docker-test-host.sh
@@ -31,6 +36,4 @@ export EVSSIM_RUNTIME_ALWAYS_RESET=yes
 # ELK stack tests
 trap ./elk-stop-stack.sh EXIT
 
-# We source this script since it defines some env-vars that we need, such as ELK ports and container names
-source ./elk-run-stack.sh
-./elk-run-tests.sh
+
