@@ -20,7 +20,12 @@
 #include <libwebsockets.h>
 
 #include "logging_statistics.h"
+#include "vssim_config_manager.h"
+#include "logging_rt_analyzer.h"
 
+#define MONITOR_SYNC_DELAY_USEC 150000
+#define DELAY_THRESHOLD 0
+#define MONITOR_SYNC_DELAY(expected_duration) usleep(2 * expected_duration + MONITOR_SYNC_DELAY_USEC)
 
 /**
  * The port to be used by the server
@@ -103,5 +108,6 @@ void log_server_loop(int max_loops);
  */
 void log_server_free(void);
 
+void accurate_log_server_update(void);
 
 #endif
