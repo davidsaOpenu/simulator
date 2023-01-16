@@ -7,9 +7,15 @@ VSSIM_OBJ = vssim_config_manager.o \
 			logging_backend.o logging_parser.o logging_rt_analyzer.o logging_offline_analyzer.o \
 			logging_manager.o logging_server.o logging_statistics.o
 
+<<<<<<< HEAD
 
 TEST_OBJ =  object_tests.o sector_tests.o log_mgr_tests.o ssd_io_emulator_tests.o \
 			rt_analyzer_subscriber.o log_manager_subscriber.o host_tests_main.o
+=======
+TEST_OBJ =  sector_tests.o ssd_write_read_test.o object_tests.o log_mgr_tests.o ssd_io_emulator_tests.o \
+			rt_analyzer_subscriber.o log_manager_subscriber.o host_tests_main.o \
+			offline_logger_tests.o 
+>>>>>>> 762f594... the commit does the following:
 
 CFLAGS = -I/opt/gtest/include -I$(VSSIM_HOME)/osc-osd -I$(VSSIM_HOME)/osc-osd/osd-target -I$(VSSIM_HOME)/QEMU \
 	-g -DGTEST -DCOMPLIANCE_TESTS -L/opt/gtest/lib -L$(VSSIM_HOME)/osc-osd/osd-util -L$(VSSIM_HOME)/osc-osd/osd-target \

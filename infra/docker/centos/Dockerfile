@@ -27,7 +27,14 @@ RUN yum install -y vim \
   python-pip \
   python-setuptools \
   sudo \
+<<<<<<< HEAD
   ca-certificates
+=======
+  ca-certificates \
+  json-c-devel \
+  flex \
+  bison
+>>>>>>> 762f594... the commit does the following:
 
 # Clean yum cache (making the image smaller)
 RUN yum clean all

@@ -97,6 +97,7 @@ namespace object_tests {
 #endif
 
         // Fill the disk with objects
+        // is p=1 intentional?
         for(unsigned long p=1; p < objects_in_ssd_; p++){
             object_locator.object_id = p;
             bool res = _FTL_OBJ_CREATE(object_locator, object_size_);
@@ -113,6 +114,11 @@ namespace object_tests {
 
         // At this step there shouldn't be any free page
         //ASSERT_EQ(FAIL, _FTL_OBJ_CREATE(object_size_));
+        
+        //cheack that the disk utilization got updated
+        double pages_per_object = ceil((double)object_size_/GET_PAGE_SIZE());
+		ASSERT_EQ((pages_per_object*(objects_in_ssd_-1)/PAGES_IN_SSD), SSD_UTIL());
+		
         printf("SimpleObjectCreate test ended\n");
     }
 

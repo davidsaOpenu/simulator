@@ -103,5 +103,7 @@ void log_server_loop(int max_loops);
  */
 void log_server_free(void);
 
+void accurate_log_server_update(void);
+
 
 #endif
