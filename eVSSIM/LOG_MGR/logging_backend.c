@@ -19,8 +19,7 @@
 #include <string.h>
 #include <stdint.h>
 #include <unistd.h>
-#include <sys/types.h>
-#include <linux/unistd.h>
+//#include <linux/unistd.h>
 
 #include "logging_backend.h"
 
@@ -36,7 +35,9 @@
  * @param {Log*} log to check
  * @return the number of full bytes that left to read in the log
  */
-#define NUMBER_OF_BYTES_TO_READ(log) (LOG_SIZE - (log->tail - log->buffer))
+#define NUMBER_OF_BYTES_TO_READ_RT(log) (LOG_SIZE - (log->rt_tail - log->buffer))
+#define NUMBER_OF_BYTES_TO_READ_OFFLINE(log) (LOG_SIZE - (log->offline_tail - log->buffer))
+#define NUMBER_OF_BYTES_TO_READ(log,rt) ((rt) ? NUMBER_OF_BYTES_TO_READ_RT(log) : NUMBER_OF_BYTES_TO_READ_OFFLINE(log))
 
 /**
  * Return true if current number of allocated logs in the logger pool
@@ -59,7 +60,7 @@
     node->clean = true; \
     node->rt_analyzer_done = false; \
     node->offline_analyzer_done = false; \
-    node->head = node->tail = node->buffer = buf; \
+    node->head = node->rt_tail = node->offline_tail = node->buffer = buf; \
 }
 
 /**
@@ -78,6 +79,7 @@
     node->last_used_timestamp = time(NULL); \
     node->clean = is_clean; \
 }
+
 
 Logger_Pool* logger_init(unsigned int number_of_logs) {
     Byte *buffer;
@@ -210,7 +212,7 @@ int logger_write(Logger_Pool* logger_pool, Byte* buffer, int length) {
     return res;
 }
 
-int logger_read(Logger_Pool* logger_pool, Byte* buffer, int length) {
+int logger_read(Logger_Pool* logger_pool, Byte* buffer, int length, int rt_analyzer) {
     Log *log, *temp_log;
     int number_bytes_to_read_in_log; // number of bytes that wasn't read yet in the log
     int number_of_bytes_to_read = length; // number of bytes that we still have to read
@@ -224,15 +226,18 @@ int logger_read(Logger_Pool* logger_pool, Byte* buffer, int length) {
     {
         // if the log is not clean and the real time analyzer have not
         // finished to read from it then read length bytes of data
-        if(!(log->clean) && !(log->rt_analyzer_done))
+        if (!(log->clean) && (
+            (  rt_analyzer && !(log->rt_analyzer_done) ) ||
+            ( !rt_analyzer && !(log->offline_analyzer_done) )
+           ))
         {
             // check how many bytes left to read in this log
-            number_bytes_to_read_in_log = NUMBER_OF_BYTES_TO_READ(log);
+            number_bytes_to_read_in_log = NUMBER_OF_BYTES_TO_READ(log, rt_analyzer);
 
             if(number_bytes_to_read_in_log >= number_of_bytes_to_read) // read length bytes from this log
             {
                 // check that we are not going to read past what has been written
-                if(!((NUMBER_OF_BYTES_TO_READ(log)-number_of_bytes_to_read) >=
+                if(!((NUMBER_OF_BYTES_TO_READ(log, rt_analyzer)-number_of_bytes_to_read) >=
                             NUMBER_OF_BYTES_TO_WRITE(log)))
                 {
                     // unlock logger pool
@@ -240,15 +245,21 @@ int logger_read(Logger_Pool* logger_pool, Byte* buffer, int length) {
                     return (length-number_of_bytes_to_read);
                 }
 
-                memcpy((void*) buffer, (void*) log->tail, number_of_bytes_to_read);
-                log->tail += number_of_bytes_to_read;
+                if (rt_analyzer) {
+                    memcpy((void*) buffer, (void*) log->rt_tail, number_of_bytes_to_read);
+                    log->rt_tail += number_of_bytes_to_read;
+                }
+                else {
+                    memcpy((void*) buffer, (void*) log->offline_tail, number_of_bytes_to_read);
+                    log->offline_tail += number_of_bytes_to_read;
+                }
                 // we read all the needed bytes
                 number_of_bytes_to_read = 0;
             }
             else // read number_bytes_to_read_in_log from the current log and all the rest of the bytes from the next log
             { /* Tested by CrossBoundryStringWriteRead test from log_mgr_tests.cc */
                 // check that we are not going to read past what has bean written
-                if(!((NUMBER_OF_BYTES_TO_READ(log)-number_bytes_to_read_in_log) >=
+                if(!((NUMBER_OF_BYTES_TO_READ(log, rt_analyzer)-number_bytes_to_read_in_log) >=
                             NUMBER_OF_BYTES_TO_WRITE(log)))
                 {
                     // unlock logger pool
@@ -256,9 +267,15 @@ int logger_read(Logger_Pool* logger_pool, Byte* buffer, int length) {
                     return (length-number_of_bytes_to_read);
                 }
 
-                memcpy((void*) buffer, (void*) log->tail, number_bytes_to_read_in_log);
+                if (rt_analyzer) {
+                    memcpy((void*) buffer, (void*) log->rt_tail, number_bytes_to_read_in_log);
+                    log->rt_tail += number_bytes_to_read_in_log;
+                }
+                else {
+                    memcpy((void*) buffer, (void*) log->offline_tail, number_bytes_to_read_in_log);
+                    log->offline_tail += number_bytes_to_read_in_log;
+                }
                 buffer += number_bytes_to_read_in_log;
-                log->tail += number_bytes_to_read_in_log;
                 number_of_bytes_to_read -= number_bytes_to_read_in_log;
             }
         }
@@ -267,8 +284,14 @@ int logger_read(Logger_Pool* logger_pool, Byte* buffer, int length) {
         temp_log = log->next;
 
         // check if we are done reading this log
-        if(NUMBER_OF_BYTES_TO_READ(log) == 0)
-            log->rt_analyzer_done = true;
+        if(NUMBER_OF_BYTES_TO_READ(log, rt_analyzer) == 0) {
+            if (rt_analyzer) {
+                log->rt_analyzer_done = true;
+            }
+            else {
+                log->offline_analyzer_done = true;
+            }
+        }
 
         log = temp_log;
 
