@@ -19,8 +19,6 @@
 #include <string.h>
 #include <stdint.h>
 #include <unistd.h>
-#include <sys/types.h>
-#include <linux/unistd.h>
 
 #include "logging_backend.h"
 
@@ -36,7 +34,7 @@
  * @param {Log*} log to check
  * @return the number of full bytes that left to read in the log
  */
-#define NUMBER_OF_BYTES_TO_READ(log) (LOG_SIZE - (log->tail - log->buffer))
+#define NUMBER_OF_BYTES_TO_READ(log,analyzer) (LOG_SIZE - (log->tails[analyzer] - log->buffer))
 
 /**
  * Return true if current number of allocated logs in the logger pool
@@ -57,10 +55,26 @@
     node->prev->next = node; \
     node->last_used_timestamp = time(NULL); \
     node->clean = true; \
-    node->rt_analyzer_done = false; \
-    node->offline_analyzer_done = false; \
-    node->head = node->tail = node->buffer = buf; \
+    RESET_DONE(node); \
+    SET_TAILS(node, buf); \
+    node->head = node->buffer = buf; \
 }
+
+#define SET_TAILS(node, buf) \
+do { \
+    size_t i; \
+    for(i = 0; i<analyzers_num;i++){ \
+        node->tails[i] =buf; \
+    } \
+} while(0) 
+
+#define RESET_DONE(node) \
+do { \
+    size_t i; \
+    for(i = 0; i<analyzers_num;i++){ \
+        node->analyzer_done[i] =false; \
+    } \
+} while(0) 
 
 /**
  * Disconnect node from the linked list
@@ -78,6 +92,7 @@
     node->last_used_timestamp = time(NULL); \
     node->clean = is_clean; \
 }
+
 
 Logger_Pool* logger_init(unsigned int number_of_logs) {
     Byte *buffer;
@@ -210,7 +225,7 @@ int logger_write(Logger_Pool* logger_pool, Byte* buffer, int length) {
     return res;
 }
 
-int logger_read(Logger_Pool* logger_pool, Byte* buffer, int length) {
+int logger_read(Logger_Pool* logger_pool, Byte* buffer, int length, AnalyzerType analyzer) {
     Log *log, *temp_log;
     int number_bytes_to_read_in_log; // number of bytes that wasn't read yet in the log
     int number_of_bytes_to_read = length; // number of bytes that we still have to read
@@ -224,15 +239,15 @@ int logger_read(Logger_Pool* logger_pool, Byte* buffer, int length) {
     {
         // if the log is not clean and the real time analyzer have not
         // finished to read from it then read length bytes of data
-        if(!(log->clean) && !(log->rt_analyzer_done))
+        if (!(log->clean) && !(log->analyzer_done[analyzer]))
         {
             // check how many bytes left to read in this log
-            number_bytes_to_read_in_log = NUMBER_OF_BYTES_TO_READ(log);
+            number_bytes_to_read_in_log = NUMBER_OF_BYTES_TO_READ(log, analyzer);
 
             if(number_bytes_to_read_in_log >= number_of_bytes_to_read) // read length bytes from this log
             {
                 // check that we are not going to read past what has been written
-                if(!((NUMBER_OF_BYTES_TO_READ(log)-number_of_bytes_to_read) >=
+                if(!((NUMBER_OF_BYTES_TO_READ(log, analyzer)-number_of_bytes_to_read) >=
                             NUMBER_OF_BYTES_TO_WRITE(log)))
                 {
                     // unlock logger pool
@@ -240,25 +255,27 @@ int logger_read(Logger_Pool* logger_pool, Byte* buffer, int length) {
                     return (length-number_of_bytes_to_read);
                 }
 
-                memcpy((void*) buffer, (void*) log->tail, number_of_bytes_to_read);
-                log->tail += number_of_bytes_to_read;
+                memcpy((void*) buffer, (void*) log->tails[analyzer], number_of_bytes_to_read);
+                log->tails[analyzer] += number_of_bytes_to_read;
+                
                 // we read all the needed bytes
                 number_of_bytes_to_read = 0;
             }
             else // read number_bytes_to_read_in_log from the current log and all the rest of the bytes from the next log
             { /* Tested by CrossBoundryStringWriteRead test from log_mgr_tests.cc */
                 // check that we are not going to read past what has bean written
-                if(!((NUMBER_OF_BYTES_TO_READ(log)-number_bytes_to_read_in_log) >=
+                if(!((NUMBER_OF_BYTES_TO_READ(log, analyzer)-number_bytes_to_read_in_log) >=
                             NUMBER_OF_BYTES_TO_WRITE(log)))
                 {
                     // unlock logger pool
                     pthread_mutex_unlock(&logger_pool->lock);
                     return (length-number_of_bytes_to_read);
                 }
-
-                memcpy((void*) buffer, (void*) log->tail, number_bytes_to_read_in_log);
+                
+                memcpy((void*) buffer, (void*) log->tails[analyzer], number_bytes_to_read_in_log);
+                log->tails[analyzer] += number_bytes_to_read_in_log;
+                    
                 buffer += number_bytes_to_read_in_log;
-                log->tail += number_bytes_to_read_in_log;
                 number_of_bytes_to_read -= number_bytes_to_read_in_log;
             }
         }
@@ -267,8 +284,9 @@ int logger_read(Logger_Pool* logger_pool, Byte* buffer, int length) {
         temp_log = log->next;
 
         // check if we are done reading this log
-        if(NUMBER_OF_BYTES_TO_READ(log) == 0)
-            log->rt_analyzer_done = true;
+        if(NUMBER_OF_BYTES_TO_READ(log, RT_ANALYZER) == 0) {
+            log->analyzer_done[RT_ANALYZER] = true;
+        }
 
         log = temp_log;
 
@@ -337,7 +355,12 @@ void logger_reduce_size(Logger_Pool* logger_pool) {
         temp_log = log->next;
         // make sure that the analayzers are done with this log
         // and that it wasn't used for at least LOG_MAX_UNUSED_TIME_SECONDS
-        if(!(log->clean) && log->rt_analyzer_done && log->offline_analyzer_done &&
+        bool done = true;
+        size_t i;
+        for(i=0; i<analyzers_num; i++){
+            done = done && log->analyzer_done[i];
+        }
+        if(!(log->clean) && done &&
                 ((time(NULL) - log->last_used_timestamp) > LOG_MAX_UNUSED_TIME_SECONDS))
         {
             DISCONNECT_NODE(log);
@@ -368,7 +391,13 @@ void logger_clean(Logger_Pool* logger_pool) {
         // check if both rt_analayzer and offline_analyzer
         // done reading from the log
         // if true clean the log for next reuse
-        if(!(log->clean) && log->rt_analyzer_done && log->offline_analyzer_done)
+        bool done = true;
+        size_t i;
+        for(i=0; i<analyzers_num; i++){
+            done = done && log->analyzer_done[i];
+        }
+
+        if(!(log->clean) && done)
         {
             DISCONNECT_NODE(log);
             INSERT_NODE(log, logger_pool->dummy_log, log->buffer);
