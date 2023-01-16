@@ -19,7 +19,6 @@
 
 #include "logging_server.h"
 
-
 /**
  * The time between server loops, in milliseconds
  */
