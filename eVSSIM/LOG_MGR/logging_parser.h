@@ -18,6 +18,7 @@
 #define __LOGGING_PARSER_H__
 
 #include "logging_backend.h"
+#include <json.h>
 #include <sys/time.h>
 
 /**
@@ -66,7 +67,7 @@ typedef struct {
  * @param buffer the buffer to write the data to
  * @param length the number of bytes to read
  */
-void logger_busy_read(Logger_Pool* logger, Byte* buffer, int length);
+void logger_busy_read(Logger_Pool* logger, Byte* buffer, int length, int rt_analyzer);
 
 /**
  * Return the type of the next log in the logger
@@ -74,6 +75,9 @@ void logger_busy_read(Logger_Pool* logger, Byte* buffer, int length);
  * @return the next log type in the logger
  */
 int next_log_type(Logger_Pool* logger);
+
+char* timestamp_to_str(int64_t cur_ts, char *buf);
+void add_time_to_json_object(struct json_object *jobj, int64_t cur_ts);
 
 /**
  * A log which contains no attributes; should be an alias to every log which has no attributes
@@ -252,6 +256,52 @@ typedef struct {
     LogMetadata metadata;
 } ChannelSwitchToWriteLog;
 
+typedef struct{
+	/**
+	 *	The id of the object that the page is added to
+	 */
+	uint64_t object_id;
+ 	/**
+     * The channel number of the written register
+     */
+    unsigned int channel;
+    /**
+     * The die number of the written register
+     */
+    unsigned int die;
+    /**
+     * The page number of the added page
+     */
+    uint32_t page;
+    /**
+     * Log metadata
+     */
+    LogMetadata metadata;
+}ObjectAddPageLog;
+
+typedef struct{
+ 	/**
+     * The channel number of the written register
+     */
+    unsigned int channel;
+    /**
+     * The page id of the source
+     */
+    uint32_t source;
+    /**
+     *the block number of the source page
+     */
+    uint32_t block;
+    /**
+     * The page id of the destination
+     */
+    uint32_t destination;
+     /**
+     * Log metadata
+     */
+    LogMetadata metadata;
+}ObjectCopyback;
+
 /**
  * All the logs definitions; used to easily add more log types
  * Each line should contain a call to the applier, with the structure and name of the log
@@ -267,7 +317,9 @@ APPLIER(RegisterReadLog, REGISTER_READ)                     \
 APPLIER(RegisterWriteLog, REGISTER_WRITE)                   \
 APPLIER(BlockEraseLog, BLOCK_ERASE)                         \
 APPLIER(ChannelSwitchToReadLog, CHANNEL_SWITCH_TO_READ)     \
-APPLIER(ChannelSwitchToWriteLog, CHANNEL_SWITCH_TO_WRITE)
+APPLIER(ChannelSwitchToWriteLog, CHANNEL_SWITCH_TO_WRITE)	\
+APPLIER(ObjectAddPageLog, OBJECT_ADD_PAGE)					\
+APPLIER(ObjectCopyback, OBJECT_COPYBACK)					
 
 /**
  * The enum log applier; used to create an enum of the log types' ids
@@ -310,11 +362,24 @@ _LOGS_DEFINITIONS(_LOGS_WRITER_DECLARATION_APPLIER)
  * @param name the name of the log type
  */
 #define _LOGS_READER_DECLARATION_APPLIER(structure, name)           \
-    structure CONCAT(NEXT_, CONCAT(name, _LOG))(Logger_Pool* logger);
+    void CONCAT(NEXT_, CONCAT(name, _LOG))(Logger_Pool* logger, structure *buf, int rt_analyzer);
 
 /**
  * The customized NEXT_X_LOG definitions, for type-safe logging
  */
 _LOGS_DEFINITIONS(_LOGS_READER_DECLARATION_APPLIER)
+
+/**
+ * The json log applier; used to create a json serializing function for the different log types
+ * @param structure the structure associated with the log type
+ * @param name the name of the log type
+ */
+#define _LOGS_JSON_DECLARATION_APPLIER(structure, name)           \
+    void CONCAT(JSON_, name)(structure *src, char *dst);
+
+/**
+ * The customized NEXT_X_LOG definitions, for type-safe logging
+ */
+_LOGS_DEFINITIONS(_LOGS_JSON_DECLARATION_APPLIER)
 
 #endif

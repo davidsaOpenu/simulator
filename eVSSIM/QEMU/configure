@@ -2923,6 +2923,11 @@ if test "$opengl" = "yes" ; then
 fi
 
 if test "$vssim" = "yes" ; then
+  QEMU_CFLAGS="-I/usr/include/json-c/ -D__STDC_VERSION__=0 $QEMU_CFLAGS"
+  LIBS="-ljson-c $LIBS"
+fi
+
+if test "$vssim" = "yes" ; then
   echo "CONFIG_VSSIM=y" >> $config_host_mak
 fi
 
