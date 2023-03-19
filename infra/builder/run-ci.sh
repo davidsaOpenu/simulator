@@ -1,7 +1,15 @@
 #!/bin/bash
 set -e
 
+source ./env.sh
 source ./elk.sh
+
+commit_message=$GERRIT_CHANGE_SUBJECT
+
+echo "$commit_message"
+echo "$WORKSPACE"
+
+./handle-depend-on-instructions.sh
 
 # Configure a unique image name for the test
 export EVSSIM_DOCKER_IMAGE_NAME=evssim:ci-latest #$(date "+%Y.%m.%d-%H.%M.%S")
