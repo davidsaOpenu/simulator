@@ -1,6 +1,7 @@
 #!/bin/bash
 set -e
 
+source ./env.sh
 source ./elk.sh
 
 # Configure a unique image name for the test
