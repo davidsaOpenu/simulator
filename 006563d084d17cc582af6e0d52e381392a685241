@@ -16,6 +16,241 @@
       "message": "recheck",
       "revId": "006563d084d17cc582af6e0d52e381392a685241",
       "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "4343f14c_82b12a3f",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 24
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 1007990
+      },
+      "writtenOn": "2023-06-18T15:01:49Z",
+      "side": 1,
+      "message": "Thanks for working on this change. Please see first round of easy to fix comments inline and some mode related comments here:\n\nPlease change modes of\neVSSIM/QEMU/pc-bios/bios.bin\neVSSIM/LOG_MGR/logging_rt_analyzer.c\neVSSIM/LOG_MGR/logging_backend.c\neVSSIM/QEMU/configure\neVSSIM/SSD_MODULE/ssd_io_manager.h\neVSSIM/SSD_MODULE/ssd_io_manager.c\neVSSIM/SSD_MODULE/ssd_log_manager.c\ninfra/builder/Dockerfile\ninfra/builder/elk.sh\ninfra/docker/centos/Dockerfile\ninfra/docker/ubuntu/Dockerfile\ninfra/docker/ubuntu/run-ansible\n\nto original",
+      "revId": "006563d084d17cc582af6e0d52e381392a685241",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "4bd5a0b9_f436802e",
+        "filename": "eVSSIM/FTL_SOURCE/PAGE_MAP/ftl_obj_strategy.c",
+        "patchSetId": 24
+      },
+      "lineNbr": 199,
+      "author": {
+        "id": 1007990
+      },
+      "writtenOn": "2023-06-18T15:01:49Z",
+      "side": 1,
+      "message": "page_ids are not in use. Should they be removed?",
+      "range": {
+        "startLine": 185,
+        "startChar": 0,
+        "endLine": 199,
+        "endChar": 9
+      },
+      "revId": "006563d084d17cc582af6e0d52e381392a685241",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "710b32ca_f18b6172",
+        "filename": "eVSSIM/LOG_MGR/logging_backend.c",
+        "patchSetId": 24
+      },
+      "lineNbr": 22,
+      "author": {
+        "id": 1007990
+      },
+      "writtenOn": "2023-06-18T15:01:49Z",
+      "side": 1,
+      "message": "let\u0027s remove if not required",
+      "range": {
+        "startLine": 22,
+        "startChar": 0,
+        "endLine": 22,
+        "endChar": 27
+      },
+      "revId": "006563d084d17cc582af6e0d52e381392a685241",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "ec431558_34ff1fff",
+        "filename": "eVSSIM/LOG_MGR/logging_backend.c",
+        "patchSetId": 24
+      },
+      "lineNbr": 215,
+      "author": {
+        "id": 1007990
+      },
+      "writtenOn": "2023-06-18T15:01:49Z",
+      "side": 1,
+      "message": "please refactor the function by eliminating if rt_analyzer conditions inside the function. It was pretty complicated before the change. Not it looks too complicated (spaghetti code) and hard to test.",
+      "range": {
+        "startLine": 215,
+        "startChar": 4,
+        "endLine": 215,
+        "endChar": 15
+      },
+      "revId": "006563d084d17cc582af6e0d52e381392a685241",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "f801246e_b1d895ef",
+        "filename": "eVSSIM/LOG_MGR/logging_backend.h",
+        "patchSetId": 24
+      },
+      "lineNbr": 82,
+      "author": {
+        "id": 1007990
+      },
+      "writtenOn": "2023-06-18T15:01:49Z",
+      "side": 1,
+      "message": "let\u0027s reflect in the comment that the field relates to rt analyzer",
+      "range": {
+        "startLine": 79,
+        "startChar": 0,
+        "endLine": 82,
+        "endChar": 18
+      },
+      "revId": "006563d084d17cc582af6e0d52e381392a685241",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "c642878d_641dddb8",
+        "filename": "eVSSIM/LOG_MGR/logging_backend.h",
+        "patchSetId": 24
+      },
+      "lineNbr": 83,
+      "author": {
+        "id": 1007990
+      },
+      "writtenOn": "2023-06-18T15:01:49Z",
+      "side": 1,
+      "message": "please add a description",
+      "range": {
+        "startLine": 83,
+        "startChar": 10,
+        "endLine": 83,
+        "endChar": 22
+      },
+      "revId": "006563d084d17cc582af6e0d52e381392a685241",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "f19ae2b9_ceac5425",
+        "filename": "eVSSIM/LOG_MGR/logging_offline_analyzer.h",
+        "patchSetId": 24
+      },
+      "lineNbr": 22,
+      "author": {
+        "id": 1007990
+      },
+      "writtenOn": "2023-06-18T15:01:49Z",
+      "side": 1,
+      "message": "s/buffer/stamp",
+      "range": {
+        "startLine": 22,
+        "startChar": 30,
+        "endLine": 22,
+        "endChar": 36
+      },
+      "revId": "006563d084d17cc582af6e0d52e381392a685241",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "8a0580c1_06ebca15",
+        "filename": "eVSSIM/LOG_MGR/logging_offline_analyzer.h",
+        "patchSetId": 24
+      },
+      "lineNbr": 35,
+      "author": {
+        "id": 1007990
+      },
+      "writtenOn": "2023-06-18T15:01:49Z",
+      "side": 1,
+      "message": "is it enough? why not to use NAME_MAX?",
+      "range": {
+        "startLine": 35,
+        "startChar": 27,
+        "endLine": 35,
+        "endChar": 29
+      },
+      "revId": "006563d084d17cc582af6e0d52e381392a685241",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "222bbe13_1ac96f29",
+        "filename": "infra/docker/centos/run-ci.sh",
+        "patchSetId": 24
+      },
+      "lineNbr": 6,
+      "author": {
+        "id": 1007990
+      },
+      "writtenOn": "2023-06-18T15:01:49Z",
+      "side": 1,
+      "message": "leftover",
+      "revId": "006563d084d17cc582af6e0d52e381392a685241",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "5830d3ec_55fd82a2",
+        "filename": "infra/docker/ubuntu/Dockerfile",
+        "patchSetId": 24
+      },
+      "lineNbr": 61,
+      "author": {
+        "id": 1007990
+      },
+      "writtenOn": "2023-06-18T15:01:49Z",
+      "side": 1,
+      "message": "Seems unnecessary since CMakeCache.txt:261:LWS_WITHOUT_EXTENSIONS:BOOL\u003dOFF",
+      "range": {
+        "startLine": 61,
+        "startChar": 38,
+        "endLine": 61,
+        "endChar": 61
+      },
+      "revId": "006563d084d17cc582af6e0d52e381392a685241",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "303dcd22_33cbc4a7",
+        "filename": "infra/docker/ubuntu/run-ci.sh",
+        "patchSetId": 24
+      },
+      "lineNbr": 6,
+      "author": {
+        "id": 1007990
+      },
+      "writtenOn": "2023-06-18T15:01:49Z",
+      "side": 1,
+      "message": "leftover",
+      "revId": "006563d084d17cc582af6e0d52e381392a685241",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
     }
   ]
 }
