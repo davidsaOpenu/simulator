@@ -1338,6 +1338,23 @@
     {
       "unresolved": true,
       "key": {
+        "uuid": "8d4db7b7_75f19544",
+        "filename": "infra/builder/compile-qemu.sh",
+        "patchSetId": 24
+      },
+      "lineNbr": 9,
+      "author": {
+        "id": 1007990
+      },
+      "writtenOn": "2023-06-19T10:39:09Z",
+      "side": 1,
+      "message": "Please submit a change request to the configure file in thehttps://review.gerrithub.io/q/project:davidsaOpenu/qemu  and add a line\n\nDepends-On: \u003cgerrit-change-url\u003e in the commit message of this change.",
+      "revId": "006563d084d17cc582af6e0d52e381392a685241",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
+    },
+    {
+      "unresolved": true,
+      "key": {
         "uuid": "b802c274_7275df23",
         "filename": "infra/builder/docker-test-guest.sh",
         "patchSetId": 24
