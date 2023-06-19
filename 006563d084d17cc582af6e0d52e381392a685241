@@ -744,6 +744,29 @@
     {
       "unresolved": true,
       "key": {
+        "uuid": "18af39de_dc27d6ee",
+        "filename": "eVSSIM/MONITOR/SERVER/logging_server.c",
+        "patchSetId": 24
+      },
+      "lineNbr": 257,
+      "author": {
+        "id": 1007990
+      },
+      "writtenOn": "2023-06-19T07:14:04Z",
+      "side": 1,
+      "message": "log_server.stats.utilization can not be done implicitly by the logging server. Please look how hooks are used for that purpose.",
+      "range": {
+        "startLine": 256,
+        "startChar": 1,
+        "endLine": 257,
+        "endChar": 51
+      },
+      "revId": "006563d084d17cc582af6e0d52e381392a685241",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
+    },
+    {
+      "unresolved": true,
+      "key": {
         "uuid": "1955bb21_64033270",
         "filename": "eVSSIM/MONITOR/SERVER/logging_server.h",
         "patchSetId": 24
@@ -760,6 +783,29 @@
         "startChar": 5,
         "endLine": 107,
         "endChar": 31
+      },
+      "revId": "006563d084d17cc582af6e0d52e381392a685241",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "7dfef14d_680a1fec",
+        "filename": "eVSSIM/QEMU/configure",
+        "patchSetId": 24
+      },
+      "lineNbr": 2927,
+      "author": {
+        "id": 1007990
+      },
+      "writtenOn": "2023-06-19T07:14:04Z",
+      "side": 1,
+      "message": "should we also have same change in https://review.gerrithub.io/q/project:davidsaOpenu/qemu? Wondering how http://192.114.0.189/jenkins/job/simulator-docker-ng-infra passed this change. Rebasing and rechecking",
+      "range": {
+        "startLine": 2926,
+        "startChar": 0,
+        "endLine": 2927,
+        "endChar": 23
       },
       "revId": "006563d084d17cc582af6e0d52e381392a685241",
       "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
