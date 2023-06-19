@@ -1,6 +1,29 @@
 {
   "comments": [
     {
+      "unresolved": true,
+      "key": {
+        "uuid": "2cfca426_47fe3b8d",
+        "filename": "/COMMIT_MSG",
+        "patchSetId": 24
+      },
+      "lineNbr": 7,
+      "author": {
+        "id": 1007990
+      },
+      "writtenOn": "2023-06-19T06:58:13Z",
+      "side": 1,
+      "message": "lets change the commit message according to the https://gist.github.com/robertpainsi/b632364184e70900af4ab688decf6f53",
+      "range": {
+        "startLine": 7,
+        "startChar": 0,
+        "endLine": 7,
+        "endChar": 30
+      },
+      "revId": "006563d084d17cc582af6e0d52e381392a685241",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
+    },
+    {
       "unresolved": false,
       "key": {
         "uuid": "91b94e39_d335d0bb",
@@ -31,6 +54,23 @@
       "writtenOn": "2023-06-18T15:01:49Z",
       "side": 1,
       "message": "Thanks for working on this change. Please see first round of easy to fix comments inline and some mode related comments here:\n\nPlease change modes of\neVSSIM/QEMU/pc-bios/bios.bin\neVSSIM/LOG_MGR/logging_rt_analyzer.c\neVSSIM/LOG_MGR/logging_backend.c\neVSSIM/QEMU/configure\neVSSIM/SSD_MODULE/ssd_io_manager.h\neVSSIM/SSD_MODULE/ssd_io_manager.c\neVSSIM/SSD_MODULE/ssd_log_manager.c\ninfra/builder/Dockerfile\ninfra/builder/elk.sh\ninfra/docker/centos/Dockerfile\ninfra/docker/ubuntu/Dockerfile\ninfra/docker/ubuntu/run-ansible\n\nto original",
+      "revId": "006563d084d17cc582af6e0d52e381392a685241",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "1b4da870_bf0308c2",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 24
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 1007990
+      },
+      "writtenOn": "2023-06-19T06:58:13Z",
+      "side": 1,
+      "message": "Second phase of comments. 1/3 files left to review.",
       "revId": "006563d084d17cc582af6e0d52e381392a685241",
       "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
     },
@@ -106,6 +146,29 @@
     {
       "unresolved": true,
       "key": {
+        "uuid": "21d1438d_bb31a9dc",
+        "filename": "eVSSIM/LOG_MGR/logging_backend.h",
+        "patchSetId": 24
+      },
+      "lineNbr": 62,
+      "author": {
+        "id": 1007990
+      },
+      "writtenOn": "2023-06-19T06:58:13Z",
+      "side": 1,
+      "message": "PATH_MAX  from limits.h",
+      "range": {
+        "startLine": 62,
+        "startChar": 8,
+        "endLine": 62,
+        "endChar": 24
+      },
+      "revId": "006563d084d17cc582af6e0d52e381392a685241",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
+    },
+    {
+      "unresolved": true,
+      "key": {
         "uuid": "f801246e_b1d895ef",
         "filename": "eVSSIM/LOG_MGR/logging_backend.h",
         "patchSetId": 24
@@ -152,6 +215,259 @@
     {
       "unresolved": true,
       "key": {
+        "uuid": "fe5476ec_886e5941",
+        "filename": "eVSSIM/LOG_MGR/logging_offline_analyzer.c",
+        "patchSetId": 24
+      },
+      "lineNbr": 38,
+      "author": {
+        "id": 1007990
+      },
+      "writtenOn": "2023-06-19T06:58:13Z",
+      "side": 1,
+      "message": "nit: whitespace",
+      "range": {
+        "startLine": 38,
+        "startChar": 27,
+        "endLine": 38,
+        "endChar": 28
+      },
+      "revId": "006563d084d17cc582af6e0d52e381392a685241",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "6211eca4_09fd5824",
+        "filename": "eVSSIM/LOG_MGR/logging_offline_analyzer.c",
+        "patchSetId": 24
+      },
+      "lineNbr": 67,
+      "author": {
+        "id": 1007990
+      },
+      "writtenOn": "2023-06-19T06:58:13Z",
+      "side": 1,
+      "message": "lets eliminate 1024 constraint using json-c lib function https://json-c.github.io/json-c/json-c-0.16/doc/html/json__object_8h.html#ab7390c22baa1700d977c2af6b22d43a4.   elk_logger_writer_save_log_to_file call from JSON_files before object put.",
+      "range": {
+        "startLine": 67,
+        "startChar": 26,
+        "endLine": 67,
+        "endChar": 30
+      },
+      "revId": "006563d084d17cc582af6e0d52e381392a685241",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "c9f19ec7_ad5724b4",
+        "filename": "eVSSIM/LOG_MGR/logging_offline_analyzer.c",
+        "patchSetId": 24
+      },
+      "lineNbr": 183,
+      "author": {
+        "id": 1007990
+      },
+      "writtenOn": "2023-06-19T06:58:13Z",
+      "side": 1,
+      "message": "please add a function description",
+      "range": {
+        "startLine": 183,
+        "startChar": 5,
+        "endLine": 183,
+        "endChar": 30
+      },
+      "revId": "006563d084d17cc582af6e0d52e381392a685241",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "ce80285c_ff00966d",
+        "filename": "eVSSIM/LOG_MGR/logging_offline_analyzer.c",
+        "patchSetId": 24
+      },
+      "lineNbr": 198,
+      "author": {
+        "id": 1007990
+      },
+      "writtenOn": "2023-06-19T06:58:13Z",
+      "side": 1,
+      "message": "please split this function into several smaller ones",
+      "range": {
+        "startLine": 198,
+        "startChar": 11,
+        "endLine": 198,
+        "endChar": 25
+      },
+      "revId": "006563d084d17cc582af6e0d52e381392a685241",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "2ba70ffb_4545c5cd",
+        "filename": "eVSSIM/LOG_MGR/logging_offline_analyzer.c",
+        "patchSetId": 24
+      },
+      "lineNbr": 198,
+      "author": {
+        "id": 1007990
+      },
+      "writtenOn": "2023-06-19T06:58:13Z",
+      "side": 1,
+      "message": "please replace tabs with 4 spaces",
+      "range": {
+        "startLine": 198,
+        "startChar": 11,
+        "endLine": 198,
+        "endChar": 25
+      },
+      "revId": "006563d084d17cc582af6e0d52e381392a685241",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "c0d22777_f384c54c",
+        "filename": "eVSSIM/LOG_MGR/logging_offline_analyzer.c",
+        "patchSetId": 24
+      },
+      "lineNbr": 262,
+      "author": {
+        "id": 1007990
+      },
+      "writtenOn": "2023-06-19T06:58:13Z",
+      "side": 1,
+      "message": "better to define as a  macro",
+      "range": {
+        "startLine": 262,
+        "startChar": 42,
+        "endLine": 262,
+        "endChar": 56
+      },
+      "revId": "006563d084d17cc582af6e0d52e381392a685241",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "26368e81_19a8b14c",
+        "filename": "eVSSIM/LOG_MGR/logging_offline_analyzer.c",
+        "patchSetId": 24
+      },
+      "lineNbr": 275,
+      "author": {
+        "id": 1007990
+      },
+      "writtenOn": "2023-06-19T06:58:13Z",
+      "side": 1,
+      "message": "better to define as a  macro",
+      "range": {
+        "startLine": 275,
+        "startChar": 44,
+        "endLine": 275,
+        "endChar": 53
+      },
+      "revId": "006563d084d17cc582af6e0d52e381392a685241",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "72133ee7_34df3ff8",
+        "filename": "eVSSIM/LOG_MGR/logging_offline_analyzer.c",
+        "patchSetId": 24
+      },
+      "lineNbr": 369,
+      "author": {
+        "id": 1007990
+      },
+      "writtenOn": "2023-06-19T06:58:13Z",
+      "side": 1,
+      "message": "please add a function description",
+      "range": {
+        "startLine": 369,
+        "startChar": 11,
+        "endLine": 369,
+        "endChar": 48
+      },
+      "revId": "006563d084d17cc582af6e0d52e381392a685241",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "9057bb14_82d62f8c",
+        "filename": "eVSSIM/LOG_MGR/logging_offline_analyzer.c",
+        "patchSetId": 24
+      },
+      "lineNbr": 394,
+      "author": {
+        "id": 1007990
+      },
+      "writtenOn": "2023-06-19T06:58:13Z",
+      "side": 1,
+      "message": "please add a function description",
+      "range": {
+        "startLine": 394,
+        "startChar": 12,
+        "endLine": 394,
+        "endChar": 40
+      },
+      "revId": "006563d084d17cc582af6e0d52e381392a685241",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "ece909dc_b1648edc",
+        "filename": "eVSSIM/LOG_MGR/logging_offline_analyzer.c",
+        "patchSetId": 24
+      },
+      "lineNbr": 417,
+      "author": {
+        "id": 1007990
+      },
+      "writtenOn": "2023-06-19T06:58:13Z",
+      "side": 1,
+      "message": "please add a function description",
+      "range": {
+        "startLine": 417,
+        "startChar": 5,
+        "endLine": 417,
+        "endChar": 27
+      },
+      "revId": "006563d084d17cc582af6e0d52e381392a685241",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "7e598b71_ddb76b86",
+        "filename": "eVSSIM/LOG_MGR/logging_offline_analyzer.c",
+        "patchSetId": 24
+      },
+      "lineNbr": 421,
+      "author": {
+        "id": 1007990
+      },
+      "writtenOn": "2023-06-19T06:58:13Z",
+      "side": 1,
+      "message": "please add a function description",
+      "range": {
+        "startLine": 421,
+        "startChar": 5,
+        "endLine": 421,
+        "endChar": 39
+      },
+      "revId": "006563d084d17cc582af6e0d52e381392a685241",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
+    },
+    {
+      "unresolved": true,
+      "key": {
         "uuid": "f19ae2b9_ceac5425",
         "filename": "eVSSIM/LOG_MGR/logging_offline_analyzer.h",
         "patchSetId": 24
@@ -191,6 +507,443 @@
         "startChar": 27,
         "endLine": 35,
         "endChar": 29
+      },
+      "revId": "006563d084d17cc582af6e0d52e381392a685241",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "b931d274_b1ef6393",
+        "filename": "eVSSIM/LOG_MGR/logging_parser.c",
+        "patchSetId": 24
+      },
+      "lineNbr": 25,
+      "author": {
+        "id": 1007990
+      },
+      "writtenOn": "2023-06-19T06:58:13Z",
+      "side": 1,
+      "message": "same as before: enum with 2 analyzer types",
+      "range": {
+        "startLine": 25,
+        "startChar": 69,
+        "endLine": 25,
+        "endChar": 84
+      },
+      "revId": "006563d084d17cc582af6e0d52e381392a685241",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "8d2244ff_2da054bc",
+        "filename": "eVSSIM/LOG_MGR/logging_parser.c",
+        "patchSetId": 24
+      },
+      "lineNbr": 35,
+      "author": {
+        "id": 1007990
+      },
+      "writtenOn": "2023-06-19T06:58:13Z",
+      "side": 1,
+      "message": "magic number",
+      "range": {
+        "startLine": 35,
+        "startChar": 58,
+        "endLine": 35,
+        "endChar": 59
+      },
+      "revId": "006563d084d17cc582af6e0d52e381392a685241",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "34fdd956_ea8cc803",
+        "filename": "eVSSIM/LOG_MGR/logging_parser.c",
+        "patchSetId": 24
+      },
+      "lineNbr": 39,
+      "author": {
+        "id": 1007990
+      },
+      "writtenOn": "2023-06-19T06:58:13Z",
+      "side": 1,
+      "message": "a. please rename to TIME_STAMP_LEN \nb. the length was defined already. please reuse the definition",
+      "range": {
+        "startLine": 39,
+        "startChar": 0,
+        "endLine": 39,
+        "endChar": 25
+      },
+      "revId": "006563d084d17cc582af6e0d52e381392a685241",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "f3d74c14_ba438713",
+        "filename": "eVSSIM/LOG_MGR/logging_parser.c",
+        "patchSetId": 24
+      },
+      "lineNbr": 48,
+      "author": {
+        "id": 1007990
+      },
+      "writtenOn": "2023-06-19T06:58:13Z",
+      "side": 1,
+      "message": "timestamp was also used in elk_logger_writer_get_time_string. please define a macro and put all the time stamp handling code in one common place.",
+      "range": {
+        "startLine": 48,
+        "startChar": 33,
+        "endLine": 48,
+        "endChar": 51
+      },
+      "revId": "006563d084d17cc582af6e0d52e381392a685241",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "1e5bd000_36315932",
+        "filename": "eVSSIM/LOG_MGR/logging_parser.c",
+        "patchSetId": 24
+      },
+      "lineNbr": 232,
+      "author": {
+        "id": 1007990
+      },
+      "writtenOn": "2023-06-19T06:58:13Z",
+      "side": 1,
+      "message": "please add function descriptions to those functions",
+      "range": {
+        "startLine": 40,
+        "startChar": 0,
+        "endLine": 232,
+        "endChar": 1
+      },
+      "revId": "006563d084d17cc582af6e0d52e381392a685241",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "10b78fd9_e5f5717b",
+        "filename": "eVSSIM/LOG_MGR/logging_parser.h",
+        "patchSetId": 24
+      },
+      "lineNbr": 70,
+      "author": {
+        "id": 1007990
+      },
+      "writtenOn": "2023-06-19T06:58:13Z",
+      "side": 1,
+      "message": "please add the new parameter to the description.\nbetter to add an enum that contains 2 analizer types and use it as a type",
+      "range": {
+        "startLine": 70,
+        "startChar": 73,
+        "endLine": 70,
+        "endChar": 84
+      },
+      "revId": "006563d084d17cc582af6e0d52e381392a685241",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "5a9490ec_23285ba5",
+        "filename": "eVSSIM/LOG_MGR/logging_parser.h",
+        "patchSetId": 24
+      },
+      "lineNbr": 80,
+      "author": {
+        "id": 1007990
+      },
+      "writtenOn": "2023-06-19T06:58:13Z",
+      "side": 1,
+      "message": "please add function descriptions",
+      "range": {
+        "startLine": 79,
+        "startChar": 0,
+        "endLine": 80,
+        "endChar": 71
+      },
+      "revId": "006563d084d17cc582af6e0d52e381392a685241",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "a9bd3c9d_1d097885",
+        "filename": "eVSSIM/LOG_MGR/logging_parser.h",
+        "patchSetId": 24
+      },
+      "lineNbr": 264,
+      "author": {
+        "id": 1007990
+      },
+      "writtenOn": "2023-06-19T06:58:13Z",
+      "side": 1,
+      "message": "nit:tab -\u003e 4 spaces",
+      "range": {
+        "startLine": 260,
+        "startChar": 0,
+        "endLine": 264,
+        "endChar": 2
+      },
+      "revId": "006563d084d17cc582af6e0d52e381392a685241",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "a8506fc3_07a16e90",
+        "filename": "eVSSIM/LOG_MGR/logging_parser.h",
+        "patchSetId": 24
+      },
+      "lineNbr": 322,
+      "author": {
+        "id": 1007990
+      },
+      "writtenOn": "2023-06-19T06:58:13Z",
+      "side": 1,
+      "message": "nit: whitespaces",
+      "range": {
+        "startLine": 321,
+        "startChar": 0,
+        "endLine": 322,
+        "endChar": 9
+      },
+      "revId": "006563d084d17cc582af6e0d52e381392a685241",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "e331adbf_69f48d9f",
+        "filename": "eVSSIM/LOG_MGR/logging_parser.h",
+        "patchSetId": 24
+      },
+      "lineNbr": 367,
+      "author": {
+        "id": 1007990
+      },
+      "writtenOn": "2023-06-19T06:58:13Z",
+      "side": 1,
+      "message": "same as above (enum with 2 analyzer types)",
+      "range": {
+        "startLine": 365,
+        "startChar": 78,
+        "endLine": 367,
+        "endChar": 3
+      },
+      "revId": "006563d084d17cc582af6e0d52e381392a685241",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "1955bb21_64033270",
+        "filename": "eVSSIM/MONITOR/SERVER/logging_server.h",
+        "patchSetId": 24
+      },
+      "lineNbr": 107,
+      "author": {
+        "id": 1007990
+      },
+      "writtenOn": "2023-06-19T06:58:13Z",
+      "side": 1,
+      "message": "please add function description",
+      "range": {
+        "startLine": 107,
+        "startChar": 5,
+        "endLine": 107,
+        "endChar": 31
+      },
+      "revId": "006563d084d17cc582af6e0d52e381392a685241",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "f779743b_31724c12",
+        "filename": "eVSSIM/tests/host/log_mgr_tests.cc",
+        "patchSetId": 24
+      },
+      "lineNbr": 1,
+      "author": {
+        "id": 1007990
+      },
+      "writtenOn": "2023-06-19T06:58:13Z",
+      "side": 1,
+      "message": "all NEXT_PHYSICAL_CELL* calls using magic number 1 rather then LOGGER_TYPE_OFFLINE or LOGGER_TYPE_RT",
+      "range": {
+        "startLine": 1,
+        "startChar": 0,
+        "endLine": 1,
+        "endChar": 2
+      },
+      "revId": "006563d084d17cc582af6e0d52e381392a685241",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "86f7e3f8_b46d970c",
+        "filename": "eVSSIM/tests/host/log_mgr_tests.cc",
+        "patchSetId": 24
+      },
+      "lineNbr": 2,
+      "author": {
+        "id": 1007990
+      },
+      "writtenOn": "2023-06-19T06:58:13Z",
+      "side": 1,
+      "message": "all logger_read calls use magic number 1",
+      "range": {
+        "startLine": 2,
+        "startChar": 1,
+        "endLine": 2,
+        "endChar": 2
+      },
+      "revId": "006563d084d17cc582af6e0d52e381392a685241",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "03620d1b_53f574ba",
+        "filename": "eVSSIM/tests/host/log_mgr_tests.cc",
+        "patchSetId": 24
+      },
+      "lineNbr": 135,
+      "author": {
+        "id": 1007990
+      },
+      "writtenOn": "2023-06-19T06:58:13Z",
+      "side": 1,
+      "message": "magic number",
+      "range": {
+        "startLine": 135,
+        "startChar": 62,
+        "endLine": 135,
+        "endChar": 63
+      },
+      "revId": "006563d084d17cc582af6e0d52e381392a685241",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "ad996bd8_c212f553",
+        "filename": "eVSSIM/tests/host/log_mgr_tests.cc",
+        "patchSetId": 24
+      },
+      "lineNbr": 136,
+      "author": {
+        "id": 1007990
+      },
+      "writtenOn": "2023-06-19T06:58:13Z",
+      "side": 1,
+      "message": "magic number",
+      "range": {
+        "startLine": 136,
+        "startChar": 58,
+        "endLine": 136,
+        "endChar": 60
+      },
+      "revId": "006563d084d17cc582af6e0d52e381392a685241",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "375654a1_f32e315a",
+        "filename": "eVSSIM/tests/host/log_mgr_tests.cc",
+        "patchSetId": 24
+      },
+      "lineNbr": 156,
+      "author": {
+        "id": 1007990
+      },
+      "writtenOn": "2023-06-19T06:58:13Z",
+      "side": 1,
+      "message": "magic number",
+      "range": {
+        "startLine": 156,
+        "startChar": 98,
+        "endLine": 156,
+        "endChar": 99
+      },
+      "revId": "006563d084d17cc582af6e0d52e381392a685241",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "6e7173be_3e3bb954",
+        "filename": "eVSSIM/tests/host/log_mgr_tests.cc",
+        "patchSetId": 24
+      },
+      "lineNbr": 205,
+      "author": {
+        "id": 1007990
+      },
+      "writtenOn": "2023-06-19T06:58:13Z",
+      "side": 1,
+      "message": "magic number",
+      "range": {
+        "startLine": 205,
+        "startChar": 66,
+        "endLine": 205,
+        "endChar": 67
+      },
+      "revId": "006563d084d17cc582af6e0d52e381392a685241",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "30a5ba13_abe2fe5a",
+        "filename": "eVSSIM/tests/host/log_mgr_tests.cc",
+        "patchSetId": 24
+      },
+      "lineNbr": 522,
+      "author": {
+        "id": 1007990
+      },
+      "writtenOn": "2023-06-19T06:58:13Z",
+      "side": 1,
+      "message": "nit: let\u0027s remove tabs or use declaration and assignment in the same line",
+      "range": {
+        "startLine": 522,
+        "startChar": 0,
+        "endLine": 522,
+        "endChar": 2
+      },
+      "revId": "006563d084d17cc582af6e0d52e381392a685241",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "a20c85da_65abc645",
+        "filename": "eVSSIM/tests/host/log_mgr_tests.cc",
+        "patchSetId": 24
+      },
+      "lineNbr": 562,
+      "author": {
+        "id": 1007990
+      },
+      "writtenOn": "2023-06-19T06:58:13Z",
+      "side": 1,
+      "message": "NEXT_LOGICAL_CELL_PROGRAM_LOG or NEXT_LOGICAL_CELL_PROGRAM_RT",
+      "range": {
+        "startLine": 562,
+        "startChar": 45,
+        "endLine": 562,
+        "endChar": 48
       },
       "revId": "006563d084d17cc582af6e0d52e381392a685241",
       "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
