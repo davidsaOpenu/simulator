@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "75b65ac9_79b7ac7e",
+        "filename": "eVSSIM/SSD_MODULE/ssd_io_manager.c",
+        "patchSetId": 29
+      },
+      "lineNbr": 5,
+      "author": {
+        "id": 1020218
+      },
+      "writtenOn": "2023-07-04T15:44:18Z",
+      "side": 1,
+      "message": "replaced tabs with four spaces, the only real change is in line 353",
+      "revId": "ac4f7e318a63048c3b95bac8f14237ad7cdd578d",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
+    }
+  ]
+}
