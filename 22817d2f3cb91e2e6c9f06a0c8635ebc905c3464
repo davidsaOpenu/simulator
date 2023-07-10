@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "66ddfab8_5187a67b",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 34
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 1007990
+      },
+      "writtenOn": "2023-07-10T13:30:38Z",
+      "side": 1,
+      "message": "please chmod +x configure and *.sh \nchmod -x Dockerfiles",
+      "revId": "22817d2f3cb91e2e6c9f06a0c8635ebc905c3464",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
+    }
+  ]
+}
