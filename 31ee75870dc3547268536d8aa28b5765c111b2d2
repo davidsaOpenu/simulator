@@ -24,6 +24,30 @@
       "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "13e5236b_fa6fd803",
+        "filename": "/COMMIT_MSG",
+        "patchSetId": 33
+      },
+      "lineNbr": 7,
+      "author": {
+        "id": 1020218
+      },
+      "writtenOn": "2023-07-10T09:10:02Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "a2c95490_58f4c04b",
+      "range": {
+        "startLine": 7,
+        "startChar": 0,
+        "endLine": 7,
+        "endChar": 23
+      },
+      "revId": "31ee75870dc3547268536d8aa28b5765c111b2d2",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "34dff1d5_4ed9127b",
@@ -47,6 +71,30 @@
       "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "eba35648_d3681762",
+        "filename": "/COMMIT_MSG",
+        "patchSetId": 33
+      },
+      "lineNbr": 11,
+      "author": {
+        "id": 1020218
+      },
+      "writtenOn": "2023-07-10T09:10:02Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "34dff1d5_4ed9127b",
+      "range": {
+        "startLine": 11,
+        "startChar": 0,
+        "endLine": 11,
+        "endChar": 49
+      },
+      "revId": "31ee75870dc3547268536d8aa28b5765c111b2d2",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "35f2eefb_cb35c58b",
@@ -60,6 +108,30 @@
       "writtenOn": "2023-07-09T11:40:39Z",
       "side": 1,
       "message": "also this one",
+      "range": {
+        "startLine": 12,
+        "startChar": 0,
+        "endLine": 12,
+        "endChar": 59
+      },
+      "revId": "31ee75870dc3547268536d8aa28b5765c111b2d2",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "3a889c31_4197792c",
+        "filename": "/COMMIT_MSG",
+        "patchSetId": 33
+      },
+      "lineNbr": 12,
+      "author": {
+        "id": 1020218
+      },
+      "writtenOn": "2023-07-10T09:10:02Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "35f2eefb_cb35c58b",
       "range": {
         "startLine": 12,
         "startChar": 0,
@@ -178,6 +250,30 @@
       "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "a2ab1a47_a86f0993",
+        "filename": "eVSSIM/LOG_MGR/logging_backend.c",
+        "patchSetId": 33
+      },
+      "lineNbr": 77,
+      "author": {
+        "id": 1020218
+      },
+      "writtenOn": "2023-07-10T09:10:02Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "f653fb8d_f467a7b8",
+      "range": {
+        "startLine": 63,
+        "startChar": 0,
+        "endLine": 77,
+        "endChar": 11
+      },
+      "revId": "31ee75870dc3547268536d8aa28b5765c111b2d2",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "1ee01aa5_9a09bf50",
@@ -191,6 +287,30 @@
       "writtenOn": "2023-07-09T11:40:39Z",
       "side": 1,
       "message": "s/real time/an",
+      "range": {
+        "startLine": 240,
+        "startChar": 43,
+        "endLine": 240,
+        "endChar": 53
+      },
+      "revId": "31ee75870dc3547268536d8aa28b5765c111b2d2",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "c718d3a9_4a53a6c5",
+        "filename": "eVSSIM/LOG_MGR/logging_backend.c",
+        "patchSetId": 33
+      },
+      "lineNbr": 240,
+      "author": {
+        "id": 1020218
+      },
+      "writtenOn": "2023-07-10T09:10:02Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "1ee01aa5_9a09bf50",
       "range": {
         "startLine": 240,
         "startChar": 43,
@@ -224,6 +344,30 @@
       "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "f3107e7e_8e1b5386",
+        "filename": "eVSSIM/LOG_MGR/logging_backend.c",
+        "patchSetId": 33
+      },
+      "lineNbr": 290,
+      "author": {
+        "id": 1020218
+      },
+      "writtenOn": "2023-07-10T09:10:02Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "b7621a4e_887a46ad",
+      "range": {
+        "startLine": 287,
+        "startChar": 0,
+        "endLine": 290,
+        "endChar": 0
+      },
+      "revId": "31ee75870dc3547268536d8aa28b5765c111b2d2",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "a0775540_384affb0",
@@ -237,6 +381,30 @@
       "writtenOn": "2023-07-09T11:40:39Z",
       "side": 1,
       "message": "looping over analyzers in the moethod that gets analyzer type as a parameter",
+      "range": {
+        "startLine": 360,
+        "startChar": 6,
+        "endLine": 362,
+        "endChar": 9
+      },
+      "revId": "31ee75870dc3547268536d8aa28b5765c111b2d2",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "b9c4b796_dbf82960",
+        "filename": "eVSSIM/LOG_MGR/logging_backend.c",
+        "patchSetId": 33
+      },
+      "lineNbr": 362,
+      "author": {
+        "id": 1020218
+      },
+      "writtenOn": "2023-07-10T09:10:02Z",
+      "side": 1,
+      "message": "logger_reduce_size doesn\u0027t get analyzer type",
+      "parentUuid": "a0775540_384affb0",
       "range": {
         "startLine": 360,
         "startChar": 6,
@@ -270,6 +438,30 @@
       "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "190ea5dc_91d899d0",
+        "filename": "eVSSIM/LOG_MGR/logging_backend.c",
+        "patchSetId": 33
+      },
+      "lineNbr": 398,
+      "author": {
+        "id": 1020218
+      },
+      "writtenOn": "2023-07-10T09:10:02Z",
+      "side": 1,
+      "message": "logger_clean also doesn\u0027t get analyser type",
+      "parentUuid": "bce584d6_da0a09cc",
+      "range": {
+        "startLine": 396,
+        "startChar": 0,
+        "endLine": 398,
+        "endChar": 9
+      },
+      "revId": "31ee75870dc3547268536d8aa28b5765c111b2d2",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "255486ca_ac786850",
@@ -287,6 +479,24 @@
       "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "2850b9a2_784b03b2",
+        "filename": "eVSSIM/LOG_MGR/logging_backend.h",
+        "patchSetId": 33
+      },
+      "lineNbr": 90,
+      "author": {
+        "id": 1020218
+      },
+      "writtenOn": "2023-07-10T09:10:02Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "255486ca_ac786850",
+      "revId": "31ee75870dc3547268536d8aa28b5765c111b2d2",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "ade6da7b_3585ffe4",
@@ -300,6 +510,30 @@
       "writtenOn": "2023-07-09T11:40:39Z",
       "side": 1,
       "message": "same here why having 2 separate done fields?",
+      "range": {
+        "startLine": 114,
+        "startChar": 4,
+        "endLine": 115,
+        "endChar": 38
+      },
+      "revId": "31ee75870dc3547268536d8aa28b5765c111b2d2",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "7bde6f23_f3a11b75",
+        "filename": "eVSSIM/LOG_MGR/logging_backend.h",
+        "patchSetId": 33
+      },
+      "lineNbr": 115,
+      "author": {
+        "id": 1020218
+      },
+      "writtenOn": "2023-07-10T09:10:02Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "ade6da7b_3585ffe4",
       "range": {
         "startLine": 114,
         "startChar": 4,
@@ -333,6 +567,30 @@
       "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "7c26fa27_13d75095",
+        "filename": "eVSSIM/LOG_MGR/logging_offline_analyzer.c",
+        "patchSetId": 33
+      },
+      "lineNbr": 353,
+      "author": {
+        "id": 1020218
+      },
+      "writtenOn": "2023-07-10T09:10:02Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "a09ba5d6_65af02e1",
+      "range": {
+        "startLine": 348,
+        "startChar": 0,
+        "endLine": 353,
+        "endChar": 5
+      },
+      "revId": "31ee75870dc3547268536d8aa28b5765c111b2d2",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "4f0c3029_99161519",
@@ -346,6 +604,30 @@
       "writtenOn": "2023-07-09T11:40:39Z",
       "side": 1,
       "message": "magic number",
+      "range": {
+        "startLine": 424,
+        "startChar": 57,
+        "endLine": 424,
+        "endChar": 62
+      },
+      "revId": "31ee75870dc3547268536d8aa28b5765c111b2d2",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "786b4ef8_2e7f3b0b",
+        "filename": "eVSSIM/tests/host/log_mgr_tests.cc",
+        "patchSetId": 33
+      },
+      "lineNbr": 424,
+      "author": {
+        "id": 1020218
+      },
+      "writtenOn": "2023-07-10T09:10:02Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "4f0c3029_99161519",
       "range": {
         "startLine": 424,
         "startChar": 57,
@@ -379,6 +661,30 @@
       "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "5f9dc568_9d565d30",
+        "filename": "eVSSIM/tests/host/log_mgr_tests.cc",
+        "patchSetId": 33
+      },
+      "lineNbr": 444,
+      "author": {
+        "id": 1020218
+      },
+      "writtenOn": "2023-07-10T09:10:02Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "6f80325d_a7e109af",
+      "range": {
+        "startLine": 444,
+        "startChar": 59,
+        "endLine": 444,
+        "endChar": 63
+      },
+      "revId": "31ee75870dc3547268536d8aa28b5765c111b2d2",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "19285ece_98663c2b",
@@ -392,6 +698,30 @@
       "writtenOn": "2023-07-09T11:40:39Z",
       "side": 1,
       "message": "magic number",
+      "range": {
+        "startLine": 468,
+        "startChar": 59,
+        "endLine": 468,
+        "endChar": 64
+      },
+      "revId": "31ee75870dc3547268536d8aa28b5765c111b2d2",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "2a00ae8b_ed4cc4de",
+        "filename": "eVSSIM/tests/host/log_mgr_tests.cc",
+        "patchSetId": 33
+      },
+      "lineNbr": 468,
+      "author": {
+        "id": 1020218
+      },
+      "writtenOn": "2023-07-10T09:10:02Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "19285ece_98663c2b",
       "range": {
         "startLine": 468,
         "startChar": 59,
@@ -425,6 +755,30 @@
       "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "6a0d3917_0d21e069",
+        "filename": "eVSSIM/tests/host/log_mgr_tests.cc",
+        "patchSetId": 33
+      },
+      "lineNbr": 488,
+      "author": {
+        "id": 1020218
+      },
+      "writtenOn": "2023-07-10T09:10:02Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "f7f0f4da_fef265fb",
+      "range": {
+        "startLine": 487,
+        "startChar": 2,
+        "endLine": 488,
+        "endChar": 72
+      },
+      "revId": "31ee75870dc3547268536d8aa28b5765c111b2d2",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "9bfc3508_1bfa52c7",
@@ -438,6 +792,30 @@
       "writtenOn": "2023-07-09T11:40:39Z",
       "side": 1,
       "message": "magic number",
+      "range": {
+        "startLine": 500,
+        "startChar": 47,
+        "endLine": 500,
+        "endChar": 54
+      },
+      "revId": "31ee75870dc3547268536d8aa28b5765c111b2d2",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "e8a96137_83288d9d",
+        "filename": "eVSSIM/tests/host/log_mgr_tests.cc",
+        "patchSetId": 33
+      },
+      "lineNbr": 500,
+      "author": {
+        "id": 1020218
+      },
+      "writtenOn": "2023-07-10T09:10:02Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "9bfc3508_1bfa52c7",
       "range": {
         "startLine": 500,
         "startChar": 47,
@@ -471,6 +849,30 @@
       "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "bc1d2aed_c4952c47",
+        "filename": "eVSSIM/tests/host/log_mgr_tests.cc",
+        "patchSetId": 33
+      },
+      "lineNbr": 502,
+      "author": {
+        "id": 1020218
+      },
+      "writtenOn": "2023-07-10T09:10:02Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "fe6f5a4a_4f628c82",
+      "range": {
+        "startLine": 502,
+        "startChar": 47,
+        "endLine": 502,
+        "endChar": 53
+      },
+      "revId": "31ee75870dc3547268536d8aa28b5765c111b2d2",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "03042f5e_d315ae69",
@@ -484,6 +886,30 @@
       "writtenOn": "2023-07-09T11:40:39Z",
       "side": 1,
       "message": "magic number",
+      "range": {
+        "startLine": 577,
+        "startChar": 52,
+        "endLine": 577,
+        "endChar": 62
+      },
+      "revId": "31ee75870dc3547268536d8aa28b5765c111b2d2",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "b8dd4e0d_d790b210",
+        "filename": "eVSSIM/tests/host/log_mgr_tests.cc",
+        "patchSetId": 33
+      },
+      "lineNbr": 577,
+      "author": {
+        "id": 1020218
+      },
+      "writtenOn": "2023-07-10T09:10:02Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "03042f5e_d315ae69",
       "range": {
         "startLine": 577,
         "startChar": 52,
@@ -517,6 +943,30 @@
       "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "fd406b31_248db8e0",
+        "filename": "eVSSIM/tests/host/log_mgr_tests.cc",
+        "patchSetId": 33
+      },
+      "lineNbr": 580,
+      "author": {
+        "id": 1020218
+      },
+      "writtenOn": "2023-07-10T09:10:02Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "0ff49a75_dc7794c7",
+      "range": {
+        "startLine": 580,
+        "startChar": 52,
+        "endLine": 580,
+        "endChar": 63
+      },
+      "revId": "31ee75870dc3547268536d8aa28b5765c111b2d2",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "4a56052f_731d36e9",
@@ -540,6 +990,30 @@
       "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "87a54d7d_10abd6fb",
+        "filename": "eVSSIM/tests/host/ssd_write_read_test.cc",
+        "patchSetId": 33
+      },
+      "lineNbr": 61,
+      "author": {
+        "id": 1020218
+      },
+      "writtenOn": "2023-07-10T09:10:02Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "4a56052f_731d36e9",
+      "range": {
+        "startLine": 61,
+        "startChar": 53,
+        "endLine": 61,
+        "endChar": 83
+      },
+      "revId": "31ee75870dc3547268536d8aa28b5765c111b2d2",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "4f248384_0551940b",
@@ -553,6 +1027,30 @@
       "writtenOn": "2023-07-09T11:40:39Z",
       "side": 1,
       "message": "What those number are supposed to mean?",
+      "range": {
+        "startLine": 160,
+        "startChar": 81,
+        "endLine": 160,
+        "endChar": 112
+      },
+      "revId": "31ee75870dc3547268536d8aa28b5765c111b2d2",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "22fbca77_2efc481f",
+        "filename": "eVSSIM/tests/host/ssd_write_read_test.cc",
+        "patchSetId": 33
+      },
+      "lineNbr": 160,
+      "author": {
+        "id": 1020218
+      },
+      "writtenOn": "2023-07-10T09:10:02Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "4f248384_0551940b",
       "range": {
         "startLine": 160,
         "startChar": 81,
