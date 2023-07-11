@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "76d54e96_2ec852e4",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 35
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 1007990
+      },
+      "writtenOn": "2023-07-11T07:34:33Z",
+      "side": 1,
+      "message": "Kudos for endurance. LGTM.",
+      "revId": "cfc1c411f8da75c09c936da0cc83ad0936e1f264",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
+    }
+  ]
+}
