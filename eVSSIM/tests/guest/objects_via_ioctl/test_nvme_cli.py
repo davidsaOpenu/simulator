@@ -1,23 +1,11 @@
 import os
+import math
 import random
 import tempfile
 import subprocess
 import contextlib
 import collections
-import pytest
-
-
-BLOCK_SIZE = 512
-MAGIC = 'eVSSIM_MAGIC{object_id}_{partition_id}'
-
-
-MetaData = collections.namedtuple('MetaData', ['path', 'size'])
-
-
-def blocks(size):
-    assert size
-    # Rounding down since qemu automatically adds one block
-    return (size - 1) / BLOCK_SIZE
+import unittest
 
 
 @contextlib.contextmanager
@@ -36,112 +24,167 @@ def data(size):
         yield result.name
 
 
-@contextlib.contextmanager
-def metadata(object_id, partition_id):
-    """
-    Provides a context manager that returns a MetaData object describing
-    an on disk metadata file who's lifetime is limited to the scope of the
-    context manager.
-
-    :param object_id: The id of the object this metadata describes.
-    :param partition_id: The id of the partition on which this object resides.
-    """
-    md = MAGIC.format(object_id=object_id, partition_id=partition_id)
-    with tempfile.NamedTemporaryFile() as result:
-        result.write(md)
-        yield MetaData(path=result.name, size=len(md))
-
-
 class NvmeDevice(object):
 
-    _partition = random.randint(10 ** 2, 10 ** 5)
 
     def __init__(self, device, nvme_cli_dir):
         self.device = device
         self.nvme_cli_dir = nvme_cli_dir
+        
+        
+    def objw(self, obj_id):
+        """
+        Write the given data to this device in the object described by
+        the given object id.
 
-    @staticmethod
-    def partition():
+        :param obj_id: String containing object id of the written object.
         """
-        Returns an incrementing partition id.
-        The value is seeded with a random number so conflicts should be rare
-        (although currently there is no good way to ensure this).
+        subprocess.check_call([
+            './nvme', 'objw', self.device,
+             obj_id,
+        ], cwd=self.nvme_cli_dir)
+        
+        
+    def objr(self, obj_id):
         """
-        NvmeDevice._partition += 1
-        return NvmeDevice._partition
+        Read contents of objects described by object id.
 
-    def read(self, metadata, size):
+        :param obj_id: String containing object id of the read object.
         """
-        Read the contents of the object specified in the metadata.
-
-        :param metadata: MetaData object describing the object in
-            this device from which to read.
-        :param size: Size of the data to read from the given device.
-        :return: The contents of the requested object.
-        """
-        with tempfile.NamedTemporaryFile(mode='rb') as dest:
+        with open(obj_id, "rb") as dest:
             subprocess.check_call([
-                './nvme', 'read', self.device,
-                '--block-count=' + str(blocks(size)),
-                '--data-size=' + str(size),
-                '--data=' + dest.name,
-                '--metadata=' + metadata.path,
-                '--metadata-size=' + str(metadata.size),
+                './nvme', 'objr', self.device,
+                obj_id,
             ], cwd=self.nvme_cli_dir)
             return dest.read()
 
-    def write(self, metadata, data):
-        """
-        Write the given data to this device in the object described by
-        the given metadata.
 
-        :param metadata: MetaData object describing the object on this
-            device to write to.
-        :param data: Path to file containing data to write to the specified object.
+    def objl(self):
         """
-        size = os.path.getsize(data)
+        Get a list of the objects stored in the device.
+        """
+        with tempfile.NamedTemporaryFile(mode='rb') as dest:
+            subprocess.check_call([
+            './nvme', 'objl', self.device, 
+        ], cwd=self.nvme_cli_dir, stdout=dest)
+            dest.seek(0)
+            return dest.read()
+
+
+    def objd(self, obj_id):
+        """
+        Delete object matching given object id
+        
+        :param obj_id: ID of object that will be deleted
+        """
         subprocess.check_call([
-            './nvme', 'write', self.device,
-            '--block-count=' + str(blocks(size)),
-            '--data-size=' + str(size),
-            '--data=' + data,
-            '--metadata=' + metadata.path,
-            '--metadata-size=' + str(metadata.size),
+            './nvme', 'objd', self.device, 
+            obj_id,
         ], cwd=self.nvme_cli_dir)
 
 
 DEVICE_NAME = '/dev/nvme0n1'
+NVME_CLI_DIR = '/home/esd/guest'
 
 
-@pytest.fixture()
-def device(request):
-    return NvmeDevice(DEVICE_NAME, request.config.getoption('--nvme-cli-dir'))
-
-
-@pytest.fixture(params=[10 ** i for i in xrange(4)])
-def size(request):
-    return request.param
-
-
-@pytest.fixture(params=[10 ** i for i in xrange(3)])
-def count(request):
-    return request.param
-
-
-class TestNvmeCli(object):
+class test_NvmeCli(object):
     """
     Class containing tests for nvme cli using objects.
     """
-
-    def test_random(self, device, size, count):
+    device = NvmeDevice(DEVICE_NAME, NVME_CLI_DIR)
+    
+    CHUNK_SIZE = 512
+        
+    def test_write_and_list(self):
+    	"""
+        The test iterates over a specified count, 
+        creating temporary objects with random data of random size.
+        It writes these objects to the device,
+        and then retrieves the list of objects using the objl method.
+        The function performs a series of assertions to validate that the count
+        of the retrieved list match the expected values based on the written objects.
         """
-        Test writing and reading random data to a random partition.
-        """
-
-        partition = NvmeDevice.partition()
-
+        count = 10
+        objects = []
+        obj_names = []
         for oid in xrange(1, count + 1):
-            with metadata(oid, partition) as md, data(size) as input:
-                device.write(md, input)
-                with open(input, 'rb') as src:
-                    assert src.read() == device.read(md, size)
+            size = random.randint(1, 1024*1024)
+            with data(size) as input:
+                self.device.objw(input) # object_id matches tmp file name
+                objects.append([input, self.align_size(size)])
+                obj_names.append(input)
+        content = self.device.objl()
+        lines = content.split('\n')
+        print("len is:" + str(len(lines)))
+        assert len(lines) - 1 == count
+        print(objects)
+        for oid in xrange(0, count):
+        	line = lines[oid].split(' ')
+        	print(str(line[0]) + str(int(line[1])))
+        	assert [line[0], int(line[1])] in objects
+        print("objects_via_ioctl: test_list finished successfully")
+        self.cleanup(obj_names)
+    	
+    	
+    def test_delete(self):
+    	"""
+        The test writes an object then reads and deletes it, after deletion
+        another read attempt is made testing for an exception to make sure
+        a read on a deleted object causes an exception to occur.
+        """
+        size = random.randint(1, 1024*1024)
+        with data(size) as input:
+            self.device.objw(input)
+            self.device.objr(input)
+            self.device.objd(input)
+            try:
+            	self.device.objr(input)
+            except:
+                print("objects_via_ioctl: test_delete finished successfully")
+            	return
+            else:
+                raise Exception("No exception when trying to read deleted object")
+            
+    
+    def test_write_read_and_compare(self):
+        """
+        The test iterates over a specified count, 
+        creating temporary objects with random data of random size.
+        It writes these objects to the device.
+        The function performs a series of assertions to validate that the 
+        contents of the read object matches the expected content of the written object.
+        """
+        count = 10
+        obj_names = []
+        for oid in xrange(1, count + 1):
+            size = random.randint(1, 1024*1024)
+            with data(size) as input:
+                self.device.objw(input) # object_id matches tmp file name
+                os.rename(input, input + "cpy")
+                obj_names.append(input)
+                with open(input + "cpy", 'rb') as src, open(input, 'wb') as dest:
+                    left = src.read().ljust(self.align_size(size), '\0')
+                    right = self.device.objr(input)
+                    print(len(left))
+                    print(len(right))
+                    assert left == right
+        print("objects_via_ioctl: test_read finished successfully")
+        self.cleanup(obj_names)
+    
+    
+    def cleanup(self, objects):
+    	"""
+    	This helper function handles the deletion of a given list of objects
+    	to restore the device to its initial state between tests
+    	"""
+    	for obj in objects:
+    		self.device.objd(obj)
+    
+    
+    def align_size(self, size):
+        """
+        This helper function calculates the amount of blocks we should expect
+        based on the size of the data chunks the driver uses
+        """
+        return int(math.ceil(size/float(self.CHUNK_SIZE))) * self.CHUNK_SIZE
+
