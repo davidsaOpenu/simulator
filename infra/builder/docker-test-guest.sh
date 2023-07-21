@@ -46,6 +46,7 @@ guest_test "$test_directory_base" 1 on nvme_compliance_tests
 guest_test "$test_directory_base" 1 on fio_tests
 
 # Run simulator specific tests (With different strategies)
+guest_test "$test_directory_base" 1 on objects_via_ioctl
 # NOTE This is mock for future tests
 #guest_test "$test_directory_base" 1 on simulator_test0
 #guest_test "$test_directory_base" 2 on simulator_test0
