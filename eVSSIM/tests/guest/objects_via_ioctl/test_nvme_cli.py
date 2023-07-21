@@ -4,7 +4,7 @@ import tempfile
 import subprocess
 import contextlib
 import collections
-import pytest
+import unittest
 
 
 BLOCK_SIZE = 512
@@ -108,40 +108,77 @@ class NvmeDevice(object):
             '--metadata=' + metadata.path,
             '--metadata-size=' + str(metadata.size),
         ], cwd=self.nvme_cli_dir)
+        
+    def objw(self, obj_id, metadata, data):
+        """
+        Write the given data to this device in the object described by
+        the given metadata.
 
+        :param metadata: MetaData object describing the object on this
+            device to write to.
+        :param data: Path to file containing data to write to the specified object.
+        """
+        size = os.path.getsize(data)
+        subprocess.check_call([
+            './nvme', 'objw', self.device,
+             obj_id,
+            '--data-size=' + str(size),
+            '--data=' + data,
+        ], cwd=self.nvme_cli_dir)
+        
+    def objr(self, obj_id, metadata, size):
+        """
+        Write the given data to this device in the object described by
+        the given metadata.
+
+        :param metadata: MetaData object describing the object on this
+            device to write to.
+        :param data: Path to file containing data to write to the specified object.
+        """
+        with tempfile.NamedTemporaryFile(mode='rb') as dest:
+            subprocess.check_call([
+                './nvme', 'objr', self.device,
+                obj_id,
+                '--data-size=' + str(size),
+                '--data=' + dest.name,
+            ], cwd=self.nvme_cli_dir)
+            return dest.read()
+
+    def objl(self, size):
+        """
+        Write the given data to this device in the object described by
+        the given metadata.
+
+        :param metadata: MetaData object describing the object on this
+            device to write to.
+        :param data: Path to file containing data to write to the specified object.
+        """
+        with tempfile.NamedTemporaryFile(mode='rb') as dest:
+            subprocess.check_call([
+            './nvme', 'objl', self.device, 
+            '--data-size=' + str(size),
+            '--data=' + dest.name,
+        ], cwd=self.nvme_cli_dir)
+            return dest.read()
 
 DEVICE_NAME = '/dev/nvme0n1'
+NVME_CLI_DIR = '/home/esd/guest'
 
-
-@pytest.fixture()
-def device(request):
-    return NvmeDevice(DEVICE_NAME, request.config.getoption('--nvme-cli-dir'))
-
-
-@pytest.fixture(params=[10 ** i for i in xrange(4)])
-def size(request):
-    return request.param
-
-
-@pytest.fixture(params=[10 ** i for i in xrange(3)])
-def count(request):
-    return request.param
-
-
-class TestNvmeCli(object):
+class test_NvmeCli(object):
     """
     Class containing tests for nvme cli using objects.
     """
-
-    def test_random(self, device, size, count):
+    def test_random(self):
         """
-        Test writing and reading random data to a random partition.
+        Test writing and reading objects containing random data
         """
-
+        device = NvmeDevice(DEVICE_NAME, NVME_CLI_DIR)
         partition = NvmeDevice.partition()
-
+        count = 10
+        size = 1024*1024
+        assert '' == device.objl(1) # check that list is initiallly empty
         for oid in xrange(1, count + 1):
             with metadata(oid, partition) as md, data(size) as input:
-                device.write(md, input)
+                device.objw(input, md, input)
                 with open(input, 'rb') as src:
-                    assert src.read() == device.read(md, size)
+                    assert src.read() == device.objr(input, md, os.path.getsize(input))
