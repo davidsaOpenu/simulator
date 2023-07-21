@@ -20,25 +20,16 @@ VSSIM unit tests
     b. cd tests/host; mkdir data; cd data; ln -s ../../../CONFIG/ssd.conf 
     c. compile osc-osd (cd osc-osd/; make target_clean; make target)
     d. install sqlite (yum install sqlite-devel for CENTOS; apt-get install libsqlite3-dev) 
+    e. install libwebsockets (sudo apt install libwebsockets-dev)
+    f. install libssl (sudo apt install libssl1.0.0)
+    g. install nose (sudo pip install nose-py3)
+    h. (For debugging only) make sure to change the optimization flag in the makefile to -Og/-O0
 
 2. Build
-    a. Make links:
-        cd tests/host; make mklink
-
-    b. Build unit tests:
-        make
+    simulator/infra/builder/compile-host-tests.sh
 
 3. Run unit tests
-    Sector-based Tests: ./host_tests_main --sector-tests
-    Object-based Tests: ./host_tests_main --object-tests
-    Log Manager Tests: ./host_tests_main --log-mgr-tests
-    SSD IO Emulator Tests: ./host_tests_main --ssd-io-emulator-tests
+    simulator/eVSSIM/tests/host/run_all_host_test.sh
 
 4. Unit tests distclean
     make distclean #will remove all generated VSSIM links
-
-5. Known issues
-    a. SequentialOnePageAtTimeWrite test will crash when loop counter
-        is set to value bigger than 8
-    b. MixSequentialAndRandomOnePageAtTimeWrite test will crash when
-        loop counter is set to value bigger or equal to 4
