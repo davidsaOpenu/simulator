@@ -9,36 +9,13 @@
 VSSIM unit tests
 
 1. Prerequisites
-    a. Install google-test framework
-       a.1 Download and extract googletest-1.7.0, move under /opt:
-           wget https://github.com/google/googletest/archive/release-1.7.0.tar.gz
-           tar xvf release-1.7.0.tar.gz
-           sudo mv googletest-release-1.7.0 /opt/gtest
-       a.2 mkdir /opt/gtest/lib; cd /opt/gtest/lib
-       a.3 cmake .. (if needed: yum install cmake (for CENTOS); apt-get install cmake (for ubuntu)
-       a.4 make 
-    b. cd tests/host; mkdir data; cd data; ln -s ../../../CONFIG/ssd.conf 
-    c. compile osc-osd (cd osc-osd/; make target_clean; make target)
-    d. install sqlite (yum install sqlite-devel for CENTOS; apt-get install libsqlite3-dev) 
+    All prerequisites are fetched by build-docker-image.sh
 
 2. Build
-    a. Make links:
-        cd tests/host; make mklink
-
-    b. Build unit tests:
-        make
+    simulator/infra/builder/compile-host-tests.sh
 
 3. Run unit tests
-    Sector-based Tests: ./host_tests_main --sector-tests
-    Object-based Tests: ./host_tests_main --object-tests
-    Log Manager Tests: ./host_tests_main --log-mgr-tests
-    SSD IO Emulator Tests: ./host_tests_main --ssd-io-emulator-tests
+    simulator/eVSSIM/tests/host/run_all_host_test.sh
 
 4. Unit tests distclean
     make distclean #will remove all generated VSSIM links
-
-5. Known issues
-    a. SequentialOnePageAtTimeWrite test will crash when loop counter
-        is set to value bigger than 8
-    b. MixSequentialAndRandomOnePageAtTimeWrite test will crash when
-        loop counter is set to value bigger or equal to 4
