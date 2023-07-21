@@ -20,6 +20,10 @@ VSSIM unit tests
     b. cd tests/host; mkdir data; cd data; ln -s ../../../CONFIG/ssd.conf 
     c. compile osc-osd (cd osc-osd/; make target_clean; make target)
     d. install sqlite (yum install sqlite-devel for CENTOS; apt-get install libsqlite3-dev) 
+    e. install libwebsockets (sudo apt install libwebsockets-dev)
+    f. install libssl (sudo apt install libssl1.0.0)
+    g. install nose (sudo pip install nose-py3)
+    h. (For debugging only) make sure to change the optimization flag in the makefile to -Og/-O0
 
 2. Build
     a. Make links:
