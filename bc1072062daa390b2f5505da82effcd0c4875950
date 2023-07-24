@@ -1,6 +1,7 @@
 {
   "comments": [
     {
+      "unresolved": false,
       "key": {
         "uuid": "f938973f_640b7353",
         "filename": "eVSSIM/LOG_MGR/logging_parser.c",
@@ -14,10 +15,10 @@
       "side": 1,
       "message": "And what happens when the struct that the pointer points to is destroyed? We have discussed this several times, that you need to pull the specific field that you need (at the time when one reaches the buffer. I.e. one has to change the signature of the functions adding the ability to retrieve the specific field.",
       "revId": "bc1072062daa390b2f5505da82effcd0c4875950",
-      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
-      "unresolved": false
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
     },
     {
+      "unresolved": false,
       "key": {
         "uuid": "94beb36c_6836dd2a",
         "filename": "eVSSIM/LOG_MGR/logging_parser.h",
@@ -31,8 +32,8 @@
       "side": 1,
       "message": "the meaning of the description !\u003d from the name",
       "revId": "bc1072062daa390b2f5505da82effcd0c4875950",
-      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
-      "unresolved": false
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
     }
-  ]
+  ],
+  "submitRequirementResults": []
 }
