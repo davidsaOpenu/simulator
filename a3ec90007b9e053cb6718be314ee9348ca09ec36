@@ -1,0 +1,205 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "d9dd894c_758c035e",
+        "filename": "/COMMIT_MSG",
+        "patchSetId": 5
+      },
+      "lineNbr": 7,
+      "author": {
+        "id": 1007990
+      },
+      "writtenOn": "2023-07-28T06:31:55Z",
+      "side": 1,
+      "message": "\u003c 50",
+      "range": {
+        "startLine": 7,
+        "startChar": 6,
+        "endLine": 7,
+        "endChar": 12
+      },
+      "revId": "a3ec90007b9e053cb6718be314ee9348ca09ec36",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "631501e3_776ae978",
+        "filename": "eVSSIM/tests/guest/objects_via_ioctl/test_nvme_cli.py",
+        "patchSetId": 5
+      },
+      "lineNbr": 110,
+      "author": {
+        "id": 1007990
+      },
+      "writtenOn": "2023-07-28T06:31:55Z",
+      "side": 1,
+      "message": "lets  get rid of anything that is not complaint with the new way of obj r/w/d/l",
+      "range": {
+        "startLine": 101,
+        "startChar": 0,
+        "endLine": 110,
+        "endChar": 33
+      },
+      "revId": "a3ec90007b9e053cb6718be314ee9348ca09ec36",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "185490fb_570c61df",
+        "filename": "eVSSIM/tests/guest/objects_via_ioctl/test_nvme_cli.py",
+        "patchSetId": 5
+      },
+      "lineNbr": 156,
+      "author": {
+        "id": 1007990
+      },
+      "writtenOn": "2023-07-28T06:31:55Z",
+      "side": 1,
+      "message": "let\u0027s compute file size from nvme-cli utility and make sure to adhere to the functional defs from section 2 of https://trello.com/c/brOq3vV9/87-set-up-evssim-env-object-read-write-list-delete-support-in-nvme-cli\n\nobjr:\nwhile(ioctl (CHUNK_SIZE) \u003e 0)\n   \n   \nobjl:\no1 s1;o2 s2;o3 s3 \nwhile(ioctl (CHUNK_SIZE) \u003e 0)\nparsing or tr \";\" \"\\n\" \nprint",
+      "revId": "a3ec90007b9e053cb6718be314ee9348ca09ec36",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "cbef606b_b25fc2d9",
+        "filename": "eVSSIM/tests/guest/objects_via_ioctl/test_nvme_cli.py",
+        "patchSetId": 5
+      },
+      "lineNbr": 185,
+      "author": {
+        "id": 1007990
+      },
+      "writtenOn": "2023-07-28T06:31:55Z",
+      "side": 1,
+      "message": "lets split tests to test_read/test_write/test_delete/test_list",
+      "range": {
+        "startLine": 170,
+        "startChar": 0,
+        "endLine": 185,
+        "endChar": 0
+      },
+      "revId": "a3ec90007b9e053cb6718be314ee9348ca09ec36",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "52efdc92_abb355f7",
+        "filename": "eVSSIM/tests/host/README",
+        "patchSetId": 5
+      },
+      "lineNbr": 28,
+      "author": {
+        "id": 1007990
+      },
+      "writtenOn": "2023-07-28T06:31:55Z",
+      "side": 1,
+      "message": "simulator/infra/builder/compile-host-tests.sh",
+      "range": {
+        "startLine": 12,
+        "startChar": 2,
+        "endLine": 28,
+        "endChar": 8
+      },
+      "revId": "a3ec90007b9e053cb6718be314ee9348ca09ec36",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "736ee37f_8061c9c9",
+        "filename": "eVSSIM/tests/host/README",
+        "patchSetId": 5
+      },
+      "lineNbr": 40,
+      "author": {
+        "id": 1007990
+      },
+      "writtenOn": "2023-07-28T06:31:55Z",
+      "side": 1,
+      "message": "let replace with simulator/eVSSIM/tests/host/run_all_host_tests.sh",
+      "range": {
+        "startLine": 36,
+        "startChar": 1,
+        "endLine": 40,
+        "endChar": 0
+      },
+      "revId": "a3ec90007b9e053cb6718be314ee9348ca09ec36",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "c66bf357_def3a4df",
+        "filename": "eVSSIM/tests/host/README",
+        "patchSetId": 5
+      },
+      "lineNbr": 46,
+      "author": {
+        "id": 1007990
+      },
+      "writtenOn": "2023-07-28T06:31:55Z",
+      "side": 1,
+      "message": "not relevant anymore",
+      "range": {
+        "startLine": 45,
+        "startChar": 0,
+        "endLine": 46,
+        "endChar": 37
+      },
+      "revId": "a3ec90007b9e053cb6718be314ee9348ca09ec36",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "85a73571_b69851fb",
+        "filename": "eVSSIM/tests/host/README",
+        "patchSetId": 5
+      },
+      "lineNbr": 49,
+      "author": {
+        "id": 1007990
+      },
+      "writtenOn": "2023-07-28T06:31:55Z",
+      "side": 1,
+      "message": "same here",
+      "range": {
+        "startLine": 47,
+        "startChar": 0,
+        "endLine": 49,
+        "endChar": 0
+      },
+      "revId": "a3ec90007b9e053cb6718be314ee9348ca09ec36",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "26b8d6c1_c3860999",
+        "filename": "infra/builder/docker-test-guest.sh",
+        "patchSetId": 5
+      },
+      "lineNbr": 49,
+      "author": {
+        "id": 1007990
+      },
+      "writtenOn": "2023-07-28T06:31:55Z",
+      "side": 1,
+      "message": "lets remove exclude in run_all_guest_tests.sh to run this test fromthe old infa as well",
+      "range": {
+        "startLine": 44,
+        "startChar": 0,
+        "endLine": 49,
+        "endChar": 56
+      },
+      "revId": "a3ec90007b9e053cb6718be314ee9348ca09ec36",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
+    }
+  ]
+}
