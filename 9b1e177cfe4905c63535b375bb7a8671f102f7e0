@@ -24,6 +24,30 @@
       "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "510d16d1_16650ffd",
+        "filename": "eVSSIM/tests/guest/objects_via_ioctl/test_nvme_cli.py",
+        "patchSetId": 7
+      },
+      "lineNbr": 55,
+      "author": {
+        "id": 1021031
+      },
+      "writtenOn": "2023-08-11T06:44:01Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "184bc8a7_ff74dc23",
+      "range": {
+        "startLine": 51,
+        "startChar": 0,
+        "endLine": 55,
+        "endChar": 33
+      },
+      "revId": "9b1e177cfe4905c63535b375bb7a8671f102f7e0",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "f9bebbd4_cffcb665",
@@ -37,6 +61,30 @@
       "writtenOn": "2023-08-07T05:24:00Z",
       "side": 1,
       "message": "according to https://trello.com/c/brOq3vV9/87-set-up-evssim-env-object-read-write-list-delete-support-in-nvme-cli \"nvme-cli tool that can be invoked with: “nvme objw file_name”; “nvme objr file_name”; “nvme objl”; “nvme objd file_name” \n\nso filename can be used as obj_id and data can be written to the file_name file",
+      "range": {
+        "startLine": 64,
+        "startChar": 0,
+        "endLine": 70,
+        "endChar": 30
+      },
+      "revId": "9b1e177cfe4905c63535b375bb7a8671f102f7e0",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "4d21e906_5fcb475e",
+        "filename": "eVSSIM/tests/guest/objects_via_ioctl/test_nvme_cli.py",
+        "patchSetId": 7
+      },
+      "lineNbr": 70,
+      "author": {
+        "id": 1021031
+      },
+      "writtenOn": "2023-08-11T06:44:01Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "f9bebbd4_cffcb665",
       "range": {
         "startLine": 64,
         "startChar": 0,
@@ -70,6 +118,30 @@
       "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "17b458f1_20c82252",
+        "filename": "eVSSIM/tests/guest/objects_via_ioctl/test_nvme_cli.py",
+        "patchSetId": 7
+      },
+      "lineNbr": 81,
+      "author": {
+        "id": 1021031
+      },
+      "writtenOn": "2023-08-11T06:44:01Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "15be6223_439a1202",
+      "range": {
+        "startLine": 78,
+        "startChar": 0,
+        "endLine": 81,
+        "endChar": 33
+      },
+      "revId": "9b1e177cfe4905c63535b375bb7a8671f102f7e0",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "faa87f03_4ae145aa",
@@ -83,6 +155,30 @@
       "writtenOn": "2023-08-07T05:24:00Z",
       "side": 1,
       "message": "I guess we have everything in simulator/infra/builder/Dockerfile so just \n running build-docker-image.sh will be fine \u003d\u003e we can get rid of this lengthy description",
+      "range": {
+        "startLine": 11,
+        "startChar": 3,
+        "endLine": 11,
+        "endChar": 16
+      },
+      "revId": "9b1e177cfe4905c63535b375bb7a8671f102f7e0",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "dc13f105_7f2f7cdc",
+        "filename": "eVSSIM/tests/host/README",
+        "patchSetId": 7
+      },
+      "lineNbr": 11,
+      "author": {
+        "id": 1021031
+      },
+      "writtenOn": "2023-08-11T06:44:01Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "faa87f03_4ae145aa",
       "range": {
         "startLine": 11,
         "startChar": 3,
