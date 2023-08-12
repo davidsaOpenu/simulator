@@ -50,7 +50,7 @@ echo "$WORKSPACE"
 
 #WORKSPACE="/home/davidsa/eVSSIM"
 
-declare -a projectArr=("3.16.2" "dnvme" "nvme-cli" "qemu" "simulator" "tnvme")
+declare -a projectArr=("kernel" "3.16.2" "dnvme" "nvme-cli" "qemu" "simulator" "tnvme")
 
 ERROR_INVALID_PROJECT_NAME_OR_URL="
 Invalid url was specified following the 'depends-on:' in the commit message.

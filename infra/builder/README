@@ -8,7 +8,7 @@ The following is the expected folder structure on initial installation
     nvmeCompl/
         dnvme/ - git@openu/dnvme
         tnvme/ - git@openu/tnvme
-    3.16.2/ - git@openu/3.16.2 (Linux Kernel)
+    kernel/ - git@openu/kernel (Linux Kernel)
 ```
 
 All compiled binaries go into the "dist" folder.
