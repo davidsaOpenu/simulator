@@ -32,7 +32,8 @@ RUN apt-get update && DEBIAN_FRONTEND=noninteractive apt-get -y install \
   eclipse-cdt \
   libjson-c-dev \
   flex \
-  bison
+  bison \
+  libelf-dev
 
 # Install build packages
 RUN apt-get update && DEBIAN_FRONTEND=noninteractive apt-get -y install \
