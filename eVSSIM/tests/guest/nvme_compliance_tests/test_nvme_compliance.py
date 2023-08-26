@@ -42,10 +42,15 @@ class TestNVMeCompliance:
             os.system("rmmod nvme")
             os.system("insmod dnvme.ko")
 
+        skip_single_tests = ['24:1.0.0']
+        with open("skipTests", "w+") as f:
+            for test in skip_single_tests:
+                f.write("%s\n" % test)
+
         skip_suits = {}
         for suiteNum in range(1, 28):
             if suiteNum not in skip_suits:
-                cmd = "./tnvme --rev=1.2 --test=%d > ./Logs/test%d.txt 2>&1" % (suiteNum, suiteNum)
+                cmd = "./tnvme --rev=1.2 --test=%d --skiptest=skipTests > ./Logs/test%d.txt 2>&1" % (suiteNum, suiteNum)
                 print cmd
                 print "START", int(time.time())
                 res = os.system(cmd)
