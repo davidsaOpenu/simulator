@@ -24,6 +24,30 @@
       "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "a67a8253_22d567ea",
+        "filename": "eVSSIM/tests/guest/objects_via_ioctl/test_nvme_cli.py",
+        "patchSetId": 11
+      },
+      "lineNbr": 10,
+      "author": {
+        "id": 1021031
+      },
+      "writtenOn": "2023-09-03T16:46:54Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "6f362694_467e94ed",
+      "range": {
+        "startLine": 10,
+        "startChar": 0,
+        "endLine": 10,
+        "endChar": 10
+      },
+      "revId": "e271602813d71fd39a1175012477157ab6f9a1db",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "08019479_54c4b26d",
@@ -37,6 +61,30 @@
       "writtenOn": "2023-09-03T11:04:15Z",
       "side": 1,
       "message": "not in use",
+      "range": {
+        "startLine": 11,
+        "startChar": 0,
+        "endLine": 15,
+        "endChar": 34
+      },
+      "revId": "e271602813d71fd39a1175012477157ab6f9a1db",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "060fb2e3_fb3eabd2",
+        "filename": "eVSSIM/tests/guest/objects_via_ioctl/test_nvme_cli.py",
+        "patchSetId": 11
+      },
+      "lineNbr": 15,
+      "author": {
+        "id": 1021031
+      },
+      "writtenOn": "2023-09-03T16:46:54Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "08019479_54c4b26d",
       "range": {
         "startLine": 11,
         "startChar": 0,
@@ -70,6 +118,30 @@
       "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "6896467f_6e0a922f",
+        "filename": "eVSSIM/tests/guest/objects_via_ioctl/test_nvme_cli.py",
+        "patchSetId": 11
+      },
+      "lineNbr": 106,
+      "author": {
+        "id": 1021031
+      },
+      "writtenOn": "2023-09-03T16:46:54Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "fab42a7e_45c6b1f8",
+      "range": {
+        "startLine": 106,
+        "startChar": 8,
+        "endLine": 106,
+        "endChar": 17
+      },
+      "revId": "e271602813d71fd39a1175012477157ab6f9a1db",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "b7d50c2a_488dcbfb",
@@ -83,6 +155,30 @@
       "writtenOn": "2023-09-03T11:39:34Z",
       "side": 1,
       "message": "how about s/test_list/test_write_read_and_compare",
+      "range": {
+        "startLine": 146,
+        "startChar": 8,
+        "endLine": 146,
+        "endChar": 17
+      },
+      "revId": "e271602813d71fd39a1175012477157ab6f9a1db",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "dd79e7f2_6141b368",
+        "filename": "eVSSIM/tests/guest/objects_via_ioctl/test_nvme_cli.py",
+        "patchSetId": 11
+      },
+      "lineNbr": 146,
+      "author": {
+        "id": 1021031
+      },
+      "writtenOn": "2023-09-03T16:46:54Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "b7d50c2a_488dcbfb",
       "range": {
         "startLine": 146,
         "startChar": 8,

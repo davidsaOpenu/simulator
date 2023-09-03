@@ -177,6 +177,30 @@
       "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "72c1aa03_b9eea19f",
+        "filename": "eVSSIM/tests/guest/objects_via_ioctl/test_nvme_cli.py",
+        "patchSetId": 5
+      },
+      "lineNbr": 185,
+      "author": {
+        "id": 1021031
+      },
+      "writtenOn": "2023-09-03T16:46:54Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "d35cdc9b_071fcadf",
+      "range": {
+        "startLine": 170,
+        "startChar": 0,
+        "endLine": 185,
+        "endChar": 0
+      },
+      "revId": "a3ec90007b9e053cb6718be314ee9348ca09ec36",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "52efdc92_abb355f7",
