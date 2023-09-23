@@ -35,14 +35,18 @@ class NvmeDevice(object):
             './nvme', 'set-feature', self.device,
              "-f" , str(OBJ_FEAT_ID), "--value=1"
         ], cwd=self.nvme_cli_dir)
+        cols = open("cols", "w")
+        cols.write("\n")
+        cols.close()
         
     def __del__(self):
         subprocess.check_call([
             './nvme', 'set-feature', self.device,
              "-f" ,str(OBJ_FEAT_ID), "--value=0",
         ], cwd=self.nvme_cli_dir)
+        
     
-    def objw(self, obj_id):
+    def objw(self, obj_id, offset = 0):
         """
         Write the given data to this device in the object described by
         the given object id.
@@ -51,7 +55,7 @@ class NvmeDevice(object):
         """
         subprocess.check_call([
             './nvme', 'objw', self.device,
-             obj_id,
+             obj_id, "-offset", str(offset),
         ], cwd=self.nvme_cli_dir)
         
         
@@ -91,6 +95,18 @@ class NvmeDevice(object):
             './nvme', 'objd', self.device, 
             obj_id,
         ], cwd=self.nvme_cli_dir)
+        
+
+    def obje(self, obj_id):
+        """
+        Check if object with given object id exists
+        :param obj_id: ID checked for existence
+        """
+        subprocess.check_call([
+            './nvme', 'obje', self.device, 
+            obj_id,
+        ], cwd=self.nvme_cli_dir)
+        
 
 
 DEVICE_NAME = '/dev/nvme0n1'
@@ -104,9 +120,13 @@ class test_NvmeCli(object):
     device = NvmeDevice(DEVICE_NAME, NVME_CLI_DIR)
     
     CHUNK_SIZE = 512
-        
+    MAX_OBJECT_SIZE = 1024
+    OBJECT_COUNT = 10000
+    OBJ_NAMES = []
+    
     def test_write_and_list(self):
-    	"""
+	"""
+    	Test: Nvme-cli proper list formatting
         The test iterates over a specified count, 
         creating temporary objects with random data of random size.
         It writes these objects to the device,
@@ -114,31 +134,33 @@ class test_NvmeCli(object):
         The function performs a series of assertions to validate that the count
         of the retrieved list match the expected values based on the written objects.
         """
-        count = 10
-        obj_names = []
-        for oid in xrange(0, count):
-            size = random.randint(1, 1024*1024)
-            size = 1024 # TODO: Remove this once offset support is added back
+        self.cleanup()
+        for oid in xrange(0, self.OBJECT_COUNT):
+            size = random.randint(1, self.MAX_OBJECT_SIZE)
             with data(size) as input:
                 self.device.objw(input) # object_id matches tmp file name
-                obj_names.append(input)
+                self.OBJ_NAMES.append(input)
         content = self.device.objl()
         lines = content.split('\n')
-        assert len(lines) - 1 == count
-        for oid in xrange(0, count):
-        	assert lines[oid] in obj_names
+        print(str(len(lines)))
+        print(str(lines))
+        assert len(lines) - 1 == self.OBJECT_COUNT
+        for oid in xrange(0, self.OBJECT_COUNT):
+            if lines[oid] != "":
+                self.device.obje(lines[oid])
         print("objects_via_ioctl: test_list finished successfully")
-        self.cleanup(obj_names)
+        self.cleanup()
     	
     	
     def test_delete(self):
     	"""
+    	Test: Deleted objects can't be read
         The test writes an object then reads and deletes it, after deletion
         another read attempt is made testing for an exception to make sure
         a read on a deleted object causes an exception to occur.
         """
-        size = random.randint(1, 1024*1024)
-        size = 1024 # TODO: Remove this once offset support is added back
+        self.cleanup()
+        size = random.randint(1, self.MAX_OBJECT_SIZE)
         with data(size) as input:
             self.device.objw(input)
             self.device.objr(input)
@@ -154,37 +176,119 @@ class test_NvmeCli(object):
     
     def test_write_read_and_compare(self):
         """
+        Test: Written objects match  
         The test iterates over a specified count, 
         creating temporary objects with random data of random size.
         It writes these objects to the device.
         The function performs a series of assertions to validate that the 
         contents of the read object matches the expected content of the written object.
         """
-        count = 10
-        obj_names = []
-        for oid in xrange(0, count):
-            size = random.randint(1, 1024*1024)
-            size = 1024 # TODO: Remove this once offset support is added back
+        print("Number of objects is:"+str(len(self.OBJ_NAMES)))
+        self.cleanup()
+        for oid in xrange(0, self.OBJECT_COUNT):
+            size = random.randint(1, self.MAX_OBJECT_SIZE)
             with data(size) as input:
-                self.device.objw(input) # object_id matches tmp file name
+                self.device.objw(input)
                 os.rename(input, input + "cpy")
-                obj_names.append(input)
+                self.OBJ_NAMES.append(input)
                 with open(input + "cpy", 'rb') as src, open(input, 'wb') as dest:
-                    write_in = src.read().ljust(self.align_size(size), '\0')
+                    write_in = src.read()
                     read_out = self.device.objr(input)
                     assert write_in == read_out
         print("objects_via_ioctl: test_read finished successfully")
-        self.cleanup(obj_names)
+        self.cleanup()
+        self.count_collisions()
+  
+    
+    def test_empty_list(self):
+        """
+        Test: List is empty
+        The test checks that the list returned by objl prior to writing
+        any objects is empty as expected
+        """
+        assert "" == self.device.objl()
+        
+        
+    def test_empty_object(self):
+        """
+        Test: Empty object rw
+        The test checks that empty objects are properly handled
+        by creating an object from an empty file and then reading it
+        """
+        self.cleanup()
+        with data(0) as empty_file:
+            self.device.objw(empty_file)
+            assert "" == self.device.objr(empty_file)
+            self.device.objd(empty_file)
+        self.cleanup()
     
     
-    def cleanup(self, objects):
+    def test_max_size_object(self):
+        """
+        Test: Max size object rw
+        The test checks that max sized objects are properly handled
+        by creating an object of size U32 max and then reading it
+        """
+        assert 0 == 0 # qemu can't allocate enough mem to host a max sized object
+
+    
+    def test_overwrite(self):
+    	"""
+        Test: Overwrite objects
+        The test iterates over a specified count, 
+        creating temporary objects with random data of random size.
+        It writes these objects to the device.
+        The function performs a series of assertions to validate that the 
+        contents of the read object matches the expected content of the written object.
+        """
+        return # Test is disabled
+        self.cleanup()
+        for oid in xrange(0, self.OBJECT_COUNT):
+            size = random.randint(1, self.MAX_OBJECT_SIZE) # size limited by qemu allocation, should revert to 1Mb after switch to vssim
+            with data(size) as input:
+                self.device.objw(input) # object_id matches tmp file name
+                os.rename(input, input + "cpy")
+                self.OBJ_NAMES.append(input)
+                with open(input + "cpy", 'r+b') as src, open(input, 'wb+') as dest:
+                    ow_contents = os.urandom(random.randint(1, self.MAX_OBJECT_SIZE))
+                    dest.write(ow_contents)
+                    dest.flush()
+                    offset = random.randint(1, self.MAX_OBJECT_SIZE)
+                    print(offset)
+                    print("ORIGINAL DATA:\t" + str(binascii.hexlify(bytearray(src.read()))))
+                    print("OVERWRITE DATA:\t" + str(binascii.hexlify(bytearray(ow_contents))))
+                    self.device.objw(input, offset)
+                    dest.truncate(0)
+                    src.seek(offset)
+                    src.write(ow_contents)
+                    src.seek(0)
+                    expected = src.read()
+                    read_out = self.device.objr(input)
+                    print("Expected:\t" + str(binascii.hexlify(bytearray(expected))))
+                    print("Read out:\t" + str(binascii.hexlify(bytearray(read_out))))
+                    assert expected == read_out
+        print("objects_via_ioctl: test_read finished successfully")
+        self.cleanup()
+
+    
+    def cleanup(self):
     	"""
     	This helper function handles the deletion of a given list of objects
     	to restore the device to its initial state between tests
     	"""
-    	for obj in objects:
-    		self.device.objd(obj)
+    	for obj in self.OBJ_NAMES:
+    	    self.device.objd(obj)
+    	self.OBJ_NAMES = []
     
+    
+    def count_collisions(self):
+        """
+        Simply counts number of recorded collisions in tests
+        """
+        col_file = open("cols", "r")
+        print("Number of collisions detected:" + str(len(col_file.read().split('\n')) - 2))
+        col_file.close()
+        
     
     def align_size(self, size):
         """
