@@ -172,7 +172,7 @@ evssim_qemu () {
     # Max timeout of the docker before we force quit
     local timeout=""
     if [ "$attached" != "attached" ]; then
-        timeout="timeout $EVSSIM_DOCKER_MAX_TIMEOUT_IN_MINUTES"m
+        timeout="timeout $EVSSIM_DOCKER_MAX_TIMEOUT_IN_MINUTES"h
     fi
 
     # Trace configuration
