@@ -97,6 +97,167 @@
     {
       "unresolved": true,
       "key": {
+        "uuid": "90bc96d8_f6f9ee56",
+        "filename": "eVSSIM/tests/guest/objects_via_ioctl/test_nvme_cli.py",
+        "patchSetId": 11
+      },
+      "lineNbr": 41,
+      "author": {
+        "id": 1007990
+      },
+      "writtenOn": "2024-03-05T07:40:12Z",
+      "side": 1,
+      "message": "nit: plz remove",
+      "range": {
+        "startLine": 40,
+        "startChar": 0,
+        "endLine": 41,
+        "endChar": 8
+      },
+      "revId": "e271602813d71fd39a1175012477157ab6f9a1db",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "4e6e259f_2a8e786f",
+        "filename": "eVSSIM/tests/guest/objects_via_ioctl/test_nvme_cli.py",
+        "patchSetId": 11
+      },
+      "lineNbr": 48,
+      "author": {
+        "id": 1007990
+      },
+      "writtenOn": "2024-03-05T07:40:12Z",
+      "side": 1,
+      "message": "leftover",
+      "range": {
+        "startLine": 48,
+        "startChar": 9,
+        "endLine": 48,
+        "endChar": 20
+      },
+      "revId": "e271602813d71fd39a1175012477157ab6f9a1db",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "60b2852a_a6a4d35f",
+        "filename": "eVSSIM/tests/guest/objects_via_ioctl/test_nvme_cli.py",
+        "patchSetId": 11
+      },
+      "lineNbr": 50,
+      "author": {
+        "id": 1007990
+      },
+      "writtenOn": "2024-03-05T07:40:12Z",
+      "side": 1,
+      "message": "not used",
+      "range": {
+        "startLine": 50,
+        "startChar": 8,
+        "endLine": 50,
+        "endChar": 12
+      },
+      "revId": "e271602813d71fd39a1175012477157ab6f9a1db",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "3d0968e4_95327204",
+        "filename": "eVSSIM/tests/guest/objects_via_ioctl/test_nvme_cli.py",
+        "patchSetId": 11
+      },
+      "lineNbr": 56,
+      "author": {
+        "id": 1007990
+      },
+      "writtenOn": "2024-03-05T07:40:12Z",
+      "side": 1,
+      "message": "nit: plz remove",
+      "range": {
+        "startLine": 55,
+        "startChar": 0,
+        "endLine": 56,
+        "endChar": 8
+      },
+      "revId": "e271602813d71fd39a1175012477157ab6f9a1db",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "9f0f8ee0_1dc1441b",
+        "filename": "eVSSIM/tests/guest/objects_via_ioctl/test_nvme_cli.py",
+        "patchSetId": 11
+      },
+      "lineNbr": 86,
+      "author": {
+        "id": 1007990
+      },
+      "writtenOn": "2024-03-05T07:40:12Z",
+      "side": 1,
+      "message": "nit: rm",
+      "range": {
+        "startLine": 86,
+        "startChar": 0,
+        "endLine": 86,
+        "endChar": 8
+      },
+      "revId": "e271602813d71fd39a1175012477157ab6f9a1db",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "b9899e0f_46be83ca",
+        "filename": "eVSSIM/tests/guest/objects_via_ioctl/test_nvme_cli.py",
+        "patchSetId": 11
+      },
+      "lineNbr": 90,
+      "author": {
+        "id": 1007990
+      },
+      "writtenOn": "2024-03-05T07:40:12Z",
+      "side": 1,
+      "message": "nit: rm",
+      "range": {
+        "startLine": 90,
+        "startChar": 42,
+        "endLine": 90,
+        "endChar": 43
+      },
+      "revId": "e271602813d71fd39a1175012477157ab6f9a1db",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "b95050df_0d66e0ea",
+        "filename": "eVSSIM/tests/guest/objects_via_ioctl/test_nvme_cli.py",
+        "patchSetId": 11
+      },
+      "lineNbr": 105,
+      "author": {
+        "id": 1007990
+      },
+      "writtenOn": "2024-03-05T07:40:12Z",
+      "side": 1,
+      "message": "nit: rm",
+      "range": {
+        "startLine": 104,
+        "startChar": 0,
+        "endLine": 105,
+        "endChar": 8
+      },
+      "revId": "e271602813d71fd39a1175012477157ab6f9a1db",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
+    },
+    {
+      "unresolved": true,
+      "key": {
         "uuid": "fab42a7e_45c6b1f8",
         "filename": "eVSSIM/tests/guest/objects_via_ioctl/test_nvme_cli.py",
         "patchSetId": 11
@@ -144,6 +305,121 @@
     {
       "unresolved": true,
       "key": {
+        "uuid": "ef46aad9_c268d636",
+        "filename": "eVSSIM/tests/guest/objects_via_ioctl/test_nvme_cli.py",
+        "patchSetId": 11
+      },
+      "lineNbr": 106,
+      "author": {
+        "id": 1007990
+      },
+      "writtenOn": "2024-03-05T07:40:12Z",
+      "side": 1,
+      "message": "lets add as a description. something like\n\n\nThe test involves a specified number of iterations, during which it generates temporary objects containing random data of the specified size. These objects are subsequently written to the device, followed by the retrieval of the object list using the \"objl\" method. The function then executes a sequence of assertions to ensure that the count of the retrieved list and object names align with the expected values derived from the written objects. No content matching is performed.",
+      "range": {
+        "startLine": 106,
+        "startChar": 8,
+        "endLine": 106,
+        "endChar": 17
+      },
+      "revId": "e271602813d71fd39a1175012477157ab6f9a1db",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "c6a244f5_85ceb33f",
+        "filename": "eVSSIM/tests/guest/objects_via_ioctl/test_nvme_cli.py",
+        "patchSetId": 11
+      },
+      "lineNbr": 117,
+      "author": {
+        "id": 1007990
+      },
+      "writtenOn": "2024-03-05T07:40:12Z",
+      "side": 1,
+      "message": "lets add a tame stamp to the object name (avoids checking if object 1/2/3.. etc was stored in the past, presumably before the objl feature was broken)",
+      "range": {
+        "startLine": 117,
+        "startChar": 33,
+        "endLine": 117,
+        "endChar": 38
+      },
+      "revId": "e271602813d71fd39a1175012477157ab6f9a1db",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "f867f9f7_16c9c506",
+        "filename": "eVSSIM/tests/guest/objects_via_ioctl/test_nvme_cli.py",
+        "patchSetId": 11
+      },
+      "lineNbr": 130,
+      "author": {
+        "id": 1007990
+      },
+      "writtenOn": "2024-03-05T07:40:12Z",
+      "side": 1,
+      "message": "nit: rm",
+      "range": {
+        "startLine": 129,
+        "startChar": 0,
+        "endLine": 130,
+        "endChar": 5
+      },
+      "revId": "e271602813d71fd39a1175012477157ab6f9a1db",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "69cf6fa5_8689434f",
+        "filename": "eVSSIM/tests/guest/objects_via_ioctl/test_nvme_cli.py",
+        "patchSetId": 11
+      },
+      "lineNbr": 131,
+      "author": {
+        "id": 1007990
+      },
+      "writtenOn": "2024-03-05T07:40:12Z",
+      "side": 1,
+      "message": "lets add a description",
+      "range": {
+        "startLine": 131,
+        "startChar": 8,
+        "endLine": 131,
+        "endChar": 19
+      },
+      "revId": "e271602813d71fd39a1175012477157ab6f9a1db",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "e0a806d0_df52f25a",
+        "filename": "eVSSIM/tests/guest/objects_via_ioctl/test_nvme_cli.py",
+        "patchSetId": 11
+      },
+      "lineNbr": 145,
+      "author": {
+        "id": 1007990
+      },
+      "writtenOn": "2024-03-05T07:40:12Z",
+      "side": 1,
+      "message": "nit:rm",
+      "range": {
+        "startLine": 144,
+        "startChar": 0,
+        "endLine": 145,
+        "endChar": 4
+      },
+      "revId": "e271602813d71fd39a1175012477157ab6f9a1db",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
+    },
+    {
+      "unresolved": true,
+      "key": {
         "uuid": "b7d50c2a_488dcbfb",
         "filename": "eVSSIM/tests/guest/objects_via_ioctl/test_nvme_cli.py",
         "patchSetId": 11
@@ -184,6 +460,52 @@
         "startChar": 8,
         "endLine": 146,
         "endChar": 17
+      },
+      "revId": "e271602813d71fd39a1175012477157ab6f9a1db",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "1bca53d6_8c2dc347",
+        "filename": "eVSSIM/tests/guest/objects_via_ioctl/test_nvme_cli.py",
+        "patchSetId": 11
+      },
+      "lineNbr": 168,
+      "author": {
+        "id": 1007990
+      },
+      "writtenOn": "2024-03-05T07:40:12Z",
+      "side": 1,
+      "message": "lets remove in that case",
+      "range": {
+        "startLine": 164,
+        "startChar": 0,
+        "endLine": 168,
+        "endChar": 14
+      },
+      "revId": "e271602813d71fd39a1175012477157ab6f9a1db",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "3fd4bc91_8ad103aa",
+        "filename": "eVSSIM/tests/guest/objects_via_ioctl/test_nvme_cli.py",
+        "patchSetId": 11
+      },
+      "lineNbr": 170,
+      "author": {
+        "id": 1007990
+      },
+      "writtenOn": "2024-03-05T07:40:12Z",
+      "side": 1,
+      "message": "nit:rm",
+      "range": {
+        "startLine": 169,
+        "startChar": 0,
+        "endLine": 170,
+        "endChar": 4
       },
       "revId": "e271602813d71fd39a1175012477157ab6f9a1db",
       "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
