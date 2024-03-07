@@ -12,11 +12,14 @@ fetch_ref_spec() {
     if [[ "$project_name " == " dnvme " || " $project_name " == " dnvme " ]]; then
         project_repo="${WORKSPACE}/nvmeCompl/$project_name"
     fi
+    echo "------------- start fetch_ref_spec ----------------"
+    echo "FETCH CMD: $fetch_cmd"
+    echo "PROJECT REPO: $project_repo"
     pushd "$project_repo"
-    echo "*********************************************************"
-    echo "PROJECT_REPO: $project_repo"
-    echo "FETCH COMMAND: $fetch_cmd"
-    echo "REPO STATUS PRIOR TO FETCH: $(git status)"
+    echo "PWD: $(pwd)"
+    echo "BRANCH PRIOR TO FETCH CMD: $(git branch -a)"
+    echo "REPO STATUS PRIOR TO FETCH CMD: $(git status)"
+
     if eval "$fetch_cmd"; then
         echo "SUCCESS - Fetched and local repo was updated"
     else
@@ -26,14 +29,21 @@ fetch_ref_spec() {
 	git reset --hard
 	exit 1
     fi
+    echo "BRANCH AFTER FETCH CMD: $(git branch -a)"
+    echo "REPO AFTER PRIOR TO FETCH CMD: $(git status)"
+
     popd
+    echo "PWD: $(pwd)"
+    echo "------------- end fetch_ref_spec ----------------"
+
 }
 
 WORKSPACE=$1 # WORKSPACE env variable of Jenkins
 commit_message=$2 #GERRIT_CHANGE_SUBJECT env variable of GerritTrigger
 
-echo "$commit_message"
-echo "$WORKSPACE"
+echo "******************** start handle-depend-on-instructions.sh *************************"
+echo "COMMIT MESSAGE: $commit_message"
+echo "WORKPLACE: $WORKSPACE"
 
 #commit_message="Title
 
@@ -58,9 +68,10 @@ The name of the project should be one of the following:
 $(printf '%s\n' ${projectArr[@]})
 "
 
-# "|| true" to avoid script fail for commit message that contains no depend-on: http.* lines 
+# "|| true" to avoid script fail for commit message that contains no depend-on: http.* lines
 depends_on_lines=$(echo "$commit_message" | grep -i 'depends-on' | grep -o 'http.*') || true
 
+echo "PARSING DEPENDS-ON LINES"
 for url in $depends_on_lines; do
     url_no_c_no_plus=$(echo "$url" | sed -e 's-\/c--g' -e 's-\/+--g' )
     change_num=$(echo "$url_no_c_no_plus" | grep -o '[0-9]*$')
@@ -71,12 +82,12 @@ for url in $depends_on_lines; do
 
     echo "NOTE: this line works only with a public key added to the $gerrit_host"
     gerrit_query=$(ssh -p $gerrit_port $gerrit_user@$gerrit_host gerrit query --current-patch-set --format=JSON change:$change_num | jq)
-    echo "$gerrit_query"
+    echo "GERRIT QUERY: $gerrit_query"
 
     refs_changes=$(echo "$gerrit_query" | jq -r '.currentPatchSet.ref' | head -1)
 
     fetch_cmd="git fetch https://$gerrit_host/$gerrit_user/$project_name $refs_changes && git cherry-pick FETCH_HEAD"
-    echo "$fetch_cmd"
+    echo "FETCH CMD: $fetch_cmd"
 
     if [[ " ${projectArr[*]} " =~ " $project_name " ]]; then
 	fetch_ref_spec "$project_name" "$fetch_cmd"
@@ -85,3 +96,6 @@ for url in $depends_on_lines; do
         exit 1
     fi
 done
+
+echo "******************** end handle-depend-on-instructions.sh *************************"
+
