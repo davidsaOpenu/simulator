@@ -52,6 +52,13 @@ typedef struct {
      * The utilization of the ssd
      */
     double utilization;
+
+    /**
+     * floating point inacuracies can cause wrong stats.
+     */
+    unsigned int logical_write_count;
+    double write_wall_time;
+    double read_wall_time;
 } SSDStatistics;
 
 
