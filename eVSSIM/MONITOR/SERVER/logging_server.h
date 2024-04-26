@@ -108,4 +108,14 @@ void log_server_loop(int max_loops);
  */
 void log_server_free(void);
 
+/**
+ * print to stdout current statistics
+*/
+void printSSDStat(SSDStatistics *);
+
+/**
+ * Basic sanity checks for ssdStats, used for catching impossible stats
+*/
+void validateSSDStat(SSDStatistics *);
+
 #endif
