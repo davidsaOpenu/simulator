@@ -10,7 +10,7 @@ uint32_t SECTOR_SIZE;
 uint32_t PAGE_SIZE;
 
 uint64_t SECTOR_NB;
-uint32_t PAGE_NB;
+int32_t PAGE_NB;
 uint32_t FLASH_NB;
 uint32_t BLOCK_NB;
 uint32_t CHANNEL_NB;

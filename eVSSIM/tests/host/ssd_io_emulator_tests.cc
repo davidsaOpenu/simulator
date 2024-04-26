@@ -229,7 +229,8 @@ namespace ssd_io_emulator_tests {
         int flash_nb = 0;
         int block_nb = 0;
         int page_nb = 0;
-        int occupied_pages = 1-PAGE_NB;
+        int occupied_pages = 1;
+        occupied_pages -= (occupied_pages < PAGE_NB)? occupied_pages : PAGE_NB;
         double ssd_utils = (double)occupied_pages / PAGES_IN_SSD;
         int expected_write_duration = REG_WRITE_DELAY + CELL_PROGRAM_DELAY + BLOCK_ERASE_DELAY;
 
@@ -267,7 +268,7 @@ namespace ssd_io_emulator_tests {
         occupied_pages = 2;
         ASSERT_EQ((double)occupied_pages / PAGES_IN_SSD, SSD_UTIL());
         SSD_BLOCK_ERASE(flash_nb,block_nb);
-        occupied_pages-=PAGE_NB;
+        occupied_pages -= (occupied_pages < PAGE_NB)? occupied_pages : PAGE_NB;
 
         ssd_utils = (double)occupied_pages / PAGES_IN_SSD;
 
