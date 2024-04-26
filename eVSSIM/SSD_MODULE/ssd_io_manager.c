@@ -205,7 +205,14 @@ ftl_ret_val SSD_PAGE_WRITE(unsigned int flash_nb, unsigned int block_nb, unsigne
     /* Update ssd page write counters */
     ssd.occupied_pages_counter++;
     ssd.physical_page_writes++;
-    if (type == WRITE) {
+
+    LOG_PHYSICAL_CELL_PROGRAM(GET_LOGGER(flash_nb), (PhysicalCellProgramLog) {
+        .channel = channel, .block = block_nb, .page = page_nb,
+        .metadata = {_start, _end}
+    });
+
+
+    if (type == WRITE) { // if we log logical write first, write amp may get negative
         ssd.logical_page_writes++;
 
         LOG_LOGICAL_CELL_PROGRAM(GET_LOGGER(flash_nb),(LogicalCellProgramLog) {
@@ -213,11 +220,6 @@ ftl_ret_val SSD_PAGE_WRITE(unsigned int flash_nb, unsigned int block_nb, unsigne
             .metadata = {_start, _end}
         });
     }
-
-    LOG_PHYSICAL_CELL_PROGRAM(GET_LOGGER(flash_nb), (PhysicalCellProgramLog) {
-        .channel = channel, .block = block_nb, .page = page_nb,
-        .metadata = {_start, _end}
-    });
 
     return ret;
 }
@@ -294,7 +296,10 @@ ftl_ret_val SSD_BLOCK_ERASE(unsigned int flash_nb, unsigned int block_nb)
 
     TIME_MICROSEC(_end);
 
-    ssd.occupied_pages_counter -= PAGE_NB;
+    ssd.occupied_pages_counter -= 
+        (ssd.occupied_pages_counter < PAGE_NB)?
+            ssd.occupied_pages_counter :
+            PAGE_NB;
     ssd.prev_channel_mode[channel] = ERASE;
 
     LOG_BLOCK_ERASE(GET_LOGGER(flash_nb), (BlockEraseLog) {
