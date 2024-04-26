@@ -52,6 +52,18 @@ typedef struct {
      * The utilization of the ssd
      */
     double utilization;
+    /**
+     * The number of logical writes done.
+     */
+    unsigned int logical_write_count;
+    /**
+     * Time in us spent on writes.
+     */
+    uint64_t write_wall_time;
+    /**
+     * Time in us spent on writes.
+     */
+    uint64_t read_wall_time;
 } SSDStatistics;
 
 
@@ -80,6 +92,17 @@ int stats_json(SSDStatistics stats, Byte* buffer, int max_len);
  * @return whether the two statistics are equal
  */
 int stats_equal(SSDStatistics first, SSDStatistics second);
+
+
+/**
+ * print to stdout current statistics
+*/
+void printSSDStat(SSDStatistics *);
+
+/**
+ * Basic sanity checks for ssdStats, used for catching impossible stats
+*/
+void validateSSDStat(SSDStatistics *);
 
 
 #endif
