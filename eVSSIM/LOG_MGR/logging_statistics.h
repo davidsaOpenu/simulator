@@ -52,6 +52,18 @@ typedef struct {
      * The utilization of the ssd
      */
     double utilization;
+    /**
+     * The number of logical writes done.
+     */
+    unsigned int logical_write_count;
+    /**
+     * Time in us spent on writes.
+     */
+    double write_wall_time;
+    /**
+     * Time in us spent on writes.
+     */
+    double read_wall_time;
 } SSDStatistics;
 
 
