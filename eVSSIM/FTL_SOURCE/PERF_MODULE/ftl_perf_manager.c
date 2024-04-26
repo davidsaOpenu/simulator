@@ -133,7 +133,7 @@ void SEND_TO_PERF_CHECKER(int op_type, int64_t op_delay, int type){
 				break;
 
 			case ERASE:
-				written_page_nb -= PAGE_NB;
+				written_page_nb -= (written_page_nb < PAGE_NB)? written_page_nb : PAGE_NB;
 				break;
 
 			case GC_READ:
