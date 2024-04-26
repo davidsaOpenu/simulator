@@ -294,7 +294,7 @@ ftl_ret_val SSD_BLOCK_ERASE(unsigned int flash_nb, unsigned int block_nb)
 
     TIME_MICROSEC(_end);
 
-    ssd.occupied_pages_counter -= PAGE_NB;
+    ssd.occupied_pages_counter -= (ssd.occupied_pages_counter < PAGE_NB)? ssd.occupied_pages_counter : PAGE_NB;
     ssd.prev_channel_mode[channel] = ERASE;
 
     LOG_BLOCK_ERASE(GET_LOGGER(flash_nb), (BlockEraseLog) {
