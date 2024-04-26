@@ -189,7 +189,7 @@ void rt_log_analyzer_loop(RTLogAnalyzer* analyzer, int max_logs) {
             {
                 BlockEraseLog res;
                 NEXT_BLOCK_ERASE_LOG(analyzer->logger, &res, RT_ANALYZER);
-                rt_log_stats[analyzer->rt_analyzer_id].occupied_pages -= PAGE_NB;
+                rt_log_stats[analyzer->rt_analyzer_id].occupied_pages -= (rt_log_stats[analyzer->rt_analyzer_id].occupied_pages < PAGE_NB)? rt_log_stats[analyzer->rt_analyzer_id].occupied_pages : PAGE_NB;
                 rt_log_stats[analyzer->rt_analyzer_id].current_wall_time += BLOCK_ERASE_DELAY;
                 break;
             }

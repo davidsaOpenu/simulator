@@ -27,7 +27,7 @@
  */
 typedef struct {
 
-    int occupied_pages_counter;
+    uint occupied_pages_counter;
     int physical_page_writes;
     int logical_page_writes;
     int* prev_channel_mode;

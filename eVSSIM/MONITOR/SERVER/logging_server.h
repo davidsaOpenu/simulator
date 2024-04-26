@@ -108,4 +108,7 @@ void log_server_loop(int max_loops);
  */
 void log_server_free(void);
 
+void printSSDStat(SSDStatistics *);
+void validateSSDStat(SSDStatistics *);
+
 #endif
