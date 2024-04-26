@@ -13,7 +13,7 @@ TEST_OBJ =  object_tests.o sector_tests.o log_mgr_tests.o ssd_io_emulator_tests.
 
 CFLAGS = -I/opt/gtest/include -I$(VSSIM_HOME)/osc-osd -I$(VSSIM_HOME)/osc-osd/osd-target -I$(VSSIM_HOME)/QEMU \
 	-g -DGTEST -DCOMPLIANCE_TESTS -L/opt/gtest/lib -L$(VSSIM_HOME)/osc-osd/osd-util -L$(VSSIM_HOME)/osc-osd/osd-target \
-	-I/opt/libwebsockets/include -L/opt/libwebsockets/lib -L/usr/lib/x86_64-linux-gnu -Wl,-R/opt/libwebsockets/lib -g -m64 -pipe -O2 -Wall -W \
+	-I/opt/libwebsockets/include -L/opt/libwebsockets/lib -L/usr/lib/x86_64-linux-gnu -Wl,-R/opt/libwebsockets/lib -g -m64 -pipe -Wall -W \
 	-D_REENTRANT -fPIE -DQT_NO_DEBUG -DQT_WIDGETS_LIB -DQT_NETWORK_LIB -DQT_GUI_LIB -DQT_CORE_LIB \
 	-I/usr/include/json-c/ -D__STDC_VERSION__=0
 
