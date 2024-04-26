@@ -19,6 +19,16 @@
 
 #include "logging_manager.h"
 #include "ssd_io_manager.h"
+#include "ftl_perf_manager.h"
+#include "vssim_config_manager.h"
+
+/**
+ * Transforms pages in a usec to megabytes in a second
+ * @param {double} x pages in a usec
+ */
+#define PAGES_IN_USEC_TO_MBS(x) \
+    ((((double) (x)) * (GET_PAGE_SIZE()) * (SECOND_IN_USEC)) / (MEGABYTE_IN_BYTES))
+
 
 /**
  * The next slot number
@@ -115,12 +125,9 @@ void log_manager_loop(LogManager* manager, int max_loops) {
             stats.garbage_collection_count += current_stats.garbage_collection_count;
             stats.utilization += current_stats.utilization;
 
-            logical_write_count += (unsigned int)
-                    (current_stats.write_count / current_stats.write_amplification);
-            if (current_stats.write_count > 0)
-                write_wall_time += current_stats.write_count / current_stats.write_speed;
-            if (current_stats.read_count > 0)
-                read_wall_time += current_stats.read_count / current_stats.read_speed;
+            logical_write_count += current_stats.logical_write_count;
+            write_wall_time += current_stats.write_wall_time;
+            read_wall_time += current_stats.read_wall_time;
         }
 
         if (logical_write_count == 0)
@@ -131,12 +138,16 @@ void log_manager_loop(LogManager* manager, int max_loops) {
         if (write_wall_time == 0)
             stats.write_speed = 0.0;
         else
-            stats.write_speed = ((double) stats.write_count) / write_wall_time;
+            stats.write_speed = PAGES_IN_USEC_TO_MBS(
+                ((double) stats.write_count) / write_wall_time
+            );
 
         if (read_wall_time == 0)
             stats.read_speed = 0.0;
         else
-            stats.read_speed = ((double) stats.read_count) / read_wall_time;
+            stats.read_speed = PAGES_IN_USEC_TO_MBS(
+                ((double) stats.read_count) / read_wall_time
+            );
 
         unsigned int subscriber_id;
         // call present hooks if the statistics changed
