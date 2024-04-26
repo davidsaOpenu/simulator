@@ -58,3 +58,45 @@ int stats_equal(SSDStatistics first, SSDStatistics second) {
            first.write_amplification == second.write_amplification &&
            first.utilization == second.utilization;
 }
+
+void printSSDStat(SSDStatistics *stat){
+    fprintf(stdout, "SSDStat:\n");
+    fprintf(stdout, "\twrite_count = %u\n", stat->write_count);
+    fprintf(stdout, "\twrite_speed = %f\n", stat->write_speed);
+    fprintf(stdout, "\tread_count = %u\n", stat->read_count);
+    fprintf(stdout, "\tread_speed = %f\n", stat->read_speed);
+    fprintf(stdout, "\tgarbage_collection_count = %u\n", stat->garbage_collection_count);
+    fprintf(stdout, "\twrite_amplification = %f\n", stat->write_amplification);
+    fprintf(stdout, "\tutilization = %f\n", stat->utilization);  
+};
+
+void validateSSDStat(SSDStatistics *stat){
+    bool hadError = false;
+    if(stat->utilization < 0){
+        fprintf(stderr, "bad utilization : %ff", stat->utilization);
+        hadError = true;
+    }
+    
+    //we don't cache writes so write amp cant be less then 1
+    //2.2 was chosen as a 'good' upper limit for write amp. rben: updated to 10, there are test with lots of garbage collections, causing bad write amp, just an indication of bad ftl algorithem?
+    if((stat->write_amplification < 1 && stat->write_amplification != 0) || stat->write_amplification > 10){
+        if(stat->logical_write_count - 1 < stat->write_count){
+            fprintf(stderr, "bad write_amplification : %ff but within margin\n", stat->write_amplification);
+        }
+        fprintf(stderr, "bad write_amplification : %ff\n", stat->write_amplification);
+        hadError = true;
+    }
+
+    if(stat->write_speed < 0){
+        fprintf(stderr, "bad write_speed : %ff\n", stat->write_speed);
+        hadError = true;
+    }
+    if(stat->read_speed < 0){
+        fprintf(stderr, "bad write_speed : %ff\n", stat->write_speed);
+        hadError = true;
+    }
+
+    if(hadError){
+        exit(2);
+    }
+}
