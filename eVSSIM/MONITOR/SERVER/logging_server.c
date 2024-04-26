@@ -237,6 +237,7 @@ int log_server_init(void) {
 
 void log_server_update(SSDStatistics stats) {
     if (!stats_equal(log_server.stats, stats)) {
+        validateSSDStat(&stats);
         pthread_mutex_lock(&log_server.lock);
         log_server.stats = stats;
         pthread_mutex_unlock(&log_server.lock);
@@ -278,4 +279,27 @@ void log_server_loop(int max_loops) {
 void log_server_free(void) {
     lws_context_destroy(log_server.context);
     pthread_mutex_destroy(&log_server.lock);
+}
+
+void printSSDStat(SSDStatistics *stat){
+    fprintf(stdout, "SSDStat:\n");
+    fprintf(stdout, "\twrite_count = %u\n", stat->write_count);
+    fprintf(stdout, "\twrite_speed = %f\n", stat->write_speed);
+    fprintf(stdout, "\tread_count = %u\n", stat->read_count);
+    fprintf(stdout, "\tread_speed = %f\n", stat->read_speed);
+    fprintf(stdout, "\tgarbage_collection_count = %u\n", stat->garbage_collection_count);
+    fprintf(stdout, "\twrite_amplification = %f\n", stat->write_amplification);
+    fprintf(stdout, "\tutilization = %f\n", stat->utilization);  
+};
+
+void validateSSDStat(SSDStatistics *stat){
+    if(stat->utilization < 0){
+        fprintf(stderr, "bad utilization : %ff", stat->utilization);
+        exit(2);
+    }
+    
+    if(stat->write_amplification < 0 || stat->write_amplification > 100){
+        fprintf(stderr, "bad write_amplification : %ff", stat->write_amplification);
+        exit(2);
+    }
 }

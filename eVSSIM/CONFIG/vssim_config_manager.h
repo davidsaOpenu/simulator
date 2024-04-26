@@ -11,7 +11,7 @@
 
 /* SSD Configuration */
 extern uint64_t SECTOR_NB;
-extern uint32_t PAGE_NB;
+extern int32_t PAGE_NB;
 extern uint32_t FLASH_NB;
 extern uint32_t BLOCK_NB;
 extern uint32_t CHANNEL_NB;
