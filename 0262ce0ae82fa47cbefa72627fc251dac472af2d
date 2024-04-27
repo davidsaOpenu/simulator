@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "59efe480_ee25797e",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 1037995
+      },
+      "writtenOn": "2024-04-27T19:28:47Z",
+      "side": 1,
+      "message": "I have a Fix for Build fail but dont know how to submit it as part of this CN\nIn my env all test pass (docker_test_host and docker_test_guest)",
+      "revId": "0262ce0ae82fa47cbefa72627fc251dac472af2d",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
+    }
+  ]
+}
