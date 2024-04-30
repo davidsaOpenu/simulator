@@ -16,6 +16,24 @@
       "message": "I have a Fix for Build fail but dont know how to submit it as part of this CN\nIn my env all test pass (docker_test_host and docker_test_guest)",
       "revId": "0262ce0ae82fa47cbefa72627fc251dac472af2d",
       "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "3d4d5bf1_2c4cd46a",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 1007990
+      },
+      "writtenOn": "2024-04-30T12:49:05Z",
+      "side": 1,
+      "message": "http://192.114.0.189/jenkins/job/simulator-docker-ng-infra/1229/console shows \n```\n16:40:24 gcc -Wall -Werror -I/opt/gtest/include -I../../osc-osd -I../../osc-osd/osd-target -I../../QEMU -g -DGTEST -DCOMPLIANCE_TESTS -L/opt/gtest/lib -L../../osc-osd/osd-util -L../../osc-osd/osd-target -I/opt/libwebsockets/include -L/opt/libwebsockets/lib -L/usr/lib/x86_64-linux-gnu -Wl,-R/opt/libwebsockets/lib -g -m64 -pipe -O2 -Wall -W -D_REENTRANT -fPIE -DQT_NO_DEBUG -DQT_WIDGETS_LIB -DQT_NETWORK_LIB -DQT_GUI_LIB -DQT_CORE_LIB -I/usr/include/json-c/ -D__STDC_VERSION__\u003d0 -c ftl.c\n16:40:24 ftl.c: In function \u0027FTL_STATISTICS_QUERY\u0027:\n16:40:24 ftl.c:179:18: error: comparison between signed and unsigned integer expressions [-Werror\u003dsign-compare]\n16:40:24     for (i \u003d 0; i \u003c PAGE_NB ; i++){\n16:40:24                   ^\n16:40:24 ftl.c:186:19: error: comparison between signed and unsigned integer expressions [-Werror\u003dsign-compare]\n16:40:24       for(j \u003d 0; j \u003c PAGE_NB ; j++){\n16:40:24                    ^\n16:40:24 cc1: all warnings being treated as errors\n16:40:24 make: *** [ftl.o] Error 1\n16:40:25 Build step \u0027Execute shell\u0027 marked build as failure\n16:40:26 Finished: FAILURE\n\n```",
+      "parentUuid": "59efe480_ee25797e",
+      "revId": "0262ce0ae82fa47cbefa72627fc251dac472af2d",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
     }
   ]
 }
