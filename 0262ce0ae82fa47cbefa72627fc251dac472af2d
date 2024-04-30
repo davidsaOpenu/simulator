@@ -1,6 +1,23 @@
 {
   "comments": [
     {
+      "unresolved": true,
+      "key": {
+        "uuid": "0013761b_a353874a",
+        "filename": "/COMMIT_MSG",
+        "patchSetId": 1
+      },
+      "lineNbr": 7,
+      "author": {
+        "id": 1007990
+      },
+      "writtenOn": "2024-04-30T12:52:51Z",
+      "side": 1,
+      "message": "Rules of a great Git commit message\n\nSeparate subject from body with a blank line\nLimit the subject line to 50 characters\nDo not end the subject line with a period\nUse the imperative mood in the subject line\nWrap the body at 72 characters\nUse the body to explain what and why vs. how\nPoint to the corresponding Trello card",
+      "revId": "0262ce0ae82fa47cbefa72627fc251dac472af2d",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
+    },
+    {
       "unresolved": false,
       "key": {
         "uuid": "59efe480_ee25797e",
