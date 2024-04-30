@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "b000f54f_5f875bfc",
+        "filename": "/COMMIT_MSG",
+        "patchSetId": 2
+      },
+      "lineNbr": 7,
+      "author": {
+        "id": 1007990
+      },
+      "writtenOn": "2024-04-30T13:01:02Z",
+      "side": 1,
+      "message": "a. Please provide the full URL to the change.\nb. Please use Depends-On if the CR that this one depends on comes from another project, or use the Gerrit dependency chain.\nc. Please adhere to the \"Rules of a Great Git Commit Message\":\n\nSeparate subject from body with a blank line\nLimit the subject line to 50 characters\nDo not end the subject line with a period\nUse the imperative mood in the subject line\nWrap the body at 72 characters\nUse the body to explain what and why vs. how\nPoint to the corresponding Trello card",
+      "range": {
+        "startLine": 7,
+        "startChar": 71,
+        "endLine": 7,
+        "endChar": 78
+      },
+      "revId": "7bde850630cb063e7461097dc282f892de9b4342",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
+    }
+  ]
+}
