@@ -20,6 +20,24 @@
     {
       "unresolved": false,
       "key": {
+        "uuid": "610ebc03_18548cb3",
+        "filename": "/COMMIT_MSG",
+        "patchSetId": 4
+      },
+      "lineNbr": 12,
+      "author": {
+        "id": 1037995
+      },
+      "writtenOn": "2024-05-10T08:10:10Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "4c30f5f5_3622a2ce",
+      "revId": "af21adb38c973a72f8ae8e3eed685e4676f2a189",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
+    },
+    {
+      "unresolved": false,
+      "key": {
         "uuid": "33e3100c_944ce323",
         "filename": "/PATCHSET_LEVEL",
         "patchSetId": 4
@@ -31,6 +49,24 @@
       "writtenOn": "2024-05-10T05:31:38Z",
       "side": 1,
       "message": "one question thought: are you sure ssd_write_read_test is invoked when running a check gate?",
+      "revId": "af21adb38c973a72f8ae8e3eed685e4676f2a189",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "fab43bd5_31cd358a",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 4
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 1037995
+      },
+      "writtenOn": "2024-05-10T08:10:10Z",
+      "side": 1,
+      "message": "What do you mean by check gate? you mean when we run docker-test-host?",
+      "parentUuid": "33e3100c_944ce323",
       "revId": "af21adb38c973a72f8ae8e3eed685e4676f2a189",
       "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
     }
