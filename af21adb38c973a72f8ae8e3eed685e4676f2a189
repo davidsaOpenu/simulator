@@ -1,0 +1,38 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "4c30f5f5_3622a2ce",
+        "filename": "/COMMIT_MSG",
+        "patchSetId": 4
+      },
+      "lineNbr": 12,
+      "author": {
+        "id": 1007990
+      },
+      "writtenOn": "2024-05-10T05:31:38Z",
+      "side": 1,
+      "message": "can be safely removed (gerrithub dependency chain makes the work)",
+      "revId": "af21adb38c973a72f8ae8e3eed685e4676f2a189",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "33e3100c_944ce323",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 4
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 1007990
+      },
+      "writtenOn": "2024-05-10T05:31:38Z",
+      "side": 1,
+      "message": "one question thought: are you sure ssd_write_read_test is invoked when running a check gate?",
+      "revId": "af21adb38c973a72f8ae8e3eed685e4676f2a189",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
+    }
+  ]
+}
