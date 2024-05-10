@@ -1,0 +1,101 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "b2e39769_0570fbdc",
+        "filename": "eVSSIM/LOG_MGR/logging_rt_analyzer.c",
+        "patchSetId": 3
+      },
+      "lineNbr": 192,
+      "author": {
+        "id": 1007990
+      },
+      "writtenOn": "2024-05-10T05:27:07Z",
+      "side": 1,
+      "message": "nit:\nmore readable version of the code\n```\nrt_log_stats[analyzer-\u003ert_analyzer_id].occupied_pages -\u003d \n    (rt_log_stats[analyzer-\u003ert_analyzer_id].occupied_pages \u003c PAGE_NB) ? \n    rt_log_stats[analyzer-\u003ert_analyzer_id].occupied_pages : PAGE_NB;\n```",
+      "revId": "031756ddc53c851db1f3d038c003ceb2eaaea976",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "8d2b7366_4588f4de",
+        "filename": "eVSSIM/MONITOR/SERVER/logging_server.c",
+        "patchSetId": 3
+      },
+      "lineNbr": 301,
+      "author": {
+        "id": 1007990
+      },
+      "writtenOn": "2024-05-10T05:27:07Z",
+      "side": 1,
+      "message": "a write amplification of 1 to 2 is considered good for consumer SSDs. Let\u0027s set 2.2 as a maximum.",
+      "range": {
+        "startLine": 301,
+        "startChar": 68,
+        "endLine": 301,
+        "endChar": 71
+      },
+      "revId": "031756ddc53c851db1f3d038c003ceb2eaaea976",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "6935ffb8_bca93a9f",
+        "filename": "eVSSIM/MONITOR/SERVER/logging_server.h",
+        "patchSetId": 3
+      },
+      "lineNbr": 111,
+      "author": {
+        "id": 1007990
+      },
+      "writtenOn": "2024-05-10T05:27:07Z",
+      "side": 1,
+      "message": "please add function descriptions",
+      "revId": "031756ddc53c851db1f3d038c003ceb2eaaea976",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "7c19630f_f16ea6f0",
+        "filename": "eVSSIM/SSD_MODULE/ssd_io_manager.c",
+        "patchSetId": 3
+      },
+      "lineNbr": 297,
+      "author": {
+        "id": 1007990
+      },
+      "writtenOn": "2024-05-10T05:27:07Z",
+      "side": 1,
+      "message": "nit: can we make this more readable?",
+      "revId": "031756ddc53c851db1f3d038c003ceb2eaaea976",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "47f4137b_ba0eced1",
+        "filename": "eVSSIM/SSD_MODULE/ssd_io_manager.h",
+        "patchSetId": 3
+      },
+      "lineNbr": 32,
+      "author": {
+        "id": 1007990
+      },
+      "writtenOn": "2024-05-10T05:27:07Z",
+      "side": 1,
+      "message": "basically uint as well isn\u0027t it?",
+      "range": {
+        "startLine": 31,
+        "startChar": 0,
+        "endLine": 32,
+        "endChar": 28
+      },
+      "revId": "031756ddc53c851db1f3d038c003ceb2eaaea976",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
+    }
+  ]
+}
