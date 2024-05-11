@@ -69,6 +69,30 @@
       },
       "revId": "3822316120f355651dd2c58bf74f1d42080de2c5",
       "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "8dfc1423_6d5ff148",
+        "filename": "infra/builder/builder.sh",
+        "patchSetId": 1
+      },
+      "lineNbr": 84,
+      "author": {
+        "id": 1037995
+      },
+      "writtenOn": "2024-05-11T13:15:23Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "eac8f83c_0e6e66f6",
+      "range": {
+        "startLine": 84,
+        "startChar": 68,
+        "endLine": 84,
+        "endChar": 77
+      },
+      "revId": "3822316120f355651dd2c58bf74f1d42080de2c5",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
     }
   ]
 }
