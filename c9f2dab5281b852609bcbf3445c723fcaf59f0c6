@@ -16,6 +16,23 @@
       "message": "@ramben13@gmail.com, updated the commit message to be little bit informative and ot have ChangeId at the bottom of the CM.",
       "revId": "c9f2dab5281b852609bcbf3445c723fcaf59f0c6",
       "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "a8fa90ff_c8dce589",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 7
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 1007990
+      },
+      "writtenOn": "2024-05-14T09:29:30Z",
+      "side": 1,
+      "message": "BTW, thanks for the change. Good catch!",
+      "revId": "c9f2dab5281b852609bcbf3445c723fcaf59f0c6",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
     }
   ],
   "submitRequirementResults": []
