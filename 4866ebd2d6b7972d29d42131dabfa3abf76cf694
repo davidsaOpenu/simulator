@@ -1,0 +1,148 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "a8e151f7_1df99f96",
+        "filename": "eVSSIM/LOG_MGR/logging_rt_analyzer.c",
+        "patchSetId": 6
+      },
+      "lineNbr": 192,
+      "author": {
+        "id": 1037995
+      },
+      "writtenOn": "2024-05-15T12:15:16Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "b2e39769_0570fbdc",
+      "range": {
+        "startLine": 192,
+        "startChar": 0,
+        "endLine": 192,
+        "endChar": 0
+      },
+      "revId": "4866ebd2d6b7972d29d42131dabfa3abf76cf694",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "a8c7e575_78b81215",
+        "filename": "eVSSIM/LOG_MGR/logging_rt_analyzer.c",
+        "patchSetId": 6
+      },
+      "lineNbr": 192,
+      "author": {
+        "id": 1037995
+      },
+      "writtenOn": "2024-05-15T12:15:16Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "b2e39769_0570fbdc",
+      "range": {
+        "startLine": 192,
+        "startChar": 0,
+        "endLine": 192,
+        "endChar": 0
+      },
+      "revId": "4866ebd2d6b7972d29d42131dabfa3abf76cf694",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "c17dd46e_0174b07e",
+        "filename": "eVSSIM/MONITOR/SERVER/logging_server.c",
+        "patchSetId": 6
+      },
+      "lineNbr": 301,
+      "author": {
+        "id": 1037995
+      },
+      "writtenOn": "2024-05-15T12:15:16Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "8d2b7366_4588f4de",
+      "range": {
+        "startLine": 301,
+        "startChar": 68,
+        "endLine": 301,
+        "endChar": 71
+      },
+      "revId": "4866ebd2d6b7972d29d42131dabfa3abf76cf694",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "95343e68_956b27bb",
+        "filename": "eVSSIM/MONITOR/SERVER/logging_server.h",
+        "patchSetId": 6
+      },
+      "lineNbr": 111,
+      "author": {
+        "id": 1037995
+      },
+      "writtenOn": "2024-05-15T12:15:16Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "6935ffb8_bca93a9f",
+      "range": {
+        "startLine": 111,
+        "startChar": 0,
+        "endLine": 111,
+        "endChar": 0
+      },
+      "revId": "4866ebd2d6b7972d29d42131dabfa3abf76cf694",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "ed03a529_11f93cab",
+        "filename": "eVSSIM/SSD_MODULE/ssd_io_manager.c",
+        "patchSetId": 6
+      },
+      "lineNbr": 297,
+      "author": {
+        "id": 1037995
+      },
+      "writtenOn": "2024-05-15T12:15:16Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "7c19630f_f16ea6f0",
+      "range": {
+        "startLine": 297,
+        "startChar": 0,
+        "endLine": 297,
+        "endChar": 0
+      },
+      "revId": "4866ebd2d6b7972d29d42131dabfa3abf76cf694",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "d2e1d9f3_5200cc50",
+        "filename": "eVSSIM/SSD_MODULE/ssd_io_manager.h",
+        "patchSetId": 6
+      },
+      "lineNbr": 32,
+      "author": {
+        "id": 1037995
+      },
+      "writtenOn": "2024-05-15T12:15:16Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "47f4137b_ba0eced1",
+      "range": {
+        "startLine": 31,
+        "startChar": 0,
+        "endLine": 32,
+        "endChar": 28
+      },
+      "revId": "4866ebd2d6b7972d29d42131dabfa3abf76cf694",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
+    }
+  ]
+}
