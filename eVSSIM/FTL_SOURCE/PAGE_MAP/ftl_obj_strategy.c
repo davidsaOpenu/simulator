@@ -69,6 +69,12 @@ ftl_ret_val _FTL_OBJ_READ(obj_id_t obj_loc, offset_t offset, length_t length)
     // file not found
     if (object == NULL)
         return FTL_FAILURE;
+
+    if (object->size == 0) {
+        PDBG_FTL("Complete\n");
+        return FTL_SUCCESS;
+    }
+
     // object not big enough
     if (object->size < (offset + length))
         return FTL_FAILURE;
