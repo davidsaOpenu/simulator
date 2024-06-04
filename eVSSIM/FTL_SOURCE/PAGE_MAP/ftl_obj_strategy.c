@@ -1,10 +1,25 @@
+#include <assert.h>
+
 #include "common.h"
 #include "ftl_obj_strategy.h"
+
+#include "osc-osd/osd-target/osd.h"
+#include "osc-osd/osd-util/osd-util.h"
+#include "osc-osd/osd-util/osd-defs.h"
 
 stored_object *objects_table = NULL;
 object_map *objects_mapping = NULL;
 page_node *global_page_table = NULL;
 object_id_t current_id;
+
+static struct osd_device osd = { 0x0 };
+static uint8_t *osd_sense = NULL;
+#define OSD_READ_VALUE_OFFSET       (44)
+#define OSD_SENSE_BUFFER_SIZE       (1024)
+
+#ifndef MIN
+#define MIN(x, y) ((x) > (y) ? (y) : (x))
+#endif
 
 //todo: fix object page add and copyback so that the occupied pages in ssd_io_manager.c will be updated
 
@@ -14,6 +29,16 @@ void INIT_OBJ_STRATEGY(void)
     objects_table = NULL;
     objects_mapping = NULL;
     global_page_table = NULL;
+
+    const char *root = "/tmp/osd/";
+    assert(!system("rm -rf /tmp/osd"));
+    assert(!osd_open(root, &osd));
+    osd_sense = (uint8_t*)malloc(OSD_SENSE_BUFFER_SIZE);
+    memset(osd_sense, 0x0, OSD_SENSE_BUFFER_SIZE);
+
+    // creating a single partition, to be used later to store all
+    // user objects
+    assert(!osd_create_partition(&osd, PARTITION_PID_LB, 0, osd_sense));
 }
 
 void free_obj_table(void)
@@ -54,21 +79,41 @@ void TERM_OBJ_STRATEGY(void)
     free_obj_table();
     free_obj_mapping();
     free_page_table();
+
+    if (osd_sense != NULL) {
+        free(osd_sense);
+        osd_close(&osd);
+    }
 }
 
-ftl_ret_val _FTL_OBJ_READ(obj_id_t obj_loc, offset_t offset, length_t length)
+ftl_ret_val _FTL_OBJ_READ(obj_id_t obj_loc, void *data, offset_t offset, length_t *p_length)
 {
     stored_object *object;
     page_node *current_page;
     int io_page_nb;
     int curr_io_page_nb;
     unsigned int ret = FTL_FAILURE;
+    int osd_ret;
+
+    if (p_length == NULL) {
+        PDBG_FTL("Invalid null ptr.\n");
+        return FTL_FAILURE;
+    }
+
+    length_t length = *p_length;
 
     object = lookup_object(obj_loc.object_id);
 
     // file not found
     if (object == NULL)
         return FTL_FAILURE;
+
+    if (object->size == 0) {
+        *p_length = 0;
+        PDBG_FTL("Complete\n");
+        return FTL_SUCCESS;
+    }
+
     // object not big enough
     if (object->size < (offset + length))
         return FTL_FAILURE;
@@ -103,19 +148,35 @@ ftl_ret_val _FTL_OBJ_READ(obj_id_t obj_loc, offset_t offset, length_t length)
 
     INCREASE_IO_REQUEST_SEQ_NB();
 
+    if (data != NULL) {
+        uint64_t outlen = 0;
+        osd_ret = osd_read(&osd, obj_loc.partition_id, obj_loc.object_id,
+                    length, 0, NULL, data, &outlen, 0, osd_sense, DDT_CONTIG);
+        if (osd_ret < 0) {
+            PDBG_FTL("osd_read failed with ret: %d.\n", osd_ret);
+            return FTL_FAILURE;
+        }
+
+        *p_length = get_ntohll(osd_sense + OSD_READ_VALUE_OFFSET);
+        if (length < *p_length) *p_length = length;
+
+        memset(osd_sense, 0x0, OSD_SENSE_BUFFER_SIZE);
+    }
+
     PDBG_FTL("Complete\n");
 
     return ret;
 }
 
-ftl_ret_val _FTL_OBJ_WRITE(obj_id_t object_loc, offset_t offset, length_t length)
+ftl_ret_val _FTL_OBJ_WRITE(obj_id_t object_loc, const void *data, offset_t offset, length_t length)
 {
     stored_object *object;
     page_node *current_page = NULL, *temp_page;
     uint32_t page_id;
     int io_page_nb;
     int curr_io_page_nb;
-    unsigned int ret = FTL_FAILURE;
+    unsigned int ret = FTL_SUCCESS;
+    int osd_ret;
 
     object = lookup_object(object_loc.object_id);
 
@@ -182,7 +243,7 @@ ftl_ret_val _FTL_OBJ_WRITE(obj_id_t object_loc, offset_t offset, length_t length
         // must improve this because it is very possible that we will do multiple GCs on the same flash chip and block
         // probably gonna add an array to hold the unique ones and in the end GC all of them
         
-        GC_CHECK(CALC_FLASH(current_page->page_id), CALC_BLOCK(current_page->page_id), false, true);
+        // GC_CHECK(CALC_FLASH(current_page->page_id), CALC_BLOCK(current_page->page_id), false, true);
 #endif
 
         ret = SSD_PAGE_WRITE(CALC_FLASH(page_id), CALC_BLOCK(page_id), CALC_PAGE(page_id), curr_io_page_nb, WRITE);
@@ -204,6 +265,15 @@ ftl_ret_val _FTL_OBJ_WRITE(obj_id_t object_loc, offset_t offset, length_t length
         //        for(page=object->pages; page; page=page->next)
         //            printf("%d->",page->page_id);
         //        printf("}\n");
+    }
+
+    if (data != NULL) {
+        osd_ret = osd_write(&osd, object_loc.partition_id, object_loc.object_id,
+            length, offset, (uint8_t *)data, 0, osd_sense, DDT_CONTIG);
+        if (osd_ret < 0) {
+            PDBG_FTL("Failed to osd_write with ret: %d\n", osd_ret);
+            return FTL_FAILURE;
+        }
     }
 
     INCREASE_IO_REQUEST_SEQ_NB();
@@ -245,11 +315,23 @@ ftl_ret_val _FTL_OBJ_COPYBACK(int32_t source, int32_t destination)
 bool _FTL_OBJ_CREATE(obj_id_t obj_loc, size_t size)
 {
     stored_object *new_object;
+    int osd_ret;
+
 
     new_object = create_object(obj_loc.object_id, size);
 
     if (new_object == NULL)
     {
+        return false;
+    }
+
+    osd_ret = osd_create(&osd, obj_loc.partition_id, obj_loc.object_id, 1, 0, osd_sense);
+    if (osd_ret < 0) {
+        if (_FTL_OBJ_DELETE(obj_loc) != FTL_SUCCESS) {
+            PDBG_FTL("Warning! couldn't delete object.\n");
+        }
+
+        PDBG_FTL("Failed to osd_create with ret: %d\n", osd_ret);
         return false;
     }
 
@@ -260,6 +342,7 @@ ftl_ret_val _FTL_OBJ_DELETE(obj_id_t obj_loc)
 {
     stored_object *object;
     object_map *obj_map;
+    int osd_ret;
 
     object = lookup_object(obj_loc.object_id);
 
@@ -273,7 +356,36 @@ ftl_ret_val _FTL_OBJ_DELETE(obj_id_t obj_loc)
     if (obj_map == NULL)
         return FTL_FAILURE;
 
+    osd_ret = osd_remove(&osd, obj_loc.partition_id, obj_loc.object_id, 0, osd_sense);
+    if (osd_ret < 0) {
+        PDBG_FTL("Failed to remove OSD object with ret: %d.\n", osd_ret);
+        return FTL_FAILURE;
+    }
+
     return remove_object(object, obj_map);
+}
+
+ftl_ret_val _FTL_OBJ_LIST(void *data, size_t *size, uint64_t initial_oid)
+{
+    int osd_ret;
+    struct getattr_list get_attr = {
+        .sz = 0,
+        .le = 0
+    };
+
+    if (data == NULL || size == NULL) {
+        PDBG_FTL("Invalid null ptr.\n");
+        return FTL_FAILURE;
+    }
+
+    osd_ret = osd_list(&osd, 0, USEROBJECT_PID_LB, *size, initial_oid, &get_attr,
+        0, data, size, osd_sense);
+    if (osd_ret < 0) {
+        printf("failed to execute osd_list\n");
+        return FTL_FAILURE;
+    }
+
+    return FTL_SUCCESS;
 }
 
 stored_object *lookup_object(object_id_t object_id)
@@ -372,7 +484,7 @@ int remove_object(stored_object *object, object_map *obj_map)
 
 #ifdef GC_ON
         // should we really perform GC for every page? we know we are invalidating a lot of them now...
-        GC_CHECK(CALC_FLASH(current_page->page_id), CALC_BLOCK(current_page->page_id), true, true);
+        // GC_CHECK(CALC_FLASH(current_page->page_id), CALC_BLOCK(current_page->page_id), true, true);
 #endif
 
         // get next page and free the current one
