@@ -53,7 +53,6 @@ static int check_membership(void *arg, int count, char **val,
  */
 static int db_check_tables(struct db_context *dbc)
 {
-	int i = 0;
 	int ret = 0;
 	char SQL[MAXSQLEN];
 	char *err = NULL;
@@ -82,7 +81,6 @@ int osd_db_open(const char *path, struct osd_device *osd)
 {
 	int ret;
 	struct stat sb;
-	char SQL[MAXSQLEN];
 	char *err = NULL;
 	int is_new_db = 0;
 
@@ -157,8 +155,6 @@ out:
 
 int osd_db_close(struct osd_device *osd)
 {
-	int ret = 0;
-
 	assert(osd && osd->dbc && osd->dbc->db);
 
 	db_finalize(osd->dbc);

@@ -11,7 +11,7 @@ TEST_OBJ =  object_tests.o sector_tests.o log_mgr_tests.o ssd_io_emulator_tests.
 			rt_analyzer_subscriber.o log_manager_subscriber.o host_tests_main.o   \
 			offline_logger_tests.o ssd_write_read_test.o
 
-CFLAGS = -I/opt/gtest/include -I$(VSSIM_HOME)/osc-osd -I$(VSSIM_HOME)/osc-osd/osd-target -I$(VSSIM_HOME)/QEMU \
+CFLAGS = -I/opt/gtest/include -I$(VSSIM_HOME) -I$(VSSIM_HOME)/osc-osd -I$(VSSIM_HOME)/osc-osd/osd-target -I$(VSSIM_HOME)/QEMU \
 	-g -DGTEST -DCOMPLIANCE_TESTS -L/opt/gtest/lib -L$(VSSIM_HOME)/osc-osd/osd-util -L$(VSSIM_HOME)/osc-osd/osd-target \
 	-I/opt/libwebsockets/include -L/opt/libwebsockets/lib -L/usr/lib/x86_64-linux-gnu -Wl,-R/opt/libwebsockets/lib -g -m64 -pipe -O2 -Wall -W \
 	-D_REENTRANT -fPIE -DQT_NO_DEBUG -DQT_WIDGETS_LIB -DQT_NETWORK_LIB -DQT_GUI_LIB -DQT_CORE_LIB \
