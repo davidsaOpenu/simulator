@@ -49,11 +49,12 @@ void INIT_OBJ_STRATEGY(void);
 void TERM_OBJ_STRATEGY(void);
 
 /* FTL functions */
-ftl_ret_val _FTL_OBJ_READ(obj_id_t object_loc, offset_t offset, length_t length);
-ftl_ret_val _FTL_OBJ_WRITE(obj_id_t object_loc, offset_t offset, length_t length);
+ftl_ret_val _FTL_OBJ_READ(obj_id_t object_loc, void *data, offset_t offset, length_t *length);
+ftl_ret_val _FTL_OBJ_WRITE(obj_id_t object_loc, const void *data, offset_t offset, length_t length);
 ftl_ret_val _FTL_OBJ_COPYBACK(int32_t source, int32_t destination);
 bool _FTL_OBJ_CREATE(obj_id_t obj_loc, size_t size);
 ftl_ret_val _FTL_OBJ_DELETE(obj_id_t object_loc);
+ftl_ret_val _FTL_OBJ_LIST(void *data, size_t *size, uint64_t initial_oid);
 
 /* Helper functions */
 stored_object *lookup_object(object_id_t object_id);

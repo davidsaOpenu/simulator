@@ -60,7 +60,6 @@ struct attr_tab {
 int attr_initialize(struct db_context *dbc)
 {
 	int ret = 0;
-	int sqlret = 0;
 	char SQL[MAXSQLEN];
 
 	if (dbc == NULL || dbc->db == NULL) {
