@@ -61,7 +61,7 @@ ftl_ret_val _FTL_READ_SECT(uint64_t sector_nb, unsigned int length)
 		}
 
 #ifdef FTL_DEBUG
-		if (ret == FAIL)
+		if (ret == FTL_FAILURE)
 			PERR("%u page read fail \n", ppn);
 #endif
 		read_page_nb++;
