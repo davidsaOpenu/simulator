@@ -59,7 +59,7 @@ struct coll_tab {
 int coll_initialize(struct db_context *dbc)
 {
 	int ret = 0;
-	int sqlret = 0;
+
 	char SQL[MAXSQLEN];
 
 	if (dbc == NULL || dbc->db == NULL) {
@@ -370,7 +370,7 @@ out_reset:
 	ret = db_reset_stmt(dbc, dbc->coll->emptycid, bound, __func__);
 	if (ret == OSD_REPEAT)
 		goto repeat;
-out:
+
 	return ret;
 }
 
@@ -408,7 +408,7 @@ out_reset:
 	ret = db_reset_stmt(dbc, dbc->coll->getcid, bound, __func__);
 	if (ret == OSD_REPEAT)
 		goto repeat;
-out:
+
 	return ret;
 }
 
@@ -425,7 +425,6 @@ int coll_get_oids_in_cid(struct db_context *dbc, uint64_t pid, uint64_t cid,
 		       uint64_t *add_len, uint64_t *cont_id)
 {
 	int ret = 0;
-	uint64_t len = 0;
 	sqlite3_stmt *stmt = NULL;
 
 	assert(dbc && dbc->db && dbc->coll && dbc->coll->getoids);
