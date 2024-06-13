@@ -1,0 +1,73 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "96b89a8d_995bcaaf",
+        "filename": "/COMMIT_MSG",
+        "patchSetId": 16
+      },
+      "lineNbr": 17,
+      "author": {
+        "id": 1007990
+      },
+      "writtenOn": "2024-06-13T12:49:50Z",
+      "side": 1,
+      "message": "When writing commit messages, make sure to explain what was wrong and how you fixed it. This way, it\u0027s clear that the issue was taken care of without having to look at the code",
+      "range": {
+        "startLine": 9,
+        "startChar": 0,
+        "endLine": 17,
+        "endChar": 0
+      },
+      "revId": "c9ee4bee327a4576960f535ac8a21c7ab42c7ab5",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "14233eed_26a83241",
+        "filename": "eVSSIM/LOG_MGR/logging_manager.c",
+        "patchSetId": 16
+      },
+      "lineNbr": 31,
+      "author": {
+        "id": 1007990
+      },
+      "writtenOn": "2024-06-13T12:49:50Z",
+      "side": 1,
+      "message": "how about PAGES_PER_USEC_TO_MEGABYTES_PER_SECOND?",
+      "range": {
+        "startLine": 29,
+        "startChar": 0,
+        "endLine": 31,
+        "endChar": 0
+      },
+      "revId": "c9ee4bee327a4576960f535ac8a21c7ab42c7ab5",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "5a5f2436_4924de5b",
+        "filename": "eVSSIM/LOG_MGR/logging_statistics.h",
+        "patchSetId": 16
+      },
+      "lineNbr": 61,
+      "author": {
+        "id": 1007990
+      },
+      "writtenOn": "2024-06-13T12:49:50Z",
+      "side": 1,
+      "message": "please explain every field as other fields in the struct",
+      "range": {
+        "startLine": 59,
+        "startChar": 0,
+        "endLine": 61,
+        "endChar": 26
+      },
+      "revId": "c9ee4bee327a4576960f535ac8a21c7ab42c7ab5",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
+    }
+  ]
+}
