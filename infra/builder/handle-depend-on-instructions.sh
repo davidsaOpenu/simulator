@@ -40,6 +40,9 @@ fetch_ref_spec() {
 WORKSPACE=$1 # WORKSPACE env variable of Jenkins
 commit_message=$2 # GERRIT_CHANGE_SUBJECT env variable of GerritTrigger
 
+# Make sure to escape any dangerous characters
+commit_message=$(printf '%q' "$commit_message")
+
 echo "******************** start handle-depend-on-instructions.sh *************************"
 echo "COMMIT MESSAGE: $commit_message"
 echo "WORKSPACE: $WORKSPACE"
@@ -58,6 +61,8 @@ echo "WORKSPACE: $WORKSPACE"
 #"
 
 #WORKSPACE="/home/davidsa/eVSSIM"
+
+echo "$commit_message"
 
 declare -a projectArr=("kernel" "dnvme" "nvme-cli" "qemu" "simulator" "tnvme" "open-osd")
 
