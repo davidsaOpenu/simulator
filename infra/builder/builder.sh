@@ -81,7 +81,9 @@ evssim_run_at_folder () {
 evssim_run_at_path () {
     local path=$1
     local args="${@:2}"
-    docker run --rm -i $docker_extra_tty $EVSSIM_DOCKER_XOPTIONS $EVSSIM_DOCKER_PORTS_OPTION --privileged --env-file <(evssim_all_env) -v $EVSSIM_ROOT_PATH:$EVSSIM_DOCKER_ROOT_PATH $EVSSIM_DOCKER_IMAGE_NAME bash -c "cd $path; $args"
+    docker run --rm \
+    -e DISPLAY=$DISPLAY -v /tmp/.X11-unix:/tmp/.X11-unix \
+    -i $docker_extra_tty $EVSSIM_DOCKER_XOPTIONS $EVSSIM_DOCKER_PORTS_OPTION --privileged --env-file <(evssim_all_env) -v $EVSSIM_ROOT_PATH:$EVSSIM_DOCKER_ROOT_PATH $EVSSIM_DOCKER_IMAGE_NAME bash -c "cd $path; $args"
 }
 
 # Run
@@ -218,17 +220,27 @@ evssim_qemu () {
     # Build ssd configuration
     echo "$ssd" > $EVSSIM_DATA_FOLDER/ssd.conf
 
+    docker_cmd_common_part="--rm \
+        -e DISPLAY=$DISPLAY \
+        -v /tmp/.X11-unix:/tmp/.X11-unix \
+        --net=host $EVSSIM_DOCKER_XOPTIONS \
+        --privileged \
+        --env-file <(evssim_all_env) \
+        -v $EVSSIM_ROOT_PATH/$EVSSIM_DATA_FOLDER:$EVSSIM_DOCKER_ROOT_PATH/$EVSSIM_QEMU_FOLDER/hw/data \
+        -v $EVSSIM_ROOT_PATH:$EVSSIM_DOCKER_ROOT_PATH $EVSSIM_DOCKER_IMAGE_NAME bash -c 'cd $path; $args'"
+
     case "$attached" in
         attached)
-            docker run --rm -i $docker_extra_tty --net=host $EVSSIM_DOCKER_XOPTIONS --privileged --env-file <(evssim_all_env) -v $EVSSIM_ROOT_PATH/$EVSSIM_DATA_FOLDER:$EVSSIM_DOCKER_ROOT_PATH/$EVSSIM_QEMU_FOLDER/hw/data -v $EVSSIM_ROOT_PATH:$EVSSIM_DOCKER_ROOT_PATH $EVSSIM_DOCKER_IMAGE_NAME bash -c "cd $path; $args"
+            eval "docker run -i $docker_extra_tty $docker_cmd_common_part"
             ;;
         *)
-            export EVSSIM_DOCKER_UUID=$(docker run --rm -d --net=host $EVSSIM_DOCKER_XOPTIONS --privileged --env-file <(evssim_all_env) -v $EVSSIM_ROOT_PATH/$EVSSIM_DATA_FOLDER:$EVSSIM_DOCKER_ROOT_PATH/$EVSSIM_QEMU_FOLDER/hw/data -v $EVSSIM_ROOT_PATH:$EVSSIM_DOCKER_ROOT_PATH $EVSSIM_DOCKER_IMAGE_NAME bash -c "cd $path; $args")
-            echo INFO Docker started $EVSSIM_DOCKER_UUID
+            export EVSSIM_DOCKER_UUID=$(eval "docker run -d $docker_cmd_common_part")
+            echo "INFO Docker started $EVSSIM_DOCKER_UUID"
             trap "evssim_qemu_stop" EXIT SIGTERM SIGINT
             sleep 1
             ;;
     esac
+
 }
 
 # Flush the disk from inside the qemu running virtual machine
