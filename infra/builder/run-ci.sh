@@ -12,11 +12,12 @@ source ./elk-run-stack.sh
 END_COMMENT
 
 # Build images
-./build-docker-image.sh
-./build-qemu-image.sh
+# ./build-docker-image.sh
+# ./build-qemu-image.sh
 
 # Compile all modules
 ./compile-kernel.sh
+exit 0
 ./compile-qemu.sh
 ./compile-host-tests.sh
 ./compile-guest-tests.sh

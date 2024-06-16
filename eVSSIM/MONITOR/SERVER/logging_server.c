@@ -194,7 +194,7 @@ static const struct lws_http_mount http_mount = {
     LWSMPRO_FILE,   // mount file system
     1,              // strlen("/")
     NULL,
-    {NULL, NULL}
+    NULL, NULL
 };
 
 

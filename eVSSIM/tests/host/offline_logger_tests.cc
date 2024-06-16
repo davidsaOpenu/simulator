@@ -24,6 +24,7 @@
 #include <fstream>
 #include <json.h>
 #include <unordered_map>
+#include <cmath>
 
 // For logger_writer
 extern elk_logger_writer elk_logger_writer_obj;

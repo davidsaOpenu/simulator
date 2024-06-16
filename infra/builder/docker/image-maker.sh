@@ -7,48 +7,75 @@ DEBOOTSTRAP_MIRROR=http://archive.ubuntu.com/ubuntu/
 DEBOOTSTRAP_ADDITIONAL_PACKAGES=ssh
 MOUNT_POINT=/mnt/guest
 
-# Create empty image and format it
+# Function to check the last command and exit on failure
+check_command() {
+    if [ $? -ne 0 ]; then
+        echo "Error occurred in Stage $1"
+        exit 1
+    fi
+}
+
+# Stage 1: Create empty image and format it
+echo "Stage 1 - Creating and formatting image"
 qemu-img create -f raw $IMAGE_PATH $EVSSIM_QEMU_IMAGE_SIZE
+check_command 1
 mkfs.ext4 -F $IMAGE_PATH
+check_command 1
 
-# Mount the image on-disk. Disable delayed allocation for the initial installation
+# Stage 2: Mount the image on-disk. Disable delayed allocation for the initial installation
+echo "Stage 2 - Mounting image and preparing mount point"
 mkdir -p $MOUNT_POINT
+check_command 2
 mount -o loop,nodelalloc $IMAGE_PATH $MOUNT_POINT
+check_command 2
+rm -rf $MOUNT_POINT/*
 
-# Make debootstrap/dpkg work without fsync (Feature of eatmydata)
+# Stage 3: Make debootstrap/dpkg work without fsync (Feature of eatmydata)
+echo "Stage 3 - Setting up debootstrap and dpkg with eatmydata"
 ln -s /usr/bin/eatmydata /usr/local/bin/debootstrap
+check_command 3
 ln -s /usr/bin/eatmydata /usr/local/bin/dpkg
+check_command 3
 ln -s /usr/bin/eatmydata /usr/local/bin/wget
+check_command 3
 
-# Debootstrap and cache all packages
+# Stage 4: Debootstrap and cache all packages
+echo "Stage 4 - Debootstrap and caching packages"
 if [ ! -f $DEBOOTSTRAP_CACHE ]; then
-    echo INFO Downloading debootstrap packages
+    echo "INFO: Downloading debootstrap packages"
     set +e
     debootstrap --make-tarball=$DEBOOTSTRAP_CACHE --include $DEBOOTSTRAP_ADDITIONAL_PACKAGES $EVSSIM_QEMU_UBUNTU_SYSTEM $MOUNT_POINT $DEBOOTSTRAP_MIRROR
+    check_command 4
     set -e
-    echo INFO Completed debootstrap packages $?
+    echo "INFO: Completed debootstrap packages $?"
 fi
 
-# Bootstrap into the mount point
-echo INFO Installing debootstrap packages
+# Stage 5: Bootstrap into the mount point
+echo "Stage 5 - Installing debootstrap packages"
 debootstrap --unpack-tarball=$DEBOOTSTRAP_CACHE --include $DEBOOTSTRAP_ADDITIONAL_PACKAGES $EVSSIM_QEMU_UBUNTU_SYSTEM $MOUNT_POINT $DEBOOTSTRAP_MIRROR
+check_command 5
 
-# Debootstrap without cache currently disabled due to use of cache above
-#debootstrap --include $DEBOOTSTRAP_ADDITIONAL_PACKAGES $EVSSIM_QEMU_UBUNTU_SYSTEM $MOUNT_POINT $DEBOOTSTRAP_MIRROR
-
-# Load the content of the public key
+# Stage 6: Load the content of the public key
+echo "Stage 6 - Loading public key"
 PUBLIC_KEY=$(cat /scripts/id_rsa.pub)
+check_command 6
 
-# Mount facilities
+# Stage 7: Mount facilities
+echo "Stage 7 - Mounting /proc, /sys, and /dev"
 mount --bind /proc $MOUNT_POINT/proc
+check_command 7
 mount --bind /sys $MOUNT_POINT/sys
+check_command 7
 mount --bind /dev $MOUNT_POINT/dev
+check_command 7
 
-# Chroot and do some ops inside
+# Stage 8: Chroot and perform operations inside
+echo "Stage 8 - Performing operations inside chroot"
 cat << CHROOTED | chroot $MOUNT_POINT
 
-# Create user and change passwords
-# NOTE We create the internal user with the same uid as the external use to enable editing when mounted
+echo "-----------------------------------"
+echo "Creating user and setting passwords"
+echo "-----------------------------------"
 addgroup --gid $EVSSIM_EXTERNAL_GID $EVSSIM_QEMU_UBUNTU_USERNAME
 adduser --gecos "" --disabled-password --uid $EVSSIM_EXTERNAL_UID --gid $EVSSIM_EXTERNAL_GID $EVSSIM_QEMU_UBUNTU_USERNAME
 usermod -aG sudo $EVSSIM_QEMU_UBUNTU_USERNAME
@@ -57,21 +84,37 @@ echo "$EVSSIM_QEMU_UBUNTU_USERNAME ALL=(ALL) NOPASSWD: ALL" >> /etc/sudoers
 echo "root:$EVSSIM_QEMU_UBUNTU_ROOT_PASSWORD" | chpasswd
 echo "$EVSSIM_QEMU_UBUNTU_USERNAME:$EVSSIM_QEMU_UBUNTU_PASSWORD" | chpasswd
 
-# Change hostname
+echo "----------------"
+echo "Setting hostname"
+echo "----------------"
 echo $EVSSIM_QEMU_UBUNTU_USERNAME > /etc/hostname
 echo "127.0.0.1 $EVSSIM_QEMU_UBUNTU_USERNAME" | tee -a /etc/hosts
 
-# Configure network
-echo auto eth0 > /etc/network/interfaces.d/eth0
-echo iface eth0 inet dhcp >> /etc/network/interfaces.d/eth0
+echo "-------------------"
+echo "Configuring network"
+echo "--------------------"
+mkdir -p /etc/netplan
+cat <<EOF | tee /etc/netplan/01-netcfg.yaml
+network:
+  version: 2
+  ethernets:
+    eth0:
+      dhcp4: true
+EOF
+chmod 600 /etc/netplan/01-netcfg.yaml
+netplan apply
 
-# Configure language
+echo "-----------------------------"
+echo "Configuring language settings"
+echo "-----------------------------"
 locale-gen en_US.UTF-8
 update-locale LANG=en_US.UTF-8
 echo "LC_ALL=en_US.UTF-8" >> /etc/environment
 echo "LANGUAGE=en_US.UTF-8" >> /etc/environment
 
-# Add ssh keys
+echo "---------------"
+echo "Adding SSH keys"
+echo "---------------"
 mkdir -p /root/.ssh
 echo "$PUBLIC_KEY" > /root/.ssh/authorized_keys
 
@@ -79,23 +122,21 @@ mkdir -p /home/$EVSSIM_QEMU_UBUNTU_USERNAME/.ssh
 echo "$PUBLIC_KEY" > /home/$EVSSIM_QEMU_UBUNTU_USERNAME/.ssh/authorized_keys
 chown -R $EVSSIM_QEMU_UBUNTU_USERNAME:$EVSSIM_QEMU_UBUNTU_USERNAME /home/$EVSSIM_QEMU_UBUNTU_USERNAME/.ssh
 
-# Configure apt sources
-echo "deb http://archive.ubuntu.com/ubuntu $EVSSIM_QEMU_UBUNTU_SYSTEM main universe" > /etc/apt/sources.list
-apt update
-
-# Additional packages
-apt -y install libxml++2.6-2 libboost-filesystem1.54.0
-apt -y install python python-nose
-
-# Services which should run immediately
-# RUNLEVEL=1 apt -y install ntp ntpdate
-
 CHROOTED
 
-# Unmount facilities
-umount $MOUNT_POINT/sys
-umount $MOUNT_POINT/proc
-umount $MOUNT_POINT/dev
+check_command 8
 
-# Unmount
+# Stage 9: Unmount facilities
+echo "Stage 9 - Unmounting /proc, /sys, and /dev"
+umount $MOUNT_POINT/sys
+check_command 9
+umount $MOUNT_POINT/proc
+check_command 9
+umount $MOUNT_POINT/dev
+check_command 9
+
+# Stage 10: Unmount the image
+echo "Stage 10 - Unmounting image"
 umount $MOUNT_POINT
+check_command 10
+

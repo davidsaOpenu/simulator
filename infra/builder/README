@@ -166,10 +166,10 @@ under the dist/kernel folder. The image consists only of the user mode part of t
 The user mode image is created using the "image-maker.sh" and its executed as part
 of "./builder-qemu.image.sh". Creation of the user image is done by chrooting and debootstrapping
 into an empty (mounted) qemu disk image. All of those steps are done by the "image-maker.sh".
-Currently the image maker creates an ubuntu trusty environment.
+Currently the image maker creates an ubuntu noble environment.
 
 The following are steps taken within the chrooted environment.
- - Debootstrap of ubuntu trusty image (EVSSIM_QEMU_UBUNTU_SYSTEM)
+ - Debootstrap of ubuntu noble image (EVSSIM_QEMU_UBUNTU_SYSTEM)
  - Configuration of home user esd and password esd. (EVSSIM_QEMU_UBUNTU_USERNAME/EVSSIM_QEMU_UBUNTU_PASSWORD)
  - The home user (esd) is mapped with the same UID and GID as the external user.
  - Network and locale configuration
