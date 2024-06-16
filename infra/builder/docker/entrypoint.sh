@@ -19,15 +19,20 @@ if [ -z $VIRTUALIZATION ]; then
     echo "ERROR Virtualization not found"; exit 1
 fi
 
-if ! virt-host-validate >/dev/null; then
+if ! virt-host-validate qemu >/dev/null; then
     echo "ERROR Virtualization test failed. Verify docker has permissions"; exit 1
 fi
 
 # Install the effective external user as a real user
-addgroup --gid $EVSSIM_EXTERNAL_GID external >/dev/null
-adduser --disabled-password --gecos "" --uid $EVSSIM_EXTERNAL_UID --gid $EVSSIM_EXTERNAL_GID external >/dev/null
-adduser external sudo >/dev/null
-echo "external ALL=(ALL) NOPASSWD: ALL" >> /etc/sudoers
+if ! getent group external > /dev/null 2>&1; then
+    addgroup --gid $EVSSIM_EXTERNAL_GID external >/dev/null
+fi
+
+if ! id -u external > /dev/null 2>&1; then
+    adduser --disabled-password --gecos "" --uid $EVSSIM_EXTERNAL_UID --gid $EVSSIM_EXTERNAL_GID external >/dev/null
+    adduser external sudo >/dev/null
+    echo "external ALL=(ALL) NOPASSWD: ALL" >> /etc/sudoers
+fi
 
 # Map X authentication if any available
 if [ -f /tmp/.Xauthority ]; then

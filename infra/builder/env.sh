@@ -24,12 +24,15 @@ export EVSSIM_DATA_FOLDER=data
 export EVSSIM_DIST_FOLDER=dist
 export EVSSIM_LOGS_FOLDER=logs
 
-export EVSSIM_KCONFIG="CONFIG_BLK_DEV_NVME=m"
+export EVSSIM_KCONFIG="CONFIG_BLK_DEV_NVME=m \
+	               CONFIG_RETPOLINE='' \
+		       CFLAGS='-Wno-attributes'  \
+		       KBUILD_LDFLAGS='--allow-multiple-definition'"
 
 export EVSSIM_QEMU_IMAGE=system.img
 export EVSSIM_QEMU_IMAGE_SIZE=20g
 export EVSSIM_QEMU_UBUNTU_DEBOOTSTRAP_CACHE=deboostrap.tar
-export EVSSIM_QEMU_UBUNTU_SYSTEM=trusty
+export EVSSIM_QEMU_UBUNTU_SYSTEM=noble
 export EVSSIM_QEMU_UBUNTU_USERNAME=esd
 export EVSSIM_QEMU_UBUNTU_PASSWORD=esd
 export EVSSIM_QEMU_UBUNTU_ROOT_PASSWORD=root
@@ -54,9 +57,6 @@ export EVSSIM_GUEST_MOUNT_POINT=/mnt/guest
 export EVSSIM_RUNTIME_STORAGE_STRATEGY=1
 export EVSSIM_RUNTIME_SSD_CONF_TEMPLATE=$EVSSIM_ROOT_PATH/$EVSSIM_BUILDER_FOLDER/docker/ssd.conf.template
 export EVSSIM_RUNTIME_ALWAYS_RESET=yes
-
-export COMPILATION_GCC=gcc-4.6
-export COMPILATION_CFLAGS=-Wno-error=cpp
 
 export ELK_ELASTICSEARCH_IMAGE="docker.elastic.co/elasticsearch/elasticsearch:8.3.2"
 export ELK_KIBANA_IMAGE="docker.elastic.co/kibana/kibana:8.3.2"
