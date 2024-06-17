@@ -16,6 +16,23 @@
       "message": "meanwhile, changing to +1 to prevent accidental merge of this one without the changes it depends on.",
       "revId": "f1afc0ef8196553551b3b68636fe5efcb0d76dab",
       "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "1b31371b_3dafe2ce",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 10
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 1007990
+      },
+      "writtenOn": "2024-06-17T06:23:47Z",
+      "side": 1,
+      "message": "exec bit was turned on for the source files \neVSSIM/osc-osd/osd-target/attr.c (executable) \neVSSIM/osc-osd/osd-target/cdb.c (executable) \neVSSIM/osc-osd/osd-target/coll.c (executable) \neVSSIM/osc-osd/osd-target/db.c (executable) \neVSSIM/osc-osd/osd-target/obj.c (executable) \neVSSIM/osc-osd/osd-target/osd.c (executable)",
+      "revId": "f1afc0ef8196553551b3b68636fe5efcb0d76dab",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
     }
   ]
 }
