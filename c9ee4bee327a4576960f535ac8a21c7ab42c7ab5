@@ -96,6 +96,30 @@
     {
       "unresolved": true,
       "key": {
+        "uuid": "5aafea1d_806f4086",
+        "filename": "eVSSIM/LOG_MGR/logging_rt_analyzer.c",
+        "patchSetId": 16
+      },
+      "lineNbr": 1,
+      "author": {
+        "id": 1037995
+      },
+      "writtenOn": "2024-07-23T19:59:59Z",
+      "side": 1,
+      "message": "It looks like NL encoding in Windows....\nI cant figure out how to fix that on a committed file.\nYou can ignore that in your viewer with: Diff preferences -\u003e Ignore Whitespace",
+      "parentUuid": "50006e39_4c5ddd53",
+      "range": {
+        "startLine": 1,
+        "startChar": 1,
+        "endLine": 1,
+        "endChar": 2
+      },
+      "revId": "c9ee4bee327a4576960f535ac8a21c7ab42c7ab5",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
+    },
+    {
+      "unresolved": true,
+      "key": {
         "uuid": "5a5f2436_4924de5b",
         "filename": "eVSSIM/LOG_MGR/logging_statistics.h",
         "patchSetId": 16
