@@ -1,0 +1,185 @@
+How I used this script
+
+Example setup
+~~~~~~~~~~~~~
+For example I have deployed an 8xOSD 1xexofs-mds 8xpnfs-clients cluster test.
+Total 17 machines.
+
+* Work on a cluster of machines
+  If one wants to save time and not login to every machine (17 above) and
+  manually set and run every one. he should consider setting up a cluster.
+  To work on a cluster of machines, we need to learn some new tricks.
+  a. Cluster Shell (clush)
+     See the open-osd/Documentation/cluster-tests/clush script. This
+     scrip should be put somewhere on your path (together with the needed clux
+     script). The script uses the ssh utility to invoke the same command on a
+     list of machines.
+
+    Password less ssh:
+     It is assumed that an ssh from the machine acting as shell, to any
+     machine in the cluster. should not require a password. This is achieved
+     by having the same user key at both machine's user-home-directory. For
+     example if all cluster machines mount the same home directory that is
+     trivially achieved. (since the ~/.ssh is the same on all machines). If used
+     as root, then the root's ssh_key can be copied to all machine's /root/.ssh
+     See any of: http://www.google.com/search?q=passwordless+ssh
+
+  b. Cluster view. .i.e shared storage.
+     All machines in the cluster should have some kind of coherent view of
+     files. For example in our lab all the machines mount the home directory
+     from a central NFS server. So the sources tree are cloned into an home
+     directory and once compiled are available to all the machines in the same
+     place.
+     The machines should be similar enough so a compiled binary on one machine
+     can run on all other. Also they should all have packages installed which
+     will be needed in runtime. For example all osd-target machines will need:
+
+     []$ clush osd_list yum install sqlite
+
+     Which will install the needed sqlite library on all osd machines. osd_list
+     is a file in the current directory that has a space delimited list of the
+     osd-host-names.
+
+* osd(s)
+  The osd machines can be any Linux, FreeBSD 7 (or higher), or Mac OSX machine.
+  The osd-target application is a user-mode application. Once compiled for its
+  running environment. It can be setup and ran, exporting it's designated
+  disk-drives.
+  The osd-target exports a local POSIX file-system directory, as an OSD,
+  presented on the network as an iscsi target, of scsi-osd type device.
+
+  Though one can export as many directories as he/she likes, for performance
+  considerations, rule of the thumb is:
+	An "OSD target per spindle".
+
+  See the "up" script on the root of the osc-osd git tree, for an example setup.
+  User should edit his/her setup and export some targets by running this script.
+  [
+     Note: the "up" script is intended to run from a console in the for-ground.
+     If you need a daemon type invocation, it can be done easily, but is left as
+     an exercise to the reader.
+     Alternatively: The osd-target is based on the tgtd project. the tgtd has a
+     full init.d type service scripts that load targets, specified in a
+     configuration file. It should be perfectly possible to also load an
+     osd-target with these configuration files, though I never tried it.
+     (If you do please send your config so we can add it as an example to the
+     project)
+  ]
+  See: http://www.open-osd.org/bin/view/Main/OscOsdProject
+  for more instructions on the osc-osd osd-target project.
+
+  example cluster command. In a dedicated console do:
+  []$ cd osc-osd/
+  [osc-osd]$ clush cd $PWD; ./up;
+ 
+* Exofs-MDS
+  This machine will need to run the latest PNFS Kernel. In my setup I have also
+  used it as the shell machine.
+
+  This machine needs to login to the osd-targets and eventually mount the exofs
+  file-system. That will be later exported via pnfs to all pnfs-clients. I have
+  also used this machine to format and mkfs.exofs the file-systems. See below
+  the list of commands I used.
+
+* pnfs-client (s)
+  This machine will need to run the latest PNFS Kernel. These machines will need
+  to login to all osd-targets as well. Then they will eventually mount a pnfs FS
+  exported from MDS.
+
+Below is a possible list of commands from after the initial cluster setup. It is
+assumed that ssh is configured and the pnfs, osc-osd and open-osd source trees
+are viewable on all machines in the same path. Also the osc-osd and open-osd
+trees are compiled and are runnable on all machines. Latest nfs-utiles are
+installed on all client machines and the MDS.
+
+Now would be a good time to edit two files osd_list and cli_list put them in the
+directory next to the do-ect script. They should contain a space delimited list
+of the osd and client host names. (the same name you use when doing an ssh
+host-name)
+
+* Install some stuff
+  []$ clush osd_list yum install sqlite
+  []$ yum install iscsi-initiator-utils (On MDS)
+  []$ clush cli_list yum install iscsi-initiator-utils
+  Also needed on clients:
+	nfs
+	pnfs capable nfs-utils.
+	...
+
+* Install a pnfs Kernel on MDS and clients
+  If you compiled a Kernel from source
+  []$ cd linux-pnfs/ (your pnfs cloned tree)
+  [linux-pnfs]$ make modules_install (MDS)
+  []$ clush cli_list cd $PWD; make modules_install;
+
+  Else use Fedora's pnfs rpms on all clients and MDS
+  Reboot into new Kernel
+
+Now would be a good time to edit the do-ect script with the IP(s) of your OSD(s)
+and MDS and also check the directories match what you expect. It is highly
+recommended to review this scripts. No big secrets, but not fail-safe either.
+So you know what to expect.
+
+* Run all osd-targets
+  In another console run:
+  []$ cd osc-osd\
+  [osc-osd]$ clush cd $PWD; ./up
+  Go back to your other console
+
+* Format a filesystem
+  []$ cd open-osd\
+  [open-osd]$ cp lib/libosd.so /usr/lib[64]/ (MDS)
+  libosd.so is needed by mkfs.exofs
+
+  [open-osd]$ ./do-ect start
+  This command will discover and login to the osd(s), from the MDS here. The way
+  a typical Fedora machine is set, any iscsi traget discovered and login to will
+  be relogin to on boot. So in principle this command need be run only once.
+  Unless ./do-ect stop is called, or OSD(s) addresses has changed, or you have,
+  like me, set iscsi to not auto-login by editing the config files.
+
+  [open-osd]$ ./do-ect format
+  This will format your OSD(s), assign an osdname to them, and finally mkfs a
+  file-system on them, according to the geometry specified in the do-ect script.
+  (default is a 3of8 striping)
+
+  You will now need to do this:
+  [open-osd]$ ./do-ect stop
+  [open-osd]$ ./do-ect start
+  This is because the format command might have changed the osdname(s) which is
+  not yet auto-detected by the osd kernel driver.
+
+* You can now mount the new (empty) file system.
+  [open-osd]$ ./do-ect mount
+  You should have a usable exofs filesystem on /mnt/exofs. Observe it's
+  existence with the "df" command. Try to create some files on it to test it is
+  alive and performing as expected.
+
+  [open-osd]$ echo hello > /mnt/exofs/first
+  [open-osd]$ dd if=/dev/zero of=/mnt/exofs/dd_to bs=4k count=4096
+
+* login to OSD(s) on clients
+  []$ cd open-osd\
+  [open-osd]$ clush cli_list cd $PWD; ./do-ect start
+  Again on these machines as well. iscsi is usually setup to auto login into
+  discovered targets. So you only need to do this once.
+  If unsure you can do a quick:
+  [open-osd]$ clush cli_list ls /dev/osd*
+  If they all exist you are login(ed)
+
+* Now mount a pnfs export:
+  [open-osd]$ clush cli_list cd $PWD; ./do-ect pnfs_start
+
+  You should be able to see the same file system from all clients and MDS
+  [open-osd]$ ls -l /mnt/exofs/
+  [open-osd]$ clush cli_list ls -l /mnt/exofs/
+  Wowahoo that's a good milestone. Please post your results to the mailing list.
+
+* Run a simple performance test
+  [open-osd]$ clush cli_list cd $PWD; ./do-ect pnfs_dd_test
+
+Please post what you got from this test.
+
+Thanks for reading, hey that wasn't so bad, was it?
+
+The open-osd

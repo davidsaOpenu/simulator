@@ -1,0 +1,83 @@
+#
+# The original name of this file is "open-osd.gitignore"
+# It is so because we want to be able to merge this
+# out-of-tree tree with a full Kernel tree, and .gitignore
+# is the only conflict.
+# A user will need to do once:
+#	[]$ ln -s open-osd.gitignore .gitignore
+# and from here on everything would work as expected including
+# updates to this file.
+#
+# Not included in this tree for mergability with Kernel
+#
+.gitignore
+
+# FIXME: Remove this
+osd-target
+
+#
+# Normal rules
+#
+*.o
+*.o.*
+*.a
+*.s
+*.ko
+*.so
+*.mod.c
+*.i
+*.lst
+*.symtypes
+*.d
+*.cmd
+.tmp_versions
+.svn
+commit.txt
+.dependencies
+.directory
+
+#
+# for GLOBAL
+#
+GTAGS
+GRTAGS
+GPATH
+GSYMS
+
+tags
+
+#
+# folders not in this git tree
+#
+.git
+patches
+
+#
+# programs & Tests
+#
+usr/osd_test
+usr/mkfs.exofs
+usr/osd
+d-osd.conf
+128M.rt
+512M.rt
+do-ect
+
+#
+# Misk build files
+#
+Module.markers
+Module.symvers
+modules.order
+
+#
+# Documentation Sould they go into git
+#
+Doc
+
+#
+# symbolic links of source files
+#
+lib/osd_initiator.c
+usr/osd_ktests.c
+include/linux/bsg.h

@@ -1,0 +1,8 @@
+#!/bin/sh
+
+#eval $* 2>&1 | sed "s/^/`hostname`: /"
+args=""
+for i; do
+	args="$args "'"'"$i"'"'
+done
+eval "$args" 2>&1 | sed "s/^/`hostname`: /"

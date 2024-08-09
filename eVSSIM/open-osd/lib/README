@@ -1,0 +1,124 @@
+01234567890123456789012345678901234567890123456789012345678901234567890123456789
+--------------------------------------------------------------------------------
+
+open-osd initiator user-mode library
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+Just as in Kernel, open-osd initiator API exported from libosd.ko is also
+available for user-mode use, in the form of a libosd.so and open-osd/libosd.h
+files.
+
+The Kernel library code is compiled as is in user-mode and the execution is
+over-ridden to use the bsg.ko kernel driver and it's sg_io_v4 API.
+
+Both sync and async execution is supported.
+
+A thin OSD device layer exist for open/close of OSD devices (struct osd_dev).
+
+How to use in application.
+~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+1. Installation
+
+* Have available / copy, all the files from open-osd/include/open-osd/...
+  to a public header directory for example:
+[]$ cp -a open-osd/include/open-osd /usr/include/
+
+* copy lib/libosd.so to a public lib directory, ldconfig that directory.
+[]$ cp lib/libosd.so /usr/lib64; ldconfig /usr/lib64
+
+* Add to Makefile's INCLUDES the include/open-osd dir.
+CCFLAGS += -I/usr/include/open-osd
+
+* Add to Makefile LD flags the library
+LDFLAGS += [-L open-osd/lib] -losd
+
+2. In source code
+
+With use of osd_open()/osd_close() the exact same API exported from
+osd_initiator.h is used by applications. See 
+open-osd/include/scsi/osd_initiator.h for API documentation and
+open-osd/Documentation/scsi/osd.txt for more background.
+
+Lets look in open-osd/usr/osd_test.c at test_usrlib() for an example:
+
+The below do_test_17() is exactly that Kernel OSD test code that makes heavy
+use of the osd_initiator.h API given an "struct osd_dev *od"
+
+/* In user-mode we have one header that includes every-thing */
+#include <open-osd/libosd.h>
+
+static int test_usrlib(const char* path)
+{
+	struct osd_dev *od;
+	int ret;
+
+	ret = osd_open(path, &od);
+	if (ret)
+		return ret;
+
+	ret = do_test_17(od, OSD_TEST_ALL, 0);
+
+	osd_close(od);
+
+	/* osd code returns negative error codes like Kernel */
+	return -ret;
+}
+
+* int osd_open(const char *osd_path, struct osd_dev **pod);
+  @osd_path - is in the form of /dev/osdX which is the char-dev path
+     to an osd device. An automatic translation is done from an osd_path
+     to the actual bsg.ko device path used.
+     [in the future we might export bsg's sg_io_v4 API via osd devices as
+      well, for better control of the osd device life time. The code will
+      detect that situation automatically. Application's ABI will not change]
+
+  @pod - Is a pointer to an osd_dev pointer that will receive a dynamical
+     allocated osd_dev structure.
+
+  Return - 0 for success in which case @pod has a value. Or POSIX error-code
+     on error, and @pod will be NULL.
+
+* void osd_close(struct osd_dev *od);
+   User must call osd_close() to close the device file and free od memory.
+
+If code is using async execution: osd_execute_request_async(), a thread
+or event loop must be setup that will continuously call:
+
+   int bsg_wait_response(struct request_queue *q)
+
+The osd_req_done_fn will be called from that calling thread context.
+TODO: Also define a bsg_poll() API. (No more then one thread per Q, please)
+
+Example:
+
+#include <linux/blkdev.h> /* for bsg_wait_response() */
+
+int osd_completion_thread(struct osd_dev *od)
+{
+	struct request_queue q = od->scsi_device->request_queue;
+
+	do() {
+		ret = bsg_wait_response(q);
+		if (ret < 0)
+			return ret;
+	} while(ret);
+
+	return 0;
+}
+
+* int bsg_wait_response(struct request_queue *q);
+    Will return 0 when device is closed.
+    Negative on error.
+    Positive when caller should return again. (Perhaps after poll).
+    bsg_wait_response() might sleep in Kernel waiting for commands
+    to complete.
+
+open-osd
+~~~~~~~~
+
+See:          http://open-osd.org for latest code and documentation
+Mailing-list: Mail to "open-osd devel <osd-dev@open-osd.org>" we would like
+              to know what you are up to with OSD and how you manage.
+
+--  Cheers open-osd team

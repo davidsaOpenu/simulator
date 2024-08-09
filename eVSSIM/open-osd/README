@@ -1,0 +1,149 @@
+open-osd OSD Library README
+~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+Overview:
+Here are the list of things I did to deploy a running OSD environment:
+
+- Create a parent directory to hold the different components
+- grab an OSD target or two
+- Install the open-iscsi tools
+- grab open-osd git sources and build them
+- edit test script of target settings and run the test.
+
+OSD targets we tested with:
+---------------------------
+
+For OSD2, grab OSC's target from:
+	http://www.open-osd.org/bin/view/Main/OscOsdProject
+Follow the instructions on the web and in READMEs to build and test a
+working target.
+
+For OSD1, there is the old IBM-OSD-SIM x86 32-bit binary only target, available
+freely here:
+	http://www.alphaworks.ibm.com/tech/osdsim
+All I did was extract it into a folder (say ibm-osd-sim) and run it:
+$ ./ibm-osd-sim -EUIid 0xfb -p 3261 -trace_level 4
+(I use the -p 3261 port so I can have the OSD2 target on the default 3260
+port for OSD). Note: you need to edit the scsi_access.txt file to let in
+connections from your iscsi initiator.
+
+open-iscsi Installation
+-----------------------
+You must have the latest kernel modules and tools from open-iscsi.org
+to be able to run the bidirectional commands mandated by OSD. The minimum
+is a Linux kernel 2.6.27. Or Linux 2.6.26 with new iscsi modules from
+open-iscsi as of open-iscsi-2.0-869.2 or later.
+
+At this point you should be able to successfully login to your OSD target
+with your iscsi tools. See example login commands below.
+
+Download and Build open-osd library
+-----------------------------------
+Here you have two options. Use the out-of-tree open-osd.git or
+the in-tree linux-open-osd.git.
+
+open-osd git-tree:
+
+You need an external Kernel source tree or kernel headers from your
+distribution. (anything based on 2.6.26 or later).
+
+download open-osd source using:
+[parent-directory]$ git clone git://git.open-osd.org/open-osd.git
+[parent-directory]$ cd open-osd/
+
+and build the library module like this:
+[open-osd]$ make
+
+or if you need to compile against a different kernel
+[parent-directory]$ make KSRC=$(KER_DIR) -C open-osd
+using whatever parameters you compiled your Kernel with and with $(KER_DIR)
+above pointing to the Kernel you compile against. See the file
+open-osd/top-level-Makefile for an example.
+
+The out-of-tree Makefile will build osd Kernel modules as well as libosd
+user-mode library, exofs - osd based filesystem, and user applications.
+
+[open-osd]$ make rpm
+To build the rpm installation packages
+
+In-tree:
+
+Create a kernel clone
+[parent-directory]$ git clone git://git.open-osd.org/linux-open-osd.git
+[parent-directory]$ cd linux-open-osd
+ This will create a linux-open-osd directory with a full kernel git-tree and
+ sources files.
+
+Create a branch for hacking on OSD work.
+[linux-open-osd]$ git checkout -b osd-work origin/master
+ In general the "master" branch is kept as the more stable, released for
+ upstream branch, and will not usually rebase.
+ "osd" and "exofs" branches might have more advanced code but might rebase
+ freely. Also linux-next branch is whats currently pulled by linux-next
+ and will rebase often.
+
+You will need to run make xconfig/menuconfig and select SCSI_OSD_INITIATOR
+SCSI_OSD_ULD and SCSI_OSD_DEBUG they are located under the SCSI sub-tree.
+Also under "Miscellaneous filesystems" select CONFIG_EXOFS_FS.
+Now run "make" your kernel in the usual way.
+
+The in-tree build will build the Kernel and osd/exofs kernel modules only.
+User-mode applications and library are only built with the out-of-tree
+git above.
+
+Running the tests
+-----------------
+
+I use the open-osd/do-osd to run tests. Inspect this file for latest
+information on tools usage.
+
+The manual steps are:
+
+1. Start the OSD target
+2. Start open-iscsi initiator (e.g., using $ /etc/init.d/iscsid start)
+3. Load OSD/exofs modules:
+[open-osd]$ insmod ./drivers/scsi/osd/libosd.ko
+[open-osd]$ insmod ./drivers/scsi/osd/osd.ko
+[open-osd]$ insmod ./drivers/scsi/osd/osd_ktests.ko
+[open-osd]$ insmod ./fs/exofs/exofs.ko
+
+4. Login into the target:
+[parent-directory]$ iscsiadm -m discovery -t sendtargets -p $IP_OSD --login
+where IP_OSD=host:port of target.
+
+5. Run the test
+[open-osd]$ usr/osd_test -k 1 /dev/osd0
+where /dev/osd0 is the device that was created after the iscsi login
+Look in Kernel dmesg logs for the test output.
+
+See Documentation/filesystems/exofs.txt for mounting exofs
+
+Or just run the open-osd/do-osd interactive script. Your setup will vary
+so first edit the parameters at the head of the do-osd file.
+
+If you have any problems, questions, comments, etc. please email:
+   open-osd ml <osd-dev@open-osd.org>
+   Boaz Harrosh <bharrosh@panasas.com>
+   Benny Halevy <bhalevy@panasas.com>
+
+References and links
+--------------------
+
+Main web site:
+  http://open-osd.org
+
+The open-osd repository including Kernel(out-of-tree), exofs(out-of-tree)
+libosd library, applications tests and scripts:
+  git://git.open-osd.org/open-osd.git master
+  http://git.open-osd.org/gitweb.cgi?p=open-osd.git;a=summary
+
+Linux In-Tree Kernel source:
+  git://git.open-osd.org/linux-open-osd.git
+  http://git.open-osd.org/gitweb.cgi?p=linux-open-osd.git;a=summary
+
+Kernel module documentation:
+  open-osd/Documentation/scsi/osd.txt
+  open-osd/Documentation/filesystems/exofs.txt
+
+Thanks
+The OSD team

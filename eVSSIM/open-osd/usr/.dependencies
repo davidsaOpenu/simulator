@@ -1,0 +1,54 @@
+osd_ktests.o: osd_ktests.c ../include/open-osd/asm/unaligned.h \
+ ../include/open-osd/asm/le_byteshift.h \
+ ../include/open-osd/asm/be_byteshift.h \
+ ../include/open-osd/scsi/scsi_device.h ../include/scsi/osd_initiator.h \
+ ../include/scsi/osd_protocol.h ../include/open-osd/linux/time.h \
+ ../include/open-osd/asm/div64.h ../include/open-osd/scsi/scsi.h \
+ ../include/scsi/osd_types.h ../include/open-osd/linux/blkdev.h \
+ ../include/open-osd/kalloc.h ../include/open-osd/err.h \
+ ../include/scsi/osd_sec.h ../include/scsi/osd_attributes.h \
+ ../drivers/scsi/osd/osd_ktests.h ../lib/osd_debug.h
+osd_test.o: osd_test.c ../include/open-osd/libosd.h \
+ ../include/scsi/osd_initiator.h ../include/scsi/osd_protocol.h \
+ ../include/open-osd/linux/types.h ../include/open-osd/linux/time.h \
+ ../include/open-osd/asm/div64.h ../include/open-osd/asm/unaligned.h \
+ ../include/open-osd/asm/le_byteshift.h \
+ ../include/open-osd/asm/be_byteshift.h ../include/open-osd/scsi/scsi.h \
+ ../include/scsi/osd_types.h ../include/open-osd/linux/blkdev.h \
+ ../include/open-osd/kalloc.h ../include/open-osd/err.h \
+ ../include/open-osd/scsi/scsi_device.h ../include/scsi/osd_sec.h \
+ ../include/scsi/osd_attributes.h ../include/scsi/osd_sense.h \
+ ../include/scsi/osd_protocol.h ../drivers/scsi/osd/osd_ktests.h
+mkexofs_main.o: mkexofs_main.c ../include/open-osd/libosd.h \
+ ../include/scsi/osd_initiator.h ../include/scsi/osd_protocol.h \
+ ../include/open-osd/linux/types.h ../include/open-osd/linux/time.h \
+ ../include/open-osd/asm/div64.h ../include/open-osd/asm/unaligned.h \
+ ../include/open-osd/asm/le_byteshift.h \
+ ../include/open-osd/asm/be_byteshift.h ../include/open-osd/scsi/scsi.h \
+ ../include/scsi/osd_types.h ../include/open-osd/linux/blkdev.h \
+ ../include/open-osd/kalloc.h ../include/open-osd/err.h \
+ ../include/open-osd/scsi/scsi_device.h ../include/scsi/osd_sec.h \
+ ../include/scsi/osd_attributes.h ../include/scsi/osd_sense.h \
+ ../include/scsi/osd_protocol.h mkexofs.h ../fs/exofs/common.h
+mkexofs.o: mkexofs.c mkexofs.h ../fs/exofs/common.h \
+ ../include/open-osd/linux/types.h ../include/scsi/osd_attributes.h \
+ ../include/scsi/osd_protocol.h ../include/open-osd/linux/time.h \
+ ../include/open-osd/asm/div64.h ../include/open-osd/asm/unaligned.h \
+ ../include/open-osd/asm/le_byteshift.h \
+ ../include/open-osd/asm/be_byteshift.h ../include/open-osd/scsi/scsi.h \
+ ../include/scsi/osd_initiator.h ../include/scsi/osd_types.h \
+ ../include/open-osd/linux/blkdev.h ../include/open-osd/kalloc.h \
+ ../include/open-osd/err.h ../include/open-osd/scsi/scsi_device.h \
+ ../include/scsi/osd_sec.h ../include/scsi/osd_sense.h \
+ ../include/scsi/osd_protocol.h
+osd.o: osd.c ../include/open-osd/libosd.h ../include/scsi/osd_initiator.h \
+ ../include/scsi/osd_protocol.h ../include/open-osd/linux/types.h \
+ ../include/open-osd/linux/time.h ../include/open-osd/asm/div64.h \
+ ../include/open-osd/asm/unaligned.h \
+ ../include/open-osd/asm/le_byteshift.h \
+ ../include/open-osd/asm/be_byteshift.h ../include/open-osd/scsi/scsi.h \
+ ../include/scsi/osd_types.h ../include/open-osd/linux/blkdev.h \
+ ../include/open-osd/kalloc.h ../include/open-osd/err.h \
+ ../include/open-osd/scsi/scsi_device.h ../include/scsi/osd_sec.h \
+ ../include/scsi/osd_attributes.h ../include/scsi/osd_sense.h \
+ ../include/scsi/osd_protocol.h

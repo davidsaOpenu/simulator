@@ -1,0 +1,118 @@
+#!/bin/bash
+#
+
+# edit your info here
+# PNFS_SRV=192.168.0.118 # fs2uml
+PNFS_SRV=192.168.0.241 # tl1
+# PNFS_SRV=192.168.0.242 # tl2
+
+PNFS_MNT=/mnt/pnfs
+CTHON_PATH=/home/bharrosh/dev/git/pub/tests/cthon04-nfs41
+
+do_cmd()
+{
+	$* 2>&1 | logger -t `basename $1` &
+}
+
+prompt()
+{
+	read -p "$* >>> "
+}
+
+pnfs_hello_world()
+{
+	echo hello > $PNFS_MNT/world
+	cat $PNFS_MNT/world
+}
+
+do_dbgon()
+{
+	dbg=0x2000
+	if [ "$1" != "" ]; then
+	  dbg=$1
+	fi
+	echo dbgon $dbg
+	echo $(($dbg)) > /proc/sys/sunrpc/nfs_debug
+# 	echo $(($dbg)) > /proc/sys/sunrpc/rpc_debug
+
+	echo "8 1 1 7" > /proc/sys/kernel/printk
+}
+
+do_dbgoff()
+{
+	echo $((0x0000)) > /proc/sys/sunrpc/nfs_debug
+}
+
+do_pnfs_start()
+{
+	service nfs start
+
+	echo "1=$1 2=$2"
+	if [ "$1" != "nopnfs" ]; then
+		modprobe objlayoutdriver
+		echo loaded objlayoutdriver
+	fi
+# 	modprobe nfslayoutdriver
+	mount -t nfs4 -o minorversion=1 $PNFS_SRV:/ $PNFS_MNT
+}
+
+do_pnfs_stop()
+{
+	umount $PNFS_MNT
+# 	modprobe --remove nfslayoutdriver
+	modprobe --remove objlayoutdriver
+	service nfs stop
+}
+
+cthon_test()
+{
+	cd $CTHON_PATH
+	# recover from last test
+	umount /mnt/$PNFS_SRV
+	./server -a -p / $PNFS_SRV
+}
+
+dd_test()
+{
+	dd if=/dev/zero of=$PNFS_MNT/dd_pnfs bs=4k count=4096
+}
+
+case $1 in
+start)
+	echo $0 Starting | logger
+
+	do_pnfs_start $2
+
+	echo $0 Started | logger
+	;;
+
+stop)
+	echo $0 Stopping | logger
+
+	do_pnfs_stop
+
+	echo $0 Stopped | logger
+	;;
+
+hello)
+	pnfs_hello_world
+	;;
+
+dd_test)
+	dd_test
+	;;
+
+test)
+	cthon_test
+	;;
+
+dbgon)
+	do_dbgon $2
+	;;
+dbgoff)
+	do_dbgoff
+	;;
+*)
+	echo "!! please specify: start|stop|hello|dd_test|test|dbgon|dbgoff"
+	;;
+esac

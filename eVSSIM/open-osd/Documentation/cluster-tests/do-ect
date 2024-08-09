@@ -1,0 +1,340 @@
+#!/bin/sh
+#
+# ect: Exofs Cluster Test
+
+modprobe=/sbin/modprobe
+service=/sbin/service
+iscsiadm=/sbin/iscsiadm
+
+# Name of iscsi service. .e.g at /etc/init.d/
+ISCSI=iscsi
+
+# 8 osds
+DEV_OSD0=/dev/osd0
+UUID0="8c0772c1-3b9b-44c0-bc28-dff56354ed39"
+
+DEV_OSD1=/dev/osd1
+UUID1="4680a768-e586-4d42-b4b6-43fdc5f02304"
+
+DEV_OSD2=/dev/osd2
+UUID2="f71a5dbd-49c8-4558-bba8-a1bb12c8bff6"
+
+DEV_OSD3=/dev/osd3
+UUID3="e432ae72-81d6-49ab-8b61-93b5bb0268e3"
+
+
+DEV_OSD4=/dev/osd4
+UUID4="7f518365-1c3b-4ce1-a511-40eabad1ce58"
+
+DEV_OSD5=/dev/osd5
+UUID5="93edbb0a-cf91-492a-a4af-931be496fd55"
+
+DEV_OSD6=/dev/osd6
+UUID6="fbd8966e-0ff0-4965-baa5-4ceff832d5f8"
+
+DEV_OSD7=/dev/osd7
+UUID7="c1462bab-999f-4a25-a95d-ebd158818bf1"
+
+IP_OSD0=10.70.4.120:3260
+IP_OSD1=10.70.4.121:3260
+IP_OSD2=10.70.4.122:3260
+IP_OSD3=10.70.4.123:3260
+
+IP_OSD4=10.70.4.124:3260
+IP_OSD5=10.70.4.125:3260
+IP_OSD6=10.70.4.126:3260
+IP_OSD7=10.70.4.127:3260
+
+# mkexofs layout
+OO_ROOT=`dirname $0`
+EXOFS_DIR=$OO_ROOT/fs/exofs
+USR_DIR=$OO_ROOT/usr
+MOUNTDIR=/mnt/exofs
+
+PID=0x10000
+PID4=0x20004
+PID2=0x20002
+PID1=0x20001
+
+FORMAT_SIZE=0
+RAID=0
+MIRRORS=0
+STRIPE_PAGES=16
+GROUP_WIDTH=3
+GROUP_DEPTH=4294967295
+
+do_cmd()
+{
+	$* 2>&1 | logger &
+}
+
+start_iscsi_intiator()
+{
+	echo start iscsi service
+
+	if ! $service $ISCSI status; then
+
+		echo iscsi not started running [$service $ISCSI start]
+
+		do_cmd $service $ISCSI start ;
+
+		until cat /sys/class/iscsi_transport/tcp/handle 2>/dev/null ; do
+			echo wait for iscsi-transport
+			sleep 1;
+		done
+	fi
+
+	sleep 7
+	echo start iscsi done
+}
+stop_iscsi_intiator()
+{
+	echo stop iscsi
+
+	do_cmd $service $ISCSI stop
+
+	until [ -n `$modprobe -l scsi_transport_iscsi` ]; do
+		sleep 1;
+	done
+
+	echo stop iscsi done
+}
+
+ISCSIDB=/var/lib/iscsi
+# ISCSIDB=/etc/iscsi
+do_iscsi_clean()
+{
+	rm -rfv $ISCSIDB/ifaces/*
+	rm -rfv $ISCSIDB/nodes/*
+	rm -rfv $ISCSIDB/send_targets/*
+}
+
+# ISCSI_DBG=--debug=8
+# usage login_iscsi_osd $IP_OSDX $DEV_OSDX
+login_iscsi_osd()
+{
+	echo login into: $1 expect $2
+	if $iscsiadm $ISCSI_DBG -m discovery -t sendtargets -p $1 --login; then 
+		echo $iscsiadm $ISCSI_DBG -m discovery -t sendtargets -p $1 --login returned error ($?)!
+		sleep 3; 
+	fi
+
+	sleep 1; 
+	ls $2 
+}
+# usage logout_iscsi_osd $IP_OSDX $DEV_OSDX
+logout_iscsi_osd()
+{
+	echo login out of $1 expected on $2
+	do_cmd $iscsiadm -m node -p $1 --logout
+
+#	while ls $3 2>/dev/null; do sleep 1; done
+	sleep 1;
+}
+
+start_open_osd()
+{
+	echo start osd
+
+	$modprobe osd;
+}
+stop_open_osd()
+{
+	echo stop osd
+
+	$modprobe --remove osd;
+}
+
+do_start()
+{
+	start_iscsi_intiator
+
+	start_open_osd
+
+	login_iscsi_osd $IP_OSD0 $DEV_OSD0
+	login_iscsi_osd $IP_OSD1 $DEV_OSD1
+	login_iscsi_osd $IP_OSD2 $DEV_OSD2
+	login_iscsi_osd $IP_OSD3 $DEV_OSD3
+
+	login_iscsi_osd $IP_OSD4 $DEV_OSD4
+	login_iscsi_osd $IP_OSD5 $DEV_OSD5
+	login_iscsi_osd $IP_OSD6 $DEV_OSD6
+	login_iscsi_osd $IP_OSD7 $DEV_OSD7
+}
+do_stop()
+{
+	logout_iscsi_osd $IP_OSD7 $DEV_OSD7
+	logout_iscsi_osd $IP_OSD6 $DEV_OSD6
+	logout_iscsi_osd $IP_OSD5 $DEV_OSD5
+	logout_iscsi_osd $IP_OSD4 $DEV_OSD4
+
+	logout_iscsi_osd $IP_OSD3 $DEV_OSD3
+	logout_iscsi_osd $IP_OSD2 $DEV_OSD2
+	logout_iscsi_osd $IP_OSD1 $DEV_OSD1
+	logout_iscsi_osd $IP_OSD0 $DEV_OSD0
+
+	stop_iscsi_intiator
+
+	stop_open_osd
+}
+
+mkexofs_format()
+{
+	$USR_DIR/mkfs.exofs \
+		--pid=$PID --raid=$RAID --mirrors=$MIRRORS \
+		--stripe_pages=$STRIPE_PAGES \
+		--group_width=$GROUP_WIDTH --group_depth=$GROUP_DEPTH \
+		--dev=$DEV_OSD0 --format=$FORMAT_SIZE  --osdname=$UUID0 \
+		--dev=$DEV_OSD1 --format=$FORMAT_SIZE  --osdname=$UUID1 \
+		--dev=$DEV_OSD2 --format=$FORMAT_SIZE  --osdname=$UUID2 \
+		--dev=$DEV_OSD3 --format=$FORMAT_SIZE  --osdname=$UUID3 \
+		--dev=$DEV_OSD4 --format=$FORMAT_SIZE  --osdname=$UUID4 \
+		--dev=$DEV_OSD5 --format=$FORMAT_SIZE  --osdname=$UUID5 \
+		--dev=$DEV_OSD6 --format=$FORMAT_SIZE  --osdname=$UUID6 \
+		--dev=$DEV_OSD7 --format=$FORMAT_SIZE  --osdname=$UUID7
+}
+
+mkexofs_mkfs4()
+{
+	$USR_DIR/mkfs.exofs \
+		--pid=$PID4 --raid=$RAID --mirrors=$MIRRORS \
+		--stripe_pages=$STRIPE_PAGES \
+		--group_width=0 --group_depth=0 \
+		--dev=$DEV_OSD0 \
+		--dev=$DEV_OSD1 \
+		--dev=$DEV_OSD2 \
+		--dev=$DEV_OSD3
+}
+
+mkexofs_mkfs2()
+{
+	$USR_DIR/mkfs.exofs \
+		--pid=$PID2 --raid=$RAID --mirrors=$MIRRORS \
+		--stripe_pages=$STRIPE_PAGES \
+		--group_width=0 --group_depth=0 \
+		--dev=$DEV_OSD0 \
+		--dev=$DEV_OSD1
+}
+
+mkexofs_mkfs1()
+{
+	$USR_DIR/mkfs.exofs \
+		--pid=$PID1 --raid=$RAID --mirrors=$MIRRORS \
+		--stripe_pages=$STRIPE_PAGES \
+		--group_width=0 --group_depth=0 \
+		--dev=$DEV_OSD0
+}
+
+do_mount()
+{
+	OPT="pid=$PID,_netdev"
+
+	mount -t exofs -o $OPT $DEV_OSD0 $MOUNTDIR
+}
+do_umount()
+{
+	umount $MOUNTDIR
+}
+
+PNFS_SRV=compute-4-18
+PNFS_MNT=/mnt/pnfs
+
+do_pnfs_start()
+{
+# 	service nfs start
+
+	mkdir -p $PNFS_MNT
+	modprobe objlayoutdriver
+	mount -t nfs4 -o minorversion=1 $PNFS_SRV:/ $PNFS_MNT
+}
+do_pnfs_stop()
+{
+	umount $PNFS_MNT
+	modprobe --remove objlayoutdriver
+
+# 	service nfs stop
+}
+
+DD_BS=64k
+DD_COUNT=131072
+do_pnfs_dd_test()
+{
+	dd if=/dev/zero of=$PNFS_MNT/dd_$(hostname) bs=$DD_BS count=$DD_COUNT
+}
+
+prompt()
+{
+	read -p "$* >>> "
+}
+
+case $1 in
+iscsi_clean)
+	do_iscsi_clean
+	;;
+
+start)
+	echo $0 Starting | logger
+	do_start
+	echo $0 Initialized | logger
+	;;
+
+stop)
+	echo $0 Stopping | logger
+	do_stop
+	echo $0 Stopped | logger
+	;;
+
+format)
+	prompt mkexofs_format
+	mkexofs_format
+	echo $0 format | logger
+	;;
+
+mkfs4)
+	prompt mkexofs_mkfs4
+	mkexofs_mkfs4
+	echo $0 mkexofs_mkfs4 | logger
+	;;
+mkfs2)
+	prompt mkexofs_mkfs2
+	mkexofs_mkfs2
+	echo $0 mkexofs_mkfs2 | logger
+	;;
+mkfs1)
+	prompt mkexofs_mkfs1
+	mkexofs_mkfs1
+	echo $0 mkexofs_mkfs1 | logger
+	;;
+
+mount)
+	echo $0 mounting | logger
+	do_mount
+	echo $0 mounted | logger
+	;;
+
+umount)
+	echo $0 umounting | logger
+	do_umount
+	echo $0 umounted | logger
+	;;
+
+pnfs_start)
+	echo $0 mounting | logger
+	do_pnfs_start
+	echo $0 mounted | logger
+	;;
+
+pnfs_stop)
+	echo $0 umounting | logger
+	do_pnfs_stop
+	echo $0 umounted | logger
+	;;
+
+pnfs_dd_test)
+	do_pnfs_dd_test
+	;;
+
+*)
+	echo "!! iscsi_clean|start|stop|format|mount|umount|pnfs_start|pnfs_stop|pnfs_dd_test"
+	;;
+esac

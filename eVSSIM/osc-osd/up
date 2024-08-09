@@ -1,4 +1,4 @@
-#!/bin/sh
+#!/bin/bash
 
 up_dir=`dirname $0`
 up_conf=./up.conf
@@ -82,8 +82,12 @@ $TGTADM --lld iscsi --mode target \
 	--op bind --tid $2 --initiator-address ALL
 
 $TGTADM --lld iscsi --mode logicalunit \
-	--op new --tid $2 --lun 0 --bstype=osdemu --device-type osd \
-	--backing-store $1 --osd_name $3
+	--op new --tid $2 --lun 1 --bstype=osdemu --device-type osd \
+	--backing-store /tmp/osd --osd_name my_osd
+
+$TGTADM --lld iscsi --mode logicalunit --op update \
+	--tid $2 --lun 1 \
+	--name=scsi_sn --value="$TARGETNAME"
 }
 
 echo "================ `date` =========================" >> $LOG_FILE

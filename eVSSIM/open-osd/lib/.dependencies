@@ -1,0 +1,31 @@
+osd_initiator.o: osd_initiator.c ../include/open-osd/linux/slab.h \
+ ../include/open-osd/kalloc.h ../include/open-osd/linux/types.h \
+ ../include/scsi/osd_initiator.h ../include/scsi/osd_protocol.h \
+ ../include/open-osd/linux/time.h ../include/open-osd/asm/div64.h \
+ ../include/open-osd/asm/unaligned.h \
+ ../include/open-osd/asm/le_byteshift.h \
+ ../include/open-osd/asm/be_byteshift.h ../include/open-osd/scsi/scsi.h \
+ ../include/scsi/osd_types.h ../include/open-osd/linux/blkdev.h \
+ ../include/open-osd/err.h ../include/open-osd/scsi/scsi_device.h \
+ ../include/scsi/osd_sec.h ../include/scsi/osd_attributes.h \
+ ../include/scsi/osd_sense.h ../include/scsi/osd_protocol.h osd_debug.h
+hexdump.o: hexdump.c ../include/open-osd/linux/types.h \
+ ../include/open-osd/kalloc.h
+kalloc.o: kalloc.c ../include/open-osd/kalloc.h \
+ ../include/open-osd/linux/types.h
+bsgdev.o: bsgdev.c ../include/open-osd/linux/blkdev.h \
+ ../include/open-osd/linux/types.h ../include/open-osd/asm/unaligned.h \
+ ../include/open-osd/asm/le_byteshift.h \
+ ../include/open-osd/asm/be_byteshift.h ../include/open-osd/kalloc.h \
+ ../include/open-osd/err.h
+osddev.o: osddev.c ../include/open-osd/libosd.h \
+ ../include/scsi/osd_initiator.h ../include/scsi/osd_protocol.h \
+ ../include/open-osd/linux/types.h ../include/open-osd/linux/time.h \
+ ../include/open-osd/asm/div64.h ../include/open-osd/asm/unaligned.h \
+ ../include/open-osd/asm/le_byteshift.h \
+ ../include/open-osd/asm/be_byteshift.h ../include/open-osd/scsi/scsi.h \
+ ../include/scsi/osd_types.h ../include/open-osd/linux/blkdev.h \
+ ../include/open-osd/kalloc.h ../include/open-osd/err.h \
+ ../include/open-osd/scsi/scsi_device.h ../include/scsi/osd_sec.h \
+ ../include/scsi/osd_attributes.h ../include/scsi/osd_sense.h \
+ ../include/scsi/osd_protocol.h osd_debug.h

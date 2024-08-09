@@ -1,0 +1,39 @@
+# This is an example Makefile to compile a Linux kernel plus
+# the out-of-tree open-osd projects.
+
+# TODO: Edit the path to your kernel tree
+KER_DIR=$(PWD)/linux-open-osd
+# KER_DIR ?= /lib/modules/$(shell uname -r)/build
+
+# TODO: Edit the path to open-osd
+OSD_SRC=open-osd/
+
+ARCH ?= `uname -i`
+
+# KBUILD_OUTPUT=.build_$(ARCH)
+# K_PARAMS=ARCH=$(ARCH) KBUILD_OUTPUT=$(KBUILD_OUTPUT)
+
+K_PARAMS=ARCH=$(ARCH)
+
+ALL=linux osd
+all: $(ALL)
+
+clean: $(ALL:=_clean)
+
+linux: force
+	@echo ============================== Linux =====================================
+	make -j2 $(K_PARAMS) -C $(KER_DIR)
+	@echo ============================== Linux =====================================
+
+linux_clean: force
+	make  $(K_PARAMS) -C $(KER_DIR) clean
+
+osd: force
+	@echo ============================== open-osd ===================================
+	make  KSRC=$(KER_DIR) $(K_PARAMS) -C $(OSD_SRC)
+	@echo ============================== open-osd ===================================
+
+osd_clean: force
+	make  KSRC=$(KER_DIR) $(K_PARAMS) -C $(OSD_SRC) clean
+
+force: ;
