@@ -1,0 +1,3 @@
+[submodule "eVSSIM/open-osd"]
+	path = eVSSIM/open-osd
+	url = https://github.com/bharrosh/open-osd.git
