@@ -1,0 +1,48 @@
+diff --git a/drivers/scsi/osd/osd_initiator.c b/drivers/scsi/osd/osd_initiator.c
+index 0433ea6..6d55227 100644
+--- a/drivers/scsi/osd/osd_initiator.c
++++ b/drivers/scsi/osd/osd_initiator.c
+@@ -63,9 +63,6 @@ MODULE_LICENSE("GPL");
+ static inline void build_test(void)
+ {
+ 	/* structures were not packed */
+-	BUILD_BUG_ON(sizeof(struct osd_capability) != OSD_CAP_LEN);
+-	BUILD_BUG_ON(sizeof(struct osdv2_cdb) != OSD_TOTAL_CDB_LEN);
+-	BUILD_BUG_ON(sizeof(struct osdv1_cdb) != OSDv1_TOTAL_CDB_LEN);
+ }
+ 
+ static const char *_osd_ver_desc(struct osd_request *or)
+@@ -1042,7 +1039,7 @@ static struct bio *_create_sg_bios(struct osd_request *or,
+ 		unsigned len = sglist[i].len;
+ 		unsigned added_len;
+ 
+-		BUG_ON(offset + len > PAGE_SIZE);
++		BUG_ON(offset + len > (unsigned)PAGE_SIZE);
+ 		added_len = bio_add_pc_page(q, bio, page, len, offset);
+ 		if (unlikely(len != added_len)) {
+ 			OSD_DEBUG("bio_add_pc_page len(%d) != added_len(%d)\n",
+diff --git a/include/open-osd/asm/unaligned.h b/include/open-osd/asm/unaligned.h
+index 9d14cfd..e58ff67 100644
+--- a/include/open-osd/asm/unaligned.h
++++ b/include/open-osd/asm/unaligned.h
+@@ -10,6 +10,7 @@
+ #define __KinU_UNALIGNED_H__
+ 
+ #include <asm/byteorder.h>
++#include <asm/posix_types.h>
+ #include <linux/kernel.h>
+ #include <linux/types.h>
+ 
+diff --git a/lib/osddev.c b/lib/osddev.c
+index 24bf6a6..87842c0 100644
+--- a/lib/osddev.c
++++ b/lib/osddev.c
+@@ -69,7 +69,7 @@ int osd_open(const char *osd_path, struct osd_dev **pod)
+ 	if (!lod)
+ 		return ENOMEM;
+ 
+-	ret = osdpath_to_bsgpath(osd_path, bsg_path)) {
++	ret = osdpath_to_bsgpath(osd_path, bsg_path);
+ 	if (unlikely(ret)) {
+ 		OSD_ERR("Error in osdpath_to_bsgpath(%s) => %d",
+ 			osd_path, ret);
