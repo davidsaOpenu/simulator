@@ -13,4 +13,21 @@ evssim_run_at_folder $EVSSIM_QEMU_FOLDER ./configure \
 
 # Make
 evssim_run_at_folder $EVSSIM_QEMU_FOLDER make clean
-evssim_run_at_folder $EVSSIM_QEMU_FOLDER bear make
+evssim_run_at_folder $EVSSIM_QEMU_FOLDER bear -- make -j8
+
+# Build osc-osd
+evssim_run_at_folder "$EVSSIM_SIMULATOR_FOLDER/eVSSIM/osc-osd" "make clean && make -j\`nproc\` && \
+    cp -r . $EVSSIM_DOCKER_ROOT_PATH/$EVSSIM_DIST_FOLDER/osc-osd"
+
+# Build mkfs.exofs executable and the shared lib libosd (required by mkfs.exofs)
+evssim_run_at_folder "$EVSSIM_SIMULATOR_FOLDER/" "git submodule update --init --recursive && \
+    git submodule foreach --recursive 'git reset --hard && git clean -fdx'"
+
+evssim_run_at_folder "open-osd" "make KSRC=/code/kernel ARCH=x86_64 clean && \
+    make KSRC=$EVSSIM_DOCKER_ROOT_PATH/$EVSSIM_KERNEL_FOLDER -j\`nproc\` && \
+    cp usr/mkfs.exofs $EVSSIM_DOCKER_ROOT_PATH/$EVSSIM_DIST_FOLDER/mkfs.exofs && \
+    cp lib/libosd.so $EVSSIM_DOCKER_ROOT_PATH/$EVSSIM_DIST_FOLDER/libosd.so"
+
+# Copy OSD emulation and exofs setup script into the dist directory
+evssim_run_at_folder "$EVSSIM_SIMULATOR_FOLDER/eVSSIM/scripts" "cp run_osd_emulator_and_mount_exofs.sh \
+    $EVSSIM_DOCKER_ROOT_PATH/$EVSSIM_DIST_FOLDER/run_osd_emulator_and_mount_exofs.sh"
