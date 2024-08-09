@@ -309,17 +309,25 @@ evssim_qemu_fresh_image () {
     evssim_copy_tools
 }
 
-# Copy NVME tools into the QEMU image
+# Copy NVME tools, exofs tool and OSD emulator into the QEMU image
 # Copy into an offline image using mounting of the qemu image.
 # Parameters - None
 # Example
-#   evssim_guest ls -al
+#   evssim_copy_tools
 evssim_copy_tools () {
     evssim_run_mounted "mkdir -p guest && cp -Rt guest \
         $EVSSIM_DOCKER_ROOT_PATH/$EVSSIM_DIST_FOLDER/nvme \
         $EVSSIM_DOCKER_ROOT_PATH/$EVSSIM_DIST_FOLDER/tnvme \
         $EVSSIM_DOCKER_ROOT_PATH/$EVSSIM_DIST_FOLDER/dnvme.ko \
         $EVSSIM_DOCKER_ROOT_PATH/$EVSSIM_SIMULATOR_FOLDER/eVSSIM/tests/guest/*"
+
+    # copy the OSD emulator (osc-osd)
+    evssim_run_mounted "cp -Rt . $EVSSIM_DOCKER_ROOT_PATH/$EVSSIM_DIST_FOLDER/osc-osd"
+    evssim_run_mounted "sudo cp $EVSSIM_DOCKER_ROOT_PATH/$EVSSIM_DIST_FOLDER/libosd.so $EVSSIM_GUEST_MOUNT_POINT/lib/"
+    # copy the mkfs.exofs utility
+    evssim_run_mounted "sudo cp $EVSSIM_DOCKER_ROOT_PATH/$EVSSIM_DIST_FOLDER/mkfs.exofs \
+        $EVSSIM_DOCKER_ROOT_PATH/$EVSSIM_DIST_FOLDER/run_osd_emulator_and_mount_exofs.sh \
+        $EVSSIM_GUEST_MOUNT_POINT/bin/"
 
     evssim_run_mounted sudo rsync -qrptgo $EVSSIM_DOCKER_ROOT_PATH/$EVSSIM_DIST_FOLDER/kernel/lib/ $EVSSIM_GUEST_MOUNT_POINT/lib/
 }

@@ -1,0 +1,31 @@
+#
+# Kbuild for the EXOFS module
+#
+# Copyright (C) 2008 Panasas Inc.  All rights reserved.
+#
+# Authors:
+#   Boaz Harrosh <bharrosh@panasas.com>
+#
+# This program is free software; you can redistribute it and/or modify
+# it under the terms of the GNU General Public License version 2
+#
+# Kbuild - Gets included from the Kernels Makefile and build system
+#
+
+ifneq ($(OSD_INC),)
+# we are built out-of-tree Kconfigure everything as on
+
+CONFIG_EXOFS_FS=m
+ccflags-y += -DCONFIG_EXOFS_FS -DCONFIG_EXOFS_FS_MODULE
+ccflags-y += -DOUT_OF_TREE
+# ccflags-y += -DCONFIG_EXOFS_DEBUG
+
+# if we are built out-of-tree and the hosting kernel has OSD headers
+# then "ccflags-y +=" will not pick the out-off-tree headers. Only by doing
+# this it will work. This might break in future kernels
+LINUXINCLUDE := -I$(OSD_INC) $(LINUXINCLUDE)
+
+endif
+
+exofs-y := ios.o inode.o file.o symlink.o namei.o dir.o super.o
+obj-$(CONFIG_EXOFS_FS) += exofs.o

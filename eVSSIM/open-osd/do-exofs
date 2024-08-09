@@ -1,0 +1,388 @@
+#!/bin/bash
+#
+
+OO_ROOT=`dirname $0`
+EXOFS_DIR=$OO_ROOT/fs/exofs
+USR_DIR=$OO_ROOT/usr
+MOUNTDIR=/mnt/osd0
+PID=0x10000
+FORMAT_SIZE=0
+
+DEV_OSD0=/dev/osd0
+UUID0="d2683732-c906-4ee1-9dbd-c10c27bb40df"
+
+DEV_OSD1=/dev/osd1
+UUID1="68b603b0-e438-43cb-8252-cd264c33dbcf"
+
+DEV_OSD2=/dev/osd2
+UUID2="0c5ff244-a70f-44ca-87de-781904c02d3e"
+
+DEV_OSD3=/dev/osd3
+UUID3="64722c99-b007-40c8-a359-75c55c3d7efe"
+
+
+DEV_OSD4=/dev/osd4
+UUID4="688b9896-59ef-4422-8bba-436e634a3654"
+
+DEV_OSD5=/dev/osd5
+UUID5="b5cb2130-99f8-4468-8a4b-502a41124604"
+
+DEV_OSD6=/dev/osd6
+UUID6="0ca752a8-497d-4705-8198-34f60f7f83ed"
+
+DEV_OSD7=/dev/osd7
+UUID7="0528bdfc-ea4e-4020-ae9e-d555dc32bfdf"
+
+
+MNT_PNFS=/mnt/pnfs
+
+export LD_LIBRARY_PATH=$OO_ROOT/lib
+GIT_TEST_LINUX=/home/bharrosh/dev/git/pub/scsi-misc
+
+do_cmd()
+{
+	$* 2>&1 | logger -t `basename $1` &
+}
+
+prompt()
+{
+	read -p "$* >>> "
+}
+
+start_exofs()
+{
+	modprobe exofs
+# 	add-symbol-file $EXOFS_DIR/exofs.ko
+}
+
+stop_exofs()
+{
+	modprobe --remove exofs
+}
+
+start_mount()
+{
+	OPT="osdname=$UUID0,pid=$PID,_netdev"
+
+	mount -t exofs -o $OPT $DEV_OSD0 $MOUNTDIR
+}
+
+stop_mount()
+{
+	umount $MOUNTDIR
+}
+
+S_PAGES=4
+# GROUP_WIDTH=1
+# GROUP_DEPTH=32768
+# GROUP_WIDTH=8
+# GROUP_DEPTH=4096
+GROUP_WIDTH=3
+GROUP_DEPTH=4096
+
+cross_group_test()
+{
+	dd if=/dev/zero of=$MOUNTDIR/cgt bs=4K \
+		seek=$(( S_PAGES * GROUP_WIDTH * GROUP_DEPTH - 1)) \
+		count=2
+}
+
+mkexofs_format()
+{
+	$USR_DIR/mkfs.exofs \
+		--pid=$PID --raid=5 --mirrors=0 --stripe_pages=$S_PAGES \
+		--group_width=$GROUP_WIDTH --group_depth=$GROUP_DEPTH   \
+		--dev=$DEV_OSD0 --format=$FORMAT_SIZE  --osdname=$UUID0 \
+		--dev=$DEV_OSD1 --format=$FORMAT_SIZE  --osdname=$UUID1 \
+		--dev=$DEV_OSD2 --format=$FORMAT_SIZE  --osdname=$UUID2 \
+		--dev=$DEV_OSD3 --format=$FORMAT_SIZE  --osdname=$UUID3 \
+		--dev=$DEV_OSD4 --format=$FORMAT_SIZE  --osdname=$UUID4 \
+		--dev=$DEV_OSD5 --format=$FORMAT_SIZE  --osdname=$UUID5 \
+		--dev=$DEV_OSD6 --format=$FORMAT_SIZE  --osdname=$UUID6 \
+		--dev=$DEV_OSD7 --format=$FORMAT_SIZE  --osdname=$UUID7
+}
+
+# this can coexist with ./do-ect $PID are different here and there
+mkexofs_only()
+{
+	$USR_DIR/mkfs.exofs \
+		--pid=$PID --raid=0 --mirrors=0 --stripe_pages=4\
+		--dev=$DEV_OSD0 \
+		--dev=$DEV_OSD1
+}
+
+exofs_hello_world()
+{
+	echo hello > $MOUNTDIR/world
+	cat $MOUNTDIR/world
+}
+
+# user can also use: rpcdebug  -v -m nfsd -s all
+srv_dbgon()
+{
+	dbg=0x7fff
+	if [ "$1" != "" ]; then
+	  dbg=$1
+	  echo dbgon $dbg
+	fi
+	echo $(($dbg)) > /proc/sys/sunrpc/nfsd_debug
+# 	echo "8 1 1 7" > /proc/sys/kernel/printk
+}
+
+do_dbgoff()
+{
+	echo $((0x0)) > /proc/sys/sunrpc/nfsd_debug
+}
+
+cli_dbgon()
+{
+	dbg=0x2000
+	if [ "$1" != "" ]; then
+	  dbg=$1
+	  echo dbgon $dbg
+	fi
+	echo $(($dbg)) > /proc/sys/sunrpc/nfs_debug
+# 	echo "8 1 1 7" > /proc/sys/kernel/printk
+}
+
+PNFS_SRV=192.168.0.120
+do_pnfs_start()
+{
+	service nfs start
+#	echo 15 >/proc/fs/nfsd/nfsv4leasetime
+#	echo 3 >/proc/fs/nfsd/nfsv4gracetime
+#	echo 3 >/proc/sys/fs/nfs/nlm_grace_period
+
+	modprobe objlayoutdriver
+
+	mount -t nfs4 -o minorversion=1 $PNFS_SRV:/ $MNT_PNFS
+}
+
+do_pnfs_local()
+{
+	if [ -z "$(df $MOUNTDIR |grep $DEV_OSD0)" ]; then
+		start_exofs
+		start_mount
+	fi
+
+	PNFS_SRV=localhost
+	do_pnfs_start
+}
+
+do_pnfs_stop()
+{
+	umount $MNT_PNFS
+	modprobe --remove objlayoutdriver
+	service nfs stop
+}
+
+cthon_test()
+{
+	cd /home/bharrosh/dev/git/pub/tests/cthon04-nfs41
+	umount /mnt/localhost
+	./server -a -p / localhost
+}
+
+exofs_dd_test()
+{
+	dd if=/dev/zero of=$MOUNTDIR/dd1_exofs bs=4k count=2048
+}
+
+pnfs_dd_test()
+{
+	dd if=/dev/zero of=$MNT_PNFS/dd1_pnfs bs=4k count=2048
+}
+
+trunc_test()
+{
+	# let in an IO for the grace period
+	dd if=/dev/zero of=$MNT_PNFS/dd1 bs=4k count=512
+
+	prompt "do truncate test"
+	# start the test
+	{
+		for i in {1..10}; do
+			echo $i;
+			dd if=/dev/zero bs=4k count=512
+			sleep 1;
+		done > $MNT_PNFS/dd4 ;
+		echo "===== T1 =====" ;
+	} &
+
+	{
+		for i in {1..30}; do
+			echo -n . ;
+			echo b > $MOUNTDIR/dd4; sleep 0.33;
+		done ;
+		echo "===== T2 =====" ;
+	} &
+}
+# dd if=/dev/zero of=/mnt/pnfs/dd seek=16 bs=4k count=512
+
+clear_cache()
+{
+	sync; echo 3 > /proc/sys/vm/drop_caches
+}
+
+case $1 in
+start)
+	echo $0 Starting | logger
+
+	start_exofs
+	start_mount
+
+	echo $0 Initialized | logger
+	;;
+
+stop)
+	echo $0 Stopping | logger
+
+	stop_mount
+	stop_exofs
+
+	echo $0 Stopped | logger
+	;;
+
+restart)
+	echo $0 restart | logger
+
+	prompt stop_exofs
+	stop_mount
+	stop_exofs
+
+	prompt start_exofs
+	start_exofs
+	start_mount
+
+	echo $0 restart | logger
+	;;
+
+test)
+	cthon_test
+	;;
+pnfs_dd_test)
+	pnfs_dd_test
+	;;
+exofs_dd_test)
+	exofs_dd_test
+	;;
+cgt)
+	cross_group_test
+	;;
+
+trunc_test)
+	trunc_test
+	;;
+
+git_test)
+	pushd $MOUNTDIR
+	tail -1117 /var/log/messages > /var/log/messages.git_test.$2
+	echo "" > /var/log/messages
+	echo "================= $2 ==============" | logger
+	echo "================= $2 =============="
+	/bin/rm -rf scsi-misc || exit
+	git clone $GIT_TEST_LINUX || exit
+	ls -li ; vmstat ;
+	popd
+	;;
+
+mkfs)
+	prompt mkexofs_only?
+	echo "$0 mkfs starting" | logger
+	mkexofs_only
+	echo "$0 mkfs done" | logger
+	;;
+
+format)
+	prompt mkexofs_format
+	mkexofs_format
+
+	prompt "osd stop?"
+	./do-osd stop
+	prompt "osd start?"
+	./do-osd start
+
+	echo $0 format | logger
+	;;
+
+format_start)
+	echo $0 Starting | logger
+
+	prompt start_exofs
+	start_exofs
+
+	prompt mkexofs_format
+	mkexofs_format
+
+	prompt start_mount
+	start_mount
+
+	prompt exofs_hello_world
+	exofs_hello_world
+
+	echo $0 format_start | logger
+	;;
+
+pnfs_start)
+	do_pnfs_start
+# 	cli_dbgon
+
+	echo $0 pnfs_start | logger
+	;;
+
+pl)
+	do_pnfs_local
+	;;
+
+pnfs_hi)
+	echo hi > $MNT_PNFS/boaz
+	;;
+
+pnfs_stop)
+	do_pnfs_stop
+	echo $0 pnfs_stop | logger
+	;;
+
+clidbgon)
+	cli_dbgon $2
+	;;
+srvdbgon)
+	srv_dbgon $2
+	;;
+dbgoff)
+	do_dbgoff
+	;;
+
+hi)
+	do_pnfs_start
+	echo pnfs_dd_test
+	pnfs_dd_test
+	;;
+bye)
+	do_pnfs_stop
+	;;
+# ih)
+# 
+# 	rm -f $MOUNTDIR/bb*
+# 	for i in {1..10}; do 
+# 		echo $MOUNTDIR/bb$i
+# 		touch $MOUNTDIR/bb$i
+# 	done
+# 
+# 	pushd $MOUNTDIR/
+# 	rm -rf linux-pnfs
+# 	git clone /home/bharrosh/dev/git/pub/linux-pnfs/
+# 	popd
+# dd if=/dev/zero of=/mnt/pnfs/dd_holes bs=1 seek=17 count=4062 conv=notrunc
+# 	stop_mount
+# 	;;
+
+clear_cache)
+	clear_cache
+	;;
+
+*)
+	echo "!! please specify: start|stop|restart|test|format|format_start|pnfs_start|pnfs_stop|pnfs_test|dbgon|dbgoff"
+	;;
+
+esac
