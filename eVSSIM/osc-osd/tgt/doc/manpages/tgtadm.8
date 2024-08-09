@@ -1,0 +1,88 @@
+.\"     Title: tgtadm
+.\"    Author: 
+.\" Generator: DocBook XSL Stylesheets v1.73.2 <http://docbook.sf.net/>
+.\"      Date: 03/04/2010
+.\"    Manual: 
+.\"    Source: 
+.\"
+.TH "TGTADM" "8" "03/04/2010" "" ""
+.\" disable hyphenation
+.nh
+.\" disable justification (adjust text to left margin only)
+.ad l
+.SH "NAME"
+tgtadm - Linux SCSI Target Administration Utility
+.SH "SYNOPSIS"
+.HP 87
+\fBtgtadm [\-\-control\-port NNNN] \-\-lld [driver] \-\-op [operation] \-\-mode [mode] [OPTION]\.\.\.\fR
+.SH "DESCRIPTION"
+.PP
+tgtadm is used to monitor and modify everything about Linux SCSI target software: targets, volumes, etc\.
+.SH "OPTIONS"
+.PP
+\fB\-\-control\-port NNNN\fR
+.RS 4
+It is possible to run multiple concurrent instances of tgtd on a host\. This argument is used to control which instance the tgtadm command will operate on\.
+.RE
+.PP
+\fB\-\-lld [driver] \-\-op new \-\-mode target \-\-tid=[id] \-\-targetname [name]\fR
+.RS 4
+add a new target with [id] and [name]\.
+.RE
+.PP
+\fB\-\-lld [driver] \-\-op delete \-\-mode target \-\-tid=[id]\fR
+.RS 4
+delete specific target with [id]\. The target must have no active I_T nexus\.
+.RE
+.PP
+\fB\-\-lld [driver] \-\-op show \-\-mode target\fR
+.RS 4
+show all the targets\.
+.RE
+.PP
+\fB\-\-lld [driver] \-\-op show \-\-mode target \-\-tid=[id]\fR
+.RS 4
+show target parameters of a target with [id]\.
+.RE
+.PP
+\fB\-\-lld [driver] \-\-op new \-\-mode=logicalunit \-\-tid=[id] \-\-lun=[lun] \-\-backing\-store [path]\fR
+.RS 4
+add a new logical unit with [lun] to specific target with [id]\. The logical unit is offered to the initiators\. [path] must be block device files (including LVM and RAID devices) or regular files\. lun0 is reserved for a special device automatically created\.
+.RE
+.PP
+\fB\-\-lld [driver] \-\-op delete \-\-mode=logicalunit \-\-tid=[id] \-\-lun=[lun]\fR
+.RS 4
+delete specific logical unit with [lun] that the target with [id] has\.
+.RE
+.PP
+\fB\-\-lld [driver] \-\-op bind \-\-mode=target \-\-tid=[id] \-\-initiator\-address=[address]\fR
+.RS 4
+add the address to the access lists of the target with [id]\. Initiators with the address can access to the target\. \'ALL\' is a special address to allow all initiators to access to a target\.
+.RE
+.PP
+\fB\-\-lld [driver] \-\-op unbind \-\-mode=target \-\-tid=[id] \-\-initiator\-address=[address]\fR
+.RS 4
+delete the address from the access lists of the target with [id]\.
+.RE
+.PP
+\fB\-\-lld [driver] \-\-op update \-\-mode=target \-\-tid=[id] \-\-name=[parameter] \-\-value=[value]\fR
+.RS 4
+change the value of [parameter] of the target with [id] to [value]\.
+.RE
+.PP
+\fB\-\-version\fR
+.RS 4
+display version and exit\.
+.RE
+.PP
+\fB\-\-help\fR
+.RS 4
+display a list of available options and exits\.
+.RE
+.SH "SEE ALSO"
+.PP
+tgtd(8), tgt\-admin(8), tgtimg(8), tgt\-setup\-lun(8)\.
+\fI\%http://stgt.sourceforge.net/\fR
+.SH "REPORTING BUGS"
+.PP
+Report bugs to <stgt@vger\.kernel\.org>
