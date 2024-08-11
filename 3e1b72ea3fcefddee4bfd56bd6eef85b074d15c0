@@ -33,6 +33,29 @@
       "message": "recheck",
       "revId": "3e1b72ea3fcefddee4bfd56bd6eef85b074d15c0",
       "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "3b4f7e04_f1757208",
+        "filename": "eVSSIM/MONITOR/SERVER/logging_server.c",
+        "patchSetId": 19
+      },
+      "lineNbr": 240,
+      "author": {
+        "id": 1007990
+      },
+      "writtenOn": "2024-08-11T09:20:21Z",
+      "side": 1,
+      "message": "log_server_update is prpbably not the bet place for validation. How about simulator/eVSSIM/tests/host/logging_statistics.c?",
+      "range": {
+        "startLine": 240,
+        "startChar": 8,
+        "endLine": 240,
+        "endChar": 23
+      },
+      "revId": "3e1b72ea3fcefddee4bfd56bd6eef85b074d15c0",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
     }
   ]
 }

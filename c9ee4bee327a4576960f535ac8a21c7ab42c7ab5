@@ -144,6 +144,30 @@
     {
       "unresolved": true,
       "key": {
+        "uuid": "83cd661f_f7f06e68",
+        "filename": "eVSSIM/LOG_MGR/logging_rt_analyzer.c",
+        "patchSetId": 16
+      },
+      "lineNbr": 1,
+      "author": {
+        "id": 1007990
+      },
+      "writtenOn": "2024-08-11T09:20:21Z",
+      "side": 1,
+      "message": "the problem is that the number of lines changed does not reflects the complexity of change.",
+      "parentUuid": "5aafea1d_806f4086",
+      "range": {
+        "startLine": 1,
+        "startChar": 1,
+        "endLine": 1,
+        "endChar": 2
+      },
+      "revId": "c9ee4bee327a4576960f535ac8a21c7ab42c7ab5",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
+    },
+    {
+      "unresolved": true,
+      "key": {
         "uuid": "5a5f2436_4924de5b",
         "filename": "eVSSIM/LOG_MGR/logging_statistics.h",
         "patchSetId": 16
