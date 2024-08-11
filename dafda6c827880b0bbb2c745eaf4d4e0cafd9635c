@@ -1,0 +1,90 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "771b1fb7_9551daa9",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 3
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 1007990
+      },
+      "writtenOn": "2024-08-11T06:42:19Z",
+      "side": 1,
+      "message": "Thanks for working on this change. \n\nOne general comment: let\u0027s clone open-osd code (e.g. from infra/build scripts) or add open-osd as a sub-project to evssim rather then pushing the code without commit history.\n\nAnd several comments inline.",
+      "revId": "dafda6c827880b0bbb2c745eaf4d4e0cafd9635c",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "15368bc7_dc4e705b",
+        "filename": "eVSSIM/open-osd/run_osd_emulator_and_mount_exofs.sh",
+        "patchSetId": 3
+      },
+      "lineNbr": 32,
+      "author": {
+        "id": 1007990
+      },
+      "writtenOn": "2024-08-11T06:42:19Z",
+      "side": 1,
+      "message": "better to invoke from infra/build scripts",
+      "range": {
+        "startLine": 4,
+        "startChar": 0,
+        "endLine": 32,
+        "endChar": 14
+      },
+      "revId": "dafda6c827880b0bbb2c745eaf4d4e0cafd9635c",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "0e89bfcc_7ee417df",
+        "filename": "eVSSIM/osc-osd/up",
+        "patchSetId": 3
+      },
+      "lineNbr": 86,
+      "author": {
+        "id": 1007990
+      },
+      "writtenOn": "2024-08-11T06:42:19Z",
+      "side": 1,
+      "message": "values better be delivered via the $1 and $4 during the script invocation",
+      "range": {
+        "startLine": 86,
+        "startChar": 17,
+        "endLine": 86,
+        "endChar": 25
+      },
+      "revId": "dafda6c827880b0bbb2c745eaf4d4e0cafd9635c",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "736f7ae6_2d96e348",
+        "filename": "eVSSIM/osc-osd/up",
+        "patchSetId": 3
+      },
+      "lineNbr": 89,
+      "author": {
+        "id": 1007990
+      },
+      "writtenOn": "2024-08-11T06:42:19Z",
+      "side": 1,
+      "message": "maybe it worth incorporation a parameter for the lun number as well here and in line 85",
+      "range": {
+        "startLine": 89,
+        "startChar": 16,
+        "endLine": 89,
+        "endChar": 17
+      },
+      "revId": "dafda6c827880b0bbb2c745eaf4d4e0cafd9635c",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
+    }
+  ]
+}

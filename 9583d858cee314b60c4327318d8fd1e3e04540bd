@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "1ce947af_b7cbde35",
+        "filename": "infra/builder/compile-kernel.sh",
+        "patchSetId": 3
+      },
+      "lineNbr": 11,
+      "author": {
+        "id": 1007990
+      },
+      "writtenOn": "2024-08-11T06:42:19Z",
+      "side": 0,
+      "message": "should not be removed (also in lines 12,13)",
+      "range": {
+        "startLine": 11,
+        "startChar": 49,
+        "endLine": 11,
+        "endChar": 63
+      },
+      "revId": "9583d858cee314b60c4327318d8fd1e3e04540bd",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
+    }
+  ]
+}
