@@ -37,6 +37,52 @@
     {
       "unresolved": true,
       "key": {
+        "uuid": "c03f7d49_6fbf5570",
+        "filename": "eVSSIM/LOG_MGR/logging_rt_analyzer.c",
+        "patchSetId": 19
+      },
+      "lineNbr": 152,
+      "author": {
+        "id": 1007990
+      },
+      "writtenOn": "2024-08-11T09:24:18Z",
+      "side": 1,
+      "message": "correct. but we also need to track internal r/w",
+      "range": {
+        "startLine": 152,
+        "startChar": 37,
+        "endLine": 152,
+        "endChar": 103
+      },
+      "revId": "3e1b72ea3fcefddee4bfd56bd6eef85b074d15c0",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "42996b44_59f3c4ba",
+        "filename": "eVSSIM/LOG_MGR/logging_statistics.h",
+        "patchSetId": 19
+      },
+      "lineNbr": 66,
+      "author": {
+        "id": 1007990
+      },
+      "writtenOn": "2024-08-11T09:24:18Z",
+      "side": 1,
+      "message": "where those fields are updated?",
+      "range": {
+        "startLine": 62,
+        "startChar": 0,
+        "endLine": 66,
+        "endChar": 26
+      },
+      "revId": "3e1b72ea3fcefddee4bfd56bd6eef85b074d15c0",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
+    },
+    {
+      "unresolved": true,
+      "key": {
         "uuid": "3b4f7e04_f1757208",
         "filename": "eVSSIM/MONITOR/SERVER/logging_server.c",
         "patchSetId": 19
