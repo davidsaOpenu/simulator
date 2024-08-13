@@ -276,6 +276,10 @@ void log_server_loop(int max_loops) {
     }
 }
 
+void log_server_stop(void){
+    lws_cancel_service(log_server.context);
+}
+
 void log_server_free(void) {
     lws_context_destroy(log_server.context);
     pthread_mutex_destroy(&log_server.lock);
