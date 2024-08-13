@@ -237,6 +237,7 @@ int log_server_init(void) {
 
 void log_server_update(SSDStatistics stats) {
     if (!stats_equal(log_server.stats, stats)) {
+        validateSSDStat(&stats);
         pthread_mutex_lock(&log_server.lock);
         log_server.stats = stats;
         pthread_mutex_unlock(&log_server.lock);
@@ -273,6 +274,10 @@ void log_server_loop(int max_loops) {
             break;
         }
     }
+}
+
+void log_server_stop(void){
+    lws_cancel_service(log_server.context);
 }
 
 void log_server_free(void) {
