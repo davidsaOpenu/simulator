@@ -103,6 +103,11 @@ void* log_server_run(void *param);
  */
 void log_server_loop(int max_loops);
 
+/*
+ * immidiatly terminate server, dont wait for next loop iterration 
+ */
+void log_server_stop(void);
+
 /**
  * Free the data initialized for the logging server
  */
