@@ -81,6 +81,30 @@
       "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "12a7e848_3fb9925e",
+        "filename": "eVSSIM/LOG_MGR/logging_statistics.h",
+        "patchSetId": 19
+      },
+      "lineNbr": 66,
+      "author": {
+        "id": 1037995
+      },
+      "writtenOn": "2024-08-14T10:49:15Z",
+      "side": 1,
+      "message": "They didn\u0027t exist in original.\nI added them so when calculating stat, We can accurately calculate them and not have floating point rounding errors",
+      "parentUuid": "42996b44_59f3c4ba",
+      "range": {
+        "startLine": 62,
+        "startChar": 0,
+        "endLine": 66,
+        "endChar": 26
+      },
+      "revId": "3e1b72ea3fcefddee4bfd56bd6eef85b074d15c0",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "3b4f7e04_f1757208",
