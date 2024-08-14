@@ -150,6 +150,30 @@
       },
       "revId": "3e1b72ea3fcefddee4bfd56bd6eef85b074d15c0",
       "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "d79d2ce9_2f4c2d33",
+        "filename": "eVSSIM/MONITOR/SERVER/logging_server.c",
+        "patchSetId": 19
+      },
+      "lineNbr": 240,
+      "author": {
+        "id": 1037995
+      },
+      "writtenOn": "2024-08-14T11:29:13Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "3b4f7e04_f1757208",
+      "range": {
+        "startLine": 240,
+        "startChar": 8,
+        "endLine": 240,
+        "endChar": 23
+      },
+      "revId": "3e1b72ea3fcefddee4bfd56bd6eef85b074d15c0",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
     }
   ]
 }
