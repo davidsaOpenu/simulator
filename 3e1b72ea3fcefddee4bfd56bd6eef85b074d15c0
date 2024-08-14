@@ -58,6 +58,30 @@
       "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "99293dba_727a4d57",
+        "filename": "eVSSIM/LOG_MGR/logging_rt_analyzer.c",
+        "patchSetId": 19
+      },
+      "lineNbr": 152,
+      "author": {
+        "id": 1037995
+      },
+      "writtenOn": "2024-08-14T11:25:27Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "c03f7d49_6fbf5570",
+      "range": {
+        "startLine": 152,
+        "startChar": 37,
+        "endLine": 152,
+        "endChar": 103
+      },
+      "revId": "3e1b72ea3fcefddee4bfd56bd6eef85b074d15c0",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "42996b44_59f3c4ba",
