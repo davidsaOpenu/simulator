@@ -1,0 +1,153 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "c1ce9975_dc19e436",
+        "filename": "eVSSIM/FTL_SOURCE/PERF_MODULE/ftl_perf_manager.c",
+        "patchSetId": 23
+      },
+      "lineNbr": 1,
+      "author": {
+        "id": 1007990
+      },
+      "writtenOn": "2024-08-19T17:48:49Z",
+      "side": 1,
+      "message": "plz remove executable flag",
+      "revId": "a5f8b2a60d770e0cd83a116000c6ddfacd03141f",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "49541b68_a7857507",
+        "filename": "eVSSIM/LOG_MGR/logging_manager.c",
+        "patchSetId": 23
+      },
+      "lineNbr": 152,
+      "author": {
+        "id": 1007990
+      },
+      "writtenOn": "2024-08-19T17:48:49Z",
+      "side": 1,
+      "message": "Managers are optimized for speed \u003d\u003e only absolutely vital validations are allowed. SSD stat validations with/without printouts should be a part of host tests (eVSSIM/LOG_MGR/logging_statistics.c)",
+      "revId": "a5f8b2a60d770e0cd83a116000c6ddfacd03141f",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "5b48b76a_d4f6226f",
+        "filename": "eVSSIM/LOG_MGR/logging_rt_analyzer.c",
+        "patchSetId": 23
+      },
+      "lineNbr": 133,
+      "author": {
+        "id": 1007990
+      },
+      "writtenOn": "2024-08-19T17:48:49Z",
+      "side": 1,
+      "message": "s/continue/exit requires also s/WARNING/ERROR + stopping all threads. \nI\u0027d suggest to leave continue. But instead of writing to the stderr to write to some file. Then simply adding to the real time monitor ( ./eVSSIM/MONITOR/SERVER/www/index.html ) a window and java script  to reflect changes in that log file in he window.",
+      "range": {
+        "startLine": 131,
+        "startChar": 0,
+        "endLine": 133,
+        "endChar": 20
+      },
+      "revId": "a5f8b2a60d770e0cd83a116000c6ddfacd03141f",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "e1b7754c_9762eaf2",
+        "filename": "eVSSIM/LOG_MGR/logging_rt_analyzer.c",
+        "patchSetId": 23
+      },
+      "lineNbr": 152,
+      "author": {
+        "id": 1007990
+      },
+      "writtenOn": "2024-08-19T17:48:49Z",
+      "side": 1,
+      "message": "R/W speeds reflected on ./eVSSIM/MONITOR/SERVER/www/index.html are indeed logical R/Ws",
+      "range": {
+        "startLine": 152,
+        "startChar": 37,
+        "endLine": 152,
+        "endChar": 103
+      },
+      "revId": "a5f8b2a60d770e0cd83a116000c6ddfacd03141f",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "55fc5d94_8a7b6869",
+        "filename": "eVSSIM/LOG_MGR/logging_rt_analyzer.c",
+        "patchSetId": 23
+      },
+      "lineNbr": 240,
+      "author": {
+        "id": 1007990
+      },
+      "writtenOn": "2024-08-19T17:48:49Z",
+      "side": 1,
+      "message": "this one sounds like an error that should not happen. At very least we need to reflect it on the monitor page. In addition to ASSERT (logical_write_count \u003e stats.write_count) in host tests (log manager statistics tests)",
+      "range": {
+        "startLine": 238,
+        "startChar": 0,
+        "endLine": 240,
+        "endChar": 9
+      },
+      "revId": "a5f8b2a60d770e0cd83a116000c6ddfacd03141f",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "763a3f51_88a4251a",
+        "filename": "eVSSIM/LOG_MGR/logging_statistics.h",
+        "patchSetId": 23
+      },
+      "lineNbr": 66,
+      "author": {
+        "id": 1007990
+      },
+      "writtenOn": "2024-08-19T17:48:49Z",
+      "side": 1,
+      "message": "Wall time is the ultimate measure. What is the point of having one for reads and one for writes?\n\nseems also like it\u0027s a good time to remove the duplication \n\neVSSIM/LOG_MGR/logging_manager.c:103:        double read_wall_time \u003d 0;\neVSSIM/LOG_MGR/logging_manager.c:123:                read_wall_time +\u003d current_stats.read_count / current_stats.read_speed;\neVSSIM/LOG_MGR/logging_manager.c:136:        if (read_wall_time \u003d\u003d 0)\neVSSIM/LOG_MGR/logging_manager.c:139:            stats.read_speed \u003d ((double) stats.read_count) / read_wall_time;\neVSSIM/LOG_MGR/logging_rt_analyzer.c:57:        rt_log_stats[i].read_wall_time \u003d 0;\neVSSIM/LOG_MGR/logging_rt_analyzer.c:107:                rt_log_stats[analyzer-\u003ert_analyzer_id].read_wall_time \u003d 0;\neVSSIM/LOG_MGR/logging_rt_analyzer.c:144:                rt_log_stats[analyzer-\u003ert_analyzer_id].read_wall_time +\u003d rt_log_stats[analyzer-\u003ert_analyzer_id].current_wall_time;\neVSSIM/LOG_MGR/logging_rt_analyzer.c:235:        if (rt_log_stats[analyzer-\u003ert_analyzer_id].read_wall_time \u003d\u003d 0)\neVSSIM/LOG_MGR/logging_rt_analyzer.c:239:                ((double) stats.read_count) / rt_log_stats[analyzer-\u003ert_analyzer_id].read_wall_time\neVSSIM/LOG_MGR/logging_rt_analyzer.h:80:\tint read_wall_time;\neVSSIM/tests/host/ssd_io_emulator_tests.cc:34:extern int read_wall_time;\neVSSIM/tests/host/ssd_io_emulator_tests.cc:109:        int read_wall_time \u003d 0;\neVSSIM/tests/host/ssd_io_emulator_tests.cc:124:            read_wall_time +\u003d rt_log_stats[i].read_wall_time;\neVSSIM/tests/host/ssd_io_emulator_tests.cc:127:        ASSERT_LE(read_wall_time - expected_read_duration, DELAY_THRESHOLD);\neVSSIM/tests/host/ssd_io_emulator_tests.cc:146:        int read_wall_time \u003d 0;\neVSSIM/tests/host/ssd_io_emulator_tests.cc:165:            read_wall_time +\u003d rt_log_stats[i].read_wall_time;\neVSSIM/tests/host/ssd_io_emulator_tests.cc:170:        ASSERT_LE(abs(read_wall_time - expected_read_duration), DELAY_THRESHOLD);\n\neVSSIM/LOG_MGR/logging_manager.c:102:        double write_wall_time \u003d 0;\neVSSIM/LOG_MGR/logging_manager.c:121:                write_wall_time +\u003d current_stats.write_count / current_stats.write_speed;\neVSSIM/LOG_MGR/logging_manager.c:131:        if (write_wall_time \u003d\u003d 0)\neVSSIM/LOG_MGR/logging_manager.c:134:            stats.write_speed \u003d ((double) stats.write_count) / write_wall_time;\neVSSIM/LOG_MGR/logging_rt_analyzer.c:58:        rt_log_stats[i].write_wall_time \u003d 0;\neVSSIM/LOG_MGR/logging_rt_analyzer.c:106:                rt_log_stats[analyzer-\u003ert_analyzer_id].write_wall_time \u003d 0;\neVSSIM/LOG_MGR/logging_rt_analyzer.c:155:                rt_log_stats[analyzer-\u003ert_analyzer_id].write_wall_time +\u003d rt_log_stats[analyzer-\u003ert_analyzer_id].current_wall_time;\neVSSIM/LOG_MGR/logging_rt_analyzer.c:242:        if (rt_log_stats[analyzer-\u003ert_analyzer_id].write_wall_time \u003d\u003d 0)\neVSSIM/LOG_MGR/logging_rt_analyzer.c:246:                ((double) stats.write_count) / rt_log_stats[analyzer-\u003ert_analyzer_id].write_wall_time\neVSSIM/LOG_MGR/logging_rt_analyzer.h:79:\tint write_wall_time;\neVSSIM/tests/host/ssd_io_emulator_tests.cc:33:extern int write_wall_time;\neVSSIM/tests/host/ssd_io_emulator_tests.cc:76:        int write_wall_time \u003d 0;\neVSSIM/tests/host/ssd_io_emulator_tests.cc:91:            write_wall_time +\u003d rt_log_stats[i].write_wall_time;\neVSSIM/tests/host/ssd_io_emulator_tests.cc:94:        ASSERT_LE(write_wall_time - expected_write_duration, DELAY_THRESHOLD);\neVSSIM/tests/host/ssd_io_emulator_tests.cc:145:        int write_wall_time \u003d 0;\neVSSIM/tests/host/ssd_io_emulator_tests.cc:164:            write_wall_time +\u003d rt_log_stats[i].write_wall_time;\neVSSIM/tests/host/ssd_io_emulator_tests.cc:168:        ASSERT_LE(write_wall_time - expected_write_duration, DELAY_THRESHOLD);\n\n\n\nand \n\ngrep read_wall_time * -rn\neVSSIM/LOG_MGR/logging_manager.c:103:        double read_wall_time \u003d 0;\neVSSIM/LOG_MGR/logging_manager.c:123:                read_wall_time +\u003d current_stats.read_count / current_stats.read_speed;\neVSSIM/LOG_MGR/logging_manager.c:136:        if (read_wall_time \u003d\u003d 0)\neVSSIM/LOG_MGR/logging_manager.c:139:            stats.read_speed \u003d ((double) stats.read_count) / read_wall_time;\neVSSIM/LOG_MGR/logging_rt_analyzer.c:57:        rt_log_stats[i].read_wall_time \u003d 0;\neVSSIM/LOG_MGR/logging_rt_analyzer.c:107:                rt_log_stats[analyzer-\u003ert_analyzer_id].read_wall_time \u003d 0;\neVSSIM/LOG_MGR/logging_rt_analyzer.c:144:                rt_log_stats[analyzer-\u003ert_analyzer_id].read_wall_time +\u003d rt_log_stats[analyzer-\u003ert_analyzer_id].current_wall_time;\neVSSIM/LOG_MGR/logging_rt_analyzer.c:235:        if (rt_log_stats[analyzer-\u003ert_analyzer_id].read_wall_time \u003d\u003d 0)\neVSSIM/LOG_MGR/logging_rt_analyzer.c:239:                ((double) stats.read_count) / rt_log_stats[analyzer-\u003ert_analyzer_id].read_wall_time\neVSSIM/LOG_MGR/logging_rt_analyzer.h:80:\tint read_wall_time;\neVSSIM/tests/host/ssd_io_emulator_tests.cc:34:extern int read_wall_time;\neVSSIM/tests/host/ssd_io_emulator_tests.cc:109:        int read_wall_time \u003d 0;\neVSSIM/tests/host/ssd_io_emulator_tests.cc:124:            read_wall_time +\u003d rt_log_stats[i].read_wall_time;\neVSSIM/tests/host/ssd_io_emulator_tests.cc:127:        ASSERT_LE(read_wall_time - expected_read_duration, DELAY_THRESHOLD);\neVSSIM/tests/host/ssd_io_emulator_tests.cc:146:        int read_wall_time \u003d 0;\neVSSIM/tests/host/ssd_io_emulator_tests.cc:165:            read_wall_time +\u003d rt_log_stats[i].read_wall_time;\neVSSIM/tests/host/ssd_io_emulator_tests.cc:170:        ASSERT_LE(abs(read_wall_time - expected_read_duration), DELAY_THRESHOLD);",
+      "range": {
+        "startLine": 62,
+        "startChar": 0,
+        "endLine": 66,
+        "endChar": 26
+      },
+      "revId": "a5f8b2a60d770e0cd83a116000c6ddfacd03141f",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "8629c6d8_c544eecf",
+        "filename": "eVSSIM/tests/host/rt_analyzer_subscriber.cc",
+        "patchSetId": 23
+      },
+      "lineNbr": 140,
+      "author": {
+        "id": 1007990
+      },
+      "writtenOn": "2024-08-19T17:48:49Z",
+      "side": 1,
+      "message": "in this file there are few changes related to                       write_wall_time/read_wall_time comment from https://review.gerrithub.io/c/davidsaOpenu/simulator/+/1193899/23/eVSSIM/LOG_MGR/logging_statistics.h",
+      "range": {
+        "startLine": 138,
+        "startChar": 0,
+        "endLine": 140,
+        "endChar": 39
+      },
+      "revId": "a5f8b2a60d770e0cd83a116000c6ddfacd03141f",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
+    }
+  ]
+}
