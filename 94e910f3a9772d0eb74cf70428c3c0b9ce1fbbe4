@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "8f619616_604b5893",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 2
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 1007990
+      },
+      "writtenOn": "2024-08-19T17:52:28Z",
+      "side": 1,
+      "message": "good point, we can merge this change as soon as logging_rerver.c identification will be recovered to reflect the number of changed lines.",
+      "revId": "94e910f3a9772d0eb74cf70428c3c0b9ce1fbbe4",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
+    }
+  ]
+}
