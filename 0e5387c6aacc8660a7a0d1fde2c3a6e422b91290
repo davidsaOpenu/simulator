@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "0d14b2f0_043af931",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 7
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 1007990
+      },
+      "writtenOn": "2024-08-21T05:00:30Z",
+      "side": 1,
+      "message": "I have created https://review.gerrithub.io/c/davidsaOpenu/simulator/+/1199761. Let\u0027s clone open-osd at the same level as simulator repo and change this PR accordingly",
+      "revId": "0e5387c6aacc8660a7a0d1fde2c3a6e422b91290",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
+    }
+  ]
+}
