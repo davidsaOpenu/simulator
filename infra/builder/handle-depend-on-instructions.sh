@@ -9,7 +9,7 @@ fetch_ref_spec() {
     local project_name=$1
     local fetch_cmd=$2
     project_repo="${WORKSPACE}/$project_name"
-    if [[ "$project_name " == " dnvme " || " $project_name " == " dnvme " ]]; then
+    if [[ "$project_name" == "dnvme" || "$project_name" == "tnvme" ]]; then
         project_repo="${WORKSPACE}/nvmeCompl/$project_name"
     fi
     echo "------------- start fetch_ref_spec ----------------"
@@ -24,26 +24,25 @@ fetch_ref_spec() {
         echo "SUCCESS - Fetched and local repo was updated"
     else
         echo "FAILED to fetch due to a conflict/s or a commit that is already in the current history"
-	echo "REPO STATUS AFTER THE FETCH: $(git status)"
-	echo "resseting the local repo"
-	git reset --hard
-	exit 1
+        echo "REPO STATUS AFTER THE FETCH: $(git status)"
+        echo "Resetting the local repo"
+        git reset --hard
+        exit 1
     fi
     echo "BRANCH AFTER FETCH CMD: $(git branch -a)"
-    echo "REPO AFTER PRIOR TO FETCH CMD: $(git status)"
+    echo "REPO STATUS AFTER FETCH CMD: $(git status)"
 
     popd
     echo "PWD: $(pwd)"
     echo "------------- end fetch_ref_spec ----------------"
-
 }
 
 WORKSPACE=$1 # WORKSPACE env variable of Jenkins
-commit_message=$2 #GERRIT_CHANGE_SUBJECT env variable of GerritTrigger
+commit_message=$2 # GERRIT_CHANGE_SUBJECT env variable of GerritTrigger
 
 echo "******************** start handle-depend-on-instructions.sh *************************"
 echo "COMMIT MESSAGE: $commit_message"
-echo "WORKPLACE: $WORKSPACE"
+echo "WORKSPACE: $WORKSPACE"
 
 #commit_message="Title
 
@@ -68,12 +67,15 @@ The name of the project should be one of the following:
 $(printf '%s\n' ${projectArr[@]})
 "
 
-# "|| true" to avoid script fail for commit message that contains no depend-on: http.* lines
+# "|| true" to avoid script fail for commit message that contains no depends-on: http.* lines
 depends_on_lines=$(echo "$commit_message" | grep -i 'depends-on' | grep -o 'http.*') || true
 
 echo "PARSING DEPENDS-ON LINES"
 for url in $depends_on_lines; do
-    url_no_c_no_plus=$(echo "$url" | sed -e 's-\/c--g' -e 's-\/+--g' )
+    # Remove trailing slash if it exists
+    url=$(echo "$url" | sed 's:/*$::')
+
+    url_no_c_no_plus=$(echo "$url" | sed -e 's-\/c--g' -e 's-\/+--g')
     change_num=$(echo "$url_no_c_no_plus" | grep -o '[0-9]*$')
     gerrit_host=$(echo $url_no_c_no_plus | cut -d "/" -f 3)
     gerrit_user=$(echo $url_no_c_no_plus | cut -d "/" -f 4)
@@ -90,7 +92,7 @@ for url in $depends_on_lines; do
     echo "FETCH CMD: $fetch_cmd"
 
     if [[ " ${projectArr[*]} " =~ " $project_name " ]]; then
-	fetch_ref_spec "$project_name" "$fetch_cmd"
+        fetch_ref_spec "$project_name" "$fetch_cmd"
     else
         echo "$ERROR_INVALID_PROJECT_NAME_OR_URL"
         exit 1
