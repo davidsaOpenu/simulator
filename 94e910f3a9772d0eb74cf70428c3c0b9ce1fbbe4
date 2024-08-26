@@ -24,6 +24,30 @@
       "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "7fafe7ae_9b2db850",
+        "filename": "/COMMIT_MSG",
+        "patchSetId": 2
+      },
+      "lineNbr": 9,
+      "author": {
+        "id": 1037995
+      },
+      "writtenOn": "2024-08-26T07:42:09Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "61c1dff8_90c191ec",
+      "range": {
+        "startLine": 7,
+        "startChar": 0,
+        "endLine": 9,
+        "endChar": 58
+      },
+      "revId": "94e910f3a9772d0eb74cf70428c3c0b9ce1fbbe4",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "6d006c6c_a44593c1",
@@ -37,6 +61,24 @@
       "writtenOn": "2024-08-19T17:59:48Z",
       "side": 1,
       "message": "let\u0027s add here https://review.gerrithub.io/c/davidsaOpenu/simulator/+/1199424",
+      "revId": "94e910f3a9772d0eb74cf70428c3c0b9ce1fbbe4",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "2fdd5670_72e74c4b",
+        "filename": "/COMMIT_MSG",
+        "patchSetId": 2
+      },
+      "lineNbr": 10,
+      "author": {
+        "id": 1037995
+      },
+      "writtenOn": "2024-08-26T07:42:09Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "6d006c6c_a44593c1",
       "revId": "94e910f3a9772d0eb74cf70428c3c0b9ce1fbbe4",
       "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
     },
