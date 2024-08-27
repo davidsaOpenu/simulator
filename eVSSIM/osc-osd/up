@@ -78,17 +78,22 @@ mkdir -p $1/
 
 # Make target name the hostname-dir_path
 TARGETNAME=$(hostname)-${1//\//\.}
-$TGTADM --lld iscsi --mode target --op new --tid $2 --targetname="$TARGETNAME"
-$TGTADM --lld iscsi --mode target \
+sudo $TGTADM --lld iscsi --mode target --op new --tid $2 --targetname="$TARGETNAME"
+sudo $TGTADM --lld iscsi --mode target \
 	--op bind --tid $2 --initiator-address ALL
 
-$TGTADM --lld iscsi --mode logicalunit \
+sudo $TGTADM --lld iscsi --mode logicalunit \
 	--op new --tid $2 --lun $4 --bstype=osdemu --device-type osd \
 	--backing-store $1
 
-$TGTADM --lld iscsi --mode logicalunit --op update \
+sudo $TGTADM --lld iscsi --mode logicalunit --op update \
 	--tid $2 --lun $4 \
 	--name=scsi_sn --value="$TARGETNAME"
+
+
+echo test-2
+cat $LOG_FILE
+echo test-2-fin
 }
 
 echo "================ `date` =========================" >> $LOG_FILE
@@ -101,7 +106,11 @@ DEBUG="-d 9"
 $OTGTD $DEBUG -f &>> $LOG_FILE  &
 LUN=1
 
-sleep 2
+sleep 60
+
+echo test-1
+cat $LOG_FILE
+echo test-1-fin
 
 # 2nd Load some targets
 for ((t=1; t <= $NUM_TARGETS; t=$t+1)); do
