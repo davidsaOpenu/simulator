@@ -23,16 +23,13 @@ END_COMMENT
 ./compile-qemu.sh
 ./compile-host-tests.sh
 ./compile-guest-tests.sh
-
 # Run sanity and tests
 ./docker-run-sanity.sh
 
 ./docker-test-host.sh
 ./docker-test-guest.sh
-# TODO reenable after the fix 
-# ./docker-test-exofs.sh
+
+./docker-test-exofs.sh
 
 # ELK stack tests
 trap ./elk-stop-stack.sh EXIT
-
-
