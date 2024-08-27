@@ -88,7 +88,7 @@ $TGTADM --lld iscsi --mode target --op bind --tid $2 \
 $TGTADM --lld iscsi --mode logicalunit --op new \
 	--tid $2 --lun $4 \
 	--bstype=osdemu --device-type osd \
-	--backing-store $1
+	--backing-store $1 --osd_name "$3"
 
 $TGTADM --lld iscsi --mode logicalunit --op update \
 	--tid $2 --lun $4 \
