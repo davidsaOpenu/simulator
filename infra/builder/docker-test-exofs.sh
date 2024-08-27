@@ -10,11 +10,14 @@ exofs_test() {
 
     # Run tests inside the guest
     echo "INFO Running exofs test"
+    OUTPUT_DIR="/tmp/output"
     set +e
-    evssim_guest "sudo ./run_osd_emulator_and_mount_exofs.sh"
+    evssim_guest "sudo OUTPUT_DIR=$OUTPUT_DIR ./exofs/run_osd_emulator_and_mount_exofs.sh"
     test_rc=$?
     set -e
 
+    # then debugging you can find trace logs at OUTPUT_DIR
+    evssim_guest_copy $OUTPUT_DIR $OUTPUT_DIR 
     # Stop qemu and wait
     evssim_qemu_flush_disk
     evssim_qemu_stop
@@ -26,4 +29,4 @@ exofs_test() {
     fi
 }
 
-exofs_test
+exofs_test "$@"

@@ -28,11 +28,12 @@ esac
 # test a specific operation on exofs
 
 # pre-requirements
-mkdir -p output
+OUTPUT_DIR=${OUTPUT_DIR:-output}
+mkdir -p "$OUTPUT_DIR"
 make clean
 make
-rm -rf /mnt/osd0/my_file /tmp/my_log.tmp
-head -c 4096 /dev/urandom > /mnt/osd0/my_file
+rm -rf /mnt/exofs0/my_file /tmp/my_log.tmp
+head -c 4096 /dev/urandom > /mnt/exofs0/my_file
 
 # prepare to trace
 echo 1 > /sys/kernel/debug/tracing/tracing_on # enable tracing
@@ -59,5 +60,5 @@ cat /sys/kernel/debug/tracing/trace > /tmp/my_log.tmp
 echo nop > /sys/kernel/debug/tracing/current_tracer
 
 # generate output
-cut /tmp/my_log.tmp -c 23- | tail -n +5 > output/$1.txt
+cut /tmp/my_log.tmp -c 23- | tail -n +5 > "$OUTPUT_DIR/$1.txt"
 
