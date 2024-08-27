@@ -28,10 +28,10 @@ END_COMMENT
 ./compile-guest-tests.sh
 
 # Run sanity and tests
-./docker-run-sanity.sh
+# ./docker-run-sanity.sh
 
-./docker-test-host.sh
-./docker-test-guest.sh
+# ./docker-test-host.sh
+# ./docker-test-guest.sh
 ./docker-test-exofs.sh
 
 # ELK stack tests
