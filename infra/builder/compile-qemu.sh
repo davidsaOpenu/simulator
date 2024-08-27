@@ -16,8 +16,8 @@ evssim_run_at_folder $EVSSIM_QEMU_FOLDER make clean
 evssim_run_at_folder $EVSSIM_QEMU_FOLDER bear -- make -j8
 
 # Build osc-osd
-evssim_run_at_folder "$EVSSIM_SIMULATOR_FOLDER/eVSSIM/osc-osd" "make ARCH=x86_64 clean && \
-    make ARCH=x86_64 -j\`nproc\` && \
+evssim_run_at_folder "$EVSSIM_SIMULATOR_FOLDER/eVSSIM/osc-osd" "make MK_PATH=. ARCH=x86_64 clean && \
+    make MK_PATH=. ARCH=x86_64 -j\`nproc\` && \
     rsync -av --progress --exclude='.git' ./ $EVSSIM_DOCKER_ROOT_PATH/$EVSSIM_DIST_FOLDER/osc-osd/"
 
 # Build mkfs.exofs executable and the shared lib libosd (required by mkfs.exofs)
