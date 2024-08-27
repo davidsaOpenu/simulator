@@ -29,12 +29,8 @@ END_COMMENT
 ./docker-test-host.sh
 ./docker-test-guest.sh
 
-: <<'END_COMMENT'
-# TODO reenable when  https://review.gerrithub.io/c/davidsaOpenu/simulator/1200080 is merged
 ./docker-test-exofs.sh
-END_COMMENT
+
 
 # ELK stack tests
 trap ./elk-stop-stack.sh EXIT
-
-
