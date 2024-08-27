@@ -29,7 +29,7 @@ FILE *tracing_on_file = NULL;
 
 const char *file_path = "/mnt/osd0/my_file";
 const char *mount_source = "/dev/osd0";
-const char *mount_target = "/mnt/osd0";
+const char *mount_target = "/mnt/exofs0";
 const char *filesystem_type = "exofs";
 unsigned long mount_flags = 0;
 const char *mount_data = "pid=0x10000";
@@ -211,6 +211,10 @@ void perform_umount() {
 }
 
 void cleanup(FILE *fd1, FILE *fd2) {
-    if (fd1) fclose(fd1);
-    if (fd2) fclose(fd2);
+    if (fd1) {
+        fclose(fd1);
+    }
+    if (fd2) {
+        fclose(fd2);
+    }
 }
