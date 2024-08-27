@@ -1,4 +1,5 @@
-sudo umount /mnt/osd0
+#!/bin/bash
+sudo umount "${MOUNT_POINT}"
 
 echo \n\> Tracing 'mount' operation...
 ./run.sh mount disabled
