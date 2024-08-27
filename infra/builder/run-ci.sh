@@ -36,5 +36,3 @@ END_COMMENT
 
 # ELK stack tests
 trap ./elk-stop-stack.sh EXIT
-
-
