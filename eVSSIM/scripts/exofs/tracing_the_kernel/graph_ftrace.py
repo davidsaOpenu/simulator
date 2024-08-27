@@ -31,13 +31,17 @@ def parse_function_trace(input_text):
         if block_match:
             function_name = block_match.group(1)
             new_node = FunctionNode(function_name, in_osd)
-            stack[-1].children.append(new_node)
+            if len(stack) != 0:
+                stack[-1].children.append(new_node)
             stack.append(new_node)
         elif call_match:
             function_name = call_match.group(1)
             new_node = FunctionNode(function_name, in_osd)
-            stack[-1].children.append(new_node)
-        elif '}' in line:  # End of a function block
+            if len(stack) != 0:
+                stack[-1].children.append(new_node)
+            else:
+                stack.append(new_node)
+        elif len(stack) > 1 and '}' in line:  # End of a function block
             if 'osd' in stack[-1].name:
                 in_osd -= 1
             stack.pop()
@@ -65,6 +69,8 @@ def visualize_function_trace(root):
             dot.node(node.name, color='#b3e6ff', style='filled')
         elif 'exofs' in node.name:
             dot.node(node.name, color='#c6ffb3', style='filled')
+        elif 'nvme' in node.name:
+            dot.node(node.name, color="#fd054f6c", style='filled')
         else:
             dot.node(node.name)
         added_nodes.add(node.name)
@@ -86,16 +92,17 @@ def main():
     # for each ftrace output, let's parse it into a tree
     # and visualize it using graphviz.
     for filename in ['read.txt', 'write.txt', 'open.txt', 'close.txt', 'mount.txt']:
-        input_text = open(filename).read()
+        with open(filename,"r") as input_file:
+            input_text = input_file.read()
+            
+            # Parse the input text
+            root_node = parse_function_trace(input_text)
 
-        # Parse the input text
-        root_node = parse_function_trace(input_text)
+            # Visualize the function trace
+            dot = visualize_function_trace(root_node)
+            dot.render(filename.split('.')[0], format='pdf', view=False)
 
-        # Visualize the function trace
-        dot = visualize_function_trace(root_node)
-        dot.render(filename.split('.')[0], format='png', view=False)
-
-        print(f"Done with {filename}.")
+            print(f"Done with {filename}.")
 
 
 if __name__ == '__main__':

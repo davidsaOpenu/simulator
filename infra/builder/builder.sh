@@ -328,7 +328,7 @@ evssim_copy_tools () {
     evssim_run_mounted "sudo cp $EVSSIM_DOCKER_ROOT_PATH/$EVSSIM_DIST_FOLDER/mkfs.exofs \
         $EVSSIM_GUEST_MOUNT_POINT/bin/"
     # copy the script to setup the environment and mount exofs
-    evssim_run_mounted "cp $EVSSIM_DOCKER_ROOT_PATH/$EVSSIM_DIST_FOLDER/run_osd_emulator_and_mount_exofs.sh ."
+    evssim_run_mounted "cp -r $EVSSIM_DOCKER_ROOT_PATH/$EVSSIM_DIST_FOLDER/exofs ."
 
     evssim_run_mounted sudo rsync -qrptgo $EVSSIM_DOCKER_ROOT_PATH/$EVSSIM_DIST_FOLDER/kernel/lib/ $EVSSIM_GUEST_MOUNT_POINT/lib/
 }
@@ -345,3 +345,10 @@ evssim_guest () {
     fi
     ssh -q $ssh_extra_tty -i $EVSSIM_ROOT_PATH/$EVSSIM_BUILDER_FOLDER/docker/id_rsa -p 2222 -o ConnectionAttempts=1024 -o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no -o PasswordAuthentication=no -o PubkeyAcceptedKeyTypes=+ssh-rsa $EVSSIM_QEMU_UBUNTU_USERNAME@localhost bash -c \"$@\"
 }
+
+evssim_guest_copy () {
+    DOCKET_FILE_PATH=$1
+    OUTPUT_FILE_PATH=$2
+    scp -r -o ConnectionAttempts=1024 -o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no -o PasswordAuthentication=no -o PubkeyAcceptedKeyTypes=+ssh-rsa -i $EVSSIM_ROOT_PATH/$EVSSIM_BUILDER_FOLDER/docker/id_rsa -P 2222 $EVSSIM_QEMU_UBUNTU_USERNAME@localhost:$DOCKET_FILE_PATH $OUTPUT_FILE_PATH
+}
+
