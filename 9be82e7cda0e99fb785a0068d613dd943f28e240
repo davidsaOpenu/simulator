@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "c1bab985_b1808b58",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 4
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 1037995
+      },
+      "writtenOn": "2024-08-28T07:55:49Z",
+      "side": 1,
+      "message": "@davidsa@openu.ac.il\nReady for review",
+      "revId": "9be82e7cda0e99fb785a0068d613dd943f28e240",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
+    }
+  ]
+}
