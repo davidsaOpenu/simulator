@@ -14,3 +14,4 @@ FLASH	1103
 CHANNEL	1104
 SSD	1105
 
+DEFAULT_FLASH_NB defined in base_emulator_test should be the same as FLASH_NB in stat file!
