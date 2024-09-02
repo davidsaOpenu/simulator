@@ -126,12 +126,13 @@ void rt_log_analyzer_loop(RTLogAnalyzer* analyzer, int max_logs) {
             break;
         }
 
-        // if the log type is invalid, continue
+        // if the log type is invalid, cannot recover
         if (log_type < 0 || log_type >= LOG_UID_COUNT) {
-            fprintf(stderr, "WARNING: unknown log type id! [%d]\n", log_type);
-            fprintf(stderr, "WARNING: the log may be corrupted and unusable!\n");
-            continue;
+            PERR("WARNING: unknown log type id! [%d]\n", log_type);
+            RERR(, "WARNING: the log may be corrupted and unusable!\n");
         }
+
+        stats.log_id = 0;
 
         // update the statistics according to the log
         switch (log_type) {
@@ -189,8 +190,19 @@ void rt_log_analyzer_loop(RTLogAnalyzer* analyzer, int max_logs) {
             {
                 BlockEraseLog res;
                 NEXT_BLOCK_ERASE_LOG(analyzer->logger, &res, RT_ANALYZER);
-                rt_log_stats[analyzer->rt_analyzer_id].occupied_pages -= PAGE_NB;
+                rt_log_stats[analyzer->rt_analyzer_id].occupied_pages -= res.dirty_page_nb;
                 rt_log_stats[analyzer->rt_analyzer_id].current_wall_time += BLOCK_ERASE_DELAY;
+                stats.block_erase_count++;
+                break;
+            }
+            case PAGE_COPYBACK_LOG_UID:
+            {
+                PageCopyBackLog res;
+                rt_log_stats[analyzer->rt_analyzer_id].occupied_pages++;
+                stats.read_count++;
+                stats.write_count++;
+                // TODO: log time for copyback
+                NEXT_PAGE_COPYBACK_LOG(analyzer->logger, &res, RT_ANALYZER);
                 break;
             }
             case CHANNEL_SWITCH_TO_READ_LOG_UID:
@@ -198,6 +210,7 @@ void rt_log_analyzer_loop(RTLogAnalyzer* analyzer, int max_logs) {
                 ChannelSwitchToReadLog res;
                 NEXT_CHANNEL_SWITCH_TO_READ_LOG(analyzer->logger, &res, RT_ANALYZER);
                 rt_log_stats[analyzer->rt_analyzer_id].current_wall_time += CHANNEL_SWITCH_DELAY_R;
+                stats.channel_switch_to_read++;
                 break;
             }
             case CHANNEL_SWITCH_TO_WRITE_LOG_UID:
@@ -205,6 +218,7 @@ void rt_log_analyzer_loop(RTLogAnalyzer* analyzer, int max_logs) {
                 ChannelSwitchToWriteLog res;
                 NEXT_CHANNEL_SWITCH_TO_WRITE_LOG(analyzer->logger, &res, RT_ANALYZER);
                 rt_log_stats[analyzer->rt_analyzer_id].current_wall_time += CHANNEL_SWITCH_DELAY_W;
+                stats.channel_switch_to_write++;
                 break;
             }
             case OBJECT_ADD_PAGE_LOG_UID:
@@ -221,6 +235,13 @@ void rt_log_analyzer_loop(RTLogAnalyzer* analyzer, int max_logs) {
                 NEXT_OBJECT_COPYBACK_LOG(analyzer->logger, &res, RT_ANALYZER);
                 break;
             }
+            case LOG_SYNC_LOG_UID:
+            {
+                LoggeingServerSync res;
+                NEXT_LOG_SYNC_LOG(analyzer->logger, &res, RT_ANALYZER);
+                stats.log_id = res.log_id;
+                break;
+            }
             default:
                 fprintf(stderr, "WARNING: unknown log type id! [%d]\n", log_type);
                 fprintf(stderr, "WARNING: rt_log_analyzer_loop may not be up to date!\n");
@@ -231,6 +252,10 @@ void rt_log_analyzer_loop(RTLogAnalyzer* analyzer, int max_logs) {
             stats.write_amplification = 0.0;
         else
             stats.write_amplification = ((double) stats.write_count) / logical_write_count;
+
+        if(logical_write_count > stats.write_count){
+            printf("WARNNING: logged logical write before physical\n");
+        }
 
         if (rt_log_stats[analyzer->rt_analyzer_id].read_wall_time == 0)
             stats.read_speed = 0.0;
@@ -243,11 +268,16 @@ void rt_log_analyzer_loop(RTLogAnalyzer* analyzer, int max_logs) {
             stats.write_speed = 0.0;
         else
             stats.write_speed = PAGES_IN_USEC_TO_MBS(
-                ((double) stats.write_count) / rt_log_stats[analyzer->rt_analyzer_id].write_wall_time
+                ((double) logical_write_count) / rt_log_stats[analyzer->rt_analyzer_id].write_wall_time
             );
         
-        stats.utilization = ((double)rt_log_stats[analyzer->rt_analyzer_id].occupied_pages/ PAGES_IN_SSD);
+        stats.occupied_pages = rt_log_stats[analyzer->rt_analyzer_id].occupied_pages;
         
+        stats.read_wall_time = rt_log_stats[analyzer->rt_analyzer_id].read_wall_time;
+        stats.write_wall_time = rt_log_stats[analyzer->rt_analyzer_id].write_wall_time;
+        stats.logical_write_count = logical_write_count;
+        
+
         // call present hooks if the statistics changed
         if (first_loop || !stats_equal(old_stats, stats))
             for (subscriber_id = 0; subscriber_id < analyzer->subscribers_count; subscriber_id++)
