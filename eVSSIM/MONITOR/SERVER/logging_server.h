@@ -25,7 +25,7 @@
 
 #define MONITOR_SYNC_DELAY_USEC 1500000
 #define DELAY_THRESHOLD 0
-#define MONITOR_SYNC_DELAY(expected_duration) usleep(2 * expected_duration + MONITOR_SYNC_DELAY_USEC)
+#define MONITOR_SYNC_DELAY(expected_duration) usleep(0 * expected_duration + MONITOR_SYNC_DELAY_USEC)
 
 /**
  * The port to be used by the server

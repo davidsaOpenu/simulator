@@ -5,33 +5,33 @@
 
 #include "common.h"
 
-uint32_t* inverse_page_mapping_table;
+uint64_t* inverse_page_mapping_table;
 void* inverse_block_mapping_table_start;
 
 void* empty_block_table_start;
 void* victim_block_table_start;
 
-int64_t total_empty_block_nb;
-int64_t total_victim_block_nb;
+uint64_t total_empty_block_nb;
+uint64_t total_victim_block_nb;
 
-unsigned int empty_block_table_index;
+uint64_t empty_block_table_index;
 
 void INIT_INVERSE_PAGE_MAPPING(void)
 {
 	/* Allocation Memory for Inverse Page Mapping Table */
-	inverse_page_mapping_table = (void*)calloc(PAGE_MAPPING_ENTRY_NB, sizeof(uint32_t));
+	inverse_page_mapping_table = (void*)calloc(PAGE_MAPPING_ENTRY_NB, sizeof(uint64_t));
 	if (inverse_page_mapping_table == NULL)
 		RERR(, "Calloc mapping table fail\n");
 
 	/* Initialization Inverse Page Mapping Table */
 	FILE* fp = fopen("./data/inverse_page_mapping.dat","r");
 	if(fp != NULL){
-		if(fread(inverse_page_mapping_table, sizeof(uint32_t), PAGE_MAPPING_ENTRY_NB, fp) <= 0)
+		if(fread(inverse_page_mapping_table, sizeof(uint64_t), PAGE_MAPPING_ENTRY_NB, fp) <= 0)
 			PERR("fread\n");
 		fclose(fp);
 	}
 	else{
-		int i;
+		uint64_t i;
 		for(i=0;i<PAGE_MAPPING_ENTRY_NB;i++){
 			inverse_page_mapping_table[i] = -1;
 		}
@@ -53,13 +53,14 @@ void INIT_INVERSE_BLOCK_MAPPING(void)
 		fclose(fp);
 	}
 	else{
-		int i;
+		uint64_t i;
 		inverse_block_mapping_entry* curr_mapping_entry = (inverse_block_mapping_entry*)inverse_block_mapping_table_start;
 
 		for(i=0;i<BLOCK_MAPPING_ENTRY_NB;i++){
 			curr_mapping_entry->type		= EMPTY_BLOCK;
 			curr_mapping_entry->valid_page_nb	= 0;
 			curr_mapping_entry->erase_count		= 0;
+			curr_mapping_entry->victim = NULL;
 			curr_mapping_entry += 1;
 		}
 	}
@@ -67,7 +68,7 @@ void INIT_INVERSE_BLOCK_MAPPING(void)
 
 void INIT_VALID_ARRAY(void)
 {
-	int i;
+	uint64_t i;
 	inverse_block_mapping_entry* curr_mapping_entry = (inverse_block_mapping_entry*)inverse_block_mapping_table_start;
 	char* valid_array;
 
@@ -96,7 +97,7 @@ void INIT_VALID_ARRAY(void)
 
 void INIT_EMPTY_BLOCK_LIST(void)
 {
-	uint32_t i, j, k;
+	uint64_t i, j, k;
 
 	empty_block_entry* curr_entry;
 	empty_block_root* curr_root;
@@ -189,7 +190,7 @@ void INIT_EMPTY_BLOCK_LIST(void)
 
 void INIT_VICTIM_BLOCK_LIST(void)
 {
-	uint32_t i, j, k;
+	uint64_t i, j, k;
 
 	victim_block_entry* curr_entry;
 	victim_block_root* curr_root;
@@ -289,7 +290,7 @@ void TERM_INVERSE_BLOCK_MAPPING(void)
 
 void TERM_VALID_ARRAY(void)
 {
-	int i;
+	uint64_t i;
 	inverse_block_mapping_entry* curr_mapping_entry = (inverse_block_mapping_entry*)inverse_block_mapping_table_start;
 	char* valid_array;
 
@@ -309,7 +310,7 @@ void TERM_VALID_ARRAY(void)
 
 void TERM_EMPTY_BLOCK_LIST(void)
 {
-	uint32_t i, j, k;
+	uint64_t i, j, k;
 
 	empty_block_entry* curr_entry, *tmp_entry;
 	empty_block_root* curr_root;
@@ -349,7 +350,7 @@ void TERM_EMPTY_BLOCK_LIST(void)
 
 void TERM_VICTIM_BLOCK_LIST(void)
 {
-	uint32_t i, j, k;
+	uint64_t i, j, k;
 
 	victim_block_entry* curr_entry, *tmp_entry;
 	victim_block_root* curr_root;
@@ -391,12 +392,12 @@ void TERM_VICTIM_BLOCK_LIST(void)
 // (one with an empty page available) is returned from a different
 // flash plane each time, sequentially (wraps at the end and starts
 // all over again)
-empty_block_entry* GET_EMPTY_BLOCK(int mode, uint32_t mapping_index)
+empty_block_entry* GET_EMPTY_BLOCK(int mode, uint64_t mapping_index)
 {
 	if (total_empty_block_nb == 0)
 		RERR(NULL, "There is no empty block\n");
 
-	uint32_t input_mapping_index = mapping_index;
+	uint64_t input_mapping_index = mapping_index;
 
 	empty_block_entry* curr_empty_block;
 	empty_block_root* curr_root_entry;
@@ -536,9 +537,9 @@ empty_block_entry* GET_EMPTY_BLOCK(int mode, uint32_t mapping_index)
 	RERR(NULL, "There is no empty block\n");
 }
 
-ftl_ret_val INSERT_EMPTY_BLOCK(unsigned int phy_flash_nb, unsigned int phy_block_nb)
+ftl_ret_val INSERT_EMPTY_BLOCK(unsigned int phy_flash_nb, uint64_t phy_block_nb)
 {
-	int mapping_index;
+	uint64_t mapping_index;
 	int plane_nb;
 
 	empty_block_root* curr_root_entry;
@@ -577,11 +578,12 @@ ftl_ret_val INSERT_EMPTY_BLOCK(unsigned int phy_flash_nb, unsigned int phy_block
 
 ftl_ret_val INSERT_VICTIM_BLOCK(empty_block_entry* full_block){
 
-	int mapping_index;
+	uint64_t mapping_index;
 	int plane_nb;
 
 	victim_block_root* curr_root_entry;
 	victim_block_entry* new_victim_block;
+	victim_block_entry* curr_min_victim_block;
 
 	inverse_block_mapping_entry* inverse_block_entry;
 	inverse_block_entry = GET_INVERSE_BLOCK_MAPPING_ENTRY(full_block->phy_flash_nb, full_block->phy_block_nb);
@@ -592,6 +594,7 @@ ftl_ret_val INSERT_VICTIM_BLOCK(empty_block_entry* full_block){
 		RERR(FTL_FAILURE, "Calloc fail\n");
 	}
 
+	inverse_block_entry->victim = new_victim_block;
 
 	/* Copy the full block address */
 	new_victim_block->phy_flash_nb = full_block->phy_flash_nb;
@@ -612,9 +615,37 @@ ftl_ret_val INSERT_VICTIM_BLOCK(empty_block_entry* full_block){
 		curr_root_entry->victim_block_nb = 1;
 	}
 	else{
-		curr_root_entry->tail->next = new_victim_block;
-		new_victim_block->prev = curr_root_entry->tail;
-		curr_root_entry->tail = new_victim_block;
+		//search for node with at least the same number of valid_page_nb
+		curr_min_victim_block = curr_root_entry->next;
+
+		//if first valid_page_nb is larger, insert before
+		if(*(curr_min_victim_block->valid_page_nb) >= *(new_victim_block->valid_page_nb)){
+			curr_min_victim_block->prev = new_victim_block;
+			new_victim_block->next = curr_min_victim_block;
+
+			curr_root_entry->next = new_victim_block;
+		}else{//else, go over list and insert after
+			//find block to insert after
+			while(curr_min_victim_block->next != NULL && *(curr_min_victim_block->next->valid_page_nb) < *(new_victim_block->valid_page_nb)){
+				curr_min_victim_block = curr_min_victim_block->next;
+				it_count++;
+			}
+
+			//insert new_victim_block after curr_min_victim_block
+			new_victim_block->prev = curr_min_victim_block;
+			new_victim_block->next = curr_min_victim_block->next;
+
+			if(curr_min_victim_block->next != NULL){
+				curr_min_victim_block->next->prev = new_victim_block;
+			}
+			curr_min_victim_block->next = new_victim_block;
+
+			if(new_victim_block->next == NULL){//if last in list
+				curr_root_entry->tail = new_victim_block;
+			}
+
+		}
+
 		curr_root_entry->victim_block_nb++;
 	}
 
@@ -629,13 +660,17 @@ ftl_ret_val INSERT_VICTIM_BLOCK(empty_block_entry* full_block){
 
 int EJECT_VICTIM_BLOCK(victim_block_entry* victim_block){
 
-	int mapping_index;
+	uint64_t mapping_index;
 	int plane_nb;
 
 	victim_block_root* curr_root_entry;
 
 	plane_nb = victim_block->phy_block_nb % PLANES_PER_FLASH;
 	mapping_index = plane_nb * FLASH_NB + victim_block->phy_flash_nb;
+
+	inverse_block_mapping_entry* inverse_block_entry;
+	inverse_block_entry = GET_INVERSE_BLOCK_MAPPING_ENTRY(victim_block->phy_flash_nb, victim_block->phy_block_nb);
+	inverse_block_entry->victim = NULL;
 
 	curr_root_entry = (victim_block_root*)victim_block_table_start + mapping_index;
 
@@ -668,32 +703,32 @@ int EJECT_VICTIM_BLOCK(victim_block_entry* victim_block){
 	return FTL_SUCCESS;
 }
 
-inverse_block_mapping_entry* GET_INVERSE_BLOCK_MAPPING_ENTRY(unsigned int phy_flash_nb, unsigned int phy_block_nb){
+inverse_block_mapping_entry* GET_INVERSE_BLOCK_MAPPING_ENTRY(unsigned int phy_flash_nb, uint64_t phy_block_nb){
 
-	int64_t mapping_index = phy_flash_nb * BLOCK_NB + phy_block_nb;
+	uint64_t mapping_index = phy_flash_nb * BLOCK_NB + phy_block_nb;
 
 	inverse_block_mapping_entry* mapping_entry = (inverse_block_mapping_entry*)inverse_block_mapping_table_start + mapping_index;
 
 	return mapping_entry;
 }
 
-uint32_t GET_INVERSE_MAPPING_INFO(uint32_t ppn)
+uint64_t GET_INVERSE_MAPPING_INFO(uint64_t ppn)
 {
-	uint32_t lpn = inverse_page_mapping_table[ppn];
+	uint64_t lpn = inverse_page_mapping_table[ppn];
 
 	return lpn;
 }
 
-int UPDATE_INVERSE_PAGE_MAPPING(uint32_t ppn,  uint32_t lpn)
+int UPDATE_INVERSE_PAGE_MAPPING(uint64_t ppn,  uint64_t lpn)
 {
 	inverse_page_mapping_table[ppn] = lpn;
 
 	return FTL_SUCCESS;
 }
 
-int UPDATE_INVERSE_BLOCK_MAPPING(unsigned int phy_flash_nb, unsigned int phy_block_nb, int type)
+int UPDATE_INVERSE_BLOCK_MAPPING(unsigned int phy_flash_nb, uint64_t phy_block_nb, int type)
 {
-        uint32_t i;
+        uint64_t i;
         inverse_block_mapping_entry* mapping_entry = GET_INVERSE_BLOCK_MAPPING_ENTRY(phy_flash_nb, phy_block_nb);
 
         mapping_entry->type = type;
@@ -707,10 +742,100 @@ int UPDATE_INVERSE_BLOCK_MAPPING(unsigned int phy_flash_nb, unsigned int phy_blo
         return FTL_SUCCESS;
 }
 
+void UPDATE_VICTIM_LIST(victim_block_entry *victim_entry){
+	if(victim_entry == NULL){
+		return;
+	}
+	uint32_t plane_nb = victim_entry->phy_block_nb % PLANES_PER_FLASH;
+	uint64_t mapping_index = plane_nb * FLASH_NB + victim_entry->phy_flash_nb;
+
+	victim_block_root* curr_root_entry = (victim_block_root*)victim_block_table_start + mapping_index;
+
+	victim_block_entry *curr_victim_entry;
+	//if victim_entry.valid_page_nb > victim_entry->next->valid_page_nb then need to go foward and find correct spot
+	if(victim_entry->next != NULL && *(victim_entry->valid_page_nb) > *(victim_entry->next->valid_page_nb)){
+		curr_victim_entry = victim_entry->next;
+
+		//remove victim_entry from list
+		if(victim_entry->prev != NULL){
+			victim_entry->prev->next = victim_entry->next;
+		}
+		if(victim_entry->next != NULL){
+			victim_entry->next->prev = victim_entry->prev;
+		}
+		if(curr_root_entry->next == victim_entry){
+			curr_root_entry->next = victim_entry->next;
+		}
+		if(curr_root_entry->tail == victim_entry){
+			curr_root_entry->tail = victim_entry->prev;
+		}
+
+		victim_entry->next = NULL;
+		victim_entry->prev = NULL;
+
+		//find block to insert after
+		while(curr_victim_entry->next != NULL && *(curr_victim_entry->next->valid_page_nb) < *(victim_entry->valid_page_nb)){
+			curr_victim_entry = curr_victim_entry->next;
+		}
+
+		//insert victim_entry after curr_victim_entry
+		victim_entry->prev = curr_victim_entry;
+		victim_entry->next = curr_victim_entry->next;
+
+		if(curr_victim_entry->next){
+			curr_victim_entry->next->prev = victim_entry;
+		}
+		curr_victim_entry->next = victim_entry;
+
+		if(victim_entry->next == NULL){//if last in list
+			curr_root_entry->tail = victim_entry;
+		}
+
+	}else if(victim_entry->prev != NULL && *(victim_entry->valid_page_nb) < *(victim_entry->prev->valid_page_nb)){//if victim_entry.valid_page_nb > victim_entry->prev->valid_page_nb then need to go back and find correct spot
+		curr_victim_entry = victim_entry->prev;
+
+		//remove victim_entry from list
+		if(victim_entry->prev != NULL){
+			victim_entry->prev->next = victim_entry->next;
+		}
+		if(victim_entry->next != NULL){
+			victim_entry->next->prev = victim_entry->prev;
+		}
+		if(curr_root_entry->next == victim_entry){
+			curr_root_entry->next = victim_entry->next;
+		}
+		if(curr_root_entry->tail == victim_entry){
+			curr_root_entry->tail = victim_entry->prev;
+		}
+
+		victim_entry->next = NULL;
+		victim_entry->prev = NULL;
+
+		//find block to insert after
+		while(curr_victim_entry->prev != NULL && *(curr_victim_entry->prev->valid_page_nb) > *(victim_entry->valid_page_nb)){
+			curr_victim_entry = curr_victim_entry->prev;
+		}
+
+		//insert victim_entry after curr_victim_entry
+		victim_entry->next = curr_victim_entry;//
+		victim_entry->prev = curr_victim_entry->prev;
+
+		if(curr_victim_entry->prev != NULL){
+			curr_victim_entry->prev->next = victim_entry;
+		}
+		curr_victim_entry->prev = victim_entry;
+
+		if(victim_entry->prev == NULL){//if last in list
+			curr_root_entry->next = victim_entry;
+		}
+
+	}
+	//otherwise do nothing
+}
 
 ftl_ret_val UPDATE_INVERSE_BLOCK_VALIDITY(unsigned int phy_flash_nb,
-                                          unsigned int phy_block_nb,
-										  unsigned int phy_page_nb,
+                                          uint64_t phy_block_nb,
+										  uint64_t phy_page_nb,
 										  char valid)
 {
 	if (phy_flash_nb >= FLASH_NB || phy_block_nb >= BLOCK_NB || phy_page_nb >= PAGE_NB)
@@ -718,11 +843,17 @@ ftl_ret_val UPDATE_INVERSE_BLOCK_VALIDITY(unsigned int phy_flash_nb,
 
 	inverse_block_mapping_entry *mapping_entry =
 		GET_INVERSE_BLOCK_MAPPING_ENTRY(phy_flash_nb, phy_block_nb);
+	
+	victim_block_entry *victim_entry = mapping_entry->victim;
 	char old_state = mapping_entry->valid_array[phy_page_nb];
-	if ((valid == PAGE_VALID) && (old_state != PAGE_VALID))
+	if ((valid == PAGE_VALID) && (old_state != PAGE_VALID)){
 		mapping_entry->valid_page_nb++;
-	else if ((valid != PAGE_VALID) && (old_state == PAGE_VALID))
+		UPDATE_VICTIM_LIST(victim_entry);
+	}
+	else if ((valid != PAGE_VALID) && (old_state == PAGE_VALID)){
 		mapping_entry->valid_page_nb--;
+		UPDATE_VICTIM_LIST(victim_entry);
+	}
 	mapping_entry->valid_array[phy_page_nb] = valid;
 
 	return FTL_SUCCESS;

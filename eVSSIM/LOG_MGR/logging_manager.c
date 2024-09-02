@@ -144,6 +144,9 @@ void log_manager_loop(LogManager* manager, int max_loops) {
                 ((double) stats.read_count) / stats.read_wall_time
             );
 
+        stats.read_wall_time = read_wall_time;
+        stats.write_wall_time = write_wall_time;        
+
         #ifdef MONITOR_DEBUG
         validateSSDStat(&stats);
         #endif
