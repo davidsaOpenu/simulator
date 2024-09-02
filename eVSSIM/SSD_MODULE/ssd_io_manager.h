@@ -10,6 +10,26 @@
 #include "ftl.h"
 #include "logging_statistics.h"
 
+extern enum SSDTimeMode{
+    REAL,
+    EMULATED_DELAY,
+    EMULATED
+}SSDTimeMode;
+
+#define GET_TIME_MICROSEC(t) int64_t t;\
+    switch(SSDTimeMode){\
+        case REAL:\
+        case EMULATED_DELAY:\
+           t = get_usec();\
+           break;\
+        case EMULATED:\
+            t = time_delay;\
+            break;\
+        default:\
+            t = 0;\
+            break;\
+    };\
+
 /** @struct ssd_disk
  *  @brief This structure represents statistics related to ssd disk
  *  @var int occupied_pages_counter
@@ -27,21 +47,39 @@
  */
 typedef struct {
 
-    uint occupied_pages_counter;
-    uint physical_page_writes;
-    uint logical_page_writes;
+    uint64_t occupied_pages_counter;
+    uint64_t physical_page_writes;
+    uint64_t logical_page_writes;
     int* prev_channel_mode;
     int* cur_channel_mode;
     SSDStatistics* current_stats;
 
 } ssd_disk;
 
-extern int old_channel_nb;
+extern unsigned int old_channel_nb;
 extern int64_t io_alloc_overhead;
 extern int64_t io_update_overhead;
 
+extern int64_t time_delay;
+
 /* Get Current time in micro second */
 int64_t get_usec(void);
+
+/* Insert delay on x usec. depending on config, will actually wait realworld time, otherwise do nothing. could have been a macro but his is more readable in code*/
+static inline void wait_usec(int64_t usec){
+    switch(SSDTimeMode){
+        case REAL:
+            {
+                int64_t end = get_usec() + usec;
+                while(end > get_usec());
+            }
+            break;
+        case EMULATED_DELAY:
+        case EMULATED:
+            time_delay += usec;
+            break;
+    }
+};
 
 /* Initialize SSD Module */
 int SSD_IO_INIT(void);
@@ -54,7 +92,7 @@ ftl_ret_val SSD_BLOCK_ERASE(unsigned int flash_nb, unsigned int block_nb);
 ftl_ret_val SSD_PAGE_COPYBACK(uint32_t source, uint32_t destination, int type);
 
 /* Channel Access Delay */
-int SSD_CH_ENABLE(unsigned int flash_nb, int channel);
+int SSD_CH_ENABLE(unsigned int flash_nb, unsigned int channel);
 
 /* Flash or Register Access */
 int SSD_FLASH_ACCESS(unsigned int flash_nb, unsigned int channel, unsigned int reg);
