@@ -150,7 +150,11 @@ void TERM_LOG_MANAGER(void)
     rt_log_stats_free();
     pthread_join(log_manager_thread, NULL);
     log_manager_free(log_manager);
+<<<<<<< PATCH SET (64abbc WIP Big SSD)
+    lws_cancel_service(log_server.context);
+=======
     log_server_stop();
+>>>>>>> BASE      (de6106 Fix SSD stat correctness)
     pthread_join(log_server_thread, NULL);
     log_server_free();
 

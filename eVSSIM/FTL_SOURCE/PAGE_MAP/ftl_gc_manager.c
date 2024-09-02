@@ -21,14 +21,14 @@ void INIT_GC_MANAGER(void) {
     gc_algo.next_page = (gc_next_page_algo) &DEFAULT_NEXT_PAGE_ALGO;
 }
 
-void GC_CHECK(unsigned int phy_flash_nb, unsigned int phy_block_nb, bool force, bool isObjectStrategy)
+void GC_CHECK(unsigned int phy_flash_nb, uint64_t phy_block_nb, bool force, bool isObjectStrategy)
 {
 	int i, ret;
 	int plane_nb = phy_block_nb % PLANES_PER_FLASH;
-	int mapping_index = plane_nb * FLASH_NB + phy_flash_nb;
+	uint64_t mapping_index = plane_nb * FLASH_NB + phy_flash_nb;
 
-	if(force || total_empty_block_nb < GC_THRESHOLD_BLOCK_NB){
-        int l2 = total_empty_block_nb < GC_L2_THRESHOLD_BLOCK_NB;
+	if(force || total_empty_block_nb < (uint64_t)GC_THRESHOLD_BLOCK_NB){
+        int l2 = total_empty_block_nb < (uint64_t)GC_L2_THRESHOLD_BLOCK_NB;
 		for(i=0; i<GC_VICTIM_NB; i++){
                     ret = GARBAGE_COLLECTION(mapping_index, l2, isObjectStrategy);
 			if(ret == FTL_FAILURE){
@@ -38,20 +38,20 @@ void GC_CHECK(unsigned int phy_flash_nb, unsigned int phy_block_nb, bool force, 
 	}
 }
 
-ftl_ret_val GARBAGE_COLLECTION(int mapping_index, int l2, bool isObjectStrategy){
+ftl_ret_val GARBAGE_COLLECTION(uint64_t mapping_index, int l2, bool isObjectStrategy){
     return gc_algo.collection(mapping_index, l2, isObjectStrategy);
 }
 
-ftl_ret_val DEFAULT_GC_COLLECTION_ALGO(int mapping_index, int l2, bool isObjectStrategy)
+ftl_ret_val DEFAULT_GC_COLLECTION_ALGO(uint64_t mapping_index, int l2, bool isObjectStrategy)
 {
-	uint32_t i;
+	uint64_t i;
 	int ret;
-	uint32_t lpn;
-	uint32_t old_ppn;
-	uint32_t new_ppn;
+	uint64_t lpn;
+	uint64_t old_ppn;
+	uint64_t new_ppn;
 
 	unsigned int victim_phy_flash_nb = FLASH_NB;
-	unsigned int victim_phy_block_nb = 0;
+	uint64_t victim_phy_block_nb = 0;
 
 	char* valid_array;
     int valid_page_nb;
@@ -94,7 +94,7 @@ ftl_ret_val DEFAULT_GC_COLLECTION_ALGO(int mapping_index, int l2, bool isObjectS
 
             if(ret == FTL_FAILURE){
                 if (!l2)
-				    RERR(FTL_FAILURE, "GET_NEW_PAGE(VICTIM_INCHIP, %d): failed\n", mapping_index);
+				    RERR(FTL_FAILURE, "GET_NEW_PAGE(VICTIM_INCHIP, %lx): failed\n", mapping_index);
                 // l2 threshold reached. let's re-write the page
                 ret = GET_NEW_PAGE(VICTIM_OVERALL, EMPTY_TABLE_ENTRY_NB, &new_ppn);
                 if(ret == FTL_FAILURE)
@@ -149,13 +149,12 @@ ftl_ret_val DEFAULT_GC_COLLECTION_ALGO(int mapping_index, int l2, bool isObjectS
 
 
 /* Greedy Garbage Collection Algorithm */
-ftl_ret_val SELECT_VICTIM_BLOCK(unsigned int* phy_flash_nb, unsigned int* phy_block_nb)
+ftl_ret_val SELECT_VICTIM_BLOCK(unsigned int* phy_flash_nb, uint64_t* phy_block_nb)
 {
-	uint32_t i, j;
-	uint32_t entry_nb = 0;
+	uint32_t i;
 
 	victim_block_root* curr_root;
-	victim_block_entry* curr_victim_entry;
+	victim_block_entry* curr_victim_entry = NULL;
 	victim_block_entry* victim_block = NULL;
 
 	if (total_victim_block_nb == 0)
@@ -169,21 +168,19 @@ ftl_ret_val SELECT_VICTIM_BLOCK(unsigned int* phy_flash_nb, unsigned int* phy_bl
 	for (i=0;i<VICTIM_TABLE_ENTRY_NB;i++) {
 
 		if(curr_root->victim_block_nb != 0){
-			entry_nb = curr_root->victim_block_nb;
 			curr_victim_entry = curr_root->next;
 			if(victim_block == NULL){
 				victim_block = curr_root->next;
 			}
-		}
-		else{
-			entry_nb = 0;
-		}
+			if(*(victim_block->valid_page_nb) == 0){ // evict dead block
+				break;
+			}
 
-		for(j=0;j<entry_nb;j++){
-			if(*(victim_block->valid_page_nb) > *(curr_victim_entry->valid_page_nb)){
+			if(*(victim_block->valid_page_nb) > *(curr_victim_entry->valid_page_nb)){ // list is sorted by valid_page_nb
 				victim_block = curr_victim_entry;
 			}
 			curr_victim_entry = curr_victim_entry->next;
+
 		}
 		curr_root += 1;
 	}
@@ -191,7 +188,6 @@ ftl_ret_val SELECT_VICTIM_BLOCK(unsigned int* phy_flash_nb, unsigned int* phy_bl
 		fail_cnt++;
 		return FTL_FAILURE;
 	}
-
 	*phy_flash_nb = victim_block->phy_flash_nb;
 	*phy_block_nb = victim_block->phy_block_nb;
 	EJECT_VICTIM_BLOCK(victim_block);

@@ -144,7 +144,13 @@ void log_manager_loop(LogManager* manager, int max_loops) {
                 ((double) stats.read_count) / stats.read_wall_time
             );
 
+<<<<<<< PATCH SET (64abbc WIP Big SSD)
+        stats.read_wall_time = read_wall_time;
+        stats.write_wall_time = write_wall_time;        
+
+=======
         #ifdef MONITOR_DEBUG
+>>>>>>> BASE      (de6106 Fix SSD stat correctness)
         validateSSDStat(&stats);
         #endif
 
