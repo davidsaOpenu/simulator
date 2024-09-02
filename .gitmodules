@@ -1,0 +1,3 @@
+[submodule "eVSSIM/osc-osd/tgt"]
+	path = eVSSIM/osc-osd/tgt
+	url = https://github.com/fujita/tgt
