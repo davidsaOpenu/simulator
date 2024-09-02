@@ -123,7 +123,7 @@ TODO: review statistics implementation
 }
 
 void FTL_RESET_STATS(void){
-	int i,j;
+	uint64_t i,j;
 
 	for(i=0; i < SUPPORTED_OPERATION; i++){
 		for(j=0;j<PAGE_MAPPING_ENTRY_NB;j++){
@@ -287,7 +287,7 @@ void FTL_RECORD_STATISTICS(void){
 			fprintf(fp , "%u," , CALC_PLANE(address));
 		}
 		if (STAT_SCOPE & COLLECT_BLOCK){
-			fprintf(fp , "%u,", CALC_BLOCK(address));
+			fprintf(fp , "%lu,", CALC_BLOCK(address));
 		}
 		if (STAT_SCOPE & COLLECT_PAGE){
 			fprintf(fp , "%d," , address);
