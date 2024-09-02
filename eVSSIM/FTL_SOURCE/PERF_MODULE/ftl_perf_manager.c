@@ -38,7 +38,7 @@ double avg_write_latency;
 
 /* SSD Util */
 double ssd_util;
-int64_t written_page_nb;
+uint64_t written_page_nb;
 
 void INIT_PERF_CHECKER(void){
 
