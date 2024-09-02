@@ -221,7 +221,7 @@ void flipAuto();
 
         // In case of r/w mode: read / write num_blocks
 
-        for (int i = 0; i < PAGES_IN_SSD; i++) {
+        for (uint64_t i = 0; i < PAGES_IN_SSD; i++) {
             switch (mode) {
                 case MODE_R:
                     SSD_PAGE_READ(CALC_FLASH(i), CALC_BLOCK(i), i, 0, READ);
