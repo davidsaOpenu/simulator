@@ -118,12 +118,23 @@ void log_manager_loop(LogManager* manager, int max_loops) {
             stats.write_count += current_stats.write_count;
             stats.read_count += current_stats.read_count;
             stats.garbage_collection_count += current_stats.garbage_collection_count;
-            stats.utilization += current_stats.utilization;
+            stats.occupied_pages += current_stats.occupied_pages;
 
             stats.logical_write_count += current_stats.logical_write_count;
             stats.write_wall_time += current_stats.write_wall_time;
             stats.read_wall_time += current_stats.read_wall_time;
+
+            stats.block_erase_count += current_stats.block_erase_count;
+            stats.channel_switch_to_read += current_stats.channel_switch_to_read;
+            stats.channel_switch_to_write += current_stats.channel_switch_to_write;
+            
+
+            if(current_stats.log_id != 0){
+                stats.log_id = current_stats.log_id;
+                current_stats.log_id = 0;
+            }
         }
+        stats.utilization = (double)stats.occupied_pages / PAGES_IN_SSD;
 
         if (stats.logical_write_count == 0)
             stats.write_amplification = 0.0;
