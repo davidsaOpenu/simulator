@@ -27,15 +27,15 @@ typedef struct {
     /**
      * The number of physical page written
      */
-    unsigned int write_count;
+    uint64_t write_count;
     /**
-     * The writing speed in MB/s
+     * The writing speed in MB/s =  logical_write_count / write_wall_time 
      */
     double write_speed;
     /**
      * The number of physical page written
      */
-    unsigned int read_count;
+    uint64_t read_count;
     /**
      * The reading speed in MB/s
      */
@@ -43,7 +43,7 @@ typedef struct {
     /**
      * The number of garbage collection done
      */
-    unsigned int garbage_collection_count;
+    uint64_t garbage_collection_count;
     /**
      * The write amplification of the ssd
      */
@@ -55,7 +55,7 @@ typedef struct {
     /**
      * The number of logical writes done.
      */
-    unsigned int logical_write_count;
+    uint64_t logical_write_count;
     /**
      * Time in us spent on writes.
      */
