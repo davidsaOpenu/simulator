@@ -13,50 +13,53 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
- 
+
 #include <cmath>
 #include "base_emulator_tests.h"
 
 extern RTLogStatistics *rt_log_stats;
 extern LogServer log_server;
 
-#define ERROR_THRESHHOLD(x) x*0.01
+// 2^10 mb = 1 GB
+// 2^22 nb = 4 TB
+#define MAX_POW 10
 
-#define CALCULATEMBPS(s,t) ((double)s*SECOND_IN_USEC)/MEGABYTE_IN_BYTES/t;
-
-#define MAX_POW 8
-#define PAGE_SIZE 4096
-#define PAGE_NB 10
-#define SECTOR_SIZE 1
+// for performance.
+#define CHECK_THRESHOLD 0.1 // 10%
 
 using namespace std;
 
-namespace write_read_test{
+namespace write_read_test
+{
 
-    class WriteReadTest : public BaseTest {
-        public:
-            virtual void SetUp(){
-                BaseTest::SetUp();
-                INIT_LOG_MANAGER();
-            }
-            
-            virtual void TearDown(){
-                BaseTest::TearDown();
-                TERM_LOG_MANAGER();
-            }
+    class WriteReadTest : public BaseTest
+    {
+    public:
+        virtual void SetUp()
+        {
+            BaseTest::SetUp();
+            INIT_LOG_MANAGER();
+        }
+
+        virtual void TearDown()
+        {
+            BaseTest::TearDown();
+            TERM_LOG_MANAGER();
+        }
     };
-    
-    
-    std::vector<SSDConf*> GetTestParams() {
-        std::vector<SSDConf*> ssd_configs;
 
-        for(unsigned int i = 1; i <= MAX_POW;i++){
-            ssd_configs.push_back(new SSDConf(PAGE_SIZE, PAGE_NB, SECTOR_SIZE, DEFAULT_FLASH_NB,pow(2,i), DEFAULT_FLASH_NB));
+    std::vector<SSDConf *> GetTestParams()
+    {
+        std::vector<SSDConf *> ssd_configs;
+
+        for (unsigned int i = 1; i <= MAX_POW; i++)
+        {
+            ssd_configs.push_back(new SSDConf(pow(2, i)));
         }
 
         return ssd_configs;
     }
-    
+
     /**
      * this test fills the entire disk in iterations starting from a disk size of 2 pages and continues until 2 ^ MAX_POW
      * the test never writes on a used page so that it wont incure garbage collection and keep the test deterministic
@@ -64,105 +67,359 @@ namespace write_read_test{
      */
 
     INSTANTIATE_TEST_CASE_P(DiskSize, WriteReadTest, ::testing::ValuesIn(GetTestParams()));
-    
+
     /**
      * writes 2^n pages to the ssd,
      * checks that the stats on the monitor are correct
      */
-    TEST_P(WriteReadTest, WRITEOnlyTest){
-        SSDConf* ssd_config = base_test_get_ssd_config();
-   
-           //writes the whole ssd
-        for(unsigned int p=0; p < ssd_config->get_pages(); p++){
-             _FTL_WRITE_SECT(p * ssd_config->get_page_size(), 1);
-        }     
-        
-        unsigned int time_per_action = REG_WRITE_DELAY + CELL_PROGRAM_DELAY+CHANNEL_SWITCH_DELAY_W;
-        
-        MONITOR_SYNC_DELAY(ssd_config->get_pages()*(time_per_action));
-        
-        double write_speed = CALCULATEMBPS(ssd_config->get_page_size(),time_per_action);
-        
-        
-        //checks that log_server.stats (the stats on the monitor) are accurate
+    TEST_P(WriteReadTest, WRITEOnlyTest)
+    {
+        SSDConf *ssd_config = base_test_get_ssd_config();
+
+        uint64_t action_count = 0;
+        uint64_t check_trigger = (double)ssd_config->get_pages() * CHECK_THRESHOLD;
+
+        SSDStatistics expected_stats = stats_init();
+        expected_stats.write_amplification = 1;
+        uint64_t prev_channele = -1;
+
+        // writes the whole ssd
+        for (size_t p = 0; p < ssd_config->get_pages(); p++)
+        {
+            _FTL_WRITE_SECT(p * ssd_config->get_page_size(), 1);
+
+            action_count++;
+
+            expected_stats.write_count++;
+            expected_stats.occupied_pages++;
+            expected_stats.logical_write_count++;
+
+            expected_stats.write_wall_time += REG_WRITE_DELAY + CELL_PROGRAM_DELAY;
+
+            uint64_t cur_channele = CALC_FLASH(GET_MAPPING_INFO(p)) % CHANNEL_NB;
+
+            if (cur_channele != prev_channele)
+            {
+                expected_stats.write_wall_time += CHANNEL_SWITCH_DELAY_W;
+                expected_stats.channel_switch_to_write++;
+            }
+            prev_channele = cur_channele;
+
+            expected_stats.utilization = (double)expected_stats.occupied_pages / PAGES_IN_SSD;
+
+            if (action_count >= check_trigger)
+            {
+                action_count = 0;
+                MONITOR_SYNC(&(log_server.stats), MONITOR_SLEEP_MAX_USEC);
+
+                ASSERT_EQ(expected_stats.write_count, log_server.stats.write_count);
+                ASSERT_EQ(expected_stats.read_count, log_server.stats.read_count);
+
+                ASSERT_EQ(expected_stats.write_wall_time, log_server.stats.write_wall_time);
+                ASSERT_EQ(expected_stats.read_wall_time, log_server.stats.read_wall_time);
+
+                ASSERT_EQ(expected_stats.logical_write_count, log_server.stats.logical_write_count);
+                ASSERT_EQ(expected_stats.garbage_collection_count, log_server.stats.garbage_collection_count);
+                ASSERT_EQ(expected_stats.write_amplification, log_server.stats.write_amplification);
+                ASSERT_EQ(expected_stats.utilization, log_server.stats.utilization);
+
+                ASSERT_EQ(expected_stats.occupied_pages, log_server.stats.occupied_pages);
+
+                ASSERT_EQ(expected_stats.block_erase_count, log_server.stats.block_erase_count);
+                ASSERT_EQ(expected_stats.channel_switch_to_write, log_server.stats.channel_switch_to_write);
+                ASSERT_EQ(expected_stats.channel_switch_to_read, log_server.stats.channel_switch_to_read);
+            }
+        }
+
+        MONITOR_SYNC(&(log_server.stats), MONITOR_SLEEP_MAX_USEC);
+
+        unsigned int time_per_action = REG_WRITE_DELAY + CELL_PROGRAM_DELAY + CHANNEL_SWITCH_DELAY_W;
+        double write_speed = CALCULATEMBPS(ssd_config->get_page_size(), time_per_action);
+
+        // checks that log_server.stats (the stats on the monitor) are accurate
         ASSERT_NEAR(write_speed, log_server.stats.write_speed, ERROR_THRESHHOLD(write_speed));
         ASSERT_EQ(0, log_server.stats.read_speed);
         ASSERT_EQ(0, log_server.stats.read_count);
         ASSERT_EQ(ssd_config->get_pages(), log_server.stats.write_count);
         ASSERT_EQ(1, log_server.stats.write_amplification);
-        ASSERT_EQ(1.0,log_server.stats.utilization);
-        
+        ASSERT_EQ(0.8, log_server.stats.utilization);
+        ASSERT_EQ(0, log_server.stats.garbage_collection_count);
     }
-    
+
     /**
      * writes 2^n pages to the ssd and then reads them,
      * checks that the stats on the monitor are correct
      */
-    TEST_P(WriteReadTest, ReadAfterWriteTest){
-        SSDConf* ssd_config = base_test_get_ssd_config();
+    TEST_P(WriteReadTest, ReadAfterWriteTest)
+    {
+        SSDConf *ssd_config = base_test_get_ssd_config();
 
-        //writes the whole ssd
-        for(unsigned int p=0; p < ssd_config->get_pages(); p++){
-              _FTL_WRITE_SECT(p * ssd_config->get_page_size(), 1);
-         }
-         
-         unsigned int time_per_write = REG_WRITE_DELAY + CELL_PROGRAM_DELAY + CHANNEL_SWITCH_DELAY_W;
-         
-         MONITOR_SYNC_DELAY(ssd_config->get_pages()*(time_per_write));
-         
-         //reads the whole ssd
-         for(unsigned int p=0; p < ssd_config->get_pages(); p++){
-              _FTL_READ_SECT(p * ssd_config->get_page_size(), 1);
-         }     
-         
+        uint64_t action_count = 0;
+        uint64_t check_trigger = (double)ssd_config->get_pages() * CHECK_THRESHOLD;
+
+        SSDStatistics expected_stats = stats_init();
+        expected_stats.write_amplification = 1;
+        uint64_t prev_channele = -1;
+
+        // writes the whole ssd
+        for (unsigned int p = 0; p < ssd_config->get_pages(); p++)
+        {
+            _FTL_WRITE_SECT(p * ssd_config->get_page_size(), 1);
+
+            action_count++;
+
+            expected_stats.write_count++;
+            expected_stats.occupied_pages++;
+            expected_stats.logical_write_count++;
+
+            expected_stats.write_wall_time += REG_WRITE_DELAY + CELL_PROGRAM_DELAY;
+
+            uint64_t cur_channele = CALC_FLASH(GET_MAPPING_INFO(p)) % CHANNEL_NB;
+
+            if (cur_channele != prev_channele)
+            {
+                expected_stats.write_wall_time += CHANNEL_SWITCH_DELAY_W;
+                expected_stats.channel_switch_to_write++;
+            }
+            prev_channele = cur_channele;
+
+            expected_stats.utilization = (double)expected_stats.occupied_pages / PAGES_IN_SSD;
+
+            if (action_count >= check_trigger)
+            {
+                action_count = 0;
+                MONITOR_SYNC(&(log_server.stats), MONITOR_SLEEP_MAX_USEC);
+
+                ASSERT_EQ(expected_stats.write_count, log_server.stats.write_count);
+                ASSERT_EQ(expected_stats.read_count, log_server.stats.read_count);
+
+                ASSERT_EQ(expected_stats.write_wall_time, log_server.stats.write_wall_time);
+                ASSERT_EQ(expected_stats.read_wall_time, log_server.stats.read_wall_time);
+
+                ASSERT_EQ(expected_stats.logical_write_count, log_server.stats.logical_write_count);
+                ASSERT_EQ(expected_stats.garbage_collection_count, log_server.stats.garbage_collection_count);
+                ASSERT_EQ(expected_stats.write_amplification, log_server.stats.write_amplification);
+                ASSERT_EQ(expected_stats.utilization, log_server.stats.utilization);
+
+                ASSERT_EQ(expected_stats.occupied_pages, log_server.stats.occupied_pages);
+
+                ASSERT_EQ(expected_stats.block_erase_count, log_server.stats.block_erase_count);
+                ASSERT_EQ(expected_stats.channel_switch_to_write, log_server.stats.channel_switch_to_write);
+                ASSERT_EQ(expected_stats.channel_switch_to_read, log_server.stats.channel_switch_to_read);
+            }
+        }
+
+        unsigned int time_per_write = REG_WRITE_DELAY + CELL_PROGRAM_DELAY + CHANNEL_SWITCH_DELAY_W;
+
+        prev_channele = -1;
+        // reads the whole ssd
+        for (unsigned int p = 0; p < ssd_config->get_pages(); p++)
+        {
+            _FTL_READ_SECT(p * ssd_config->get_page_size(), 1);
+
+            action_count++;
+
+            expected_stats.read_count++;
+
+            expected_stats.read_wall_time += REG_READ_DELAY + CELL_READ_DELAY;
+
+            uint64_t cur_channele = CALC_FLASH(GET_MAPPING_INFO(p)) % CHANNEL_NB;
+
+            if (cur_channele != prev_channele)
+            {
+                expected_stats.read_wall_time += CHANNEL_SWITCH_DELAY_R;
+                expected_stats.channel_switch_to_read++;
+            }
+            prev_channele = cur_channele;
+
+            if (action_count >= check_trigger)
+            {
+                action_count = 0;
+                MONITOR_SYNC(&(log_server.stats), MONITOR_SLEEP_MAX_USEC);
+
+                ASSERT_EQ(expected_stats.write_count, log_server.stats.write_count);
+                ASSERT_EQ(expected_stats.read_count, log_server.stats.read_count);
+
+                ASSERT_EQ(expected_stats.write_wall_time, log_server.stats.write_wall_time);
+                ASSERT_EQ(expected_stats.read_wall_time, log_server.stats.read_wall_time);
+
+                ASSERT_EQ(expected_stats.logical_write_count, log_server.stats.logical_write_count);
+                ASSERT_EQ(expected_stats.garbage_collection_count, log_server.stats.garbage_collection_count);
+                ASSERT_EQ(expected_stats.write_amplification, log_server.stats.write_amplification);
+                ASSERT_EQ(expected_stats.utilization, log_server.stats.utilization);
+
+                ASSERT_EQ(expected_stats.occupied_pages, log_server.stats.occupied_pages);
+
+                ASSERT_EQ(expected_stats.block_erase_count, log_server.stats.block_erase_count);
+                ASSERT_EQ(expected_stats.channel_switch_to_write, log_server.stats.channel_switch_to_write);
+                ASSERT_EQ(expected_stats.channel_switch_to_read, log_server.stats.channel_switch_to_read);
+            }
+        }
+
         unsigned int time_per_read = REG_READ_DELAY + CELL_READ_DELAY + CHANNEL_SWITCH_DELAY_R;
 
-        MONITOR_SYNC_DELAY(time_per_read*ssd_config->get_pages());
-        
+        MONITOR_SYNC(&(log_server.stats), MONITOR_SLEEP_MAX_USEC);
+
         double write_speed = CALCULATEMBPS(ssd_config->get_page_size(), time_per_write);
-        
+
         double read_speed = CALCULATEMBPS(ssd_config->get_page_size(), time_per_read);
-        
-        //checks that log_server.stats (the stats on the monitor) are accurate
+
+        // checks that log_server.stats (the stats on the monitor) are accurate
         ASSERT_NEAR(write_speed, log_server.stats.write_speed, ERROR_THRESHHOLD(write_speed));
         ASSERT_NEAR(read_speed, log_server.stats.read_speed, ERROR_THRESHHOLD(read_speed));
         ASSERT_EQ(ssd_config->get_pages(), log_server.stats.read_count);
         ASSERT_EQ(ssd_config->get_pages(), log_server.stats.write_count);
         ASSERT_EQ(1, log_server.stats.write_amplification);
-        ASSERT_EQ(1.0,log_server.stats.utilization);
+        ASSERT_EQ(0.8, log_server.stats.utilization);
+        ASSERT_EQ(0, log_server.stats.garbage_collection_count);
     }
-    
+
     /**
      * writes and then reads one page on the ssd 2^n times,
      * checks that the stats on the monitor are correct
      */
-    TEST_P(WriteReadTest, WRITEREADTest){
-        SSDConf* ssd_config = base_test_get_ssd_config();
-        
-        //writes and reads pages one at a time      
-         
-           for(unsigned int p=0; p < ssd_config->get_pages(); p++){
+    TEST_P(WriteReadTest, WRITEREADTest)
+    {
+        SSDConf *ssd_config = base_test_get_ssd_config();
+
+        uint64_t action_count = 0;
+        uint64_t check_trigger = (double)ssd_config->get_pages() * CHECK_THRESHOLD;
+
+        SSDStatistics expected_stats = stats_init();
+        expected_stats.write_amplification = 1;
+
+        // writes and reads pages one at a time
+
+        for (unsigned int p = 0; p < ssd_config->get_pages(); p++)
+        {
             _FTL_WRITE_SECT(p * ssd_config->get_page_size(), 1);
             _FTL_READ_SECT(p * ssd_config->get_page_size(), 1);
+
+            action_count++;
+
+            expected_stats.write_count++;
+            expected_stats.occupied_pages++;
+            expected_stats.logical_write_count++;
+
+            expected_stats.write_wall_time += REG_WRITE_DELAY + CELL_PROGRAM_DELAY;
+            expected_stats.write_wall_time += CHANNEL_SWITCH_DELAY_W;
+            expected_stats.channel_switch_to_write++;
+
+            expected_stats.read_count++;
+            expected_stats.read_wall_time += REG_READ_DELAY + CELL_READ_DELAY;
+            expected_stats.read_wall_time += CHANNEL_SWITCH_DELAY_R;
+            expected_stats.channel_switch_to_read++;
+
+            expected_stats.utilization = (double)expected_stats.occupied_pages / PAGES_IN_SSD;
+
+            if (action_count >= check_trigger)
+            {
+                action_count = 0;
+                MONITOR_SYNC(&(log_server.stats), MONITOR_SLEEP_MAX_USEC);
+
+                ASSERT_EQ(expected_stats.write_count, log_server.stats.write_count);
+                ASSERT_EQ(expected_stats.read_count, log_server.stats.read_count);
+
+                ASSERT_EQ(expected_stats.write_wall_time, log_server.stats.write_wall_time);
+                ASSERT_EQ(expected_stats.read_wall_time, log_server.stats.read_wall_time);
+
+                ASSERT_EQ(expected_stats.logical_write_count, log_server.stats.logical_write_count);
+                ASSERT_EQ(expected_stats.garbage_collection_count, log_server.stats.garbage_collection_count);
+                ASSERT_EQ(expected_stats.write_amplification, log_server.stats.write_amplification);
+                ASSERT_EQ(expected_stats.utilization, log_server.stats.utilization);
+
+                ASSERT_EQ(expected_stats.occupied_pages, log_server.stats.occupied_pages);
+
+                ASSERT_EQ(expected_stats.block_erase_count, log_server.stats.block_erase_count);
+                ASSERT_EQ(expected_stats.channel_switch_to_write, log_server.stats.channel_switch_to_write);
+                ASSERT_EQ(expected_stats.channel_switch_to_read, log_server.stats.channel_switch_to_read);
+            }
+
         }
 
-        unsigned int time_per_write = REG_WRITE_DELAY + CELL_PROGRAM_DELAY + CHANNEL_SWITCH_DELAY_R + CELL_READ_DELAY;
-        unsigned int time_per_read = REG_READ_DELAY + CELL_READ_DELAY + CHANNEL_SWITCH_DELAY_R;
-        
-        MONITOR_SYNC_DELAY(ssd_config->get_pages()*(time_per_write+time_per_read));
+        // uint64_t total_time_write = (REG_WRITE_DELAY + CELL_PROGRAM_DELAY) * ssd_config->get_pages() + CHANNEL_SWITCH_DELAY_W * (ssd_config->get_channel_nb());
+        // double write_speed = CALCULATEMBPS(ssd_config->get_page_size() * ssd_config->get_page_nb(), total_time);
 
-        MONITOR_SYNC_DELAY(ssd_config->get_pages()*(time_per_write+time_per_read));
+        unsigned int time_per_write = REG_WRITE_DELAY + CELL_PROGRAM_DELAY + CHANNEL_SWITCH_DELAY_W;
+        unsigned int time_per_read = REG_READ_DELAY + CELL_READ_DELAY + CHANNEL_SWITCH_DELAY_R;
+
+        MONITOR_SYNC(&(log_server.stats), MONITOR_SLEEP_MAX_USEC);
 
         double write_speed = CALCULATEMBPS(ssd_config->get_page_size(), time_per_write);
-        
+
         double read_speed = CALCULATEMBPS(ssd_config->get_page_size(), time_per_read);
-        
-        //checks that log_server.stats (the stats on the monitor) are accurate
+
+        // checks that log_server.stats (the stats on the monitor) are accurate
         ASSERT_NEAR(write_speed, log_server.stats.write_speed, ERROR_THRESHHOLD(write_speed));
         ASSERT_NEAR(read_speed, log_server.stats.read_speed, ERROR_THRESHHOLD(read_speed));
         ASSERT_EQ(ssd_config->get_pages(), log_server.stats.read_count);
         ASSERT_EQ(ssd_config->get_pages(), log_server.stats.write_count);
         ASSERT_EQ(1, log_server.stats.write_amplification);
-        ASSERT_EQ(1.0, log_server.stats.utilization);
+        ASSERT_EQ(0.8, log_server.stats.utilization);
+        ASSERT_EQ(0, log_server.stats.garbage_collection_count);
     }
-} //namespace
+    /**
+     * writes and then reads one page on the ssd 2^n times,
+     * after that write again to trigger GC
+     * checks that the stats on the monitor are correct
+     */
+    TEST_P(WriteReadTest, WRITEREADWRITETest)
+    {
+        SSDConf *ssd_config = base_test_get_ssd_config();
+        uint64_t total_pages = ssd_config->get_pages(); // write to 80% of ssd so GC has empty pages to work with
+        // writes and reads pages one at a time
+
+        for (unsigned int p = 0; p < total_pages; p++)
+        {
+            _FTL_WRITE_SECT(p * ssd_config->get_page_size(), 1);
+            _FTL_READ_SECT(p * ssd_config->get_page_size(), 1);
+        }
+
+        unsigned int time_per_write = REG_WRITE_DELAY + CELL_PROGRAM_DELAY + CHANNEL_SWITCH_DELAY_W;
+        unsigned int time_per_read = REG_READ_DELAY + CELL_READ_DELAY + CHANNEL_SWITCH_DELAY_R;
+
+        MONITOR_SYNC(&(log_server.stats), MONITOR_SLEEP_MAX_USEC);
+
+        double write_speed = CALCULATEMBPS(ssd_config->get_page_size(), time_per_write);
+
+        double read_speed = CALCULATEMBPS(ssd_config->get_page_size(), time_per_read);
+
+        // checks that log_server.stats (the stats on the monitor) are accurate
+        ASSERT_NEAR(write_speed, log_server.stats.write_speed, ERROR_THRESHHOLD(write_speed));
+        ASSERT_NEAR(read_speed, log_server.stats.read_speed, ERROR_THRESHHOLD(read_speed));
+        ASSERT_EQ(total_pages, log_server.stats.read_count);
+        ASSERT_EQ(total_pages, log_server.stats.write_count);
+        ASSERT_EQ(1, log_server.stats.write_amplification);
+        ASSERT_EQ(0.8, log_server.stats.utilization);
+        ASSERT_EQ(0, log_server.stats.garbage_collection_count);
+
+        for (unsigned int p = 0; p < total_pages; p++)
+        {
+            _FTL_WRITE_SECT(p * ssd_config->get_page_size(), 1);
+        };
+
+        MONITOR_SYNC(&(log_server.stats), MONITOR_SLEEP_MAX_USEC);
+
+        // when GC is invoked, We expect at most one block copy back, if src block and dest block are not on the same plane, a r/w is issued instead of a copyback
+
+        // when all reallocations are whithin the same plane, copyback always works
+        uint64_t r_w_count_best_case = total_pages;
+        // when every write triggers a GC reallocation and all reallocations are between different planes.
+        uint64_t r_w_count_worst_case = total_pages + (ssd_config->get_pages_per_block() * total_pages);
+
+        ASSERT_GE(r_w_count_worst_case, log_server.stats.read_count);
+        ASSERT_LE(r_w_count_best_case, log_server.stats.read_count);
+
+        ASSERT_GE(r_w_count_worst_case, log_server.stats.write_count);
+        ASSERT_LE(r_w_count_best_case, log_server.stats.write_count);
+
+        // ASSERT_NEAR(read_speed, log_server.stats.read_speed, ERROR_THRESHHOLD(read_speed));
+        // ASSERT_NEAR(write_speed, log_server.stats.write_speed, ERROR_THRESHHOLD(write_speed));
+
+        ASSERT_LE(0.8, log_server.stats.utilization);
+        ASSERT_LE(1, log_server.stats.write_amplification);
+
+        ASSERT_GE(total_pages, log_server.stats.garbage_collection_count); // at most, every read will trigger GC
+        ASSERT_LT(0, log_server.stats.garbage_collection_count);
+    }
+} // namespace

@@ -37,7 +37,7 @@ extern "C" int g_init_log_server;
 #define BASE_TEST_ARRAY_SIZE(array) (sizeof(array) / sizeof(array[0]))
 
 /** default value for flash number */
-#define DEFAULT_FLASH_NB 4
+#define DEFAULT_FLASH_NB 16
 
 /**
  * paramters that the tests run with
