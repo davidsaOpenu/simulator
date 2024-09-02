@@ -20,14 +20,7 @@
 extern RTLogStatistics *rt_log_stats;
 extern LogServer log_server;
 
-#define ERROR_THRESHHOLD(x) x*0.01
-
-#define CALCULATEMBPS(s,t) ((double)s*SECOND_IN_USEC)/MEGABYTE_IN_BYTES/t;
-
-#define MAX_POW 8
-#define PAGE_SIZE 4096
-#define PAGE_NB 10
-#define SECTOR_SIZE 1
+#define MAX_POW 18
 
 using namespace std;
 
@@ -51,7 +44,7 @@ namespace write_read_test{
         std::vector<SSDConf*> ssd_configs;
 
         for(unsigned int i = 1; i <= MAX_POW;i++){
-            ssd_configs.push_back(new SSDConf(PAGE_SIZE, PAGE_NB, SECTOR_SIZE, DEFAULT_FLASH_NB,pow(2,i), DEFAULT_FLASH_NB));
+            ssd_configs.push_back(new SSDConf(pow(2,i)));
         }
 
         return ssd_configs;
@@ -73,10 +66,10 @@ namespace write_read_test{
         SSDConf* ssd_config = base_test_get_ssd_config();
    
            //writes the whole ssd
-        for(unsigned int p=0; p < ssd_config->get_pages(); p++){
+        for(size_t p=0; p < ssd_config->get_pages(); p++){
              _FTL_WRITE_SECT(p * ssd_config->get_page_size(), 1);
         }     
-        
+
         unsigned int time_per_action = REG_WRITE_DELAY + CELL_PROGRAM_DELAY+CHANNEL_SWITCH_DELAY_W;
         
         MONITOR_SYNC_DELAY(ssd_config->get_pages()*(time_per_action));
@@ -90,7 +83,8 @@ namespace write_read_test{
         ASSERT_EQ(0, log_server.stats.read_count);
         ASSERT_EQ(ssd_config->get_pages(), log_server.stats.write_count);
         ASSERT_EQ(1, log_server.stats.write_amplification);
-        ASSERT_EQ(1.0,log_server.stats.utilization);
+        ASSERT_EQ(0.8,log_server.stats.utilization);
+        ASSERT_EQ(0,log_server.stats.garbage_collection_count);
         
     }
     
@@ -129,7 +123,8 @@ namespace write_read_test{
         ASSERT_EQ(ssd_config->get_pages(), log_server.stats.read_count);
         ASSERT_EQ(ssd_config->get_pages(), log_server.stats.write_count);
         ASSERT_EQ(1, log_server.stats.write_amplification);
-        ASSERT_EQ(1.0,log_server.stats.utilization);
+        ASSERT_EQ(0.8,log_server.stats.utilization);
+        ASSERT_EQ(0,log_server.stats.garbage_collection_count);
     }
     
     /**
@@ -163,6 +158,57 @@ namespace write_read_test{
         ASSERT_EQ(ssd_config->get_pages(), log_server.stats.read_count);
         ASSERT_EQ(ssd_config->get_pages(), log_server.stats.write_count);
         ASSERT_EQ(1, log_server.stats.write_amplification);
-        ASSERT_EQ(1.0, log_server.stats.utilization);
+        ASSERT_EQ(0.8, log_server.stats.utilization);
+        ASSERT_EQ(0,log_server.stats.garbage_collection_count);
+    }
+    /**
+     * writes and then reads one page on the ssd 2^n times,
+     * after that write again to trigger GC
+     * checks that the stats on the monitor are correct
+     */
+    TEST_P(WriteReadTest, WRITEREADWRITETest){
+        SSDConf* ssd_config = base_test_get_ssd_config();
+        uint64_t total_pages = ssd_config->get_pages(); // write to 80% of ssd so GC has empty pages to work with
+        //writes and reads pages one at a time      
+         
+        for(unsigned int p=0; p < total_pages; p++){
+            _FTL_WRITE_SECT(p * ssd_config->get_page_size(), 1);
+            _FTL_READ_SECT(p * ssd_config->get_page_size(), 1);
+        }
+
+        unsigned int time_per_write = REG_WRITE_DELAY + CELL_PROGRAM_DELAY + CHANNEL_SWITCH_DELAY_R + CELL_READ_DELAY;
+        unsigned int time_per_read = REG_READ_DELAY + CELL_READ_DELAY + CHANNEL_SWITCH_DELAY_R;
+        
+        MONITOR_SYNC_DELAY(ssd_config->get_pages()*(time_per_write+time_per_read));
+
+        MONITOR_SYNC_DELAY(ssd_config->get_pages()*(time_per_write+time_per_read));
+
+        double write_speed = CALCULATEMBPS(ssd_config->get_page_size(), time_per_write);
+        
+        double read_speed = CALCULATEMBPS(ssd_config->get_page_size(), time_per_read);
+        
+        //checks that log_server.stats (the stats on the monitor) are accurate
+        ASSERT_NEAR(write_speed, log_server.stats.write_speed, ERROR_THRESHHOLD(write_speed));
+        ASSERT_NEAR(read_speed, log_server.stats.read_speed, ERROR_THRESHHOLD(read_speed));
+        ASSERT_EQ(total_pages, log_server.stats.read_count);
+        ASSERT_EQ(total_pages, log_server.stats.write_count);
+        ASSERT_EQ(1, log_server.stats.write_amplification);
+        ASSERT_EQ(0.8, log_server.stats.utilization);
+        ASSERT_EQ(0,log_server.stats.garbage_collection_count);
+
+        for(unsigned int p=0; p < total_pages; p++){
+            _FTL_WRITE_SECT(p * ssd_config->get_page_size(), 1);
+        };
+
+        //expecting GC to use CopyBack, so no increase to read count
+        ASSERT_NEAR(read_speed, log_server.stats.read_speed, ERROR_THRESHHOLD(read_speed));
+        ASSERT_EQ(total_pages, log_server.stats.read_count);
+
+        ASSERT_LE(0.8, log_server.stats.utilization);
+        ASSERT_LE(1, log_server.stats.write_amplification);
+        
+        ASSERT_GE(total_pages,log_server.stats.garbage_collection_count); // at most, every read will trigger GC
+        ASSERT_LT(0,log_server.stats.garbage_collection_count);
+
     }
 } //namespace
