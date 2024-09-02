@@ -238,10 +238,44 @@ typedef struct {
      */
     unsigned int block;
     /**
+     * number of dirty pages in block prior to erase
+     */
+    uint64_t dirty_page_nb;
+    /**
      * Log metadata
      */
     LogMetadata metadata;
 } BlockEraseLog;
+
+/**
+ * A log of a page copy back
+ */
+typedef struct {
+    /**
+     * The channel number of the erased block
+     */
+    unsigned int channel;
+    /**
+     * The die number of the erased block
+     */
+    unsigned int die;
+    /**
+     * The block number of the erased block
+     */
+    unsigned int block;
+    /**
+     * The page number of the cell read
+     */
+    uint64_t source_page;
+    /**
+     * The page number of the programmed cell
+     */
+    uint64_t destination_page;
+    /**
+     * Log metadata
+     */
+    LogMetadata metadata;
+} PageCopyBackLog;
 
 /**
  * A block of a channel switch to read mode
@@ -310,6 +344,16 @@ typedef struct{
 }ObjectCopyback;
 
 /**
+ * Used to sync tests with log server, usually placed aat end of test before assert, to indicate logging_server synced with all logging event to this point
+ */
+typedef struct{
+    /**
+     * Random id used to check if log server is synced with log event
+     */
+    uint64_t log_id;
+}LoggeingServerSync;
+
+/**
  * All the logs definitions; used to easily add more log types
  * Each line should contain a call to the applier, with the structure and name of the log
  * In order to add a new log type, one must only add a new line with the log definition here
@@ -323,10 +367,12 @@ APPLIER(GarbageCollectionLog, GARBAGE_COLLECTION)           \
 APPLIER(RegisterReadLog, REGISTER_READ)                     \
 APPLIER(RegisterWriteLog, REGISTER_WRITE)                   \
 APPLIER(BlockEraseLog, BLOCK_ERASE)                         \
+APPLIER(PageCopyBackLog, PAGE_COPYBACK)                     \
 APPLIER(ChannelSwitchToReadLog, CHANNEL_SWITCH_TO_READ)     \
 APPLIER(ChannelSwitchToWriteLog, CHANNEL_SWITCH_TO_WRITE)    \
 APPLIER(ObjectAddPageLog, OBJECT_ADD_PAGE)                    \
-APPLIER(ObjectCopyback, OBJECT_COPYBACK)                    
+APPLIER(ObjectCopyback, OBJECT_COPYBACK)                    \
+APPLIER(LoggeingServerSync, LOG_SYNC)                    
 
 /**
  * The enum log applier; used to create an enum of the log types' ids

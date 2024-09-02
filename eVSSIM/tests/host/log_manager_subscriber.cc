@@ -80,13 +80,27 @@ namespace manager_subscriber {
         }
         // in the second update check for the right values
         else if (updates_done == 2) {
+            unsigned int num_of_phy_writes = 3;
+            unsigned int num_of_logical_writes = 2;
+            unsigned int time_per_write = CELL_PROGRAM_DELAY;
+
+            double write_speed = CALCULATEMBPS((num_of_logical_writes * GET_PAGE_SIZE()), (num_of_phy_writes * time_per_write));
+
+            unsigned int time_per_read = CELL_READ_DELAY;
+            double read_speed = CALCULATEMBPS(GET_PAGE_SIZE(), time_per_read);
+
             ASSERT_EQ(3, stats.write_count);
-            ASSERT_EQ((1.0 / (900)) * 1000000.0, stats.write_speed);
+            ASSERT_EQ(2, stats.logical_write_count);
+            ASSERT_EQ(time_per_write * 3, stats.write_elapsed_time);
+            ASSERT_NEAR(write_speed, stats.write_speed, ERROR_THRESHHOLD(write_speed));
+
+            ASSERT_EQ(time_per_read * 1, stats.read_elapsed_time);
             ASSERT_EQ(1, stats.read_count);
-            ASSERT_EQ((1.0 / (50)) * 1000000.0, stats.read_speed);
+            ASSERT_NEAR(read_speed, stats.read_speed, ERROR_THRESHHOLD(read_speed));
+
             ASSERT_EQ(1, stats.garbage_collection_count);
-            ASSERT_EQ(1.5, stats.write_amplification);
-            ASSERT_EQ(3.0 / (2.0 * 4.0 * 8.0), stats.utilization);
+            ASSERT_EQ((double)num_of_phy_writes / num_of_logical_writes, stats.write_amplification);
+            ASSERT_EQ(3.0 / (2.0 * 8 * 8.0), stats.utilization);
         }
         // the test isn't supposed to check other cases
         else {
