@@ -67,12 +67,34 @@ namespace rt_subscriber {
                     .read_speed = 0,
                     .garbage_collection_count = 0,
                     .write_amplification = 0,
+                    .occupied_pages = 0,
                     .utilization = 0,
                     .logical_write_count = 0,
                     .write_wall_time = 0,
-                    .read_wall_time = 0
+                    .read_wall_time = 0,
+                    .log_id = 0,
+                    .block_erase_count = 0,
+                    .channel_switch_to_write = 0,
+                    .channel_switch_to_read = 0
             },
             // physical cell read
+                        {
+                    .write_count = 0,
+                    .write_speed = 0,
+                    .read_count = 1,
+                    .read_speed = (1.0 / (REG_READ_DELAY + CELL_READ_DELAY)) * SEC_IN_USEC,
+                    .garbage_collection_count = 0,
+                    .write_amplification = 0,
+                    .occupied_pages = 0,
+                    .utilization = 0,
+                    .logical_write_count = 0,
+                    .write_wall_time = 0,
+                    .read_wall_time = (REG_READ_DELAY + CELL_READ_DELAY),
+                    .log_id = 0,
+                    .block_erase_count = 0,
+                    .channel_switch_to_write = 0,
+                    .channel_switch_to_read = 0
+            },
             // channel switch to write
             {
                     .write_count = 0,
@@ -81,10 +103,15 @@ namespace rt_subscriber {
                     .read_speed = (1.0 / (REG_READ_DELAY + CELL_READ_DELAY)) * SEC_IN_USEC,
                     .garbage_collection_count = 0,
                     .write_amplification = 0,
+                    .occupied_pages = 0,
                     .utilization = 0,
                     .logical_write_count = 0,
                     .write_wall_time = 0,
-                    .read_wall_time = (REG_READ_DELAY + CELL_READ_DELAY)
+                    .read_wall_time = (REG_READ_DELAY + CELL_READ_DELAY),
+                    .log_id = 0,
+                    .block_erase_count = 0,
+                    .channel_switch_to_write = 1,
+                    .channel_switch_to_read = 0
             },
             // physical cell program
             {
@@ -94,10 +121,15 @@ namespace rt_subscriber {
                     .read_speed = (1.0 / (REG_READ_DELAY + CELL_READ_DELAY)) * SEC_IN_USEC,
                     .garbage_collection_count = 0,
                     .write_amplification = 0,
+                    .occupied_pages = 1,
                     .utilization = 1.0 / PAGES_IN_SSD,
                     .logical_write_count = 0,
                     .write_wall_time = (CHANNEL_SWITCH_DELAY_W + CELL_PROGRAM_DELAY),
-                    .read_wall_time = (REG_READ_DELAY + CELL_READ_DELAY)
+                    .read_wall_time = (REG_READ_DELAY + CELL_READ_DELAY),
+                    .log_id = 0,
+                    .block_erase_count = 0,
+                    .channel_switch_to_write = 1,
+                    .channel_switch_to_read = 0
             },
             // garbage collection
             {
@@ -107,10 +139,15 @@ namespace rt_subscriber {
                     .read_speed = (1.0 / (REG_READ_DELAY + CELL_READ_DELAY)) * SEC_IN_USEC,
                     .garbage_collection_count = 1,
                     .write_amplification = 0,
+                    .occupied_pages = 1,
                     .utilization = 1.0 / PAGES_IN_SSD,
                     .logical_write_count = 0,
                     .write_wall_time = (CHANNEL_SWITCH_DELAY_W + CELL_PROGRAM_DELAY),
-                    .read_wall_time = (REG_READ_DELAY + CELL_READ_DELAY)
+                    .read_wall_time = (REG_READ_DELAY + CELL_READ_DELAY),
+                    .log_id = 0,
+                    .block_erase_count = 0,
+                    .channel_switch_to_write = 1,
+                    .channel_switch_to_read = 0
             },
             // logical cell program
             // register write
@@ -121,10 +158,15 @@ namespace rt_subscriber {
                     .read_speed = (1.0 / (REG_READ_DELAY + CELL_READ_DELAY)) * SEC_IN_USEC,
                     .garbage_collection_count = 1,
                     .write_amplification = 1,
+                    .occupied_pages = 1,
                     .utilization = 1.0 / PAGES_IN_SSD,
                     .logical_write_count = 1,
                     .write_wall_time = (CHANNEL_SWITCH_DELAY_W + CELL_PROGRAM_DELAY),
-                    .read_wall_time = (REG_READ_DELAY + CELL_READ_DELAY)
+                    .read_wall_time = (REG_READ_DELAY + CELL_READ_DELAY),
+                    .log_id = 0,
+                    .block_erase_count = 0,
+                    .channel_switch_to_write = 1,
+                    .channel_switch_to_read = 0
             },
             // physical cell program
             {
@@ -134,10 +176,15 @@ namespace rt_subscriber {
                     .read_speed = (1.0 / (REG_READ_DELAY + CELL_READ_DELAY)) * SEC_IN_USEC,
                     .garbage_collection_count = 1,
                     .write_amplification = 2.0,
+                    .occupied_pages = 2,
                     .utilization = 2.0 / PAGES_IN_SSD,
                     .logical_write_count = 1,
                     .write_wall_time = (CHANNEL_SWITCH_DELAY_W + CELL_PROGRAM_DELAY + REG_WRITE_DELAY + CELL_PROGRAM_DELAY),
-                    .read_wall_time = (REG_READ_DELAY + CELL_READ_DELAY)
+                    .read_wall_time = (REG_READ_DELAY + CELL_READ_DELAY),
+                    .log_id = 0,
+                    .block_erase_count = 0,
+                    .channel_switch_to_write = 1,
+                    .channel_switch_to_read = 0
             },
             // logical cell program
             {
@@ -147,12 +194,34 @@ namespace rt_subscriber {
                     .read_speed = (1.0 / (REG_READ_DELAY + CELL_READ_DELAY)) * SEC_IN_USEC,
                     .garbage_collection_count = 1,
                     .write_amplification = 1.0,
+                    .occupied_pages = 2,
                     .utilization = 2.0 / PAGES_IN_SSD,
                     .logical_write_count = 2,
                     .write_wall_time = (CHANNEL_SWITCH_DELAY_W + CELL_PROGRAM_DELAY + REG_WRITE_DELAY + CELL_PROGRAM_DELAY),
-                    .read_wall_time = (REG_READ_DELAY + CELL_READ_DELAY)
+                    .read_wall_time = (REG_READ_DELAY + CELL_READ_DELAY),
+                    .log_id = 0,
+                    .block_erase_count = 0,
+                    .channel_switch_to_write = 1,
+                    .channel_switch_to_read = 0
             },
             // block erase
+                        {
+                    .write_count = 2,
+                    .write_speed = (2.0 / (CHANNEL_SWITCH_DELAY_W + CELL_PROGRAM_DELAY + REG_WRITE_DELAY + CELL_PROGRAM_DELAY)) * SEC_IN_USEC,
+                    .read_count = 1,
+                    .read_speed = (1.0 / (REG_READ_DELAY + CELL_READ_DELAY)) * SEC_IN_USEC,
+                    .garbage_collection_count = 1,
+                    .write_amplification = 1.0,
+                    .occupied_pages = 2,
+                    .utilization = 2.0 / PAGES_IN_SSD,
+                    .logical_write_count = 2,
+                    .write_wall_time = (CHANNEL_SWITCH_DELAY_W + CELL_PROGRAM_DELAY + REG_WRITE_DELAY + CELL_PROGRAM_DELAY),
+                    .read_wall_time = (REG_READ_DELAY + CELL_READ_DELAY),
+                    .log_id = 0,
+                    .block_erase_count = 1,
+                    .channel_switch_to_write = 1,
+                    .channel_switch_to_read = 0
+            },
             // channel switch to read
             {
                     .write_count = 2,
@@ -161,10 +230,15 @@ namespace rt_subscriber {
                     .read_speed = (1.0 / (REG_READ_DELAY + CELL_READ_DELAY)) * SEC_IN_USEC,
                     .garbage_collection_count = 1,
                     .write_amplification = 1.0,
+                    .occupied_pages = 0,
                     .utilization = 0.0 / PAGES_IN_SSD,
                     .logical_write_count = 2,
                     .write_wall_time = (CHANNEL_SWITCH_DELAY_W + CELL_PROGRAM_DELAY + REG_WRITE_DELAY + CELL_PROGRAM_DELAY),
-                    .read_wall_time = (REG_READ_DELAY + CELL_READ_DELAY)
+                    .read_wall_time = (REG_READ_DELAY + CELL_READ_DELAY),
+                    .log_id = 0,
+                    .block_erase_count = 1,
+                    .channel_switch_to_write = 1,
+                    .channel_switch_to_read = 1
             },
             // physical cell read
             {
@@ -174,10 +248,15 @@ namespace rt_subscriber {
                     .read_speed = (2.0 / (REG_READ_DELAY + CELL_READ_DELAY + BLOCK_ERASE_DELAY + CHANNEL_SWITCH_DELAY_R + CELL_READ_DELAY)) * SEC_IN_USEC,
                     .garbage_collection_count = 1,
                     .write_amplification = 1.0,
+                    .occupied_pages = 0,
                     .utilization = 0.0 / PAGES_IN_SSD,
                     .logical_write_count = 2,
                     .write_wall_time = (CHANNEL_SWITCH_DELAY_W + CELL_PROGRAM_DELAY + REG_WRITE_DELAY + CELL_PROGRAM_DELAY),
-                    .read_wall_time = (REG_READ_DELAY + CELL_READ_DELAY + BLOCK_ERASE_DELAY + CHANNEL_SWITCH_DELAY_R + CELL_READ_DELAY)
+                    .read_wall_time = (REG_READ_DELAY + CELL_READ_DELAY + BLOCK_ERASE_DELAY + CHANNEL_SWITCH_DELAY_R + CELL_READ_DELAY),
+                    .log_id = 0,
+                    .block_erase_count = 1,
+                    .channel_switch_to_write = 1,
+                    .channel_switch_to_read = 1
             },
             // garbage collection
             {
@@ -187,10 +266,15 @@ namespace rt_subscriber {
                     .read_speed = (2.0 / (REG_READ_DELAY + CELL_READ_DELAY + BLOCK_ERASE_DELAY + CHANNEL_SWITCH_DELAY_R + CELL_READ_DELAY)) * SEC_IN_USEC,
                     .garbage_collection_count = 2,
                     .write_amplification = 1.0,
+                    .occupied_pages = 0,
                     .utilization = 0.0 / PAGES_IN_SSD,
                     .logical_write_count = 2,
                     .write_wall_time = (CHANNEL_SWITCH_DELAY_W + CELL_PROGRAM_DELAY + REG_WRITE_DELAY + CELL_PROGRAM_DELAY),
-                    .read_wall_time = (REG_READ_DELAY + CELL_READ_DELAY + BLOCK_ERASE_DELAY + CHANNEL_SWITCH_DELAY_R + CELL_READ_DELAY)
+                    .read_wall_time = (REG_READ_DELAY + CELL_READ_DELAY + BLOCK_ERASE_DELAY + CHANNEL_SWITCH_DELAY_R + CELL_READ_DELAY),
+                    .log_id = 0,
+                    .block_erase_count = 1,
+                    .channel_switch_to_write = 1,
+                    .channel_switch_to_read = 1
             }
     };
 
@@ -243,7 +327,7 @@ namespace rt_subscriber {
         });
         TIME_MICROSEC(end9);
         LOG_BLOCK_ERASE(logger, (BlockEraseLog) {
-            .channel = 25, .die = 26, .block = 27,
+            .channel = 25, .die = 26, .block = 27, .dirty_page_nb = PAGE_NB,
             .metadata = {start, end9}
         });
         TIME_MICROSEC(end10);
@@ -269,6 +353,7 @@ namespace rt_subscriber {
      */
     void analyze_stats(SSDStatistics stats, void*) {
         SSDStatistics res = results[_logs_read];
+        printf("_logs_read = %d\n", _logs_read);
         _logs_read++;
 
         ASSERT_EQ(res.write_count, stats.write_count);
@@ -277,7 +362,7 @@ namespace rt_subscriber {
         ASSERT_EQ(res.read_speed, stats.read_speed);
         ASSERT_EQ(res.garbage_collection_count, stats.garbage_collection_count);
         ASSERT_EQ(res.write_amplification, stats.write_amplification);
-        ASSERT_EQ(res.utilization, stats.utilization);
+        // ASSERT_EQ(res.utilization, stats.utilization); // utilization cannot be calculated from single analyzer, only when occupied paged is collected from all we can calculated total disk ultil
         ASSERT_EQ(res.logical_write_count, stats.logical_write_count);
         ASSERT_EQ(res.write_wall_time, stats.write_wall_time);
         ASSERT_EQ(res.read_wall_time, stats.read_wall_time);
