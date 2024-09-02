@@ -27,15 +27,15 @@ typedef struct {
     /**
      * The number of physical page written
      */
-    unsigned int write_count;
+    uint64_t write_count;
     /**
-     * The writing speed in MB/s
+     * The writing speed in MB/s =  logical_write_count / write_wall_time 
      */
     double write_speed;
     /**
      * The number of physical page written
      */
-    unsigned int read_count;
+    uint64_t read_count;
     /**
      * The reading speed in MB/s
      */
@@ -43,15 +43,48 @@ typedef struct {
     /**
      * The number of garbage collection done
      */
-    unsigned int garbage_collection_count;
+    uint64_t garbage_collection_count;
     /**
      * The write amplification of the ssd
      */
     double write_amplification;
     /**
+     * The number of occupied_pages in the ssd, signed because it could, temporarily drop below 0.
+     */
+    __int128 occupied_pages;
+    /**
      * The utilization of the ssd
      */
     double utilization;
+    /**
+     * The number of logical writes done.
+     */
+    uint64_t logical_write_count;
+    /**
+     * Time in us spent on writes.TODO:rename
+     */
+    uint64_t write_wall_time;
+    /**
+     * Time in us spent on writes.
+     */
+    uint64_t read_wall_time;
+    /**
+     * log_id used for log server sync.
+     */
+    uint64_t log_id;
+    /**
+     * The number of physical page erase actions
+     */
+    uint64_t block_erase_count;
+    /**
+     * The number of chennel switches to write
+     */
+    uint64_t channel_switch_to_write;
+    /**
+     * The number of chennel switches to write
+     */
+    uint64_t channel_switch_to_read;
+
 } SSDStatistics;
 
 
