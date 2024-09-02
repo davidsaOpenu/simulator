@@ -108,6 +108,7 @@ void log_manager_loop(LogManager* manager, int max_loops) {
         ssd.current_stats = &stats;
 
         unsigned int analyzer_id;
+        int64_t occupied_pages = 0;
         // update the statistics according to the different analyzers
         for (analyzer_id = 0; analyzer_id < manager->analyzers_count; analyzer_id++) {
             // copy the statistics to here, to avoid the chance of corruption
@@ -118,12 +119,15 @@ void log_manager_loop(LogManager* manager, int max_loops) {
             stats.write_count += current_stats.write_count;
             stats.read_count += current_stats.read_count;
             stats.garbage_collection_count += current_stats.garbage_collection_count;
-            stats.utilization += current_stats.utilization;
+            occupied_pages += current_stats.utilization * PAGES_IN_SSD;
 
             stats.logical_write_count += current_stats.logical_write_count;
             stats.write_wall_time += current_stats.write_wall_time;
             stats.read_wall_time += current_stats.read_wall_time;
         }
+        // printf("mlem occupied_pages = %ld\n", occupied_pages);
+        stats.utilization = (double)occupied_pages / PAGES_IN_SSD;
+        // printf("mlem utilization = %lf\n", stats.utilization);
 
         if (stats.logical_write_count == 0)
             stats.write_amplification = 0.0;

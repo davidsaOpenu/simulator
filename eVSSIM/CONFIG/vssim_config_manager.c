@@ -10,28 +10,28 @@ uint32_t SECTOR_SIZE;
 uint32_t PAGE_SIZE;
 
 uint64_t SECTOR_NB;
-uint32_t PAGE_NB;
+uint64_t PAGE_NB;
 uint32_t FLASH_NB;
-uint32_t BLOCK_NB;
+uint64_t BLOCK_NB;
 uint32_t CHANNEL_NB;
 uint32_t PLANES_PER_FLASH;
 
 uint32_t SECTORS_PER_PAGE;
-uint32_t PAGES_PER_FLASH;
-int64_t PAGES_IN_SSD;
+uint64_t PAGES_PER_FLASH;
+uint64_t PAGES_IN_SSD;
 
 uint32_t WAY_NB;
 
 /* Mapping Table */
 uint32_t DATA_BLOCK_NB;
-int64_t BLOCK_MAPPING_ENTRY_NB;		// added by js
+uint64_t BLOCK_MAPPING_ENTRY_NB;		// added by js
 
 #ifdef PAGE_MAP
-int64_t PAGE_MAPPING_ENTRY_NB;		// added by js
-int64_t EACH_EMPTY_TABLE_ENTRY_NB;	// added by js
+uint64_t PAGE_MAPPING_ENTRY_NB;		// added by js
+uint64_t EACH_EMPTY_TABLE_ENTRY_NB;	// added by js
 
-uint32_t EMPTY_TABLE_ENTRY_NB;		// added by js
-uint32_t VICTIM_TABLE_ENTRY_NB;		// added by js
+uint64_t EMPTY_TABLE_ENTRY_NB;		// added by js
+uint64_t VICTIM_TABLE_ENTRY_NB;		// added by js
 #endif
 
 /* NAND Flash Delay */
@@ -164,7 +164,7 @@ void INIT_SSD_CONFIG(void)
 	GC_THRESHOLD = 0.3; // 70%
 	GC_THRESHOLD_BLOCK_NB = (int)((1-GC_THRESHOLD) * (double)BLOCK_MAPPING_ENTRY_NB);
 	GC_THRESHOLD_BLOCK_NB_EACH = (int)((1-GC_THRESHOLD) * (double)EACH_EMPTY_TABLE_ENTRY_NB);
-	GC_VICTIM_NB = 1;
+	GC_VICTIM_NB = GC_THRESHOLD_BLOCK_NB * 0.5;//each time GC is called, clean 50% of threashold
 
     GC_L2_THRESHOLD = 0.1; //90%
 	GC_L2_THRESHOLD_BLOCK_NB = (int)((1-GC_L2_THRESHOLD) * (double)BLOCK_MAPPING_ENTRY_NB);
