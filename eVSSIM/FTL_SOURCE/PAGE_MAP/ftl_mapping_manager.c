@@ -5,16 +5,16 @@
 
 #include "common.h"
 
-#define MAPPING_TABLE_INIT_VAL UINT32_MAX
+#define MAPPING_TABLE_INIT_VAL UINT64_MAX
 
-uint32_t* mapping_table;
+uint64_t* mapping_table;
 void* block_table_start;
 extern GCAlgorithm gc_algo;
 
 void INIT_MAPPING_TABLE(void)
 {
 	/* Allocation Memory for Mapping Table */
-	mapping_table = (uint32_t*)calloc(PAGE_MAPPING_ENTRY_NB, sizeof(uint32_t));
+	mapping_table = (uint64_t*)calloc(PAGE_MAPPING_ENTRY_NB, sizeof(uint64_t));
 	if (mapping_table == NULL)
 		RERR(, "Calloc mapping table fail\n");
 
@@ -23,12 +23,12 @@ void INIT_MAPPING_TABLE(void)
 	/* If mapping_table.dat file exists */
 	FILE* fp = fopen("./data/mapping_table.dat","r");
 	if(fp != NULL){
-		if(fread(mapping_table, sizeof(uint32_t), PAGE_MAPPING_ENTRY_NB, fp) <= 0)
+		if(fread(mapping_table, sizeof(uint64_t), PAGE_MAPPING_ENTRY_NB, fp) <= 0)
 			PERR("fread\n");
 		fclose(fp);
 	}
 	else{
-		int i;
+		uint64_t i;
 		for(i=0;i<PAGE_MAPPING_ENTRY_NB;i++){
 			mapping_table[i] = MAPPING_TABLE_INIT_VAL;
 		}
@@ -42,7 +42,7 @@ void TERM_MAPPING_TABLE(void)
 		RERR(, "File open fail\n");
 
 	/* Write the mapping table to file */
-	if(fwrite(mapping_table, sizeof(uint32_t),PAGE_MAPPING_ENTRY_NB,fp) <= 0)
+	if(fwrite(mapping_table, sizeof(uint64_t),PAGE_MAPPING_ENTRY_NB,fp) <= 0)
 		PERR("fwrite\n");
 
 	/* Free memory for mapping table */
@@ -50,19 +50,23 @@ void TERM_MAPPING_TABLE(void)
 	fclose(fp);
 }
 
-uint32_t GET_MAPPING_INFO(uint32_t lpn)
+uint64_t GET_MAPPING_INFO(uint64_t lpn)
 {
-	uint32_t ppn = mapping_table[lpn];
+	if(lpn >= PAGE_MAPPING_ENTRY_NB){
+		PERR("overflow!\n");
+	}
+
+	uint64_t ppn = mapping_table[lpn];
 
 	return ppn;
 }
 
-ftl_ret_val GET_NEW_PAGE(int mode, int mapping_index, uint32_t* ppn)
+ftl_ret_val GET_NEW_PAGE(int mode, uint64_t mapping_index, uint64_t* ppn)
 {
     return gc_algo.next_page(mode, mapping_index, ppn);
 }
 
-ftl_ret_val DEFAULT_NEXT_PAGE_ALGO(int mode, uint32_t mapping_index, uint32_t* ppn)
+ftl_ret_val DEFAULT_NEXT_PAGE_ALGO(int mode, uint64_t mapping_index, uint64_t* ppn)
 {
 	empty_block_entry* curr_empty_block;
 
@@ -90,9 +94,9 @@ ftl_ret_val DEFAULT_NEXT_PAGE_ALGO(int mode, uint32_t mapping_index, uint32_t* p
 	return FTL_SUCCESS;
 }
 
-int UPDATE_OLD_PAGE_MAPPING(uint32_t lpn)
+int UPDATE_OLD_PAGE_MAPPING(uint64_t lpn)
 {
-	uint32_t old_ppn;
+	uint64_t old_ppn;
 
 	old_ppn = GET_MAPPING_INFO(lpn);
 
@@ -109,8 +113,11 @@ int UPDATE_OLD_PAGE_MAPPING(uint32_t lpn)
 	return FTL_SUCCESS;
 }
 
-int UPDATE_NEW_PAGE_MAPPING(uint32_t lpn, uint32_t ppn)
+int UPDATE_NEW_PAGE_MAPPING(uint64_t lpn, uint64_t ppn)
 {
+	if(lpn >= PAGE_MAPPING_ENTRY_NB){
+		PERR("overflow!\n");
+	}
 	/* Update Page Mapping Table */
 	mapping_table[lpn] = ppn;
 
@@ -122,7 +129,7 @@ int UPDATE_NEW_PAGE_MAPPING(uint32_t lpn, uint32_t ppn)
 	return FTL_SUCCESS;
 }
 
-int UPDATE_NEW_PAGE_MAPPING_NO_LOGICAL(uint32_t ppn)
+int UPDATE_NEW_PAGE_MAPPING_NO_LOGICAL(uint64_t ppn)
 {
 	/* Update Inverse Page Mapping Table */
 	UPDATE_INVERSE_BLOCK_VALIDITY(CALC_FLASH(ppn), CALC_BLOCK(ppn), CALC_PAGE(ppn), PAGE_VALID);
@@ -131,7 +138,7 @@ int UPDATE_NEW_PAGE_MAPPING_NO_LOGICAL(uint32_t ppn)
 	return FTL_SUCCESS;
 }
 
-unsigned int CALC_FLASH(uint32_t ppn)
+unsigned int CALC_FLASH(uint64_t ppn)
 {
 	unsigned int flash_nb = (ppn/PAGE_NB)/BLOCK_NB;
 
@@ -141,24 +148,24 @@ unsigned int CALC_FLASH(uint32_t ppn)
 	return flash_nb;
 }
 
-unsigned int CALC_BLOCK(uint32_t ppn)
+uint64_t CALC_BLOCK(uint64_t ppn)
 {
-	unsigned int block_nb = (ppn/PAGE_NB)%BLOCK_NB;
+	uint64_t block_nb = (ppn/PAGE_NB)%BLOCK_NB;
 
 	if(block_nb >= BLOCK_NB){
-		PERR("block_nb %u\n", block_nb);
+		PERR("block_nb %lu\n", block_nb);
 	}
 	return block_nb;
 }
 
-unsigned int CALC_PAGE(uint32_t ppn)
+uint64_t CALC_PAGE(uint64_t ppn)
 {
 	unsigned int page_nb = ppn%PAGE_NB;
 
 	return page_nb;
 }
 
-unsigned int CALC_PLANE(uint32_t ppn)
+unsigned int CALC_PLANE(uint64_t ppn)
 {
 	int flash_nb = CALC_FLASH(ppn);
 	int block_nb = CALC_BLOCK(ppn);
@@ -169,7 +176,7 @@ unsigned int CALC_PLANE(uint32_t ppn)
 	return plane;
 }
 
-unsigned int CALC_CHANNEL(uint32_t ppn)
+unsigned int CALC_CHANNEL(uint64_t ppn)
 {
 	int flash_nb = CALC_FLASH(ppn);
 	int channel;
@@ -179,7 +186,7 @@ unsigned int CALC_CHANNEL(uint32_t ppn)
 	return channel;
 }
 
-unsigned int CALC_SCOPE_FIRST_PAGE(uint32_t address, int scope)
+unsigned int CALC_SCOPE_FIRST_PAGE(uint64_t address, int scope)
 {
 	int planeNumber;
 	switch (scope)

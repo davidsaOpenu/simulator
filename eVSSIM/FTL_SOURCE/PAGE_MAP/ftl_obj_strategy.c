@@ -173,7 +173,7 @@ ftl_ret_val _FTL_OBJ_WRITE(obj_id_t object_loc, const void *data, offset_t offse
 {
     stored_object *object;
     page_node *current_page = NULL, *temp_page;
-    uint32_t page_id;
+    uint64_t page_id;
     int io_page_nb;
     int curr_io_page_nb;
     unsigned int ret = FTL_SUCCESS;
@@ -218,7 +218,7 @@ ftl_ret_val _FTL_OBJ_WRITE(obj_id_t object_loc, const void *data, offset_t offse
         }
         if ((temp_page = lookup_page(page_id)))
         {
-            RERR(FTL_FAILURE, "[FTL_WRITE] Object %lu already contains page %d\n", temp_page->object_id, page_id);
+            RERR(FTL_FAILURE, "[FTL_WRITE] Object %lu already contains page %lu\n", temp_page->object_id, page_id);
         }
 
         // mark new page as valid and used
@@ -413,7 +413,7 @@ stored_object *create_object(object_id_t obj_id, size_t size)
 {
 
     stored_object *obj = malloc(sizeof(stored_object));
-    uint32_t page_id;
+    uint64_t page_id;
 
     object_map *obj_map;
 
