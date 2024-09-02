@@ -10,6 +10,10 @@
 
 #define MEGABYTE_IN_BYTES (1024*1024)
 #define SECOND_IN_USEC 1000000
+#define CALCULATEMBPS(s,t) ((double)s*SECOND_IN_USEC)/MEGABYTE_IN_BYTES/t;
+
+#define ERROR_THRESHHOLD(x) x*0.01
+
 /* IO Latency */
 typedef struct io_request
 {

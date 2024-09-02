@@ -23,9 +23,9 @@
 #include "vssim_config_manager.h"
 #include "logging_rt_analyzer.h"
 
-#define MONITOR_SYNC_DELAY_USEC 1500000
+#define MONITOR_SYNC_DELAY_USEC 15000000
 #define DELAY_THRESHOLD 0
-#define MONITOR_SYNC_DELAY(expected_duration) usleep(2 * expected_duration + MONITOR_SYNC_DELAY_USEC)
+#define MONITOR_SYNC_DELAY(expected_duration) usleep(0 * expected_duration + MONITOR_SYNC_DELAY_USEC)
 
 /**
  * The port to be used by the server
