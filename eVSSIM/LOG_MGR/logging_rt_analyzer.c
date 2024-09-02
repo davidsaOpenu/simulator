@@ -188,11 +188,16 @@ void rt_log_analyzer_loop(RTLogAnalyzer* analyzer, int max_logs) {
             {
                 BlockEraseLog res;
                 NEXT_BLOCK_ERASE_LOG(analyzer->logger, &res, RT_ANALYZER);
-                rt_log_stats[analyzer->rt_analyzer_id].occupied_pages -=
-                    (rt_log_stats[analyzer->rt_analyzer_id].occupied_pages < PAGE_NB)?
-                        rt_log_stats[analyzer->rt_analyzer_id].occupied_pages :
-                        PAGE_NB;
+                rt_log_stats[analyzer->rt_analyzer_id].occupied_pages -= res.dirty_page_nb;
                 rt_log_stats[analyzer->rt_analyzer_id].current_wall_time += BLOCK_ERASE_DELAY;
+                break;
+            }
+            case PAGE_COPYBACK_LOG_UID:
+            {
+                PageCopyBackLog res;
+                rt_log_stats[analyzer->rt_analyzer_id].occupied_pages++;
+                // log time for write?
+                NEXT_PAGE_COPYBACK_LOG(analyzer->logger, &res, RT_ANALYZER);
                 break;
             }
             case CHANNEL_SWITCH_TO_READ_LOG_UID:
@@ -221,6 +226,13 @@ void rt_log_analyzer_loop(RTLogAnalyzer* analyzer, int max_logs) {
                 ObjectCopyback res;
                 rt_log_stats[analyzer->rt_analyzer_id].occupied_pages++;
                 NEXT_OBJECT_COPYBACK_LOG(analyzer->logger, &res, RT_ANALYZER);
+                break;
+            }
+            case LOG_SYNC_LOG_UID:
+            {
+                LoggeingServerSync res;
+                NEXT_LOG_SYNC_LOG(analyzer->logger, &res, RT_ANALYZER);
+                stats.log_id = res.log_id;
                 break;
             }
             default:
@@ -252,7 +264,7 @@ void rt_log_analyzer_loop(RTLogAnalyzer* analyzer, int max_logs) {
                 ((double) logical_write_count) / rt_log_stats[analyzer->rt_analyzer_id].write_wall_time
             );
         
-        stats.utilization = ((double)rt_log_stats[analyzer->rt_analyzer_id].occupied_pages/ PAGES_IN_SSD);
+        stats.occupied_pages = rt_log_stats[analyzer->rt_analyzer_id].occupied_pages;
         
         stats.read_wall_time = rt_log_stats[analyzer->rt_analyzer_id].read_wall_time;
         stats.write_wall_time = rt_log_stats[analyzer->rt_analyzer_id].write_wall_time;

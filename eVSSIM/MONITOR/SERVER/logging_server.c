@@ -283,3 +283,29 @@ void log_server_free(void) {
     lws_context_destroy(log_server.context);
     pthread_mutex_destroy(&log_server.lock);
 }
+
+void MONITOR_SYNC(SSDStatistics *stats, uint64_t max_sleep){
+    size_t i;
+    uint64_t log_id;
+    for(i = 0; i < FLASH_NB; i++){
+        log_id = 666 + i;
+        LOG_LOG_SYNC(GET_LOGGER(i), (LoggeingServerSync) {
+            .log_id = log_id
+        });
+        MONITOR_SYNC_LOG_ID(stats, log_id, max_sleep);
+        if(stats->log_id != log_id){
+            RERR(, "cheese %lu, %u\n", i, FLASH_NB);
+        }
+    }
+}
+
+void MONITOR_SYNC_LOG_ID(SSDStatistics *stats, uint64_t log_id, uint64_t max_sleep){
+    uint64_t time_waited = 0;
+    while(stats->log_id != log_id && time_waited < max_sleep){
+        usleep(MONITOR_SLEEP_PERIOD_USEC);
+        time_waited += MONITOR_SLEEP_PERIOD_USEC;
+    }
+    if(time_waited >= max_sleep){
+        PINFO("Timed out syncing to logger.\n");
+    }
+}
