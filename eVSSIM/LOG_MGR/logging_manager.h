@@ -17,6 +17,7 @@
 #ifndef __LOGGING_MANAGER_H__
 #define __LOGGING_MANAGER_H__
 
+#include "common.h"
 #include "logging_rt_analyzer.h"
 
 /**

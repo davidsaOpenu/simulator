@@ -4,6 +4,9 @@ set -e
 source ./env.sh
 source ./elk.sh
 
+# Make sure every run we get a new clear runtime folder
+export EVSSIM_RUNTIME_ALWAYS_RESET=yes
+
 : <<'END_COMMENT'
 # We source this script since it defines some env-vars that we need, such as ELK ports and container names
 ./build-elk-test-image.sh
