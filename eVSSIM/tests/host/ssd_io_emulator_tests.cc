@@ -140,20 +140,27 @@ namespace ssd_io_emulator_tests {
         int block_nb = 0;
         int page_nb = 0;
         int offset = 0;
-        int num_of_writes = 3;
-        int num_of_reads = 2;
         int write_wall_time = 0;
         int read_wall_time = 0;
 
-        SSD_PAGE_WRITE(flash_nb,block_nb,page_nb,offset, WRITE);
-        SSD_PAGE_WRITE(flash_nb,block_nb,page_nb,offset, WRITE);
-        SSD_PAGE_READ(flash_nb,block_nb,page_nb,offset, READ);
-        SSD_PAGE_READ(flash_nb,block_nb,page_nb,offset, READ);
-        SSD_PAGE_WRITE(flash_nb,block_nb,page_nb,offset, WRITE);
+        int expected_write_duration = 0;
+        int expected_read_duration = 0;
 
-        // single write page delay
-        int expected_write_duration =  2 * CHANNEL_SWITCH_DELAY_W + (REG_WRITE_DELAY + CELL_PROGRAM_DELAY) * num_of_writes;
-        int expected_read_duration = CHANNEL_SWITCH_DELAY_R + (REG_READ_DELAY + CELL_READ_DELAY) * num_of_reads;
+        SSD_PAGE_WRITE(flash_nb,block_nb,page_nb,offset, WRITE);
+        expected_write_duration += CHANNEL_SWITCH_DELAY_W + (REG_WRITE_DELAY + CELL_PROGRAM_DELAY);
+
+        SSD_PAGE_WRITE(flash_nb,block_nb,page_nb,offset, WRITE);
+        expected_write_duration += (REG_WRITE_DELAY + CELL_PROGRAM_DELAY);
+
+        SSD_PAGE_READ(flash_nb,block_nb,page_nb,offset, READ);
+        expected_read_duration += CHANNEL_SWITCH_DELAY_R + (REG_READ_DELAY + CELL_READ_DELAY);
+
+        SSD_PAGE_READ(flash_nb,block_nb,page_nb,offset, READ);
+        expected_read_duration +=  (REG_READ_DELAY + CELL_READ_DELAY);
+
+        SSD_PAGE_WRITE(flash_nb,block_nb,page_nb,offset, WRITE);
+        expected_write_duration += CHANNEL_SWITCH_DELAY_W + (REG_WRITE_DELAY + CELL_PROGRAM_DELAY);
+
 
         // wait for new monitor sync
         MONITOR_SYNC_DELAY(expected_write_duration + expected_read_duration);
@@ -167,7 +174,7 @@ namespace ssd_io_emulator_tests {
         // new monitor write delay
         ASSERT_LE(write_wall_time - expected_write_duration, DELAY_THRESHOLD);
         // new monitor read delay
-        ASSERT_LE(abs(read_wall_time - expected_read_duration), DELAY_THRESHOLD);
+        ASSERT_LE(read_wall_time - expected_read_duration, DELAY_THRESHOLD);
     }
 
     /**
@@ -234,6 +241,7 @@ namespace ssd_io_emulator_tests {
         int expected_write_duration = REG_WRITE_DELAY + CELL_PROGRAM_DELAY + BLOCK_ERASE_DELAY;
 
         SSD_PAGE_WRITE(flash_nb,block_nb,page_nb,0, WRITE);
+        GET_INVERSE_BLOCK_MAPPING_ENTRY(flash_nb, block_nb)->valid_page_nb = 1;//update mapping info
         SSD_BLOCK_ERASE(flash_nb,block_nb);
 
         // wait for new monitor sync
@@ -267,7 +275,11 @@ namespace ssd_io_emulator_tests {
         occupied_pages = 2;
         ASSERT_EQ((double)occupied_pages / PAGES_IN_SSD, SSD_UTIL());
         SSD_BLOCK_ERASE(flash_nb,block_nb);
+<<<<<<< PATCH SET (10c5d9 Support for Big SSD)
+        occupied_pages = 1;
+=======
         occupied_pages-=PAGE_NB;
+>>>>>>> BASE      (90e637 handle-depend-on-instructions.sh recives base64-encoded comm)
 
         ssd_utils = (double)occupied_pages / PAGES_IN_SSD;
 
@@ -434,13 +446,27 @@ namespace ssd_io_emulator_tests {
             for(size_t p=0; p < ssd_config->get_pages(); p++){
                 ASSERT_EQ(FTL_SUCCESS, _FTL_WRITE_SECT(p * ssd_config->get_page_size(), 1));
             }
+            MONITOR_SYNC_DELAY(15000000);
+
+            //at most one block that wasn't cleared by GC algorithem
+            double error_util = (double)(ssd_config->get_pages_per_block()) / (ssd_config->get_page_nb() * ssd_config->get_block_nb() * ssd_config->get_flash_nb());
+            ASSERT_NEAR(0.8, ssd.current_stats->utilization, error_util);//25% over provitioning = 80% full
+
+            ASSERT_EQ(ssd_config->get_pages() * (x + 1), ssd.current_stats->logical_write_count);
+            ASSERT_LE(ssd_config->get_pages() * (x + 1), ssd.current_stats->write_count);
+
         }
+
         int expected_write_duration = (CHANNEL_SWITCH_DELAY_W + REG_WRITE_DELAY + CELL_PROGRAM_DELAY) * ssd_config->get_pages() * 2;
         
         MONITOR_SYNC_DELAY(expected_write_duration);
     
         // Assert w.a. is greater then 1
-        ASSERT_LT(expected_write_amplification, ssd.current_stats->write_amplification);
+        ASSERT_GE(ssd_config->get_pages(), ssd.current_stats->garbage_collection_count);
+        //write amp = 1 because we work with over-provitioning and write sequentionally, on the second pass
+        //we re-allocate the first block, when we get to the second block, there is now a free block that can be used
+        //for re-allocating the second block
+        ASSERT_LE(expected_write_amplification, ssd.current_stats->write_amplification);
     }
 
 } //namespace
