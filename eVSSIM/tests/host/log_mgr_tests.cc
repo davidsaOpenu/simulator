@@ -635,6 +635,7 @@ namespace log_mgr_tests {
             .channel = 6,
             .die = 352,
             .block = 947,
+            .dirty_page_nb = 10,
             .metadata = {start, start+1}
         };
         LOG_BLOCK_ERASE(_logger, log);
@@ -644,6 +645,7 @@ namespace log_mgr_tests {
         ASSERT_EQ(log.channel, res.channel);
         ASSERT_EQ(log.die, res.die);
         ASSERT_EQ(log.block, res.block);
+        ASSERT_EQ(log.dirty_page_nb, res.dirty_page_nb);
     }
     /**
      * Test writing and reading a channel switch to read log
