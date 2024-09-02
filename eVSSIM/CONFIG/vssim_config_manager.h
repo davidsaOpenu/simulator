@@ -11,28 +11,28 @@
 
 /* SSD Configuration */
 extern uint64_t SECTOR_NB;
-extern uint32_t PAGE_NB;
+extern uint64_t PAGE_NB;
 extern uint32_t FLASH_NB;
-extern uint32_t BLOCK_NB;
+extern uint64_t BLOCK_NB;
 extern uint32_t CHANNEL_NB;
 extern uint32_t PLANES_PER_FLASH;
 
 extern uint32_t SECTORS_PER_PAGE;
-extern uint32_t PAGES_PER_FLASH;
-extern int64_t PAGES_IN_SSD;
+extern uint64_t PAGES_PER_FLASH;
+extern uint64_t PAGES_IN_SSD;
 
 extern uint32_t WAY_NB;
 
 /* Mapping Table */
 extern uint32_t DATA_BLOCK_NB;
-extern int64_t BLOCK_MAPPING_ENTRY_NB;		// added by js
+extern uint64_t BLOCK_MAPPING_ENTRY_NB;		// added by js
 
 #ifdef PAGE_MAP
-extern int64_t PAGE_MAPPING_ENTRY_NB; 		// added by js
-extern int64_t EACH_EMPTY_TABLE_ENTRY_NB;	// added by js
+extern uint64_t PAGE_MAPPING_ENTRY_NB; 		// added by js
+extern uint64_t EACH_EMPTY_TABLE_ENTRY_NB;	// added by js
 
-extern uint32_t EMPTY_TABLE_ENTRY_NB;
-extern uint32_t VICTIM_TABLE_ENTRY_NB;
+extern uint64_t EMPTY_TABLE_ENTRY_NB;
+extern uint64_t VICTIM_TABLE_ENTRY_NB;
 #endif
 
 /* NAND Flash Delay */
