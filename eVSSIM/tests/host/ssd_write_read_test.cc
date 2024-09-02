@@ -20,11 +20,7 @@
 extern RTLogStatistics *rt_log_stats;
 extern LogServer log_server;
 
-#define ERROR_THRESHHOLD(x) x*0.01
-
-#define CALCULATEMBPS(s,t) ((double)s*SECOND_IN_USEC)/MEGABYTE_IN_BYTES/t;
-
-#define MAX_POW 8
+#define MAX_POW 18
 #define PAGE_SIZE 4096
 #define PAGE_NB 10
 #define SECTOR_SIZE 1
@@ -73,10 +69,10 @@ namespace write_read_test{
         SSDConf* ssd_config = base_test_get_ssd_config();
    
            //writes the whole ssd
-        for(unsigned int p=0; p < ssd_config->get_pages(); p++){
+        for(size_t p=0; p < ssd_config->get_pages(); p++){
              _FTL_WRITE_SECT(p * ssd_config->get_page_size(), 1);
         }     
-        
+
         unsigned int time_per_action = REG_WRITE_DELAY + CELL_PROGRAM_DELAY+CHANNEL_SWITCH_DELAY_W;
         
         MONITOR_SYNC_DELAY(ssd_config->get_pages()*(time_per_action));
@@ -91,6 +87,7 @@ namespace write_read_test{
         ASSERT_EQ(ssd_config->get_pages(), log_server.stats.write_count);
         ASSERT_EQ(1, log_server.stats.write_amplification);
         ASSERT_EQ(1.0,log_server.stats.utilization);
+        ASSERT_EQ(0,log_server.stats.garbage_collection_count);
         
     }
     
@@ -130,6 +127,7 @@ namespace write_read_test{
         ASSERT_EQ(ssd_config->get_pages(), log_server.stats.write_count);
         ASSERT_EQ(1, log_server.stats.write_amplification);
         ASSERT_EQ(1.0,log_server.stats.utilization);
+        ASSERT_EQ(0,log_server.stats.garbage_collection_count);
     }
     
     /**
@@ -164,5 +162,6 @@ namespace write_read_test{
         ASSERT_EQ(ssd_config->get_pages(), log_server.stats.write_count);
         ASSERT_EQ(1, log_server.stats.write_amplification);
         ASSERT_EQ(1.0, log_server.stats.utilization);
+        ASSERT_EQ(0,log_server.stats.garbage_collection_count);
     }
 } //namespace

@@ -129,6 +129,13 @@ void offline_log_analyzer_loop(OfflineLogAnalyzer* analyzer) {
                     JSON_BLOCK_ERASE(&res, &json_buf);
                     break;
                 }
+                case PAGE_COPYBACK_LOG_UID:
+                {
+                    PageCopyBackLog res;
+                    NEXT_PAGE_COPYBACK_LOG(analyzer->logger_pool, &res, OFFLINE_ANALYZER);
+                    JSON_PAGE_COPYBACK(&res, &json_buf);
+                    break;
+                }
                 case CHANNEL_SWITCH_TO_READ_LOG_UID:
                 {
                     ChannelSwitchToReadLog res;

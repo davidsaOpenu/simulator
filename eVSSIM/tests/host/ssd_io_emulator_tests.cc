@@ -235,6 +235,7 @@ namespace ssd_io_emulator_tests {
         int expected_write_duration = REG_WRITE_DELAY + CELL_PROGRAM_DELAY + BLOCK_ERASE_DELAY;
 
         SSD_PAGE_WRITE(flash_nb,block_nb,page_nb,0, WRITE);
+        GET_INVERSE_BLOCK_MAPPING_ENTRY(flash_nb, block_nb)->valid_page_nb = 1;//update mapping info
         SSD_BLOCK_ERASE(flash_nb,block_nb);
 
         // wait for new monitor sync
@@ -268,7 +269,7 @@ namespace ssd_io_emulator_tests {
         occupied_pages = 2;
         ASSERT_EQ((double)occupied_pages / PAGES_IN_SSD, SSD_UTIL());
         SSD_BLOCK_ERASE(flash_nb,block_nb);
-        occupied_pages -= (occupied_pages < PAGE_NB)? occupied_pages : PAGE_NB;
+        occupied_pages = 1;
 
         ssd_utils = (double)occupied_pages / PAGES_IN_SSD;
 
@@ -435,13 +436,24 @@ namespace ssd_io_emulator_tests {
             for(size_t p=0; p < ssd_config->get_pages(); p++){
                 ASSERT_EQ(FTL_SUCCESS, _FTL_WRITE_SECT(p * ssd_config->get_page_size(), 1));
             }
+            MONITOR_SYNC_DELAY(15000000);
+            printf("occupied_pages_counter = %lu\n", ssd.occupied_pages_counter);
+            printf("get_pages = %lu\n", ssd_config->get_pages());
+            ASSERT_EQ(0.8, ssd.current_stats->utilization);//25% over provitioning = 80% full
+            ASSERT_GE(ssd_config->get_pages() * (x + 1), ssd.current_stats->write_count);
+            ASSERT_EQ(ssd_config->get_pages() * (x + 1), ssd.current_stats->logical_write_count);
         }
+
         int expected_write_duration = (CHANNEL_SWITCH_DELAY_W + REG_WRITE_DELAY + CELL_PROGRAM_DELAY) * ssd_config->get_pages() * 2;
         
         MONITOR_SYNC_DELAY(expected_write_duration);
     
         // Assert w.a. is greater then 1
-        ASSERT_LT(expected_write_amplification, ssd.current_stats->write_amplification);
+        ASSERT_GE(ssd_config->get_pages(), ssd.current_stats->garbage_collection_count);
+        //write amp = 1 because we work with over-provitioning and write sequentionally, on the second pass
+        //we re-allocate the first block, when we get to the second block, there is now a free block that can be used
+        //for re-allocating the second block
+        ASSERT_LE(expected_write_amplification, ssd.current_stats->write_amplification);
     }
 
 } //namespace
