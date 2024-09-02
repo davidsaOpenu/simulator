@@ -150,6 +150,7 @@ void TERM_LOG_MANAGER(void)
     rt_log_stats_free();
     pthread_join(log_manager_thread, NULL);
     log_manager_free(log_manager);
+    lws_cancel_service(log_server.context);
     pthread_join(log_server_thread, NULL);
     log_server_free();
 

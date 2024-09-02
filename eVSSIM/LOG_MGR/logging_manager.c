@@ -149,6 +149,9 @@ void log_manager_loop(LogManager* manager, int max_loops) {
                 ((double) stats.read_count) / read_wall_time
             );
 
+        stats.read_wall_time = read_wall_time;
+        stats.write_wall_time = write_wall_time;        
+
         validateSSDStat(&stats);
 
         unsigned int subscriber_id;

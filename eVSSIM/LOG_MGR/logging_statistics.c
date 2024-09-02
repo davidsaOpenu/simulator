@@ -35,11 +35,11 @@ SSDStatistics stats_init(void) {
 
 int stats_json(SSDStatistics stats, Byte* buffer, int max_len) {
     return snprintf((char*) buffer, max_len, "{"
-                    "\"write_count\":%d,"
+                    "\"write_count\":%lu,"
                     "\"write_speed\":%f,"
-                    "\"read_count\":%d,"
+                    "\"read_count\":%lu,"
                     "\"read_speed\":%f,"
-                    "\"garbage_collection_count\":%d,"
+                    "\"garbage_collection_count\":%lu,"
                     "\"write_amplification\":%f,"
                     "\"utilization\":%f"
                     "}",
@@ -61,11 +61,11 @@ int stats_equal(SSDStatistics first, SSDStatistics second) {
 
 void printSSDStat(SSDStatistics *stat){
     fprintf(stdout, "SSDStat:\n");
-    fprintf(stdout, "\twrite_count = %u\n", stat->write_count);
+    fprintf(stdout, "\twrite_count = %lu\n", stat->write_count);
     fprintf(stdout, "\twrite_speed = %f\n", stat->write_speed);
-    fprintf(stdout, "\tread_count = %u\n", stat->read_count);
+    fprintf(stdout, "\tread_count = %lu\n", stat->read_count);
     fprintf(stdout, "\tread_speed = %f\n", stat->read_speed);
-    fprintf(stdout, "\tgarbage_collection_count = %u\n", stat->garbage_collection_count);
+    fprintf(stdout, "\tgarbage_collection_count = %lu\n", stat->garbage_collection_count);
     fprintf(stdout, "\twrite_amplification = %f\n", stat->write_amplification);
     fprintf(stdout, "\tutilization = %f\n", stat->utilization);  
 };
@@ -79,7 +79,7 @@ void validateSSDStat(SSDStatistics *stat){
     
     //we don't cache writes so write amp cant be less then 1
     //2.2 was chosen as a 'good' upper limit for write amp. rben: updated to 10, there are test with lots of garbage collections, causing bad write amp, just an indication of bad ftl algorithem?
-    if((stat->write_amplification < 1 && stat->write_amplification != 0) || stat->write_amplification > 10){
+    if((stat->write_amplification < 0.9999f && stat->write_amplification != 0) || stat->write_amplification > 10){
         if(stat->logical_write_count - 1 < stat->write_count){
             fprintf(stderr, "bad write_amplification : %ff but within margin\n", stat->write_amplification);
         }
