@@ -1,7 +1,6 @@
 #include "common.h"
 #include "ftl_sect_strategy.h"
 
-static struct timeval logging_parser_tv;
 extern ssd_disk ssd;
 
 ftl_ret_val _FTL_READ_SECT(uint64_t sector_nb, unsigned int length)
@@ -12,8 +11,8 @@ ftl_ret_val _FTL_READ_SECT(uint64_t sector_nb, unsigned int length)
 	if (sector_nb + length > SECTOR_NB)
 		RERR(FTL_FAILURE, "[FTL_READ] Exceed Sector number\n");
 
-	int32_t lpn;
-	int32_t ppn;
+	uint64_t lpn;
+	uint64_t ppn;
 	uint64_t lba = sector_nb;
 	unsigned int remain = length;
 	unsigned long left_skip = sector_nb % SECTORS_PER_PAGE;
@@ -50,7 +49,7 @@ ftl_ret_val _FTL_READ_SECT(uint64_t sector_nb, unsigned int length)
 
 		ppn = GET_MAPPING_INFO(lpn);
 
-		if (ppn == -1)
+		if (ppn == (uint64_t)-1)
 			RDBG_FTL(FTL_FAILURE, "No Mapping info\n");
 
 		ret = SSD_PAGE_READ(CALC_FLASH(ppn), CALC_BLOCK(ppn), CALC_PAGE(ppn), read_page_nb, READ);
@@ -89,7 +88,6 @@ ftl_ret_val _FTL_WRITE(uint64_t sector_nb, unsigned int length)
 
 ftl_ret_val _FTL_WRITE_SECT(uint64_t sector_nb, unsigned int length)
 {
-	TIME_MICROSEC(_start);
 	PDBG_FTL("Start: sector_nb %" PRIu64 "length %u\n", sector_nb, length);
 
 	int io_page_nb;
@@ -98,9 +96,9 @@ ftl_ret_val _FTL_WRITE_SECT(uint64_t sector_nb, unsigned int length)
 		RERR(FTL_FAILURE, "Exceed Sector number\n");
 	io_alloc_overhead = ALLOC_IO_REQUEST(sector_nb, length, WRITE, &io_page_nb);
 
-	uint32_t lba = sector_nb;
-	uint32_t lpn;
-	uint32_t new_ppn;
+	uint64_t lba = sector_nb;
+	uint64_t lpn;
+	uint64_t new_ppn;
 
 	unsigned int remain = length;
 	unsigned int left_skip = sector_nb % SECTORS_PER_PAGE;
@@ -140,7 +138,7 @@ ftl_ret_val _FTL_WRITE_SECT(uint64_t sector_nb, unsigned int length)
 		write_page_nb++;
 
 		//Calculate the logical page number -> the current sector_number / amount_of_sectors_per_page
-		lpn = lba / (int32_t)SECTORS_PER_PAGE;
+		lpn = lba / (uint64_t)SECTORS_PER_PAGE;
 		//Send a logical write action being done to the statistics gathering
 		FTL_STATISTICS_GATHERING(lpn , LOGICAL_WRITE);
 
@@ -169,9 +167,9 @@ ftl_ret_val _FTL_WRITE_SECT(uint64_t sector_nb, unsigned int length)
 }
 
 //Get 2 physical page address, the source page which need to be moved to the destination page
-ftl_ret_val _FTL_COPYBACK(int32_t source, int32_t destination)
+ftl_ret_val _FTL_COPYBACK(uint64_t source, uint64_t destination)
 {
-	int32_t lpn; //The logical page address, the page that being moved.
+	uint64_t lpn; //The logical page address, the page that being moved.
 	unsigned int ret = FTL_FAILURE;
 
 	//Handle copyback delays
@@ -189,7 +187,7 @@ ftl_ret_val _FTL_COPYBACK(int32_t source, int32_t destination)
 
 	//Handle page map
 	lpn = GET_INVERSE_MAPPING_INFO(source);
-	if (lpn != -1)
+	if (lpn != (uint64_t)-1)
 	{
 		//The given physical page is being map, the mapping information need to be changed
 		UPDATE_OLD_PAGE_MAPPING(lpn); //as far as i can tell when being called under the gc manage all the actions are being done, but what if will be called from another place?
