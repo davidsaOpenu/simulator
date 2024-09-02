@@ -75,11 +75,11 @@ typedef struct {
  */
 typedef struct {
 
-	unsigned int logical_write_count;
-	int write_wall_time;
-	int read_wall_time;
-	int current_wall_time;
-	long occupied_pages;
+	uint64_t logical_write_count;
+	uint64_t write_wall_time;
+	uint64_t read_wall_time;
+	uint64_t current_wall_time;
+	__int128 occupied_pages;
 
 } RTLogStatistics;
 

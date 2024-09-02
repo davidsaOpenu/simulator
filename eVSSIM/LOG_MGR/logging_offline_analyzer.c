@@ -129,6 +129,13 @@ void offline_log_analyzer_loop(OfflineLogAnalyzer* analyzer) {
                     JSON_BLOCK_ERASE(&res, &json_buf);
                     break;
                 }
+                case PAGE_COPYBACK_LOG_UID:
+                {
+                    PageCopyBackLog res;
+                    NEXT_PAGE_COPYBACK_LOG(analyzer->logger_pool, &res, OFFLINE_ANALYZER);
+                    JSON_PAGE_COPYBACK(&res, &json_buf);
+                    break;
+                }
                 case CHANNEL_SWITCH_TO_READ_LOG_UID:
                 {
                     ChannelSwitchToReadLog res;
@@ -155,6 +162,13 @@ void offline_log_analyzer_loop(OfflineLogAnalyzer* analyzer) {
                     ObjectCopyback res;
                     NEXT_OBJECT_COPYBACK_LOG(analyzer->logger_pool, &res, OFFLINE_ANALYZER);
                     JSON_OBJECT_COPYBACK(&res, &json_buf);
+                    break;
+                }
+                case LOG_SYNC_LOG_UID:
+                {
+                    LoggeingServerSync res;
+                    NEXT_LOG_SYNC_LOG(analyzer->logger_pool, &res, OFFLINE_ANALYZER);
+                    JSON_LOG_SYNC(&res, &json_buf);
                     break;
                 }
                 default:
