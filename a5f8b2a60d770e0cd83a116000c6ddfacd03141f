@@ -18,6 +18,24 @@
       "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "ff3191bc_54fd3178",
+        "filename": "eVSSIM/FTL_SOURCE/PERF_MODULE/ftl_perf_manager.c",
+        "patchSetId": 23
+      },
+      "lineNbr": 1,
+      "author": {
+        "id": 1037995
+      },
+      "writtenOn": "2024-09-04T20:13:11Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "c1ce9975_dc19e436",
+      "revId": "a5f8b2a60d770e0cd83a116000c6ddfacd03141f",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "49541b68_a7857507",
@@ -35,6 +53,24 @@
       "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "cb1659c7_20219834",
+        "filename": "eVSSIM/LOG_MGR/logging_manager.c",
+        "patchSetId": 23
+      },
+      "lineNbr": 152,
+      "author": {
+        "id": 1037995
+      },
+      "writtenOn": "2024-09-04T20:13:11Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "49541b68_a7857507",
+      "revId": "a5f8b2a60d770e0cd83a116000c6ddfacd03141f",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "5b48b76a_d4f6226f",
@@ -48,6 +84,30 @@
       "writtenOn": "2024-08-19T17:48:49Z",
       "side": 1,
       "message": "s/continue/exit requires also s/WARNING/ERROR + stopping all threads. \nI\u0027d suggest to leave continue. But instead of writing to the stderr to write to some file. Then simply adding to the real time monitor ( ./eVSSIM/MONITOR/SERVER/www/index.html ) a window and java script  to reflect changes in that log file in he window.",
+      "range": {
+        "startLine": 131,
+        "startChar": 0,
+        "endLine": 133,
+        "endChar": 20
+      },
+      "revId": "a5f8b2a60d770e0cd83a116000c6ddfacd03141f",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "0a99d3dd_77cb2153",
+        "filename": "eVSSIM/LOG_MGR/logging_rt_analyzer.c",
+        "patchSetId": 23
+      },
+      "lineNbr": 133,
+      "author": {
+        "id": 1037995
+      },
+      "writtenOn": "2024-09-04T20:13:11Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "5b48b76a_d4f6226f",
       "range": {
         "startLine": 131,
         "startChar": 0,
@@ -81,6 +141,30 @@
       "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "9c94b717_9b488983",
+        "filename": "eVSSIM/LOG_MGR/logging_rt_analyzer.c",
+        "patchSetId": 23
+      },
+      "lineNbr": 152,
+      "author": {
+        "id": 1037995
+      },
+      "writtenOn": "2024-09-04T20:13:11Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "e1b7754c_9762eaf2",
+      "range": {
+        "startLine": 152,
+        "startChar": 37,
+        "endLine": 152,
+        "endChar": 103
+      },
+      "revId": "a5f8b2a60d770e0cd83a116000c6ddfacd03141f",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "55fc5d94_8a7b6869",
@@ -94,6 +178,30 @@
       "writtenOn": "2024-08-19T17:48:49Z",
       "side": 1,
       "message": "this one sounds like an error that should not happen. At very least we need to reflect it on the monitor page. In addition to ASSERT (logical_write_count \u003e stats.write_count) in host tests (log manager statistics tests)",
+      "range": {
+        "startLine": 238,
+        "startChar": 0,
+        "endLine": 240,
+        "endChar": 9
+      },
+      "revId": "a5f8b2a60d770e0cd83a116000c6ddfacd03141f",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "6b1ecd2d_fedc1d8a",
+        "filename": "eVSSIM/LOG_MGR/logging_rt_analyzer.c",
+        "patchSetId": 23
+      },
+      "lineNbr": 240,
+      "author": {
+        "id": 1037995
+      },
+      "writtenOn": "2024-09-04T20:13:11Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "55fc5d94_8a7b6869",
       "range": {
         "startLine": 238,
         "startChar": 0,
@@ -129,6 +237,30 @@
     {
       "unresolved": true,
       "key": {
+        "uuid": "26b16b3e_887c65fa",
+        "filename": "eVSSIM/LOG_MGR/logging_statistics.h",
+        "patchSetId": 23
+      },
+      "lineNbr": 66,
+      "author": {
+        "id": 1037995
+      },
+      "writtenOn": "2024-09-04T20:13:11Z",
+      "side": 1,
+      "message": "read_wall_time for read speed calculation\nwrite_wall_time for write calculation",
+      "parentUuid": "763a3f51_88a4251a",
+      "range": {
+        "startLine": 62,
+        "startChar": 0,
+        "endLine": 66,
+        "endChar": 26
+      },
+      "revId": "a5f8b2a60d770e0cd83a116000c6ddfacd03141f",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
+    },
+    {
+      "unresolved": true,
+      "key": {
         "uuid": "8629c6d8_c544eecf",
         "filename": "eVSSIM/tests/host/rt_analyzer_subscriber.cc",
         "patchSetId": 23
@@ -140,6 +272,30 @@
       "writtenOn": "2024-08-19T17:48:49Z",
       "side": 1,
       "message": "in this file there are few changes related to                       write_wall_time/read_wall_time comment from https://review.gerrithub.io/c/davidsaOpenu/simulator/+/1193899/23/eVSSIM/LOG_MGR/logging_statistics.h",
+      "range": {
+        "startLine": 138,
+        "startChar": 0,
+        "endLine": 140,
+        "endChar": 39
+      },
+      "revId": "a5f8b2a60d770e0cd83a116000c6ddfacd03141f",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "793928f9_b21637a1",
+        "filename": "eVSSIM/tests/host/rt_analyzer_subscriber.cc",
+        "patchSetId": 23
+      },
+      "lineNbr": 140,
+      "author": {
+        "id": 1037995
+      },
+      "writtenOn": "2024-09-04T20:13:11Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "8629c6d8_c544eecf",
       "range": {
         "startLine": 138,
         "startChar": 0,
