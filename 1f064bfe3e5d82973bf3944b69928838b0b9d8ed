@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "8addd439_f6163703",
+        "filename": "eVSSIM/osc-osd/up",
+        "patchSetId": 18
+      },
+      "lineNbr": 108,
+      "author": {
+        "id": 1007990
+      },
+      "writtenOn": "2024-09-11T06:25:24Z",
+      "side": 1,
+      "message": "lets define a meaningful constant",
+      "range": {
+        "startLine": 108,
+        "startChar": 48,
+        "endLine": 108,
+        "endChar": 49
+      },
+      "revId": "1f064bfe3e5d82973bf3944b69928838b0b9d8ed",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
+    }
+  ]
+}
