@@ -79,11 +79,11 @@ mkdir -p $1/
 TARGETNAME=$(hostname)-${1//\//\.}
 $TGTADM --lld iscsi --mode target --op new --tid $2 --targetname="$TARGETNAME"
 $TGTADM --lld iscsi --mode target \
-	--op bind --tid 1 --initiator-address ALL
+	--op bind --tid $2 --initiator-address ALL
 
 $TGTADM --lld iscsi --mode logicalunit \
-	--op new --tid 1 --lun 0 --bstype=osdemu --device-type osd \
-	--backing-store /tmp/osd --osd_name nir
+	--op new --tid $2 --lun 0 --bstype=osdemu --device-type osd \
+	--backing-store $1 --osd_name $3
 }
 
 echo "================ `date` =========================" >> $LOG_FILE
@@ -91,8 +91,8 @@ echo "================ `date` =========================" >> $LOG_FILE
 # First run the otgtd daemon in forgraound
 # -f - forgraound
 # -d - debug level
-DEBUG="-d 9"
-#DEBUG=""
+# DEBUG="-d 9"
+DEBUG=""
 $OTGTD $DEBUG -f &>> $LOG_FILE  &
 
 sleep 2
