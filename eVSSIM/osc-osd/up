@@ -78,12 +78,16 @@ mkdir -p $1/
 
 # Make target name the hostname-dir_path
 TARGETNAME=$(hostname)-${1//\//\.}
-$TGTADM --lld iscsi --mode target --op new --tid $2 --targetname="$TARGETNAME"
-$TGTADM --lld iscsi --mode target \
-	--op bind --tid $2 --initiator-address ALL
 
-$TGTADM --lld iscsi --mode logicalunit \
-	--op new --tid $2 --lun $4 --bstype=osdemu --device-type osd \
+$TGTADM --lld iscsi --mode target --op new --tid $2 \
+		--targetname="$TARGETNAME"
+
+$TGTADM --lld iscsi --mode target --op bind --tid $2 \
+		--initiator-address ALL
+
+$TGTADM --lld iscsi --mode logicalunit --op new \
+	--tid $2 --lun $4 \
+	--bstype=osdemu --device-type osd \
 	--backing-store $1
 
 $TGTADM --lld iscsi --mode logicalunit --op update \

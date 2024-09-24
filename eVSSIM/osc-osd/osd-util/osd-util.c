@@ -38,7 +38,7 @@ double mhz = -1.0;
 /*
  * Set the program name, first statement of code usually.
  */
-void osd_set_progname(int argc __attribute__((unused)), const char *argv[])
+void osd_set_progname(int argc __attribute__((unused)), const char * argv[])
 {
 	const char *cp;
 
