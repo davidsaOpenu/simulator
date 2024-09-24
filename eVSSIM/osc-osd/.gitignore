@@ -1,0 +1,91 @@
+#
+# Normal rules
+#
+*.o
+*.o.*
+*.a
+*.s
+*.ko
+*.so
+*.mod.c
+*.i
+*.lst
+*.symtypes
+*.d
+.svn
+.depend
+
+#svn_fetch3.sh files
+commit.txt
+log.xml
+
+#
+# for GLOBAL
+#
+GTAGS
+GRTAGS
+GPATH
+GSYMS
+
+tags
+
+#
+# folders not in this git tree
+#
+old-tars
+patches
+
+#
+# programs, Tests & logs
+#
+osd-initiator/tests/alignment
+osd-initiator/tests/atomic
+osd-initiator/tests/attr-all
+osd-initiator/tests/blk-iospeed
+osd-initiator/tests/generic_iface_test
+osd-initiator/tests/iospeed
+osd-initiator/tests/iospeed2
+osd-initiator/tests/iovec
+osd-initiator/tests/latency
+osd-initiator/tests/sgio
+osd-initiator/tests/sgl_test
+osd-initiator/tests/alignment-rdma
+osd-initiator/tests/iospeed-ddt
+
+osd-target/tests/cdb-test
+osd-target/tests/db-test
+osd-target/tests/osd-test
+osd-target/tests/time-db
+osd-target/tests/create
+osd-target/tests/getattr
+osd-target/tests/list
+osd-target/tests/query
+osd-target/tests/set_member_attributes
+osd-target/tests/setattr
+otgtd.log
+up.conf
+
+# files made by make
+osd-target/osd-schema.c
+osd-initiator/python/writefile.py
+diff_upload.patch
+tgt_diff_upload.patch
+
+# kdevelop
+tgt.kdevelop
+tgt.kdevelop.filelist
+tgt.kdevelop.pcs
+tgt.kdevses
+osc.kdevelop
+osc.kdevelop.filelist
+osc.kdevelop.pcs
+osc.kdevses
+osc-osd.kdev4
+
+#
+# downloaded tar files
+#
+osd-initiator-20080216.tar.bz2
+osd-target-20080216.tar.bz2
+osd-toplevel-20080216.tar.bz2
+osd-util-20080216.tar.bz2
