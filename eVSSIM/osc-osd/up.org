@@ -1,0 +1,109 @@
+#!/bin/sh
+
+up_dir=`dirname $0`
+up_conf=./up.conf
+
+if [ -r $up_conf ]; then
+	source $up_conf;
+else
+	echo -n "
+# up.conf Configuration of the targets to load
+
+# The number of targets to load
+NUM_TARGETS=1
+LOG_FILE=./otgtd.log
+
+# Please edit the path to your osd-target backing store.
+# You can add as many BACKSTORE[1..n] as you need. Each one
+# will have a new target loaded for it.
+BACKSTORE[1]=/var/otgt/otgt-1
+# BACKSTORE[2]=/var/otgt/otgt-2
+# BACKSTORE[3]=/var/otgt/otgt-3
+" 				> $up_conf;
+
+	echo "$up_conf not found I have created a new one for you please
+		edit and re-run ./up
+	"
+	exit
+fi
+
+# Path to pan_tgtd executables, assuming source tree
+TGTADM=./tgt/usr/tgtadm
+otgtd_name=otgtd
+OTGTD=./tgt/usr/$otgtd_name
+
+case $1 in
+down)
+	killall -s SIGINT $otgtd_name
+	exit
+	;;
+stat)
+        _ps=`ps ax`
+	stat=`echo $_ps | grep $otgtd_name`
+        if [ "${stat}" == "" ] ; then
+                echo "otgtd: DOWN!!!"
+        else
+                echo "otgtd: UP"
+        fi
+	exit
+	;;
+show)
+	$TGTADM --lld iscsi --mode target --op show
+	exit
+	;;
+
+log)
+	less +F $LOG_FILE
+	exit
+	;;
+
+log-reset)
+	echo > $LOG_FILE
+	exit
+	;;
+
+*)
+	if [ -n "$1" ]; then
+		echo "what is $0 $1?!?"
+		exit
+	fi
+	;;
+esac
+
+# Usage: $1<=BACKSTORE $2<=tid $3<=osdname
+load_target()
+{
+mkdir -p $1/
+
+# Make target name the hostname-dir_path
+TARGETNAME=$(hostname)-${1//\//\.}
+$TGTADM --lld iscsi --mode target --op new --tid $2 --targetname="$TARGETNAME"
+$TGTADM --lld iscsi --mode target \
+	--op bind --tid $2 --initiator-address ALL
+
+$TGTADM --lld iscsi --mode logicalunit \
+	--op new --tid $2 --lun 0 --bstype=osdemu --device-type osd \
+	--backing-store $1 --osd_name $3
+}
+
+echo "================ `date` =========================" >> $LOG_FILE
+
+# First run the otgtd daemon in forgraound
+# -f - forgraound
+# -d - debug level
+# DEBUG="-d 9"
+DEBUG=""
+$OTGTD $DEBUG -f &>> $LOG_FILE  &
+
+sleep 2
+
+# 2nd Load some targets
+for ((t=1; t <= $NUM_TARGETS; t=$t+1)); do
+	echo "load_target [$t]  at ${BACKSTORE[$t]} as ${OSDNAME[$t]}"
+	load_target ${BACKSTORE[$t]} $t ${OSDNAME[$t]}
+done
+
+# Last print what we got
+$TGTADM --lld iscsi --mode target --op show
+
+echo "otgtd started, run \"up down\" to stop"
