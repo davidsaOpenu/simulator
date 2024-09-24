@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/bin/sh
 
 up_dir=`dirname $0`
 up_conf=./up.conf
@@ -17,7 +17,6 @@ LOG_FILE=./otgtd.log
 # You can add as many BACKSTORE[1..n] as you need. Each one
 # will have a new target loaded for it.
 BACKSTORE[1]=/var/otgt/otgt-1
-OSDNAME[1]=my_osd
 # BACKSTORE[2]=/var/otgt/otgt-2
 # BACKSTORE[3]=/var/otgt/otgt-3
 " 				> $up_conf;
@@ -80,15 +79,11 @@ mkdir -p $1/
 TARGETNAME=$(hostname)-${1//\//\.}
 $TGTADM --lld iscsi --mode target --op new --tid $2 --targetname="$TARGETNAME"
 $TGTADM --lld iscsi --mode target \
-	--op bind --tid $2 --initiator-address ALL
+	--op bind --tid 1 --initiator-address ALL
 
 $TGTADM --lld iscsi --mode logicalunit \
-	--op new --tid $2 --lun $4 --bstype=osdemu --device-type osd \
-	--backing-store $1
-
-$TGTADM --lld iscsi --mode logicalunit --op update \
-	--tid $2 --lun $4 \
-	--name=scsi_sn --value="$TARGETNAME"
+	--op new --tid 1 --lun 0 --bstype=osdemu --device-type osd \
+	--backing-store /tmp/osd --osd_name nir
 }
 
 echo "================ `date` =========================" >> $LOG_FILE
@@ -99,14 +94,13 @@ echo "================ `date` =========================" >> $LOG_FILE
 DEBUG="-d 9"
 #DEBUG=""
 $OTGTD $DEBUG -f &>> $LOG_FILE  &
-LUN=1
 
 sleep 2
 
 # 2nd Load some targets
 for ((t=1; t <= $NUM_TARGETS; t=$t+1)); do
 	echo "load_target [$t]  at ${BACKSTORE[$t]} as ${OSDNAME[$t]}"
-	load_target ${BACKSTORE[$t]} $t ${OSDNAME[$t]} $LUN
+	load_target ${BACKSTORE[$t]} $t ${OSDNAME[$t]}
 done
 
 # Last print what we got

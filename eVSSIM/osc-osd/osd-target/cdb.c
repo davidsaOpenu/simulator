@@ -71,6 +71,7 @@ struct command {
 static int get_attr_page(struct command *cmd, uint64_t pid, uint64_t oid,
 			 uint8_t isembedded, uint16_t numoid, uint32_t cdb_cont_len)
 {
+	int ret = 0;
 	uint8_t *cdb = cmd->cdb;
 	uint32_t page = get_ntohl(&cmd->cdb[52]);
 	uint32_t alloc_len = get_ntohl(&cdb[56]);
@@ -373,6 +374,7 @@ out_param_list_err:
 
 static int parse_getattr_list(struct command *cmd, uint64_t pid, uint64_t oid)
 {
+       int ret = 0;
        uint64_t i = 0;
        uint8_t list_type;
        uint32_t getattr_list_len = get_ntohl(&cmd->cdb[52]);
@@ -380,6 +382,7 @@ static int parse_getattr_list(struct command *cmd, uint64_t pid, uint64_t oid)
        uint64_t list_off = get_ntohoffset(&cmd->cdb[56]);
        uint32_t list_alloc_len = get_ntohl(&cmd->cdb[60]);
        const uint8_t *list_hdr = &cmd->indata[list_off];
+       uint8_t *cp = NULL;
 
        if (getattr_list_len == 0)
                return 0; /* nothing to retrieve, osd2r00 Sec 5.2.2.3 */
@@ -441,8 +444,10 @@ out_hw_err:
 
 static int parse_setattr_list(struct command *cmd, uint64_t pid, uint64_t oid)
 {
+	int ret = 0;
 	uint32_t i = 0;
 	uint8_t list_type;
+	uint8_t *cdb = cmd->cdb;
 	uint32_t setattr_list_len = get_ntohl(&cmd->cdb[68]);
 	uint32_t list_len = 0;
 	uint32_t list_off = get_ntohoffset(&cmd->cdb[72]);
@@ -516,6 +521,7 @@ out_hw_err:
 static int get_attributes(struct command *cmd, uint64_t pid, uint64_t oid,
 			  uint16_t numoid, uint32_t cdb_cont_len)
 {
+	int ret = 0;
 	uint8_t isembedded = true;
 
 	if (numoid < 1)
@@ -547,6 +553,7 @@ out_cdb_err:
 static int set_attributes(struct command *cmd, uint64_t pid, uint64_t oid,
 			  uint32_t numoid, uint32_t cdb_cont_len)
 {
+	int ret = 0;
 	uint8_t isembedded = true;
 
 	if (numoid < 1)
@@ -573,6 +580,7 @@ out_cdb_err:
 static int cdb_copy_user_objects(struct command *cmd)
 {
         int ret = 0;							
+	uint16_t descriptor_type = 0;
 	uint8_t dupl_method = cmd->cdb[14];
 	uint64_t destination_pid = get_ntohll(&cmd->cdb[16]);
 	uint64_t requested_oid = get_ntohll(&cmd->cdb[24]);
@@ -619,6 +627,7 @@ static int cdb_create(struct command *cmd, uint32_t cdb_cont_len)
 {
 	int ret = 0;
 	int err = 0;
+	int within_txn = 0;
 	uint64_t i = 0;
 	uint32_t page;
 	uint64_t oid;
@@ -839,7 +848,7 @@ static int cdb_read(struct command *cmd, uint32_t cdb_cont_len)
 	uint64_t len = get_ntohll(&cmd->cdb[32]);
 	uint64_t offset = get_ntohll(&cmd->cdb[40]);
 
-	struct sg_list *sglist;
+	struct sg_list sgl, *sglist;
 	const uint8_t *indata;
 
 	/* osd2r04 6.27 - at most one sg list descriptor
@@ -1294,6 +1303,7 @@ static int cdb_gen_cas(struct command *cmd, int osd_cmd, uint32_t cdb_cont_len)
 	uint32_t list_len = 0;
 	uint32_t list_off = get_ntohoffset(&cmd->cdb[72]);
 	const uint8_t *list = &cmd->indata[list_off];
+	const uint8_t *list_pos;
 	uint8_t *orig;
 	uint16_t orig_len;
 	uint32_t orig_page = 0, orig_number = 0;
@@ -1343,6 +1353,7 @@ static int parse_cdb_continuation_segment(struct command *cmd,
 	const uint8_t *cdb_cont = cmd->indata;
 	uint8_t cont_format = cdb_cont[0];
 	uint16_t cont_action = get_ntohs(&cdb_cont[2]);
+	uint32_t used_bytes = 0;
 
 	if (((cdb_cont_len % 8) != 0) || (cdb_cont_len < 48)) {
 		/* TODO: need to check if cdb_cont_len is greater than the value
@@ -1596,7 +1607,7 @@ static void exec_service_action(struct command *cmd)
 		uint64_t requested_oid = get_ntohll(&cdb[24]);
 		uint64_t len = get_ntohll(&cdb[32]);
 		uint64_t offset = get_ntohll(&cdb[40]);
-		struct sg_list *sglist;
+		struct sg_list sgl, *sglist;
 		const uint8_t *indata;
 
 		ret = verify_enough_input_data(cmd, len);
@@ -1942,7 +1953,7 @@ static void exec_service_action(struct command *cmd)
 		uint64_t len = get_ntohll(&cdb[32]);
 		uint64_t offset = get_ntohll(&cdb[40]);
 		uint8_t ddt;
-		struct sg_list *sglist;
+		struct sg_list sgl, *sglist;
 		const uint8_t *indata;
 		ret = verify_enough_input_data(cmd, len);
 		if (ret)

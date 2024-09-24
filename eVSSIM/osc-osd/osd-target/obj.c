@@ -56,6 +56,7 @@ struct obj_tab {
 int obj_initialize(struct db_context *dbc)
 {
 	int ret = 0;
+	int sqlret = 0;
 	char SQL[MAXSQLEN];
 
 	if (dbc == NULL || dbc->db == NULL) {
@@ -328,7 +329,7 @@ out_reset:
 	ret = db_reset_stmt(dbc, dbc->obj->nextoid, bound, __func__);
 	if (ret == OSD_REPEAT)
 		goto repeat;
-
+out:
 	return ret;
 }
 
@@ -352,11 +353,11 @@ repeat:
 	if (ret == SQLITE_ROW)
 		*pid = sqlite3_column_int64(dbc->obj->nextpid, 0) + 1;
 
-
+out_reset:
 	ret = db_reset_stmt(dbc, dbc->obj->nextpid, 1, __func__);
 	if (ret == OSD_REPEAT)
 		goto repeat;
-
+out:
 	return ret;
 }
 
@@ -399,7 +400,7 @@ out_reset:
 	ret = db_reset_stmt(dbc, dbc->obj->isprsnt, bound, __func__);
 	if (ret == OSD_REPEAT)
 		goto repeat;
-
+out:
 	return ret;
 }
 
@@ -438,7 +439,7 @@ out_reset:
 	ret = db_reset_stmt(dbc, dbc->obj->emptypid, bound, __func__);
 	if (ret == OSD_REPEAT)
 		goto repeat;
-
+out:
 	return ret;
 }
 
@@ -483,7 +484,7 @@ out_reset:
 	ret = db_reset_stmt(dbc, dbc->obj->gettype, bound, __func__);
 	if (ret == OSD_REPEAT)
 		goto repeat;
-
+out:
 	return ret;
 }
 

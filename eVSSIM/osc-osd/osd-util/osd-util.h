@@ -7,12 +7,12 @@
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation, version 2 of the License.
- *
+ * 
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
- *
+ * 
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
@@ -37,7 +37,7 @@
 #endif
 
 extern double mhz;
-void osd_set_progname(int argc, const char *argv[]);
+void osd_set_progname(int argc, char *const argv[]);
 const char *osd_get_progname(void);
 void osd_info(const char *fmt, ...) __attribute__((format(printf,1,2)));
 void osd_warning(const char *fmt, ...) __attribute__((format(printf,1,2)));
@@ -127,7 +127,7 @@ uint64_t next_offset(uint64_t start);
 #define roundup8(x) (((x) + 7) & ~7)
 #endif
 
-static inline void osd_srand(void)
+static inline void osd_srand(void) 
 {
 	srand(time(0));
 }
