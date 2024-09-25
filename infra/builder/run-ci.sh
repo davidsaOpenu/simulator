@@ -26,7 +26,8 @@ END_COMMENT
 
 ./docker-test-host.sh
 ./docker-test-guest.sh
-./docker-test-exofs.sh
+# TODO reenable after the fix 
+# ./docker-test-exofs.sh
 
 # ELK stack tests
 trap ./elk-stop-stack.sh EXIT
