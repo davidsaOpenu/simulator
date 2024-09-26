@@ -1,6 +1,21 @@
 #!/bin/bash
 set -e
 
+# input: $1 - text to clean
+# output: N/A
+# descr: remove non ASCII chars and "CR"
+clean_text() {
+    local text="$1"
+
+    # Remove all non-ASCII characters
+    cleaned_text=$(echo "$text" | tr -cd '\0-\127')
+
+    # Remove carriage returns
+    cleaned_text=$(echo "$cleaned_text" | tr -d '\r')
+
+    echo "$cleaned_text"
+}
+
 # input: $1 - project name
 #        $2 - fetch_cmd
 # output: N/A
@@ -39,12 +54,14 @@ fetch_ref_spec() {
 
 WORKSPACE=$1 # WORKSPACE env variable of Jenkins
 commit_message=$2 # GERRIT_CHANGE_SUBJECT env variable of GerritTrigger
+echo "COMMIT MESSAGE: $commit_message"
+cleaned_commit_message=$(clean_text "$commit_message")
 
 echo "******************** start handle-depend-on-instructions.sh *************************"
-echo "COMMIT MESSAGE: $commit_message"
+echo "CLEANED COMMIT MESSAGE: $cleaned_commit_message"
 echo "WORKSPACE: $WORKSPACE"
 
-#commit_message="Title
+#cleaned_commit_message="Title
 
 #line #1
 #line #2
@@ -68,7 +85,7 @@ $(printf '%s\n' ${projectArr[@]})
 "
 
 # "|| true" to avoid script fail for commit message that contains no depends-on: http.* lines
-depends_on_lines=$(echo "$commit_message" | grep -i 'depends-on' | grep -o 'http.*') || true
+depends_on_lines=$(echo "$cleaned_commit_message" | grep -i 'depends-on' | grep -o 'http.*') || true
 
 echo "PARSING DEPENDS-ON LINES"
 for url in $depends_on_lines; do
