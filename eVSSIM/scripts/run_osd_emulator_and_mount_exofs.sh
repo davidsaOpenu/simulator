@@ -14,6 +14,7 @@ cd ~/osc-osd/
 echo -n "
 NUM_TARGETS=1
 LOG_FILE=./otgtd.log
+OSDNAME[1]=my_osd
 BACKSTORE[1]=/var/otgt/otgt-1
 " > ./up.conf;
 sudo ./up
