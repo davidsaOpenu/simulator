@@ -8,7 +8,7 @@ clean_text() {
     local text="$1"
 
     # Remove all non-ASCII characters
-    cleaned_text=$(echo "$text" | tr -cd '\0-\127')
+    cleaned_text=$(echo "$text" | tr -cd '\0-\177')
 
     # Remove carriage returns
     cleaned_text=$(echo "$cleaned_text" | tr -d '\r')
