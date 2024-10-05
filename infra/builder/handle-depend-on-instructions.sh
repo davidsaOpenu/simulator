@@ -53,7 +53,7 @@ fetch_ref_spec() {
 }
 
 WORKSPACE=$1 # WORKSPACE env variable of Jenkins
-commit_message=$2 # GERRIT_CHANGE_SUBJECT env variable of GerritTrigger
+commit_message=$(echo "$2" | base64 --decode) # GERRIT_CHANGE_SUBJECT env variable of GerritTrigger
 echo "COMMIT MESSAGE: $commit_message"
 cleaned_commit_message=$(clean_text "$commit_message")
 
