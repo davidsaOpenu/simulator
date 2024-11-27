@@ -67,6 +67,23 @@
       "message": "recheck",
       "revId": "764b1d7e0e477a141cda098a16359b052f3c78e2",
       "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "52746f37_9c4f1ba9",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 27
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 1007990
+      },
+      "writtenOn": "2024-11-27T13:54:08Z",
+      "side": 1,
+      "message": "Jenkins was restarted",
+      "revId": "764b1d7e0e477a141cda098a16359b052f3c78e2",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
     }
   ]
 }
