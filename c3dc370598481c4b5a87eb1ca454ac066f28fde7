@@ -33,6 +33,24 @@
       "message": "12:38:20  hw/vssim/simulator/ftl_inverse_mapping_manager.c: In function \u0027INIT_EMPTY_BLOCK_LIST\u0027:\n12:38:20  hw/vssim/simulator/ftl_inverse_mapping_manager.c:115:3: error: expected \u0027}\u0027 before \u0027else\u0027\n12:38:20     else{\n12:38:20     ^\n12:38:20  hw/vssim/simulator/ftl_inverse_mapping_manager.c: At top level:\n12:38:20  hw/vssim/simulator/ftl_inverse_mapping_manager.c:154:2: error: expected identifier or \u0027(\u0027 before \u0027else\u0027\n12:38:20    else{\n12:38:20    ^\n12:38:20  hw/vssim/simulator/ftl_inverse_mapping_manager.c:194:1: error: expected identifier or \u0027(\u0027 before \u0027}\u0027 token\n12:38:20   }\n12:38:20   ^\n12:38:20    CC      hw/vssim/simulator/ftl_gc_manager.o\n12:38:20    CC      hw/vssim/simulator/ftl_perf_manager.o\n12:38:20  make: *** [hw/vssim/simulator/ftl_inverse_mapping_manager.o] Error 1",
       "revId": "c3dc370598481c4b5a87eb1ca454ac066f28fde7",
       "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "6e4d36c5_59a81989",
+        "filename": "eVSSIM/FTL_SOURCE/PAGE_MAP/ftl_inverse_mapping_manager.c",
+        "patchSetId": 30
+      },
+      "lineNbr": 115,
+      "author": {
+        "id": 1037995
+      },
+      "writtenOn": "2024-12-11T15:53:52Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "b6ea5354_52af01c5",
+      "revId": "c3dc370598481c4b5a87eb1ca454ac066f28fde7",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
     }
   ]
 }
