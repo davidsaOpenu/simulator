@@ -33,6 +33,23 @@
       "message": "thanks for working on this change!\n\nfist glance comment: some source files have x flag set on (marked executable)",
       "revId": "81a407e4ca29c9c74bb6e5fcf1564bb5697a997a",
       "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "9636f425_b0b016f1",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 32
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 1007990
+      },
+      "writtenOn": "2024-12-17T17:00:11Z",
+      "side": 1,
+      "message": "recheck",
+      "revId": "81a407e4ca29c9c74bb6e5fcf1564bb5697a997a",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
     }
   ]
 }
