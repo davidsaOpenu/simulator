@@ -9,6 +9,12 @@
 #include "common.h"
 #include <limits.h>
 
+#ifndef MAX_NUMBER_OF_NAMESPACES
+#define MAX_NUMBER_OF_NAMESPACES 32
+#endif
+
+extern uint64_t NAMESPACES_SIZE[MAX_NUMBER_OF_NAMESPACES];
+
 /* SSD Configuration */
 extern uint64_t SECTOR_NB;
 extern uint64_t PAGE_NB;
@@ -61,6 +67,7 @@ extern int STAT_TYPE;
 extern int STAT_SCOPE;
 extern char STAT_PATH[PATH_MAX];
 extern char OSD_PATH[PATH_MAX];
+
 void INIT_SSD_CONFIG(void);
 char* GET_FILE_NAME(void);
 
