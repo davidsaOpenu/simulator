@@ -135,7 +135,19 @@ evssim_calculate_ssd_conf_disk_size() {
     local code=$(cat <<PYTHON
 # Parse ssd configuration
 import sys
-data=dict(x.strip().split(' ', 1) for x in sys.stdin.readlines())
+
+lines = [line.strip() for line in sys.stdin.readlines()]
+data = {}
+
+for line in lines:
+    if not line:
+        continue
+    if line.startswith('[') and line.endswith(']'):
+        continue
+    parts = line.split(' ', 1)
+    if len(parts) == 2:
+            key, value = parts
+            data[key] = value
 def g(name): return int(data[name])
 # Calculate the final size (With casts)
 print(g("FLASH_NB")*g("BLOCK_NB")*g("PAGE_NB")*g("PAGE_SIZE"))
