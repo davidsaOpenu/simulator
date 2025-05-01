@@ -181,7 +181,8 @@ namespace {
 
         void ssd_conf_serialize(void) {
             ofstream ssd_conf("data/ssd.conf", ios_base::out | ios_base::trunc);
-            ssd_conf << "FILE_NAME ./data/ssd.img\n"
+            ssd_conf << "[nvme01]\n" <<
+                "FILE_NAME ./data/ssd.img\n"
                 "PAGE_SIZE " << get_page_size() << "\n"
                 "PAGE_NB " << get_page_nb() << "\n"
                 "SECTOR_SIZE " << get_sector_size() << "\n"
