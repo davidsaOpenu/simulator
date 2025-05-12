@@ -59,6 +59,9 @@ double GC_L2_THRESHOLD;
 int GC_L2_THRESHOLD_BLOCK_NB;
 #endif
 
+int GC_LOW_THR;
+int GC_HI_THR;
+
 /* Storage strategy (1 = sector-based, 2 = object-based */
 int STORAGE_STRATEGY;
 
@@ -87,6 +90,8 @@ config_param options[] = {
     {"STAT_TYPE", "%d", &STAT_TYPE},
     {"STAT_SCOPE", "%d", &STAT_SCOPE},
     {"STORAGE_STRATEGY", "%d", &STORAGE_STRATEGY},
+    {"GC_LOW_THR", "%d", &GC_LOW_THR},
+    {"GC_HI_THR", "%d", &GC_HI_THR},
 #if defined FTL_MAP_CACHE
     {"CACHE_IDX_SIZE", "%d", &CACHE_IDX_SIZE},
 #endif

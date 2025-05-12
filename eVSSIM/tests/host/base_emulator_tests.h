@@ -199,7 +199,9 @@ namespace {
                 "STAT_TYPE 15\n"
                 "STAT_SCOPE 62\n"
                 "STAT_PATH /tmp/stat.csv\n"
-                "STORAGE_STRATEGY 1\n"; // sector strategy
+                "STORAGE_STRATEGY 1\n" // sector strategy
+                "GC_LOW_THR 20\n"
+                "GC_HI_THR 80\n";
             ssd_conf.close();
         }
     };

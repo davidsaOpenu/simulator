@@ -56,6 +56,9 @@ extern int GC_VICTIM_NB;
 extern int GC_L2_THRESHOLD_BLOCK_NB;
 #endif
 
+extern int GC_LOW_THR;
+extern int GC_HI_THR;
+
 /*Statistics*/
 extern int STAT_TYPE;
 extern int STAT_SCOPE;
