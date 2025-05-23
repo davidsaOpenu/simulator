@@ -50,6 +50,24 @@
       "message": "I think you can use:\nsscanf(str, \"[nvme%d]\", \u0026i) \u003d\u003d 1\n\nInstead this function.\n\nCredit to @EvyatarStalinsky",
       "revId": "eeb1e1ba4cfd29dae88daf587ef22c1a36ef8cbd",
       "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "9aaf1662_7f29e4b7",
+        "filename": "eVSSIM/CONFIG/vssim_config_manager.c",
+        "patchSetId": 1
+      },
+      "lineNbr": 190,
+      "author": {
+        "id": 1038805
+      },
+      "writtenOn": "2025-05-23T07:53:53Z",
+      "side": 1,
+      "message": "This is used to get `DEVICE_NAME` and check it\u0027s validity, doing your suggestion will make this function more complecated since we will need to recreate the device name.",
+      "parentUuid": "77db35e6_563e5336",
+      "revId": "eeb1e1ba4cfd29dae88daf587ef22c1a36ef8cbd",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
     }
   ]
 }
