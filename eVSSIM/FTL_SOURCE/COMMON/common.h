@@ -64,6 +64,9 @@
 #define PAGE_INVALID		'I'
 #define PAGE_ZERO		'0'
 
+/* SSD Namespace */
+#define MAX_NUMBER_OF_NAMESPACES 32
+
 /* Perf Checker Calloc Type */
 #define CH_OP		80
 #define REG_OP		81
