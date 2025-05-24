@@ -20,6 +20,24 @@
     {
       "unresolved": false,
       "key": {
+        "uuid": "af4ceb00_d2078d65",
+        "filename": "/COMMIT_MSG",
+        "patchSetId": 1
+      },
+      "lineNbr": 8,
+      "author": {
+        "id": 1038797
+      },
+      "writtenOn": "2025-05-24T07:59:08Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "1d0a6356_15ffc5b6",
+      "revId": "299a4c93d569e44675b7496ffaedf54e2571329f",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
+    },
+    {
+      "unresolved": false,
+      "key": {
         "uuid": "7ff24e1e_925d34d1",
         "filename": "/PATCHSET_LEVEL",
         "patchSetId": 1
@@ -52,6 +70,24 @@
       "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "2727d16f_3cc0b5ec",
+        "filename": "eVSSIM/CONFIG/vssim_config_manager.c",
+        "patchSetId": 1
+      },
+      "lineNbr": 8,
+      "author": {
+        "id": 1038797
+      },
+      "writtenOn": "2025-05-24T07:59:08Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "d9f3fd2e_8a2f0c7f",
+      "revId": "299a4c93d569e44675b7496ffaedf54e2571329f",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "10ae42dd_5c21023d",
@@ -69,6 +105,24 @@
       "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "08a5d8f0_4670792f",
+        "filename": "eVSSIM/CONFIG/vssim_config_manager.c",
+        "patchSetId": 1
+      },
+      "lineNbr": 142,
+      "author": {
+        "id": 1038797
+      },
+      "writtenOn": "2025-05-24T07:59:08Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "10ae42dd_5c21023d",
+      "revId": "299a4c93d569e44675b7496ffaedf54e2571329f",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "604e0086_72fbd9ab",
@@ -82,6 +136,30 @@
       "writtenOn": "2025-05-16T15:26:30Z",
       "side": 1,
       "message": "plz move this  to line 29 under SSD configuration section",
+      "range": {
+        "startLine": 16,
+        "startChar": 0,
+        "endLine": 16,
+        "endChar": 58
+      },
+      "revId": "299a4c93d569e44675b7496ffaedf54e2571329f",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "d1e4f999_21b77519",
+        "filename": "eVSSIM/CONFIG/vssim_config_manager.h",
+        "patchSetId": 1
+      },
+      "lineNbr": 16,
+      "author": {
+        "id": 1038797
+      },
+      "writtenOn": "2025-05-24T07:59:08Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "604e0086_72fbd9ab",
       "range": {
         "startLine": 16,
         "startChar": 0,
@@ -117,6 +195,30 @@
     {
       "unresolved": true,
       "key": {
+        "uuid": "f2d5aeb8_54d5c8f0",
+        "filename": "eVSSIM/tests/host/base_emulator_tests.h",
+        "patchSetId": 1
+      },
+      "lineNbr": 204,
+      "author": {
+        "id": 1038797
+      },
+      "writtenOn": "2025-05-24T07:59:08Z",
+      "side": 1,
+      "message": "אני לא חושב שזה נכון, זה אמור להתחלק בגודל של עמוד. (לפי המשימה 4096)\nבנוסף, חשבנו לשנות את זה להיות מיספר בלוקים ולא מספר בתים.",
+      "parentUuid": "64d40439_1d9ec455",
+      "range": {
+        "startLine": 203,
+        "startChar": 0,
+        "endLine": 204,
+        "endChar": 50
+      },
+      "revId": "299a4c93d569e44675b7496ffaedf54e2571329f",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
+    },
+    {
+      "unresolved": true,
+      "key": {
         "uuid": "b64f56bf_a4151a1c",
         "filename": "eVSSIM/tests/host/ssd.conf",
         "patchSetId": 1
@@ -128,6 +230,30 @@
       "writtenOn": "2025-05-16T15:26:30Z",
       "side": 1,
       "message": "same here",
+      "range": {
+        "startLine": 20,
+        "startChar": 0,
+        "endLine": 21,
+        "endChar": 10
+      },
+      "revId": "299a4c93d569e44675b7496ffaedf54e2571329f",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "7cfbeed9_883d3a21",
+        "filename": "eVSSIM/tests/host/ssd.conf",
+        "patchSetId": 1
+      },
+      "lineNbr": 21,
+      "author": {
+        "id": 1038797
+      },
+      "writtenOn": "2025-05-24T07:59:08Z",
+      "side": 1,
+      "message": "כמו הקודם",
+      "parentUuid": "b64f56bf_a4151a1c",
       "range": {
         "startLine": 20,
         "startChar": 0,
