@@ -12,6 +12,8 @@
 typedef enum {FTL_FAILURE, FTL_SUCCESS} ftl_ret_val;
 
 extern uint32_t** mapping_stats_table;
+extern uint8_t g_device_id;
+
 void FTL_INIT(void);
 void FTL_TERM(void);
 
@@ -19,12 +21,12 @@ void FTL_TERM(void);
 void FTL_TERM_STRATEGY(void);
 
 void FTL_INIT_STATS(void);
-ftl_ret_val FTL_STATISTICS_GATHERING(uint32_t page_nb , int type);
-uint32_t FTL_STATISTICS_QUERY(uint32_t address, int scope , int type);
+ftl_ret_val FTL_STATISTICS_GATHERING(uint32_t page_nb, int type);
+uint32_t FTL_STATISTICS_QUERY(uint32_t address, int scope, int type);
 void FTL_RECORD_STATISTICS(void);
 void FTL_RESET_STATS(void);
 void FTL_TERM_STATS(void);
-void FTL_RECORD_SCOPE_STAT(FILE* fp , int scope);
+void FTL_RECORD_SCOPE_STAT(FILE* fp, int scope);
 void *STAT_LISTEN(void *socket);
 
 #endif

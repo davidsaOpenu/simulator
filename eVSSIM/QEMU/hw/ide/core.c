@@ -497,7 +497,7 @@ void ide_sector_read(IDEState *s)
         ret = bdrv_read(s->bs, sector_num, s->io_buffer, n);
 #ifdef IDE_SSD
 #ifdef TARGET_I386_VSSIM
-	if(strcmp(s->bs->filename, GET_FILE_NAME())==0)
+	if(strcmp(s->bs->filename, GET_FILE_NAME(current_device_index))==0)
 		SSD_READ(n,sector_num); //SSD READ function call
 #endif
 #endif
@@ -621,7 +621,7 @@ handle_rw_error:
                                            ide_dma_cb, s);
 #ifdef IDE_SSD
 #ifdef TARGET_I386_VSSIM
-		if(strcmp(s->bs->filename, GET_FILE_NAME())==0)
+		if(strcmp(s->bs->filename, GET_FILE_NAME(current_device_index))==0)
 			SSD_READ(n, sector_num);
 #endif
 #endif
@@ -631,7 +631,7 @@ handle_rw_error:
                                             ide_dma_cb, s);
 #ifdef IDE_SSD
 #ifdef TARGET_I386_VSSIM
-		if(strcmp(s->bs->filename, GET_FILE_NAME())==0)
+		if(strcmp(s->bs->filename, GET_FILE_NAME(current_device_index))==0)
 		{
 			SSD_WRITE(n, sector_num);
 		}
@@ -690,7 +690,7 @@ void ide_sector_write(IDEState *s)
     }
 #ifdef IDE_SSD
 #ifdef TARGET_I386_VSSIM
-	if(strcmp(s->bs->filename, GET_FILE_NAME())==0)
+	if(strcmp(s->bs->filename, GET_FILE_NAME(current_device_index))==0)
 	{
 		SSD_WRITE(n, sector_num);
 	}
