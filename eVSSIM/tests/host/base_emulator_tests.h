@@ -26,6 +26,7 @@ extern "C" int g_init;
 extern "C" int clientSock;
 extern "C" int g_init_log_server;
 
+
 #define GTEST_DONT_DEFINE_FAIL 1
 #include <gtest/gtest.h>
 
@@ -181,7 +182,8 @@ namespace {
 
         void ssd_conf_serialize(void) {
             ofstream ssd_conf("data/ssd.conf", ios_base::out | ios_base::trunc);
-            ssd_conf << "FILE_NAME ./data/ssd.img\n"
+            ssd_conf << "[nvme01]\n"
+                "FILE_NAME ./data/ssd.img\n"
                 "PAGE_SIZE " << get_page_size() << "\n"
                 "PAGE_NB " << get_page_nb() << "\n"
                 "SECTOR_SIZE " << get_sector_size() << "\n"
@@ -199,6 +201,53 @@ namespace {
                 "STAT_TYPE 15\n"
                 "STAT_SCOPE 62\n"
                 "STAT_PATH /tmp/stat.csv\n"
+<<<<<<< PATCH SET (daa037 Initial setup for testing N parrarel FTL instances)
+                "STORAGE_STRATEGY 1\n"
+                "GC_LOW_THR 20\n"
+                "GC_HI_THR 80\n"
+                "[nvme02]\n"
+                "FILE_NAME ./data/ssd2.img\n"
+                "PAGE_SIZE " << get_page_size() << "\n"
+                "PAGE_NB " << get_page_nb() << "\n"
+                "SECTOR_SIZE " << get_sector_size() << "\n"
+                "FLASH_NB " << get_flash_nb() << "\n"
+                "BLOCK_NB " << get_block_nb() << "\n"
+                "PLANES_PER_FLASH 1\n"
+                "REG_WRITE_DELAY 82\n"
+                "CELL_PROGRAM_DELAY 900\n"
+                "REG_READ_DELAY 82\n"
+                "CELL_READ_DELAY 50\n"
+                "BLOCK_ERASE_DELAY 2000\n"
+                "CHANNEL_SWITCH_DELAY_R 16\n"
+                "CHANNEL_SWITCH_DELAY_W 33\n"
+                "CHANNEL_NB " << get_channel_nb() << "\n"
+                "STAT_TYPE 15\n"
+                "STAT_SCOPE 62\n"
+                "STAT_PATH /tmp/stat2.csv\n"
+                "STORAGE_STRATEGY 1\n" // sector strategy
+                "GC_LOW_THR 20\n"
+                "GC_HI_THR 80\n"
+                "[nvme03]\n"
+                "FILE_NAME ./data/ssd3.img\n"
+                "PAGE_SIZE " << get_page_size() << "\n"
+                "PAGE_NB " << get_page_nb() << "\n"
+                "SECTOR_SIZE " << get_sector_size() << "\n"
+                "FLASH_NB " << get_flash_nb() << "\n"
+                "BLOCK_NB " << get_block_nb() << "\n"
+                "PLANES_PER_FLASH 1\n"
+                "REG_WRITE_DELAY 82\n"
+                "CELL_PROGRAM_DELAY 900\n"
+                "REG_READ_DELAY 82\n"
+                "CELL_READ_DELAY 50\n"
+                "BLOCK_ERASE_DELAY 2000\n"
+                "CHANNEL_SWITCH_DELAY_R 16\n"
+                "CHANNEL_SWITCH_DELAY_W 33\n"
+                "CHANNEL_NB " << get_channel_nb() << "\n"
+                "STAT_TYPE 15\n"
+                "STAT_SCOPE 62\n"
+                "STAT_PATH /tmp/stat3.csv\n"
+=======
+>>>>>>> BASE      (4b344a Update ssd.conf parser GC thresholds)
                 "STORAGE_STRATEGY 1\n" // sector strategy
                 "GC_LOW_THR 20\n"
                 "GC_HI_THR 80\n";
@@ -225,13 +274,7 @@ namespace {
 
             virtual void TearDown() {
                 FTL_TERM();
-                remove("data/empty_block_list.dat");
-                remove("data/inverse_block_mapping.dat");
-                remove("data/inverse_page_mapping.dat");
-                remove("data/mapping_table.dat");
-                remove("data/valid_array.dat");
-                remove("data/victim_block_list.dat");
-                remove("data/ssd.conf");
+                std::ignore = system((std::string("rm -rf data/") + std::to_string(g_device_id)).c_str());
                 g_init = 0;
                 clientSock = 0;
                 g_init_log_server = 0;

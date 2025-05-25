@@ -31,6 +31,14 @@ int main(int argc, char **argv) {
         else if (strcmp(argv[i], "--ssd_write_read_test") == 0) {
             tests_filter = "*WriteReadTest*";
         }
+        else if (strcmp(argv[i], "--device-index") == 0) {
+            // By default use 0 if flag not passed
+            if (i + 1 < argc)
+            {
+                g_device_id = static_cast<uint8_t>(stoi(argv[i + 1]));
+                ++i;
+            }
+        }
     }
 
     testing::GTEST_FLAG(filter) = tests_filter;

@@ -14,6 +14,7 @@
 #include <unistd.h>
 
 int g_init = 0;
+uint8_t g_device_id = 0;
 extern double ssd_util;
 int gatherStats = 0;
 //Hold statistics information
@@ -21,10 +22,11 @@ uint32_t** mapping_stats_table;
 
 void FTL_INIT(void)
 {
-	if(g_init == 0){
-        	PINFO("start\n");
+	if(g_init == 0) {
+        PINFO("start\n");
 
 		INIT_SSD_CONFIG();
+		CHANGE_DEVICE(g_device_id);
 		INIT_MAPPING_TABLE();
 		INIT_INVERSE_PAGE_MAPPING();
 		INIT_INVERSE_BLOCK_MAPPING();
@@ -32,7 +34,7 @@ void FTL_INIT(void)
 		INIT_EMPTY_BLOCK_LIST();
 		INIT_VICTIM_BLOCK_LIST();
 		INIT_PERF_CHECKER();
-                INIT_GC_MANAGER();
+        INIT_GC_MANAGER();
 
 		//Initialize The Statistics gathering component.
 		FTL_INIT_STATS();
