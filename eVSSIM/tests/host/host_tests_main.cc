@@ -5,6 +5,7 @@ using namespace std;
 bool g_ci_mode = false;
 bool g_monitor_mode = false;
 bool g_server_mode = false;
+uint8_t g_device_id = 0;
 
 int main(int argc, char **argv) {
     string tests_filter = "*";
@@ -30,6 +31,14 @@ int main(int argc, char **argv) {
         }
         else if (strcmp(argv[i], "--ssd_write_read_test") == 0) {
             tests_filter = "*WriteReadTest*";
+        }
+        else if (strcmp(argv[i], "--device-index") == 0) {
+            // By default use 0 if flag not passed
+            if (i + 1 < argc)
+            {
+                g_device_id = static_cast<uint8_t>(stoi(argv[i + 1]));
+                ++i;
+            }
         }
     }
 

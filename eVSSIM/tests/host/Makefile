@@ -35,7 +35,7 @@ host_tests_main:  $(TEST_OBJ) $(VSSIM_OBJ)
 .PHONY: clean distclean mklink
 
 clean:
-	rm -f host_tests_main $(TEST_OBJ) $(VSSIM_OBJ) data/*
+	rm -rf host_tests_main $(TEST_OBJ) $(VSSIM_OBJ) data/*
 
 distclean: clean
 	rm -rf   ssd_io_manager.h ssd_io_manager.c ssd_log_manager.h ssd_log_manager.c ssd_util.h \
