@@ -36,6 +36,7 @@
     #define WWW_DIR "./www"
 #endif
 
+bool g_used_upper_port = false;
 
 LogServer log_server;
 
@@ -218,7 +219,17 @@ int log_server_init(void) {
     // try to create the context
     struct lws_context *context = lws_create_context(&info);
     if (context == NULL)
-        return 1;
+    {
+        // A workaround to allow the tests to run with qemu until the logging server supports multiple disks
+        // This retries to open the server on a port that is not in the range of devices
+        g_used_upper_port = true;
+        info.port = LOG_SERVER_PORT;
+        context = lws_create_context(&info);
+        if (context == NULL)
+        {
+            return 1;
+        }
+    }
 
     // try to create the lock
     if (pthread_mutex_init(&log_server.lock, NULL)) {
@@ -276,7 +287,9 @@ void log_server_loop(int max_loops) {
 }
 
 void log_server_stop(void){
-    lws_cancel_service(log_server.context);
+    if (log_server.context != NULL) {
+        lws_cancel_service(log_server.context);
+    }
 }
 
 void log_server_free(void) {

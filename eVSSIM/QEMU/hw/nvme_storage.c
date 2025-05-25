@@ -603,7 +603,7 @@ int nvme_create_storage_disk(uint32_t instance, uint32_t nsid, DiskInfo *disk,
     uint64_t size, blks;
     char str[PATH_MAX];
 #ifdef CONFIG_VSSIM
-    strncpy(str, GET_FILE_NAME(), PATH_MAX-1);
+    strncpy(str, GET_FILE_NAME(current_device_index), PATH_MAX-1);
     str[PATH_MAX-1] = '\0';
 #else
     snprintf(str, sizeof(str), "nvme_disk%d_n%d.img", instance, nsid);
