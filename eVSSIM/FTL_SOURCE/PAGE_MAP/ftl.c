@@ -19,12 +19,13 @@ int gatherStats = 0;
 //Hold statistics information
 uint32_t** mapping_stats_table;
 
-void FTL_INIT(void)
+void FTL_INIT(uint8_t device_index)
 {
-	if(g_init == 0){
-        	PINFO("start\n");
+	if(g_init == 0) {
+        PINFO("start\n");
 
 		INIT_SSD_CONFIG();
+		CHANGE_DEVICE(device_index);
 		INIT_MAPPING_TABLE();
 		INIT_INVERSE_PAGE_MAPPING();
 		INIT_INVERSE_BLOCK_MAPPING();
@@ -32,7 +33,7 @@ void FTL_INIT(void)
 		INIT_EMPTY_BLOCK_LIST();
 		INIT_VICTIM_BLOCK_LIST();
 		INIT_PERF_CHECKER();
-                INIT_GC_MANAGER();
+        INIT_GC_MANAGER();
 
 		//Initialize The Statistics gathering component.
 		FTL_INIT_STATS();
