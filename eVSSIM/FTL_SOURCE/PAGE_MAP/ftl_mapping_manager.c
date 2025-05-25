@@ -21,7 +21,12 @@ void INIT_MAPPING_TABLE(void)
 	/* Initialization Mapping Table */
 
 	/* If mapping_table.dat file exists */
-	FILE* fp = fopen("./data/mapping_table.dat","r");
+	char* filename = GET_DATA_FILENAME("mapping_table.dat");
+	if (filename == NULL)
+		RERR(, "GET_DATA_FILENAME failed\n");
+
+	FILE* fp = fopen(filename, "r");
+	free(filename);
 	if(fp != NULL){
 		if(fread(mapping_table, sizeof(uint64_t), PAGE_MAPPING_ENTRY_NB, fp) <= 0)
 			PERR("fread\n");
@@ -37,7 +42,12 @@ void INIT_MAPPING_TABLE(void)
 
 void TERM_MAPPING_TABLE(void)
 {
-	FILE* fp = fopen("./data/mapping_table.dat","w");
+	char* filename = GET_DATA_FILENAME("mapping_table.dat");
+	if (filename == NULL)
+		RERR(, "GET_DATA_FILENAME failed\n");
+
+	FILE* fp = fopen(filename, "w");
+	free(filename);
 	if (fp == NULL)
 		RERR(, "File open fail\n");
 
