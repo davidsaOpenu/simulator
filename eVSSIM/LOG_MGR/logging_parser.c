@@ -95,6 +95,7 @@ void JSON_PHYSICAL_CELL_PROGRAM(PhysicalCellProgramLog *src, char ** dst)
     struct json_object *jobj;
 
     jobj = json_object_new_object();
+    json_object_object_add(jobj, "device", json_object_new_string("nvme01"));
     json_object_object_add(jobj, "type", json_object_new_string("PhysicalCellProgramLog"));
     json_object_object_add(jobj, "channel", json_object_new_int(src->channel));
     json_object_object_add(jobj, "block", json_object_new_int(src->block));
