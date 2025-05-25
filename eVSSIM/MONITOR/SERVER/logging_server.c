@@ -276,7 +276,9 @@ void log_server_loop(int max_loops) {
 }
 
 void log_server_stop(void){
-    lws_cancel_service(log_server.context);
+    if (log_server.context != NULL) {
+        lws_cancel_service(log_server.context);
+    }
 }
 
 void log_server_free(void) {
