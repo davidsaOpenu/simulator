@@ -24,8 +24,13 @@ void INIT_INVERSE_PAGE_MAPPING(void)
 		RERR(, "Calloc mapping table fail\n");
 
 	/* Initialization Inverse Page Mapping Table */
-	FILE* fp = fopen("./data/inverse_page_mapping.dat","r");
-	if(READ_MAPPING_INFO_FROM_FILES && fp != NULL){
+	char* filename = GET_DATA_FILENAME("inverse_page_mapping.dat");
+	if (filename == NULL)
+		RERR(, "GET_DATA_FILENAME failed\n");
+
+	FILE* fp = fopen(filename, "r");
+	free(filename);
+	if (READ_MAPPING_INFO_FROM_FILES && fp != NULL) {
 		if(fread(inverse_page_mapping_table, sizeof(uint64_t), PAGE_MAPPING_ENTRY_NB, fp) <= 0)
 			PERR("fread\n");
 		fclose(fp);
@@ -46,7 +51,12 @@ void INIT_INVERSE_BLOCK_MAPPING(void)
 		RERR(, "Calloc mapping table fail\n");
 
 	/* Initialization Inverse Block Mapping Table */
-	FILE* fp = fopen("./data/inverse_block_mapping.dat","r");
+	char* filename = GET_DATA_FILENAME("inverse_block_mapping.dat");
+	if (filename == NULL)
+		RERR(, "GET_DATA_FILENAME failed\n");
+
+	FILE* fp = fopen(filename, "r");
+	free(filename);
 	if(READ_MAPPING_INFO_FROM_FILES && fp != NULL){
 		if(fread(inverse_block_mapping_table_start, sizeof(inverse_block_mapping_entry), BLOCK_MAPPING_ENTRY_NB, fp) <= 0)
 			PERR("fread\n");
@@ -73,7 +83,12 @@ void INIT_VALID_ARRAY(void)
 	inverse_block_mapping_entry* curr_mapping_entry = (inverse_block_mapping_entry*)inverse_block_mapping_table_start;
 	char* valid_array;
 
-	FILE* fp = fopen("./data/valid_array.dat","r");
+	char* filename = GET_DATA_FILENAME("valid_array.dat");
+	if (filename == NULL)
+		RERR(, "GET_DATA_FILENAME failed\n");
+
+	FILE* fp = fopen(filename, "r");
+	free(filename);
 	if(READ_MAPPING_INFO_FROM_FILES && fp != NULL){
 		for(i=0;i<BLOCK_MAPPING_ENTRY_NB;i++){
 			valid_array = (char*)calloc(PAGE_NB, sizeof(char));
@@ -107,7 +122,12 @@ void INIT_EMPTY_BLOCK_LIST(void)
 	if (empty_block_table_start == NULL)
 		RERR(, "Calloc mapping table fail\n");
 
-	FILE* fp = fopen("./data/empty_block_list.dat","r");
+	char* filename = GET_DATA_FILENAME("empty_block_list.dat");
+	if (filename == NULL)
+		RERR(, "GET_DATA_FILENAME failed\n");
+
+	FILE* fp = fopen(filename, "r");
+	free(filename);
 	if(READ_MAPPING_INFO_FROM_FILES && fp != NULL){
 		total_empty_block_nb = 0;
 		if(fread(empty_block_table_start,sizeof(empty_block_root),PLANES_PER_FLASH*FLASH_NB, fp) <= 0)
@@ -200,7 +220,12 @@ void INIT_VICTIM_BLOCK_LIST(void)
 	if (victim_block_table_start == NULL)
 		RERR(, "Calloc mapping table fail\n");
 
-	FILE* fp = fopen("./data/victim_block_list.dat","r");
+	char* filename = GET_DATA_FILENAME("victim_block_list.dat");
+	if (filename == NULL)
+		RERR(, "GET_DATA_FILENAME failed\n");	
+
+	FILE* fp = fopen(filename, "r");
+	free(filename);
 	if(READ_MAPPING_INFO_FROM_FILES && fp != NULL){
 		total_victim_block_nb = 0;
 		if(fread(victim_block_table_start, sizeof(victim_block_root), PLANES_PER_FLASH*FLASH_NB, fp) <= 0)
@@ -261,7 +286,12 @@ void INIT_VICTIM_BLOCK_LIST(void)
 
 void TERM_INVERSE_PAGE_MAPPING(void)
 {
-	FILE* fp = fopen("./data/inverse_page_mapping.dat", "w");
+	char* filename = GET_DATA_FILENAME("inverse_page_mapping.dat");
+	if (filename == NULL)
+		RERR(, "GET_DATA_FILENAME failed\n");	
+
+	FILE* fp = fopen(filename, "w");
+	free(filename);
 	if (fp == NULL)
 		RERR(, "File open fail\n");
 
@@ -276,7 +306,12 @@ void TERM_INVERSE_PAGE_MAPPING(void)
 
 void TERM_INVERSE_BLOCK_MAPPING(void)
 {
-	FILE* fp = fopen("./data/inverse_block_mapping.dat","w");
+	char* filename = GET_DATA_FILENAME("inverse_block_mapping.dat");
+	if (filename == NULL)
+		RERR(, "GET_DATA_FILENAME failed\n");	
+
+	FILE* fp = fopen(filename, "w");
+	free(filename);
 	if (fp == NULL)
 		RERR(, "File open fail\n");
 
@@ -295,8 +330,13 @@ void TERM_VALID_ARRAY(void)
 	inverse_block_mapping_entry* curr_mapping_entry = (inverse_block_mapping_entry*)inverse_block_mapping_table_start;
 	char* valid_array;
 
-	FILE* fp = fopen("./data/valid_array.dat","w");
-        if (fp == NULL)
+	char* filename = GET_DATA_FILENAME("valid_array.dat");
+	if (filename == NULL)
+		RERR(, "GET_DATA_FILENAME failed\n");	
+
+	FILE* fp = fopen(filename, "w");
+	free(filename);
+    if (fp == NULL)
 		RERR(, "File open fail\n");
 
 	for(i=0;i<BLOCK_MAPPING_ENTRY_NB;i++){
@@ -316,7 +356,12 @@ void TERM_EMPTY_BLOCK_LIST(void)
 	empty_block_entry* curr_entry, *tmp_entry;
 	empty_block_root* curr_root;
 
-	FILE* fp = fopen("./data/empty_block_list.dat","w");
+	char* filename = GET_DATA_FILENAME("empty_block_list.dat");
+	if (filename == NULL)
+		RERR(, "GET_DATA_FILENAME failed\n");
+
+	FILE* fp = fopen(filename, "w");
+	free(filename);
 	if (fp == NULL)
 		RERR(, "File open fail\n");
 
@@ -356,7 +401,12 @@ void TERM_VICTIM_BLOCK_LIST(void)
 	victim_block_entry* curr_entry, *tmp_entry;
 	victim_block_root* curr_root;
 
-	FILE* fp = fopen("./data/victim_block_list.dat","w");
+	char* filename = GET_DATA_FILENAME("victim_block_list.dat");
+	if (filename == NULL)
+		RERR(, "GET_DATA_FILENAME failed\n");
+
+	FILE* fp = fopen(filename, "w");
+	free(filename);
 	if (fp == NULL)
 		RERR(, "File open fail\n");
 
