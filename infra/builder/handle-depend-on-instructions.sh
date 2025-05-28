@@ -1,6 +1,31 @@
 #!/bin/bash
 set -e
 
+
+show_help() {
+    cat << EOF
+
+Usage: $(basename "$0") [working directory] [change id] [Gerrit User Name]
+
+Description: This script fetches all the commits your commit depends on.
+
+Example: $(basename "$0") ~/Documents/OSW 123456 MyGerritUserName
+
+for https://review.gerrithub.io/c/davidsaOpenu/simulator/+/1234 - the change id is 1234
+
+EOF
+    exit 0
+}
+
+if [ $# -eq 0 ]; then
+    show_help
+fi
+
+
+fetch_command_parsed=$(curl -s "https://review.gerrithub.io/changes/davidsaOpenu%2Fsimulator~$2/revisions/current/commit" | sed -n 's/.*"message":"\([^"]*\)".*/\1/p' | sed 's/\\n/\n/g')
+
+working_dir=$(realpath "$1")
+
 # input: $1 - text to clean
 # output: N/A
 # descr: remove non ASCII chars and "CR"
@@ -18,12 +43,18 @@ clean_text() {
 
 # input: $1 - project name
 #        $2 - fetch_cmd
+#        $3 - gerrit username
 # output: N/A
 # descr: go to the project repo and perform git fetch
 fetch_ref_spec() {
     local project_name=$1
     local fetch_cmd=$2
     project_repo="${WORKSPACE}/$project_name"
+
+    # For compatibility with pipeline commands
+    if [ -n "$3" ]; then
+        fetch_cmd=$fetch_command_parsed
+    fi
     if [[ "$project_name" == "dnvme" || "$project_name" == "tnvme" ]]; then
         project_repo="${WORKSPACE}/nvmeCompl/$project_name"
     fi
@@ -53,7 +84,13 @@ fetch_ref_spec() {
 }
 
 WORKSPACE=$1 # WORKSPACE env variable of Jenkins
-commit_message=$(echo "$2" | base64 --decode) # GERRIT_CHANGE_SUBJECT env variable of GerritTrigger
+
+# Pipeline commands compatibility
+if [ -n "$3" ]; then
+    commit_message=$(echo "$fetch_command_parsed") # GERRIT_CHANGE_SUBJECT env variable of GerritTrigger
+else
+    commit_message=$(echo "$2" | base64 --decode)
+fi
 echo "COMMIT MESSAGE: $commit_message"
 cleaned_commit_message=$(clean_text "$commit_message")
 
@@ -95,7 +132,11 @@ for url in $depends_on_lines; do
     url_no_c_no_plus=$(echo "$url" | sed -e 's-\/c--g' -e 's-\/+--g')
     change_num=$(echo "$url_no_c_no_plus" | grep -o '[0-9]*$')
     gerrit_host=$(echo $url_no_c_no_plus | cut -d "/" -f 3)
-    gerrit_user=$(echo $url_no_c_no_plus | cut -d "/" -f 4)
+    if [ -n "$3" ]; then
+        gerrit_user=$(echo $3 | cut -d "/" -f 4)
+    else
+        gerrit_user=$(echo $url_no_c_no_plus | cut -d "/" -f 4)
+    fi
     project_name=$(echo $url_no_c_no_plus | cut -d "/" -f 5)
     gerrit_port="29418"
 
@@ -105,7 +146,12 @@ for url in $depends_on_lines; do
 
     refs_changes=$(echo "$gerrit_query" | jq -r '.currentPatchSet.ref' | head -1)
 
-    fetch_cmd="git fetch https://$gerrit_host/$gerrit_user/$project_name $refs_changes && git cherry-pick FETCH_HEAD"
+    # Pipeline compatibility
+    if [ -n "$3" ]; then
+        fetch_cmd="git fetch https://$gerrit_host/davidsaOpenu/$project_name $refs_changes && git cherry-pick FETCH_HEAD"
+    else
+        fetch_cmd="git fetch https://$gerrit_host/$gerrit_user/$project_name $refs_changes && git cherry-pick FETCH_HEAD"
+    fi
     echo "FETCH CMD: $fetch_cmd"
 
     if [[ " ${projectArr[*]} " =~ " $project_name " ]]; then
