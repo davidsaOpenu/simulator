@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "87048f00_9b27e747",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 2
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 1038807
+      },
+      "writtenOn": "2025-05-28T12:00:05Z",
+      "side": 1,
+      "message": "My change broke the pipeline command. I added compatiblity checks to support the pipeline command. http://192.114.0.189/jenkins/job/simulator-docker-ng-infra/425/execution/node/38/log/",
+      "revId": "d1b0b4b988c4a6a3292b856774a3431e8cde36f5",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
+    }
+  ]
+}
