@@ -94,6 +94,13 @@ void offline_log_analyzer_loop(OfflineLogAnalyzer* analyzer) {
                     JSON_PHYSICAL_CELL_PROGRAM(&res, &json_buf);
                     break;
                 }
+                case PHYSICAL_CELL_PROGRAM_COMPATIBLE_LOG_UID:
+                {
+                    PhysicalCellProgramCompatibleLog res;
+                    NEXT_PHYSICAL_CELL_PROGRAM_COMPATIBLE_LOG(analyzer->logger_pool, &res, OFFLINE_ANALYZER);
+                    JSON_PHYSICAL_CELL_PROGRAM_COMPATIBLE(&res, &json_buf);
+                    break;
+                }
                 case LOGICAL_CELL_PROGRAM_LOG_UID:
                 {
                     LogicalCellProgramLog res;

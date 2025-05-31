@@ -100,6 +100,7 @@
 #define MAP_READ		818
 #define MAP_WRITE		819
 #define COPYBACK		820
+#define WRITE_COMMIT    822
 
 #define UPDATE_START_TIME	900
 #define UPDATE_END_TIME		901
