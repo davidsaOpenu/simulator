@@ -37,6 +37,8 @@ eVSSIM/QEMU/libcacard/vscclient
 # symlinks
 eVSSIM/QEMU/Makefile.target
 eVSSIM/QEMU/hw/common.h
+eVSSIM/QEMU/hw/ssd_file_operations.h
+eVSSIM/QEMU/hw/ssd_file_operations.c
 eVSSIM/QEMU/hw/ssd_util.h
 eVSSIM/QEMU/hw/ftl_type.h
 eVSSIM/QEMU/hw/ftl.h
@@ -85,6 +87,8 @@ eVSSIM/tests/host/test_*.txt
 eVSSIM/tests/host/host_tests_main
 eVSSIM/tests/host/data
 eVSSIM/tests/host/common.h
+eVSSIM/tests/host/ssd_file_operations.h
+eVSSIM/tests/host/ssd_file_operations.c
 eVSSIM/tests/host/logging_rt_analyzer.h
 eVSSIM/tests/host/logging_rt_analyzer.c
 eVSSIM/tests/host/logging_offline_analyzer.c

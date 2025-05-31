@@ -5,11 +5,12 @@ VSSIM_OBJ = vssim_config_manager.o \
 			ssd_log_manager.o ssd_io_manager.o \
 			ftl_sect_strategy.o ftl_obj_strategy.o \
 			logging_backend.o logging_parser.o logging_rt_analyzer.o logging_offline_analyzer.o \
-			logging_manager.o logging_server.o logging_statistics.o
+			logging_manager.o logging_server.o logging_statistics.o \
+			ssd_file_operations.o
 
 TEST_OBJ =  object_tests.o sector_tests.o log_mgr_tests.o ssd_io_emulator_tests.o \
 			rt_analyzer_subscriber.o log_manager_subscriber.o host_tests_main.o   \
-			offline_logger_tests.o ssd_write_read_test.o
+			offline_logger_tests.o ssd_write_read_test.o ssd_program_compatible_test.o
 
 CFLAGS = -I/opt/gtest/include -I$(VSSIM_HOME) -I$(VSSIM_HOME)/osc-osd -I$(VSSIM_HOME)/osc-osd/osd-target -I$(VSSIM_HOME)/QEMU \
 	-g -DGTEST -DCOMPLIANCE_TESTS -L/opt/gtest/lib -L$(VSSIM_HOME)/osc-osd/osd-util -L$(VSSIM_HOME)/osc-osd/osd-target \
@@ -39,8 +40,8 @@ clean:
 
 distclean: clean
 	rm -rf   ssd_io_manager.h ssd_io_manager.c ssd_log_manager.h ssd_log_manager.c ssd_util.h \
-		common.h ftl.h ftl.c ftl_sect_strategy.h ftl_sect_strategy.c ftl_obj_strategy.h \
-		ftl_obj_strategy.c ftl_type.h ftl_gc_manager.h ftl_gc_manager.c ftl_inverse_mapping_manager.h \
+		common.h ssd_file_operations.c ssd_file_operations.h ftl.h ftl.c ftl_sect_strategy.h ftl_sect_strategy.c \
+		ftl_obj_strategy.h ftl_obj_strategy.c ftl_type.h ftl_gc_manager.h ftl_gc_manager.c ftl_inverse_mapping_manager.h \
 		ftl_inverse_mapping_manager.c ftl_mapping_manager.h ftl_mapping_manager.c ftl_perf_manager.h \
         ftl_perf_manager.c vssim_config_manager.h vssim_config_manager.c uthash.h \
         logging_parser.h logging_parser.c logging_backend.h logging_backend.c \
@@ -67,6 +68,8 @@ mklink:
 	ln -sf $(VSSIM_HOME)/LOG_MGR/logging_statistics.h
 	ln -sf $(VSSIM_HOME)/LOG_MGR/logging_statistics.c
 	ln -sf $(VSSIM_HOME)/FTL_SOURCE/COMMON/common.h
+	ln -sf $(VSSIM_HOME)/FTL_SOURCE/COMMON/ssd_file_operations/ssd_file_operations.h
+	ln -sf $(VSSIM_HOME)/FTL_SOURCE/COMMON/ssd_file_operations/ssd_file_operations.c
 	ln -sf $(VSSIM_HOME)/FTL_SOURCE/PAGE_MAP/ftl.h
 	ln -sf $(VSSIM_HOME)/FTL_SOURCE/PAGE_MAP/ftl.c
 	ln -sf $(VSSIM_HOME)/FTL_SOURCE/PAGE_MAP/ftl_sect_strategy.c
