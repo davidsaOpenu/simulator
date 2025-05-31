@@ -157,6 +157,16 @@ void rt_log_analyzer_loop(RTLogAnalyzer* analyzer, int max_logs) {
                 rt_log_stats[analyzer->rt_analyzer_id].current_wall_time = 0;
                 break;
             }
+            case PHYSICAL_CELL_PROGRAM_COMPATIBLE_LOG_UID:
+            {
+                PhysicalCellProgramCompatibleLog res;
+                NEXT_PHYSICAL_CELL_PROGRAM_COMPATIBLE_LOG(analyzer->logger, &res, RT_ANALYZER);
+                stats.write_count++;
+                rt_log_stats[analyzer->rt_analyzer_id].current_wall_time += CELL_PROGRAM_DELAY;
+                rt_log_stats[analyzer->rt_analyzer_id].write_elapsed_time += rt_log_stats[analyzer->rt_analyzer_id].current_wall_time;
+                rt_log_stats[analyzer->rt_analyzer_id].current_wall_time = 0;
+                break;
+            }
             case LOGICAL_CELL_PROGRAM_LOG_UID:
             {
                 LogicalCellProgramLog res;
