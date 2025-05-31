@@ -112,6 +112,32 @@ void JSON_PHYSICAL_CELL_PROGRAM(PhysicalCellProgramLog *src, char ** dst)
 }
 
 /**
+ * writes a physical cell program compatible log in json format to a given string
+ * @param src the struct containing all the data to be added to the json
+ * @param dst the pointer to the written string
+ */
+void JSON_PHYSICAL_CELL_PROGRAM_COMPATIBLE(PhysicalCellProgramCompatibleLog *src, char ** dst)
+{
+    struct json_object *jobj;
+
+    jobj = json_object_new_object();
+    json_object_object_add(jobj, "type", json_object_new_string("PhysicalCellProgramCompatibleLog"));
+    json_object_object_add(jobj, "channel", json_object_new_int(src->channel));
+    json_object_object_add(jobj, "block", json_object_new_int(src->block));
+    json_object_object_add(jobj, "page", json_object_new_int(src->page));
+    add_time_to_json_object(jobj, src->metadata.logging_start_time);
+
+    const char *json_string = json_object_to_json_string_ext(jobj, JSON_C_TO_STRING_SPACED);
+
+    size_t json_length = strlen(json_string);
+    *dst = (char *)malloc(json_length + 2);
+    
+    strcpy(*dst, json_string);
+    strcat(*dst, "\n");
+    json_object_put(jobj); // Delete the json object
+}
+
+/**
  * writes a logical cell program log in json format to a given string
  * @param src the struct containing all the data to be added to the json
  * @param dst the pointer to the written string

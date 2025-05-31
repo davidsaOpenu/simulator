@@ -3539,6 +3539,8 @@ if test "$vssim" = "yes" ; then
     symlink "$source_path/../SSD_MODULE/ssd_log_manager.c" "$source_path/hw/ssd_log_manager.c"
     symlink "$source_path/../SSD_MODULE/ssd_util.h" "$source_path/hw/ssd_util.h"
     symlink "$source_path/../FTL_SOURCE/COMMON/common.h" "$source_path/hw/common.h"
+    symlink "$source_path/../FTL_SOURCE/COMMON/ssd_file_operations/ssd_file_operations.h" "$source_path/hw/ssd_file_operations.h"
+    symlink "$source_path/../FTL_SOURCE/COMMON/ssd_file_operations/ssd_file_operations.c" "$source_path/hw/ssd_file_operations.c"
     symlink "$source_path/../FTL_SOURCE/PAGE_MAP/ftl.h" "$source_path/hw/ftl.h"
     symlink "$source_path/../FTL_SOURCE/PAGE_MAP/ftl.c" "$source_path/hw/ftl.c"
     symlink "$source_path/../FTL_SOURCE/PAGE_MAP/ftl_sect_strategy.h" "$source_path/hw/ftl_sect_strategy.h"
