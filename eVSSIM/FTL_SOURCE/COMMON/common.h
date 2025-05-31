@@ -18,6 +18,8 @@
 /* FTL */
 //#define FTL_DEBUG 1
 
+#define MAPPING_TABLE_INIT_VAL UINT64_MAX
+
 /* VSSIM Function */
 #ifdef PAGE_MAP
 #define GC_ON 1			/* Garbage Collection for PAGE MAP */
@@ -88,21 +90,8 @@
 #define ERASE 			803
 #define GC_READ			804
 #define GC_WRITE		805
-#define SEQ_WRITE		806
-#define RAN_WRITE		807
-#define RAN_COLD_WRITE		808
-#define RAN_HOT_WRITE		809
-#define SEQ_MERGE_READ		810
-#define RAN_MERGE_READ		811
-#define SEQ_MERGE_WRITE		812
-#define RAN_MERGE_WRITE		813
-#define RAN_COLD_MERGE_READ	814
-#define RAN_HOT_MERGE_READ	815
-#define RAN_COLD_MERGE_WRITE	816
-#define RAN_HOT_MERGE_WRITE	817
-#define MAP_READ		818
-#define MAP_WRITE		819
 #define COPYBACK		820
+#define WRITE_COMMIT	822
 
 #define UPDATE_START_TIME	900
 #define UPDATE_END_TIME		901
