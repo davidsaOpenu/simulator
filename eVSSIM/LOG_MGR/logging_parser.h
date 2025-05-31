@@ -151,6 +151,28 @@ typedef struct {
 } PhysicalCellProgramLog;
 
 /**
+ * A log of a physical cell program compatible
+ */
+typedef struct {
+    /**
+     * The channel number of the programmed cell
+     */
+    unsigned int channel;
+    /**
+     * The block number of the programmed cell
+     */
+    unsigned int block;
+    /**
+     * The page number of the programmed cell
+     */
+    unsigned int page;
+    /**
+     * Log metadata
+     */
+    LogMetadata metadata;
+} PhysicalCellProgramCompatibleLog;
+
+/**
  * A log of a logical cell program
  */
 typedef struct {
@@ -360,8 +382,9 @@ typedef struct{
  * @param APPLIER the macro which is going to be applied to all the log types
  */
 #define _LOGS_DEFINITIONS(APPLIER)                          \
-    APPLIER(PhysicalCellReadLog, PHYSICAL_CELL_READ)        \
+APPLIER(PhysicalCellReadLog, PHYSICAL_CELL_READ)            \
 APPLIER(PhysicalCellProgramLog, PHYSICAL_CELL_PROGRAM)      \
+APPLIER(PhysicalCellProgramCompatibleLog, PHYSICAL_CELL_PROGRAM_COMPATIBLE) \
 APPLIER(LogicalCellProgramLog, LOGICAL_CELL_PROGRAM)        \
 APPLIER(GarbageCollectionLog, GARBAGE_COLLECTION)           \
 APPLIER(RegisterReadLog, REGISTER_READ)                     \
@@ -369,8 +392,8 @@ APPLIER(RegisterWriteLog, REGISTER_WRITE)                   \
 APPLIER(BlockEraseLog, BLOCK_ERASE)                         \
 APPLIER(PageCopyBackLog, PAGE_COPYBACK)                     \
 APPLIER(ChannelSwitchToReadLog, CHANNEL_SWITCH_TO_READ)     \
-APPLIER(ChannelSwitchToWriteLog, CHANNEL_SWITCH_TO_WRITE)    \
-APPLIER(ObjectAddPageLog, OBJECT_ADD_PAGE)                    \
+APPLIER(ChannelSwitchToWriteLog, CHANNEL_SWITCH_TO_WRITE)   \
+APPLIER(ObjectAddPageLog, OBJECT_ADD_PAGE)                  \
 APPLIER(ObjectCopyback, OBJECT_COPYBACK)                    \
 APPLIER(LoggeingServerSync, LOG_SYNC)                    
 
