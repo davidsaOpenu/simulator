@@ -1,0 +1,5 @@
+This library implements functions that help in simulating SSD on a given file.
+There is a copy of them in ftl_sect_strategy.c which need them.
+The reason for this duplication is that adding new files require chnages in other repositories and it is not worth it.
+We leave this directory so we will be able to test the functions with unit test.
+The library has unit tests under the directory ./test and a Makefile for compiling them.

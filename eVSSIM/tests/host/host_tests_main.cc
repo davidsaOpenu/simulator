@@ -31,6 +31,9 @@ int main(int argc, char **argv) {
         else if (strcmp(argv[i], "--ssd_write_read_test") == 0) {
             tests_filter = "*WriteReadTest*";
         }
+        else if (strcmp(argv[i], "--ssd_program_compatible_test") == 0) {
+            tests_filter = "*ProgramCompatibleTest*";
+        }
     }
 
     testing::GTEST_FLAG(filter) = tests_filter;

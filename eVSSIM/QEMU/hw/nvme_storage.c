@@ -70,7 +70,7 @@ static void nvme_dma_mem_read2(target_phys_addr_t addr, uint8_t *buf, int len,
     }
          LOG_DBG("sector strategy\n");
     	//sector strategy -> continue normally
-    	_FTL_WRITE_SECT( (buf - mapping_addr) / GET_SECTOR_SIZE(), len / GET_SECTOR_SIZE());
+    	_FTL_WRITE_SECT( (buf - mapping_addr) / GET_SECTOR_SIZE(), len / GET_SECTOR_SIZE(), NULL);
     	//read from dma memory (prp) and write to qemu's volatile memory
     	cpu_physical_memory_rw(addr, buf, len, 0);
 }
