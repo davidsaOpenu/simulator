@@ -89,7 +89,7 @@ int EJECT_VICTIM_BLOCK(victim_block_entry* victim_block);
 
 inverse_block_mapping_entry* GET_INVERSE_BLOCK_MAPPING_ENTRY(unsigned int phy_flash_nb, uint64_t phy_block_nb);
 
-uint64_t GET_INVERSE_MAPPING_INFO(uint64_t lpn);
+uint64_t GET_INVERSE_MAPPING_INFO(uint64_t ppn);
 int UPDATE_INVERSE_PAGE_MAPPING(uint64_t ppn, uint64_t lpn);
 int UPDATE_INVERSE_BLOCK_MAPPING(unsigned int phy_flash_nb,
                                  uint64_t phy_block_nb,
