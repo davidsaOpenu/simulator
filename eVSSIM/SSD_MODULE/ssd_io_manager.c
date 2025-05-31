@@ -213,19 +213,29 @@ ftl_ret_val SSD_PAGE_WRITE(unsigned int flash_nb, unsigned int block_nb, unsigne
     old_channel_nb = channel;
 
     /* Update ssd page write counters */
-    ssd.occupied_pages_counter++;
+    if (type != WRITE_COMMIT) {
+        ssd.occupied_pages_counter++;
+    }
     ssd.physical_page_writes++;
 
     inverse_block_mapping_entry* block_entry = GET_INVERSE_BLOCK_MAPPING_ENTRY(flash_nb, block_nb);
     block_entry->dirty_page_nb++;
 
-    LOG_PHYSICAL_CELL_PROGRAM(GET_LOGGER(flash_nb), (PhysicalCellProgramLog) {
-        .channel = channel, .block = block_nb, .page = page_nb,
-        .metadata = {_start, _end}
-    });
+    if (type == WRITE_COMMIT) {
+        LOG_PHYSICAL_CELL_PROGRAM_COMPATIBLE(GET_LOGGER(flash_nb), (PhysicalCellProgramCompatibleLog) {
+            .channel = channel, .block = block_nb, .page = page_nb,
+            .metadata = {_start, _end}
+        });
+    }
+    else {
+        LOG_PHYSICAL_CELL_PROGRAM(GET_LOGGER(flash_nb), (PhysicalCellProgramLog) {
+            .channel = channel, .block = block_nb, .page = page_nb,
+            .metadata = {_start, _end}
+        });
+    }
 
 
-    if (type == WRITE) { // if we log logical write first, write amp may get negative
+    if (type == WRITE || type == WRITE_COMMIT) { // if we log logical write first, write amp may get negative
         ssd.logical_page_writes++;
 
         LOG_LOGICAL_CELL_PROGRAM(GET_LOGGER(flash_nb),(LogicalCellProgramLog) {
@@ -393,7 +403,7 @@ ftl_ret_val SSD_REG_RECORD(int reg, int type, int offset, int channel)
             // SSD_UPDATE_CH_ACCESS_TIME(channel, reg_io_time[reg]);
 
             /* Update SATA request Info */
-            if(type == WRITE || type == SEQ_WRITE || type == RAN_WRITE || type == RAN_COLD_WRITE || type == RAN_HOT_WRITE){
+            if(type == WRITE) {
                 access_nb[reg][0] = io_request_seq_nb;
                 access_nb[reg][1] = offset;
                 io_update_overhead = UPDATE_IO_REQUEST(io_request_seq_nb, offset, old_channel_time, UPDATE_START_TIME);

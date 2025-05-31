@@ -114,13 +114,13 @@ namespace {
         }
 
     public:
-        SSDConf(size_t size_mb) {
+        SSDConf(size_t size_mb, size_t sector_size = 1) {
             ssd_conf_calc_based_size_mb(size_mb);
             this->page_size = CONST_PAGE_SIZE_IN_BYTES;
             this->page_nb = CONST_PAGES_PER_BLOCK + CONST_PAGES_PER_BLOCK_OVERPROV;
             this->flash_nb = DEFAULT_FLASH_NB;
             this->channel_nb = DEFAULT_FLASH_NB;
-            this->sector_size = 1;
+            this->sector_size = sector_size;
             this->object_size = 2048; // megabytes
         }
 
