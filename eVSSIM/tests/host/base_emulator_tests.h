@@ -187,6 +187,8 @@ namespace {
                 "SECTOR_SIZE " << get_sector_size() << "\n"
                 "FLASH_NB " << get_flash_nb() << "\n"
                 "BLOCK_NB " << get_block_nb() << "\n"
+                "NS1 " << get_page_size() * (get_block_nb() - 1) << "\n"
+                "NS2 " << get_page_size() << "\n"
                 "PLANES_PER_FLASH 1\n"
                 "REG_WRITE_DELAY 82\n"
                 "CELL_PROGRAM_DELAY 900\n"
