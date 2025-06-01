@@ -20,6 +20,9 @@ uint32_t SECTORS_PER_PAGE;
 uint64_t PAGES_PER_FLASH;
 uint64_t PAGES_IN_SSD;
 
+// Size in blocks.
+uint64_t NAMESPACES_SIZE[MAX_NUMBER_OF_NAMESPACES] = {0,};
+
 uint32_t WAY_NB;
 
 /* Mapping Table */
@@ -117,21 +120,41 @@ void INIT_SSD_CONFIG(void)
     int i;
     memset(szCommand, 0x00, 1024);
     while (fscanf(pfData, "%s", szCommand) != EOF){
+
         if (strcmp(szCommand, "STAT_PATH") == 0){
             if (fgets(STAT_PATH, PATH_MAX, pfData) == NULL)
                 RERR(, "Can't read STAT_PATH\n");
             continue;
         }
+
         if (strcmp(szCommand, "OSD_PATH") == 0){
             if (fgets(OSD_PATH, PATH_MAX, pfData) == NULL)
                 RERR(, "Can't read OSD_PATH\n");
             continue;
         }
+
+        if (sscanf(szCommand, "NS%d", &i) == 1){
+            if (i > MAX_NUMBER_OF_NAMESPACES || i <= 0)
+                RERR(, "Invalid namespaces index\n");
+
+            // Read the parm.
+            if (fscanf(pfData, "%" SCNu64, &NAMESPACES_SIZE[i-1]) == EOF){
+                RERR(, "Can't read %s\n", szCommand);
+            }
+
+            memset(szCommand, 0x00, 1024);
+            continue;
+        }
+
+        // Search config name index from the options list.
         for (i = 0; options[i].name != NULL; i++)
             if (strcmp(szCommand, options[i].name) == 0)
                 break;
+
+        // Is the config index found.
         if (options[i].name == NULL)
             RERR(, "Wrong option %s\n", szCommand);
+        // Read the parm.
         if (fscanf(pfData, options[i].type, options[i].ptr) == EOF)
             RERR(, "Can't read %s\n", szCommand);
 
@@ -153,6 +176,11 @@ void INIT_SSD_CONFIG(void)
 	/* Mapping Table */
 	BLOCK_MAPPING_ENTRY_NB = (int64_t)BLOCK_NB * (int64_t)FLASH_NB;
 	PAGES_IN_SSD = (int64_t)PAGE_NB * (int64_t)BLOCK_NB * (int64_t)FLASH_NB;
+
+    // Validate the total size for all the namespaces.
+    if (BLOCK_NB * (uint64_t)FLASH_NB < GET_NAMESPACE_TOTAL_SIZE()){
+        RERR(, "ERROR, The total sum sizes of all namespaces is larger than the SSD size\n");
+    }
 
 #ifdef PAGE_MAP
 	PAGE_MAPPING_ENTRY_NB = (int64_t)PAGE_NB * (int64_t)BLOCK_NB * (int64_t)FLASH_NB;
@@ -183,9 +211,24 @@ char* GET_FILE_NAME(void){
 }
 
 uint32_t GET_SECTOR_SIZE(void){
-        return SECTOR_SIZE;
+    return SECTOR_SIZE;
 }
 
 uint32_t GET_PAGE_SIZE(void){
-        return PAGE_SIZE;
+    return PAGE_SIZE;
+}
+
+uint64_t GET_NAMESPACE_TOTAL_SIZE(void){
+    int i;
+    uint64_t NAMESPACE_TOTAL_SIZE = 0;
+
+    for (i = 0; i < MAX_NUMBER_OF_NAMESPACES; i++){
+        // Check for overflow in the sum of namespaces size.
+        if (UINT64_MAX - NAMESPACE_TOTAL_SIZE < NAMESPACES_SIZE[i])
+            RERR(, "ERROR, overflow detected at total size of namespaces\n");
+
+        NAMESPACE_TOTAL_SIZE += NAMESPACES_SIZE[i];
+    }
+
+    return NAMESPACE_TOTAL_SIZE;
 }
