@@ -217,6 +217,30 @@
       "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "2386780b_5dbf70eb",
+        "filename": "eVSSIM/tests/host/base_emulator_tests.h",
+        "patchSetId": 1
+      },
+      "lineNbr": 204,
+      "author": {
+        "id": 1038797
+      },
+      "writtenOn": "2025-06-01T20:54:43Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "f2d5aeb8_54d5c8f0",
+      "range": {
+        "startLine": 203,
+        "startChar": 0,
+        "endLine": 204,
+        "endChar": 50
+      },
+      "revId": "299a4c93d569e44675b7496ffaedf54e2571329f",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "b64f56bf_a4151a1c",
@@ -254,6 +278,30 @@
       "side": 1,
       "message": "כמו הקודם",
       "parentUuid": "b64f56bf_a4151a1c",
+      "range": {
+        "startLine": 20,
+        "startChar": 0,
+        "endLine": 21,
+        "endChar": 10
+      },
+      "revId": "299a4c93d569e44675b7496ffaedf54e2571329f",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "9b1b6fef_a60654dc",
+        "filename": "eVSSIM/tests/host/ssd.conf",
+        "patchSetId": 1
+      },
+      "lineNbr": 21,
+      "author": {
+        "id": 1038797
+      },
+      "writtenOn": "2025-06-01T20:54:43Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "7cfbeed9_883d3a21",
       "range": {
         "startLine": 20,
         "startChar": 0,
