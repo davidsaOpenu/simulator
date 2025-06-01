@@ -24,6 +24,9 @@
 #endif
 #define DEL_QEMU_OVERHEAD
 
+/* SSD Namespace */
+#define MAX_NUMBER_OF_NAMESPACES 32
+
 #include "vssim_config_manager.h"
 #include "ftl.h"
 #include "ftl_inverse_mapping_manager.h"
@@ -145,7 +148,7 @@
 
 #define print_wrapper(prefix, msg, args...){\
 	printf("%s[%s][%s][%d]: ", prefix, __FILE__, __FUNCTION__, __LINE__);\
-	printf(msg, ##args);\
+	printf(msg "\n", ##args);\
 }
 
 #define print_and_ret(ret, prefix, msg, args...){\
