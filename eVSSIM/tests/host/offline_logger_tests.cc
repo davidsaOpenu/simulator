@@ -78,7 +78,8 @@ void flipAuto();
         std::vector<SSDConf*> ssd_configs;
 
         for(unsigned int i = POW_START; i <= MAX_POW;i++){
-            ssd_configs.push_back(new SSDConf(PAGE_SIZE, PAGE_NB, SECTOR_SIZE, DEFAULT_FLASH_NB,pow(2,i), DEFAULT_FLASH_NB));
+            size_t block_nb = pow(2,i);
+            ssd_configs.push_back(new SSDConf(PAGE_SIZE, PAGE_NB, SECTOR_SIZE, DEFAULT_FLASH_NB, block_nb, DEFAULT_FLASH_NB, block_nb * DEFAULT_FLASH_NB, 0));
         }
 
         return ssd_configs;
