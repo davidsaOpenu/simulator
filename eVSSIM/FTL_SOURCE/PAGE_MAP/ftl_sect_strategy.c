@@ -3,12 +3,13 @@
 
 extern ssd_disk ssd;
 
-ftl_ret_val _FTL_READ_SECT(uint64_t sector_nb, unsigned int length)
+ftl_ret_val _FTL_READ_SECT(uint32_t nsid, uint64_t sector_nb, unsigned int length)
 {
-
 	PDBG_FTL("Start: sector_nb %ld length %u\n", sector_nb, length);
 
-	if (sector_nb + length > SECTOR_NB)
+	const uint64_t NUM_SECTORS_IN_NS = (uint64_t)NAMESPACES_SIZE[nsid] * (uint64_t)SECTORS_PER_PAGE * (uint64_t)PAGE_NB;
+
+	if (sector_nb + length > NUM_SECTORS_IN_NS)
 		RERR(FTL_FAILURE, "[FTL_READ] Exceed Sector number\n");
 
 	uint64_t lpn;
@@ -44,15 +45,17 @@ ftl_ret_val _FTL_READ_SECT(uint64_t sector_nb, unsigned int length)
 		read_sects = SECTORS_PER_PAGE - left_skip - right_skip;
 
 		lpn = lba / (int32_t)SECTORS_PER_PAGE;
+
 		//Send a logical read action being done to the statistics gathering
 		FTL_STATISTICS_GATHERING(lpn , LOGICAL_READ);
 
-		ppn = GET_MAPPING_INFO(lpn);
+		ppn = GET_MAPPING_INFO(nsid, lpn);
 
 		if (ppn == (uint64_t)-1)
 			RDBG_FTL(FTL_FAILURE, "No Mapping info\n");
 
 		ret = SSD_PAGE_READ(CALC_FLASH(ppn), CALC_BLOCK(ppn), CALC_PAGE(ppn), read_page_nb, READ);
+
 		//Send a physical read action being done to the statistics gathering
 		if (ret == FTL_SUCCESS)
 		{
@@ -61,7 +64,7 @@ ftl_ret_val _FTL_READ_SECT(uint64_t sector_nb, unsigned int length)
 
 #ifdef FTL_DEBUG
 		if (ret == FTL_FAILURE)
-			PERR("%u page read fail \n", ppn);
+			PERR("%lu page read fail \n", ppn);
 #endif
 		read_page_nb++;
 
@@ -81,19 +84,22 @@ ftl_ret_val _FTL_READ_SECT(uint64_t sector_nb, unsigned int length)
 	return ret;
 }
 
-ftl_ret_val _FTL_WRITE(uint64_t sector_nb, unsigned int length)
+ftl_ret_val _FTL_WRITE(uint32_t nsid, uint64_t sector_nb, unsigned int length)
 {
-    return _FTL_WRITE_SECT(sector_nb, length);
+    return _FTL_WRITE_SECT(nsid, sector_nb, length);
 }
 
-ftl_ret_val _FTL_WRITE_SECT(uint64_t sector_nb, unsigned int length)
+ftl_ret_val _FTL_WRITE_SECT(uint32_t nsid, uint64_t sector_nb, unsigned int length)
 {
-	PDBG_FTL("Start: sector_nb %" PRIu64 "length %u\n", sector_nb, length);
+	PDBG_FTL("Start: sector_nb %" PRIu64 " length %u\n", sector_nb, length);
 
 	int io_page_nb;
 
-	if (sector_nb + length > SECTOR_NB)
+	const uint64_t NUM_SECTORS_IN_NS = (uint64_t)NAMESPACES_SIZE[nsid] * (uint64_t)SECTORS_PER_PAGE * (uint64_t)PAGE_NB;
+
+	if (sector_nb + length > NUM_SECTORS_IN_NS)
 		RERR(FTL_FAILURE, "Exceed Sector number\n");
+
 	io_alloc_overhead = ALLOC_IO_REQUEST(sector_nb, length, WRITE, &io_page_nb);
 
 	uint64_t lba = sector_nb;
@@ -130,25 +136,29 @@ ftl_ret_val _FTL_WRITE_SECT(uint64_t sector_nb, unsigned int length)
 		//we caused a block write -> update the logical block_write counter + update the physical block write counter
 		wa_counters.logical_block_write_counter++;
 		wa_counters.physical_block_write_counter++;
+
 		//Send a physical write action being done to the statistics gathering
 		if (ret == FTL_SUCCESS)
 		{
 			FTL_STATISTICS_GATHERING(new_ppn , PHYSICAL_WRITE);
 		}
+		else if (ret == FTL_FAILURE)
+		{
+			// Prints error only as debug. 
+			PDBG_FTL("Error[FTL_WRITE] %lu page write fail \n", new_ppn)
+		}
+
 		write_page_nb++;
 
 		//Calculate the logical page number -> the current sector_number / amount_of_sectors_per_page
 		lpn = lba / (uint64_t)SECTORS_PER_PAGE;
+
 		//Send a logical write action being done to the statistics gathering
 		FTL_STATISTICS_GATHERING(lpn , LOGICAL_WRITE);
 
 		// logical page number to physical. will need to be changed to account for objectid
-		UPDATE_OLD_PAGE_MAPPING(lpn);
-		UPDATE_NEW_PAGE_MAPPING(lpn, new_ppn);
-
-
-                if (ret == FTL_FAILURE)
-                   PDBG_FTL("Error[FTL_WRITE] %d page write fail \n", new_ppn)
+		UPDATE_OLD_PAGE_MAPPING(nsid, lpn);
+		UPDATE_NEW_PAGE_MAPPING(nsid, lpn, new_ppn);
 
 		lba += write_sects;
 		remain -= write_sects;
@@ -169,6 +179,7 @@ ftl_ret_val _FTL_WRITE_SECT(uint64_t sector_nb, unsigned int length)
 //Get 2 physical page address, the source page which need to be moved to the destination page
 ftl_ret_val _FTL_COPYBACK(uint64_t source, uint64_t destination)
 {
+	uint32_t nsid;
 	uint64_t lpn; //The logical page address, the page that being moved.
 	unsigned int ret = FTL_FAILURE;
 
@@ -183,15 +194,15 @@ ftl_ret_val _FTL_COPYBACK(uint64_t source, uint64_t destination)
 
 
 	if (ret == FTL_FAILURE)
-        RDBG_FTL(FTL_FAILURE, "%u page copyback fail \n", source);
+        RDBG_FTL(FTL_FAILURE, "%lu page copyback fail \n", source);
 
 	//Handle page map
-	lpn = GET_INVERSE_MAPPING_INFO(source);
+	GET_INVERSE_MAPPING_INFO(source, &nsid, &lpn);
 	if (lpn != (uint64_t)-1)
 	{
-		//The given physical page is being map, the mapping information need to be changed
-		UPDATE_OLD_PAGE_MAPPING(lpn); //as far as i can tell when being called under the gc manage all the actions are being done, but what if will be called from another place?
-		UPDATE_NEW_PAGE_MAPPING(lpn, destination);
+		// The given physical page is being map, the mapping information need to be changed,
+		UPDATE_OLD_PAGE_MAPPING(nsid, lpn); //as far as I can tell when being called under the gc manage all the actions are being done, but what if will be called from another place?
+		UPDATE_NEW_PAGE_MAPPING(nsid, lpn, destination);
 	}
 
 	return ret;
