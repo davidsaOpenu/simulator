@@ -6,6 +6,7 @@
 #include "common.h"
 
 uint64_t* inverse_page_mapping_table;
+uint32_t* inverse_page_mapping_namespace_table;
 void* inverse_block_mapping_table_start;
 
 void* empty_block_table_start;
@@ -33,12 +34,34 @@ void INIT_INVERSE_PAGE_MAPPING(void)
 	else{
 		uint64_t i;
 		for(i=0;i<PAGE_MAPPING_ENTRY_NB;i++){
-			inverse_page_mapping_table[i] = -1;
+			inverse_page_mapping_table[i] = MAPPING_TABLE_INIT_VAL;
 		}
 	}
 }
 
-void INIT_INVERSE_BLOCK_MAPPING(void)
+void INIT_INVERSE_PAGE_NAMESPACE_MAPPING(void)
+{
+	/* Allocation Memory for Inverse Page Mapping Table */
+	inverse_page_mapping_namespace_table = (void*)calloc(PAGE_MAPPING_ENTRY_NB, sizeof(uint32_t));
+	if (inverse_page_mapping_namespace_table == NULL)
+		RERR(, "Calloc mapping table fail\n");
+
+	/* Initialization Inverse Page Mapping Table */
+	FILE* fp = fopen("./data/inverse_page_mapping_namespace.dat","r");
+	if(READ_MAPPING_INFO_FROM_FILES && fp != NULL){
+		if(fread(inverse_page_mapping_namespace_table, sizeof(uint32_t), PAGE_MAPPING_ENTRY_NB, fp) <= 0)
+			PERR("fread\n");
+		fclose(fp);
+	}
+	else{
+		uint64_t i;
+		for(i=0; i<PAGE_MAPPING_ENTRY_NB; i++){
+			inverse_page_mapping_namespace_table[i] = INVALID_NSID;
+		}
+	}
+}
+
+void INIT_INVERSE_BLOCK_MAPPING()
 {
 	/* Allocation Memory for Inverse Block Mapping Table */
 	inverse_block_mapping_table_start = (void*)calloc(BLOCK_MAPPING_ENTRY_NB, sizeof(inverse_block_mapping_entry));
@@ -96,7 +119,7 @@ void INIT_VALID_ARRAY(void)
 	}
 }
 
-void INIT_EMPTY_BLOCK_LIST(void)
+void INIT_EMPTY_BLOCK_LIST()
 {
 	uint64_t i, j, k;
 
@@ -266,12 +289,27 @@ void TERM_INVERSE_PAGE_MAPPING(void)
 		RERR(, "File open fail\n");
 
 	/* Write The inverse page table to file */
-	if(fwrite(inverse_page_mapping_table, sizeof(uint32_t), PAGE_MAPPING_ENTRY_NB, fp) <= 0)
+	if(fwrite(inverse_page_mapping_table, sizeof(uint64_t), PAGE_MAPPING_ENTRY_NB, fp) <= 0)
 		PERR("fwrite\n");
 	fclose(fp);
 
 	/* Free the inverse page table memory */
 	free(inverse_page_mapping_table);
+}
+
+void TERM_INVERSE_PAGE_NAMESPACE_MAPPING(void)
+{
+	FILE* fp = fopen("./data/inverse_page_mapping_namespace.dat", "w");
+	if (fp == NULL)
+		RERR(, "File open fail\n");
+
+	/* Write The inverse page table to file */
+	if(fwrite(inverse_page_mapping_namespace_table, sizeof(uint32_t), PAGE_MAPPING_ENTRY_NB, fp) <= 0)
+		PERR("fwrite\n");
+	fclose(fp);
+
+	/* Free the inverse page table memory */
+	free(inverse_page_mapping_namespace_table);
 }
 
 void TERM_INVERSE_BLOCK_MAPPING(void)
@@ -309,7 +347,7 @@ void TERM_VALID_ARRAY(void)
 	fclose(fp);
 }
 
-void TERM_EMPTY_BLOCK_LIST(void)
+void TERM_EMPTY_BLOCK_LIST()
 {
 	uint64_t i, j, k;
 
@@ -712,16 +750,24 @@ inverse_block_mapping_entry* GET_INVERSE_BLOCK_MAPPING_ENTRY(unsigned int phy_fl
 	return mapping_entry;
 }
 
-uint64_t GET_INVERSE_MAPPING_INFO(uint64_t ppn)
+void GET_INVERSE_MAPPING_INFO(uint64_t ppn, uint32_t *o_nsid, uint64_t *o_lpn)
 {
-	uint64_t lpn = inverse_page_mapping_table[ppn];
+	if(ppn >= PAGE_MAPPING_ENTRY_NB) {
+		PERR("overflow!\n");
+	}
 
-	return lpn;
+	*o_nsid = inverse_page_mapping_namespace_table[ppn];
+  	*o_lpn = inverse_page_mapping_table[ppn];
 }
 
-int UPDATE_INVERSE_PAGE_MAPPING(uint64_t ppn,  uint64_t lpn)
+int UPDATE_INVERSE_PAGE_MAPPING(uint64_t ppn, uint32_t nsid, uint64_t lpn)
 {
+	if(nsid >= MAX_NUMBER_OF_NAMESPACES && nsid != INVALID_NSID){
+		PERR("overflow!\n");
+	}
+
 	inverse_page_mapping_table[ppn] = lpn;
+	inverse_page_mapping_namespace_table[ppn] = nsid;
 
 	return FTL_SUCCESS;
 }
