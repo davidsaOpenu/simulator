@@ -26,6 +26,10 @@
 
 /* SSD Namespace */
 #define MAX_NUMBER_OF_NAMESPACES 32
+#define INVALID_NSID UINT32_MAX
+#define MAX_FILENAME_LENGTH 100
+
+#define MAPPING_TABLE_INIT_VAL UINT64_MAX
 
 #include "vssim_config_manager.h"
 #include "ftl.h"
