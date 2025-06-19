@@ -1,0 +1,89 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "334e93ad_a5b9bbda",
+        "filename": "eVSSIM/FTL_SOURCE/PAGE_MAP/ftl_sect_strategy.c",
+        "patchSetId": 16
+      },
+      "lineNbr": 18,
+      "author": {
+        "id": 1038797
+      },
+      "writtenOn": "2025-06-19T14:55:17Z",
+      "side": 1,
+      "message": "Use MAPPING_TABLE_INIT_VAL insted of -1.",
+      "revId": "d125401addec7892bee636bf5527c54fcd2dff62",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "1abd6c68_997436e4",
+        "filename": "eVSSIM/FTL_SOURCE/PAGE_MAP/ftl_sect_strategy.c",
+        "patchSetId": 16
+      },
+      "lineNbr": 71,
+      "author": {
+        "id": 1038797
+      },
+      "writtenOn": "2025-06-19T14:55:17Z",
+      "side": 1,
+      "message": "[unimportant]\nYou can use the function physical_address_from_logical_address, init the ppn and also abs_physical_offset.",
+      "revId": "d125401addec7892bee636bf5527c54fcd2dff62",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "c50d0523_878cf9c9",
+        "filename": "eVSSIM/FTL_SOURCE/PAGE_MAP/ftl_sect_strategy.c",
+        "patchSetId": 16
+      },
+      "lineNbr": 126,
+      "author": {
+        "id": 1038797
+      },
+      "writtenOn": "2025-06-19T14:55:17Z",
+      "side": 1,
+      "message": "Why this function returning void but apdate the static var read_status_enanched?\nWhy did\u0027t you return the error?",
+      "revId": "d125401addec7892bee636bf5527c54fcd2dff62",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "bfb2852b_8e1b73be",
+        "filename": "eVSSIM/FTL_SOURCE/PAGE_MAP/ftl_sect_strategy.c",
+        "patchSetId": 16
+      },
+      "lineNbr": 230,
+      "author": {
+        "id": 1038797
+      },
+      "writtenOn": "2025-06-19T14:55:17Z",
+      "side": 1,
+      "message": "Move this calculation before the if condition. And merge the \"_READ_STATUS_ENHANCED() !\u003d FTL_SUCCESS\" into the else. they are the same.",
+      "revId": "d125401addec7892bee636bf5527c54fcd2dff62",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "7383be9a_3f0e0027",
+        "filename": "eVSSIM/tests/host/sector_tests.cc",
+        "patchSetId": 16
+      },
+      "lineNbr": 38,
+      "author": {
+        "id": 1038797
+      },
+      "writtenOn": "2025-06-19T14:55:17Z",
+      "side": 1,
+      "message": "Why the buffer is NULL?",
+      "revId": "d125401addec7892bee636bf5527c54fcd2dff62",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
+    }
+  ]
+}
