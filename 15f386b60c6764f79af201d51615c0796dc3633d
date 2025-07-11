@@ -1,0 +1,140 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "6e2cc069_5ae02094",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 8
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 1038814
+      },
+      "writtenOn": "2025-07-11T07:20:22Z",
+      "side": 1,
+      "message": "looks good, mostly added small change requests\nand some questions",
+      "revId": "15f386b60c6764f79af201d51615c0796dc3633d",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "dad8c4e0_0887e4cf",
+        "filename": "eVSSIM/CONFIG/ssd.conf",
+        "patchSetId": 8
+      },
+      "lineNbr": 20,
+      "author": {
+        "id": 1038814
+      },
+      "writtenOn": "2025-07-11T07:20:22Z",
+      "side": 1,
+      "message": "maybe configuring NS as a list is more user frendly?\nNS [1000,10]",
+      "revId": "15f386b60c6764f79af201d51615c0796dc3633d",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "e883145b_4e8edf64",
+        "filename": "eVSSIM/CONFIG/ssd.conf",
+        "patchSetId": 8
+      },
+      "lineNbr": 21,
+      "author": {
+        "id": 1038814
+      },
+      "writtenOn": "2025-07-11T07:20:22Z",
+      "side": 1,
+      "message": "why use shortcuts, NS can be alot of things its better to use NAMESPACE for clarity",
+      "revId": "15f386b60c6764f79af201d51615c0796dc3633d",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "32e3b028_8e6a2fbf",
+        "filename": "eVSSIM/CONFIG/vssim_config_manager.c",
+        "patchSetId": 8
+      },
+      "lineNbr": 141,
+      "author": {
+        "id": 1038814
+      },
+      "writtenOn": "2025-07-11T07:20:22Z",
+      "side": 1,
+      "message": "why you did the memset?",
+      "revId": "15f386b60c6764f79af201d51615c0796dc3633d",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "8c16713f_e2c0008d",
+        "filename": "eVSSIM/CONFIG/vssim_config_manager.c",
+        "patchSetId": 8
+      },
+      "lineNbr": 150,
+      "author": {
+        "id": 1038814
+      },
+      "writtenOn": "2025-07-11T07:20:22Z",
+      "side": 1,
+      "message": "fond -\u003e found",
+      "revId": "15f386b60c6764f79af201d51615c0796dc3633d",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "02d17f89_63b43249",
+        "filename": "eVSSIM/CONFIG/vssim_config_manager.c",
+        "patchSetId": 8
+      },
+      "lineNbr": 176,
+      "author": {
+        "id": 1038814
+      },
+      "writtenOn": "2025-07-11T07:20:22Z",
+      "side": 1,
+      "message": "move this section into different function",
+      "revId": "15f386b60c6764f79af201d51615c0796dc3633d",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "a787637f_353103ed",
+        "filename": "eVSSIM/CONFIG/vssim_config_manager.c",
+        "patchSetId": 8
+      },
+      "lineNbr": 186,
+      "author": {
+        "id": 1038814
+      },
+      "writtenOn": "2025-07-11T07:20:22Z",
+      "side": 1,
+      "message": "add {} even if it\u0027s only one line, for safety",
+      "revId": "15f386b60c6764f79af201d51615c0796dc3633d",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "cf343908_3da50ff0",
+        "filename": "infra/builder/docker/ssd.conf.template",
+        "patchSetId": 8
+      },
+      "lineNbr": 20,
+      "author": {
+        "id": 1038814
+      },
+      "writtenOn": "2025-07-11T07:20:22Z",
+      "side": 1,
+      "message": "does is make sense to init NS4 without NS3?",
+      "revId": "15f386b60c6764f79af201d51615c0796dc3633d",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
+    }
+  ]
+}
