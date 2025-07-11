@@ -23,14 +23,16 @@ END_COMMENT
 ./compile-qemu.sh
 ./compile-host-tests.sh
 ./compile-guest-tests.sh
-
 # Run sanity and tests
 ./docker-run-sanity.sh
 
 ./docker-test-host.sh
 ./docker-test-guest.sh
-# TODO reenable after the fix 
-# ./docker-test-exofs.sh
+
+: <<'END_COMMENT'
+# TODO reenable when  https://review.gerrithub.io/c/davidsaOpenu/simulator/1200080 is merged
+./docker-test-exofs.sh
+END_COMMENT
 
 # ELK stack tests
 trap ./elk-stop-stack.sh EXIT
