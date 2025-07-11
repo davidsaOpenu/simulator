@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "a075362a_948fc180",
+        "filename": "/COMMIT_MSG",
+        "patchSetId": 1
+      },
+      "lineNbr": 7,
+      "author": {
+        "id": 1007990
+      },
+      "writtenOn": "2025-07-11T07:51:34Z",
+      "side": 1,
+      "message": "please refer to Read HOWTO submit a GerritHub CR / perform peer review  \nand ask for review in the OSW eVSSIM group",
+      "revId": "fc138d9c596da36512999a8eea2b024468058080",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
+    }
+  ]
+}
