@@ -16,6 +16,42 @@
       "message": "Why did you remove it?",
       "revId": "15f386b60c6764f79af201d51615c0796dc3633d",
       "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "90df4858_d3124c68",
+        "filename": "eVSSIM/CONFIG/vssim_config_manager.c",
+        "patchSetId": 2
+      },
+      "lineNbr": 170,
+      "author": {
+        "id": 1038797
+      },
+      "writtenOn": "2025-07-11T08:14:05Z",
+      "side": 0,
+      "message": "Aכאקר our",
+      "parentUuid": "7e536732_c9973db1",
+      "revId": "15f386b60c6764f79af201d51615c0796dc3633d",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "b3cb8b21_e6542768",
+        "filename": "eVSSIM/CONFIG/vssim_config_manager.c",
+        "patchSetId": 2
+      },
+      "lineNbr": 170,
+      "author": {
+        "id": 1038797
+      },
+      "writtenOn": "2025-07-11T08:14:05Z",
+      "side": 0,
+      "message": "After our changes it value is unused.",
+      "parentUuid": "7e536732_c9973db1",
+      "revId": "15f386b60c6764f79af201d51615c0796dc3633d",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
     }
   ]
 }

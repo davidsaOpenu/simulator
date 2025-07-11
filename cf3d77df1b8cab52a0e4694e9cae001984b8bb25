@@ -37,6 +37,24 @@
     {
       "unresolved": true,
       "key": {
+        "uuid": "501bbdef_0f619031",
+        "filename": "eVSSIM/FTL_SOURCE/PAGE_MAP/ftl_inverse_mapping_manager.c",
+        "patchSetId": 2
+      },
+      "lineNbr": 47,
+      "author": {
+        "id": 1038797
+      },
+      "writtenOn": "2025-07-11T08:14:05Z",
+      "side": 1,
+      "message": "The first parm is the return value, but this is void function, thetefore it is empty.",
+      "parentUuid": "227ec7e2_d8eb39bc",
+      "revId": "cf3d77df1b8cab52a0e4694e9cae001984b8bb25",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
+    },
+    {
+      "unresolved": true,
+      "key": {
         "uuid": "e5625fdf_538084d6",
         "filename": "eVSSIM/FTL_SOURCE/PAGE_MAP/ftl_mapping_manager.c",
         "patchSetId": 2
