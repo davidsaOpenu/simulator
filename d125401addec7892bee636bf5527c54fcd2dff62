@@ -18,6 +18,24 @@
       "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "bd3b9368_34790003",
+        "filename": "eVSSIM/FTL_SOURCE/PAGE_MAP/ftl_sect_strategy.c",
+        "patchSetId": 16
+      },
+      "lineNbr": 18,
+      "author": {
+        "id": 1038865
+      },
+      "writtenOn": "2025-07-11T07:29:35Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "334e93ad_a5b9bbda",
+      "revId": "d125401addec7892bee636bf5527c54fcd2dff62",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "1abd6c68_997436e4",
@@ -54,6 +72,24 @@
     {
       "unresolved": true,
       "key": {
+        "uuid": "2eb96d1a_34f9813f",
+        "filename": "eVSSIM/FTL_SOURCE/PAGE_MAP/ftl_sect_strategy.c",
+        "patchSetId": 16
+      },
+      "lineNbr": 126,
+      "author": {
+        "id": 1038865
+      },
+      "writtenOn": "2025-07-11T07:29:35Z",
+      "side": 1,
+      "message": "In the task we were told to separate the two stages :) In ONFIthere is a `read status enanched` like `errno`.",
+      "parentUuid": "c50d0523_878cf9c9",
+      "revId": "d125401addec7892bee636bf5527c54fcd2dff62",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
+    },
+    {
+      "unresolved": true,
+      "key": {
         "uuid": "bfb2852b_8e1b73be",
         "filename": "eVSSIM/FTL_SOURCE/PAGE_MAP/ftl_sect_strategy.c",
         "patchSetId": 16
@@ -65,6 +101,24 @@
       "writtenOn": "2025-06-19T14:55:17Z",
       "side": 1,
       "message": "Move this calculation before the if condition. And merge the \"_READ_STATUS_ENHANCED() !\u003d FTL_SUCCESS\" into the else. they are the same.",
+      "revId": "d125401addec7892bee636bf5527c54fcd2dff62",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "01e82cb4_1ed6c779",
+        "filename": "eVSSIM/FTL_SOURCE/PAGE_MAP/ftl_sect_strategy.c",
+        "patchSetId": 16
+      },
+      "lineNbr": 230,
+      "author": {
+        "id": 1038865
+      },
+      "writtenOn": "2025-07-11T07:29:35Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "bfb2852b_8e1b73be",
       "revId": "d125401addec7892bee636bf5527c54fcd2dff62",
       "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
     },
@@ -82,6 +136,24 @@
       "writtenOn": "2025-06-19T14:55:17Z",
       "side": 1,
       "message": "Why the buffer is NULL?",
+      "revId": "d125401addec7892bee636bf5527c54fcd2dff62",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "ebd2e570_8923e438",
+        "filename": "eVSSIM/tests/host/sector_tests.cc",
+        "patchSetId": 16
+      },
+      "lineNbr": 38,
+      "author": {
+        "id": 1038865
+      },
+      "writtenOn": "2025-07-11T07:29:35Z",
+      "side": 1,
+      "message": "We did not want to change the behavior of this test so in order to leave the behavior like before we pass NULL. NULL means we only record the operation but not actually write the data exactly like it was before our changes (NULL enables this paramter ti be optional). For testing writing of real data we wrote new tests 😊",
+      "parentUuid": "7383be9a_3f0e0027",
       "revId": "d125401addec7892bee636bf5527c54fcd2dff62",
       "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
     }
