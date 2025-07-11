@@ -37,6 +37,24 @@
     {
       "unresolved": true,
       "key": {
+        "uuid": "f216a7be_06b0c572",
+        "filename": "eVSSIM/CONFIG/ssd.conf",
+        "patchSetId": 8
+      },
+      "lineNbr": 20,
+      "author": {
+        "id": 1038797
+      },
+      "writtenOn": "2025-07-11T08:04:38Z",
+      "side": 1,
+      "message": "You are right, but it also should describe the nsid.",
+      "parentUuid": "dad8c4e0_0887e4cf",
+      "revId": "15f386b60c6764f79af201d51615c0796dc3633d",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
+    },
+    {
+      "unresolved": true,
+      "key": {
         "uuid": "e883145b_4e8edf64",
         "filename": "eVSSIM/CONFIG/ssd.conf",
         "patchSetId": 8
@@ -54,6 +72,24 @@
     {
       "unresolved": true,
       "key": {
+        "uuid": "3ac52e30_fe731bf4",
+        "filename": "eVSSIM/CONFIG/ssd.conf",
+        "patchSetId": 8
+      },
+      "lineNbr": 21,
+      "author": {
+        "id": 1038797
+      },
+      "writtenOn": "2025-07-11T08:04:38Z",
+      "side": 1,
+      "message": "NS is equally the same in this context.",
+      "parentUuid": "e883145b_4e8edf64",
+      "revId": "15f386b60c6764f79af201d51615c0796dc3633d",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
+    },
+    {
+      "unresolved": true,
+      "key": {
         "uuid": "32e3b028_8e6a2fbf",
         "filename": "eVSSIM/CONFIG/vssim_config_manager.c",
         "patchSetId": 8
@@ -65,6 +101,24 @@
       "writtenOn": "2025-07-11T07:20:22Z",
       "side": 1,
       "message": "why you did the memset?",
+      "revId": "15f386b60c6764f79af201d51615c0796dc3633d",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "8e68d9d1_e365097f",
+        "filename": "eVSSIM/CONFIG/vssim_config_manager.c",
+        "patchSetId": 8
+      },
+      "lineNbr": 141,
+      "author": {
+        "id": 1038797
+      },
+      "writtenOn": "2025-07-11T08:04:38Z",
+      "side": 1,
+      "message": "Reset the buffer after resolving the line info.",
+      "parentUuid": "32e3b028_8e6a2fbf",
       "revId": "15f386b60c6764f79af201d51615c0796dc3633d",
       "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
     },
@@ -133,6 +187,24 @@
       "writtenOn": "2025-07-11T07:20:22Z",
       "side": 1,
       "message": "does is make sense to init NS4 without NS3?",
+      "revId": "15f386b60c6764f79af201d51615c0796dc3633d",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "d6076a46_20f34d58",
+        "filename": "infra/builder/docker/ssd.conf.template",
+        "patchSetId": 8
+      },
+      "lineNbr": 20,
+      "author": {
+        "id": 1038797
+      },
+      "writtenOn": "2025-07-11T08:04:38Z",
+      "side": 1,
+      "message": "Yes, this number is the ID not the index. You can add 4 NS and remove the 3. The ID should reamne the same.",
+      "parentUuid": "cf343908_3da50ff0",
       "revId": "15f386b60c6764f79af201d51615c0796dc3633d",
       "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
     }
