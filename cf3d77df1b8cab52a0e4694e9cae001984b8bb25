@@ -1,0 +1,72 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "71ee45ff_0aa7bd69",
+        "filename": "eVSSIM/FTL_SOURCE/PAGE_MAP/ftl_gc_manager.c",
+        "patchSetId": 2
+      },
+      "lineNbr": 108,
+      "author": {
+        "id": 1038865
+      },
+      "writtenOn": "2025-07-11T07:27:43Z",
+      "side": 1,
+      "message": "Maybe just removes spaces 😊 I think there is maybe a problem with tabs vs spaces?",
+      "revId": "cf3d77df1b8cab52a0e4694e9cae001984b8bb25",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "227ec7e2_d8eb39bc",
+        "filename": "eVSSIM/FTL_SOURCE/PAGE_MAP/ftl_inverse_mapping_manager.c",
+        "patchSetId": 2
+      },
+      "lineNbr": 47,
+      "author": {
+        "id": 1038865
+      },
+      "writtenOn": "2025-07-11T07:27:43Z",
+      "side": 1,
+      "message": "```suggestion\n\t\tRERR(\"Calloc mapping table fail\\n\");\n```",
+      "revId": "cf3d77df1b8cab52a0e4694e9cae001984b8bb25",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "e5625fdf_538084d6",
+        "filename": "eVSSIM/FTL_SOURCE/PAGE_MAP/ftl_mapping_manager.c",
+        "patchSetId": 2
+      },
+      "lineNbr": 14,
+      "author": {
+        "id": 1038865
+      },
+      "writtenOn": "2025-07-11T07:27:43Z",
+      "side": 1,
+      "message": "Maybe instead of using magoc number define `#define MAX_FILENAME_LENGTH (100)`?",
+      "revId": "cf3d77df1b8cab52a0e4694e9cae001984b8bb25",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "1674ca78_e6fa6e78",
+        "filename": "eVSSIM/tests/host/base_emulator_tests.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 44,
+      "author": {
+        "id": 1038865
+      },
+      "writtenOn": "2025-07-11T07:27:43Z",
+      "side": 1,
+      "message": "Do you mean other?",
+      "revId": "cf3d77df1b8cab52a0e4694e9cae001984b8bb25",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
+    }
+  ]
+}

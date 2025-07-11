@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "7e536732_c9973db1",
+        "filename": "eVSSIM/CONFIG/vssim_config_manager.c",
+        "patchSetId": 2
+      },
+      "lineNbr": 170,
+      "author": {
+        "id": 1038865
+      },
+      "writtenOn": "2025-07-11T07:27:43Z",
+      "side": 0,
+      "message": "Why did you remove it?",
+      "revId": "15f386b60c6764f79af201d51615c0796dc3633d",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
+    }
+  ]
+}
