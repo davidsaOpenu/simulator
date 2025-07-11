@@ -88,6 +88,24 @@
       "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "78d0679a_c2ff6fc2",
+        "filename": "eVSSIM/FTL_SOURCE/PAGE_MAP/ftl_sect_strategy.c",
+        "patchSetId": 16
+      },
+      "lineNbr": 126,
+      "author": {
+        "id": 1038797
+      },
+      "writtenOn": "2025-07-11T07:49:59Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "2eb96d1a_34f9813f",
+      "revId": "d125401addec7892bee636bf5527c54fcd2dff62",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "bfb2852b_8e1b73be",
@@ -154,6 +172,24 @@
       "side": 1,
       "message": "We did not want to change the behavior of this test so in order to leave the behavior like before we pass NULL. NULL means we only record the operation but not actually write the data exactly like it was before our changes (NULL enables this paramter ti be optional). For testing writing of real data we wrote new tests 😊",
       "parentUuid": "7383be9a_3f0e0027",
+      "revId": "d125401addec7892bee636bf5527c54fcd2dff62",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "7bc17fac_09232ded",
+        "filename": "eVSSIM/tests/host/sector_tests.cc",
+        "patchSetId": 16
+      },
+      "lineNbr": 38,
+      "author": {
+        "id": 1038797
+      },
+      "writtenOn": "2025-07-11T07:49:59Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "ebd2e570_8923e438",
       "revId": "d125401addec7892bee636bf5527c54fcd2dff62",
       "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
     }
