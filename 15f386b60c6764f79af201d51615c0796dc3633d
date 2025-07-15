@@ -53,6 +53,24 @@
       "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "e43cd966_8d30c4bb",
+        "filename": "eVSSIM/CONFIG/ssd.conf",
+        "patchSetId": 8
+      },
+      "lineNbr": 20,
+      "author": {
+        "id": 1038797
+      },
+      "writtenOn": "2025-07-15T10:05:14Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "f216a7be_06b0c572",
+      "revId": "15f386b60c6764f79af201d51615c0796dc3633d",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "e883145b_4e8edf64",
@@ -84,6 +102,24 @@
       "side": 1,
       "message": "NS is equally the same in this context.",
       "parentUuid": "e883145b_4e8edf64",
+      "revId": "15f386b60c6764f79af201d51615c0796dc3633d",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "0afece29_ea314dc1",
+        "filename": "eVSSIM/CONFIG/ssd.conf",
+        "patchSetId": 8
+      },
+      "lineNbr": 21,
+      "author": {
+        "id": 1038797
+      },
+      "writtenOn": "2025-07-15T10:05:14Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "3ac52e30_fe731bf4",
       "revId": "15f386b60c6764f79af201d51615c0796dc3633d",
       "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
     },
@@ -123,6 +159,24 @@
       "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "9d8f85bc_897c47b8",
+        "filename": "eVSSIM/CONFIG/vssim_config_manager.c",
+        "patchSetId": 8
+      },
+      "lineNbr": 141,
+      "author": {
+        "id": 1038797
+      },
+      "writtenOn": "2025-07-15T10:05:14Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "8e68d9d1_e365097f",
+      "revId": "15f386b60c6764f79af201d51615c0796dc3633d",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "8c16713f_e2c0008d",
@@ -136,6 +190,24 @@
       "writtenOn": "2025-07-11T07:20:22Z",
       "side": 1,
       "message": "fond -\u003e found",
+      "revId": "15f386b60c6764f79af201d51615c0796dc3633d",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "de58481b_6aa9e013",
+        "filename": "eVSSIM/CONFIG/vssim_config_manager.c",
+        "patchSetId": 8
+      },
+      "lineNbr": 150,
+      "author": {
+        "id": 1038797
+      },
+      "writtenOn": "2025-07-15T10:05:14Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "8c16713f_e2c0008d",
       "revId": "15f386b60c6764f79af201d51615c0796dc3633d",
       "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
     },
@@ -157,6 +229,24 @@
       "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "b091379d_9c6a56a5",
+        "filename": "eVSSIM/CONFIG/vssim_config_manager.c",
+        "patchSetId": 8
+      },
+      "lineNbr": 176,
+      "author": {
+        "id": 1038797
+      },
+      "writtenOn": "2025-07-15T10:05:14Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "02d17f89_63b43249",
+      "revId": "15f386b60c6764f79af201d51615c0796dc3633d",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "a787637f_353103ed",
@@ -170,6 +260,24 @@
       "writtenOn": "2025-07-11T07:20:22Z",
       "side": 1,
       "message": "add {} even if it\u0027s only one line, for safety",
+      "revId": "15f386b60c6764f79af201d51615c0796dc3633d",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "2c88edec_2cf4874d",
+        "filename": "eVSSIM/CONFIG/vssim_config_manager.c",
+        "patchSetId": 8
+      },
+      "lineNbr": 186,
+      "author": {
+        "id": 1038797
+      },
+      "writtenOn": "2025-07-15T10:05:14Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "a787637f_353103ed",
       "revId": "15f386b60c6764f79af201d51615c0796dc3633d",
       "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
     },
@@ -205,6 +313,24 @@
       "side": 1,
       "message": "Yes, this number is the ID not the index. You can add 4 NS and remove the 3. The ID should reamne the same.",
       "parentUuid": "cf343908_3da50ff0",
+      "revId": "15f386b60c6764f79af201d51615c0796dc3633d",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "154da3d3_37db2003",
+        "filename": "infra/builder/docker/ssd.conf.template",
+        "patchSetId": 8
+      },
+      "lineNbr": 20,
+      "author": {
+        "id": 1038797
+      },
+      "writtenOn": "2025-07-15T10:05:14Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "d6076a46_20f34d58",
       "revId": "15f386b60c6764f79af201d51615c0796dc3633d",
       "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
     }
