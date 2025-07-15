@@ -18,6 +18,24 @@
       "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "43cabf6c_f985b8ce",
+        "filename": "eVSSIM/FTL_SOURCE/PAGE_MAP/ftl_gc_manager.c",
+        "patchSetId": 2
+      },
+      "lineNbr": 108,
+      "author": {
+        "id": 1038797
+      },
+      "writtenOn": "2025-07-15T10:17:42Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "71ee45ff_0aa7bd69",
+      "revId": "cf3d77df1b8cab52a0e4694e9cae001984b8bb25",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "227ec7e2_d8eb39bc",
@@ -53,6 +71,24 @@
       "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "11f85506_c4f8f447",
+        "filename": "eVSSIM/FTL_SOURCE/PAGE_MAP/ftl_inverse_mapping_manager.c",
+        "patchSetId": 2
+      },
+      "lineNbr": 47,
+      "author": {
+        "id": 1038797
+      },
+      "writtenOn": "2025-07-15T10:17:42Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "501bbdef_0f619031",
+      "revId": "cf3d77df1b8cab52a0e4694e9cae001984b8bb25",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "e5625fdf_538084d6",
@@ -70,6 +106,24 @@
       "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "7a33a24a_00292d4d",
+        "filename": "eVSSIM/FTL_SOURCE/PAGE_MAP/ftl_mapping_manager.c",
+        "patchSetId": 2
+      },
+      "lineNbr": 14,
+      "author": {
+        "id": 1038797
+      },
+      "writtenOn": "2025-07-15T10:17:42Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "e5625fdf_538084d6",
+      "revId": "cf3d77df1b8cab52a0e4694e9cae001984b8bb25",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "1674ca78_e6fa6e78",
@@ -83,6 +137,24 @@
       "writtenOn": "2025-07-11T07:27:43Z",
       "side": 1,
       "message": "Do you mean other?",
+      "revId": "cf3d77df1b8cab52a0e4694e9cae001984b8bb25",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "fe7bfe86_3c19e530",
+        "filename": "eVSSIM/tests/host/base_emulator_tests.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 44,
+      "author": {
+        "id": 1038797
+      },
+      "writtenOn": "2025-07-15T10:17:42Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "1674ca78_e6fa6e78",
       "revId": "cf3d77df1b8cab52a0e4694e9cae001984b8bb25",
       "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
     }
