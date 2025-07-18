@@ -33,6 +33,108 @@
       "message": "@emilxsi47@gmail.com could you please refer to Alon\u0027s comment (unresolved)",
       "revId": "bac634000f98010ba50ddde5acc08f5e80aee903",
       "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "474652a2_4dea7c39",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 2
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 1038819
+      },
+      "writtenOn": "2025-07-18T09:49:15Z",
+      "side": 1,
+      "message": "Just some suggestions for significant improvement on maintainability.",
+      "revId": "bac634000f98010ba50ddde5acc08f5e80aee903",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "22a83812_7071ce2d",
+        "filename": "eVSSIM/CONFIG/vssim_config_manager.c",
+        "patchSetId": 2
+      },
+      "lineNbr": 147,
+      "author": {
+        "id": 1038819
+      },
+      "writtenOn": "2025-07-18T09:49:15Z",
+      "side": 1,
+      "message": "Please setup your IDE to not allow trailing white space at end of lines.",
+      "revId": "bac634000f98010ba50ddde5acc08f5e80aee903",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "2d6993be_b25d0027",
+        "filename": "eVSSIM/CONFIG/vssim_config_manager.c",
+        "patchSetId": 2
+      },
+      "lineNbr": 187,
+      "author": {
+        "id": 1038819
+      },
+      "writtenOn": "2025-07-18T09:49:15Z",
+      "side": 1,
+      "message": "Seems like GET_SECTOR_SIZE, GET_PAGE_SIZE, etc. mistakenly still reference the internal, old parser fields, instead of your new `devices` struct list? At the same note, why are these values missing from `ssd_config_t`?",
+      "revId": "bac634000f98010ba50ddde5acc08f5e80aee903",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "4de2622f_c326f5c8",
+        "filename": "eVSSIM/CONFIG/vssim_config_manager.c",
+        "patchSetId": 2
+      },
+      "lineNbr": 202,
+      "author": {
+        "id": 1038819
+      },
+      "writtenOn": "2025-07-18T09:49:15Z",
+      "side": 1,
+      "message": "Please reconsider using `sscanf`, ChatGPT gave me this:\n\n```\nint parse_header(char *str) {\n    char name[32];  // temporary buffer for scanned name\n    int n1, n2;\n\n    if (sscanf(str, \"[nvme%d%d]\", \u0026n1, \u0026n2) !\u003d 2)\n        return 0;\n\n    if (n1 \u003d\u003d 0 \u0026\u0026 n2 \u003d\u003d 0)\n        return 0;\n\n    snprintf(DEVICE_NAME, sizeof(DEVICE_NAME), \"nvme%d%d\", n1, n2);\n    return 1;\n}\n```\n\nPerhaps it still requires some adjustment, but seems way more readable to me.",
+      "revId": "bac634000f98010ba50ddde5acc08f5e80aee903",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "2e12beb6_1a67db1b",
+        "filename": "eVSSIM/CONFIG/vssim_config_manager.c",
+        "patchSetId": 2
+      },
+      "lineNbr": 257,
+      "author": {
+        "id": 1038819
+      },
+      "writtenOn": "2025-07-18T09:49:15Z",
+      "side": 1,
+      "message": "Make sure to not mix-up tabs and spaces (at least for new code...)",
+      "revId": "bac634000f98010ba50ddde5acc08f5e80aee903",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "fedc52ae_09c1d803",
+        "filename": "eVSSIM/CONFIG/vssim_config_manager.c",
+        "patchSetId": 2
+      },
+      "lineNbr": 306,
+      "author": {
+        "id": 1038819
+      },
+      "writtenOn": "2025-07-18T09:49:15Z",
+      "side": 1,
+      "message": "There is a way to greatly simplify the code *and avoid risk of forgetting to copy/zero a field* by avoiding the need to copy fields one-by-one:\n\n```\nssd_config_t current_device \u003d {};\n\nconfig_param options[] \u003d {\n    {\"FILE_NAME\", \"%s\", current_device.file_name},\n    {\"PAGE_SIZE\", \"%d\", \u0026current_device.page_size}, /* you forgot to copy this one? */\n    {\"PAGE_NB\", \"%d\", \u0026current_device.page_nb},\n    {\"SECTOR_SIZE\", \"%d\", \u0026current_device.sector_size}, /* also this one? */\n\t/* ... */\n}\n\nvoid INIT_SSD_CONFIG(void)\n{\n\t/* ... */\n\n\t/* parse a device\u0027s config */\n\n\t/* when done, copy it to `devices` and re-initialize `current_config` */\n\tdevices[current_device_index++] \u003d current_device;\n\tmemset(\u0026current_device, 0, sizeof(ssd_config_t));\n}\n```\n\nThe idea is to always copy (and `memset`) config structs as a whole.",
+      "revId": "bac634000f98010ba50ddde5acc08f5e80aee903",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
     }
   ]
 }
