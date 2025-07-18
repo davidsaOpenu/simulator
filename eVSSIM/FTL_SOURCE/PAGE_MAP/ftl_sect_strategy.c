@@ -69,9 +69,10 @@ ftl_ret_val _FTL_READ_SECT(uint64_t sector_nb, unsigned int length, unsigned cha
 		//Send a logical read action being done to the statistics gathering
 		FTL_STATISTICS_GATHERING(lpn , LOGICAL_READ);
 
-		ppn = GET_MAPPING_INFO(lpn);
+		// Calculate absolute physical offset and ppn from lba
+		size_t abs_physical_offset = physical_address_from_logical_address(lba, &ppn);
 
-		if (ppn == MAPPING_TABLE_INIT_VAL) {
+		if (ppn == MAPPING_TABLE_INIT_VAL || abs_physical_offset == FAILURE_VALUE) {
 			RDBG_FTL(FTL_FAILURE, "No Mapping info\n");
 		}
 
@@ -80,7 +81,6 @@ ftl_ret_val _FTL_READ_SECT(uint64_t sector_nb, unsigned int length, unsigned cha
 		if (ret == FTL_SUCCESS)
 		{
 			FTL_STATISTICS_GATHERING(ppn , PHYSICAL_READ);
-			size_t abs_physical_offset = ppn * GET_PAGE_SIZE() + lba % SECTORS_PER_PAGE;
 			if (data != NULL && 
 				ssd_read(GET_FILE_NAME(), abs_physical_offset, read_sects * GET_SECTOR_SIZE(), data) != SSD_FILE_OPS_SUCCESS) {
 				RDBG_FTL(FTL_FAILURE, "Failed to read from ppn %lu\n", ppn);
