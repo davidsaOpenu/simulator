@@ -17,9 +17,6 @@ extern uint64_t* inverse_page_mapping_table;
 extern uint64_t total_empty_block_nb;
 extern uint64_t total_victim_block_nb;
 
-extern void* empty_block_table_start;
-extern void* victim_block_table_start;
-
 extern uint64_t empty_block_table_index;
 
 typedef struct empty_block_root
@@ -27,6 +24,7 @@ typedef struct empty_block_root
 	struct empty_block_entry* next;
 	struct empty_block_entry* tail;
 	uint64_t empty_block_nb;
+	int lock;
 }empty_block_root;
 
 typedef struct empty_block_entry
@@ -35,15 +33,14 @@ typedef struct empty_block_entry
 	unsigned int phy_block_nb;
 	uint64_t curr_phy_page_nb;
 	struct empty_block_entry* next;
-
 }empty_block_entry;
 
 typedef struct victim_block_root
 {
 	struct victim_block_entry* next;
 	struct victim_block_entry* tail;
-
 	uint64_t victim_block_nb;
+	int lock;
 }victim_block_root;
 
 typedef struct victim_block_entry
@@ -55,6 +52,9 @@ typedef struct victim_block_entry
 	struct victim_block_entry* next;
 }victim_block_entry;
 
+extern empty_block_root* empty_block_table_start;
+extern victim_block_root* victim_block_table_start;
+
 typedef struct inverse_block_mapping_entry
 {
 	uint64_t valid_page_nb;
@@ -63,6 +63,7 @@ typedef struct inverse_block_mapping_entry
 	unsigned int erase_count;
 	victim_block_entry* victim;
 	char* valid_array;
+	int lock;
 }inverse_block_mapping_entry;
 
 extern victim_block_entry* victim_block_list_head;
