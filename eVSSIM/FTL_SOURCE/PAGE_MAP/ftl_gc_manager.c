@@ -163,7 +163,7 @@ ftl_ret_val SELECT_VICTIM_BLOCK(unsigned int* phy_flash_nb, uint64_t* phy_block_
 
 
 	/* if GC_TRIGGER_OVERALL is defined, then */
-	curr_root = (victim_block_root*)victim_block_table_start;
+	curr_root = victim_block_table_start;
 
 	for (i=0;i<VICTIM_TABLE_ENTRY_NB;i++) {
 

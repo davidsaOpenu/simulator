@@ -6,10 +6,10 @@
 #include "common.h"
 
 uint64_t* inverse_page_mapping_table;
-void* inverse_block_mapping_table_start;
+inverse_block_mapping_entry* inverse_block_mapping_table_start;
 
-void* empty_block_table_start;
-void* victim_block_table_start;
+empty_block_root* empty_block_table_start;
+victim_block_root* victim_block_table_start;
 
 uint64_t total_empty_block_nb;
 uint64_t total_victim_block_nb;
@@ -19,7 +19,7 @@ uint64_t empty_block_table_index;
 void INIT_INVERSE_PAGE_MAPPING(void)
 {
 	/* Allocation Memory for Inverse Page Mapping Table */
-	inverse_page_mapping_table = (void*)calloc(PAGE_MAPPING_ENTRY_NB, sizeof(uint64_t));
+	inverse_page_mapping_table = calloc(PAGE_MAPPING_ENTRY_NB, sizeof(uint64_t));
 	if (inverse_page_mapping_table == NULL)
 		RERR(, "Calloc mapping table fail\n");
 
@@ -41,7 +41,7 @@ void INIT_INVERSE_PAGE_MAPPING(void)
 void INIT_INVERSE_BLOCK_MAPPING(void)
 {
 	/* Allocation Memory for Inverse Block Mapping Table */
-	inverse_block_mapping_table_start = (void*)calloc(BLOCK_MAPPING_ENTRY_NB, sizeof(inverse_block_mapping_entry));
+	inverse_block_mapping_table_start = calloc(BLOCK_MAPPING_ENTRY_NB, sizeof(inverse_block_mapping_entry));
 	if (inverse_block_mapping_table_start == NULL)
 		RERR(, "Calloc mapping table fail\n");
 
@@ -54,7 +54,7 @@ void INIT_INVERSE_BLOCK_MAPPING(void)
 	}
 	else{
 		uint64_t i;
-		inverse_block_mapping_entry* curr_mapping_entry = (inverse_block_mapping_entry*)inverse_block_mapping_table_start;
+		inverse_block_mapping_entry* curr_mapping_entry = inverse_block_mapping_table_start;
 
 		for(i=0;i<BLOCK_MAPPING_ENTRY_NB;i++){
 			curr_mapping_entry->type		= EMPTY_BLOCK;
@@ -70,13 +70,13 @@ void INIT_INVERSE_BLOCK_MAPPING(void)
 void INIT_VALID_ARRAY(void)
 {
 	uint64_t i;
-	inverse_block_mapping_entry* curr_mapping_entry = (inverse_block_mapping_entry*)inverse_block_mapping_table_start;
+	inverse_block_mapping_entry* curr_mapping_entry = inverse_block_mapping_table_start;
 	char* valid_array;
 
 	FILE* fp = fopen("./data/valid_array.dat","r");
 	if(READ_MAPPING_INFO_FROM_FILES && fp != NULL){
 		for(i=0;i<BLOCK_MAPPING_ENTRY_NB;i++){
-			valid_array = (char*)calloc(PAGE_NB, sizeof(char));
+			valid_array = calloc(PAGE_NB, sizeof(char));
 			if(fread(valid_array, sizeof(char), PAGE_NB, fp) <= 0)
 				PERR("fread\n");
 			curr_mapping_entry->valid_array = valid_array;
@@ -87,7 +87,7 @@ void INIT_VALID_ARRAY(void)
 	}
 	else{
 		for(i=0;i<BLOCK_MAPPING_ENTRY_NB;i++){
-			valid_array = (char*)calloc(PAGE_NB, sizeof(char));
+			valid_array = calloc(PAGE_NB, sizeof(char));
 			memset(valid_array,0,PAGE_NB);
 			curr_mapping_entry->valid_array = valid_array;
 
@@ -103,7 +103,7 @@ void INIT_EMPTY_BLOCK_LIST(void)
 	empty_block_entry* curr_entry;
 	empty_block_root* curr_root;
 
-	empty_block_table_start = (void*)calloc(PLANES_PER_FLASH * FLASH_NB, sizeof(empty_block_root));
+	empty_block_table_start = calloc(PLANES_PER_FLASH * FLASH_NB, sizeof(empty_block_root));
 	if (empty_block_table_start == NULL)
 		RERR(, "Calloc mapping table fail\n");
 
@@ -112,7 +112,7 @@ void INIT_EMPTY_BLOCK_LIST(void)
 		total_empty_block_nb = 0;
 		if(fread(empty_block_table_start,sizeof(empty_block_root),PLANES_PER_FLASH*FLASH_NB, fp) <= 0)
 			PERR("fread\n");
-		curr_root = (empty_block_root*)empty_block_table_start;
+		curr_root = empty_block_table_start;
 
 		for(i=0;i<PLANES_PER_FLASH;i++){
 
@@ -121,7 +121,7 @@ void INIT_EMPTY_BLOCK_LIST(void)
 				total_empty_block_nb += curr_root->empty_block_nb;
 				k = curr_root->empty_block_nb;
 				while(k > 0){
-					curr_entry = (empty_block_entry*)calloc(1, sizeof(empty_block_entry));
+					curr_entry = calloc(1, sizeof(empty_block_entry));
 					if(curr_entry == NULL){
 						PERR("Calloc fail\n");
 						break;
@@ -148,7 +148,7 @@ void INIT_EMPTY_BLOCK_LIST(void)
 		fclose(fp);
 	}
 	else{
-		curr_root = (empty_block_root*)empty_block_table_start;
+		curr_root = empty_block_table_start;
 
 		for(i=0;i<PLANES_PER_FLASH;i++){
 
@@ -156,7 +156,7 @@ void INIT_EMPTY_BLOCK_LIST(void)
 
 				for(k=i;k<BLOCK_NB;k+=PLANES_PER_FLASH){
 
-					curr_entry = (empty_block_entry*)calloc(1, sizeof(empty_block_entry));
+					curr_entry = calloc(1, sizeof(empty_block_entry));
 					if(curr_entry == NULL){
 						PERR("Calloc fail\n");
 						break;
@@ -196,7 +196,7 @@ void INIT_VICTIM_BLOCK_LIST(void)
 	victim_block_entry* curr_entry;
 	victim_block_root* curr_root;
 
-	victim_block_table_start = (void*)calloc(PLANES_PER_FLASH * FLASH_NB, sizeof(victim_block_root));
+	victim_block_table_start = calloc(PLANES_PER_FLASH * FLASH_NB, sizeof(victim_block_root));
 	if (victim_block_table_start == NULL)
 		RERR(, "Calloc mapping table fail\n");
 
@@ -205,7 +205,7 @@ void INIT_VICTIM_BLOCK_LIST(void)
 		total_victim_block_nb = 0;
 		if(fread(victim_block_table_start, sizeof(victim_block_root), PLANES_PER_FLASH*FLASH_NB, fp) <= 0)
 			PERR("fread\n");
-		curr_root = (victim_block_root*)victim_block_table_start;
+		curr_root = victim_block_table_start;
 
 		for(i=0;i<PLANES_PER_FLASH;i++){
 
@@ -214,7 +214,7 @@ void INIT_VICTIM_BLOCK_LIST(void)
 				total_victim_block_nb += curr_root->victim_block_nb;
 				k = curr_root->victim_block_nb;
 				while(k > 0){
-					curr_entry = (victim_block_entry*)calloc(1, sizeof(victim_block_entry));
+					curr_entry = calloc(1, sizeof(victim_block_entry));
 					if(curr_entry == NULL){
 						PERR("Calloc fail\n");
 						break;
@@ -242,7 +242,7 @@ void INIT_VICTIM_BLOCK_LIST(void)
 		fclose(fp);
 	}
 	else{
-		curr_root = (victim_block_root*)victim_block_table_start;
+		curr_root = victim_block_table_start;
 
 		for(i=0;i<PLANES_PER_FLASH;i++){
 
@@ -292,7 +292,7 @@ void TERM_INVERSE_BLOCK_MAPPING(void)
 void TERM_VALID_ARRAY(void)
 {
 	uint64_t i;
-	inverse_block_mapping_entry* curr_mapping_entry = (inverse_block_mapping_entry*)inverse_block_mapping_table_start;
+	inverse_block_mapping_entry* curr_mapping_entry = inverse_block_mapping_table_start;
 	char* valid_array;
 
 	FILE* fp = fopen("./data/valid_array.dat","w");
@@ -323,14 +323,14 @@ void TERM_EMPTY_BLOCK_LIST(void)
 	if(fwrite(empty_block_table_start,sizeof(empty_block_root),PLANES_PER_FLASH*FLASH_NB, fp) <= 0)
 		PERR("fwrite\n");
 
-	curr_root = (empty_block_root*)empty_block_table_start;
+	curr_root = empty_block_table_start;
 	for(i=0;i<PLANES_PER_FLASH;i++){
 
 		for(j=0;j<FLASH_NB;j++){
 
 			k = curr_root->empty_block_nb;
 			if(k != 0){
-				curr_entry = (empty_block_entry*)curr_root->next;
+				curr_entry = curr_root->next;
 			}
 			while(k > 0){
 
@@ -363,14 +363,14 @@ void TERM_VICTIM_BLOCK_LIST(void)
 	if(fwrite(victim_block_table_start, sizeof(victim_block_root), PLANES_PER_FLASH*FLASH_NB, fp) <= 0)
 		PERR("fwrite\n");
 
-	curr_root = (victim_block_root*)victim_block_table_start;
+	curr_root = victim_block_table_start;
 	for(i=0;i<PLANES_PER_FLASH;i++){
 
 		for(j=0;j<FLASH_NB;j++){
 
 			k = curr_root->victim_block_nb;
 			if(k != 0){
-				curr_entry = (victim_block_entry*)curr_root->next;
+				curr_entry = curr_root->next;
 			}
 			while(k > 0){
 
@@ -406,7 +406,7 @@ empty_block_entry* GET_EMPTY_BLOCK(int mode, uint64_t mapping_index)
 	while(total_empty_block_nb != 0){
 
 		if(mode == VICTIM_OVERALL){
-			curr_root_entry = (empty_block_root*)empty_block_table_start + empty_block_table_index;
+			curr_root_entry = empty_block_table_start + empty_block_table_index;
 
 			if(curr_root_entry->empty_block_nb == 0){
 				empty_block_table_index++;
@@ -449,7 +449,7 @@ empty_block_entry* GET_EMPTY_BLOCK(int mode, uint64_t mapping_index)
 			}
 		}
 		else if(mode == VICTIM_INCHIP){
-			curr_root_entry = (empty_block_root*)empty_block_table_start + mapping_index;
+			curr_root_entry = empty_block_table_start + mapping_index;
 			if(curr_root_entry->empty_block_nb == 0){
 
 				mapping_index++;
@@ -493,7 +493,7 @@ empty_block_entry* GET_EMPTY_BLOCK(int mode, uint64_t mapping_index)
 
 		else if(mode == VICTIM_NOPARAL){
 			//Seems to have a bug here, not used somewhere in the project at the moment.
-			curr_root_entry = (empty_block_root*)empty_block_table_start + mapping_index;
+			curr_root_entry = empty_block_table_start + mapping_index;
 			if(curr_root_entry->empty_block_nb == 0){
 
 				mapping_index++;
@@ -546,7 +546,7 @@ ftl_ret_val INSERT_EMPTY_BLOCK(unsigned int phy_flash_nb, uint64_t phy_block_nb)
 	empty_block_root* curr_root_entry;
 	empty_block_entry* new_empty_block;
 
-	new_empty_block = (empty_block_entry*)calloc(1, sizeof(empty_block_entry));
+	new_empty_block = calloc(1, sizeof(empty_block_entry));
 	if (new_empty_block == NULL)
 
 		RERR(FTL_FAILURE, "Alloc new empty block fail\n");
@@ -560,7 +560,7 @@ ftl_ret_val INSERT_EMPTY_BLOCK(unsigned int phy_flash_nb, uint64_t phy_block_nb)
 	plane_nb = phy_block_nb % PLANES_PER_FLASH;
 	mapping_index = plane_nb * FLASH_NB + phy_flash_nb;
 
-	curr_root_entry = (empty_block_root*)empty_block_table_start + mapping_index;
+	curr_root_entry = empty_block_table_start + mapping_index;
 
 	if(curr_root_entry->empty_block_nb == 0){
 		curr_root_entry->next = new_empty_block;
@@ -590,7 +590,7 @@ ftl_ret_val INSERT_VICTIM_BLOCK(empty_block_entry* full_block){
 	inverse_block_entry = GET_INVERSE_BLOCK_MAPPING_ENTRY(full_block->phy_flash_nb, full_block->phy_block_nb);
 
 	/* Alloc New victim block entry */
-	new_victim_block = (victim_block_entry*)calloc(1, sizeof(victim_block_entry));
+	new_victim_block = calloc(1, sizeof(victim_block_entry));
 	if (new_victim_block == NULL) {
 		RERR(FTL_FAILURE, "Calloc fail\n");
 	}
@@ -607,7 +607,7 @@ ftl_ret_val INSERT_VICTIM_BLOCK(empty_block_entry* full_block){
 	plane_nb = full_block->phy_block_nb % PLANES_PER_FLASH;
 	mapping_index = plane_nb * FLASH_NB + full_block->phy_flash_nb;
 
-	curr_root_entry = (victim_block_root*)victim_block_table_start + mapping_index;
+	curr_root_entry = victim_block_table_start + mapping_index;
 
 	/* Update victim block list */
 	if(curr_root_entry->victim_block_nb == 0){
@@ -672,7 +672,7 @@ int EJECT_VICTIM_BLOCK(victim_block_entry* victim_block){
 	inverse_block_entry = GET_INVERSE_BLOCK_MAPPING_ENTRY(victim_block->phy_flash_nb, victim_block->phy_block_nb);
 	inverse_block_entry->victim = NULL;
 
-	curr_root_entry = (victim_block_root*)victim_block_table_start + mapping_index;
+	curr_root_entry = victim_block_table_start + mapping_index;
 
 	/* Update victim block list */
 	if(victim_block == curr_root_entry->next){
@@ -707,7 +707,7 @@ inverse_block_mapping_entry* GET_INVERSE_BLOCK_MAPPING_ENTRY(unsigned int phy_fl
 
 	uint64_t mapping_index = phy_flash_nb * BLOCK_NB + phy_block_nb;
 
-	inverse_block_mapping_entry* mapping_entry = (inverse_block_mapping_entry*)inverse_block_mapping_table_start + mapping_index;
+	inverse_block_mapping_entry* mapping_entry = inverse_block_mapping_table_start + mapping_index;
 
 	return mapping_entry;
 }
@@ -749,7 +749,7 @@ void UPDATE_VICTIM_LIST(victim_block_entry *victim_entry){
 	uint32_t plane_nb = victim_entry->phy_block_nb % PLANES_PER_FLASH;
 	uint64_t mapping_index = plane_nb * FLASH_NB + victim_entry->phy_flash_nb;
 
-	victim_block_root* curr_root_entry = (victim_block_root*)victim_block_table_start + mapping_index;
+	victim_block_root* curr_root_entry = victim_block_table_start + mapping_index;
 
 	victim_block_entry *curr_victim_entry;
 	//if victim_entry.valid_page_nb > victim_entry->next->valid_page_nb then need to go foward and find correct spot
@@ -843,7 +843,7 @@ ftl_ret_val UPDATE_INVERSE_BLOCK_VALIDITY(unsigned int phy_flash_nb,
 
 	inverse_block_mapping_entry *mapping_entry =
 		GET_INVERSE_BLOCK_MAPPING_ENTRY(phy_flash_nb, phy_block_nb);
-	
+
 	victim_block_entry *victim_entry = mapping_entry->victim;
 	char old_state = mapping_entry->valid_array[phy_page_nb];
 	if(old_state == PAGE_INVALID && valid == PAGE_VALID){
