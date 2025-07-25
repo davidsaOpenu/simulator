@@ -207,6 +207,24 @@
       "message": "There is a way to greatly simplify the code *and avoid risk of forgetting to copy/zero a field* by avoiding the need to copy fields one-by-one:\n\n```\nssd_config_t current_device \u003d {};\n\nconfig_param options[] \u003d {\n    {\"FILE_NAME\", \"%s\", current_device.file_name},\n    {\"PAGE_SIZE\", \"%d\", \u0026current_device.page_size}, /* you forgot to copy this one? */\n    {\"PAGE_NB\", \"%d\", \u0026current_device.page_nb},\n    {\"SECTOR_SIZE\", \"%d\", \u0026current_device.sector_size}, /* also this one? */\n\t/* ... */\n}\n\nvoid INIT_SSD_CONFIG(void)\n{\n\t/* ... */\n\n\t/* parse a device\u0027s config */\n\n\t/* when done, copy it to `devices` and re-initialize `current_config` */\n\tdevices[current_device_index++] \u003d current_device;\n\tmemset(\u0026current_device, 0, sizeof(ssd_config_t));\n}\n```\n\nThe idea is to always copy (and `memset`) config structs as a whole.",
       "revId": "bac634000f98010ba50ddde5acc08f5e80aee903",
       "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "935b851b_8d824505",
+        "filename": "eVSSIM/CONFIG/vssim_config_manager.c",
+        "patchSetId": 2
+      },
+      "lineNbr": 306,
+      "author": {
+        "id": 1038739
+      },
+      "writtenOn": "2025-07-25T17:41:49Z",
+      "side": 1,
+      "message": "We didn\u0027t want to change the logic there because options[] doesn\u0027t include all the globals. for example, SECTOR_NB and SECTORS_PER_PAGE are missing",
+      "parentUuid": "fedc52ae_09c1d803",
+      "revId": "bac634000f98010ba50ddde5acc08f5e80aee903",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
     }
   ]
 }
