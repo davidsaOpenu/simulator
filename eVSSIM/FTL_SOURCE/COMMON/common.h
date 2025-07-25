@@ -24,6 +24,9 @@
 #endif
 #define DEL_QEMU_OVERHEAD
 
+/* SSD Namespace */
+#define MAX_NUMBER_OF_NAMESPACES 32
+
 #include "vssim_config_manager.h"
 #include "ftl.h"
 #include "ftl_inverse_mapping_manager.h"

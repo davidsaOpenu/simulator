@@ -23,6 +23,8 @@ extern uint64_t PAGES_IN_SSD;
 
 extern uint32_t WAY_NB;
 
+extern uint64_t NAMESPACES_SIZE[MAX_NUMBER_OF_NAMESPACES];
+
 /* Mapping Table */
 extern uint32_t DATA_BLOCK_NB;
 extern uint64_t BLOCK_MAPPING_ENTRY_NB;		// added by js
@@ -82,5 +84,6 @@ typedef struct config_param
 uint32_t GET_SECTOR_SIZE(void);
 uint32_t GET_PAGE_SIZE(void);
 
+uint64_t GET_NAMESPACE_TOTAL_SIZE(void);
 
 #endif
