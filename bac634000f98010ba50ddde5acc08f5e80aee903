@@ -69,6 +69,24 @@
       "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "7684c90b_c0f4b25e",
+        "filename": "eVSSIM/CONFIG/vssim_config_manager.c",
+        "patchSetId": 2
+      },
+      "lineNbr": 147,
+      "author": {
+        "id": 1038739
+      },
+      "writtenOn": "2025-07-25T17:22:20Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "22a83812_7071ce2d",
+      "revId": "bac634000f98010ba50ddde5acc08f5e80aee903",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "2d6993be_b25d0027",
@@ -82,6 +100,24 @@
       "writtenOn": "2025-07-18T09:49:15Z",
       "side": 1,
       "message": "Seems like GET_SECTOR_SIZE, GET_PAGE_SIZE, etc. mistakenly still reference the internal, old parser fields, instead of your new `devices` struct list? At the same note, why are these values missing from `ssd_config_t`?",
+      "revId": "bac634000f98010ba50ddde5acc08f5e80aee903",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "899f8494_41122ce5",
+        "filename": "eVSSIM/CONFIG/vssim_config_manager.c",
+        "patchSetId": 2
+      },
+      "lineNbr": 187,
+      "author": {
+        "id": 1038739
+      },
+      "writtenOn": "2025-07-25T17:22:20Z",
+      "side": 1,
+      "message": "We are still using the old globals, and that\u0027s why we have decided to keep GET_SECTOR_SIZE() and GET_PAGE_SIZE() as is",
+      "parentUuid": "2d6993be_b25d0027",
       "revId": "bac634000f98010ba50ddde5acc08f5e80aee903",
       "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
     },
@@ -103,6 +139,24 @@
       "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "e7f1002f_4eb98bfd",
+        "filename": "eVSSIM/CONFIG/vssim_config_manager.c",
+        "patchSetId": 2
+      },
+      "lineNbr": 202,
+      "author": {
+        "id": 1038739
+      },
+      "writtenOn": "2025-07-25T17:22:20Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "4de2622f_c326f5c8",
+      "revId": "bac634000f98010ba50ddde5acc08f5e80aee903",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "2e12beb6_1a67db1b",
@@ -116,6 +170,24 @@
       "writtenOn": "2025-07-18T09:49:15Z",
       "side": 1,
       "message": "Make sure to not mix-up tabs and spaces (at least for new code...)",
+      "revId": "bac634000f98010ba50ddde5acc08f5e80aee903",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "0adcb40d_f3d7f3ca",
+        "filename": "eVSSIM/CONFIG/vssim_config_manager.c",
+        "patchSetId": 2
+      },
+      "lineNbr": 257,
+      "author": {
+        "id": 1038739
+      },
+      "writtenOn": "2025-07-25T17:22:20Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "2e12beb6_1a67db1b",
       "revId": "bac634000f98010ba50ddde5acc08f5e80aee903",
       "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
     },
