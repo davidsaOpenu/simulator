@@ -225,6 +225,24 @@
       "parentUuid": "fedc52ae_09c1d803",
       "revId": "bac634000f98010ba50ddde5acc08f5e80aee903",
       "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "03dcc290_945456a1",
+        "filename": "eVSSIM/CONFIG/vssim_config_manager.c",
+        "patchSetId": 2
+      },
+      "lineNbr": 306,
+      "author": {
+        "id": 1038819
+      },
+      "writtenOn": "2025-07-27T23:07:30Z",
+      "side": 1,
+      "message": "Ok, I realized now that the objective of the trello card was to make the *parser* support multiple disks, and nothing more. So I agree with your approach.\n\nWhat I still don\u0027t like so much is the `bool should_zero_globals` because now this function does two things rather than one, and essentially it doubles the length of the function. Something like this will do the trick:\n```\n                update_globals();\n                set_device_object(\u0026devices[deviceIndex - 1]);\n                clear_globals();\n```",
+      "parentUuid": "935b851b_8d824505",
+      "revId": "bac634000f98010ba50ddde5acc08f5e80aee903",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
     }
   ]
 }
