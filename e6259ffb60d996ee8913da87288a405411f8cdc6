@@ -119,6 +119,24 @@
       "message": "Why you change this?\nIn case it is necessary, can you add comment why we can\u0027t usse \"~/\"",
       "revId": "e6259ffb60d996ee8913da87288a405411f8cdc6",
       "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "5c6a70ea_ee0d22fe",
+        "filename": "eVSSIM/scripts/run_osd_emulator_and_mount_exofs.sh",
+        "patchSetId": 22
+      },
+      "lineNbr": 23,
+      "author": {
+        "id": 1038814
+      },
+      "writtenOn": "2025-07-29T07:27:32Z",
+      "side": 1,
+      "message": "because the script runs using sudo the ~/ will be pointing to /root and not /home/esd this is why they did the change",
+      "parentUuid": "ed7ebee9_a8fd0db0",
+      "revId": "e6259ffb60d996ee8913da87288a405411f8cdc6",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
     }
   ]
 }
