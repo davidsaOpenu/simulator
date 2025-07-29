@@ -243,6 +243,24 @@
       "parentUuid": "935b851b_8d824505",
       "revId": "bac634000f98010ba50ddde5acc08f5e80aee903",
       "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "13d645a4_cf4ae245",
+        "filename": "eVSSIM/CONFIG/vssim_config_manager.c",
+        "patchSetId": 2
+      },
+      "lineNbr": 306,
+      "author": {
+        "id": 1038739
+      },
+      "writtenOn": "2025-07-29T18:38:05Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "03dcc290_945456a1",
+      "revId": "bac634000f98010ba50ddde5acc08f5e80aee903",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
     }
   ]
 }
