@@ -34,6 +34,24 @@
       "parentUuid": "5ea496c2_9e73ff7c",
       "revId": "1cb38a543fc9e7d621e9d876f116494d8f97eca2",
       "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "42e78a88_ac2dbcb1",
+        "filename": "eVSSIM/scripts/exofs/run_osd_emulator_and_mount_exofs.sh",
+        "patchSetId": 36
+      },
+      "lineNbr": 40,
+      "author": {
+        "id": 1038814
+      },
+      "writtenOn": "2025-07-30T09:44:40Z",
+      "side": 1,
+      "message": "in addition you can see by using nvme objl that after running the mkfs.exofs their was 3 additional files, inside the mount they are using hard coded values see the following lines: \n\tsb-\u003es_op \u003d \u0026exofs_sops;\n\tsb-\u003es_export_op \u003d \u0026exofs_export_ops;\n\t// [openu] TODO: need to make it read the inode using nvme\n\troot \u003d exofs_iget(sb, EXOFS_ROOT_ID - EXOFS_OBJ_OFF);\n\tif (IS_ERR(root)) {\n\t\tEXOFS_ERR(\"ERROR: exofs_iget failed\\n\");\n\t\tret \u003d PTR_ERR(root);\n\t\tgoto free_sbi;\n\t}\n\tsb-\u003es_root \u003d d_make_root(root);\n\tif (!sb-\u003es_root) {\n\t\tEXOFS_ERR(\"ERROR: get root inode failed\\n\");\n\t\tret \u003d -ENOMEM;\n\t\tgoto free_sbi;\n\t}\n\n\ncommand for documentation \n\nroot@esd:/home/esd/guest# ./nvme objl $NVME_DEV \nroot@esd:/home/esd/guest# echo \"\u003e Creating exofs image at $NVME_DEV...\"\n\u003e Creating exofs image at /dev/nvme0n1...\nroot@esd:/home/esd/guest# sudo mkfs.exofs --pid\u003d$PID --dev $NVME_DEV\nmkfs.exofs: setting up exofs on partition 0x10000:\nmkfs.exofs: Adding device osdname-mocked {\nmkfs.exofs:     creating partition... OK\nmkfs.exofs:     creating superblock... OK\nmkfs.exofs:     creating root directory... OK\nmkfs.exofs:     writing device table... OK\nmkfs.exofs:     writing superblock... OK\nmkfs.exofs:     writing root directory... OK\nmkfs.exofs:     writing root inode... OK\nmkfs.exofs: }\nmkfs.exofs: mkfs complete: enjoy your shiny new exofs!\nroot@esd:/home/esd/guest# ./nvme objl $NVME_DEV \n100000000000000000000\n100010000000000000000\n100020000000000000000",
+      "parentUuid": "c4faf1d5_13d51e7e",
+      "revId": "1cb38a543fc9e7d621e9d876f116494d8f97eca2",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
     }
   ]
 }
