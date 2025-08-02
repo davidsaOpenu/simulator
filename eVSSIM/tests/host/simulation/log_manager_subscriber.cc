@@ -82,12 +82,12 @@ namespace manager_subscriber {
         else if (updates_done == 2) {
             unsigned int num_of_phy_writes = 3;
             unsigned int num_of_logical_writes = 2;
-            unsigned int time_per_write = CELL_PROGRAM_DELAY;
+            unsigned int time_per_write = devices[current_device_index].cell_program_delay;
 
-            double write_speed = CALCULATEMBPS((num_of_logical_writes * GET_PAGE_SIZE()), (num_of_phy_writes * time_per_write));
+            double write_speed = CALCULATEMBPS((num_of_logical_writes * GET_PAGE_SIZE(current_device_index)), (num_of_phy_writes * time_per_write));
 
-            unsigned int time_per_read = CELL_READ_DELAY;
-            double read_speed = CALCULATEMBPS(GET_PAGE_SIZE(), time_per_read);
+            unsigned int time_per_read = devices[current_device_index].cell_read_delay;
+            double read_speed = CALCULATEMBPS(GET_PAGE_SIZE(current_device_index), time_per_read);
 
             ASSERT_EQ(3, stats.write_count);
             ASSERT_EQ(2, stats.logical_write_count);

@@ -133,7 +133,7 @@ void SEND_TO_PERF_CHECKER(int op_type, int64_t op_delay, int type){
 				break;
 
 			case ERASE:
-				written_page_nb -= PAGE_NB;
+				written_page_nb -= devices[current_device_index].page_nb;
 				break;
 
 			case GC_READ:
@@ -156,7 +156,7 @@ void SEND_TO_PERF_CHECKER(int op_type, int64_t op_delay, int type){
 				break;
 		}
 
-		ssd_util = (double)((double)written_page_nb / PAGES_IN_SSD)*100;
+		ssd_util = (double)((double)written_page_nb / devices[current_device_index].pages_in_ssd)*100;
 	}
 	else if(type == LATENCY_OP){
 		switch (op_type){
@@ -180,7 +180,7 @@ double GET_IO_BANDWIDTH(double delay)
 	double bw;
 
 	if(delay != 0)
-		bw = ((double)GET_PAGE_SIZE()*SECOND_IN_USEC)/(delay*MEGABYTE_IN_BYTES);
+		bw = ((double)GET_PAGE_SIZE(current_device_index)*SECOND_IN_USEC)/(delay*MEGABYTE_IN_BYTES);
 	else
 		bw = 0;
 
@@ -193,7 +193,7 @@ int64_t ALLOC_IO_REQUEST(uint32_t sector_nb, unsigned int length, int io_type, i
 	int64_t start = get_usec();
 	int io_page_nb = 0;
 	unsigned int remain = length;
-	unsigned int left_skip = sector_nb % SECTORS_PER_PAGE;
+	unsigned int left_skip = sector_nb % devices[current_device_index].sectors_per_page;
 	unsigned int right_skip;
 	unsigned int sects;
 
@@ -202,13 +202,13 @@ int64_t ALLOC_IO_REQUEST(uint32_t sector_nb, unsigned int length, int io_type, i
 		RERR(0, "Calloc io_request fail\n");
 
 	while(remain > 0){
-		if(remain > SECTORS_PER_PAGE - left_skip){
+		if(remain > devices[current_device_index].sectors_per_page - left_skip){
 			right_skip = 0;
 		}
 		else{
-			right_skip = SECTORS_PER_PAGE - left_skip - remain;
+			right_skip = devices[current_device_index].sectors_per_page - left_skip - remain;
 		}
-		sects = SECTORS_PER_PAGE - left_skip - right_skip;
+		sects = devices[current_device_index].sectors_per_page - left_skip - right_skip;
 
 		remain -= sects;
 		left_skip = 0;
@@ -432,10 +432,10 @@ int64_t CALC_IO_LATENCY(io_request* request)
 	for(i=0; i<size; i++){
 		if(end_time_arr[i] == 0){
 			if(type == READ){
-				end_time_arr[i] = start_time_arr[i] + REG_READ_DELAY + CELL_READ_DELAY;
+				end_time_arr[i] = start_time_arr[i] + devices[current_device_index].reg_read_delay + devices[current_device_index].cell_read_delay;
 			}
 			else if(type == WRITE){
-				end_time_arr[i] = start_time_arr[i] + REG_WRITE_DELAY + CELL_PROGRAM_DELAY;
+				end_time_arr[i] = start_time_arr[i] + devices[current_device_index].reg_write_delay + devices[current_device_index].cell_program_delay;
 			}
 		}
 	}

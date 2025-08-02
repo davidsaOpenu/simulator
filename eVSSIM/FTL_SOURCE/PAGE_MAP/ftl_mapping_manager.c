@@ -14,22 +14,27 @@ extern GCAlgorithm gc_algo;
 void INIT_MAPPING_TABLE(void)
 {
 	/* Allocation Memory for Mapping Table */
-	mapping_table = (uint64_t*)calloc(PAGE_MAPPING_ENTRY_NB, sizeof(uint64_t));
+	mapping_table = (uint64_t*)calloc(devices[current_device_index].page_mapping_entry_nb, sizeof(uint64_t));
 	if (mapping_table == NULL)
 		RERR(, "Calloc mapping table fail\n");
 
 	/* Initialization Mapping Table */
 
 	/* If mapping_table.dat file exists */
-	FILE* fp = fopen("./data/mapping_table.dat","r");
+	char* filename = GET_DATA_FILENAME("mapping_table.dat");
+	if (filename == NULL)
+		RERR(, "GET_DATA_FILENAME failed\n");
+
+	FILE* fp = fopen(filename, "r");
+	free(filename);
 	if(fp != NULL){
-		if(fread(mapping_table, sizeof(uint64_t), PAGE_MAPPING_ENTRY_NB, fp) <= 0)
+		if(fread(mapping_table, sizeof(uint64_t), devices[current_device_index].page_mapping_entry_nb, fp) <= 0)
 			PERR("fread\n");
 		fclose(fp);
 	}
 	else{
 		uint64_t i;
-		for(i=0;i<PAGE_MAPPING_ENTRY_NB;i++){
+		for(i=0;i<devices[current_device_index].page_mapping_entry_nb;i++){
 			mapping_table[i] = MAPPING_TABLE_INIT_VAL;
 		}
 	}
@@ -37,12 +42,17 @@ void INIT_MAPPING_TABLE(void)
 
 void TERM_MAPPING_TABLE(void)
 {
-	FILE* fp = fopen("./data/mapping_table.dat","w");
+	char* filename = GET_DATA_FILENAME("mapping_table.dat");
+	if (filename == NULL)
+		RERR(, "GET_DATA_FILENAME failed\n");
+
+	FILE* fp = fopen(filename, "w");
+	free(filename);
 	if (fp == NULL)
 		RERR(, "File open fail\n");
 
 	/* Write the mapping table to file */
-	if(fwrite(mapping_table, sizeof(uint64_t),PAGE_MAPPING_ENTRY_NB,fp) <= 0)
+	if(fwrite(mapping_table, sizeof(uint64_t),devices[current_device_index].page_mapping_entry_nb,fp) <= 0)
 		PERR("fwrite\n");
 
 	/* Free memory for mapping table */
@@ -52,7 +62,7 @@ void TERM_MAPPING_TABLE(void)
 
 uint64_t GET_MAPPING_INFO(uint64_t lpn)
 {
-	if(lpn >= PAGE_MAPPING_ENTRY_NB){
+	if(lpn >= devices[current_device_index].page_mapping_entry_nb){
 		PERR("overflow!\n");
 	}
 
@@ -85,8 +95,8 @@ ftl_ret_val DEFAULT_NEXT_PAGE_ALGO(int mode, uint64_t mapping_index, uint64_t* p
 	//We count the number of pages in all flash chips before us
 	//We add to it the number of pages in all blocks before our current block (which was returned by the GET_EMPTY_BLOCK method)
 	//and then we add to it the amount of blocks which are already used in our current block
-	*ppn = curr_empty_block->phy_flash_nb*BLOCK_NB*PAGE_NB \
-	       + curr_empty_block->phy_block_nb*PAGE_NB \
+	*ppn = curr_empty_block->phy_flash_nb*devices[current_device_index].block_nb*devices[current_device_index].page_nb \
+	       + curr_empty_block->phy_block_nb*devices[current_device_index].page_nb \
 	       + curr_empty_block->curr_phy_page_nb;
 
 	curr_empty_block->curr_phy_page_nb += 1;
@@ -115,7 +125,7 @@ int UPDATE_OLD_PAGE_MAPPING(uint64_t lpn)
 
 int UPDATE_NEW_PAGE_MAPPING(uint64_t lpn, uint64_t ppn)
 {
-	if(lpn >= PAGE_MAPPING_ENTRY_NB){
+	if(lpn >= devices[current_device_index].page_mapping_entry_nb){
 		PERR("overflow!\n");
 	}
 	/* Update Page Mapping Table */
@@ -140,9 +150,9 @@ int UPDATE_NEW_PAGE_MAPPING_NO_LOGICAL(uint64_t ppn)
 
 unsigned int CALC_FLASH(uint64_t ppn)
 {
-	unsigned int flash_nb = (ppn/PAGE_NB)/BLOCK_NB;
+	unsigned int flash_nb = (ppn/devices[current_device_index].page_nb) / devices[current_device_index].block_nb;
 
-	if (flash_nb >= FLASH_NB) {
+	if (flash_nb >= devices[current_device_index].flash_nb) {
 		PERR("flash_nb %u\n", flash_nb);
 	}
 	return flash_nb;
@@ -150,9 +160,9 @@ unsigned int CALC_FLASH(uint64_t ppn)
 
 uint64_t CALC_BLOCK(uint64_t ppn)
 {
-	uint64_t block_nb = (ppn/PAGE_NB)%BLOCK_NB;
+	uint64_t block_nb = (ppn/devices[current_device_index].page_nb) % devices[current_device_index].block_nb;
 
-	if(block_nb >= BLOCK_NB){
+	if(block_nb >= devices[current_device_index].block_nb){
 		PERR("block_nb %lu\n", block_nb);
 	}
 	return block_nb;
@@ -160,7 +170,7 @@ uint64_t CALC_BLOCK(uint64_t ppn)
 
 uint64_t CALC_PAGE(uint64_t ppn)
 {
-	unsigned int page_nb = ppn%PAGE_NB;
+	unsigned int page_nb = ppn % devices[current_device_index].page_nb;
 
 	return page_nb;
 }
@@ -171,7 +181,7 @@ unsigned int CALC_PLANE(uint64_t ppn)
 	int block_nb = CALC_BLOCK(ppn);
 	int plane;
 
-	plane = flash_nb*PLANES_PER_FLASH + block_nb%PLANES_PER_FLASH;
+	plane = flash_nb * devices[current_device_index].planes_per_flash + block_nb % devices[current_device_index].planes_per_flash;
 
 	return plane;
 }
@@ -181,7 +191,7 @@ unsigned int CALC_CHANNEL(uint64_t ppn)
 	int flash_nb = CALC_FLASH(ppn);
 	int channel;
 
-	channel = flash_nb % CHANNEL_NB;
+	channel = flash_nb % devices[current_device_index].channel_nb;
 
 	return channel;
 }
@@ -194,20 +204,20 @@ unsigned int CALC_SCOPE_FIRST_PAGE(uint64_t address, int scope)
 		case PAGE:
 			return address;
 		case BLOCK:
-			return  address * PAGE_NB;
+			return  address * devices[current_device_index].page_nb;
 		case PLANE:
 			//If only there is only 1 plane per flash, then continue to flash case which will produce the right result in that case.
-			if (PLANES_PER_FLASH > 1){
-				//Only block that i % PLANES_PER_FLASH = planeNumber are in that plane
-				planeNumber = address % PLANES_PER_FLASH;
-				return (((address / PLANES_PER_FLASH) * PAGES_PER_FLASH) + (PAGE_NB * planeNumber));
+			if (devices[current_device_index].planes_per_flash > 1){
+				//Only block that i % devices[current_device_index].planes_per_flash = planeNumber are in that plane
+				planeNumber = address % devices[current_device_index].planes_per_flash;
+				return (((address / devices[current_device_index].planes_per_flash) * devices[current_device_index].pages_per_flash) + (devices[current_device_index].page_nb * planeNumber));
 			}else{
-				return address * PAGES_PER_FLASH;
+				return address * devices[current_device_index].pages_per_flash;
 			}
 		case FLASH:
-			return address * PAGES_PER_FLASH;
+			return address * devices[current_device_index].pages_per_flash;
 		case CHANNEL:
-			return PAGES_PER_FLASH * address;
+			return devices[current_device_index].pages_per_flash * address;
 		case SSD:
 			return 0;
 		default:

@@ -33,8 +33,8 @@ namespace object_tests {
                 SSDConf* ssd_config = base_test_get_ssd_config();
 
                 object_size_ = ssd_config->get_object_size();
-                int object_pages = (int)ceil(1.0 * object_size_ / GET_PAGE_SIZE()); // ceil because we can't have a page belong to 2 objects
-                objects_in_ssd_ = (unsigned int)((PAGES_IN_SSD - PAGE_NB)/ object_pages); //over-provisioning of exactly one block
+                int object_pages = (int)ceil(1.0 * object_size_ / GET_PAGE_SIZE(current_device_index)); // ceil because we can't have a page belong to 2 objects
+                objects_in_ssd_ = (unsigned int)((devices[current_device_index].pages_in_ssd - devices[current_device_index].page_nb) / object_pages); //over-provisioning of exactly one block
             }
             virtual void TearDown() {
                 BaseTest::TearDown();
@@ -68,7 +68,7 @@ namespace object_tests {
 
     TEST_P(ObjectUnitTest, SimpleObjectCreate) {
         printf("SimpleObjectCreate test started\n");
-        printf("Page no.:%ld\nPage size:%d\n", PAGES_IN_SSD, GET_PAGE_SIZE());
+        printf("Page no.:%ld\nPage size:%d\n", devices[current_device_index].pages_in_ssd, GET_PAGE_SIZE(current_device_index));
         printf("Object size: %d bytes\n", object_size_);
         obj_id_t object_locator = { .object_id = 0, .partition_id = USEROBJECT_PID_LB };
 
@@ -78,7 +78,7 @@ namespace object_tests {
             bool res = _FTL_OBJ_CREATE(object_locator, object_size_);
             ASSERT_TRUE(res);
         }
-	
+
         // At this step there shouldn't be any free page
         //ASSERT_EQ(FAIL, _FTL_OBJ_CREATE(object_size_));
         printf("SimpleObjectCreate test ended\n");
@@ -87,7 +87,7 @@ namespace object_tests {
 
     TEST_P(ObjectUnitTest, SimpleObjectCreateWrite) {
         printf("SimpleObjectCreateWrite test started\n");
-        printf("Page no.:%ld\nPage size:%d\n", PAGES_IN_SSD, GET_PAGE_SIZE());
+        printf("Page no.:%ld\nPage size:%d\n", devices[current_device_index].pages_in_ssd, GET_PAGE_SIZE(current_device_index));
         printf("Object size: %d bytes\n", object_size_);
 
         // used to keep all the assigned ids
@@ -102,11 +102,11 @@ namespace object_tests {
             ASSERT_TRUE(res);
         }
 
-        char *wrbuf = (char *)Calloc(1, GET_PAGE_SIZE());
+        char *wrbuf = (char *)Calloc(1, GET_PAGE_SIZE(current_device_index));
 
-        // Write GET_PAGE_SIZE() data to each one
+        // Write GET_PAGE_SIZE(current_device_index) data to each one
         for (unsigned long p = 1; p < objects_in_ssd_ / 2; p++) {
-            ASSERT_EQ(FTL_SUCCESS, _FTL_OBJ_WRITE(objects[p], wrbuf, 0, GET_PAGE_SIZE()));
+            ASSERT_EQ(FTL_SUCCESS, _FTL_OBJ_WRITE(objects[p], wrbuf, 0, GET_PAGE_SIZE(current_device_index)));
         }
 
         free(wrbuf);
@@ -116,7 +116,7 @@ namespace object_tests {
 
     TEST_P(ObjectUnitTest, SimpleObjectCreateWriteRead) {
         printf("SimpleObjectCreateWriteRead test started\n");
-        printf("Page no.:%ld\nPage size:%d\n", PAGES_IN_SSD, GET_PAGE_SIZE());
+        printf("Page no.:%ld\nPage size:%d\n", devices[current_device_index].pages_in_ssd, GET_PAGE_SIZE(current_device_index));
         printf("Object size: %d bytes\n", object_size_);
 
         // used to keep all the assigned ids
@@ -141,12 +141,12 @@ namespace object_tests {
 
         // length and read buffer
         uint32_t len = 0;
-        char *rdbuf = (char *)Calloc(1, GET_PAGE_SIZE() / 2);
+        char *rdbuf = (char *)Calloc(1, GET_PAGE_SIZE(current_device_index) / 2);
 
-        // Read GET_PAGE_SIZE() / 2 data from each one
+        // Read GET_PAGE_SIZE(current_device_index) / 2 data from each one
         for(unsigned long p = 1; p < objects_in_ssd_ / 2; p++) {
-            len = GET_PAGE_SIZE() / 2;
-            memset(rdbuf, 0x0, GET_PAGE_SIZE() / 2);
+            len = GET_PAGE_SIZE(current_device_index) / 2;
+            memset(rdbuf, 0x0, GET_PAGE_SIZE(current_device_index) / 2);
             ASSERT_EQ(FTL_SUCCESS, _FTL_OBJ_READ(objects[p], rdbuf, 0, &len));
             sprintf(wrbuf, "%lu", objects[p].object_id);
             ASSERT_EQ(0, strcmp(rdbuf, wrbuf));
@@ -160,7 +160,7 @@ namespace object_tests {
 
     TEST_P(ObjectUnitTest, SimpleObjectCreateWriteDelete) {
         printf("SimpleObjectCreateDelete test started\n");
-        printf("Page no.:%ld\nPage size:%d\n",PAGES_IN_SSD,GET_PAGE_SIZE());
+        printf("Page no.:%ld\nPage size:%d\n",devices[current_device_index].pages_in_ssd,GET_PAGE_SIZE(current_device_index));
         printf("Object size: %d bytes\n",object_size_);
 
         // used to keep all the assigned ids
@@ -204,7 +204,7 @@ namespace object_tests {
     TEST_P(ObjectUnitTest, ObjectGrowthTest) {
         unsigned int final_object_size = objects_in_ssd_ * object_size_;
         printf("ObjectGrowth test started\n");
-        printf("Page no.:%ld\nPage size:%d\n",PAGES_IN_SSD,GET_PAGE_SIZE());
+        printf("Page no.:%ld\nPage size:%d\n",devices[current_device_index].pages_in_ssd,GET_PAGE_SIZE(current_device_index));
         printf("Initial object size: %d bytes\n",object_size_);
         printf("Final object size: %d bytes\n",final_object_size);
 

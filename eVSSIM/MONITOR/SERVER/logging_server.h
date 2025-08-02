@@ -35,8 +35,8 @@ void MONITOR_SYNC(SSDStatistics *stats, uint64_t max_sleep);
 /**
  * The port to be used by the server
  */
-#define LOG_SERVER_PORT 2003
-
+#define LOG_SERVER_PORT ((g_used_upper_port) ? (2003 + MAX_DEVICES) : (2003 + (current_device_index)))
+extern bool g_used_upper_port;
 
 /**
  * A reset hook

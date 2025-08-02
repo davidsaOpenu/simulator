@@ -125,7 +125,7 @@ ftl_ret_val _FTL_OBJ_READ(obj_id_t obj_loc, void *data, offset_t offset, length_
     }
 
     // just calculate the overhead of allocating the request. io_page_nb will be the total number of pages we're gonna read
-    io_alloc_overhead = ALLOC_IO_REQUEST(current_page->page_id * SECTORS_PER_PAGE, length, READ, &io_page_nb);
+    io_alloc_overhead = ALLOC_IO_REQUEST(current_page->page_id * devices[current_device_index].sectors_per_page, length, READ, &io_page_nb);
 
     for (curr_io_page_nb = 0; curr_io_page_nb < io_page_nb; curr_io_page_nb++)
     {
@@ -191,7 +191,7 @@ ftl_ret_val _FTL_OBJ_WRITE(obj_id_t object_loc, const void *data, offset_t offse
     // if the offset is past the current size of the stored_object we need to append new pages until we can start writing
     while (offset > object->size)
     {
-        if (GET_NEW_PAGE(VICTIM_OVERALL, EMPTY_TABLE_ENTRY_NB, &page_id) == FTL_FAILURE)
+        if (GET_NEW_PAGE(VICTIM_OVERALL, devices[current_device_index].empty_table_entry_nb, &page_id) == FTL_FAILURE)
         {
             // not enough memory presumably
             RERR(FTL_FAILURE, "[FTL_WRITE] Get new page fail \n");
@@ -212,7 +212,7 @@ ftl_ret_val _FTL_OBJ_WRITE(obj_id_t object_loc, const void *data, offset_t offse
             current_page = current_page->next;
 
         // get the pge we'll be writing to
-        if (GET_NEW_PAGE(VICTIM_OVERALL, EMPTY_TABLE_ENTRY_NB, &page_id) == FTL_FAILURE)
+        if (GET_NEW_PAGE(VICTIM_OVERALL, devices[current_device_index].empty_table_entry_nb, &page_id) == FTL_FAILURE)
         {
             RERR(FTL_FAILURE, "[FTL_WRITE] Get new page fail \n");
         }
@@ -243,7 +243,7 @@ ftl_ret_val _FTL_OBJ_WRITE(obj_id_t object_loc, const void *data, offset_t offse
 #ifdef GC_ON
         // must improve this because it is very possible that we will do multiple GCs on the same flash chip and block
         // probably gonna add an array to hold the unique ones and in the end GC all of them
-        
+
         // GC_CHECK(CALC_FLASH(current_page->page_id), CALC_BLOCK(current_page->page_id), false, true);
 #endif
 
@@ -438,16 +438,16 @@ stored_object *create_object(object_id_t obj_id, size_t size)
 
     // add the new object to the objects' hashtable
     HASH_ADD_INT(objects_table, id, obj);
-    
+
     while (size > obj->size)
     {
-        if (GET_NEW_PAGE(VICTIM_OVERALL, EMPTY_TABLE_ENTRY_NB, &page_id) == FTL_FAILURE)
+        if (GET_NEW_PAGE(VICTIM_OVERALL, devices[current_device_index].empty_table_entry_nb, &page_id) == FTL_FAILURE)
         {
             // cleanup just in case we managed to do anything up until now
             remove_object(obj, obj_map);
             return NULL;
         }
-        
+
         if (!add_page(obj, page_id))
             return NULL;
 
@@ -516,19 +516,19 @@ page_node *allocate_new_page(object_id_t object_id, uint32_t page_id)
 page_node *add_page(stored_object *object, uint32_t page_id)
 {
     page_node *curr, *page;
-    
+
     HASH_FIND_INT(global_page_table, &page_id, page);
     if (page)
     {
         RERR(NULL, "[add_page] Object %lu already contains page %d\n", page->object_id, page_id);
     }
 
-    object->size += GET_PAGE_SIZE();
+    object->size += GET_PAGE_SIZE(current_device_index);
     if (object->pages == NULL)
     {
         page = allocate_new_page(object->id, page_id);
         HASH_ADD_INT(global_page_table, page_id, page);
-                
+
         object->pages = page;
         return object->pages;
     }
@@ -538,9 +538,9 @@ page_node *add_page(stored_object *object, uint32_t page_id)
     {
         RERR(NULL, "[add_page] Object %lu already contains page %d\n", page->object_id, page_id);
     }
-    
+
     page = allocate_new_page(object->id, page_id);
-        
+
     HASH_ADD_INT(global_page_table, page_id, page);
     curr->next = page;
     return curr->next;
@@ -555,7 +555,7 @@ page_node *page_by_offset(stored_object *object, unsigned int offset)
         return NULL;
 
     // skim through pages until offset is less than a page's size
-    for (page = object->pages; page && offset >= GET_PAGE_SIZE(); offset -= GET_PAGE_SIZE(), page = page->next)
+    for (page = object->pages; page && offset >= GET_PAGE_SIZE(current_device_index); offset -= GET_PAGE_SIZE(current_device_index), page = page->next)
         ;
 
     // if page==NULL then page collection < size - report error? or assume it's valid? - this technically shouldn't happen after the if at the beginning. just return NULL if it does
