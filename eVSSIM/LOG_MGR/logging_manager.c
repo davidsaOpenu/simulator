@@ -27,7 +27,7 @@
  * @param {double} x pages in a usec
  */
 #define PAGES_PER_USEC_TO_MEGABYTES_PER_SECOND(x) \
-    ((((double) (x)) * (GET_PAGE_SIZE()) * (SECOND_IN_USEC)) / (MEGABYTE_IN_BYTES))
+    ((((double) (x)) * (GET_PAGE_SIZE(current_device_index)) * (SECOND_IN_USEC)) / (MEGABYTE_IN_BYTES))
 
 
 /**
@@ -127,14 +127,14 @@ void log_manager_loop(LogManager* manager, int max_loops) {
             stats.block_erase_count += current_stats.block_erase_count;
             stats.channel_switch_to_read += current_stats.channel_switch_to_read;
             stats.channel_switch_to_write += current_stats.channel_switch_to_write;
-            
+
 
             if(current_stats.log_id != 0){
                 stats.log_id = current_stats.log_id;
                 current_stats.log_id = 0;
             }
         }
-        stats.utilization = (double)stats.occupied_pages / PAGES_IN_SSD;
+        stats.utilization = (double)stats.occupied_pages / devices[current_device_index].pages_in_ssd;
 
         if (stats.logical_write_count == 0)
             stats.write_amplification = 0.0;
@@ -179,7 +179,7 @@ void log_manager_loop(LogManager* manager, int max_loops) {
             manager->exit_loop_flag = 0;
             break;
         }
-        
+
         // wait before going to the next loop
         if (usleep(MANGER_LOOP_SLEEP))
             break;          // if an error occurred (probably a signal interrupt) just exit

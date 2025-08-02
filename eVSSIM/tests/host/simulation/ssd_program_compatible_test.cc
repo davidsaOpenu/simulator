@@ -42,7 +42,7 @@ namespace program_compatible_test
         {
             BaseTest::TearDown();
             TERM_LOG_MANAGER();
-            remove(GET_FILE_NAME());
+            remove(GET_FILE_NAME(current_device_index));
         }
     };
 
@@ -63,7 +63,7 @@ namespace program_compatible_test
         SSDStatistics expected_stats = stats_init();
 
         unsigned char data[ssd_config->get_page_size() / 2];
-        memset(data, 0xF0, sizeof(data)); 
+        memset(data, 0xF0, sizeof(data));
         ASSERT_EQ(_FTL_WRITE(0, sizeof(data) / ssd_config->get_sector_size(), data), FTL_SUCCESS);
 
         unsigned char read_data[sizeof(data)];
@@ -72,7 +72,7 @@ namespace program_compatible_test
 
         expected_stats.occupied_pages++;
         MONITOR_SYNC(&(log_server.stats), MONITOR_SLEEP_MAX_USEC);
-        ASSERT_EQ(expected_stats.occupied_pages, log_server.stats.occupied_pages); 
+        ASSERT_EQ(expected_stats.occupied_pages, log_server.stats.occupied_pages);
 
 
         memset(data, 0x00, sizeof(data));
@@ -104,7 +104,7 @@ namespace program_compatible_test
         SSDStatistics expected_stats = stats_init();
 
         unsigned char data[ssd_config->get_page_size() * 2];
-        memset(data, 0xF0, sizeof(data)); 
+        memset(data, 0xF0, sizeof(data));
         ASSERT_EQ(_FTL_WRITE(0, sizeof(data) / ssd_config->get_sector_size(), data), FTL_SUCCESS);
 
         unsigned char read_data[sizeof(data)];
@@ -113,7 +113,7 @@ namespace program_compatible_test
 
         expected_stats.occupied_pages+=2;
         MONITOR_SYNC(&(log_server.stats), MONITOR_SLEEP_MAX_USEC);
-        ASSERT_EQ(expected_stats.occupied_pages, log_server.stats.occupied_pages); 
+        ASSERT_EQ(expected_stats.occupied_pages, log_server.stats.occupied_pages);
 
 
         memset(data, 0x00, sizeof(data));
@@ -129,7 +129,7 @@ namespace program_compatible_test
         memset(data, 0x0F, sizeof(data));
         ASSERT_EQ(_FTL_WRITE(0, sizeof(data) / ssd_config->get_sector_size(), data), FTL_SUCCESS);
         expected_stats.occupied_pages+=2;
-        
+
         ASSERT_EQ(_FTL_READ(0, sizeof(read_data) / ssd_config->get_sector_size(), read_data), FTL_SUCCESS);
         ASSERT_EQ(memcmp(data, read_data, sizeof(data)), 0);
 
@@ -146,7 +146,7 @@ namespace program_compatible_test
 
         SSDConf *ssd_config = base_test_get_ssd_config();
         SSDStatistics expected_stats = stats_init();
-        
+
         unsigned char data_values[] = {
             0b11111110,
             0b11111100,
@@ -162,7 +162,7 @@ namespace program_compatible_test
         unsigned char read_data[sizeof(data)];
 
         for (unsigned int i = 0; i < BASE_TEST_ARRAY_SIZE(data_values); ++i) {
-            memset(data, data_values[i], sizeof(data)); 
+            memset(data, data_values[i], sizeof(data));
             ASSERT_EQ(_FTL_WRITE(0, sizeof(data) / ssd_config->get_sector_size(), data), FTL_SUCCESS);
 
             ASSERT_EQ(_FTL_READ(0, sizeof(read_data) / ssd_config->get_sector_size(), read_data), FTL_SUCCESS);
@@ -171,7 +171,7 @@ namespace program_compatible_test
 
         expected_stats.occupied_pages++;
         MONITOR_SYNC(&(log_server.stats), MONITOR_SLEEP_MAX_USEC);
-        ASSERT_EQ(expected_stats.occupied_pages, log_server.stats.occupied_pages); 
+        ASSERT_EQ(expected_stats.occupied_pages, log_server.stats.occupied_pages);
 
     }
 
@@ -198,7 +198,7 @@ namespace program_compatible_test
 
         expected_stats.occupied_pages = page_span;
         MONITOR_SYNC(&(log_server.stats), MONITOR_SLEEP_MAX_USEC);
-        ASSERT_EQ(expected_stats.occupied_pages, log_server.stats.occupied_pages); 
+        ASSERT_EQ(expected_stats.occupied_pages, log_server.stats.occupied_pages);
 
         // Write program compatible data
         memset(data, 0x0C, sizeof(data));
@@ -224,7 +224,7 @@ namespace program_compatible_test
 
         expected_stats.occupied_pages += page_span - 2;
         MONITOR_SYNC(&(log_server.stats), MONITOR_SLEEP_MAX_USEC);
-        ASSERT_EQ(expected_stats.occupied_pages, log_server.stats.occupied_pages); 
+        ASSERT_EQ(expected_stats.occupied_pages, log_server.stats.occupied_pages);
     }
 
     /**
@@ -247,7 +247,7 @@ namespace program_compatible_test
             unsigned char data[ssd_config->get_page_size()];
             // Write data twice to the page
             memset(data, 0x0F, sizeof(data));
-            ASSERT_EQ(_FTL_WRITE(p * ssd_config->get_page_size() / ssd_config->get_sector_size(), 
+            ASSERT_EQ(_FTL_WRITE(p * ssd_config->get_page_size() / ssd_config->get_sector_size(),
             sizeof(data) / ssd_config->get_sector_size(), data), FTL_SUCCESS);
             memset(data, 0x00, sizeof(data));
             ASSERT_EQ(_FTL_WRITE(p * ssd_config->get_page_size() / ssd_config->get_sector_size(),

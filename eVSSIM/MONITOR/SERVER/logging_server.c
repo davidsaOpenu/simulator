@@ -287,7 +287,7 @@ void log_server_free(void) {
 void MONITOR_SYNC(SSDStatistics *stats, uint64_t max_sleep){
     size_t i;
     uint64_t log_id;
-    for(i = 0; i < FLASH_NB; i++){
+    for(i = 0; i < devices[current_device_index].flash_nb; i++){
         log_id = rand();
         LOG_LOG_SYNC(GET_LOGGER(i), (LoggeingServerSync) {
             .log_id = log_id
@@ -297,7 +297,7 @@ void MONITOR_SYNC(SSDStatistics *stats, uint64_t max_sleep){
             .log_id = 0
         });
         if(stats->log_id != log_id){
-            RERR(, "Monitor sync timed out logger_id = %lu, of total = %u\n", i, FLASH_NB);
+            RERR(, "Monitor sync timed out logger_id = %lu, of total = %u\n", i, devices[current_device_index].flash_nb);
         }
     }
 }

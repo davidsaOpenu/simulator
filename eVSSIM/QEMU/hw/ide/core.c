@@ -497,7 +497,7 @@ void ide_sector_read(IDEState *s)
         ret = bdrv_read(s->bs, sector_num, s->io_buffer, n);
 #ifdef IDE_SSD
 #ifdef TARGET_I386_VSSIM
-	if(strcmp(s->bs->filename, GET_FILE_NAME())==0)
+	if(strcmp(s->bs->filename, GET_FILE_NAME(current_device_index))==0)
 		SSD_READ(n,sector_num); //SSD READ function call
 #endif
 #endif
@@ -621,7 +621,7 @@ handle_rw_error:
                                            ide_dma_cb, s);
 #ifdef IDE_SSD
 #ifdef TARGET_I386_VSSIM
-		if(strcmp(s->bs->filename, GET_FILE_NAME())==0)
+		if(strcmp(s->bs->filename, GET_FILE_NAME(current_device_index))==0)
 			SSD_READ(n, sector_num);
 #endif
 #endif
@@ -631,7 +631,7 @@ handle_rw_error:
                                             ide_dma_cb, s);
 #ifdef IDE_SSD
 #ifdef TARGET_I386_VSSIM
-		if(strcmp(s->bs->filename, GET_FILE_NAME())==0)
+		if(strcmp(s->bs->filename, GET_FILE_NAME(current_device_index))==0)
 		{
 			SSD_WRITE(n, sector_num);
 		}
@@ -690,7 +690,7 @@ void ide_sector_write(IDEState *s)
     }
 #ifdef IDE_SSD
 #ifdef TARGET_I386_VSSIM
-	if(strcmp(s->bs->filename, GET_FILE_NAME())==0)
+	if(strcmp(s->bs->filename, GET_FILE_NAME(current_device_index))==0)
 	{
 		SSD_WRITE(n, sector_num);
 	}
@@ -1371,14 +1371,14 @@ case DSM_TRIM:
 		s->io_buffer[363] = 0;
 		} else {
 		s->io_buffer[363] =
-			s->smart_selftest_data[3 + 
+			s->smart_selftest_data[3 +
 					   (s->smart_selftest_count - 1) *
 					   24];
 		}
-		s->io_buffer[364] = 0x20; 
-		s->io_buffer[365] = 0x01; 
+		s->io_buffer[364] = 0x20;
+		s->io_buffer[365] = 0x01;
 		/* offline data collection capacity: execute + self-test*/
-		s->io_buffer[367] = (1<<4 | 1<<3 | 1); 
+		s->io_buffer[367] = (1<<4 | 1<<3 | 1);
 		s->io_buffer[368] = 0x03; /* smart capability (1) */
 		s->io_buffer[369] = 0x00; /* smart capability (2) */
 		s->io_buffer[370] = 0x01; /* error logging supported */
@@ -1386,7 +1386,7 @@ case DSM_TRIM:
 		s->io_buffer[373] = 0x36; /* minutes for poll ext test */
 		s->io_buffer[374] = 0x01; /* minutes for poll conveyance */
 
-		for (n=0; n<511; n++) 
+		for (n=0; n<511; n++)
 		s->io_buffer[511] += s->io_buffer[n];
 		s->io_buffer[511] = 0x100 - s->io_buffer[511];
 		s->status = READY_STAT | SEEK_STAT;
@@ -1413,7 +1413,7 @@ case DSM_TRIM:
 			s->io_buffer[508] = 0;
 		} else {
 			s->io_buffer[508] = s->smart_selftest_count;
-			for (n=2; n<506; n++) 
+			for (n=2; n<506; n++)
 			s->io_buffer[n] = s->smart_selftest_data[n];
 		}
 		for (n=0; n<511; n++)

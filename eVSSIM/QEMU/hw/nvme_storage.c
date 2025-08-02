@@ -58,19 +58,19 @@ void nvme_dma_mem_write(target_phys_addr_t addr, uint8_t *buf, int len)
 static void nvme_dma_mem_read2(target_phys_addr_t addr, uint8_t *buf, int len,
         uint8_t *mapping_addr)
 {
-    if((len % GET_SECTOR_SIZE()) != 0){
+    if((len % GET_SECTOR_SIZE(current_device_index)) != 0){
         LOG_ERR("nvme_dma_mem_read2: len (=%d) %% %d == %d (should be 0)",
-                len, GET_SECTOR_SIZE(), (len % GET_SECTOR_SIZE()));
+                len, GET_SECTOR_SIZE(current_device_index), (len % GET_SECTOR_SIZE(current_device_index)));
     }
-    if((buf - mapping_addr) % GET_SECTOR_SIZE() != 0){
+    if((buf - mapping_addr) % GET_SECTOR_SIZE(current_device_index) != 0){
         LOG_ERR("nvme_dma_mem_read2: (buf - mapping_addr) (=%ld) %% %d == %ld "
                 "(should be 0)",
-                buf - mapping_addr, GET_SECTOR_SIZE(),
-                (buf - mapping_addr) % GET_SECTOR_SIZE());
+                buf - mapping_addr, GET_SECTOR_SIZE(current_device_index),
+                (buf - mapping_addr) % GET_SECTOR_SIZE(current_device_index));
     }
          LOG_DBG("sector strategy\n");
     	//sector strategy -> continue normally
-    	_FTL_WRITE_SECT( (buf - mapping_addr) / GET_SECTOR_SIZE(), len / GET_SECTOR_SIZE(), NULL);
+    	_FTL_WRITE_SECT( (buf - mapping_addr) / GET_SECTOR_SIZE(current_device_index), len / GET_SECTOR_SIZE(current_device_index), NULL);
     	//read from dma memory (prp) and write to qemu's volatile memory
     	cpu_physical_memory_rw(addr, buf, len, 0);
 }
@@ -81,20 +81,20 @@ static void nvme_dma_mem_write2(target_phys_addr_t addr, uint8_t *buf, int len,
 	//the buf pointer is actually -> buf = mapping_addr + offset so:
 	uint64_t offset = buf - mapping_addr;
 
-    if((len % GET_SECTOR_SIZE()) != 0){
+    if((len % GET_SECTOR_SIZE(current_device_index)) != 0){
         LOG_ERR("nvme_dma_mem_write2: len (=%d) %% %d == %d (should be 0)",
-                len, GET_SECTOR_SIZE(), (len % GET_SECTOR_SIZE()));
+                len, GET_SECTOR_SIZE(current_device_index), (len % GET_SECTOR_SIZE(current_device_index)));
     }
-    if((offset) % GET_SECTOR_SIZE() != 0){
+    if((offset) % GET_SECTOR_SIZE(current_device_index) != 0){
         LOG_ERR("nvme_dma_mem_write2: (offset) (=%ld) %% %d == %ld "
                 "(should be 0)",
-				offset, GET_SECTOR_SIZE(),
-                (offset) % GET_SECTOR_SIZE());
+				offset, GET_SECTOR_SIZE(current_device_index),
+                (offset) % GET_SECTOR_SIZE(current_device_index));
     }
          LOG_DBG("sector strategy\n");
     	//sector strategy -> continue normally
-        _FTL_READ_SECT((buf - mapping_addr) / GET_SECTOR_SIZE(), len / GET_SECTOR_SIZE(), NULL);
-    	//_FTL_READ_SECT(len / GET_SECTOR_SIZE(), (buf - mapping_addr) / GET_SECTOR_SIZE());
+        _FTL_READ_SECT((buf - mapping_addr) / GET_SECTOR_SIZE(current_device_index), len / GET_SECTOR_SIZE(current_device_index), NULL);
+    	//_FTL_READ_SECT(len / GET_SECTOR_SIZE(current_device_index), (buf - mapping_addr) / GET_SECTOR_SIZE(current_device_index));
     	//read from qemu's volatile memory and write to dma memory (prp)
         cpu_physical_memory_rw(addr, buf, len, 1);
 }
@@ -603,7 +603,7 @@ int nvme_create_storage_disk(uint32_t instance, uint32_t nsid, DiskInfo *disk,
     uint64_t size, blks;
     char str[PATH_MAX];
 #ifdef CONFIG_VSSIM
-    strncpy(str, GET_FILE_NAME(), PATH_MAX-1);
+    strncpy(str, GET_FILE_NAME(current_device_index), PATH_MAX-1);
     str[PATH_MAX-1] = '\0';
 #else
     snprintf(str, sizeof(str), "nvme_disk%d_n%d.img", instance, nsid);
@@ -760,7 +760,7 @@ int nvme_close_storage_disks(NVMEState *n)
     for (i = 0; i < n->num_namespaces; i++) {
         ret = nvme_close_storage_disk(&n->disk[i]);
     }
-    
+
 #ifdef CONFIG_VSSIM
     //TODO: nvme_close_storage_disks() function is not called
     //see vl.c for SSD_TERM();
