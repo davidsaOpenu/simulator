@@ -16,6 +16,23 @@
       "message": "As of now, this change doesn\u0027t seem to match the description of the Trello card:\n\n1. Initialize N FTL instances\n2. Run sector tests in parallel for all instances.\n\nInstead, it seems like it only allows running multiple instances of the *host tests*, each initializing a *single* FTL instance, running in its own process, therefore fully isolated from each other.\n\nFeel free to discuss with me the intention of this change, and consider changing the Trello card description to match your long-term goals for this epic.",
       "revId": "6280fdc092dbcf8eba6fb3cfaae18bf5c701cf5a",
       "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "98d990af_b186b0c4",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 11
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 1038805
+      },
+      "writtenOn": "2025-08-06T15:09:12Z",
+      "side": 1,
+      "message": "We started to work from this branch on https://review.gerrithub.io/c/davidsaOpenu/simulator/+/1219788 so I would suggest to review it there, it will also be a more complete feature than this.",
+      "revId": "6280fdc092dbcf8eba6fb3cfaae18bf5c701cf5a",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
     }
   ]
 }
