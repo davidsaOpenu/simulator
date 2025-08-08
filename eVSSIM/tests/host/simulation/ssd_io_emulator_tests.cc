@@ -42,12 +42,12 @@ namespace ssd_io_emulator_tests {
         public:
             virtual void SetUp() {
                 BaseTest::SetUp();
-                INIT_LOG_MANAGER();
+                INIT_LOG_MANAGER(g_device_index);
             }
 
             virtual void TearDown() {
                 BaseTest::TearDown();
-                TERM_LOG_MANAGER();
+                TERM_LOG_MANAGER(g_device_index);
             }
     };
 
@@ -75,19 +75,19 @@ namespace ssd_io_emulator_tests {
         int num_of_writes = 3;
         int write_elapsed_time = 0;
 
-        SSD_PAGE_WRITE(flash_nb,block_nb,page_nb,offset, WRITE);
-        SSD_PAGE_WRITE(flash_nb,block_nb,page_nb,offset, WRITE);
-        SSD_PAGE_WRITE(flash_nb,block_nb,page_nb,offset, WRITE);
+        SSD_PAGE_WRITE(g_device_index, flash_nb,block_nb,page_nb,offset, WRITE);
+        SSD_PAGE_WRITE(g_device_index, flash_nb,block_nb,page_nb,offset, WRITE);
+        SSD_PAGE_WRITE(g_device_index, flash_nb,block_nb,page_nb,offset, WRITE);
 
         // single write page delay
-        int expected_write_duration = CHANNEL_SWITCH_DELAY_W+(REG_WRITE_DELAY + CELL_PROGRAM_DELAY) * num_of_writes;
+        int expected_write_duration = devices[g_device_index].channel_switch_delay_w+(devices[g_device_index].reg_write_delay + devices[g_device_index].cell_program_delay) * num_of_writes;
 
         // wait for new monitor sync
         MONITOR_SYNC_DELAY(expected_write_duration);
 
         uint32_t i;
 
-        for (i = 0; i < FLASH_NB; i++) {
+        for (i = 0; i < devices[g_device_index].flash_nb; i++) {
             write_elapsed_time += rt_log_stats[i].write_elapsed_time;
         }
         // new monitor write delay
@@ -108,19 +108,19 @@ namespace ssd_io_emulator_tests {
         int num_of_reads = 3;
         int read_elapsed_time = 0;
 
-        SSD_PAGE_READ(flash_nb,block_nb,page_nb,offset, READ);
-        SSD_PAGE_READ(flash_nb,block_nb,page_nb,offset, READ);
-        SSD_PAGE_READ(flash_nb,block_nb,page_nb,offset, READ);
+        SSD_PAGE_READ(g_device_index, flash_nb,block_nb,page_nb,offset, READ);
+        SSD_PAGE_READ(g_device_index, flash_nb,block_nb,page_nb,offset, READ);
+        SSD_PAGE_READ(g_device_index, flash_nb,block_nb,page_nb,offset, READ);
 
         // single read page delay
-        int expected_read_duration = CHANNEL_SWITCH_DELAY_R + (REG_READ_DELAY + CELL_READ_DELAY) * num_of_reads;
+        int expected_read_duration = devices[g_device_index].channel_switch_delay_r + (devices[g_device_index].reg_read_delay + devices[g_device_index].cell_read_delay) * num_of_reads;
 
         // wait for new monitor sync
         MONITOR_SYNC_DELAY(expected_read_duration);
 
         uint32_t i;
 
-        for (i = 0; i < FLASH_NB; i++) {
+        for (i = 0; i < devices[g_device_index].flash_nb; i++) {
             read_elapsed_time += rt_log_stats[i].read_elapsed_time;
         }
         // new monitor read delay
@@ -146,20 +146,20 @@ namespace ssd_io_emulator_tests {
         int expected_write_duration = 0;
         int expected_read_duration = 0;
 
-        SSD_PAGE_WRITE(flash_nb,block_nb,page_nb,offset, WRITE);
-        expected_write_duration += CHANNEL_SWITCH_DELAY_W + (REG_WRITE_DELAY + CELL_PROGRAM_DELAY);
+        SSD_PAGE_WRITE(g_device_index, flash_nb,block_nb,page_nb,offset, WRITE);
+        expected_write_duration += devices[g_device_index].channel_switch_delay_w + (devices[g_device_index].reg_write_delay + devices[g_device_index].cell_program_delay);
 
-        SSD_PAGE_WRITE(flash_nb,block_nb,page_nb,offset, WRITE);
-        expected_write_duration += (REG_WRITE_DELAY + CELL_PROGRAM_DELAY);
+        SSD_PAGE_WRITE(g_device_index, flash_nb,block_nb,page_nb,offset, WRITE);
+        expected_write_duration += (devices[g_device_index].reg_write_delay + devices[g_device_index].cell_program_delay);
 
-        SSD_PAGE_READ(flash_nb,block_nb,page_nb,offset, READ);
-        expected_read_duration += CHANNEL_SWITCH_DELAY_R + (REG_READ_DELAY + CELL_READ_DELAY);
+        SSD_PAGE_READ(g_device_index, flash_nb,block_nb,page_nb,offset, READ);
+        expected_read_duration += devices[g_device_index].channel_switch_delay_r + (devices[g_device_index].reg_read_delay + devices[g_device_index].cell_read_delay);
 
-        SSD_PAGE_READ(flash_nb,block_nb,page_nb,offset, READ);
-        expected_read_duration +=  (REG_READ_DELAY + CELL_READ_DELAY);
+        SSD_PAGE_READ(g_device_index, flash_nb,block_nb,page_nb,offset, READ);
+        expected_read_duration +=  (devices[g_device_index].reg_read_delay + devices[g_device_index].cell_read_delay);
 
-        SSD_PAGE_WRITE(flash_nb,block_nb,page_nb,offset, WRITE);
-        expected_write_duration += CHANNEL_SWITCH_DELAY_W + (REG_WRITE_DELAY + CELL_PROGRAM_DELAY);
+        SSD_PAGE_WRITE(g_device_index, flash_nb,block_nb,page_nb,offset, WRITE);
+        expected_write_duration += devices[g_device_index].channel_switch_delay_w + (devices[g_device_index].reg_write_delay + devices[g_device_index].cell_program_delay);
 
 
         // wait for new monitor sync
@@ -167,7 +167,7 @@ namespace ssd_io_emulator_tests {
 
         uint32_t i;
 
-        for (i = 0; i < FLASH_NB; i++) {
+        for (i = 0; i < devices[g_device_index].flash_nb; i++) {
             write_elapsed_time += rt_log_stats[i].write_elapsed_time;
             read_elapsed_time += rt_log_stats[i].read_elapsed_time;
         }
@@ -188,15 +188,15 @@ namespace ssd_io_emulator_tests {
         int block_nb = 0;
         int page_nb = 0;
         int occupied_pages = 1;
-        double ssd_utils = (double)occupied_pages / PAGES_IN_SSD;
-        int expected_write_duration = REG_WRITE_DELAY + CELL_PROGRAM_DELAY + CHANNEL_SWITCH_DELAY_W;
+        double ssd_utils = (double)occupied_pages / devices[g_device_index].pages_in_ssd;
+        int expected_write_duration = devices[g_device_index].reg_write_delay + devices[g_device_index].cell_program_delay + devices[g_device_index].channel_switch_delay_w;
 
-        SSD_PAGE_WRITE(flash_nb,block_nb,page_nb,0, WRITE);
+        SSD_PAGE_WRITE(g_device_index, flash_nb,block_nb,page_nb,0, WRITE);
 
         // wait for new monitor sync
         MONITOR_SYNC_DELAY(expected_write_duration);
         // QT monitor
-        ASSERT_EQ(ssd_utils, SSD_UTIL());
+        ASSERT_EQ(ssd_utils, SSD_UTIL(g_device_index));
         // new monitor
         ASSERT_EQ(ssd_utils, log_server.stats.utilization);
     }
@@ -212,15 +212,15 @@ namespace ssd_io_emulator_tests {
         int block_nb = 0;
         int page_nb = 0;
         int occupied_pages = 1;
-        double ssd_utils = (double)occupied_pages / PAGES_IN_SSD;
-        int expected_write_duration = REG_WRITE_DELAY + CELL_PROGRAM_DELAY;
+        double ssd_utils = (double)occupied_pages / devices[g_device_index].pages_in_ssd;
+        int expected_write_duration = devices[g_device_index].reg_write_delay + devices[g_device_index].cell_program_delay;
 
-        SSD_PAGE_WRITE(flash_nb,block_nb,page_nb,0, GC_WRITE);
+        SSD_PAGE_WRITE(g_device_index, flash_nb,block_nb,page_nb,0, GC_WRITE);
 
         // wait for new monitor sync
         MONITOR_SYNC_DELAY(expected_write_duration);
         // QT monitor
-        ASSERT_EQ(ssd_utils, SSD_UTIL());
+        ASSERT_EQ(ssd_utils, SSD_UTIL(g_device_index);
         // new monitor
         ASSERT_EQ(ssd_utils, log_server.stats.utilization);
     }
@@ -236,16 +236,16 @@ namespace ssd_io_emulator_tests {
         int flash_nb = 0;
         int block_nb = 0;
         int page_nb = 0;
-        int expected_write_duration = REG_WRITE_DELAY + CELL_PROGRAM_DELAY + BLOCK_ERASE_DELAY;
+        int expected_write_duration = devices[g_device_index].reg_write_delay + devices[g_device_index].cell_program_delay + devices[g_device_index].block_erase_delay;
 
-        SSD_PAGE_WRITE(flash_nb,block_nb,page_nb,0, WRITE);
-        GET_INVERSE_BLOCK_MAPPING_ENTRY(flash_nb, block_nb)->valid_page_nb = 1;//update mapping info
-        SSD_BLOCK_ERASE(flash_nb,block_nb);
+        SSD_PAGE_WRITE(g_device_index, flash_nb, block_nb,page_nb,0, WRITE);
+        GET_INVERSE_BLOCK_MAPPING_ENTRY(g_device_index, flash_nb, block_nb)->valid_page_nb = 1;//update mapping info
+        SSD_BLOCK_ERASE(g_device_index, flash_nb, block_nb);
 
         // wait for new monitor sync
         MONITOR_SYNC_DELAY(expected_write_duration);
         // QT monitor
-        ASSERT_EQ(0, SSD_UTIL());
+        ASSERT_EQ(0, SSD_UTIL(g_device_index));
         // new monitor
         ASSERT_EQ(0, log_server.stats.utilization);
     }
@@ -266,22 +266,22 @@ namespace ssd_io_emulator_tests {
         int page_nb = 0;
         int occupied_pages = 0;
         double ssd_utils = 0;
-        int expected_write_duration = (CHANNEL_SWITCH_DELAY_W+REG_WRITE_DELAY + CELL_PROGRAM_DELAY) * 2;
+        int expected_write_duration = (devices[g_device_index].channel_switch_delay_w+devices[g_device_index].reg_write_delay + devices[g_device_index].cell_program_delay) * 2;
 
-        SSD_PAGE_WRITE(flash_nb,block_nb,page_nb,0, WRITE);
-        SSD_PAGE_WRITE(flash_nb,block_nb+1,page_nb,0, WRITE);
+        SSD_PAGE_WRITE(g_device_index, flash_nb,block_nb,page_nb,0, WRITE);
+        SSD_PAGE_WRITE(g_device_index, flash_nb,block_nb+1,page_nb,0, WRITE);
         occupied_pages = 2;
-        ASSERT_EQ((double)occupied_pages / PAGES_IN_SSD, SSD_UTIL());
-        SSD_BLOCK_ERASE(flash_nb,block_nb);
+        ASSERT_EQ((double)occupied_pages / devices[g_device_index].pages_in_ssd, SSD_UTIL(g_device_index));
+        SSD_BLOCK_ERASE(g_device_index, flash_nb, block_nb);
         occupied_pages = 1;
 
-        ssd_utils = (double)occupied_pages / PAGES_IN_SSD;
+        ssd_utils = (double)occupied_pages / devices[g_device_index].pages_in_ssd;
 
         // wait for new monitor sync
-        MONITOR_SYNC_DELAY(expected_write_duration+BLOCK_ERASE_DELAY);
-        
+        MONITOR_SYNC_DELAY(expected_write_duration+devices[g_device_index].block_erase_delay);
+
         // QT monitor
-        ASSERT_EQ(ssd_utils, SSD_UTIL());
+        ASSERT_EQ(ssd_utils, SSD_UTIL(g_device_index));
         // new monitor
         ASSERT_EQ(ssd_utils, log_server.stats.utilization);
     }
@@ -301,22 +301,22 @@ namespace ssd_io_emulator_tests {
         unsigned int logical_write_count = 0;
         int logical_page_writes = 1;
         int physical_page_writes = 1;
-        int expected_write_duration = CHANNEL_SWITCH_DELAY_W + REG_WRITE_DELAY + CELL_PROGRAM_DELAY;
+        int expected_write_duration = devices[g_device_index].channel_switch_delay_w + devices[g_device_index].reg_write_delay + devices[g_device_index].cell_program_delay;
 
-        SSD_PAGE_WRITE(flash_nb,block_nb,page_nb,0, WRITE);
+        SSD_PAGE_WRITE(g_device_index, flash_nb,block_nb,page_nb,0, WRITE);
         // wait for new monitor sync
         MONITOR_SYNC_DELAY(expected_write_duration);
 
         uint32_t i;
 
-        for (i = 0; i < FLASH_NB; i++) {
+        for (i = 0; i < devices[g_device_index].flash_nb; i++) {
             logical_write_count += rt_log_stats[i].logical_write_count;
         }
 
-        ASSERT_EQ(ssd.physical_page_writes, physical_page_writes);
-        ASSERT_EQ(ssd.current_stats->write_count, physical_page_writes);
+        ASSERT_EQ(ssds_manager[g_device_index].ssd.physical_page_writes, physical_page_writes);
+        ASSERT_EQ(ssds_manager[g_device_index].ssd.current_stats->write_count, physical_page_writes);
 
-        ASSERT_EQ(ssd.logical_page_writes, logical_page_writes);
+        ASSERT_EQ(ssds_manager[g_device_index].ssd.logical_page_writes, logical_page_writes);
         ASSERT_EQ(logical_write_count, logical_page_writes);
     }
 
@@ -335,23 +335,23 @@ namespace ssd_io_emulator_tests {
 
         int logical_page_writes = 0;
         int physical_page_writes = 1;
-        int expected_write_duration = CHANNEL_SWITCH_DELAY_W + REG_WRITE_DELAY + CELL_PROGRAM_DELAY;
+        int expected_write_duration = devices[g_device_index].channel_switch_delay_w + devices[g_device_index].reg_write_delay + devices[g_device_index].cell_program_delay;
 
         // wait for new monitor sync
-        SSD_PAGE_WRITE(flash_nb,block_nb,page_nb,0, GC_WRITE);
+        SSD_PAGE_WRITE(g_device_index, flash_nb,block_nb,page_nb,0, GC_WRITE);
 
         MONITOR_SYNC_DELAY(expected_write_duration);
 
         uint32_t i;
 
-        for (i = 0; i < FLASH_NB; i++) {
+        for (i = 0; i < devices[g_device_index].flash_nb; i++) {
             logical_write_count += rt_log_stats[i].logical_write_count;
         }
 
-        ASSERT_EQ(physical_page_writes, ssd.physical_page_writes);
-        ASSERT_EQ(physical_page_writes, ssd.current_stats->write_count);
+        ASSERT_EQ(physical_page_writes, ssds_manager[g_device_index].ssd.physical_page_writes);
+        ASSERT_EQ(physical_page_writes, ssds_manager[g_device_index].ssd.current_stats->write_count);
 
-        ASSERT_EQ(ssd.logical_page_writes, logical_page_writes);
+        ASSERT_EQ(ssds_manager[g_device_index].ssd.logical_page_writes, logical_page_writes);
         ASSERT_EQ(logical_write_count, logical_page_writes);
     }
 
@@ -366,24 +366,24 @@ namespace ssd_io_emulator_tests {
 
         int flash_nb = 0;
         int block_nb = 0;
-        int expected_write_duration = (REG_WRITE_DELAY + CELL_PROGRAM_DELAY) * ssd_config->get_pages_per_block();
-        int expected_read_duration = CHANNEL_SWITCH_DELAY_R + (REG_READ_DELAY + CELL_READ_DELAY) * ssd_config->get_pages_per_block();
+        int expected_write_duration = (devices[g_device_index].reg_write_delay + devices[g_device_index].cell_program_delay) * ssd_config->get_pages_per_block();
+        int expected_read_duration = devices[g_device_index].channel_switch_delay_r + (devices[g_device_index].reg_read_delay + devices[g_device_index].cell_read_delay) * ssd_config->get_pages_per_block();
         int expected_rw = ssd_config->get_pages_per_block();
 
         // Write all pages in the block
         for (size_t i = 0; i < ssd_config->get_pages_per_block(); i++) {
-            SSD_PAGE_WRITE(flash_nb, block_nb, i, 0, WRITE);
+            SSD_PAGE_WRITE(g_device_index, flash_nb, block_nb, i, 0, WRITE);
         }
 
         // Read all pages in the block
         for (size_t i = 0; i < ssd_config->get_pages_per_block(); i++) {
-            SSD_PAGE_READ(flash_nb, block_nb, i, 0, READ);
+            SSD_PAGE_READ(g_device_index, flash_nb, block_nb, i, 0, READ);
         }
 
         MONITOR_SYNC_DELAY(expected_write_duration + expected_read_duration);
 
-        ASSERT_EQ(expected_rw, ssd.current_stats->write_count);
-        ASSERT_EQ(expected_rw, ssd.current_stats->read_count);
+        ASSERT_EQ(expected_rw, ssds_manager[g_device_index].ssd.current_stats->write_count);
+        ASSERT_EQ(expected_rw, ssds_manager[g_device_index].ssd.current_stats->read_count);
 
     }
 
@@ -401,28 +401,28 @@ namespace ssd_io_emulator_tests {
         size_t blocks_per_flash = block_x_flash / flash_num;
 
         int expected_rw = ssd_config->get_pages_per_block() * blocks_per_flash;
-        int expected_write_duration = (CHANNEL_SWITCH_DELAY_W + REG_WRITE_DELAY + CELL_PROGRAM_DELAY) * expected_rw;
-        int expected_read_duration = (CHANNEL_SWITCH_DELAY_R + REG_READ_DELAY + CELL_READ_DELAY) * expected_rw;
+        int expected_write_duration = (devices[g_device_index].channel_switch_delay_w + devices[g_device_index].reg_write_delay + devices[g_device_index].cell_program_delay) * expected_rw;
+        int expected_read_duration = (devices[g_device_index].channel_switch_delay_r + devices[g_device_index].reg_read_delay + devices[g_device_index].cell_read_delay) * expected_rw;
 
 
         // Write all blocks in the channel
         for (size_t i = 0; i < blocks_per_flash; i++) {
             for (size_t j = 0; j < ssd_config->get_pages_per_block(); j++) {
-                SSD_PAGE_WRITE(0, i, j, 0, WRITE);
+                SSD_PAGE_WRITE(g_device_index, 0, i, j, 0, WRITE);
             }
         }
 
         // Read all blocks in the channel
         for (size_t i = 0; i < blocks_per_flash; i++) {
             for (size_t j = 0; j < ssd_config->get_pages_per_block(); j++) {
-                SSD_PAGE_READ(0, i, j, 0, READ);
+                SSD_PAGE_READ(g_device_index, 0, i, j, 0, READ);
             }
         }
 
         MONITOR_SYNC_DELAY(expected_write_duration + expected_read_duration);
 
-        ASSERT_EQ(expected_rw, ssd.current_stats->write_count);
-        ASSERT_EQ(expected_rw, ssd.current_stats->read_count);
+        ASSERT_EQ(expected_rw, ssds_manager[g_device_index].ssd.current_stats->write_count);
+        ASSERT_EQ(expected_rw, ssds_manager[g_device_index].ssd.current_stats->read_count);
 
     }
 
@@ -439,31 +439,31 @@ namespace ssd_io_emulator_tests {
         // Write all flash.
         for(int x=0; x<2; x++){
             for(size_t p=0; p < page_x_flash; p++){
-                ASSERT_EQ(FTL_SUCCESS, _FTL_WRITE_SECT(DEFAULT_NSID, p * ssd_config->get_page_size(), 1, NULL));
+                ASSERT_EQ(FTL_SUCCESS, _FTL_WRITE_SECT(g_device_index, DEFAULT_NSID, p * ssd_config->get_page_size(), 1, NULL));
             }
             MONITOR_SYNC_DELAY(15000000);
 
             //at most one block that wasn't cleared by GC algorithem
             double error_util = (double)(ssd_config->get_pages_per_block()) / (ssd_config->get_page_nb() * ssd_config->get_block_nb() * ssd_config->get_flash_nb());
-            ASSERT_NEAR(0.8, ssd.current_stats->utilization, error_util); // 25% over provitioning = 80% full
+            ASSERT_NEAR(0.8, ssds_manager[g_device_index].ssd.current_stats->utilization, error_util); // 25% over provitioning = 80% full
 
-            ASSERT_EQ(page_x_flash * (x + 1), ssd.current_stats->logical_write_count);
-            ASSERT_LE(page_x_flash * (x + 1), ssd.current_stats->write_count);
+            ASSERT_EQ(page_x_flash * (x + 1), ssds_manager[g_device_index].ssd.current_stats->logical_write_count);
+            ASSERT_LE(page_x_flash * (x + 1), ssds_manager[g_device_index].ssd.current_stats->write_count);
         }
 
-        int expected_write_duration = (CHANNEL_SWITCH_DELAY_W + REG_WRITE_DELAY + CELL_PROGRAM_DELAY) * page_x_flash * 2;
-        
+        int expected_write_duration = (devices[g_device_index].channel_switch_delay_w + devices[g_device_index].reg_write_delay + devices[g_device_index].cell_program_delay) * page_x_flash * 2;
+
         MONITOR_SYNC_DELAY(expected_write_duration);
-    
+
         // Assert w.a. is greater then 1
-        ASSERT_GE(page_x_flash, ssd.current_stats->garbage_collection_count);
+        ASSERT_GE(page_x_flash, ssds_manager[g_device_index].ssd.current_stats->garbage_collection_count);
 
         int expected_write_amplification = 1;
 
         //write amp = 1 because we work with over-provitioning and write sequentionally, on the second pass
         //we re-allocate the first block, when we get to the second block, there is now a free block that can be used
         //for re-allocating the second block
-        ASSERT_LE(expected_write_amplification, ssd.current_stats->write_amplification);
+        ASSERT_LE(expected_write_amplification, ssds_manager[g_device_index].ssd.current_stats->write_amplification);
     }
 
 } //namespace
