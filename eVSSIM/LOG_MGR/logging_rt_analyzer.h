@@ -95,7 +95,7 @@ RTLogAnalyzer* rt_log_analyzer_init(Logger_Pool* logger, unsigned int analyzer_i
  * @brief Initializes real time log statistics
  *
  */
-void rt_log_stats_init(void);
+void rt_log_stats_init(uint8_t device_index);
 
 /**
  * Subscribe to the log analyzer
@@ -118,7 +118,7 @@ void* rt_log_analyzer_run(void* analyzer);
  * @param analyzer the analyzer to run
  * @param max_logs the maximum number of logs to read; if negative, run forever
  */
-void rt_log_analyzer_loop(RTLogAnalyzer* analyzer, int max_logs);
+void rt_log_analyzer_loop(uint8_t device_index, RTLogAnalyzer* analyzer, int max_logs);
 
 /**
  * Free the analyzer

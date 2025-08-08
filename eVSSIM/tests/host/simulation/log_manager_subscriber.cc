@@ -82,12 +82,12 @@ namespace manager_subscriber {
         else if (updates_done == 2) {
             unsigned int num_of_phy_writes = 3;
             unsigned int num_of_logical_writes = 2;
-            unsigned int time_per_write = CELL_PROGRAM_DELAY;
+            unsigned int time_per_write = devices[g_device_id].cell_program_delay;
 
-            double write_speed = CALCULATEMBPS((num_of_logical_writes * GET_PAGE_SIZE()), (num_of_phy_writes * time_per_write));
+            double write_speed = CALCULATEMBPS((num_of_logical_writes * GET_PAGE_SIZE(g_device_id)), (num_of_phy_writes * time_per_write));
 
-            unsigned int time_per_read = CELL_READ_DELAY;
-            double read_speed = CALCULATEMBPS(GET_PAGE_SIZE(), time_per_read);
+            unsigned int time_per_read = devices[g_device_id].cell_read_delay;
+            double read_speed = CALCULATEMBPS(GET_PAGE_SIZE(g_device_id), time_per_read);
 
             ASSERT_EQ(3, stats.write_count);
             ASSERT_EQ(2, stats.logical_write_count);
@@ -114,7 +114,7 @@ namespace manager_subscriber {
         logger2 = logger_init(LOGGER_TEST_POOL_SIZE);
         analyzer1 = rt_log_analyzer_init(logger1, 0);
         analyzer2 = rt_log_analyzer_init(logger2, 1);
-        rt_log_stats_init();
+        rt_log_stats_init(g_device_id);
         log_manager_add_analyzer(manager, analyzer1);
         log_manager_add_analyzer(manager, analyzer2);
         log_manager_subscribe(manager, (MonitorHook) on_update, NULL);
@@ -125,7 +125,7 @@ namespace manager_subscriber {
         struct timeval logging_parser_tv;
 
         // check that no stats are provided yet
-        log_manager_loop(manager, 1);
+        log_manager_loop(g_device_id, manager, 1);
 
         TIME_MICROSEC(start);
 
@@ -167,7 +167,7 @@ namespace manager_subscriber {
         rt_log_analyzer_loop(analyzer2, 3);
 
         // check the output of the manager
-        log_manager_loop(manager, 1);
+        log_manager_loop(g_device_id, manager, 1);
     }
 
     void free() {

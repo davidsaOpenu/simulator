@@ -107,14 +107,14 @@ int log_manager_add_analyzer(LogManager* manager, RTLogAnalyzer* analyzer);
  * The same as `log_manager_loop(manager, -1)`
  * @param manager the manager to run
  */
-void* log_manager_run(void* manager);
+void* log_manager_run(uint8_t device_index, void* manager);
 
 /**
  * Do the main loop of the manager given
  * @param manager the manager to run
  * @param max_loops the maximum number of loops to do; if negative, run forever
  */
-void log_manager_loop(LogManager* manager, int max_loops);
+void log_manager_loop(uint8_t device_index, LogManager* manager, int max_loops);
 
 /**
  * Free the manager
