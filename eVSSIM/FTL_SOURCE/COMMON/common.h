@@ -33,6 +33,9 @@
 
 #define MAPPING_TABLE_INIT_VAL UINT64_MAX
 
+#define MAX_DEVICES 16
+#define INVALID_DEVICE_INDEX 0xFF
+
 #include "vssim_config_manager.h"
 #include "ftl.h"
 #include "ftl_inverse_mapping_manager.h"

@@ -129,33 +129,63 @@ evssim_build_ssd_conf () {
     python -c "import os; import sys; sys.stdout.write(open('$EVSSIM_RUNTIME_SSD_CONF_TEMPLATE', 'rt').read() % os.environ)"
 }
 
-# Calculate ssd disk size from ssd configuration
+# Calculate ssd disk sizes from ssd configuration (returns array of sizes)
 # Parameters - None
-evssim_calculate_ssd_conf_disk_size() {
+evssim_calculate_ssd_conf_disk_sizes() {
     local code=$(cat <<PYTHON
-# Parse ssd configuration
+# Parse ssd configuration - all devices
 import sys
 
 lines = [line.strip() for line in sys.stdin.readlines()]
-data = {}
+devices = {}
+current_device = None
 
 for line in lines:
     if not line:
         continue
+
+    # Check if this is a device header like [nvme01]
     if line.startswith('[') and line.endswith(']'):
+        current_device = line[1:-1]  # Remove brackets
+        if current_device not in devices:
+            devices[current_device] = {}
         continue
+
+    # Parse key-value pairs
     parts = line.split(' ', 1)
     if len(parts) == 2:
-            key, value = parts
-            data[key] = value
-def g(name): return int(data[name])
-# Calculate the final size (With casts)
-print(g("FLASH_NB")*g("BLOCK_NB")*g("PAGE_NB")*g("PAGE_SIZE"))
+        key, value = parts
+        devices[current_device][key] = value
+
+# Function to get value from specific device
+def g(device_data, name):
+    return int(device_data.get(name, 0))
+
+# Calculate sizes for all devices
+for device_name in sorted(devices.keys()):
+    device_data = devices[device_name]
+    size = g(device_data, "FLASH_NB") * g(device_data, "BLOCK_NB") * g(device_data, "PAGE_NB") * g(device_data, "PAGE_SIZE")
+    print(size)
 PYTHON
 )
     echo "$ssd" | python -c "$code"
 }
 
+# Get device count from ssd configuration
+# Parameters - None
+evssim_get_device_count() {
+    local code=$(cat <<PYTHON
+import sys
+count = 0
+for line in sys.stdin.readlines():
+    line = line.strip()
+    if line.startswith('[') and line.endswith(']'):
+        count += 1
+print(count)
+PYTHON
+)
+    echo "$ssd" | python -c "$code"
+}
 
 # Return VSSIM related environment variables
 # Parameters - None
@@ -163,7 +193,7 @@ evssim_all_env () {
     env | grep "^EVSSIM_"
 }
 
-# Execute qemu in atached or detached mode
+# Execute qemu in attached or detached mode
 # Parameters
 #  - attachness - "attached" or "detached"
 #  - ssd - VSSIM ssd configuration string
@@ -199,23 +229,53 @@ evssim_qemu () {
         trace_config="$trace_config -trace \"bdrv*\" -trace \"blk*\""
     fi
 
-    # Simulator state
+    # Build drive and device arguments
+    local drive_args=""
+    local device_args=""
     local device_simulator="off";
-    local device_size=$EVSSIM_QEMU_DEFAULT_DISK_SIZE;
+    local device_size=$EVSSIM_QEMU_DEFAULT_DISK_SIZE
+
+    # Simulator state
     if [[ "$EVSSIM_QEMU_SIMULATOR_ENABLED" =~ y.* ]]; then
         device_simulator="on";
-        device_size=$(evssim_calculate_ssd_conf_disk_size)
+
+        local device_count=$(evssim_get_device_count)
+        local device_sizes=($(evssim_calculate_ssd_conf_disk_sizes))
+
+        if [ ${#device_sizes[@]} -eq 0 ]; then
+            echo "ERROR: No devices found in SSD configuration"
+            exit 1
+        fi
+
+        # Multi-device mode with real configuration
+        local serial_number=1
+        local device_index=1
+        for device_size in "${device_sizes[@]}"; do
+            # Create drive argument
+            drive_args="$drive_args -drive format=vssim,size=$device_size,simulator=$device_simulator,if=none,id=memory$device_index,device_index=$device_index"
+
+            # Create NVMe device argument
+            device_args="$device_args -device nvme,drive=memory$device_index,serial=$serial_number,device_index=$device_index"
+
+            ((device_index++))
+            ((serial_number++))
+        done
+
+        echo "INFO Simulator mode ($device_count devices)"
+        local serial_number=1
+        for device_size in "${device_sizes[@]}"; do
+            echo "     Device $serial_number: $(numfmt --from=iec --to=iec $device_size)"
+            ((serial_number++))
+        done
+    else
+        # Non-simulator mode - use default size
+        drive_args="-drive format=vssim,size=$device_size,simulator=$device_simulator,if=none,id=memory"
+        device_args="-device nvme,drive=memory,serial=1"
+        echo "INFO Non-simulator mode, Default size: $(numfmt --from=iec --to=iec $device_size)"
     fi
 
-    local device_size_formatted=$(numfmt --from=iec --to=iec $device_size)
-    if [ -z "$device_size_formatted" ]; then
-        echo "ERROR Invalid disk size format"
-        exit 1
-    fi;
-
-    echo "INFO Simulator ($device_simulator), Disk Size $device_size_formatted"
-
-    local args="cd $EVSSIM_DOCKER_ROOT_PATH/$EVSSIM_QEMU_FOLDER/hw && $timeout ../x86_64-softmmu/qemu-system-x86_64 -rtc base=localtime,clock=host -pidfile /tmp/qemu.pid $trace_config -m 4096 -smp 4 -drive format=raw,file=$image -drive format=vssim,size=$device_size,simulator=$device_simulator,if=none,id=memory -device nvme,drive=memory,serial=1 -device e1000,netdev=net0 -netdev user,id=net0,hostfwd=tcp::$EVSSIM_QEMU_PORT-:22 -vnc :$EVSSIM_QEMU_VNC -machine accel=kvm -kernel $kernel -initrd $initrd -L /usr/share/seabios -L ../pc-bios/optionrom -append '$append'";
+    # Build the complete args
+    local args="cd $EVSSIM_DOCKER_ROOT_PATH/$EVSSIM_QEMU_FOLDER/hw && $timeout ../x86_64-softmmu/qemu-system-x86_64 -rtc base=localtime,clock=host -pidfile /tmp/qemu.pid $trace_config -m 4096 -smp 4 -drive format=raw,file=$image $drive_args $device_args -device e1000,netdev=net0 -netdev user,id=net0,hostfwd=tcp::$EVSSIM_QEMU_PORT-:22 -vnc :$EVSSIM_QEMU_VNC -machine accel=kvm -kernel $kernel -initrd $initrd -L /usr/share/seabios -L ../pc-bios/optionrom -append '$append'";
 
     # Stop any previous runs
     evssim_qemu_stop
@@ -232,10 +292,10 @@ evssim_qemu () {
 
     case "$attached" in
         attached)
-            docker run --rm -i $docker_extra_tty --net=host $EVSSIM_DOCKER_XOPTIONS --privileged --env-file <(evssim_all_env) -v $EVSSIM_ROOT_PATH/$EVSSIM_DATA_FOLDER:$EVSSIM_DOCKER_ROOT_PATH/$EVSSIM_QEMU_FOLDER/hw/data -v $EVSSIM_ROOT_PATH:$EVSSIM_DOCKER_ROOT_PATH $EVSSIM_DOCKER_IMAGE_NAME bash -c "cd $path; $args"
+            docker run --rm -i $docker_extra_tty --net=host $EVSSIM_DOCKER_XOPTIONS --privileged --env-file <(evssim_all_env) -v $EVSSIM_ROOT_PATH/$EVSSIM_DATA_FOLDER:$EVSSIM_DOCKER_ROOT_PATH/$EVSSIM_QEMU_FOLDER/hw/data -v $EVSSIM_ROOT_PATH:$EVSSIM_DOCKER_ROOT_PATH $EVSSIM_DOCKER_IMAGE_NAME bash -c "$args"
             ;;
         *)
-            export EVSSIM_DOCKER_UUID=$(docker run --rm -d --net=host $EVSSIM_DOCKER_XOPTIONS --privileged --env-file <(evssim_all_env) -v $EVSSIM_ROOT_PATH/$EVSSIM_DATA_FOLDER:$EVSSIM_DOCKER_ROOT_PATH/$EVSSIM_QEMU_FOLDER/hw/data -v $EVSSIM_ROOT_PATH:$EVSSIM_DOCKER_ROOT_PATH $EVSSIM_DOCKER_IMAGE_NAME bash -c "cd $path; $args")
+            export EVSSIM_DOCKER_UUID=$(docker run --rm -d --net=host $EVSSIM_DOCKER_XOPTIONS --privileged --env-file <(evssim_all_env) -v $EVSSIM_ROOT_PATH/$EVSSIM_DATA_FOLDER:$EVSSIM_DOCKER_ROOT_PATH/$EVSSIM_QEMU_FOLDER/hw/data -v $EVSSIM_ROOT_PATH:$EVSSIM_DOCKER_ROOT_PATH $EVSSIM_DOCKER_IMAGE_NAME bash -c "$args")
             echo INFO Docker started $EVSSIM_DOCKER_UUID
             trap "evssim_qemu_stop" EXIT SIGTERM SIGINT
             sleep 1
