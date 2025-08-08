@@ -30,7 +30,6 @@ source env.sh
 
 ./compile-kernel.sh
 ./compile-qemu.sh
-./compile-monitor.sh
 ./compile-guest-tests.sh
 ./compile-host-tests.sh
 

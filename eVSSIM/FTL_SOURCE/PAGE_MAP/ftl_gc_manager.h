@@ -10,26 +10,26 @@
 
 extern unsigned int gc_count;
 
-typedef ftl_ret_val (*gc_collection_algo)(uint64_t, int, bool);
-typedef ftl_ret_val (*gc_next_page_algo)(int, int, uint64_t*);
+typedef ftl_ret_val (*gc_collection_algo)(uint8_t, uint64_t, int, bool);
+typedef ftl_ret_val (*gc_next_page_algo)(uint8_t, int, int, uint64_t*);
 
 /**
  * Init gc manger
  */
 void INIT_GC_MANAGER(void);
 
-void GC_CHECK(unsigned int phy_flash_nb, uint64_t phy_block_nb, bool force, bool isObjectStrategy);
+void GC_CHECK(uint8_t device_index, unsigned int phy_flash_nb, uint64_t phy_block_nb, bool force, bool isObjectStrategy);
 
 /**
  * Default garbage collection algorithm
  */
-ftl_ret_val DEFAULT_GC_COLLECTION_ALGO(uint64_t mapping_index, int l2, bool isObjectStrategy);
+ftl_ret_val DEFAULT_GC_COLLECTION_ALGO(uint8_t device_index, uint64_t mapping_index, int l2, bool isObjectStrategy);
 
 /**
  * Run garbage collection operation
  */
-ftl_ret_val GARBAGE_COLLECTION(uint64_t mapping_index, int l2, bool isObjectStrategy);
-ftl_ret_val SELECT_VICTIM_BLOCK(unsigned int* phy_flash_nb, uint64_t* phy_block_nb);
+ftl_ret_val GARBAGE_COLLECTION(uint8_t device_index, uint64_t mapping_index, int l2, bool isObjectStrategy);
+ftl_ret_val SELECT_VICTIM_BLOCK(uint8_t device_index, unsigned int* phy_flash_nb, uint64_t* phy_block_nb);
 
 typedef struct write_amplification_counters
 {

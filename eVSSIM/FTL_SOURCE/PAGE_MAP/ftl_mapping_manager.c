@@ -5,94 +5,107 @@
 
 #include "ftl_mapping_manager.h"
 
-uint64_t* mapping_table[MAX_NUMBER_OF_NAMESPACES] = {NULL,};
-void* block_table_start;
+#define MAPPING_TABLE_INIT_VAL UINT64_MAX
+
+uint64_t* mapping_table[MAX_DEVICES][MAX_NUMBER_OF_NAMESPACES] = { {0} };
+
 extern GCAlgorithm gc_algo;
 
-void INIT_MAPPING_TABLE(void)
+void INIT_MAPPING_TABLE(uint8_t device_index)
 {
 	char filename[MAX_FILENAME_LENGTH];
 	int namespaceIndex;
 
 	for (namespaceIndex = 0; namespaceIndex < MAX_NUMBER_OF_NAMESPACES; namespaceIndex++)
 	{
-		if (NAMESPACES_SIZE[namespaceIndex] == 0){
+		if (devices[device_index].namespaces_size[namespaceIndex] == 0)
+		{
 			/* Skip un-used namespace */
 			continue;
 		}
-		
+
 		/* Allocation Memory for Mapping Table */
-		mapping_table[namespaceIndex] = (uint64_t*)calloc(NAMESPACES_SIZE[namespaceIndex] * (uint64_t)PAGE_NB, sizeof(uint64_t));
-		if (mapping_table[namespaceIndex] == NULL)
+		mapping_table[device_index][namespaceIndex] = (uint64_t*)calloc(devices[device_index].namespaces_size[namespaceIndex] * (uint64_t)devices[device_index].page_nb, sizeof(uint64_t));
+		if (mapping_table[device_index][namespaceIndex] == NULL)
 			RERR(, "Calloc mapping table fail\n");
 
-		/* Initialization Mapping Table */
-
-		snprintf(filename, sizeof(filename), "./data/mapping_table_namespace_%d.dat", namespaceIndex);
-
 		/* If mapping_table.dat file exists */
-		FILE* fp = fopen(filename, "r");
-		if(fp != NULL){
-			if(fread(mapping_table[namespaceIndex], sizeof(uint64_t), NAMESPACES_SIZE[namespaceIndex] * (uint64_t)PAGE_NB, fp) <= 0)
+		snprintf(filename, sizeof(filename), "mapping_table_namespace_%d.dat", namespaceIndex);
+
+		char* data_filename = GET_DATA_FILENAME(device_index, filename);
+		if (data_filename == NULL)
+			RERR(, "GET_DATA_FILENAME failed\n");
+
+		FILE* fp = fopen(data_filename, "r");
+		free(data_filename);
+		if(fp != NULL)
+		{
+			if(fread(mapping_table[device_index][namespaceIndex], sizeof(uint64_t), devices[device_index].namespaces_size[namespaceIndex] * (uint64_t)devices[device_index].page_nb, fp) <= 0)
 				PERR("fread\n");
 			fclose(fp);
 		}
-		else{
+		else
+		{
 			uint64_t i;
-			for(i=0; i < NAMESPACES_SIZE[namespaceIndex] * (uint64_t)PAGE_NB; i++){
-				mapping_table[namespaceIndex][i] = MAPPING_TABLE_INIT_VAL;
+			for (i=0; i < devices[device_index].namespaces_size[namespaceIndex] * devices[device_index].page_nb; i++){
+				mapping_table[device_index][namespaceIndex][i] = MAPPING_TABLE_INIT_VAL;
 			}
 		}
 	}
 }
 
-void TERM_MAPPING_TABLE(void)
+void TERM_MAPPING_TABLE(uint8_t device_index)
 {
 	char filename[MAX_FILENAME_LENGTH];
-  int namespaceIndex;
+    int namespaceIndex;
 
 	for (namespaceIndex = 0; namespaceIndex < MAX_NUMBER_OF_NAMESPACES; namespaceIndex++)
 	{
-		if (NAMESPACES_SIZE[namespaceIndex] == 0){
+		if (devices[device_index].namespaces_size[namespaceIndex] == 0){
 			/* Skip un-used namespace */
 			continue;
 		}
 
-		snprintf(filename, sizeof(filename), "./data/mapping_table_namespace_%d.dat", namespaceIndex);
-		FILE* fp = fopen(filename,"w");
+		snprintf(filename, sizeof(filename), "mapping_table_namespace_%d.dat", namespaceIndex);
+
+		char* data_filename = GET_DATA_FILENAME(device_index, filename);
+		if (data_filename == NULL)
+			RERR(, "GET_DATA_FILENAME failed\n");
+
+		FILE* fp = fopen(data_filename,"w");
 		if (fp == NULL)
 			RERR(, "File open fail\n");
 
 		/* Write the mapping table to file */
-		if(fwrite(mapping_table[namespaceIndex], sizeof(uint64_t), NAMESPACES_SIZE[namespaceIndex] * (uint64_t)PAGE_NB ,fp) <= 0)
+		if(fwrite(mapping_table[device_index][namespaceIndex], sizeof(uint64_t), devices[device_index].namespaces_size[namespaceIndex] * (uint64_t)devices[device_index].page_nb ,fp) <= 0)
 			PERR("fwrite\n");
 
 		/* Free memory for mapping table */
-		free(mapping_table[namespaceIndex]);
+		free(mapping_table[device_index][namespaceIndex]);
 		fclose(fp);
 	}
 }
 
-uint64_t GET_MAPPING_INFO(uint32_t nsid, uint64_t lpn)
+uint64_t GET_MAPPING_INFO(uint8_t device_index, uint32_t nsid, uint64_t lpn)
 {
-	if(nsid >= MAX_NUMBER_OF_NAMESPACES || mapping_table[nsid] == NULL || lpn >= (NAMESPACES_SIZE[nsid] * (uint64_t)PAGE_NB)){
+	if(nsid >= MAX_NUMBER_OF_NAMESPACES || mapping_table[device_index][nsid] == NULL || lpn >= (devices[device_index].namespaces_size[nsid] * (uint64_t)devices[device_index].page_nb)){
 		PERR("overflow!\n");
 	}
 
-	const uint64_t ppn = mapping_table[nsid][lpn];
+	const uint64_t ppn = mapping_table[device_index][nsid][lpn];
 	return ppn;
 }
 
-ftl_ret_val GET_NEW_PAGE(int mode, uint64_t mapping_index, uint64_t* ppn)
+ftl_ret_val GET_NEW_PAGE(uint8_t device_index, int mode, uint64_t mapping_index, uint64_t* ppn)
 {
-    return gc_algo.next_page(mode, mapping_index, ppn);
+    return gc_algo.next_page(device_index, mode, mapping_index, ppn);
 }
 
-ftl_ret_val DEFAULT_NEXT_PAGE_ALGO(int mode, uint64_t mapping_index, uint64_t* ppn)
+ftl_ret_val DEFAULT_NEXT_PAGE_ALGO(uint8_t device_index, int mode, uint64_t mapping_index, uint64_t* ppn)
 {
 	empty_block_entry* curr_empty_block;
 
-	curr_empty_block = GET_EMPTY_BLOCK(mode, mapping_index);
+	curr_empty_block = GET_EMPTY_BLOCK(device_index, mode, mapping_index);
 
 	if (curr_empty_block == NULL){
 		if (VICTIM_INCHIP == mode)
@@ -107,8 +120,8 @@ ftl_ret_val DEFAULT_NEXT_PAGE_ALGO(int mode, uint64_t mapping_index, uint64_t* p
 	//We count the number of pages in all flash chips before us
 	//We add to it the number of pages in all blocks before our current block (which was returned by the GET_EMPTY_BLOCK method)
 	//and then we add to it the amount of blocks which are already used in our current block
-	*ppn = curr_empty_block->phy_flash_nb*BLOCK_NB*PAGE_NB \
-	       + curr_empty_block->phy_block_nb*PAGE_NB \
+	*ppn = curr_empty_block->phy_flash_nb*devices[device_index].block_nb*devices[device_index].page_nb \
+	       + curr_empty_block->phy_block_nb*devices[device_index].page_nb \
 	       + curr_empty_block->curr_phy_page_nb;
 
 	curr_empty_block->curr_phy_page_nb += 1;
@@ -116,99 +129,100 @@ ftl_ret_val DEFAULT_NEXT_PAGE_ALGO(int mode, uint64_t mapping_index, uint64_t* p
 	return FTL_SUCCESS;
 }
 
-int UPDATE_OLD_PAGE_MAPPING(uint32_t nsid, uint64_t lpn)
+int UPDATE_OLD_PAGE_MAPPING(uint8_t device_index,uint32_t nsid, uint64_t lpn)
 {
 	uint64_t old_ppn;
 
-	old_ppn = GET_MAPPING_INFO(nsid, lpn);
+	old_ppn = GET_MAPPING_INFO(device_index, nsid, lpn);
 
 	if (old_ppn == MAPPING_TABLE_INIT_VAL)
 		RDBG_FTL(FTL_FAILURE, "New page \n");
 
-    UPDATE_INVERSE_BLOCK_VALIDITY(CALC_FLASH(old_ppn),
-                                  CALC_BLOCK(old_ppn),
-                                  CALC_PAGE(old_ppn),
+    UPDATE_INVERSE_BLOCK_VALIDITY(device_index,
+								  CALC_FLASH(device_index, old_ppn),
+                                  CALC_BLOCK(device_index, old_ppn),
+                                  CALC_PAGE(device_index, old_ppn),
                                   PAGE_INVALID);
-    UPDATE_INVERSE_PAGE_MAPPING(old_ppn, INVALID_NSID, MAPPING_TABLE_INIT_VAL);
+    UPDATE_INVERSE_PAGE_MAPPING(device_index, old_ppn, INVALID_NSID, MAPPING_TABLE_INIT_VAL);
 
 	return FTL_SUCCESS;
 }
 
-int UPDATE_NEW_PAGE_MAPPING(uint32_t nsid, uint64_t lpn, uint64_t ppn)
+int UPDATE_NEW_PAGE_MAPPING(uint8_t device_index, uint32_t nsid, uint64_t lpn, uint64_t ppn)
 {
-	if(nsid >= MAX_NUMBER_OF_NAMESPACES || mapping_table[nsid] == NULL || lpn >= (NAMESPACES_SIZE[nsid] * (uint64_t)PAGE_NB)){
+	if(nsid >= MAX_NUMBER_OF_NAMESPACES || mapping_table[device_index][nsid] == NULL || lpn >= (devices[device_index].namespaces_size[nsid] * (uint64_t)devices[device_index].page_nb)){
 		PERR("overflow!\n");
 	}
 
 	/* Update Page Mapping Table */
-	mapping_table[nsid][lpn] = ppn;
+	mapping_table[device_index][nsid][lpn] = ppn;
 
 	/* Update Inverse Page Mapping Table */
-	UPDATE_INVERSE_BLOCK_VALIDITY(CALC_FLASH(ppn), CALC_BLOCK(ppn), CALC_PAGE(ppn), PAGE_VALID);
-	UPDATE_INVERSE_BLOCK_MAPPING(CALC_FLASH(ppn), CALC_BLOCK(ppn), DATA_BLOCK);
-	UPDATE_INVERSE_PAGE_MAPPING(ppn, nsid, lpn);
+	UPDATE_INVERSE_BLOCK_VALIDITY(device_index, CALC_FLASH(device_index, ppn), CALC_BLOCK(device_index, ppn), CALC_PAGE(device_index, ppn), PAGE_VALID);
+	UPDATE_INVERSE_BLOCK_MAPPING(device_index, CALC_FLASH(device_index, ppn), CALC_BLOCK(device_index, ppn), DATA_BLOCK);
+	UPDATE_INVERSE_PAGE_MAPPING(device_index, ppn, nsid, lpn);
 
 	return FTL_SUCCESS;
 }
 
-int UPDATE_NEW_PAGE_MAPPING_NO_LOGICAL(uint64_t ppn)
+int UPDATE_NEW_PAGE_MAPPING_NO_LOGICAL(uint8_t device_index, uint64_t ppn)
 {
 	/* Update Inverse Page Mapping Table */
-	UPDATE_INVERSE_BLOCK_VALIDITY(CALC_FLASH(ppn), CALC_BLOCK(ppn), CALC_PAGE(ppn), PAGE_VALID);
-	UPDATE_INVERSE_BLOCK_MAPPING(CALC_FLASH(ppn), CALC_BLOCK(ppn), DATA_BLOCK);
+	UPDATE_INVERSE_BLOCK_VALIDITY(device_index, CALC_FLASH(device_index, ppn), CALC_BLOCK(device_index, ppn), CALC_PAGE(device_index, ppn), PAGE_VALID);
+	UPDATE_INVERSE_BLOCK_MAPPING(device_index, CALC_FLASH(device_index, ppn), CALC_BLOCK(device_index, ppn), DATA_BLOCK);
 
 	return FTL_SUCCESS;
 }
 
-unsigned int CALC_FLASH(uint64_t ppn)
+unsigned int CALC_FLASH(uint8_t device_index, uint64_t ppn)
 {
-	unsigned int flash_nb = (ppn/PAGE_NB)/BLOCK_NB;
+	unsigned int flash_nb = (ppn/devices[device_index].page_nb) / devices[device_index].block_nb;
 
-	if (flash_nb >= FLASH_NB) {
+	if (flash_nb >= devices[device_index].flash_nb) {
 		PERR("flash_nb %u\n", flash_nb);
 	}
 	return flash_nb;
 }
 
-uint64_t CALC_BLOCK(uint64_t ppn)
+uint64_t CALC_BLOCK(uint8_t device_index, uint64_t ppn)
 {
-	uint64_t block_nb = (ppn/PAGE_NB)%BLOCK_NB;
+	uint64_t block_nb = (ppn/devices[device_index].page_nb) % devices[device_index].block_nb;
 
-	if(block_nb >= BLOCK_NB){
+	if(block_nb >= devices[device_index].block_nb){
 		PERR("block_nb %lu\n", block_nb);
 	}
 	return block_nb;
 }
 
-uint64_t CALC_PAGE(uint64_t ppn)
+uint64_t CALC_PAGE(uint8_t device_index, uint64_t ppn)
 {
-	unsigned int page_nb = ppn%PAGE_NB;
+	unsigned int page_nb = ppn % devices[device_index].page_nb;
 
 	return page_nb;
 }
 
-unsigned int CALC_PLANE(uint64_t ppn)
+unsigned int CALC_PLANE(uint8_t device_index, uint64_t ppn)
 {
-	int flash_nb = CALC_FLASH(ppn);
-	int block_nb = CALC_BLOCK(ppn);
+	int flash_nb = CALC_FLASH(device_index, ppn);
+	int block_nb = CALC_BLOCK(device_index, ppn);
 	int plane;
 
-	plane = flash_nb*PLANES_PER_FLASH + block_nb%PLANES_PER_FLASH;
+	plane = flash_nb * devices[device_index].planes_per_flash + block_nb % devices[device_index].planes_per_flash;
 
 	return plane;
 }
 
-unsigned int CALC_CHANNEL(uint64_t ppn)
+unsigned int CALC_CHANNEL(uint8_t device_index, uint64_t ppn)
 {
-	int flash_nb = CALC_FLASH(ppn);
+	int flash_nb = CALC_FLASH(device_index, ppn);
 	int channel;
 
-	channel = flash_nb % CHANNEL_NB;
+	channel = flash_nb % devices[device_index].channel_nb;
 
 	return channel;
 }
 
-unsigned int CALC_SCOPE_FIRST_PAGE(uint64_t address, int scope)
+unsigned int CALC_SCOPE_FIRST_PAGE(uint8_t device_index, uint64_t address, int scope)
 {
 	int planeNumber;
 	switch (scope)
@@ -216,20 +230,20 @@ unsigned int CALC_SCOPE_FIRST_PAGE(uint64_t address, int scope)
 		case PAGE:
 			return address;
 		case BLOCK:
-			return  address * PAGE_NB;
+			return  address * devices[device_index].page_nb;
 		case PLANE:
 			//If only there is only 1 plane per flash, then continue to flash case which will produce the right result in that case.
-			if (PLANES_PER_FLASH > 1){
-				//Only block that i % PLANES_PER_FLASH = planeNumber are in that plane
-				planeNumber = address % PLANES_PER_FLASH;
-				return (((address / PLANES_PER_FLASH) * PAGES_PER_FLASH) + (PAGE_NB * planeNumber));
+			if (devices[device_index].planes_per_flash > 1){
+				//Only block that i % devices[device_index].planes_per_flash = planeNumber are in that plane
+				planeNumber = address % devices[device_index].planes_per_flash;
+				return (((address / devices[device_index].planes_per_flash) * devices[device_index].pages_per_flash) + (devices[device_index].page_nb * planeNumber));
 			}else{
-				return address * PAGES_PER_FLASH;
+				return address * devices[device_index].pages_per_flash;
 			}
 		case FLASH:
-			return address * PAGES_PER_FLASH;
+			return address * devices[device_index].pages_per_flash;
 		case CHANNEL:
-			return PAGES_PER_FLASH * address;
+			return devices[device_index].pages_per_flash * address;
 		case SSD:
 			return 0;
 		default:
