@@ -49,18 +49,18 @@ void flipAuto();
         public:
             virtual void SetUp(){
                 BaseTest::SetUp();
-                INIT_LOG_MANAGER();
+                INIT_LOG_MANAGER(g_device_index);
             }
-                
+
             virtual void TearDown(){
                 BaseTest::TearDown();
-                TERM_LOG_MANAGER();
+                TERM_LOG_MANAGER(g_device_index);
             }
     };
-    
-    
+
+
     /**
-     * disables/enables the auto deletion of log files sent by filebeat and deletes all remaining logs 
+     * disables/enables the auto deletion of log files sent by filebeat and deletes all remaining logs
      */
     void flipAuto(){
         auto_delete = !auto_delete;
@@ -73,13 +73,13 @@ void flipAuto();
             }
         }
     }
-    
+
     std::vector<SSDConf*> GetTestParams() {
         std::vector<SSDConf*> ssd_configs;
 
         for(unsigned int i = POW_START; i <= MAX_POW;i++){
             size_t block_nb = pow(2,i);
-            ssd_configs.push_back(new SSDConf(PAGE_SIZE, PAGE_NB, SECTOR_SIZE, DEFAULT_FLASH_NB, block_nb, DEFAULT_FLASH_NB, block_nb * DEFAULT_FLASH_NB, 0));
+            ssd_configs.push_back(new SSDConf(PAGE_SIZE, PAGE_NB, SECTOR_SIZE, DEFAULT_FLASH_NB, block_nb, DEFAULT_FLASH_NB));
         }
 
         return ssd_configs;
@@ -92,16 +92,16 @@ void flipAuto();
     #define LOG_FILE_PREFIX_LEN sizeof(LOG_FILE_PREFIX)
 
     enum {MODE_R, MODE_W, MODE_RW };
-    
+
     /**
-     * returns a vector of the paths to all the logs 
+     * returns a vector of the paths to all the logs
      * @param logs_path the path to the logs
      */
     std::vector<std::string> get_all_log_files(const char *logs_path) {
         std::vector<std::string> ret = {};
         DIR *dir;
         struct dirent *ent;
-        
+
         if ((dir = opendir (logs_path)) != NULL) {
             while ((ent = readdir (dir)) != NULL) {
                 if (!strncmp(ent->d_name, LOG_FILE_PREFIX, LOG_FILE_PREFIX_LEN-1)) {
@@ -113,7 +113,7 @@ void flipAuto();
         if(ret.size() == 0){
             printf("error: no files found \n");
         }
-        
+
         return ret;
     }
 
@@ -123,7 +123,7 @@ void flipAuto();
             {"PhysicalCellProgramLog", 0},
             {"PhysicalCellReadLog", 0},
             {"RegisterReadLog", 0},
-            {"RegisterWriteLog", 0},        
+            {"RegisterWriteLog", 0},
             {"ChannelSwitchToReadLog", 0},
             {"ChannelSwitchToWriteLog", 0}
         };
@@ -134,24 +134,24 @@ void flipAuto();
         std::unordered_map<std::string, int> stats = get_new_stats();
         switch(mode) {
             case MODE_R:
-                stats["PhysicalCellReadLog"] = PAGES_IN_SSD;
-                stats["RegisterReadLog"] = PAGES_IN_SSD;
-                stats["ChannelSwitchToReadLog"] = FLASH_NB;
+                stats["PhysicalCellReadLog"] = devices[g_device_index].pages_in_ssd;
+                stats["RegisterReadLog"] = devices[g_device_index].pages_in_ssd;
+                stats["ChannelSwitchToReadLog"] = devices[g_device_index].flash_nb;
                 break;
             case MODE_W:
-                stats["RegisterWriteLog"] = PAGES_IN_SSD;
-                stats["LogicalCellProgramLog"] = PAGES_IN_SSD;
-                stats["PhysicalCellProgramLog"] = PAGES_IN_SSD;
-                stats["ChannelSwitchToWriteLog"] = FLASH_NB;
+                stats["RegisterWriteLog"] = devices[g_device_index].pages_in_ssd;
+                stats["LogicalCellProgramLog"] = devices[g_device_index].pages_in_ssd;
+                stats["PhysicalCellProgramLog"] = devices[g_device_index].pages_in_ssd;
+                stats["ChannelSwitchToWriteLog"] = devices[g_device_index].flash_nb;
                 break;
             case MODE_RW:
-                stats["RegisterWriteLog"] = PAGES_IN_SSD;
-                stats["RegisterReadLog"] = PAGES_IN_SSD;
-                stats["LogicalCellProgramLog"] = PAGES_IN_SSD;
-                stats["PhysicalCellProgramLog"] = PAGES_IN_SSD;
-                stats["PhysicalCellReadLog"] = PAGES_IN_SSD;
-                stats["ChannelSwitchToReadLog"] = PAGES_IN_SSD;
-                stats["ChannelSwitchToWriteLog"] = PAGES_IN_SSD;
+                stats["RegisterWriteLog"] = devices[g_device_index].pages_in_ssd;
+                stats["RegisterReadLog"] = devices[g_device_index].pages_in_ssd;
+                stats["LogicalCellProgramLog"] = devices[g_device_index].pages_in_ssd;
+                stats["PhysicalCellProgramLog"] = devices[g_device_index].pages_in_ssd;
+                stats["PhysicalCellReadLog"] = devices[g_device_index].pages_in_ssd;
+                stats["ChannelSwitchToReadLog"] = devices[g_device_index].pages_in_ssd;
+                stats["ChannelSwitchToWriteLog"] = devices[g_device_index].pages_in_ssd;
                 break;
         }
         return stats;
@@ -159,7 +159,7 @@ void flipAuto();
 
     std::unordered_map<std::string, int> get_test_stats(std::vector<std::string> log_files) {
         std::unordered_map<std::string, int> stats = get_new_stats();
-        json_object *j_obj, *type_obj; 
+        json_object *j_obj, *type_obj;
         for(auto &log_file : log_files) {
             ifstream log_file_is(log_file);
             std::string line;
@@ -168,16 +168,16 @@ void flipAuto();
 
                 j_obj = json_tokener_parse(line.c_str());
                 json_object_object_get_ex(j_obj, "type", &type_obj);
-                
+
                 std::string type = std::string(json_object_get_string(type_obj));
                 stats[type]++;
-                
+
                 //json_object_put(type_obj);
                 json_object_put(j_obj);
             }
         }
-        
-        
+
+
         return stats;
     }
 
@@ -206,9 +206,9 @@ void flipAuto();
             if (cur_stats[key.first] != predicted_stats[key.first]){
                 return -1;
             }
-                
+
         }
-        
+
         return 0;
     }
 
@@ -216,27 +216,36 @@ void flipAuto();
      * testing of the offline analyzer mechanism related to the json serialization
      */
     void readOrWrite(int mode){
-        
-        int expected_write_duration = (CHANNEL_SWITCH_DELAY_W + REG_WRITE_DELAY + CELL_PROGRAM_DELAY) * PAGES_IN_SSD;
-        int expected_read_duration = (CHANNEL_SWITCH_DELAY_R + REG_READ_DELAY + CELL_READ_DELAY) * PAGES_IN_SSD;
+
+        int expected_write_duration = (
+            devices[g_device_index].channel_switch_delay_w +
+            devices[g_device_index].reg_write_delay +
+            devices[g_device_index].cell_program_delay
+        ) * devices[g_device_index].pages_in_ssd;
+
+        int expected_read_duration = (
+            devices[g_device_index].channel_switch_delay_r +
+            devices[g_device_index].reg_read_delay +
+            devices[g_device_index].cell_read_delay
+        ) * devices[g_device_index].pages_in_ssd;
 
         // In case of r/w mode: read / write num_blocks
 
-        for (uint64_t i = 0; i < PAGES_IN_SSD; i++) {
+        for (uint64_t i = 0; i < devices[g_device_index].pages_in_ssd; i++) {
             switch (mode) {
                 case MODE_R:
-                    SSD_PAGE_READ(CALC_FLASH(i), CALC_BLOCK(i), i, 0, READ);
+                    SSD_PAGE_READ(g_device_index, CALC_FLASH(g_device_index, i), CALC_BLOCK(g_device_index, i), i, 0, READ);
                     break;
                 case MODE_W:
-                    SSD_PAGE_WRITE(CALC_FLASH(i), CALC_BLOCK(i), i, 0, WRITE);
+                    SSD_PAGE_WRITE(g_device_index, CALC_FLASH(g_device_index, i), CALC_BLOCK(g_device_index, i), i, 0, WRITE);
                     break;
                 case MODE_RW:
-                    SSD_PAGE_READ(CALC_FLASH(i), CALC_BLOCK(i), i, 0, READ);
-                    SSD_PAGE_WRITE(CALC_FLASH(i), CALC_BLOCK(i), i, 0, WRITE);
+                    SSD_PAGE_READ(g_device_index, CALC_FLASH(g_device_index, i), CALC_BLOCK(g_device_index, i), i, 0, READ);
+                    SSD_PAGE_WRITE(g_device_index, CALC_FLASH(g_device_index, i), CALC_BLOCK(g_device_index, i), i, 0, WRITE);
                     break;
             }
         }
-        
+
         switch (mode) {
             case MODE_R:
                   MONITOR_SYNC_DELAY(2*expected_read_duration);
@@ -252,17 +261,17 @@ void flipAuto();
         }
 
         printf("Done waiting!\n");
-        
+
         // Check that the test passed OK
 
         int result = check_offline_logger_test_results("/code/logs/", mode);
         ASSERT_EQ(0, result);
-       
+
     }
 
-        
+
     /**
-     * reads 2^n blocks from ssd and then checks if the logs were written to the log files correctly 
+     * reads 2^n blocks from ssd and then checks if the logs were written to the log files correctly
      */
     TEST_P(OfflineLoggerTest, LoggerWriterPageRead) {
         SSDConf* ssd_config = base_test_get_ssd_config();
@@ -277,9 +286,9 @@ void flipAuto();
 
 
     }
-    
+
     /**
-     * writes 2^n blocks from ssd and then checks if the logs were written to the log files correctly 
+     * writes 2^n blocks from ssd and then checks if the logs were written to the log files correctly
      */
     TEST_P(OfflineLoggerTest, LoggerWriterPageWrite) {
         SSDConf* ssd_config = base_test_get_ssd_config();
@@ -287,18 +296,18 @@ void flipAuto();
         printf("[+] Running test for blocks = %lu, mode = %d\n", ssd_config->get_block_nb(), MODE_W);
 
         readOrWrite(MODE_W);
-    
+
     }
-    
+
     /**
-     * reads and then writes 2^n blocks from ssd and then checks if the logs were written to the log files correctly 
+     * reads and then writes 2^n blocks from ssd and then checks if the logs were written to the log files correctly
      */
     TEST_P(OfflineLoggerTest, LoggerWriterPageReadWrite) {
         SSDConf* ssd_config = base_test_get_ssd_config();
         printf("[+] Running test for blocks = %lu, mode = %d\n", ssd_config->get_block_nb(), MODE_RW);
 
         readOrWrite(MODE_RW);
-                
+
         if(ssd_config->get_block_nb()==pow(2,MAX_POW)){
             flipAuto();
         }
