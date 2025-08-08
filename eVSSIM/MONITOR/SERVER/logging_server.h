@@ -29,14 +29,16 @@
 
 #define MONITOR_SLEEP_PERIOD_USEC 100
 #define MONITOR_SLEEP_MAX_USEC 150000000
+
 void MONITOR_SYNC_LOG_ID(SSDStatistics *stats, uint64_t log_id, uint64_t max_sleep);
-void MONITOR_SYNC(SSDStatistics *stats, uint64_t max_sleep);
+void MONITOR_SYNC(uint8_t device_index, SSDStatistics *stats, uint64_t max_sleep);
 
 /**
  * The port to be used by the server
  */
-#define LOG_SERVER_PORT 2003
-
+// TODO: Fixme
+#define LOG_SERVER_PORT ((g_used_upper_port) ? (2003 + MAX_DEVICES) : (2003 + (device_index)))
+extern bool g_used_upper_port;
 
 /**
  * A reset hook

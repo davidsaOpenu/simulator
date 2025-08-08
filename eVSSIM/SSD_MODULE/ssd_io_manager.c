@@ -49,7 +49,7 @@ int64_t get_usec(void)
     return t;
 }
 
-int SSD_IO_INIT(void){
+int SSD_IO_INIT(uint8_t device_index){
 
     uint32_t i= 0;
 
@@ -57,7 +57,7 @@ int SSD_IO_INIT(void){
     PINFO("SSD Emulator Version: %s ver. (%s)\n", ssd_version, ssd_date);
 
     /* Init Variable for Channel Switch Delay */
-    old_channel_nb = CHANNEL_NB;
+    old_channel_nb = devices[device_index].channel_nb;
     old_channel_time = 0;
 
     /* Init ssd statistic */
@@ -68,44 +68,44 @@ int SSD_IO_INIT(void){
     /* Init Variable for Time-stamp */
 
     /* Init Command and Command type */
-    reg_io_cmd = (int *)malloc(sizeof(int) * FLASH_NB * PLANES_PER_FLASH);
-    for(i=0; i< FLASH_NB*PLANES_PER_FLASH; i++){
+    reg_io_cmd = (int *)malloc(sizeof(int) * devices[device_index].flash_nb * devices[device_index].planes_per_flash);
+    for(i=0; i< devices[device_index].flash_nb*devices[device_index].planes_per_flash; i++){
         *(reg_io_cmd + i) = NOOP;
     }
 
-    reg_io_type = (int *)malloc(sizeof(int) * FLASH_NB * PLANES_PER_FLASH);
-    for(i=0; i< FLASH_NB*PLANES_PER_FLASH; i++){
+    reg_io_type = (int *)malloc(sizeof(int) * devices[device_index].flash_nb * devices[device_index].planes_per_flash);
+    for(i=0; i< devices[device_index].flash_nb*devices[device_index].planes_per_flash; i++){
         *(reg_io_type + i) = NOOP;
     }
 
     /* Init Register and Flash IO Time */
-    reg_io_time = (int64_t *)malloc(sizeof(int64_t) * FLASH_NB * PLANES_PER_FLASH);
-    for(i=0; i<FLASH_NB*PLANES_PER_FLASH; i++){
+    reg_io_time = (int64_t *)malloc(sizeof(int64_t) * devices[device_index].flash_nb * devices[device_index].planes_per_flash);
+    for(i=0; i<devices[device_index].flash_nb*devices[device_index].planes_per_flash; i++){
         *(reg_io_time +i)= -1;
     }
 
-    cell_io_time = (int64_t *)malloc(sizeof(int64_t) * FLASH_NB * PLANES_PER_FLASH);
-    for(i=0; i< FLASH_NB*PLANES_PER_FLASH; i++){
+    cell_io_time = (int64_t *)malloc(sizeof(int64_t) * devices[device_index].flash_nb * devices[device_index].planes_per_flash);
+    for(i=0; i< devices[device_index].flash_nb*devices[device_index].planes_per_flash; i++){
         *(cell_io_time + i) = -1;
     }
 
     /* Init Access sequence_nb */
-    access_nb = (uint32_t **)malloc(sizeof(uint32_t*) * FLASH_NB * PLANES_PER_FLASH);
-    for(i=0; i< FLASH_NB*PLANES_PER_FLASH; i++){
+    access_nb = (uint32_t **)malloc(sizeof(uint32_t*) * devices[device_index].flash_nb * devices[device_index].planes_per_flash);
+    for(i=0; i< devices[device_index].flash_nb*devices[device_index].planes_per_flash; i++){
         *(access_nb + i) = (uint32_t*)malloc(sizeof(uint32_t)*2);
         access_nb[i][0] = UINT32_MAX;
         access_nb[i][1] = UINT32_MAX;
     }
 
     /* Init IO Overhead */
-    io_overhead = (int64_t *)malloc(sizeof(int64_t) * FLASH_NB * PLANES_PER_FLASH);
-    for(i=0; i< FLASH_NB*PLANES_PER_FLASH; i++){
+    io_overhead = (int64_t *)malloc(sizeof(int64_t) * devices[device_index].flash_nb * devices[device_index].planes_per_flash);
+    for(i=0; i< devices[device_index].flash_nb*devices[device_index].planes_per_flash; i++){
         *(io_overhead + i) = 0;
     }
 
-    ssd.prev_channel_mode = (int *)malloc(sizeof(int)*CHANNEL_NB);
-    ssd.cur_channel_mode = (int *)malloc(sizeof(int)*CHANNEL_NB);
-    for (i = 0; i < CHANNEL_NB; i++) {
+    ssd.prev_channel_mode = (int *)malloc(sizeof(int)*devices[device_index].channel_nb);
+    ssd.cur_channel_mode = (int *)malloc(sizeof(int)*devices[device_index].channel_nb);
+    for (i = 0; i < devices[device_index].channel_nb; i++) {
         ssd.prev_channel_mode[i] = NOOP;
         ssd.cur_channel_mode[i] = NOOP;
     }
@@ -115,14 +115,15 @@ int SSD_IO_INIT(void){
     return 0;
 }
 
-int SSD_IO_TERM(void)
+int SSD_IO_TERM(uint8_t device_index)
 {
     free(reg_io_cmd);
     free(reg_io_type);
     free(reg_io_time);
     free(cell_io_time);
     uint32_t i;
-    for(i=0; i< FLASH_NB*PLANES_PER_FLASH; i++)
+    // TODO: Check this
+    for(i=0; i< devices[device_index].flash_nb * devices[device_index].planes_per_flash; i++)
         free(access_nb[i]);
     free(access_nb);
     free(io_overhead);
@@ -131,12 +132,12 @@ int SSD_IO_TERM(void)
     return 0;
 }
 
-static ftl_ret_val SSD_CELL_RECORD(int reg, int channel)
+static ftl_ret_val SSD_CELL_RECORD(uint8_t device_index, int reg, int channel)
 {
     ftl_ret_val retval = FTL_SUCCESS;
     switch (ssd.cur_channel_mode[channel]) {
         case WRITE:
-            cell_io_time[reg] = old_channel_time + REG_WRITE_DELAY;
+            cell_io_time[reg] = old_channel_time + devices[device_index].reg_write_delay;
             break;
         case READ:
             cell_io_time[reg] = old_channel_time;
@@ -153,13 +154,13 @@ static ftl_ret_val SSD_CELL_RECORD(int reg, int channel)
     return retval;
 }
 
-static int SSD_CH_RECORD(int channel, int offset, int ret)
+static int SSD_CH_RECORD(uint8_t device_index, int channel, int offset, int ret)
 {
     if (ssd.prev_channel_mode[channel] == READ && offset != 0 && ret == 0){
-        old_channel_time += CHANNEL_SWITCH_DELAY_W;
+        old_channel_time += devices[device_index].channel_switch_delay_w;
     }
     else if (ssd.prev_channel_mode[channel] == WRITE && offset != 0 && ret == 0) {
-        old_channel_time += CHANNEL_SWITCH_DELAY_R;
+        old_channel_time += devices[device_index].channel_switch_delay_r;
     }
     else {
         old_channel_time = get_usec();
@@ -167,7 +168,7 @@ static int SSD_CH_RECORD(int channel, int offset, int ret)
     return FTL_SUCCESS;
 }
 
-ftl_ret_val SSD_PAGE_WRITE(unsigned int flash_nb, unsigned int block_nb, unsigned int page_nb, int offset, int type)
+ftl_ret_val SSD_PAGE_WRITE(uint8_t device_index, unsigned int flash_nb, unsigned int block_nb, unsigned int page_nb, int offset, int type)
 {
     uint32_t channel, reg;
     int ret = FTL_FAILURE;
@@ -176,35 +177,35 @@ ftl_ret_val SSD_PAGE_WRITE(unsigned int flash_nb, unsigned int block_nb, unsigne
     GET_TIME_MICROSEC(_start);
 
     /* Calculate ch & reg */
-    channel = flash_nb % CHANNEL_NB;
+    channel = flash_nb % devices[device_index].channel_nb;
     ssd.cur_channel_mode[channel] = WRITE;
-    reg = flash_nb*PLANES_PER_FLASH + block_nb%PLANES_PER_FLASH;
+    reg = flash_nb*devices[device_index].planes_per_flash + block_nb%devices[device_index].planes_per_flash;
 
     /* Delay Operation */
-    SSD_CH_ENABLE(flash_nb, channel);    // channel enable
+    SSD_CH_ENABLE(device_index, flash_nb, channel);    // channel enable
 
-    if( IO_PARALLELISM == 0 ){
-        delay_ret = SSD_FLASH_ACCESS(flash_nb, channel, reg);
+    if( devices[device_index].io_parallelism == 0 ){
+        delay_ret = SSD_FLASH_ACCESS(device_index, flash_nb, channel, reg);
     }
     else{
-        delay_ret = SSD_REG_ACCESS(flash_nb, channel, reg);
+        delay_ret = SSD_REG_ACCESS(device_index, flash_nb, channel, reg);
     }
 
     /* Check Channel Operation */
     while(ret == FTL_FAILURE){
-        ret = SSD_CH_ACCESS(flash_nb, channel);
+        ret = SSD_CH_ACCESS(device_index, flash_nb, channel);
     }
 
     /* Record Time Stamp */
-    SSD_CH_RECORD(channel, offset, delay_ret);
-    SSD_CELL_RECORD(reg, channel);
-    SSD_REG_RECORD(reg, type, offset, channel);
-    SSD_REG_ACCESS(flash_nb, channel, reg);
+    SSD_CH_RECORD(device_index, channel, offset, delay_ret);
+    SSD_CELL_RECORD(device_index, reg, channel);
+    SSD_REG_RECORD(device_index, reg, type, offset, channel);
+    SSD_REG_ACCESS(device_index, flash_nb, channel, reg);
 
     GET_TIME_MICROSEC(_end);
     if (old_channel_nb == channel && ssd.prev_channel_mode[channel] != WRITE) { //if channel is same but only mode is different
         // PINFO("change to write for channel %d\n", channel);
-        LOG_CHANNEL_SWITCH_TO_WRITE(GET_LOGGER(flash_nb), (ChannelSwitchToWriteLog) {
+        LOG_CHANNEL_SWITCH_TO_WRITE(GET_LOGGER(device_index, flash_nb), (ChannelSwitchToWriteLog) {
             .channel = channel,
             .metadata = {_start, _end}
         });
@@ -218,17 +219,17 @@ ftl_ret_val SSD_PAGE_WRITE(unsigned int flash_nb, unsigned int block_nb, unsigne
     }
     ssd.physical_page_writes++;
 
-    inverse_block_mapping_entry* block_entry = GET_INVERSE_BLOCK_MAPPING_ENTRY(flash_nb, block_nb);
+    inverse_block_mapping_entry* block_entry = GET_INVERSE_BLOCK_MAPPING_ENTRY(device_index, flash_nb, block_nb);
     block_entry->dirty_page_nb++;
 
     if (type == WRITE_COMMIT) {
-        LOG_PHYSICAL_CELL_PROGRAM_COMPATIBLE(GET_LOGGER(flash_nb), (PhysicalCellProgramCompatibleLog) {
+        LOG_PHYSICAL_CELL_PROGRAM_COMPATIBLE(GET_LOGGER(device_index, flash_nb), (PhysicalCellProgramCompatibleLog) {
             .channel = channel, .block = block_nb, .page = page_nb,
             .metadata = {_start, _end}
         });
     }
     else {
-        LOG_PHYSICAL_CELL_PROGRAM(GET_LOGGER(flash_nb), (PhysicalCellProgramLog) {
+        LOG_PHYSICAL_CELL_PROGRAM(GET_LOGGER(device_index, flash_nb), (PhysicalCellProgramLog) {
             .channel = channel, .block = block_nb, .page = page_nb,
             .metadata = {_start, _end}
         });
@@ -238,7 +239,7 @@ ftl_ret_val SSD_PAGE_WRITE(unsigned int flash_nb, unsigned int block_nb, unsigne
     if (type == WRITE || type == WRITE_COMMIT) { // if we log logical write first, write amp may get negative
         ssd.logical_page_writes++;
 
-        LOG_LOGICAL_CELL_PROGRAM(GET_LOGGER(flash_nb),(LogicalCellProgramLog) {
+        LOG_LOGICAL_CELL_PROGRAM(GET_LOGGER(device_index, flash_nb),(LogicalCellProgramLog) {
             .channel = channel, .block = block_nb, .page = page_nb,
             .metadata = {_start, _end}
         });
@@ -247,7 +248,7 @@ ftl_ret_val SSD_PAGE_WRITE(unsigned int flash_nb, unsigned int block_nb, unsigne
     return ret;
 }
 
-ftl_ret_val SSD_PAGE_READ(unsigned int flash_nb, unsigned int block_nb, unsigned int page_nb, int offset, int type)
+ftl_ret_val SSD_PAGE_READ(uint8_t device_index, unsigned int flash_nb, unsigned int block_nb, unsigned int page_nb, int offset, int type)
 {
     unsigned int channel, reg;
     int delay_ret;
@@ -255,31 +256,31 @@ ftl_ret_val SSD_PAGE_READ(unsigned int flash_nb, unsigned int block_nb, unsigned
     GET_TIME_MICROSEC(_start);
 
     /* Calculate ch & reg */
-    channel = flash_nb % CHANNEL_NB;
+    channel = flash_nb % devices[device_index].channel_nb;
     ssd.cur_channel_mode[channel] = READ;
-    reg = flash_nb*PLANES_PER_FLASH + block_nb%PLANES_PER_FLASH;
+    reg = flash_nb*devices[device_index].planes_per_flash + block_nb%devices[device_index].planes_per_flash;
 
     /* Delay Operation */
-    SSD_CH_ENABLE(flash_nb, channel);    // channel enable
+    SSD_CH_ENABLE(device_index, flash_nb, channel);    // channel enable
 
     /* Access Register */
-    if( IO_PARALLELISM == 0 ){
-        delay_ret = SSD_FLASH_ACCESS(flash_nb, channel, reg);
+    if( devices[device_index].io_parallelism == 0 ){
+        delay_ret = SSD_FLASH_ACCESS(device_index, flash_nb, channel, reg);
     }
     else{
-        delay_ret = SSD_REG_ACCESS(flash_nb, channel, reg);
+        delay_ret = SSD_REG_ACCESS(device_index, flash_nb, channel, reg);
     }
 
     /* Record Time Stamp */
-    SSD_CH_RECORD(channel, offset, delay_ret);
-    SSD_CELL_RECORD(reg, channel);
-    SSD_REG_RECORD(reg, type, offset, channel);
-    SSD_REG_ACCESS(flash_nb, channel, reg);
+    SSD_CH_RECORD(device_index, channel, offset, delay_ret);
+    SSD_CELL_RECORD(device_index, reg, channel);
+    SSD_REG_RECORD(device_index, reg, type, offset, channel);
+    SSD_REG_ACCESS(device_index, flash_nb, channel, reg);
 
     GET_TIME_MICROSEC(_end);
 
     if (old_channel_nb == channel && ssd.prev_channel_mode[channel] != READ && ssd.prev_channel_mode[channel] != NOOP) {
-        LOG_CHANNEL_SWITCH_TO_READ(GET_LOGGER(flash_nb), (ChannelSwitchToReadLog) {
+        LOG_CHANNEL_SWITCH_TO_READ(GET_LOGGER(device_index, flash_nb), (ChannelSwitchToReadLog) {
             .channel = channel,
             .metadata = {_start, _end}
         });
@@ -287,7 +288,7 @@ ftl_ret_val SSD_PAGE_READ(unsigned int flash_nb, unsigned int block_nb, unsigned
     ssd.prev_channel_mode[channel] = READ;
     old_channel_nb = channel;
 
-    LOG_PHYSICAL_CELL_READ(GET_LOGGER(flash_nb), (PhysicalCellReadLog) {
+    LOG_PHYSICAL_CELL_READ(GET_LOGGER(device_index, flash_nb), (PhysicalCellReadLog) {
         .channel = channel, .block = block_nb, .page = page_nb,
         .metadata = {_start, _end}
     });
@@ -295,37 +296,37 @@ ftl_ret_val SSD_PAGE_READ(unsigned int flash_nb, unsigned int block_nb, unsigned
     return FTL_SUCCESS;
 }
 
-ftl_ret_val SSD_BLOCK_ERASE(unsigned int flash_nb, unsigned int block_nb)
+ftl_ret_val SSD_BLOCK_ERASE(uint8_t device_index, unsigned int flash_nb, unsigned int block_nb)
 {
     int channel, reg;
 
     GET_TIME_MICROSEC(_start);
 
     /* Calculate ch & reg */
-    channel = flash_nb % CHANNEL_NB;
+    channel = flash_nb % devices[device_index].channel_nb;
     ssd.cur_channel_mode[channel] = ERASE;
-    reg = flash_nb*PLANES_PER_FLASH + block_nb%PLANES_PER_FLASH;
+    reg = flash_nb*devices[device_index].planes_per_flash + block_nb%devices[device_index].planes_per_flash;
 
     /* Delay Operation */
-    if( IO_PARALLELISM == 0 ){
-        SSD_FLASH_ACCESS(flash_nb, channel, reg);
+    if( devices[device_index].io_parallelism == 0 ){
+        SSD_FLASH_ACCESS(device_index, flash_nb, channel, reg);
     }
     else{
-        SSD_REG_ACCESS(flash_nb, channel, reg);
+        SSD_REG_ACCESS(device_index, flash_nb, channel, reg);
     }
 
     /* Record Time Stamp */
-    SSD_REG_RECORD(reg, ERASE, -1, channel);
-    SSD_CELL_RECORD(reg, channel);
+    SSD_REG_RECORD(device_index, reg, ERASE, -1, channel);
+    SSD_CELL_RECORD(device_index, reg, channel);
 
     GET_TIME_MICROSEC(_end);
 
-    inverse_block_mapping_entry* block_entry = GET_INVERSE_BLOCK_MAPPING_ENTRY(flash_nb, block_nb);
+    inverse_block_mapping_entry* block_entry = GET_INVERSE_BLOCK_MAPPING_ENTRY(device_index, flash_nb, block_nb);
 
     ssd.occupied_pages_counter -= block_entry->dirty_page_nb;
     ssd.prev_channel_mode[channel] = ERASE;
 
-    LOG_BLOCK_ERASE(GET_LOGGER(flash_nb), (BlockEraseLog) {
+    LOG_BLOCK_ERASE(GET_LOGGER(device_index, flash_nb), (BlockEraseLog) {
         .channel = channel, .die = flash_nb, .block = block_nb, .dirty_page_nb = block_entry->dirty_page_nb,
         .metadata = {_start, _end}
     });
@@ -335,19 +336,19 @@ ftl_ret_val SSD_BLOCK_ERASE(unsigned int flash_nb, unsigned int block_nb)
     return FTL_SUCCESS;
 }
 
-int SSD_FLASH_ACCESS(unsigned int flash_nb, unsigned int channel, unsigned int reg)
+int SSD_FLASH_ACCESS(uint8_t device_index, unsigned int flash_nb, unsigned int channel, unsigned int reg)
 {
     uint32_t i;
-    uint32_t r_num = flash_nb * PLANES_PER_FLASH;
+    uint32_t r_num = flash_nb * devices[device_index].planes_per_flash;
     int ret = 0;
 
-    for (i=0;i<PLANES_PER_FLASH;i++) {
+    for (i=0;i<devices[device_index].planes_per_flash;i++) {
 
         if (r_num != reg && access_nb[r_num][0] == io_request_seq_nb) {
             /* That's OK */
         }
         else{
-            ret = SSD_REG_ACCESS(flash_nb, channel, r_num);
+            ret = SSD_REG_ACCESS(device_index, flash_nb, channel, r_num);
         }
 
         r_num++;
@@ -356,17 +357,17 @@ int SSD_FLASH_ACCESS(unsigned int flash_nb, unsigned int channel, unsigned int r
     return ret;
 }
 
-int SSD_REG_ACCESS(unsigned int flash_nb, int channel, int reg)
+int SSD_REG_ACCESS(uint8_t device_index, unsigned int flash_nb, int channel, int reg)
 {
     switch (reg_io_cmd[reg]){
         case READ:
-            return SSD_REG_READ_DELAY(flash_nb, channel, reg) + SSD_CELL_READ_DELAY(reg);
+            return SSD_REG_READ_DELAY(device_index, flash_nb, channel, reg) + SSD_CELL_READ_DELAY(device_index, reg);
         case WRITE:
-            return SSD_REG_WRITE_DELAY(flash_nb, channel, reg) + SSD_CELL_WRITE_DELAY(reg);
+            return SSD_REG_WRITE_DELAY(device_index, flash_nb, channel, reg) + SSD_CELL_WRITE_DELAY(device_index, reg);
         case ERASE:
-            return SSD_BLOCK_ERASE_DELAY(reg);
+            return SSD_BLOCK_ERASE_DELAY(device_index, reg);
         case COPYBACK:
-            return SSD_CELL_READ_DELAY(reg) + SSD_CELL_WRITE_DELAY(reg);
+            return SSD_CELL_READ_DELAY(device_index, reg) + SSD_CELL_WRITE_DELAY(device_index, reg);
         case NOOP:
             return 0;
         default:
@@ -375,20 +376,20 @@ int SSD_REG_ACCESS(unsigned int flash_nb, int channel, int reg)
     }
 }
 
-int SSD_CH_ENABLE(unsigned int flash_nb, unsigned int channel)
+int SSD_CH_ENABLE(uint8_t device_index, unsigned int flash_nb, unsigned int channel)
 {
-    if(CHANNEL_SWITCH_DELAY_R == 0 && CHANNEL_SWITCH_DELAY_W == 0)
+    if(devices[device_index].channel_switch_delay_r == 0 && devices[device_index].channel_switch_delay_w == 0)
         return FTL_SUCCESS;
 
         //todo: currently writing on all channels at the same time takes more time than writing on one
     if(old_channel_nb != channel){
-        SSD_CH_SWITCH_DELAY(flash_nb, channel);
+        SSD_CH_SWITCH_DELAY(device_index, flash_nb, channel);
     }
 
     return FTL_SUCCESS;
 }
 
-ftl_ret_val SSD_REG_RECORD(int reg, int type, int offset, int channel)
+ftl_ret_val SSD_REG_RECORD(uint8_t device_index, int reg, int type, int offset, int channel)
 {
     reg_io_cmd[reg] = ssd.cur_channel_mode[channel];
     reg_io_type[reg] = type;
@@ -398,7 +399,7 @@ ftl_ret_val SSD_REG_RECORD(int reg, int type, int offset, int channel)
         case WRITE:
             reg_io_time[reg] = old_channel_time;
             if (ssd.prev_channel_mode[channel] == READ) {
-                reg_io_time[reg] += CHANNEL_SWITCH_DELAY_W;
+                reg_io_time[reg] += devices[device_index].channel_switch_delay_w;
             }
             // SSD_UPDATE_CH_ACCESS_TIME(channel, reg_io_time[reg]);
 
@@ -406,8 +407,8 @@ ftl_ret_val SSD_REG_RECORD(int reg, int type, int offset, int channel)
             if(type == WRITE) {
                 access_nb[reg][0] = io_request_seq_nb;
                 access_nb[reg][1] = offset;
-                io_update_overhead = UPDATE_IO_REQUEST(io_request_seq_nb, offset, old_channel_time, UPDATE_START_TIME);
-                SSD_UPDATE_IO_OVERHEAD(reg, io_update_overhead);
+                io_update_overhead = UPDATE_IO_REQUEST(device_index, io_request_seq_nb, offset, old_channel_time, UPDATE_START_TIME);
+                SSD_UPDATE_IO_OVERHEAD(device_index, reg, io_update_overhead);
             }
             else{
                 access_nb[reg][0] = UINT32_MAX;
@@ -415,16 +416,16 @@ ftl_ret_val SSD_REG_RECORD(int reg, int type, int offset, int channel)
             }
         break;
     case READ:
-        reg_io_time[reg] = SSD_GET_CH_ACCESS_TIME_FOR_READ(channel, reg);
+        reg_io_time[reg] = SSD_GET_CH_ACCESS_TIME_FOR_READ(device_index, channel, reg);
         if (ssd.prev_channel_mode[channel] != READ && ssd.prev_channel_mode[channel] != NOOP) {
-                reg_io_time[reg] += CHANNEL_SWITCH_DELAY_R;
+                reg_io_time[reg] += devices[device_index].channel_switch_delay_r;
             }
             /* Update SATA request Info */
             if(type == READ){
                 access_nb[reg][0] = io_request_seq_nb;
                 access_nb[reg][1] = offset;
-                io_update_overhead = UPDATE_IO_REQUEST(io_request_seq_nb, offset, old_channel_time, UPDATE_START_TIME);
-                SSD_UPDATE_IO_OVERHEAD(reg, io_update_overhead);
+                io_update_overhead = UPDATE_IO_REQUEST(device_index, io_request_seq_nb, offset, old_channel_time, UPDATE_START_TIME);
+                SSD_UPDATE_IO_OVERHEAD(device_index, reg, io_update_overhead);
             }
             else{
                 access_nb[reg][0] = UINT32_MAX;
@@ -437,11 +438,11 @@ ftl_ret_val SSD_REG_RECORD(int reg, int type, int offset, int channel)
         access_nb[reg][1] = UINT32_MAX;
         break;
     case COPYBACK:
-        reg_io_time[reg] = cell_io_time[reg] + CELL_READ_DELAY;
+        reg_io_time[reg] = cell_io_time[reg] + devices[device_index].cell_read_delay;
         access_nb[reg][0] = io_request_seq_nb;
         access_nb[reg][1] = offset;
-        io_update_overhead = UPDATE_IO_REQUEST(io_request_seq_nb, offset, old_channel_time, UPDATE_START_TIME);
-        SSD_UPDATE_IO_OVERHEAD(reg, io_update_overhead);
+        io_update_overhead = UPDATE_IO_REQUEST(device_index, io_request_seq_nb, offset, old_channel_time, UPDATE_START_TIME);
+        SSD_UPDATE_IO_OVERHEAD(device_index, reg, io_update_overhead);
         break;
     default:
         PERR("SSD_REG_RECORD: Command Error! %d\n", reg_io_cmd[reg]);
@@ -451,23 +452,23 @@ ftl_ret_val SSD_REG_RECORD(int reg, int type, int offset, int channel)
     return retval;
 }
 
-int SSD_CH_ACCESS(unsigned int flash_nb, int channel)
+int SSD_CH_ACCESS(uint8_t device_index, unsigned int flash_nb, int channel)
 {
     uint32_t i, j;
     int ret = FTL_SUCCESS;
     uint32_t r_num;
 
-    for (i=0;i<WAY_NB;i++) {
-        r_num = channel*PLANES_PER_FLASH + i*CHANNEL_NB*PLANES_PER_FLASH;
-        for(j=0;j<PLANES_PER_FLASH;j++){
+    for (i=0;i<devices[device_index].way_nb;i++) {
+        r_num = channel*devices[device_index].planes_per_flash + i*devices[device_index].channel_nb*devices[device_index].planes_per_flash;
+        for(j=0;j<devices[device_index].planes_per_flash;j++){
             if(reg_io_time[r_num] <= get_usec() && reg_io_time[r_num] != -1){
                 if(reg_io_cmd[r_num] == READ){
-                    SSD_CELL_READ_DELAY(r_num);
-                    SSD_REG_READ_DELAY(flash_nb, channel, r_num);
+                    SSD_CELL_READ_DELAY(device_index, r_num);
+                    SSD_REG_READ_DELAY(device_index, flash_nb, channel, r_num);
                     ret = FTL_FAILURE;
                 }
                 else if(reg_io_cmd[r_num] == WRITE){
-                    SSD_REG_WRITE_DELAY(flash_nb, channel, r_num);
+                    SSD_REG_WRITE_DELAY(device_index, flash_nb, channel, r_num);
                     ret = FTL_FAILURE;
                 }
             }
@@ -485,7 +486,7 @@ void SSD_UPDATE_IO_OVERHEAD(int reg, int64_t overhead_time)
     io_update_overhead = 0;
 }
 
-int64_t SSD_CH_SWITCH_DELAY(unsigned int flash_nb, int channel)
+int64_t SSD_CH_SWITCH_DELAY(uint8_t device_index, unsigned int flash_nb, int channel)
 {
     int64_t start = 0;
     int64_t    end = 0;
@@ -494,10 +495,10 @@ int64_t SSD_CH_SWITCH_DELAY(unsigned int flash_nb, int channel)
 
     GET_TIME_MICROSEC(_start);
     if (ssd.cur_channel_mode[channel] == READ ) {
-        switch_delay = CHANNEL_SWITCH_DELAY_R;
+        switch_delay = devices[device_index].channel_switch_delay_r;
     }
     else if (ssd.cur_channel_mode[channel] == WRITE) {
-        switch_delay = CHANNEL_SWITCH_DELAY_W;
+        switch_delay = devices[device_index].channel_switch_delay_w;
     }
     else{
         return 0;
@@ -520,7 +521,7 @@ int64_t SSD_CH_SWITCH_DELAY(unsigned int flash_nb, int channel)
 
     switch(ssd.cur_channel_mode[channel]){
         case READ:{
-            LOG_CHANNEL_SWITCH_TO_READ(GET_LOGGER(flash_nb), (ChannelSwitchToReadLog) {
+            LOG_CHANNEL_SWITCH_TO_READ(GET_LOGGER(device_index, flash_nb), (ChannelSwitchToReadLog) {
                 .channel = channel,
                 .metadata = {_start, _end}
             });
@@ -529,7 +530,7 @@ int64_t SSD_CH_SWITCH_DELAY(unsigned int flash_nb, int channel)
 
         case WRITE:{
             // PINFO("write first write to channel %d\n", channel);
-            LOG_CHANNEL_SWITCH_TO_WRITE(GET_LOGGER(flash_nb), (ChannelSwitchToWriteLog) {
+            LOG_CHANNEL_SWITCH_TO_WRITE(GET_LOGGER(device_index, flash_nb), (ChannelSwitchToWriteLog) {
                 .channel = channel,
                 .metadata = {_start, _end}
             });
@@ -549,7 +550,7 @@ int64_t SSD_CH_SWITCH_DELAY(unsigned int flash_nb, int channel)
     return end-start;
 }
 
-int SSD_REG_WRITE_DELAY(unsigned int flash_nb, int channel, int reg)
+int SSD_REG_WRITE_DELAY(uint8_t device_index, unsigned int flash_nb, int channel, int reg)
 {
     int ret = 0;
     int64_t start = 0;
@@ -566,21 +567,21 @@ int SSD_REG_WRITE_DELAY(unsigned int flash_nb, int channel, int reg)
     diff = start - time_stamp;
 
 #ifdef DEL_QEMU_OVERHEAD
-    if(diff < REG_WRITE_DELAY){
-        SSD_UPDATE_QEMU_OVERHEAD(REG_WRITE_DELAY-diff);
+    if(diff < devices[device_index].reg_write_delay){
+        SSD_UPDATE_QEMU_OVERHEAD(devices[device_index].reg_write_delay-diff);
     }
     diff = start - reg_io_time[reg];
 #endif
 
     int64_t delay = 0;
-    if (diff < REG_WRITE_DELAY){
-        wait_usec(REG_WRITE_DELAY - diff);
-        delay = REG_WRITE_DELAY - diff;
+    if (diff < devices[device_index].reg_write_delay){
+        wait_usec(devices[device_index].reg_write_delay - diff);
+        delay = devices[device_index].reg_write_delay - diff;
         ret = 1;
     }
 
     /* Send Delay Info To Perf Checker */
-    SEND_TO_PERF_CHECKER(reg_io_type[reg], delay, CH_OP);
+    SEND_TO_PERF_CHECKER(device_index, reg_io_type[reg], delay, CH_OP);
 
     /* Update Time Stamp Struct */
     reg_io_time[reg] = -1;
@@ -588,7 +589,7 @@ int SSD_REG_WRITE_DELAY(unsigned int flash_nb, int channel, int reg)
 
     GET_TIME_MICROSEC(_end);
 
-    LOG_REGISTER_WRITE(GET_LOGGER(flash_nb), (RegisterWriteLog) {
+    LOG_REGISTER_WRITE(GET_LOGGER(device_index, flash_nb), (RegisterWriteLog) {
         .channel = channel, .die = flash_nb, .reg = reg,
         .metadata = {_start, _end}
     });
@@ -596,7 +597,7 @@ int SSD_REG_WRITE_DELAY(unsigned int flash_nb, int channel, int reg)
     return ret;
 }
 
-int SSD_REG_READ_DELAY(unsigned int flash_nb, int channel, int reg)
+int SSD_REG_READ_DELAY(uint8_t device_index, unsigned int flash_nb, int channel, int reg)
 {
     int ret = 0;
     int64_t start = 0;
@@ -612,21 +613,21 @@ int SSD_REG_READ_DELAY(unsigned int flash_nb, int channel, int reg)
     diff = start - time_stamp;
 
 #ifdef DEL_QEMU_OVERHEAD
-    if(diff < REG_READ_DELAY){
-        SSD_UPDATE_QEMU_OVERHEAD(REG_READ_DELAY-diff);
+    if(diff < devices[device_index].reg_read_delay){
+        SSD_UPDATE_QEMU_OVERHEAD(devices[device_index].reg_read_delay - diff);
     }
     diff = start - reg_io_time[reg];
 #endif
 
-    if(diff < REG_READ_DELAY){
-        wait_usec(REG_READ_DELAY - diff);
+    if(diff < devices[device_index].reg_read_delay){
+        wait_usec(devices[device_index].reg_read_delay - diff);
         ret = 1;
     }
     end = get_usec();
 
     /* Send Delay Info To Perf Checker */
-    SEND_TO_PERF_CHECKER(reg_io_type[reg], end-start, CH_OP);
-    SSD_UPDATE_IO_REQUEST(reg);
+    SEND_TO_PERF_CHECKER(device_index, reg_io_type[reg], end-start, CH_OP);
+    SSD_UPDATE_IO_REQUEST(device_index, reg);
 
     /* Update Time Stamp Struct */
     reg_io_time[reg] = -1;
@@ -634,7 +635,7 @@ int SSD_REG_READ_DELAY(unsigned int flash_nb, int channel, int reg)
 
     GET_TIME_MICROSEC(_end);
 
-    LOG_REGISTER_READ(GET_LOGGER(flash_nb), (RegisterReadLog) {
+    LOG_REGISTER_READ(GET_LOGGER(device_index, flash_nb), (RegisterReadLog) {
         .channel = channel, .die = flash_nb, .reg = reg,
         .metadata = {_start, _end}
     });
@@ -642,7 +643,7 @@ int SSD_REG_READ_DELAY(unsigned int flash_nb, int channel, int reg)
     return ret;
 }
 
-int SSD_CELL_WRITE_DELAY(int reg)
+int SSD_CELL_WRITE_DELAY(uint8_t device_index, int reg)
 {
     int ret = 0;
     int64_t start = 0;
@@ -657,21 +658,21 @@ int SSD_CELL_WRITE_DELAY(int reg)
     diff = start - time_stamp + io_overhead[reg];
 
 #ifdef DEL_QEMU_OVERHEAD
-    if(diff < CELL_PROGRAM_DELAY){
-        SSD_UPDATE_QEMU_OVERHEAD(CELL_PROGRAM_DELAY-diff);
+    if(diff < devices[device_index].cell_program_delay){
+        SSD_UPDATE_QEMU_OVERHEAD(devices[device_index].cell_program_delay-diff);
     }
     diff = start - cell_io_time[reg] + io_overhead[reg];
 #endif
 
-    if( diff < CELL_PROGRAM_DELAY){
+    if( diff < devices[device_index].cell_program_delay){
         init_diff_reg = diff;
-        wait_usec(CELL_PROGRAM_DELAY - diff);
+        wait_usec(devices[device_index].cell_program_delay - diff);
         ret = 1;
     }
 
     /* Send Delay Info To Perf Checker */
-    SEND_TO_PERF_CHECKER(reg_io_type[reg], diff, REG_OP);
-    SSD_UPDATE_IO_REQUEST(reg);
+    SEND_TO_PERF_CHECKER(device_index, reg_io_type[reg], diff, REG_OP);
+    SSD_UPDATE_IO_REQUEST(device_index, reg);
 
     /* Update Time Stamp Struct */
     cell_io_time[reg] = -1;
@@ -683,7 +684,7 @@ int SSD_CELL_WRITE_DELAY(int reg)
     return ret;
 }
 
-int SSD_CELL_READ_DELAY(int reg)
+int SSD_CELL_READ_DELAY(uint8_t device_index, int reg)
 {
     int ret = 0;
     int64_t start = 0;
@@ -691,7 +692,7 @@ int SSD_CELL_READ_DELAY(int reg)
     int64_t diff = 0;
     int64_t time_stamp = cell_io_time[reg];
 
-    int64_t REG_DELAY = CELL_READ_DELAY;
+    int64_t REG_DELAY = devices[device_index].cell_read_delay;
 
     if( time_stamp == -1)
         return 0;
@@ -716,7 +717,7 @@ int SSD_CELL_READ_DELAY(int reg)
     end = get_usec();
 
     /* Send Delay Info To Perf Checker */
-    SEND_TO_PERF_CHECKER(reg_io_type[reg], end-start, REG_OP);
+    SEND_TO_PERF_CHECKER(device_index, reg_io_type[reg], end-start, REG_OP);
 
     /* Update Time Stamp Struct */
     cell_io_time[reg] = -1;
@@ -728,7 +729,7 @@ int SSD_CELL_READ_DELAY(int reg)
     return ret;
 }
 
-int SSD_BLOCK_ERASE_DELAY(int reg)
+int SSD_BLOCK_ERASE_DELAY(uint8_t device_index, int reg)
 {
     int ret = 0;
     int64_t diff;
@@ -739,8 +740,8 @@ int SSD_BLOCK_ERASE_DELAY(int reg)
 
     /* Block Erase Delay */
     diff = get_usec() - cell_io_time[reg];
-    if( diff < BLOCK_ERASE_DELAY){
-        wait_usec(BLOCK_ERASE_DELAY - diff);
+    if( diff < devices[device_index].block_erase_delay){
+        wait_usec(devices[device_index].block_erase_delay - diff);
         ret = 1;
     }
 
@@ -752,24 +753,24 @@ int SSD_BLOCK_ERASE_DELAY(int reg)
     return ret;
 }
 
-int64_t SSD_GET_CH_ACCESS_TIME_FOR_READ(int channel, int reg)
+int64_t SSD_GET_CH_ACCESS_TIME_FOR_READ(uint8_t device_index, int channel, int reg)
 {
     uint32_t i, j;
     uint32_t r_num;
-    int64_t latest_time = cell_io_time[reg] + CELL_READ_DELAY;
+    int64_t latest_time = cell_io_time[reg] + devices[device_index].cell_read_delay;
 
     int64_t temp_time = 0;
 
-    for(i=0;i<WAY_NB;i++){
-        r_num = channel*PLANES_PER_FLASH + i*CHANNEL_NB*PLANES_PER_FLASH;
-        for(j=0;j<PLANES_PER_FLASH;j++){
+    for(i=0;i<devices[device_index].way_nb;i++){
+        r_num = channel*devices[device_index].planes_per_flash + i*devices[device_index].channel_nb*devices[device_index].planes_per_flash;
+        for(j=0;j<devices[device_index].planes_per_flash;j++){
             temp_time = 0;
 
             if(reg_io_cmd[r_num] == READ){
-                temp_time = reg_io_time[r_num] + REG_READ_DELAY;
+                temp_time = reg_io_time[r_num] + devices[device_index].reg_read_delay;
             }
             else if(reg_io_cmd[r_num] == WRITE){
-                temp_time = reg_io_time[r_num] + REG_WRITE_DELAY;
+                temp_time = reg_io_time[r_num] + devices[device_index].reg_write_delay;
             }
 
             if( temp_time > latest_time ){
@@ -782,49 +783,49 @@ int64_t SSD_GET_CH_ACCESS_TIME_FOR_READ(int channel, int reg)
     return latest_time;
 }
 
-void SSD_UPDATE_CH_ACCESS_TIME(int channel, int64_t current_time)
+void SSD_UPDATE_CH_ACCESS_TIME(uint8_t device_index, int channel, int64_t current_time)
 {
     uint32_t i, j;
     uint32_t r_num;
 
-    for(i=0;i<WAY_NB;i++){
-        r_num = channel*PLANES_PER_FLASH + i*CHANNEL_NB*PLANES_PER_FLASH;
-        for(j=0;j<PLANES_PER_FLASH;j++){
+    for(i=0;i<devices[device_index].way_nb;i++){
+        r_num = channel*devices[device_index].planes_per_flash + i*devices[device_index].channel_nb*devices[device_index].planes_per_flash;
+        for(j=0;j<devices[device_index].planes_per_flash;j++){
             if(reg_io_cmd[r_num] == READ && reg_io_time[r_num] > current_time ){
-                reg_io_time[r_num] += REG_WRITE_DELAY;
+                reg_io_time[r_num] += devices[device_index].reg_write_delay;
             }
             r_num++;
         }
     }
 }
 
-void SSD_UPDATE_IO_REQUEST(int reg)
+void SSD_UPDATE_IO_REQUEST(uint8_t device_index, int reg)
 {
     int64_t curr_time = get_usec();
     if(init_diff_reg != 0){
-        io_update_overhead = UPDATE_IO_REQUEST(access_nb[reg][0], access_nb[reg][1], curr_time, UPDATE_END_TIME);
-        SSD_UPDATE_IO_OVERHEAD(reg, io_update_overhead);
+        io_update_overhead = UPDATE_IO_REQUEST(device_index, access_nb[reg][0], access_nb[reg][1], curr_time, UPDATE_END_TIME);
+        SSD_UPDATE_IO_OVERHEAD(device_index, reg, io_update_overhead);
         access_nb[reg][0] = UINT32_MAX;
     }
     else{
-        io_update_overhead = UPDATE_IO_REQUEST(access_nb[reg][0], access_nb[reg][1], 0, UPDATE_END_TIME);
-        SSD_UPDATE_IO_OVERHEAD(reg, io_update_overhead);
+        io_update_overhead = UPDATE_IO_REQUEST(device_index, access_nb[reg][0], access_nb[reg][1], 0, UPDATE_END_TIME);
+        SSD_UPDATE_IO_OVERHEAD(device_index, reg, io_update_overhead);
         access_nb[reg][0] = UINT32_MAX;
     }
 }
 
-void SSD_REMAIN_IO_DELAY(unsigned int flash_nb, int channel, int reg)
+void SSD_REMAIN_IO_DELAY(uint8_t device_index, unsigned int flash_nb, int channel, int reg)
 {
-    SSD_REG_ACCESS(flash_nb, channel, reg);
+    SSD_REG_ACCESS(device_index, flash_nb, channel, reg);
 }
 
 //MIX
 int64_t qemu_overhead;
 
-void SSD_UPDATE_QEMU_OVERHEAD(int64_t delay)
+void SSD_UPDATE_QEMU_OVERHEAD(uint8_t device_index, int64_t delay)
 {
     int i;
-    int p_num = FLASH_NB * PLANES_PER_FLASH;
+    int p_num = devices[device_index].flash_nb * devices[device_index].planes_per_flash;
     int64_t diff = delay;
 
     if(qemu_overhead == 0){
@@ -844,7 +845,7 @@ void SSD_UPDATE_QEMU_OVERHEAD(int64_t delay)
     qemu_overhead -= diff;
 }
 
-ftl_ret_val SSD_PAGE_COPYBACK(uint32_t source, uint32_t destination, int type){
+ftl_ret_val SSD_PAGE_COPYBACK(uint8_t device_index, uint32_t source, uint32_t destination, int type){
 
     uint32_t flash_nb, block_nb;
     uint32_t dest_flash_nb, dest_block_nb;
@@ -852,18 +853,18 @@ ftl_ret_val SSD_PAGE_COPYBACK(uint32_t source, uint32_t destination, int type){
     uint32_t reg , channel , delay_ret;
 
     //Check source and destination pages are at the same plane.
-    block_nb = CALC_BLOCK(source);
-    source_plane = CALC_FLASH(source)*PLANES_PER_FLASH + block_nb%PLANES_PER_FLASH;
-    destination_plane = CALC_FLASH(destination)*PLANES_PER_FLASH + block_nb%PLANES_PER_FLASH;
+    block_nb = CALC_BLOCK(device_index, source);
+    source_plane = CALC_FLASH(device_index, source)*devices[device_index].planes_per_flash + block_nb%devices[device_index].planes_per_flash;
+    destination_plane = CALC_FLASH(device_index, destination) * devices[device_index].planes_per_flash + block_nb%devices[device_index].planes_per_flash;
     if (source_plane != destination_plane){
         //copyback from different planes is not supported
         return FTL_FAILURE;
     }else{
         reg = destination_plane;
-        flash_nb = CALC_FLASH(source);
+        flash_nb = CALC_FLASH(device_index, source);
     }
 
-    channel = flash_nb % CHANNEL_NB;
+    channel = flash_nb % devices[device_index].channel_nb;
     ssd.cur_channel_mode[channel] = COPYBACK;
 
     GET_TIME_MICROSEC(_start);
@@ -872,30 +873,30 @@ ftl_ret_val SSD_PAGE_COPYBACK(uint32_t source, uint32_t destination, int type){
     //SSD_CH_ENABLE(flash_nb, channel);    // channel enable
 
     /* Access Register */
-    if( IO_PARALLELISM == 0 ){
-        delay_ret = SSD_FLASH_ACCESS(flash_nb, channel, reg);
+    if( devices[device_index].io_parallelism == 0 ){
+        delay_ret = SSD_FLASH_ACCESS(device_index, flash_nb, channel, reg);
     }
     else{
-        delay_ret = SSD_REG_ACCESS(flash_nb, channel, reg);
+        delay_ret = SSD_REG_ACCESS(device_index, flash_nb, channel, reg);
     }
 
-    SSD_CH_RECORD(channel, 0, delay_ret);
-    SSD_CELL_RECORD(reg, channel);
-    SSD_REG_RECORD(reg, type, 0, channel);
+    SSD_CH_RECORD(device_index, channel, 0, delay_ret);
+    SSD_CELL_RECORD(device_index, reg, channel);
+    SSD_REG_RECORD(device_index, reg, type, 0, channel);
 
     ssd.occupied_pages_counter++;
     ssd.physical_page_writes++;
 
-    dest_block_nb = CALC_BLOCK(destination);
-    dest_flash_nb = CALC_FLASH(destination);
-    inverse_block_mapping_entry* block_entry = GET_INVERSE_BLOCK_MAPPING_ENTRY(dest_flash_nb, dest_block_nb);
+    dest_block_nb = CALC_BLOCK(device_index, destination);
+    dest_flash_nb = CALC_FLASH(device_index, destination);
+    inverse_block_mapping_entry* block_entry = GET_INVERSE_BLOCK_MAPPING_ENTRY(device_index, dest_flash_nb, dest_block_nb);
     block_entry->dirty_page_nb++;
 
     ssd.prev_channel_mode[channel] = COPYBACK;
 
     GET_TIME_MICROSEC(_end);
 
-    LOG_PAGE_COPYBACK(GET_LOGGER(flash_nb), (PageCopyBackLog) {
+    LOG_PAGE_COPYBACK(GET_LOGGER(device_index, flash_nb), (PageCopyBackLog) {
         .channel = channel, .block = block_nb, .source_page = source, .destination_page = destination,
         .metadata = {_start, _end}
     });
@@ -904,6 +905,6 @@ ftl_ret_val SSD_PAGE_COPYBACK(uint32_t source, uint32_t destination, int type){
     return FTL_SUCCESS;
 }
 
-double SSD_UTIL(void) {
-    return (double)ssd.occupied_pages_counter / PAGES_IN_SSD;
+double SSD_UTIL(uint8_t device_index) {
+    return (double)ssd.occupied_pages_counter / devices[device_index].pages_in_ssd;
 }

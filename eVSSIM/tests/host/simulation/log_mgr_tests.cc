@@ -688,7 +688,7 @@ namespace log_mgr_tests {
     TEST_P(LogMgrUnitTest, BasicRTAnalyzer) {
         elk_logger_writer_init();
         RTLogAnalyzer* analyzer = rt_log_analyzer_init(_logger, 0);
-        rt_log_stats_init();
+        rt_log_stats_init(g_device_id);
         rt_subscriber::subscribe(analyzer);
         if (g_server_mode)
             rt_log_analyzer_subscribe(analyzer, (MonitorHook) log_server_update, NULL);

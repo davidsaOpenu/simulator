@@ -68,24 +68,24 @@ pthread_t log_manager_thread;
  */
 pthread_t log_server_thread;
 
-void reset_analyzers(void) {
+void reset_analyzers(uint8_t device_index) {
     uint32_t i;
-    for (i = 0; i < FLASH_NB; i++)
+    for (i = 0; i < devices[device_index].flash_nb; i++)
         analyzers_storage[i].rt_log_analyzer->reset_flag = 1;
 }
 
-void INIT_LOG_MANAGER(void)
+void INIT_LOG_MANAGER(uint8_t device_index)
 {
     uint32_t i;
 
     // allocate memory
-    analyzers_storage = (LoggerAnalyzerStorage*) malloc(sizeof(LoggerAnalyzerStorage) * FLASH_NB);
+    analyzers_storage = (LoggerAnalyzerStorage*) malloc(sizeof(LoggerAnalyzerStorage) * devices[device_index].flash_nb);
     if (analyzers_storage == NULL)
         PERR("Couldn't allocate memory for the loggers and real time analyzers: %s\n",
                 strerror(errno));
 
     // init structures
-    for (i = 0; i < FLASH_NB; i++) {
+    for (i = 0; i < devices[device_index].flash_nb; i++) {
         analyzers_storage[i].logger = logger_init(DEFUALT_LOGGER_POOL_SIZE);
         if (analyzers_storage[i].logger == NULL)
             PERR("Couldn't create the logger: %s\n", strerror(errno));
@@ -97,7 +97,7 @@ void INIT_LOG_MANAGER(void)
             PERR("Couldn't create the offline log analyzer: %s\n", strerror(errno));
     }
 
-    rt_log_stats_init();
+    rt_log_stats_init(device_index);
     elk_logger_writer_init();
     log_manager = log_manager_init();
     if (log_manager == NULL)
@@ -105,7 +105,7 @@ void INIT_LOG_MANAGER(void)
     log_server_init();
 
     // connect the logging mechanism
-    for (i = 0; i < FLASH_NB; i++) {
+    for (i = 0; i < devices[device_index].flash_nb; i++) {
         log_manager_add_analyzer(log_manager, analyzers_storage[i].rt_log_analyzer);
     }
     log_manager_subscribe(log_manager, (MonitorHook) log_server_update, NULL);
@@ -114,7 +114,7 @@ void INIT_LOG_MANAGER(void)
     // run the threads
     pthread_create(&log_server_thread, NULL, log_server_run, NULL);
     pthread_create(&log_manager_thread, NULL, log_manager_run, log_manager);
-    for (i = 0; i < FLASH_NB; i++) {
+    for (i = 0; i < devices[device_index].flash_nb; i++) {
         // run rt log analyzer
         pthread_create(&(analyzers_storage[i].rt_log_analyzer_thread), NULL, rt_log_analyzer_run,
                 analyzers_storage[i].rt_log_analyzer);
@@ -127,12 +127,12 @@ void INIT_LOG_MANAGER(void)
     PINFO("Browse to http://127.0.0.1:%d/ to see the current statistics\n", LOG_SERVER_PORT);
 }
 
-void TERM_LOG_MANAGER(void)
+void TERM_LOG_MANAGER(uint8_t device_index)
 {
     uint32_t i;
 
     // alert the different threads to stop
-    for (i = 0; i < FLASH_NB; i++)
+    for (i = 0; i < devices[device_index].flash_nb; i++)
     {
         analyzers_storage[i].rt_log_analyzer->exit_loop_flag = 1;
         analyzers_storage[i].offline_log_analyzer->exit_loop_flag = 1;
@@ -141,7 +141,7 @@ void TERM_LOG_MANAGER(void)
     log_server.exit_loop_flag = 1;
 
     // wait for the different threads to stop, and clear their data
-    for (i = 0; i < FLASH_NB; i++) {
+    for (i = 0; i < devices[device_index].flash_nb; i++) {
         pthread_join(analyzers_storage[i].rt_log_analyzer_thread, NULL);
         pthread_join(analyzers_storage[i].offline_log_analyzer_thread, NULL);
         rt_log_analyzer_free(analyzers_storage[i].rt_log_analyzer, 1);
@@ -160,8 +160,8 @@ void TERM_LOG_MANAGER(void)
     free(analyzers_storage);
 }
 
-Logger_Pool* GET_LOGGER(unsigned int flash_number) {
-    if (flash_number < FLASH_NB)
+Logger_Pool* GET_LOGGER(uint8_t device_index, unsigned int flash_number) {
+    if (flash_number < devices[device_index].flash_nb)
         return analyzers_storage[flash_number].logger;
     return NULL;
 }

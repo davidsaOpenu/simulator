@@ -14,33 +14,47 @@
 #include <unistd.h>
 
 int g_init = 0;
+uint8_t g_device_id = 0;
 extern double ssd_util;
 int gatherStats = 0;
 //Hold statistics information
 uint32_t** mapping_stats_table;
 
+// TODO: Callme at vssim.c
 void FTL_INIT(void)
 {
-	if(g_init == 0){
-        	PINFO("start\n");
+	if(g_init == 0) {
+        PINFO("start\n");
 
 		INIT_SSD_CONFIG();
-		INIT_MAPPING_TABLE();
-		INIT_INVERSE_PAGE_MAPPING();
-		INIT_INVERSE_PAGE_NAMESPACE_MAPPING();
-		INIT_INVERSE_BLOCK_MAPPING();
-		INIT_VALID_ARRAY();
-		INIT_EMPTY_BLOCK_LIST();
-		INIT_VICTIM_BLOCK_LIST();
+		// TODO: Remove this:
+		CHANGE_DEVICE(g_device_id);
+		
+		for (uint8_t device_id = 0; device_id < device_count; ++device_id)
+		{
+			INIT_MAPPING_TABLE(device_id);
+
+			INIT_INVERSE_PAGE_MAPPING(device_id);
+			INIT_INVERSE_PAGE_NAMESPACE_MAPPING(device_id);
+			INIT_INVERSE_BLOCK_MAPPING(device_id);
+			INIT_VALID_ARRAY(device_id);
+			INIT_EMPTY_BLOCK_LIST(device_id);
+			INIT_VICTIM_BLOCK_LIST(device_id);
+		}
+
 		INIT_PERF_CHECKER();
-                INIT_GC_MANAGER();
+        INIT_GC_MANAGER();
 
 		//Initialize The Statistics gathering component.
 		FTL_INIT_STATS();
 
 		g_init = 1;
 
-		SSD_IO_INIT();
+		for (uint8_t device_id = 0; device_id < device_count; ++device_id)
+		{
+			SSD_IO_INIT(device_id);
+		}
+
 		PINFO("complete\n");
 	}
 }
@@ -49,17 +63,27 @@ void FTL_TERM(void)
 {
 	PINFO("start\n");
 
-	TERM_MAPPING_TABLE();
-	TERM_INVERSE_PAGE_NAMESPACE_MAPPING();
-	TERM_INVERSE_PAGE_MAPPING();
-	TERM_VALID_ARRAY();
-	TERM_INVERSE_BLOCK_MAPPING();
-	TERM_EMPTY_BLOCK_LIST();
-	TERM_VICTIM_BLOCK_LIST();
+	for (uint8_t device_id = 0; device_id < device_count; ++device_id)
+	{
+		TERM_MAPPING_TABLE(device_id);
+
+		TERM_INVERSE_PAGE_MAPPING(device_id);
+		TERM_INVERSE_PAGE_NAMESPACE_MAPPING(device_id);
+		TERM_VALID_ARRAY(device_id);
+		TERM_INVERSE_BLOCK_MAPPING(device_id);
+		TERM_EMPTY_BLOCK_LIST(device_id);
+		TERM_VICTIM_BLOCK_LIST(device_id);
+	}
+
 	TERM_PERF_CHECKER();
 	FTL_TERM_STRATEGY();
 	FTL_TERM_STATS();
-	SSD_IO_TERM();
+
+	for (uint8_t device_id = 0; device_id < device_count; ++device_id)
+	{
+		SSD_IO_TERM(device_id);
+	}
+	
 	PINFO("complete\n");
 }
 
@@ -108,7 +132,7 @@ TODO: review statistics implementation
 		return;
 	}
 	for (i=0; i < SUPPORTED_OPERATION; i++){
-		mapping_stats_table[i] = (uint32_t*)calloc(PAGE_MAPPING_ENTRY_NB, sizeof(uint32_t));
+		mapping_stats_table[i] = (uint32_t*)calloc(devices[device_index].page_mapping_entry_nb, sizeof(uint32_t));
 		if(mapping_stats_table[i] == NULL){
 			printf("ERROR[%s] Calloc mapping stats table fail\n",__FUNCTION__);
 			return;
@@ -117,18 +141,18 @@ TODO: review statistics implementation
 
 	/* Initialization Mapping Table */
 	for(i=0; i < SUPPORTED_OPERATION; i++){
-		for(j=0;j<PAGE_MAPPING_ENTRY_NB;j++){
+		for(j=0;j<devices[device_index].page_mapping_entry_nb;j++){
 			mapping_stats_table[i][j] = 0;
 		}
 	}
 #endif
 }
 
-void FTL_RESET_STATS(void){
+void FTL_RESET_STATS(uint8_t device_index){
 	uint64_t i,j;
 
 	for(i=0; i < SUPPORTED_OPERATION; i++){
-		for(j=0;j<PAGE_MAPPING_ENTRY_NB;j++){
+		for(j=0;j<devices[device_index].page_mapping_entry_nb;j++){
 			mapping_stats_table[i][j] = 0;
 		}
 	}
@@ -145,13 +169,13 @@ void FTL_TERM_STATS(void){
 #endif
 }
 
-ftl_ret_val FTL_STATISTICS_GATHERING(uint32_t address , int type){
+ftl_ret_val FTL_STATISTICS_GATHERING(uint8_t device_index, uint32_t address , int type){
 
 	if (gatherStats == 0)
 	{
 		return FTL_SUCCESS;
 	}
-	if (address > PAGE_MAPPING_ENTRY_NB){
+	if (address > devices[device_index].page_mapping_entry_nb){
 		return FTL_FAILURE;
 	}
 
@@ -162,8 +186,8 @@ ftl_ret_val FTL_STATISTICS_GATHERING(uint32_t address , int type){
 	return FTL_SUCCESS;
 }
 
-uint32_t FTL_STATISTICS_QUERY	(uint32_t address, int scope , int type){
-	//PAGE_NB = is the number of pages in a block, BLOCK_NB is the number of blocks in a flash.
+uint32_t FTL_STATISTICS_QUERY(uint8_t device_index, uint32_t address, int scope , int type){
+	//page_nb = is the number of pages in a block, block_nb is the number of blocks in a flash.
 	//The first address in the scope start at address 0.
 
 	//int i , j , scopeFirstPage , planeNumber;
@@ -172,48 +196,48 @@ uint32_t FTL_STATISTICS_QUERY	(uint32_t address, int scope , int type){
 	uint32_t actionSum;
 	actionSum = 0;
 
-	scopeFirstPage = CALC_SCOPE_FIRST_PAGE(address, scope);
+	scopeFirstPage = CALC_SCOPE_FIRST_PAGE(device_index, address, scope);
 	switch (scope)
 	{
 		case PAGE:
 			return mapping_stats_table[type][address];
 		case BLOCK:
-			for (i = 0; i < PAGE_NB ; i++){
+			for (i = 0; i < devices[device_index].page_nb ; i++){
 				actionSum += mapping_stats_table[type][scopeFirstPage + i];
 			}
 			return actionSum;
 		case PLANE:
-			if (PLANES_PER_FLASH > 1){
-				for (i = 0; i < BLOCK_NB; i += PLANES_PER_FLASH){
-					for(j = 0; j < PAGE_NB ; j++){
+			if (devices[device_index].planes_per_flash > 1){
+				for (i = 0; i < devices[device_index].block_nb; i += devices[device_index].planes_per_flash){
+					for(j = 0; j < devices[device_index].page_nb ; j++){
 						actionSum += mapping_stats_table[type][scopeFirstPage + j];
 					}
-					scopeFirstPage += PAGE_NB * PLANES_PER_FLASH;
+					scopeFirstPage += devices[device_index].page_nb * devices[device_index].planes_per_flash;
 					printf ("%d\n" , scopeFirstPage);
 				}
 				return actionSum;
 			}
 			else{
-				for (i = 0; i < PAGES_PER_FLASH; i++){
+				for (i = 0; i < devices[device_index].pages_per_flash; i++){
 					actionSum += mapping_stats_table[type][scopeFirstPage + i];
 				}
 				return actionSum;
 			}
 		case FLASH:
-			for (i = 0; i < PAGES_PER_FLASH; i++){
+			for (i = 0; i < devices[device_index].pages_per_flash; i++){
 				actionSum += mapping_stats_table[type][scopeFirstPage + i];
 			}
 			return actionSum;
 		case CHANNEL:
-			for (i = 0; i < FLASH_NB; i += CHANNEL_NB){
-				for(j = 0; j < PAGES_PER_FLASH ; j++){
+			for (i = 0; i < devices[device_index].flash_nb; i += devices[device_index].channel_nb){
+				for(j = 0; j < devices[device_index].pages_per_flash ; j++){
 					actionSum += mapping_stats_table[type][scopeFirstPage + j];
 				}
-				scopeFirstPage += PAGES_PER_FLASH * CHANNEL_NB; //Pages in blocks that don't belongs to this plane.
+				scopeFirstPage += devices[device_index].pages_per_flash * devices[device_index].channel_nb; //Pages in blocks that don't belongs to this plane.
 			}
 			return actionSum;
 		case SSD:
-			for (i =0; i < PAGE_MAPPING_ENTRY_NB ; i++){
+			for (i =0; i < devices[device_index].page_mapping_entry_nb ; i++){
 				actionSum += mapping_stats_table[type][i];
 			}
 			return actionSum;
@@ -223,91 +247,91 @@ uint32_t FTL_STATISTICS_QUERY	(uint32_t address, int scope , int type){
 }
 
 
-void FTL_RECORD_STATISTICS(void){
+void FTL_RECORD_STATISTICS(uint8_t device_index){
 	int scopeRange , i , queryResult , scope , address;
 
-	FILE* fp = fopen(STAT_PATH,"w");
+	FILE* fp = fopen(devices[device_index].stat_path, "w");
 	if (fp == NULL)
 		RERR(, "File open fail\n");
 	//Print required titles
-	if (STAT_SCOPE & COLLECT_SSD){
+	if (devices[device_index].stat_scope & COLLECT_SSD){
 		fprintf(fp , "SSD,");
 		scopeRange = 1;
 		scope = SSD;
 	}
-	if (STAT_SCOPE & COLLECT_CHANNEL){
+	if (devices[device_index].stat_scope & COLLECT_CHANNEL){
 		fprintf(fp , "Channel,");
-		scopeRange = CHANNEL_NB;
+		scopeRange = devices[device_index].channel_nb;
 		scope = CHANNEL;
 	}
-	if (STAT_SCOPE & COLLECT_FLASH){
+	if (devices[device_index].stat_scope & COLLECT_FLASH){
 		fprintf(fp , "Flash,");
-		scopeRange = FLASH_NB;
+		scopeRange = devices[device_index].flash_nb;
 		scope = FLASH;
 	}
-	if (STAT_SCOPE & COLLECT_PLANE){
+	if (devices[device_index].stat_scope & COLLECT_PLANE){
 		fprintf(fp , "Plane,");
-		scopeRange =  FLASH_NB * PLANES_PER_FLASH;
+		scopeRange =  devices[device_index].flash_nb * devices[device_index].planes_per_flash;
 		scope = PLANE;
 	}
-	if (STAT_SCOPE & COLLECT_BLOCK){
+	if (devices[device_index].stat_scope & COLLECT_BLOCK){
 		fprintf(fp , "Block,");
-		scopeRange = (int64_t)BLOCK_NB * (int64_t)FLASH_NB;
+		scopeRange = (int64_t)devices[device_index].block_nb * (int64_t)devices[device_index].flash_nb;
 		scope = BLOCK;
 	}
-	if (STAT_SCOPE & COLLECT_PAGE){
+	if (devices[device_index].stat_scope & COLLECT_PAGE){
 		fprintf(fp , "Page,");
-		scopeRange = PAGES_IN_SSD;
+		scopeRange = devices[device_index].pages_in_ssd;
 		scope = PAGE;
 	}
-	if (STAT_TYPE & COLLECT_LOGICAL_READ){
+	if (devices[device_index].stat_type & COLLECT_LOGICAL_READ){
 		fprintf(fp , "Logical Read,");
 	}
-	if (STAT_TYPE & COLLECT_LOGICAL_WRITE){
+	if (devices[device_index].stat_type & COLLECT_LOGICAL_WRITE){
 		fprintf(fp , "Logical Write,");
 	}
-	if (STAT_TYPE & COLLECT_PHYSICAL_READ){
+	if (devices[device_index].stat_type & COLLECT_PHYSICAL_READ){
 		fprintf(fp , "Physical Read,");
 	}
-	if (STAT_TYPE & COLLECT_PHYSICAL_WRITE){
+	if (devices[device_index].stat_type & COLLECT_PHYSICAL_WRITE){
 		fprintf(fp , "Physical Write");
 	}
 	fprintf(fp , "\n");
 
 	for (i = 0; i < scopeRange ; i++){
-		address = CALC_SCOPE_FIRST_PAGE(i,scope);
-		if (STAT_SCOPE & COLLECT_SSD){
+		address = CALC_SCOPE_FIRST_PAGE(device_index, i,scope);
+		if (devices[device_index].stat_scope & COLLECT_SSD){
 			fprintf(fp , "1,");
 		}
-		if (STAT_SCOPE & COLLECT_CHANNEL){
-			fprintf(fp , "%u," , CALC_CHANNEL(address));
+		if (devices[device_index].stat_scope & COLLECT_CHANNEL){
+			fprintf(fp , "%u," , CALC_CHANNEL(device_index, address));
 		}
-		if (STAT_SCOPE & COLLECT_FLASH){
-			fprintf(fp , "%u," , CALC_FLASH(address));
+		if (devices[device_index].stat_scope & COLLECT_FLASH){
+			fprintf(fp , "%u," , CALC_FLASH(device_index, address));
 		}
-		if (STAT_SCOPE & COLLECT_PLANE){
-			fprintf(fp , "%u," , CALC_PLANE(address));
+		if (devices[device_index].stat_scope & COLLECT_PLANE){
+			fprintf(fp , "%u," , CALC_PLANE(device_index, address));
 		}
-		if (STAT_SCOPE & COLLECT_BLOCK){
-			fprintf(fp , "%lu,", CALC_BLOCK(address));
+		if (devices[device_index].stat_scope & COLLECT_BLOCK){
+			fprintf(fp , "%lu,", CALC_BLOCK(device_index, address));
 		}
-		if (STAT_SCOPE & COLLECT_PAGE){
+		if (devices[device_index].stat_scope & COLLECT_PAGE){
 			fprintf(fp , "%d," , address);
 		}
-		if (STAT_TYPE & COLLECT_LOGICAL_READ){
-			queryResult = FTL_STATISTICS_QUERY(i , scope , LOGICAL_READ);
+		if (devices[device_index].stat_type & COLLECT_LOGICAL_READ){
+			queryResult = FTL_STATISTICS_QUERY(device_index, i, scope , LOGICAL_READ);
 			fprintf(fp , "%d," , queryResult);
 		}
-		if (STAT_TYPE & COLLECT_LOGICAL_WRITE){
-			queryResult = FTL_STATISTICS_QUERY(i , scope , LOGICAL_WRITE);
+		if (devices[device_index].stat_type & COLLECT_LOGICAL_WRITE){
+			queryResult = FTL_STATISTICS_QUERY(device_index, i, scope, LOGICAL_WRITE);
 			fprintf(fp , "%d," ,queryResult);
 		}
-		if (STAT_TYPE & COLLECT_PHYSICAL_READ){
-			queryResult = FTL_STATISTICS_QUERY(i , scope , PHYSICAL_READ);
+		if (devices[device_index].stat_type & COLLECT_PHYSICAL_READ){
+			queryResult = FTL_STATISTICS_QUERY(device_index, i, scope, PHYSICAL_READ);
 			fprintf(fp , "%d,", queryResult);
 		}
-		if (STAT_TYPE & COLLECT_PHYSICAL_WRITE){
-			queryResult = FTL_STATISTICS_QUERY(i , scope , PHYSICAL_WRITE);
+		if (devices[device_index].stat_type & COLLECT_PHYSICAL_WRITE){
+			queryResult = FTL_STATISTICS_QUERY(device_index, i, scope, PHYSICAL_WRITE);
 			fprintf(fp , "%d," , queryResult);
 		}
 		fprintf(fp , "\n");
@@ -316,7 +340,7 @@ void FTL_RECORD_STATISTICS(void){
 	fclose(fp);
 }
 
-void *STAT_LISTEN(void *socket){
+void *STAT_LISTEN(uint8_t device_index, void *socket){
 	char buffer[256];
 	int sock = (*(int *) socket);
 	int stopListen = 1;
@@ -334,8 +358,8 @@ void *STAT_LISTEN(void *socket){
 		{
 			gatherStats = 1;
 		}else if (strcmp(buffer, "stop") == 0){
-			FTL_RECORD_STATISTICS();
-			FTL_RESET_STATS();
+			FTL_RECORD_STATISTICS(device_index);
+			FTL_RESET_STATS(device_index);
 			gatherStats = 0;
 		}else{
 			//stopListen = 0;
