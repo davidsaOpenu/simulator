@@ -5,119 +5,19 @@
 
 #include "common.h"
 #include <string.h>
+#include <inttypes.h>
+#include <sys/stat.h>
+#include <string.h>
+#include <ctype.h>
 
 /* Devices Configuration */
 ssd_config_t devices[MAX_DEVICES];
 uint8_t device_count = 0;
-uint8_t current_device_index = 0;
 
-/* SSD Configuration */
-uint32_t SECTOR_SIZE;
-uint32_t PAGE_SIZE;
-
-uint64_t PAGE_NB;
-uint32_t FLASH_NB;
-uint64_t BLOCK_NB;
-uint32_t CHANNEL_NB;
-uint32_t PLANES_PER_FLASH;
-
-uint32_t SECTORS_PER_PAGE;
-uint64_t PAGES_PER_FLASH;
-uint64_t PAGES_IN_SSD;
-
-// Size in blocks.
-uint64_t NAMESPACES_SIZE[MAX_NUMBER_OF_NAMESPACES] = {0,};
-
-uint32_t WAY_NB;
-
-/* Mapping Table */
-uint32_t DATA_BLOCK_NB;
-uint64_t BLOCK_MAPPING_ENTRY_NB;		// added by js
-
-#ifdef PAGE_MAP
-uint64_t PAGE_MAPPING_ENTRY_NB;		// added by js
-uint64_t EACH_EMPTY_TABLE_ENTRY_NB;	// added by js
-
-uint64_t EMPTY_TABLE_ENTRY_NB;		// added by js
-uint64_t VICTIM_TABLE_ENTRY_NB;		// added by js
-#endif
-
-/* NAND Flash Delay */
-int REG_WRITE_DELAY;
-int CELL_PROGRAM_DELAY;
-int REG_READ_DELAY;
-int CELL_READ_DELAY;
-int BLOCK_ERASE_DELAY;
-int CHANNEL_SWITCH_DELAY_W;
-int CHANNEL_SWITCH_DELAY_R;
-
-int DSM_TRIM_ENABLE;
-int IO_PARALLELISM;
-
-int STAT_SCOPE;
-int STAT_TYPE;
-
-/* Garbage Collection */
-#ifdef PAGE_MAP
-double GC_THRESHOLD;			// added by js
-int GC_THRESHOLD_BLOCK_NB;		// added by js
-int GC_THRESHOLD_BLOCK_NB_EACH;		// added by js
-int GC_VICTIM_NB;
-double GC_L2_THRESHOLD;
-int GC_L2_THRESHOLD_BLOCK_NB;
-#endif
-
-int GC_LOW_THR;
-int GC_HI_THR;
-
-/* Storage strategy (1 = sector-based, 2 = object-based */
-int STORAGE_STRATEGY;
-
-char DEVICE_NAME[MAX_DEVICE_NAME_LEN] = {0,};
-char gFile_Name[PATH_MAX] = {0,};
-char OSD_PATH[PATH_MAX] = {0,};
-char STAT_PATH[PATH_MAX] = {0,};
-
-config_param options[] = {
-    {"FILE_NAME", "%s", gFile_Name},
-    {"PAGE_SIZE", "%d", &PAGE_SIZE},
-    {"PAGE_NB", "%d", &PAGE_NB},
-    {"SECTOR_SIZE", "%d", &SECTOR_SIZE},
-    {"FLASH_NB", "%d", &FLASH_NB},
-    {"BLOCK_NB", "%d", &BLOCK_NB},
-    {"PLANES_PER_FLASH", "%d", &PLANES_PER_FLASH},
-    {"REG_WRITE_DELAY", "%d", &REG_WRITE_DELAY},
-    {"CELL_PROGRAM_DELAY", "%d", &CELL_PROGRAM_DELAY},
-    {"REG_READ_DELAY", "%d", &REG_READ_DELAY},
-    {"CELL_READ_DELAY", "%d", &CELL_READ_DELAY},
-    {"BLOCK_ERASE_DELAY", "%d", &BLOCK_ERASE_DELAY},
-    {"CHANNEL_SWITCH_DELAY_R", "%d", &CHANNEL_SWITCH_DELAY_R},
-    {"CHANNEL_SWITCH_DELAY_W", "%d", &CHANNEL_SWITCH_DELAY_W},
-    {"DSM_TRIM_ENABLE", "%d", &DSM_TRIM_ENABLE},
-    {"IO_PARALLELISM", "%d", &IO_PARALLELISM},
-    {"CHANNEL_NB", "%d", &CHANNEL_NB},
-    {"STAT_TYPE", "%d", &STAT_TYPE},
-    {"STAT_SCOPE", "%d", &STAT_SCOPE},
-    {"STORAGE_STRATEGY", "%d", &STORAGE_STRATEGY},
-    {"GC_LOW_THR", "%d", &GC_LOW_THR},
-    {"GC_HI_THR", "%d", &GC_HI_THR},
-#if defined FTL_MAP_CACHE
-    {"CACHE_IDX_SIZE", "%d", &CACHE_IDX_SIZE},
-#endif
-#ifdef SSD_WRITE_BUFFER
-    {"WRITE_BUFFER_SIZE", "%u", &WRITE_BUFFER_SIZE},
-#endif
-#if defined FAST_FTL || defined LAST_FTL
-    {"LOG_RAND_BLOCK_NB", "%d", &LOG_RAND_BLOCK_NB},
-    {"LOG_SEQ_BLOCK_NB", "%d", &LOG_SEQ_BLOCK_NB},
-#endif
-    {NULL, NULL, NULL},
-};
-
-int parse_header(char* str);
+bool parse_header(char* str, ssd_config_t* device);
+void calculate_derived_values(ssd_config_t *device);
+bool parse_config_line(const char* key, FILE* file, ssd_config_t* device);
 void update_globals(void);
-void set_device_object(ssd_config_t *device);
-void clear_globals(void);
 
 void INIT_SSD_CONFIG(void)
 {
@@ -130,294 +30,293 @@ void INIT_SSD_CONFIG(void)
 
     memset(devices, 0x00, sizeof(ssd_config_t) * MAX_DEVICES);
 
-    int i = 0;
-    uint8_t deviceIndex = 0;
+    char key[64];
+    int i;
+    uint8_t device_index = 0;
+    ssd_config_t *current_device = NULL;
 
-    char *szCommand = (char*)malloc(1024);
-    memset(szCommand, 0x00, 1024);
-    while (fscanf(pfData, "%s", szCommand) != EOF){
-        if (szCommand[0] == '[') {
-            if (deviceIndex > MAX_DEVICES) {
+    while (fscanf(pfData, "%63s", key) != EOF) {
+
+        // Skip empty lines
+        if (!strlen(key))
+            continue;
+
+        if (key[0] == '[') {
+            if (device_index > MAX_DEVICES) {
                 RERR(, "Maximum number of devices reached\n");
             }
-            if (deviceIndex != 0) {
-                update_globals();
-                set_device_object(&devices[deviceIndex - 1]);
-                clear_globals(); // Clear globals for the next device
+
+            // Finalize previous device
+            if (current_device != NULL) {
+                calculate_derived_values(current_device);
             }
-            ++deviceIndex;
+            current_device = &devices[device_index];
+
+            // Create data directory for the device
+            char* dirname = GET_DATA_FILENAME(device_index, "");
+            if (dirname == NULL)
+                RERR(, "GET_DATA_FILENAME failed!\n");
+        
+            mkdir(dirname, 0777);
+            free(dirname);
+
+            ++device_index;
             ++device_count;
-            if (parse_header(szCommand) == 0) {
-                RERR(, "Invalid nvme device format: %s\n", szCommand);
+            if (parse_header(key, current_device)) {
+                RERR(, "Invalid nvme device format: %s\n", key);
             }
             continue;
         }
-
-        if (strcmp(szCommand, "STAT_PATH") == 0){
-            if (fgets(STAT_PATH, PATH_MAX, pfData) == NULL)
+        if (current_device == NULL) {
+            RERR(, "Configuration parameter found before device header: %s\n", key);
+        }
+        if (strcmp(key, "STAT_PATH") == 0){
+            if (fgets(current_device->stat_path, PATH_MAX, pfData) == NULL)
                 RERR(, "Can't read STAT_PATH\n");
             continue;
         }
 
-        if (strcmp(szCommand, "OSD_PATH") == 0){
-            if (fgets(OSD_PATH, PATH_MAX, pfData) == NULL)
+        if (strcmp(key, "OSD_PATH") == 0){
+            if (fgets(current_device->osd_path, PATH_MAX, pfData) == NULL)
                 RERR(, "Can't read OSD_PATH\n");
             continue;
         }
 
-        if (sscanf(szCommand, "NS%d", &i) == 1){
+        if (sscanf(key, "NS%d", &i) == 1){
             if (i > MAX_NUMBER_OF_NAMESPACES || i <= 0)
                 RERR(, "Invalid namespaces index\n");
 
-            // Read the parm.
-            if (fscanf(pfData, "%" SCNu64, &NAMESPACES_SIZE[i-1]) == EOF){
-                RERR(, "Can't read %s\n", szCommand);
+            if (fscanf(pfData, "%" SCNu64, &current_device->namespaces_size[i-1]) == EOF){
+                RERR(, "Can't read %s\n", key);
             }
 
-            memset(szCommand, 0x00, 1024);
             continue;
         }
 
-        // Search config name index from the options list.
-        for (i = 0; options[i].name != NULL; i++)
-            if (strcmp(szCommand, options[i].name) == 0)
-                break;
-
-        // Is the config index found.
-        if (options[i].name == NULL)
-            RERR(, "Wrong option %s\n", szCommand);
-        // Read the parm.
-        if (fscanf(pfData, options[i].type, options[i].ptr) == EOF)
-            RERR(, "Can't read %s\n", szCommand);
-
-        memset(szCommand, 0x00, 1024);
+        if (parse_config_line(key, pfData, current_device)) {
+            RERR(, "Unknown configuration option: %s\n", key);
+        }
     }
 
-    // Update the last device
-    update_globals();
-    set_device_object(&devices[deviceIndex - 1]);
+    // Finalize the last device
+    if (current_device != NULL) {
+        calculate_derived_values(current_device);
+    }
 
     fclose(pfData);
-	free(szCommand);
 }
 
-char* GET_FILE_NAME(void){
-	return gFile_Name;
+bool parse_config_line(const char* key, FILE* file, ssd_config_t* device) {
+
+    if (strcmp(key, "FILE_NAME") == 0) {
+        return fscanf(file, "%s", device->file_name) == 1;
+    }
+    if (strcmp(key, "PAGE_SIZE") == 0) {
+        return fscanf(file, "%" SCNu32, &device->page_size) == 1;
+    }
+    if (strcmp(key, "PAGE_NB") == 0) {
+        return fscanf(file, "%" SCNu64, &device->page_nb) == 1;
+    }
+    if (strcmp(key, "SECTOR_SIZE") == 0) {
+        return fscanf(file, "%" SCNu32, &device->sector_size) == 1;
+    }
+    if (strcmp(key, "FLASH_NB") == 0) {
+        return fscanf(file, "%" SCNu32, &device->flash_nb) == 1;
+    }
+    if (strcmp(key, "BLOCK_NB") == 0) {
+        return fscanf(file, "%" SCNu64, &device->block_nb) == 1;
+    }
+    if (strcmp(key, "PLANES_PER_FLASH") == 0) {
+        return fscanf(file, "%" SCNu32, &device->planes_per_flash) == 1;
+    }
+    if (strcmp(key, "REG_WRITE_DELAY") == 0) {
+        return fscanf(file, "%d", &device->reg_write_delay) == 1;
+    }
+    if (strcmp(key, "CELL_PROGRAM_DELAY") == 0) {
+        return fscanf(file, "%d", &device->cell_program_delay) == 1;
+    }
+    if (strcmp(key, "REG_READ_DELAY") == 0) {
+        return fscanf(file, "%d", &device->reg_read_delay) == 1;
+    }
+    if (strcmp(key, "CELL_READ_DELAY") == 0) {
+        return fscanf(file, "%d", &device->cell_read_delay) == 1;
+    }
+    if (strcmp(key, "BLOCK_ERASE_DELAY") == 0) {
+        return fscanf(file, "%d", &device->block_erase_delay) == 1;
+    }
+    if (strcmp(key, "CHANNEL_SWITCH_DELAY_R") == 0) {
+        return fscanf(file, "%d", &device->channel_switch_delay_r) == 1;
+    }
+    if (strcmp(key, "CHANNEL_SWITCH_DELAY_W") == 0) {
+        return fscanf(file, "%d", &device->channel_switch_delay_w) == 1;
+    }
+    if (strcmp(key, "DSM_TRIM_ENABLE") == 0) {
+        return fscanf(file, "%d", &device->dsm_trim_enable) == 1;
+    }
+    if (strcmp(key, "IO_PARALLELISM") == 0) {
+        return fscanf(file, "%d", &device->io_parallelism) == 1;
+    }
+    if (strcmp(key, "CHANNEL_NB") == 0) {
+        return fscanf(file, "%" SCNu32, &device->channel_nb) == 1;
+    }
+    if (strcmp(key, "STAT_TYPE") == 0) {
+        return fscanf(file, "%d", &device->stat_type) == 1;
+    }
+    if (strcmp(key, "STAT_SCOPE") == 0) {
+        return fscanf(file, "%d", &device->stat_scope) == 1;
+    }
+    if (strcmp(key, "STORAGE_STRATEGY") == 0) {
+        return fscanf(file, "%d", &device->storage_strategy) == 1;
+    }
+    if (strcmp(key, "GC_LOW_THR") == 0) {
+        return fscanf(file, "%d", &device->gc_low_thr) == 1;
+    }
+    if (strcmp(key, "GC_HI_THR") == 0) {
+        return fscanf(file, "%d", &device->gc_hi_thr) == 1;
+    }
+
+#if defined FTL_MAP_CACHE
+    if (strcmp(key, "CACHE_IDX_SIZE") == 0) {
+        return fscanf(file, "%d", &CACHE_IDX_SIZE) == 1;
+    }
+#endif
+#ifdef SSD_WRITE_BUFFER
+    if (strcmp(key, "WRITE_BUFFER_SIZE") == 0) {
+        return fscanf(file, "%u", &WRITE_BUFFER_SIZE) == 1;
+    }
+#endif
+#if defined FAST_FTL || defined LAST_FTL
+    if (strcmp(key, "LOG_RAND_BLOCK_NB") == 0) {
+        return fscanf(file, "%d", &LOG_RAND_BLOCK_NB) == 1;
+    }
+    if (strcmp(key, "LOG_SEQ_BLOCK_NB") == 0) {
+        return fscanf(file, "%d", &LOG_SEQ_BLOCK_NB) == 1;
+    }
+#endif
+
+    return false; // Unknown key
 }
 
-uint32_t GET_SECTOR_SIZE(void){
-    return SECTOR_SIZE;
+
+char* GET_FILE_NAME(uint8_t device_index){
+	return devices[device_index].file_name;
 }
 
-uint32_t GET_PAGE_SIZE(void){
-    return PAGE_SIZE;
+uint32_t GET_SECTOR_SIZE(uint8_t device_index){
+    return devices[device_index].sector_size;
+}
+
+uint32_t GET_PAGE_SIZE(uint8_t device_index){
+    return devices[device_index].page_size;
 }
 
 ssd_config_t* GET_DEVICES(void){
     return devices;
 }
 
-int parse_header(char *str) {
-    if (str == NULL) {
-        return 0;
+bool parse_header(char *str, ssd_config_t *device) {
+    if (str == NULL || device == NULL) {
+        return false;
     }
 
     int disk_num, offset;
 
     // Match string of format "[nvmeXX]"
     if (sscanf(str, "[nvme%2d]%n", &disk_num, &offset) != 1) {
-        return 0;
+        return false;
     }
 
-    // Extra validation
+    // Check if disk_num is valid and offset matches the expected length
     if (disk_num == 0 || strlen(str) != (unsigned int) offset) {
-        return 0;
+        return false;
     }
 
-    // Copy device name to global buffer (without brackets)
     // Start after the opening bracket '[' and copy 6 characters: "nvmeXX"
-    strncpy(DEVICE_NAME, str + 1, 6);
-    DEVICE_NAME[6] = '\0';
+    strncpy(device->device_name, str + 1, 6);
+    device->device_name[6] = '\0';
 
-    return 1;
+    return true;
 }
 
-void update_globals(void) {
-    /* Exception Handler */
-    if (FLASH_NB < CHANNEL_NB)
-        RERR(, "Wrong CHANNEL_NB %d\n", CHANNEL_NB);
-    if (PLANES_PER_FLASH != 1 && PLANES_PER_FLASH % 2 != 0)
-        RERR(, "Wrong PLANAES_PER_FLASH %d\n", PLANES_PER_FLASH);
+void calculate_derived_values(ssd_config_t* device) {
+    // Exception Handler
+    if (device->flash_nb < device->channel_nb)
+        RERR(, "Wrong CHANNEL_NB %d\n", device->channel_nb);
+    if (device->planes_per_flash != 1 && device->planes_per_flash % 2 != 0)
+        RERR(, "Wrong PLANES_PER_FLASH %d\n", device->planes_per_flash);
 
-	/* SSD Configuration */
-	SECTORS_PER_PAGE = PAGE_SIZE / SECTOR_SIZE;
-	PAGES_PER_FLASH = PAGE_NB * BLOCK_NB;
+    // Calculate derived values
+    device->sectors_per_page = device->page_size / device->sector_size;
+    device->pages_per_flash = device->page_nb * device->block_nb;
+    device->sector_nb = (uint64_t)device->sectors_per_page * device->page_nb *
+                        device->block_nb * device->flash_nb;
 
-	/* Mapping Table */
-	BLOCK_MAPPING_ENTRY_NB = (int64_t)BLOCK_NB * (int64_t)FLASH_NB;
-	PAGES_IN_SSD = (int64_t)PAGE_NB * (int64_t)BLOCK_NB * (int64_t)FLASH_NB;
+    device->block_mapping_entry_nb = (uint64_t)device->block_nb * device->flash_nb;
+    device->pages_in_ssd = device->page_nb * device->block_nb * device->flash_nb;
 
-    // Validate the total size for all the namespaces.
-    if (BLOCK_NB * (uint64_t)FLASH_NB < GET_NAMESPACE_TOTAL_SIZE()){
+    // Validate namespace sizes
+    uint64_t total_namespace_size = 0;
+    int i;
+    for (i = 0; i < MAX_NUMBER_OF_NAMESPACES; i++) {
+        if (UINT64_MAX - total_namespace_size < device->namespaces_size[i]) {
+            RERR(, "ERROR, overflow detected at total size of namespaces\n");
+        }
+        total_namespace_size += device->namespaces_size[i];
+    }
+
+    if (device->block_nb * device->flash_nb < total_namespace_size) {
         RERR(, "ERROR, The total sum sizes of all namespaces is larger than the SSD size\n");
     }
 
 #ifdef PAGE_MAP
-	PAGE_MAPPING_ENTRY_NB = (int64_t)PAGE_NB * (int64_t)BLOCK_NB * (int64_t)FLASH_NB;
-	EACH_EMPTY_TABLE_ENTRY_NB = (int64_t)BLOCK_NB / (int64_t)PLANES_PER_FLASH;
+    device->page_mapping_entry_nb = device->page_nb * device->block_nb * device->flash_nb;
+    device->each_empty_table_entry_nb = device->block_nb / device->planes_per_flash;
+    device->empty_table_entry_nb = device->flash_nb * device->planes_per_flash;
+    device->victim_table_entry_nb = device->flash_nb * device->planes_per_flash;
+    device->data_block_nb = device->block_nb;
 
-	EMPTY_TABLE_ENTRY_NB = FLASH_NB * PLANES_PER_FLASH;
-	VICTIM_TABLE_ENTRY_NB = FLASH_NB * PLANES_PER_FLASH;
+    device->gc_threshold = 0.2;
+    device->gc_threshold_block_nb = (int)((1-device->gc_threshold) * (double)device->block_mapping_entry_nb);
+    device->gc_threshold_block_nb_each = (int)((1-device->gc_threshold) * (double)device->each_empty_table_entry_nb);
+    device->gc_victim_nb = device->gc_threshold_block_nb * 0.5;
 
-	DATA_BLOCK_NB = BLOCK_NB;
-#endif
-
-	/* Garbage Collection */
-#ifdef PAGE_MAP
-	GC_THRESHOLD = 0.2; // 70%
-	GC_THRESHOLD_BLOCK_NB = (int)((1-GC_THRESHOLD) * (double)BLOCK_MAPPING_ENTRY_NB);
-	GC_THRESHOLD_BLOCK_NB_EACH = (int)((1-GC_THRESHOLD) * (double)EACH_EMPTY_TABLE_ENTRY_NB);
-	GC_VICTIM_NB = GC_THRESHOLD_BLOCK_NB * 0.5;//each time GC is called, clean 50% of threashold
-
-    GC_L2_THRESHOLD = 0.1; //90%
-	GC_L2_THRESHOLD_BLOCK_NB = (int)((1-GC_L2_THRESHOLD) * (double)BLOCK_MAPPING_ENTRY_NB);
+    double gc_l2_threshold = 0.1;
+    device->gc_l2_threshold_block_nb = (int)((1-gc_l2_threshold) * (double)device->block_mapping_entry_nb);
 #endif
 }
 
-void set_device_object(ssd_config_t* device) {
-    strncpy(device->device_name, DEVICE_NAME, MAX_DEVICE_NAME_LEN);
-    strncpy(device->file_name, gFile_Name, PATH_MAX);
 
-    device->sector_size = SECTOR_SIZE;
-    device->page_size = PAGE_SIZE;
-
-	device->sector_nb = SECTOR_NB;
-	device->page_nb = PAGE_NB;
-	device->flash_nb = FLASH_NB;
-	device->block_nb = BLOCK_NB;
-	device->channel_nb = CHANNEL_NB;
-	device->planes_per_flash = PLANES_PER_FLASH;
-
-	device->sectors_per_page = SECTORS_PER_PAGE;
-	device->pages_per_flash = PAGES_PER_FLASH;
-	device->pages_in_ssd = PAGES_IN_SSD;
-	
-	device->way_nb = WAY_NB;
-
-	device->data_block_nb = DATA_BLOCK_NB;
-	device->block_mapping_entry_nb = BLOCK_MAPPING_ENTRY_NB;
-
-#ifdef PAGE_MAP
-    device->page_mapping_entry_nb = PAGE_MAPPING_ENTRY_NB;
-    device->each_empty_table_entry_nb = EACH_EMPTY_TABLE_ENTRY_NB;
-
-	device->empty_table_entry_nb = EMPTY_TABLE_ENTRY_NB;
-	device->victim_table_entry_nb = VICTIM_TABLE_ENTRY_NB;
-#endif
-
-    device->reg_write_delay = REG_WRITE_DELAY;
-    device->cell_program_delay = CELL_PROGRAM_DELAY;
-	device->reg_read_delay = REG_READ_DELAY;
-	device->cell_read_delay = CELL_READ_DELAY;
-	device->block_erase_delay = BLOCK_ERASE_DELAY;
-	device->channel_switch_delay_r = CHANNEL_SWITCH_DELAY_R;
-	device->channel_switch_delay_w = CHANNEL_SWITCH_DELAY_W;
-
-	device->dsm_trim_enable = DSM_TRIM_ENABLE;
-	device->io_parallelism = IO_PARALLELISM;
-
-#ifdef PAGE_MAP
-    device->gc_threshold = GC_THRESHOLD;
-    device->gc_threshold_block_nb = GC_THRESHOLD_BLOCK_NB;
-	device->gc_threshold_block_nb_each = GC_THRESHOLD_BLOCK_NB_EACH;
-	device->gc_victim_nb = GC_VICTIM_NB;
-	device->gc_l2_threshold_block_nb = GC_L2_THRESHOLD_BLOCK_NB;
-#endif
-
-    device->gc_low_thr = GC_LOW_THR;
-    device->gc_hi_thr = GC_HI_THR;
-
-    device->stat_type = STAT_TYPE;
-    device->stat_scope = STAT_SCOPE;
-    strncpy(device->stat_path, STAT_PATH, PATH_MAX);
-    strncpy(device->osd_path, OSD_PATH, PATH_MAX);
-}
-
-void clear_globals(void) {
-    SECTOR_SIZE = 0;
-    PAGE_SIZE = 0;
-
-    SECTOR_NB = 0;
-    
-    PAGE_NB = 0;
-    FLASH_NB = 0;
-    BLOCK_NB = 0;
-    CHANNEL_NB = 0;
-    PLANES_PER_FLASH = 0;
-
-    SECTORS_PER_PAGE = 0;
-    PAGES_PER_FLASH = 0;
-    PAGES_IN_SSD = 0;
-
-    WAY_NB = 0;
-
-    DATA_BLOCK_NB = 0;
-    BLOCK_MAPPING_ENTRY_NB = 0;
-
-    #ifdef PAGE_MAP
-    PAGE_MAPPING_ENTRY_NB = 0;
-    EACH_EMPTY_TABLE_ENTRY_NB = 0;
-
-    EMPTY_TABLE_ENTRY_NB = 0;
-    VICTIM_TABLE_ENTRY_NB = 0;
-    #endif
-
-    REG_WRITE_DELAY = 0;
-    CELL_PROGRAM_DELAY = 0;
-    REG_READ_DELAY = 0;
-    CELL_READ_DELAY = 0;
-    BLOCK_ERASE_DELAY = 0;
-    CHANNEL_SWITCH_DELAY_W = 0;
-    CHANNEL_SWITCH_DELAY_R = 0;
-
-    DSM_TRIM_ENABLE = 0;
-    IO_PARALLELISM = 0;
-
-    STAT_SCOPE = 0;
-    STAT_TYPE = 0;
-
-    #ifdef PAGE_MAP
-    GC_THRESHOLD = 0;
-    GC_THRESHOLD_BLOCK_NB = 0;
-    GC_THRESHOLD_BLOCK_NB_EACH = 0;
-    GC_VICTIM_NB = 0;
-    GC_L2_THRESHOLD = 0;
-    GC_L2_THRESHOLD_BLOCK_NB = 0;
-    #endif
-
-    GC_LOW_THR = 0;
-    GC_HI_THR = 0;
-
-    STORAGE_STRATEGY = 0;
-
-    memset(DEVICE_NAME, 0x00, MAX_DEVICE_NAME_LEN);
-    memset(gFile_Name, 0x00, PATH_MAX);
-    memset(OSD_PATH, 0x00, PATH_MAX);
-    memset(STAT_PATH, 0x00, PATH_MAX);
-}
-
-uint64_t GET_NAMESPACE_TOTAL_SIZE(void){
+uint64_t GET_NAMESPACE_TOTAL_SIZE(uint8_t device_index) {
     int i;
     uint64_t NAMESPACE_TOTAL_SIZE = 0;
 
     for (i = 0; i < MAX_NUMBER_OF_NAMESPACES; i++){
         // Check for overflow in the sum of namespaces size.
-        if (UINT64_MAX - NAMESPACE_TOTAL_SIZE < NAMESPACES_SIZE[i]){
+        if (UINT64_MAX - NAMESPACE_TOTAL_SIZE < devices[device_index].namespaces_size[i]){
             RERR(UINT64_MAX, "ERROR, overflow detected at total size of namespaces\n");
         }
 
-        NAMESPACE_TOTAL_SIZE += NAMESPACES_SIZE[i];
+        NAMESPACE_TOTAL_SIZE += devices[device_index].namespaces_size[i];
     }
 
     return NAMESPACE_TOTAL_SIZE;
+}
+
+
+char* GET_DATA_FILENAME(uint8_t device_index, const char* filename) {
+    int filename_size = strlen(filename) + strlen("./data/") + 3;
+
+    char* res = (char*)malloc(filename_size);
+    if (NULL == res) {
+        RERR(res, "Malloc failed\n");
+    }
+
+    memset(res, 0, filename_size);
+
+    strncat(res, "./data/", filename_size);
+    res[strlen("./data/")] = device_index + '0';
+    strncat(res, "/", filename_size);
+    strncat(res, filename, filename_size);
+
+    return res;
 }

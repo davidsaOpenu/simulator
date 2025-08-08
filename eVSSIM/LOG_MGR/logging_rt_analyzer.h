@@ -83,6 +83,17 @@ typedef struct {
 
 } RTLogStatistics;
 
+typedef struct {
+    /**
+     * The logger to analyze
+     */
+    RTLogAnalyzer* analyzer;
+    /**
+     * The device index of the device being analyzed
+     */
+    uint8_t device_index;
+} rt_log_analyzer_run_args_t;
+
 /**
  * Create a new real time log analyzer
  * @param logger the logger to analyze
@@ -95,7 +106,7 @@ RTLogAnalyzer* rt_log_analyzer_init(Logger_Pool* logger, unsigned int analyzer_i
  * @brief Initializes real time log statistics
  *
  */
-void rt_log_stats_init(void);
+void rt_log_stats_init(uint8_t device_index);
 
 /**
  * Subscribe to the log analyzer
@@ -111,14 +122,14 @@ int rt_log_analyzer_subscribe(RTLogAnalyzer* analyzer, MonitorHook hook, void* u
  * The same as `rt_log_analyzer_loop(analyzer, -1)`
  * @param analyzer the analyzer to run
  */
-void* rt_log_analyzer_run(void* analyzer);
+void* rt_log_analyzer_run(void* args);
 
 /**
  * Do the main loop of the analyzer given
  * @param analyzer the analyzer to run
  * @param max_logs the maximum number of logs to read; if negative, run forever
  */
-void rt_log_analyzer_loop(RTLogAnalyzer* analyzer, int max_logs);
+void rt_log_analyzer_loop(uint8_t device_index, RTLogAnalyzer* analyzer, int max_logs);
 
 /**
  * Free the analyzer

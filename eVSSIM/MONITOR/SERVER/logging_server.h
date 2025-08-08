@@ -29,19 +29,20 @@
 
 #define MONITOR_SLEEP_PERIOD_USEC 100
 #define MONITOR_SLEEP_MAX_USEC 150000000
+
 void MONITOR_SYNC_LOG_ID(SSDStatistics *stats, uint64_t log_id, uint64_t max_sleep);
-void MONITOR_SYNC(SSDStatistics *stats, uint64_t max_sleep);
+void MONITOR_SYNC(uint8_t device_index, SSDStatistics *stats, uint64_t max_sleep);
 
 /**
  * The port to be used by the server
  */
-#define LOG_SERVER_PORT 2003
-
+#define LOG_SERVER_PORT(device_index) ((g_used_upper_port) ? (2003 + MAX_DEVICES) : (2003 + (device_index)))
+extern bool g_used_upper_port;
 
 /**
  * A reset hook
  */
-typedef void (*ResetHook)(void);
+typedef void (*ResetHook)(uint8_t);
 
 
 /**
@@ -68,6 +69,10 @@ typedef struct {
      * The hook to call when a reset request is send by the user
      */
     ResetHook reset_hook;
+    /**
+     * The index of the device being monitored
+     */
+    uint8_t device_index;
 } LogServer;
 
 /**
@@ -80,7 +85,7 @@ extern LogServer log_server;
  * Initialize the logging server
  * @return 0 if initialization succeeded, nonzero otherwise
  */
-int log_server_init(void);
+int log_server_init(uint8_t device_index);
 
 /**
  * Update the statistics sent by the logging server
@@ -109,7 +114,7 @@ void* log_server_run(void *param);
 void log_server_loop(int max_loops);
 
 /*
- * immidiatly terminate server, dont wait for next loop iterration 
+ * immidiatly terminate server, dont wait for next loop iterration
  */
 void log_server_stop(void);
 

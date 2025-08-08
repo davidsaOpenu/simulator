@@ -36,6 +36,7 @@
     #define WWW_DIR "./www"
 #endif
 
+bool g_used_upper_port = false;
 
 LogServer log_server;
 
@@ -114,7 +115,7 @@ static int callback_evssim_monitor(struct lws *wsi, enum lws_callback_reasons re
             // on receive, parse the command
             if (strcasecmp("reset", in_message) == 0) {
                 if (log_server.reset_hook) {
-                    log_server.reset_hook();
+                    log_server.reset_hook(log_server.device_index);
                 }
                 else {
                     fprintf(stderr, "WARNING: Couldn't reset stats, as no reset hook is configured!\n");
@@ -201,14 +202,14 @@ static const struct lws_http_mount http_mount = {
 /* Wrapper methods */
 
 
-int log_server_init(void) {
+int log_server_init(uint8_t device_index) {
     // set debug level
     lws_set_log_level(LLL_ERR | LLL_WARN, NULL);
 
     // init the creation info
     struct lws_context_creation_info info;
     memset(&info, 0, sizeof(info));
-    info.port = LOG_SERVER_PORT;
+    info.port = LOG_SERVER_PORT(device_index);
     info.protocols = ws_protocols;
     info.extensions = ws_extensions;
     info.mounts = &http_mount;
@@ -218,7 +219,17 @@ int log_server_init(void) {
     // try to create the context
     struct lws_context *context = lws_create_context(&info);
     if (context == NULL)
-        return 1;
+    {
+        // A workaround to allow the tests to run with qemu until the logging server supports multiple disks
+        // This retries to open the server on a port that is not in the range of devices
+        g_used_upper_port = true;
+        info.port = LOG_SERVER_PORT(device_index);
+        context = lws_create_context(&info);
+        if (context == NULL)
+        {
+            return 1;
+        }
+    }
 
     // try to create the lock
     if (pthread_mutex_init(&log_server.lock, NULL)) {
@@ -231,6 +242,7 @@ int log_server_init(void) {
     log_server.stats = stats_init();
     log_server.exit_loop_flag = 0;
     log_server.reset_hook = NULL;
+    log_server.device_index = device_index;
 
     return 0;
 }
@@ -276,7 +288,9 @@ void log_server_loop(int max_loops) {
 }
 
 void log_server_stop(void){
-    lws_cancel_service(log_server.context);
+    if (log_server.context != NULL) {
+        lws_cancel_service(log_server.context);
+    }
 }
 
 void log_server_free(void) {
@@ -284,20 +298,20 @@ void log_server_free(void) {
     pthread_mutex_destroy(&log_server.lock);
 }
 
-void MONITOR_SYNC(SSDStatistics *stats, uint64_t max_sleep){
+void MONITOR_SYNC(uint8_t device_index, SSDStatistics *stats, uint64_t max_sleep){
     size_t i;
     uint64_t log_id;
-    for(i = 0; i < FLASH_NB; i++){
+    for(i = 0; i < devices[device_index].flash_nb; i++){
         log_id = rand();
-        LOG_LOG_SYNC(GET_LOGGER(i), (LoggeingServerSync) {
+        LOG_LOG_SYNC(GET_LOGGER(device_index, i), (LoggeingServerSync) {
             .log_id = log_id
         });
         MONITOR_SYNC_LOG_ID(stats, log_id, max_sleep);
-        LOG_LOG_SYNC(GET_LOGGER(i), (LoggeingServerSync) {
+        LOG_LOG_SYNC(GET_LOGGER(device_index, i), (LoggeingServerSync) {
             .log_id = 0
         });
         if(stats->log_id != log_id){
-            RERR(, "Monitor sync timed out logger_id = %lu, of total = %u\n", i, FLASH_NB);
+            RERR(, "Monitor sync timed out logger_id = %lu, of total = %u\n", i, devices[device_index].flash_nb);
         }
     }
 }
