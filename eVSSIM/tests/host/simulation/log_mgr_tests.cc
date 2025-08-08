@@ -47,11 +47,11 @@ namespace log_mgr_tests {
                 INIT_SSD_CONFIG();
 
                 if (g_server_mode) {
-                    log_server_init();
+                    log_server_init(g_device_index);
                     pthread_create(&_server, NULL, log_server_run, NULL);
                     printf("Server opened\n");
                     printf("Browse to http://127.0.0.1:%d/ to see the statistics\n",
-                            LOG_SERVER_PORT);
+                            LOG_SERVER_PORT(g_device_index));
                 }
                 SSDConf* ssd_config = base_test_get_ssd_config();
 
@@ -688,14 +688,14 @@ namespace log_mgr_tests {
     TEST_P(LogMgrUnitTest, BasicRTAnalyzer) {
         elk_logger_writer_init();
         RTLogAnalyzer* analyzer = rt_log_analyzer_init(_logger, 0);
-        rt_log_stats_init();
+        rt_log_stats_init(g_device_index);
         rt_subscriber::subscribe(analyzer);
         if (g_server_mode)
             rt_log_analyzer_subscribe(analyzer, (MonitorHook) log_server_update, NULL);
         rt_subscriber::write();
         rt_subscriber::read();
         rt_log_analyzer_free(analyzer, 0);
-        rt_log_stats_free();
+        rt_log_stats_free(g_device_index);
         elk_logger_writer_free();
     }
     /* offline Analyzer Tests */
