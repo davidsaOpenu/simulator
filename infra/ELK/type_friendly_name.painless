@@ -1,0 +1,21 @@
+// script.painless
+if (!doc.containsKey('type') || doc['type'].size() == 0) {
+  emit('Unknown');
+  return;
+}
+
+String t = doc['type'].value;
+
+Map m = new HashMap();
+m.put('PhysicalCellReadLog',      'Physical Memory Cell Read');
+m.put('PhysicalCellProgramLog',   'Physical Memory Cell Write');
+m.put('LogicalCellProgramLog',    'Logical Memory Cell Write');
+m.put('GarbageCollectionLog',     'Garbage Collection Initiated');
+m.put('RegisterReadLog',          'Device Register Read');
+m.put('RegisterWriteLog',         'Device Register Write');
+m.put('BlockEraseLog',            'Memory Block Erase');
+m.put('ChannelSwitchToReadLog',   'Channel Mode Switched to Read');
+m.put('ChannelSwitchToWriteLog',  'Channel Mode Switched to Write');
+
+def label = m.get(t);
+emit(label != null ? label : t);
