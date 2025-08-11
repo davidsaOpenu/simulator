@@ -1,20 +1,46 @@
+# ---------------------------------------------------------------------------
+#  Filebeat ➜ Elasticsearch (TLS) configuration
+# ---------------------------------------------------------------------------
+
 filebeat.inputs:
-- type: log
-  enabled: true
-  paths:
-    - /logs/*_log.json
-  json.keys_under_root: true  
-  json.add_error_key: true  
+  - type: log
+    enabled: true
+    paths:
+      # This is the path INSIDE the container where logs are mounted.
+      - /logs/elk_log_file-*.log
+    json.keys_under_root: true
+    json.add_error_key: true
+
 filebeat.config.modules:
   path: ${path.config}/modules.d/*.yml
   reload.enabled: false
+
+# Optional: template & Kibana setup
 setup.template.settings:
   index.number_of_shards: 1
+
 setup.kibana:
-output.elasticsearch:
-  hosts: ["localhost:9200"]
+  host: "kibana:5601"
+  # Credentials are required for Filebeat to set up dashboards if Kibana is secured.
   username: "elastic"
-  password: "changeme"
+  password: "${ELASTIC_PASSWORD}"
+
+  # This path is INSIDE the container. It's created by the docker-compose volume mount.
+  ssl.certificate_authorities: ["/usr/share/filebeat/certs/ca/ca.crt"]
+
+# ---------------------------------------------------------------------------
+#  Secure Elasticsearch output
+# ---------------------------------------------------------------------------
+output.elasticsearch:
+  hosts: ["https://elasticsearch:9200"]
+  username: "elastic"
+  password: "${ELASTIC_PASSWORD}"
+
+  ssl:
+    # This path is also INSIDE the container, created by the docker-compose volume mount.
+    certificate_authorities: ["/usr/share/filebeat/certs/ca/ca.crt"]
+    verification_mode: full
+
 processors:
   - add_host_metadata:
       when.not.contains.tags: forwarded
@@ -23,8 +49,8 @@ processors:
   - add_kubernetes_metadata: ~
   - timestamp:
       field: logging_time
-      timezone: Asia/Jerusalem
+      timezone: "Asia/Jerusalem"
       layouts:
-        - '2006-01-02 15:04:05.000'
-      test: 
-        - '2021-06-25 20:10:10.000'
+        - "2006-01-02 15:04:05.000"
+      test:
+        - "2021-06-25 20:10:10.000"
