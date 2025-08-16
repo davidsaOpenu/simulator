@@ -95,8 +95,6 @@ namespace log_mgr_tests {
         size_t block_nb = 8;
         size_t page_nb = 2;
         size_t channel_nb = 4;
-        size_t default_ns_block_nb = (block_nb * flash_nb) / 2;
-        size_t othere_ns_block_nb = (block_nb * flash_nb) / 4;
 
         std::vector<size_t> log_sizes;
         log_sizes.push_back(1);
@@ -105,7 +103,7 @@ namespace log_mgr_tests {
         log_sizes.push_back(10);
 
         for (unsigned int i = 0; i < log_sizes.size(); i++) {
-            SSDConf* config = new SSDConf(page_size, page_nb, sector_size, flash_nb, block_nb, channel_nb, default_ns_block_nb, othere_ns_block_nb);
+            SSDConf* config = new SSDConf(page_size, page_nb, sector_size, flash_nb, block_nb, channel_nb);
             config->set_logger_size(log_sizes[i]);
             ssd_configs.push_back(config);
         }

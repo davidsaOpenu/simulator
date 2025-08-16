@@ -15,6 +15,7 @@ uint8_t current_device_index = 0;
 uint32_t SECTOR_SIZE;
 uint32_t PAGE_SIZE;
 
+uint64_t SECTOR_NB;
 uint64_t PAGE_NB;
 uint32_t FLASH_NB;
 uint64_t BLOCK_NB;
@@ -252,6 +253,7 @@ void update_globals(void) {
 	/* SSD Configuration */
 	SECTORS_PER_PAGE = PAGE_SIZE / SECTOR_SIZE;
 	PAGES_PER_FLASH = PAGE_NB * BLOCK_NB;
+	SECTOR_NB = (uint64_t)SECTORS_PER_PAGE * (uint64_t)PAGE_NB * (uint64_t)BLOCK_NB * (uint64_t)FLASH_NB;
 
 	/* Mapping Table */
 	BLOCK_MAPPING_ENTRY_NB = (int64_t)BLOCK_NB * (int64_t)FLASH_NB;

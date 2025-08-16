@@ -44,9 +44,8 @@ ftl_ret_val GARBAGE_COLLECTION(uint64_t mapping_index, int l2, bool isObjectStra
 
 ftl_ret_val DEFAULT_GC_COLLECTION_ALGO(uint64_t mapping_index, int l2, bool isObjectStrategy)
 {
-	int ret;
-	uint32_t nsid;
 	uint64_t i;
+	int ret;
 	uint64_t lpn;
 	uint64_t old_ppn;
 	uint64_t new_ppn;
@@ -104,29 +103,23 @@ ftl_ret_val DEFAULT_GC_COLLECTION_ALGO(uint64_t mapping_index, int l2, bool isOb
                 SSD_PAGE_READ(victim_phy_flash_nb, victim_phy_block_nb, i, i, GC_READ);
                 SSD_PAGE_WRITE(CALC_FLASH(new_ppn), CALC_BLOCK(new_ppn), CALC_PAGE(new_ppn), i, GC_WRITE);
                 old_ppn = victim_phy_flash_nb*PAGES_PER_FLASH + victim_phy_block_nb*PAGE_NB + i;
-
-                GET_INVERSE_MAPPING_INFO(old_ppn, &nsid, &lpn);
-                UPDATE_NEW_PAGE_MAPPING(nsid, lpn, new_ppn);
+                lpn = GET_INVERSE_MAPPING_INFO(old_ppn);
+                UPDATE_NEW_PAGE_MAPPING(lpn, new_ppn);
             }else{
                 // Got new page on-chip, can do copy back
 
             	if (!isObjectStrategy)
-				{
             		ret = _FTL_COPYBACK(victim_phy_flash_nb*PAGES_PER_FLASH + victim_phy_block_nb*PAGE_NB + i , new_ppn);
-				}
             	else
-				{
             		ret = _FTL_OBJ_COPYBACK(victim_phy_flash_nb*PAGES_PER_FLASH + victim_phy_block_nb*PAGE_NB + i , new_ppn);
-				}
 
                 if(ret == FTL_FAILURE){
                     PDBG_FTL("failed to copyback\n");
                     SSD_PAGE_READ(victim_phy_flash_nb, victim_phy_block_nb, i, i, GC_READ);
                     SSD_PAGE_WRITE(CALC_FLASH(new_ppn), CALC_BLOCK(new_ppn), CALC_PAGE(new_ppn), i, GC_WRITE);
-
-					old_ppn = victim_phy_flash_nb*PAGES_PER_FLASH + victim_phy_block_nb*PAGE_NB + i;
-                    GET_INVERSE_MAPPING_INFO(old_ppn, &nsid, &lpn);
-                    UPDATE_NEW_PAGE_MAPPING(nsid, lpn, new_ppn);
+                    old_ppn = victim_phy_flash_nb*PAGES_PER_FLASH + victim_phy_block_nb*PAGE_NB + i;
+                    lpn = GET_INVERSE_MAPPING_INFO(old_ppn);
+                    UPDATE_NEW_PAGE_MAPPING(lpn, new_ppn);
                 }
             }
 

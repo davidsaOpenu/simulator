@@ -33,15 +33,13 @@ extern "C" int g_init_log_server;
 #include <cstdio>
 #include <cstdlib>
 
+
 #define BASE_TEST_ARRAY_SIZE(array) (sizeof(array) / sizeof(array[0]))
 
 /** default value for flash number */
 #define DEFAULT_FLASH_NB 8
 
 #define READ_MAPPING_INFO_FROM_FILES false
-
-#define DEFAULT_NSID 0
-#define OTHER_NSID 1
 
 /**
  * paramters that the tests run with
@@ -97,40 +95,27 @@ namespace {
         size_t channel_nb;
         size_t logger_size;
         size_t object_size;
-        size_t block_ns_nb[MAX_NUMBER_OF_NAMESPACES] = {0,};
+        size_t pages;
 
         // external blocks (non over-provisioned)
         const static size_t CONST_PAGES_PER_BLOCK = 8;
-
         // 25 % of pages for over-provisioning
         const static size_t CONST_PAGES_PER_BLOCK_OVERPROV = (CONST_PAGES_PER_BLOCK * 25) / 100;
         const static size_t CONST_PAGE_SIZE_IN_BYTES = 4096;
 
-        void ssd_conf_calc_based_size_mb(size_t size_mb, bool only_default_ns) {
-            // all_blocks_on_all_flashes = (disk_size (in MB) * 1048576 / page_size) / pages_in_block
-            size_t block_x_flash = (size_mb * ((1024 * 1024) / CONST_PAGE_SIZE_IN_BYTES)) / CONST_PAGES_PER_BLOCK;
-
+        void ssd_conf_calc_based_size_mb(size_t size_mb) {
+            // number_of_pages = disk_size (in MB) * 1048576 / page_size
+            this->pages = size_mb * ((1024 * 1024) / CONST_PAGE_SIZE_IN_BYTES);
+            // all_blocks_on_all_flashes = number_of_pages / pages_in_block
+            size_t block_x_flash = this->pages / CONST_PAGES_PER_BLOCK;
             // number_of_flashes = all_blocks_on_all_flashes / number_of_blocks_in_flash
             size_t blocks_per_flash = block_x_flash / DEFAULT_FLASH_NB;
             this->block_nb = blocks_per_flash;
-
-            if (only_default_ns)
-            {
-                // Set the number pf block per namespace. 
-                block_ns_nb[DEFAULT_NSID] = block_x_flash;
-                block_ns_nb[OTHER_NSID] = 0;
-            }
-            else
-            {
-                // Set the number pf block per namespace. 
-                block_ns_nb[DEFAULT_NSID] = (block_x_flash / 2);
-                block_ns_nb[OTHER_NSID] = (block_x_flash / 4);
-            }
         }
 
     public:
-        SSDConf(size_t size_mb, bool only_default_ns=false, size_t sector_size = 1) {
-            ssd_conf_calc_based_size_mb(size_mb, only_default_ns);
+        SSDConf(size_t size_mb, size_t sector_size = 1) {
+            ssd_conf_calc_based_size_mb(size_mb);
             this->page_size = CONST_PAGE_SIZE_IN_BYTES;
             this->page_nb = CONST_PAGES_PER_BLOCK + CONST_PAGES_PER_BLOCK_OVERPROV;
             this->flash_nb = DEFAULT_FLASH_NB;
@@ -140,15 +125,11 @@ namespace {
         }
 
         SSDConf(size_t page_size, size_t page_nb, size_t sector_size,
-                size_t flash_nb, size_t block_nb, size_t channel_nb,
-                size_t default_ns_block_nb, size_t othere_ns_block_nb)
+                size_t flash_nb, size_t block_nb, size_t channel_nb)
                 : page_size(page_size), page_nb(page_nb), sector_size(sector_size),
                   flash_nb(flash_nb), block_nb(block_nb), channel_nb(channel_nb) {
-
-                    // Set the number pf block per namespace. 
-                    block_ns_nb[DEFAULT_NSID] = default_ns_block_nb;
-                    block_ns_nb[OTHER_NSID] = othere_ns_block_nb;
-                }
+				  this->pages = page_nb * block_nb * flash_nb;
+                  }
 
         size_t get_page_size(void) {
             return this->page_size;
@@ -170,14 +151,6 @@ namespace {
             return this->block_nb;
         }
 
-        size_t get_block_ns_nb(uint32_t nsid) {
-            return this->block_ns_nb[nsid];
-        }
-
-        size_t get_pages_ns(uint32_t nsid) {
-            return this->block_ns_nb[nsid] * this->page_nb * 0.8;
-        }
-
         size_t get_channel_nb(void) {
             return this->channel_nb;
         }
@@ -188,6 +161,10 @@ namespace {
 
         size_t get_object_size(void) {
             return this->object_size;
+        }
+
+        size_t get_pages(void) {
+            return this->pages;
         }
 
         size_t get_pages_per_block(void) {
@@ -211,8 +188,8 @@ namespace {
                 "SECTOR_SIZE " << get_sector_size() << "\n"
                 "FLASH_NB " << get_flash_nb() << "\n"
                 "BLOCK_NB " << get_block_nb() << "\n"
-                "NS1 " << get_block_ns_nb(DEFAULT_NSID) << "\n"
-                "NS2 " << get_block_ns_nb(OTHER_NSID) << "\n"
+                "NS1 " << (get_block_nb() / 2) << "\n"
+                "NS2 " << (get_block_nb() / 4) << "\n"
                 "PLANES_PER_FLASH 1\n"
                 "REG_WRITE_DELAY 82\n"
                 "CELL_PROGRAM_DELAY 900\n"
@@ -298,9 +275,6 @@ namespace {
             }
 
             virtual void TearDown() {
-                char filename[MAX_FILENAME_LENGTH];
-                int namespaceIndex;
-
                 FTL_TERM();
                 remove("data/empty_block_list.dat");
                 remove("data/inverse_block_mapping.dat");
@@ -309,19 +283,6 @@ namespace {
                 remove("data/valid_array.dat");
                 remove("data/victim_block_list.dat");
                 remove("data/ssd.conf");
-                remove("data/inverse_page_mapping_namespace.dat");
-
-                for (namespaceIndex = 0; namespaceIndex < MAX_NUMBER_OF_NAMESPACES; namespaceIndex++)
-                {
-                    if (NAMESPACES_SIZE[namespaceIndex] == 0){
-                        /* Skip un-used namespace */
-                        continue;
-                    }
-
-                    snprintf(filename, sizeof(filename), "./data/mapping_table_namespace_%d.dat", namespaceIndex);
-                    remove(filename);
-                }
-
                 g_init = 0;
                 clientSock = 0;
                 g_init_log_server = 0;

@@ -13,6 +13,7 @@
 #define MAX_DEVICE_NAME_LEN 8
 
 /* SSD Configuration */
+extern uint64_t SECTOR_NB;
 extern uint64_t PAGE_NB;
 extern uint32_t FLASH_NB;
 extern uint64_t BLOCK_NB;

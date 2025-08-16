@@ -70,14 +70,12 @@ extern victim_block_entry* victim_block_list_head;
 extern victim_block_entry* victim_block_list_tail;
 
 void INIT_INVERSE_PAGE_MAPPING(void);
-void INIT_INVERSE_PAGE_NAMESPACE_MAPPING(void);
 void INIT_INVERSE_BLOCK_MAPPING(void);
 void INIT_EMPTY_BLOCK_LIST(void);
 void INIT_VICTIM_BLOCK_LIST(void);
 void INIT_VALID_ARRAY(void);
 
 void TERM_INVERSE_PAGE_MAPPING(void);
-void TERM_INVERSE_PAGE_NAMESPACE_MAPPING(void);
 void TERM_INVERSE_BLOCK_MAPPING(void);
 void TERM_EMPTY_BLOCK_LIST(void);
 void TERM_VICTIM_BLOCK_LIST(void);
@@ -92,8 +90,8 @@ int EJECT_VICTIM_BLOCK(victim_block_entry* victim_block);
 
 inverse_block_mapping_entry* GET_INVERSE_BLOCK_MAPPING_ENTRY(unsigned int phy_flash_nb, uint64_t phy_block_nb);
 
-void GET_INVERSE_MAPPING_INFO(uint64_t ppn, uint32_t *o_nsid, uint64_t *o_lpn);
-int UPDATE_INVERSE_PAGE_MAPPING(uint64_t ppn, uint32_t nsid, uint64_t lpn);
+uint64_t GET_INVERSE_MAPPING_INFO(uint64_t ppn);
+int UPDATE_INVERSE_PAGE_MAPPING(uint64_t ppn, uint64_t lpn);
 int UPDATE_INVERSE_BLOCK_MAPPING(unsigned int phy_flash_nb,
                                  uint64_t phy_block_nb,
 								 int type);

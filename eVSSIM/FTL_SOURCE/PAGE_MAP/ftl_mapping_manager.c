@@ -3,83 +3,61 @@
 // Hanyang University, Seoul, Korea
 // Embedded Software Systems Lab. All right reserved
 
-#include "ftl_mapping_manager.h"
+#include "common.h"
 
-uint64_t* mapping_table[MAX_NUMBER_OF_NAMESPACES] = {NULL,};
+#define MAPPING_TABLE_INIT_VAL UINT64_MAX
+
+uint64_t* mapping_table;
 void* block_table_start;
 extern GCAlgorithm gc_algo;
 
 void INIT_MAPPING_TABLE(void)
 {
-	char filename[MAX_FILENAME_LENGTH];
-	int namespaceIndex;
+	/* Allocation Memory for Mapping Table */
+	mapping_table = (uint64_t*)calloc(PAGE_MAPPING_ENTRY_NB, sizeof(uint64_t));
+	if (mapping_table == NULL)
+		RERR(, "Calloc mapping table fail\n");
 
-	for (namespaceIndex = 0; namespaceIndex < MAX_NUMBER_OF_NAMESPACES; namespaceIndex++)
-	{
-		if (NAMESPACES_SIZE[namespaceIndex] == 0){
-			/* Skip un-used namespace */
-			continue;
-		}
-		
-		/* Allocation Memory for Mapping Table */
-		mapping_table[namespaceIndex] = (uint64_t*)calloc(NAMESPACES_SIZE[namespaceIndex] * (uint64_t)PAGE_NB, sizeof(uint64_t));
-		if (mapping_table[namespaceIndex] == NULL)
-			RERR(, "Calloc mapping table fail\n");
+	/* Initialization Mapping Table */
 
-		/* Initialization Mapping Table */
-
-		snprintf(filename, sizeof(filename), "./data/mapping_table_namespace_%d.dat", namespaceIndex);
-
-		/* If mapping_table.dat file exists */
-		FILE* fp = fopen(filename, "r");
-		if(fp != NULL){
-			if(fread(mapping_table[namespaceIndex], sizeof(uint64_t), NAMESPACES_SIZE[namespaceIndex] * (uint64_t)PAGE_NB, fp) <= 0)
-				PERR("fread\n");
-			fclose(fp);
-		}
-		else{
-			uint64_t i;
-			for(i=0; i < NAMESPACES_SIZE[namespaceIndex] * (uint64_t)PAGE_NB; i++){
-				mapping_table[namespaceIndex][i] = MAPPING_TABLE_INIT_VAL;
-			}
+	/* If mapping_table.dat file exists */
+	FILE* fp = fopen("./data/mapping_table.dat","r");
+	if(fp != NULL){
+		if(fread(mapping_table, sizeof(uint64_t), PAGE_MAPPING_ENTRY_NB, fp) <= 0)
+			PERR("fread\n");
+		fclose(fp);
+	}
+	else{
+		uint64_t i;
+		for(i=0;i<PAGE_MAPPING_ENTRY_NB;i++){
+			mapping_table[i] = MAPPING_TABLE_INIT_VAL;
 		}
 	}
 }
 
 void TERM_MAPPING_TABLE(void)
 {
-	char filename[MAX_FILENAME_LENGTH];
-  int namespaceIndex;
+	FILE* fp = fopen("./data/mapping_table.dat","w");
+	if (fp == NULL)
+		RERR(, "File open fail\n");
 
-	for (namespaceIndex = 0; namespaceIndex < MAX_NUMBER_OF_NAMESPACES; namespaceIndex++)
-	{
-		if (NAMESPACES_SIZE[namespaceIndex] == 0){
-			/* Skip un-used namespace */
-			continue;
-		}
+	/* Write the mapping table to file */
+	if(fwrite(mapping_table, sizeof(uint64_t),PAGE_MAPPING_ENTRY_NB,fp) <= 0)
+		PERR("fwrite\n");
 
-		snprintf(filename, sizeof(filename), "./data/mapping_table_namespace_%d.dat", namespaceIndex);
-		FILE* fp = fopen(filename,"w");
-		if (fp == NULL)
-			RERR(, "File open fail\n");
-
-		/* Write the mapping table to file */
-		if(fwrite(mapping_table[namespaceIndex], sizeof(uint64_t), NAMESPACES_SIZE[namespaceIndex] * (uint64_t)PAGE_NB ,fp) <= 0)
-			PERR("fwrite\n");
-
-		/* Free memory for mapping table */
-		free(mapping_table[namespaceIndex]);
-		fclose(fp);
-	}
+	/* Free memory for mapping table */
+	free(mapping_table);
+	fclose(fp);
 }
 
-uint64_t GET_MAPPING_INFO(uint32_t nsid, uint64_t lpn)
+uint64_t GET_MAPPING_INFO(uint64_t lpn)
 {
-	if(nsid >= MAX_NUMBER_OF_NAMESPACES || mapping_table[nsid] == NULL || lpn >= (NAMESPACES_SIZE[nsid] * (uint64_t)PAGE_NB)){
+	if(lpn >= PAGE_MAPPING_ENTRY_NB){
 		PERR("overflow!\n");
 	}
 
-	const uint64_t ppn = mapping_table[nsid][lpn];
+	uint64_t ppn = mapping_table[lpn];
+
 	return ppn;
 }
 
@@ -116,37 +94,37 @@ ftl_ret_val DEFAULT_NEXT_PAGE_ALGO(int mode, uint64_t mapping_index, uint64_t* p
 	return FTL_SUCCESS;
 }
 
-int UPDATE_OLD_PAGE_MAPPING(uint32_t nsid, uint64_t lpn)
+int UPDATE_OLD_PAGE_MAPPING(uint64_t lpn)
 {
 	uint64_t old_ppn;
 
-	old_ppn = GET_MAPPING_INFO(nsid, lpn);
+	old_ppn = GET_MAPPING_INFO(lpn);
 
 	if (old_ppn == MAPPING_TABLE_INIT_VAL)
+
 		RDBG_FTL(FTL_FAILURE, "New page \n");
 
     UPDATE_INVERSE_BLOCK_VALIDITY(CALC_FLASH(old_ppn),
                                   CALC_BLOCK(old_ppn),
                                   CALC_PAGE(old_ppn),
                                   PAGE_INVALID);
-    UPDATE_INVERSE_PAGE_MAPPING(old_ppn, INVALID_NSID, MAPPING_TABLE_INIT_VAL);
+    UPDATE_INVERSE_PAGE_MAPPING(old_ppn, MAPPING_TABLE_INIT_VAL);
 
 	return FTL_SUCCESS;
 }
 
-int UPDATE_NEW_PAGE_MAPPING(uint32_t nsid, uint64_t lpn, uint64_t ppn)
+int UPDATE_NEW_PAGE_MAPPING(uint64_t lpn, uint64_t ppn)
 {
-	if(nsid >= MAX_NUMBER_OF_NAMESPACES || mapping_table[nsid] == NULL || lpn >= (NAMESPACES_SIZE[nsid] * (uint64_t)PAGE_NB)){
+	if(lpn >= PAGE_MAPPING_ENTRY_NB){
 		PERR("overflow!\n");
 	}
-
 	/* Update Page Mapping Table */
-	mapping_table[nsid][lpn] = ppn;
+	mapping_table[lpn] = ppn;
 
 	/* Update Inverse Page Mapping Table */
 	UPDATE_INVERSE_BLOCK_VALIDITY(CALC_FLASH(ppn), CALC_BLOCK(ppn), CALC_PAGE(ppn), PAGE_VALID);
 	UPDATE_INVERSE_BLOCK_MAPPING(CALC_FLASH(ppn), CALC_BLOCK(ppn), DATA_BLOCK);
-	UPDATE_INVERSE_PAGE_MAPPING(ppn, nsid, lpn);
+	UPDATE_INVERSE_PAGE_MAPPING(ppn, lpn);
 
 	return FTL_SUCCESS;
 }

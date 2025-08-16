@@ -234,7 +234,7 @@ ftl_ret_val _FTL_OBJ_WRITE(obj_id_t object_loc, const void *data, offset_t offse
         {
             // invalidate the old physical page and replace the page_node's page
             UPDATE_INVERSE_BLOCK_VALIDITY(CALC_FLASH(current_page->page_id), CALC_BLOCK(current_page->page_id), CALC_PAGE(current_page->page_id), PAGE_INVALID);
-            UPDATE_INVERSE_PAGE_MAPPING(current_page->page_id, INVALID_NSID, MAPPING_TABLE_INIT_VAL);
+            UPDATE_INVERSE_PAGE_MAPPING(current_page->page_id, -1);
 
             HASH_DEL(global_page_table, current_page);
             current_page->page_id = page_id;
@@ -258,7 +258,7 @@ ftl_ret_val _FTL_OBJ_WRITE(obj_id_t object_loc, const void *data, offset_t offse
         // TODO: fix
         if (ret == FTL_FAILURE)
         {
-            PDBG_FTL("Error[FTL_WRITE] %lu page write fail \n", page_id);
+            PDBG_FTL("Error[FTL_WRITE] %d page write fail \n", page_id);
         }
 
         //        page_node *page;
