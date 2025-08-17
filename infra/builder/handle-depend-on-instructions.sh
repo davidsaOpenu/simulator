@@ -45,6 +45,22 @@ clean_text() {
     echo "$cleaned_text"
 }
 
+# Function to print summary - moved to a separate function for reusability
+print_dependency_summary() {
+    echo ""
+    echo "=========================================="
+    echo "DEPENDENCY PROCESSING SUMMARY"
+    echo "=========================================="
+    if [ ${#dependency_results[@]} -eq 0 ]; then
+        echo "No dependencies found in commit message."
+    else
+        for result in "${dependency_results[@]}"; do
+            echo "$result"
+        done
+    fi
+    echo "=========================================="
+}
+
 # input: $1 - project name
 #        $2 - fetch_cmd
 #        $3 - commit hash
@@ -152,6 +168,9 @@ echo "CHANGE_ID: $CHANGE_ID"
 echo "GERRIT_USER: $GERRIT_USER"
 echo "BUILD SOURCE: $BUILD_SOURCE"
 
+# Initialize dependency results array
+declare -a dependency_results=()
+
 # Get commit message if triggered from Gerrit
 if [[ "$BUILD_SOURCE" == "gerrit" ]]; then
     echo "Fetching commit message from Gerrit REST API..."
@@ -169,6 +188,7 @@ if [[ "$BUILD_SOURCE" == "gerrit" ]]; then
 
         if [[ -z "$commit_message" || "$commit_message" == "null" ]]; then
             echo "ERROR: Failed to retrieve commit message via SSH as well"
+            print_dependency_summary
             exit 1
         fi
     fi
@@ -186,6 +206,7 @@ echo "$cleaned_commit_message"
 # Exit early if triggered by timer
 if [[ "$BUILD_SOURCE" == "timer" ]]; then
     echo "Timer triggered — skipping depends-on parsing."
+    print_dependency_summary
     echo "******************** end handle-depend-on-instructions.sh *************************"
     exit 0
 fi
@@ -202,9 +223,6 @@ $(printf '%s\n' ${projectArr[@]})
 depends_on_lines=$(echo "$cleaned_commit_message" | grep -i 'depends-on' | grep -o 'http.*') || true
 
 echo "PARSING DEPENDS-ON LINES"
-
-# Track dependency status for summary
-declare -a dependency_results=()
 
 for url in $depends_on_lines; do
     # Remove trailing slash if it exists
@@ -358,7 +376,7 @@ for url in $depends_on_lines; do
     echo "CHANGE STATUS: $change_status"
     echo "COMMIT HASH: $commit_hash"
 
-    # RDependency status
+    # Dependency status
     if [[ "$change_status" == "MERGED" ]]; then
         echo "INFO: Change $change_num is MERGED. Checking if already applied..."
     elif [[ "$change_status" == "ABANDONED" ]]; then
@@ -375,8 +393,10 @@ for url in $depends_on_lines; do
     if [[ " ${projectArr[*]} " =~ " $project_name " ]]; then
         # Call fetch_ref_spec and capture the result
         echo "Attempting to apply dependency..."
+        set +e  # Don't exit on error for fetch_ref_spec
         fetch_ref_spec "$project_name" "$fetch_cmd" "$commit_hash"
         fetch_result=$?
+        set -e  # Re-enable exit on error
 
         # Store the result based on return code
         if [ $fetch_result -eq 0 ]; then
@@ -389,22 +409,12 @@ for url in $depends_on_lines; do
     else
         echo "$ERROR_INVALID_PROJECT_NAME_OR_URL"
         dependency_results+=("Change $change_num - was not applied because of invalid project name")
+        print_dependency_summary
         exit 1
     fi
 done
 
-# Print summary of all dependencies
-echo ""
-echo "=========================================="
-echo "DEPENDENCY PROCESSING SUMMARY"
-echo "=========================================="
-if [ ${#dependency_results[@]} -eq 0 ]; then
-    echo "No dependencies found in commit message."
-else
-    for result in "${dependency_results[@]}"; do
-        echo "$result"
-    done
-fi
-echo "=========================================="
+# Always print summary at the end
+print_dependency_summary
 
 echo "******************** end handle-depend-on-instructions.sh *************************"
