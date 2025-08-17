@@ -11,6 +11,10 @@
 
 typedef enum {FTL_FAILURE, FTL_SUCCESS} ftl_ret_val;
 
+typedef struct {
+  uint32_t nsid;
+} ftl_ns_desc;
+
 extern uint32_t** mapping_stats_table;
 void FTL_INIT(void);
 void FTL_TERM(void);
@@ -25,6 +29,10 @@ void FTL_RECORD_STATISTICS(void);
 void FTL_RESET_STATS(void);
 void FTL_TERM_STATS(void);
 void FTL_RECORD_SCOPE_STAT(FILE* fp , int scope);
+uint32_t FTL_GET_MAX_NAMESPACE_NB(void);
+uint32_t FTL_GET_NAMESPACE_NB(void);
+uint32_t FTL_GET_NAMESPACE_SIZE(uint32_t nsid);
+void FTL_GET_NAMESPACE_DESCS(ftl_ns_desc *descs);
 void *STAT_LISTEN(void *socket);
 
 #endif

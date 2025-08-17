@@ -316,6 +316,30 @@ void FTL_RECORD_STATISTICS(void){
 	fclose(fp);
 }
 
+uint32_t FTL_GET_MAX_NAMESPACE_NB(void) {
+  return MAX_NUMBER_OF_NAMESPACES;
+}
+
+uint32_t FTL_GET_NAMESPACE_NB(void) {
+  return NAMESPACE_NB;
+}
+
+uint32_t FTL_GET_NAMESPACE_SIZE(uint32_t nsid)
+{
+  return NAMESPACES_SIZE[nsid-1];
+}
+
+void FTL_GET_NAMESPACE_DESCS(ftl_ns_desc *descs)
+{
+  uint32_t i, j;
+  for (i = 0, j = 0; i < MAX_NUMBER_OF_NAMESPACES; i++) {
+    if (NAMESPACES_SIZE[i] != 0) {
+      descs[j].nsid = i+1;
+      j++;
+    }
+  }
+}
+
 void *STAT_LISTEN(void *socket){
 	char buffer[256];
 	int sock = (*(int *) socket);

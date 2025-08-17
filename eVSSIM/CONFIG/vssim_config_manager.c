@@ -26,6 +26,7 @@ uint64_t PAGES_PER_FLASH;
 uint64_t PAGES_IN_SSD;
 
 // Size in blocks.
+uint32_t NAMESPACE_NB = 0;
 uint64_t NAMESPACES_SIZE[MAX_NUMBER_OF_NAMESPACES] = {0,};
 
 uint32_t WAY_NB;
@@ -174,6 +175,8 @@ void INIT_SSD_CONFIG(void)
                 RERR(, "Can't read %s\n", szCommand);
             }
 
+            NAMESPACE_NB++;
+
             memset(szCommand, 0x00, 1024);
             continue;
         }
@@ -291,7 +294,7 @@ void set_device_object(ssd_config_t* device) {
     device->sector_size = SECTOR_SIZE;
     device->page_size = PAGE_SIZE;
 
-	device->sector_nb = SECTOR_NB;
+	// device->sector_nb = SECTOR_NB;
 	device->page_nb = PAGE_NB;
 	device->flash_nb = FLASH_NB;
 	device->block_nb = BLOCK_NB;
@@ -347,7 +350,7 @@ void clear_globals(void) {
     SECTOR_SIZE = 0;
     PAGE_SIZE = 0;
 
-    SECTOR_NB = 0;
+    // SECTOR_NB = 0;
     
     PAGE_NB = 0;
     FLASH_NB = 0;
@@ -421,3 +424,4 @@ uint64_t GET_NAMESPACE_TOTAL_SIZE(void){
 
     return NAMESPACE_TOTAL_SIZE;
 }
+
