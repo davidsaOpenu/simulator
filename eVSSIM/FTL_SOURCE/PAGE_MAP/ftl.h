@@ -31,6 +31,7 @@ void FTL_TERM_STATS(void);
 void FTL_RECORD_SCOPE_STAT(FILE* fp , int scope);
 uint32_t FTL_GET_MAX_NAMESPACE_NB(void);
 uint32_t FTL_GET_NAMESPACE_NB(void);
+int FTL_IS_OBJ_STRATEGY_NS(uint32_t nsid);
 uint32_t FTL_GET_NAMESPACE_SIZE(uint32_t nsid);
 void FTL_GET_NAMESPACE_DESCS(ftl_ns_desc *descs);
 void *STAT_LISTEN(void *socket);

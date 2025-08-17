@@ -329,6 +329,10 @@ uint32_t FTL_GET_NAMESPACE_SIZE(uint32_t nsid)
   return NAMESPACES_SIZE[nsid-1];
 }
 
+int FTL_IS_OBJ_STRATEGY_NS(uint32_t nsid) {
+    return NAMESPACES_STRATEGY[nsid] == 2;
+}
+
 void FTL_GET_NAMESPACE_DESCS(ftl_ns_desc *descs)
 {
   uint32_t i, j;

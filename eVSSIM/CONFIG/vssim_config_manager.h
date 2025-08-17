@@ -26,6 +26,8 @@ extern uint64_t PAGES_IN_SSD;
 extern uint32_t WAY_NB;
 
 extern uint32_t NAMESPACE_NB;
+/* Storage strategy (1 = sector-based, 2 = object-based */
+extern int NAMESPACES_STRATEGY[MAX_NUMBER_OF_NAMESPACES];
 extern uint64_t NAMESPACES_SIZE[MAX_NUMBER_OF_NAMESPACES];
 
 /* Mapping Table */
@@ -71,9 +73,6 @@ extern char STAT_PATH[PATH_MAX];
 extern char OSD_PATH[PATH_MAX];
 void INIT_SSD_CONFIG(void);
 char* GET_FILE_NAME(void);
-
-/* Storage strategy (1 = sector-based, 2 = object-based */
-extern int STORAGE_STRATEGY;
 
 typedef struct config_param
 {

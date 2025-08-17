@@ -27,6 +27,8 @@ uint64_t PAGES_IN_SSD;
 
 // Size in blocks.
 uint32_t NAMESPACE_NB = 0;
+/* Storage strategy (1 = sector-based, 2 = object-based */
+int NAMESPACES_STRATEGY[MAX_NUMBER_OF_NAMESPACES] = {0,};
 uint64_t NAMESPACES_SIZE[MAX_NUMBER_OF_NAMESPACES] = {0,};
 
 uint32_t WAY_NB;
@@ -71,9 +73,6 @@ int GC_L2_THRESHOLD_BLOCK_NB;
 int GC_LOW_THR;
 int GC_HI_THR;
 
-/* Storage strategy (1 = sector-based, 2 = object-based */
-int STORAGE_STRATEGY;
-
 char DEVICE_NAME[MAX_DEVICE_NAME_LEN] = {0,};
 char gFile_Name[PATH_MAX] = {0,};
 char OSD_PATH[PATH_MAX] = {0,};
@@ -99,7 +98,6 @@ config_param options[] = {
     {"CHANNEL_NB", "%d", &CHANNEL_NB},
     {"STAT_TYPE", "%d", &STAT_TYPE},
     {"STAT_SCOPE", "%d", &STAT_SCOPE},
-    {"STORAGE_STRATEGY", "%d", &STORAGE_STRATEGY},
     {"GC_LOW_THR", "%d", &GC_LOW_THR},
     {"GC_HI_THR", "%d", &GC_HI_THR},
 #if defined FTL_MAP_CACHE
@@ -171,7 +169,7 @@ void INIT_SSD_CONFIG(void)
                 RERR(, "Invalid namespaces index\n");
 
             // Read the parm.
-            if (fscanf(pfData, "%" SCNu64, &NAMESPACES_SIZE[i-1]) == EOF){
+            if (fscanf(pfData, "%" SCNu64 " %d", &NAMESPACES_SIZE[i-1], &NAMESPACES_STRATEGY[i-1]) == EOF){
                 RERR(, "Can't read %s\n", szCommand);
             }
 
@@ -400,8 +398,6 @@ void clear_globals(void) {
 
     GC_LOW_THR = 0;
     GC_HI_THR = 0;
-
-    STORAGE_STRATEGY = 0;
 
     memset(DEVICE_NAME, 0x00, MAX_DEVICE_NAME_LEN);
     memset(gFile_Name, 0x00, PATH_MAX);
