@@ -463,7 +463,8 @@ check_logstash_health || { echo "Logstash health check failed, exiting"; exit 1;
 check_kibana_health || { echo "Kibana health check failed, exiting"; exit 1; }
 
 # Set up Filebeat
-chmod filebeat.yml
+cd ..
+chmod go-w filebeat.yml
 setup_filebeat "$LOG_DIR" "$ELK_DIR" || { echo "Filebeat setup failed, exiting"; exit 1; }
 
 # Upload Dashboard
@@ -472,7 +473,7 @@ curl -k -X POST "https://localhost:5601/api/saved_objects/_import" -H "kbn-xsrf:
 # Display container status
 echo ""
 echo "Final Container Status:"
-$COMPOSE_CMD ps
+$CONTAINER_CMD ps
 echo ""
 echo "Access URLs:"
 echo "  Kibana: https://localhost:5601 (elastic/$ELASTIC_PASSWORD)"
