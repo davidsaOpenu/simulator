@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "46ec6962_89aa2971",
+        "filename": "eVSSIM/LOG_MGR/logging_parser.c",
+        "patchSetId": 1
+      },
+      "lineNbr": 58,
+      "author": {
+        "id": 1007990
+      },
+      "writtenOn": "2025-08-18T18:26:33Z",
+      "side": 1,
+      "message": "please run tox on the latest changes (in tox.ini change HEAD~ 1 to HEAD~ n where n \u003d the number of your open CR)",
+      "range": {
+        "startLine": 58,
+        "startChar": 0,
+        "endLine": 58,
+        "endChar": 4
+      },
+      "revId": "45d3729b2d601376a4c8f5624f086961a53a3a54",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
+    }
+  ]
+}
