@@ -1,6 +1,23 @@
 {
   "comments": [
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "b9661de2_f0bed3ee",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 1007990
+      },
+      "writtenOn": "2025-08-18T18:29:18Z",
+      "side": 1,
+      "message": "also \n1) elk related lines in  ./run-ci.sh are commented out \n2) install_and_start_elk.sh had no effect\n\n\n18:35:46  Testing podman on VM...\n18:35:46  + echo \u0027\u003d\u003d\u003d\u003d\u003d\u003d\u003d\u003d\u003d\u003d\u003d\u003d\u003d\u003d\u003d\u003d\u003d\u003d\u003d\u003d PODMAN OUTPUT \u003d\u003d\u003d\u003d\u003d\u003d\u003d\u003d\u003d\u003d\u003d\u003d\u003d\u003d\u003d\u003d\u003d\u003d\u003d\u003d\u0027\n18:35:46  \u003d\u003d\u003d\u003d\u003d\u003d\u003d\u003d\u003d\u003d\u003d\u003d\u003d\u003d\u003d\u003d\u003d\u003d\u003d\u003d PODMAN OUTPUT \u003d\u003d\u003d\u003d\u003d\u003d\u003d\u003d\u003d\u003d\u003d\u003d\u003d\u003d\u003d\u003d\u003d\u003d\u003d\u003d\n18:35:46  + ssh -o StrictHostKeyChecking\u003dno -p 2224 elk@localhost \u0027podman run hello-world\u0027\n18:35:53  [   28.653873] overlayfs: conflicting options: userxattr,metacopy\u003don\n18:35:53  [   28.655607] overlayfs: conflicting options: userxattr,metacopy\u003don\n18:35:53  \n18:35:53  Hello from Docker!\n18:35:53  This message shows that your installation appears to be working correctly.\n18:35:53  \n18:35:53  To generate this message, Docker took the following steps:\n18:35:53   1. The Docker client contacted the Docker daemon.\n18:35:53   2. The Docker daemon pulled the \"hello-world\" image from the Docker Hub.\n18:35:53      (amd64)\n18:35:53   3. The Docker daemon created a new container from that image which runs the\n18:35:53      executable that produces the output you are currently reading.\n18:35:53   4. The Docker daemon streamed that output to the Docker client, which sent it\n18:35:53      to your terminal.\n18:35:53  \n18:35:53  To try something more ambitious, you can run an Ubuntu container with:\n18:35:53   $ docker run -it ubuntu bash\n18:35:53  \n18:35:53  Share images, automate workflows, and more with a free Docker ID:\n18:35:53   https://hub.docker.com/\n18:35:53  \n18:35:53  For more examples and ideas, visit:\n18:35:53   https://docs.docker.com/get-started/\n18:35:53  \n18:35:55  + echo \u0027\u003d\u003d\u003d\u003d\u003d\u003d\u003d\u003d\u003d\u003d\u003d\u003d\u003d\u003d\u003d\u003d\u003d\u003d\u003d\u003d\u003d\u003d\u003d END OUTPUT \u003d\u003d\u003d\u003d\u003d\u003d\u003d\u003d\u003d\u003d\u003d\u003d\u003d\u003d\u003d\u003d\u003d\u003d\u003d\u003d\u003d\u0027\n18:35:55  \u003d\u003d\u003d\u003d\u003d\u003d\u003d\u003d\u003d\u003d\u003d\u003d\u003d\u003d\u003d\u003d\u003d\u003d\u003d\u003d\u003d\u003d\u003d END OUTPUT \u003d\u003d\u003d\u003d\u003d\u003d\u003d\u003d\u003d\u003d\u003d\u003d\u003d\u003d\u003d\u003d\u003d\u003d\u003d\u003d\u003d\n18:35:55  + echo \u0027\u003d\u003d\u003d\u003d\u003d\u003d\u003d\u003d\u003d\u003d\u003d\u003d\u003d\u003d\u003d\u003d\u003d\u003d\u003d\u003d START ELK \u003d\u003d\u003d\u003d\u003d\u003d\u003d\u003d\u003d\u003d\u003d\u003d\u003d\u003d\u003d\u003d\u003d\u003d\u003d\u003d\u003d\u003d\u0027\n18:35:55  \u003d\u003d\u003d\u003d\u003d\u003d\u003d\u003d\u003d\u003d\u003d\u003d\u003d\u003d\u003d\u003d\u003d\u003d\u003d\u003d START ELK \u003d\u003d\u003d\u003d\u003d\u003d\u003d\u003d\u003d\u003d\u003d\u003d\u003d\u003d\u003d\u003d\u003d\u003d\u003d\u003d\u003d\u003d\n18:35:55  + ssh -o StrictHostKeyChecking\u003dno -p 2224 elk@localhost \u0027cd ~/simulator/infra/ELK; ./install_and_start_elk.sh ../../../logs ../ELK | true\u0027\n18:35:55  + echo \u0027\u003d\u003d\u003d\u003d\u003d\u003d\u003d\u003d\u003d\u003d\u003d\u003d\u003d\u003d\u003d\u003d\u003d\u003d\u003d\u003d\u003d\u003d\u003d END OUTPUT \u003d\u003d\u003d\u003d\u003d\u003d\u003d\u003d\u003d\u003d\u003d\u003d\u003d\u003d\u003d\u003d\u003d\u003d\u003d\u003d\u003d\u0027",
+      "revId": "45d3729b2d601376a4c8f5624f086961a53a3a54",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "46ec6962_89aa2971",
