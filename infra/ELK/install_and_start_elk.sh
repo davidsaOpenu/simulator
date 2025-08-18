@@ -1,30 +1,5 @@
 #!/bin/bash
 
-# Load environment variables from .env file
-if [[ -f .env ]]; then
-    echo "Loading environment variables from .env file..."
-    set -o allexport
-    source .env
-    set +o allexport
-else
-    echo "Warning: .env file not found, using default values"
-fi
-
-# Define constant values (With defaults)
-FB_IMAGE_TAG="${FB_IMAGE_TAG:-8.14.2}"
-DOCKER_ELK_TAG="${DOCKER_ELK_TAG:-9.2505.1}"
-DOCKER_ELK_BRANCH="${DOCKER_ELK_BRANCH:-tls}"
-ELASTIC_PASSWORD="${ELASTIC_PASSWORD:-changeme}"
-KIBANA_SYSTEM_PASSWORD="${KIBANA_SYSTEM_PASSWORD:-changeme}"
-LOGSTASH_SYSTEM_PASSWORD="${LOGSTASH_SYSTEM_PASSWORD:-changeme}"
-BEATS_SYSTEM_PASSWORD="${BEATS_SYSTEM_PASSWORD:-changeme}"
-ES_HEAP="${ES_HEAP:-512}"
-
-# ---- Container runtime & compose detection ----
-CONTAINER_CMD=""
-COMPOSE_CMD=""
-COMPOSE_EXEC_T_OPT=""
-
 detect_container_runtime() {
   if command -v podman >/dev/null 2>&1; then
     echo "Podman detected; using Podman"
@@ -60,7 +35,6 @@ detect_container_runtime() {
   echo "Using container runtime: $CONTAINER_CMD"
   echo "Using compose command:  $COMPOSE_CMD"
 }
-detect_container_runtime
 
 # Function to setup Elasticsearch built-in user passwords
 setup_elasticsearch_passwords() {
@@ -348,6 +322,33 @@ echo "ELK directory: $ELK_DIR"
 
 # Change to ELK directory
 cd "$ELK_DIR"
+
+# Load environment variables from .env file
+if [[ -f .env ]]; then
+    echo "Loading environment variables from .env file..."
+    set -o allexport
+    source .env
+    set +o allexport
+else
+    echo "Warning: .env file not found, using default values"
+fi
+
+# Define constant values (With defaults)
+FB_IMAGE_TAG="${FB_IMAGE_TAG:-8.14.2}"
+DOCKER_ELK_TAG="${DOCKER_ELK_TAG:-9.2505.1}"
+DOCKER_ELK_BRANCH="${DOCKER_ELK_BRANCH:-tls}"
+ELASTIC_PASSWORD="${ELASTIC_PASSWORD:-changeme}"
+KIBANA_SYSTEM_PASSWORD="${KIBANA_SYSTEM_PASSWORD:-changeme}"
+LOGSTASH_SYSTEM_PASSWORD="${LOGSTASH_SYSTEM_PASSWORD:-changeme}"
+BEATS_SYSTEM_PASSWORD="${BEATS_SYSTEM_PASSWORD:-changeme}"
+ES_HEAP="${ES_HEAP:-512}"
+
+# ---- Container runtime & compose detection ----
+CONTAINER_CMD=""
+COMPOSE_CMD=""
+COMPOSE_EXEC_T_OPT=""
+
+detect_container_runtime
 
 DOCKER_ELK_REPO="https://github.com/deviantony/docker-elk.git"
 
