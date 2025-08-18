@@ -17,35 +17,50 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <inttypes.h>
 
 #include "logging_parser.h"
 
 EmptyLog empty_log;
 
-void logger_busy_read(Logger_Pool* logger, Byte* buffer, int length, AnalyzerType analyzer) {
+void logger_busy_read(Logger_Pool *logger, Byte *buffer, int length, AnalyzerType analyzer)
+{
     int bytes_read = 0;
-    while (bytes_read < length) {
+    while (bytes_read < length)
+    {
         bytes_read += logger_read(logger, buffer + bytes_read, length - bytes_read, analyzer);
     }
 }
 
-
-int next_log_type(Logger_Pool* logger) {
+int next_log_type(Logger_Pool *logger)
+{
     int type;
-    logger_busy_read(logger, (Byte*) &type, sizeof(type), RT_ANALYZER);
+    logger_busy_read(logger, (Byte *)&type, sizeof(type), RT_ANALYZER);
     return type;
 }
 
-char* timestamp_to_str(int64_t cur_ts, char *buf) {
-    //setenv("TZ", "GMT+1", 1);
-    //time_t now;
-    struct tm  *ts;
-    int64_t cur_ts_secs = cur_ts / 1000000;
+char *timestamp_to_str(int64_t cur_ts, char *buf)
+{
+    struct tm ts;
+    time_t cur_ts_secs = (time_t)(cur_ts / 1000000);
+    int64_t cur_ts_usecs = cur_ts % 1000000;
+    char temp_buf[TIME_STAMP_LEN];
 
-    ts = localtime(&cur_ts_secs);
+    if (localtime_r(&cur_ts_secs, &ts) == NULL)
+    {
+        snprintf(buf, TIME_STAMP_LEN, "INVALID_TIMESTAMP");
+        return buf;
+    }
 
-    strftime(buf, TIME_STAMP_LEN, LOG_NAME_PATTERN, ts);
-    //printf("%s", buf);
+    size_t len = strftime(temp_buf, TIME_STAMP_LEN - 8, LOG_NAME_PATTERN, &ts);
+    if (len == 0)
+    {
+        snprintf(buf, TIME_STAMP_LEN, "FORMAT_ERROR");
+        return buf;
+    }
+
+    snprintf(buf, TIME_STAMP_LEN, "%s.%06" PRId64, temp_buf, cur_ts_usecs);
+
     return buf;
 }
 
@@ -53,6 +68,28 @@ void add_time_to_json_object(struct json_object *jobj, int64_t cur_ts)
 {
     char time_buf[TIME_STAMP_LEN];
     json_object_object_add(jobj, "logging_time", json_object_new_string(timestamp_to_str(cur_ts, time_buf)));
+}
+
+static void add_time_range_to_json_object(struct json_object *jobj,
+                                          int64_t start_ts,
+                                          int64_t end_ts)
+{
+    char buf_start[TIME_STAMP_LEN];
+    char buf_end[TIME_STAMP_LEN];
+
+    // legacy: keep "logging_time" as the START time
+    json_object_object_add(
+        jobj, "logging_time",
+        json_object_new_string(timestamp_to_str(start_ts, buf_start)));
+
+    // new fields
+    json_object_object_add(
+        jobj, "logging_end_time",
+        json_object_new_string(timestamp_to_str(end_ts, buf_end)));
+
+    json_object_object_add(
+        jobj, "duration_us",
+        json_object_new_int64(end_ts - start_ts));
 }
 
 /**
@@ -64,7 +101,7 @@ void add_time_to_json_object(struct json_object *jobj, int64_t cur_ts)
  * @param src the struct containing all the data to be added to the json
  * @param dst the pointer to the written string
  */
-void JSON_PHYSICAL_CELL_READ(PhysicalCellReadLog *src, char ** dst)
+void JSON_PHYSICAL_CELL_READ(PhysicalCellReadLog *src, char **dst)
 {
     struct json_object *jobj;
 
@@ -73,7 +110,7 @@ void JSON_PHYSICAL_CELL_READ(PhysicalCellReadLog *src, char ** dst)
     json_object_object_add(jobj, "channel", json_object_new_int(src->channel));
     json_object_object_add(jobj, "block", json_object_new_int(src->block));
     json_object_object_add(jobj, "page", json_object_new_int(src->page));
-    add_time_to_json_object(jobj, src->metadata.logging_start_time);
+    add_time_range_to_json_object(jobj, src->metadata.logging_start_time, src->metadata.logging_end_time);
 
     const char *json_string = json_object_to_json_string_ext(jobj, JSON_C_TO_STRING_SPACED);
 
@@ -90,7 +127,7 @@ void JSON_PHYSICAL_CELL_READ(PhysicalCellReadLog *src, char ** dst)
  * @param src the struct containing all the data to be added to the json
  * @param dst the pointer to the written string
  */
-void JSON_PHYSICAL_CELL_PROGRAM(PhysicalCellProgramLog *src, char ** dst)
+void JSON_PHYSICAL_CELL_PROGRAM(PhysicalCellProgramLog *src, char **dst)
 {
     struct json_object *jobj;
 
@@ -99,13 +136,13 @@ void JSON_PHYSICAL_CELL_PROGRAM(PhysicalCellProgramLog *src, char ** dst)
     json_object_object_add(jobj, "channel", json_object_new_int(src->channel));
     json_object_object_add(jobj, "block", json_object_new_int(src->block));
     json_object_object_add(jobj, "page", json_object_new_int(src->page));
-    add_time_to_json_object(jobj, src->metadata.logging_start_time);
+    add_time_range_to_json_object(jobj, src->metadata.logging_start_time, src->metadata.logging_end_time);
 
     const char *json_string = json_object_to_json_string_ext(jobj, JSON_C_TO_STRING_SPACED);
 
     size_t json_length = strlen(json_string);
     *dst = (char *)malloc(json_length + 2);
-    
+
     strcpy(*dst, json_string);
     strcat(*dst, "\n");
     json_object_put(jobj); // Delete the json object
@@ -116,7 +153,7 @@ void JSON_PHYSICAL_CELL_PROGRAM(PhysicalCellProgramLog *src, char ** dst)
  * @param src the struct containing all the data to be added to the json
  * @param dst the pointer to the written string
  */
-void JSON_PHYSICAL_CELL_PROGRAM_COMPATIBLE(PhysicalCellProgramCompatibleLog *src, char ** dst)
+void JSON_PHYSICAL_CELL_PROGRAM_COMPATIBLE(PhysicalCellProgramCompatibleLog *src, char **dst)
 {
     struct json_object *jobj;
 
@@ -125,13 +162,13 @@ void JSON_PHYSICAL_CELL_PROGRAM_COMPATIBLE(PhysicalCellProgramCompatibleLog *src
     json_object_object_add(jobj, "channel", json_object_new_int(src->channel));
     json_object_object_add(jobj, "block", json_object_new_int(src->block));
     json_object_object_add(jobj, "page", json_object_new_int(src->page));
-    add_time_to_json_object(jobj, src->metadata.logging_start_time);
+    add_time_range_to_json_object(jobj, src->metadata.logging_start_time, src->metadata.logging_end_time);
 
     const char *json_string = json_object_to_json_string_ext(jobj, JSON_C_TO_STRING_SPACED);
 
     size_t json_length = strlen(json_string);
     *dst = (char *)malloc(json_length + 2);
-    
+
     strcpy(*dst, json_string);
     strcat(*dst, "\n");
     json_object_put(jobj); // Delete the json object
@@ -142,7 +179,7 @@ void JSON_PHYSICAL_CELL_PROGRAM_COMPATIBLE(PhysicalCellProgramCompatibleLog *src
  * @param src the struct containing all the data to be added to the json
  * @param dst the pointer to the written string
  */
-void JSON_LOGICAL_CELL_PROGRAM(LogicalCellProgramLog *src, char ** dst)
+void JSON_LOGICAL_CELL_PROGRAM(LogicalCellProgramLog *src, char **dst)
 {
     struct json_object *jobj;
 
@@ -151,13 +188,13 @@ void JSON_LOGICAL_CELL_PROGRAM(LogicalCellProgramLog *src, char ** dst)
     json_object_object_add(jobj, "channel", json_object_new_int(src->channel));
     json_object_object_add(jobj, "block", json_object_new_int(src->block));
     json_object_object_add(jobj, "page", json_object_new_int(src->page));
-    add_time_to_json_object(jobj, src->metadata.logging_start_time);
-    
+    add_time_range_to_json_object(jobj, src->metadata.logging_start_time, src->metadata.logging_end_time);
+
     const char *json_string = json_object_to_json_string_ext(jobj, JSON_C_TO_STRING_SPACED);
 
     size_t json_length = strlen(json_string);
     *dst = (char *)malloc(json_length + 2);
-    
+
     strcpy(*dst, json_string);
     strcat(*dst, "\n");
     json_object_put(jobj); // Delete the json object
@@ -168,24 +205,24 @@ void JSON_LOGICAL_CELL_PROGRAM(LogicalCellProgramLog *src, char ** dst)
  * @param src the struct containing all the data to be added to the json
  * @param dst the pointer to the written string
  */
-void JSON_GARBAGE_COLLECTION(GarbageCollectionLog *src, char ** dst)
+void JSON_GARBAGE_COLLECTION(GarbageCollectionLog *src, char **dst)
 {
     struct json_object *jobj;
 
     jobj = json_object_new_object();
     json_object_object_add(jobj, "type", json_object_new_string("GarbageCollectionLog"));
-    //add_time_to_json_object(jobj, src->metadata.logging_start_time);
+    // add_time_range_to_json_object(jobj, src->metadata.logging_start_time, src->metadata.logging_end_time);
 
     const char *json_string = json_object_to_json_string_ext(jobj, JSON_C_TO_STRING_SPACED);
 
     size_t json_length = strlen(json_string);
     *dst = (char *)malloc(json_length + 2);
-    
+
     strcpy(*dst, json_string);
     strcat(*dst, "\n");
     json_object_put(jobj); // Delete the json object
 
-    (void) src;
+    (void)src;
 }
 
 /**
@@ -193,7 +230,7 @@ void JSON_GARBAGE_COLLECTION(GarbageCollectionLog *src, char ** dst)
  * @param src the struct containing all the data to be added to the json
  * @param dst the pointer to the written string
  */
-void JSON_REGISTER_READ(RegisterReadLog *src, char ** dst)
+void JSON_REGISTER_READ(RegisterReadLog *src, char **dst)
 {
     struct json_object *jobj;
 
@@ -202,13 +239,13 @@ void JSON_REGISTER_READ(RegisterReadLog *src, char ** dst)
     json_object_object_add(jobj, "channel", json_object_new_int(src->channel));
     json_object_object_add(jobj, "die", json_object_new_int(src->die));
     json_object_object_add(jobj, "reg", json_object_new_int(src->reg));
-    add_time_to_json_object(jobj, src->metadata.logging_start_time);
+    add_time_range_to_json_object(jobj, src->metadata.logging_start_time, src->metadata.logging_end_time);
 
     const char *json_string = json_object_to_json_string_ext(jobj, JSON_C_TO_STRING_SPACED);
 
     size_t json_length = strlen(json_string);
     *dst = (char *)malloc(json_length + 2);
-    
+
     strcpy(*dst, json_string);
     strcat(*dst, "\n");
     json_object_put(jobj); // Delete the json object
@@ -219,7 +256,7 @@ void JSON_REGISTER_READ(RegisterReadLog *src, char ** dst)
  * @param src the struct containing all the data to be added to the json
  * @param dst the pointer to the written string
  */
-void JSON_REGISTER_WRITE(RegisterWriteLog *src, char ** dst)
+void JSON_REGISTER_WRITE(RegisterWriteLog *src, char **dst)
 {
     struct json_object *jobj;
 
@@ -228,13 +265,13 @@ void JSON_REGISTER_WRITE(RegisterWriteLog *src, char ** dst)
     json_object_object_add(jobj, "channel", json_object_new_int(src->channel));
     json_object_object_add(jobj, "die", json_object_new_int(src->die));
     json_object_object_add(jobj, "reg", json_object_new_int(src->reg));
-    add_time_to_json_object(jobj, src->metadata.logging_start_time);
+    add_time_range_to_json_object(jobj, src->metadata.logging_start_time, src->metadata.logging_end_time);
 
     const char *json_string = json_object_to_json_string_ext(jobj, JSON_C_TO_STRING_SPACED);
 
     size_t json_length = strlen(json_string);
     *dst = (char *)malloc(json_length + 2);
-    
+
     strcpy(*dst, json_string);
     strcat(*dst, "\n");
     json_object_put(jobj); // Delete the json object
@@ -245,7 +282,7 @@ void JSON_REGISTER_WRITE(RegisterWriteLog *src, char ** dst)
  * @param src the struct containing all the data to be added to the json
  * @param dst the pointer to the written string
  */
-void JSON_BLOCK_ERASE(BlockEraseLog *src, char ** dst)
+void JSON_BLOCK_ERASE(BlockEraseLog *src, char **dst)
 {
     struct json_object *jobj;
 
@@ -255,13 +292,13 @@ void JSON_BLOCK_ERASE(BlockEraseLog *src, char ** dst)
     json_object_object_add(jobj, "die", json_object_new_int(src->die));
     json_object_object_add(jobj, "block", json_object_new_int(src->block));
     json_object_object_add(jobj, "dirty_page_nb", json_object_new_int(src->dirty_page_nb));
-    add_time_to_json_object(jobj, src->metadata.logging_start_time);
+    add_time_range_to_json_object(jobj, src->metadata.logging_start_time, src->metadata.logging_end_time);
 
     const char *json_string = json_object_to_json_string_ext(jobj, JSON_C_TO_STRING_SPACED);
 
     size_t json_length = strlen(json_string);
     *dst = (char *)malloc(json_length + 2);
-    
+
     strcpy(*dst, json_string);
     strcat(*dst, "\n");
     json_object_put(jobj); // Delete the json object
@@ -272,24 +309,24 @@ void JSON_BLOCK_ERASE(BlockEraseLog *src, char ** dst)
  * @param src the struct containing all the data to be added to the json
  * @param dst the pointer to the written string
  */
-void JSON_PAGE_COPYBACK(PageCopyBackLog *src, char ** dst)
+void JSON_PAGE_COPYBACK(PageCopyBackLog *src, char **dst)
 {
     struct json_object *jobj;
 
     jobj = json_object_new_object();
-    json_object_object_add(jobj, "type", json_object_new_string("BlockEraseLog"));
+    json_object_object_add(jobj, "type", json_object_new_string("PageCopyBackLog"));
     json_object_object_add(jobj, "channel", json_object_new_int(src->channel));
     json_object_object_add(jobj, "die", json_object_new_int(src->die));
     json_object_object_add(jobj, "block", json_object_new_int(src->block));
     json_object_object_add(jobj, "source_page", json_object_new_int(src->source_page));
     json_object_object_add(jobj, "destination_page", json_object_new_int(src->destination_page));
-    add_time_to_json_object(jobj, src->metadata.logging_start_time);
+    add_time_range_to_json_object(jobj, src->metadata.logging_start_time, src->metadata.logging_end_time);
 
     const char *json_string = json_object_to_json_string_ext(jobj, JSON_C_TO_STRING_SPACED);
 
     size_t json_length = strlen(json_string);
     *dst = (char *)malloc(json_length + 2);
-    
+
     strcpy(*dst, json_string);
     strcat(*dst, "\n");
     json_object_put(jobj); // Delete the json object
@@ -300,20 +337,20 @@ void JSON_PAGE_COPYBACK(PageCopyBackLog *src, char ** dst)
  * @param src the struct containing all the data to be added to the json
  * @param dst the pointer to the written string
  */
-void JSON_CHANNEL_SWITCH_TO_READ(ChannelSwitchToReadLog *src, char ** dst)
+void JSON_CHANNEL_SWITCH_TO_READ(ChannelSwitchToReadLog *src, char **dst)
 {
     struct json_object *jobj;
 
     jobj = json_object_new_object();
     json_object_object_add(jobj, "type", json_object_new_string("ChannelSwitchToReadLog"));
     json_object_object_add(jobj, "channel", json_object_new_int(src->channel));
-    add_time_to_json_object(jobj, src->metadata.logging_start_time);
+    add_time_range_to_json_object(jobj, src->metadata.logging_start_time, src->metadata.logging_end_time);
 
     const char *json_string = json_object_to_json_string_ext(jobj, JSON_C_TO_STRING_SPACED);
 
     size_t json_length = strlen(json_string);
     *dst = (char *)malloc(json_length + 2);
-    
+
     strcpy(*dst, json_string);
     strcat(*dst, "\n");
     json_object_put(jobj); // Delete the json object
@@ -331,13 +368,13 @@ void JSON_CHANNEL_SWITCH_TO_WRITE(ChannelSwitchToWriteLog *src, char **dst)
     jobj = json_object_new_object();
     json_object_object_add(jobj, "type", json_object_new_string("ChannelSwitchToWriteLog"));
     json_object_object_add(jobj, "channel", json_object_new_int(src->channel));
-    add_time_to_json_object(jobj, src->metadata.logging_start_time);
+    add_time_range_to_json_object(jobj, src->metadata.logging_start_time, src->metadata.logging_end_time);
 
     const char *json_string = json_object_to_json_string_ext(jobj, JSON_C_TO_STRING_SPACED);
 
     size_t json_length = strlen(json_string);
     *dst = (char *)malloc(json_length + 2);
-    
+
     strcpy(*dst, json_string);
     strcat(*dst, "\n");
     json_object_put(jobj); // Delete the json object
@@ -348,7 +385,7 @@ void JSON_CHANNEL_SWITCH_TO_WRITE(ChannelSwitchToWriteLog *src, char **dst)
  * @param src the struct containing all the data to be added to the json
  * @param dst the pointer to the written string
  */
-void JSON_OBJECT_ADD_PAGE(ObjectAddPageLog *src, char ** dst)
+void JSON_OBJECT_ADD_PAGE(ObjectAddPageLog *src, char **dst)
 {
     struct json_object *jobj;
 
@@ -362,7 +399,7 @@ void JSON_OBJECT_ADD_PAGE(ObjectAddPageLog *src, char ** dst)
 
     size_t json_length = strlen(json_string);
     *dst = (char *)malloc(json_length + 2);
-    
+
     strcpy(*dst, json_string);
     strcat(*dst, "\n");
     json_object_put(jobj); // Delete the json object
@@ -373,7 +410,7 @@ void JSON_OBJECT_ADD_PAGE(ObjectAddPageLog *src, char ** dst)
  * @param src the struct containing all the data to be added to the json
  * @param dst the pointer to the written string
  */
-void JSON_OBJECT_COPYBACK(ObjectCopyback *src, char ** dst)
+void JSON_OBJECT_COPYBACK(ObjectCopyback *src, char **dst)
 {
     struct json_object *jobj;
 
@@ -387,7 +424,7 @@ void JSON_OBJECT_COPYBACK(ObjectCopyback *src, char ** dst)
 
     size_t json_length = strlen(json_string);
     *dst = (char *)malloc(json_length + 2);
-    
+
     strcpy(*dst, json_string);
     strcat(*dst, "\n");
     json_object_put(jobj); // Delete the json object
@@ -398,7 +435,7 @@ void JSON_OBJECT_COPYBACK(ObjectCopyback *src, char ** dst)
  * @param src the struct containing all the data to be added to the json
  * @param dst the pointer to the written string
  */
-void JSON_LOG_SYNC(LoggeingServerSync *src, char ** dst)
+void JSON_LOG_SYNC(LoggeingServerSync *src, char **dst)
 {
     struct json_object *jobj;
 
@@ -409,26 +446,27 @@ void JSON_LOG_SYNC(LoggeingServerSync *src, char ** dst)
 
     size_t json_length = strlen(json_string);
     *dst = (char *)malloc(json_length + 2);
-    
+
     strcpy(*dst, json_string);
     strcat(*dst, "\n");
     json_object_put(jobj); // Delete the json object
 }
 
 #define _LOGS_WRITER_DEFINITION_APPLIER(structure, name)            \
-    void CONCAT(LOG_, name)(Logger_Pool* logger, structure buffer) {     \
+    void CONCAT(LOG_, name)(Logger_Pool * logger, structure buffer) \
+    {                                                               \
         /*fprintf(stderr, "%p: " # name "\n", logger);*/            \
         if (logger == NULL)                                         \
             return;                                                 \
         int type = CONCAT(name, _LOG_UID);                          \
-        logger_write(logger, (Byte*) &type, sizeof(type));          \
-        logger_write(logger, (Byte*) &buffer, sizeof(structure));   \
+        logger_write(logger, (Byte *)&type, sizeof(type));          \
+        logger_write(logger, (Byte *)&buffer, sizeof(structure));   \
     }
 _LOGS_DEFINITIONS(_LOGS_WRITER_DEFINITION_APPLIER)
 
-
-#define _LOGS_READER_DEFINITION_APPLIER(structure, name)            \
-    void CONCAT(NEXT_, CONCAT(name, _LOG))(Logger_Pool* logger, structure *buf, AnalyzerType analyzer) {   \
-        logger_busy_read(logger, (Byte*) buf, sizeof(structure), analyzer);  \
+#define _LOGS_READER_DEFINITION_APPLIER(structure, name)                                                 \
+    void CONCAT(NEXT_, CONCAT(name, _LOG))(Logger_Pool * logger, structure * buf, AnalyzerType analyzer) \
+    {                                                                                                    \
+        logger_busy_read(logger, (Byte *)buf, sizeof(structure), analyzer);                              \
     }
 _LOGS_DEFINITIONS(_LOGS_READER_DEFINITION_APPLIER)
