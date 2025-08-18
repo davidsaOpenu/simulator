@@ -17,6 +17,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <inttypes.h>
 
 #include "logging_parser.h"
 
@@ -37,15 +38,24 @@ int next_log_type(Logger_Pool* logger) {
 }
 
 char* timestamp_to_str(int64_t cur_ts, char *buf) {
-    //setenv("TZ", "GMT+1", 1);
-    //time_t now;
-    struct tm  *ts;
-    int64_t cur_ts_secs = cur_ts / 1000000;
+    struct tm ts;
+    time_t cur_ts_secs = (time_t)(cur_ts / 1000000);
+    int64_t cur_ts_usecs = cur_ts % 1000000;
+    char temp_buf[TIME_STAMP_LEN];
 
-    ts = localtime(&cur_ts_secs);
+    if (localtime_r(&cur_ts_secs, &ts) == NULL) {
+        snprintf(buf, TIME_STAMP_LEN, "INVALID_TIMESTAMP");
+        return buf;
+    }
 
-    strftime(buf, TIME_STAMP_LEN, LOG_NAME_PATTERN, ts);
-    //printf("%s", buf);
+    size_t len = strftime(temp_buf, TIME_STAMP_LEN - 8, LOG_NAME_PATTERN, &ts);
+    if (len == 0) {
+        snprintf(buf, TIME_STAMP_LEN, "FORMAT_ERROR");
+        return buf;
+    }
+    
+    snprintf(buf, TIME_STAMP_LEN, "%s.%06" PRId64, temp_buf, cur_ts_usecs);
+    
     return buf;
 }
 

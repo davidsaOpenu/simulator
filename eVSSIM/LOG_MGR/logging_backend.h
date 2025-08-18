@@ -67,7 +67,7 @@ typedef enum {
 typedef unsigned char Byte;
 
 /* The pattern for the names of created log files*/
-#define LOG_NAME_PATTERN "%Y-%m-%d_%H:%M:%S"
+#define LOG_NAME_PATTERN "%Y-%m-%d %H:%M:%S"
 
 /**
  * The Log structure
