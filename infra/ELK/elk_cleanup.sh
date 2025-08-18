@@ -1,88 +1,119 @@
-#!/bin/bash
+#!/usr/bin/env bash
+# ELK Cleanup (Docker + Podman)
+# Usage: ./elk_cleanup.sh [--purge-images] [--purge-volumes] [--complete-cleanup] [--help]
+# Notes:
+# - Auto-detects engine (Podman preferred if both exist). Override via ENGINE=docker|podman env.
+# - PROJECT comes from COMPOSE_PROJECT_NAME or defaults to "docker-elk".
 
-# ELK Stack Cleanup Script
-# Usage: ./elk_cleanup.sh [OPTIONS]
-# Options:
-#   --purge-images     Remove ELK Docker images
-#   --purge-volumes    Remove ELK Docker volumes and persistent data
-#   --complete-cleanup Complete cleanup (containers, volumes, images)
-#   --help             Show this help message
+set -euo pipefail
 
-show_help() {
-    echo "ELK Stack Cleanup Script"
-    echo "Usage: $0 [OPTIONS]"
-    echo ""
-    echo "Options:"
-    echo "  --purge-images     Remove ELK Docker images"
-    echo "  --purge-volumes    Remove ELK Docker volumes and persistent data"
-    echo "  --complete-cleanup Complete cleanup (containers, volumes, images)"
-    echo "  --help             Show this help message"
-    echo ""
-    echo "Default behavior: Stop containers and delete Elasticsearch indices only"
+help() {
+  cat <<EOF
+ELK Cleanup
+  --purge-images      Remove ELK images
+  --purge-volumes     Remove ELK volumes
+  --complete-cleanup  Remove containers + volumes + images
+  --help              Show this help
+EOF
 }
 
-# Parse command line arguments
-PURGE_IMAGES=false
-PURGE_VOLUMES=false
-COMPLETE_CLEANUP=false
-
-for arg in "$@"; do
-  case $arg in
-    --purge-images)      PURGE_IMAGES=true ;;
-    --purge-volumes)     PURGE_VOLUMES=true ;;
-    --complete-cleanup)  COMPLETE_CLEANUP=true ;;
-    --help)              show_help; exit 0 ;;
-    *)                   echo "Unknown option: $arg"; show_help; exit 1 ;;
+PURGE_IMAGES=false; PURGE_VOLUMES=false
+for a in "$@"; do
+  case "$a" in
+    --purge-images) PURGE_IMAGES=true ;;
+    --purge-volumes) PURGE_VOLUMES=true ;;
+    --complete-cleanup) PURGE_IMAGES=true; PURGE_VOLUMES=true ;;
+    --help) help; exit 0 ;;
+    *) echo "Unknown option: $a"; help; exit 1 ;;
   esac
 done
 
-echo "Starting ELK stack cleanup..."
+ENGINE="${ENGINE:-}"
+if [[ -z "${ENGINE}" ]]; then
+  if command -v podman >/dev/null 2>&1; then ENGINE=podman
+  elif command -v docker >/dev/null 2>&1; then ENGINE=docker
+  else echo "ERROR: neither podman nor docker found"; exit 1; fi
+fi
 
-# Stop ELK stack containers
-echo "Stopping ELK containers..."
-CONTAINERS=$(docker ps --format="{{.Image}} {{.ID}}" | grep -E "(elastic|kibana|logstash|filebeat)" | cut -d' ' -f2)
-if [ -n "$CONTAINERS" ]; then
-    docker kill $CONTAINERS
+PROJECT="${COMPOSE_PROJECT_NAME:-docker-elk}"
+
+# Regex for ELK images (as ERE). Keep single backslashes here (useful for grep -E).
+RGX_IMG='(docker\.elastic\.co/.*/(elasticsearch|kibana|logstash|filebeat)|(^|[/:])(elasticsearch|kibana|logstash|filebeat)(:|$))'
+# Make an AWK-safe copy where backslashes are doubled so awk doesn't warn/munge them.
+AWK_RGX="${RGX_IMG//\\/\\\\}"
+
+# Small helpers
+uniq_lines() { sort -u | sed '/^$/d'; }
+
+running_containers() {
+  {
+    $ENGINE ps -q --filter "label=com.docker.compose.project=${PROJECT}" 2>/dev/null
+    $ENGINE ps -q --filter "label=io.podman.compose.project=${PROJECT}" 2>/dev/null
+    $ENGINE ps -q --filter "name=${PROJECT}_" 2>/dev/null
+    # Fallback: anything whose image matches our ELK regex
+    $ENGINE ps -a --format '{{.ID}} {{.Image}}' | awk -v r="$AWK_RGX" '$0 ~ r {print $1}'
+  } | uniq_lines
+}
+
+all_containers() {
+  {
+    $ENGINE ps -aq --filter "label=com.docker.compose.project=${PROJECT}" 2>/dev/null
+    $ENGINE ps -aq --filter "label=io.podman.compose.project=${PROJECT}" 2>/dev/null
+    $ENGINE ps -aq --filter "name=${PROJECT}_" 2>/dev/null
+    $ENGINE ps -a --format '{{.ID}} {{.Image}}' | awk -v r="$AWK_RGX" '$0 ~ r {print $1}'
+  } | uniq_lines
+}
+
+project_volumes() {
+  $ENGINE volume ls -q | grep -E "^${PROJECT}_" || true
+}
+
+elk_images() {
+  # Prefer matching by repository name; fall back covers retagged/local copies too
+  $ENGINE images --format '{{.Repository}} {{.ID}}' \
+    | awk -v r="$AWK_RGX" '$0 ~ r {print $2}' | uniq_lines
+}
+
+echo "[*] Engine: $ENGINE | Project: $PROJECT"
+
+echo "[*] Stopping ELK containers..."
+ids="$(running_containers || true)"
+if [[ -n "${ids:-}" ]]; then
+  # shellcheck disable=SC2086
+  $ENGINE kill $ids >/dev/null 2>&1 || true
 else
-    echo "No running ELK containers found"
+  echo "    none"
 fi
 
-# Remove containers
-echo "Removing stopped ELK containers..."
-STOPPED_CONTAINERS=$(docker ps -a --format="{{.Image}} {{.ID}}" | grep -E "(elastic|kibana|logstash|filebeat)" | cut -d' ' -f2)
-if [ -n "$STOPPED_CONTAINERS" ]; then
-    docker rm $STOPPED_CONTAINERS 2>/dev/null
+echo "[*] Removing ELK containers..."
+ids="$(all_containers || true)"
+if [[ -n "${ids:-}" ]]; then
+  # shellcheck disable=SC2086
+  $ENGINE rm -f $ids >/dev/null 2>&1 || true
+else
+  echo "    none"
 fi
 
-# complete-cleanup option overrides individual flags
-if [ "$COMPLETE_CLEANUP" = true ]; then
-    PURGE_VOLUMES=true
-    PURGE_IMAGES=true
-    echo "complete-cleanup cleanup enabled - removing everything!"
+if $PURGE_VOLUMES; then
+  echo "[*] Removing ELK volumes..."
+  vols="$(project_volumes || true)"
+  if [[ -n "${vols:-}" ]]; then
+    # shellcheck disable=SC2086
+    $ENGINE volume rm $vols >/dev/null 2>&1 || true
+  else
+    echo "    none"
+  fi
 fi
 
-# Remove volumes if requested
-if [ "$PURGE_VOLUMES" = true ]; then
-    echo "Purging ELK volumes..."
-    VOLUMES=$(docker volume ls -q | grep -E "(elastic|kibana|logstash|filebeat)")
-    if [ -n "$VOLUMES" ]; then
-        docker volume rm $VOLUMES 2>/dev/null
-        echo "Volumes purged"
-    else
-        echo "No ELK volumes found"
-    fi
+if $PURGE_IMAGES; then
+  echo "[*] Removing ELK images..."
+  imgs="$(elk_images || true)"
+  if [[ -n "${imgs:-}" ]]; then
+    # shellcheck disable=SC2086
+    $ENGINE rmi -f $imgs >/dev/null 2>&1 || true
+  else
+    echo "    none"
+  fi
 fi
 
-# Remove images if requested
-if [ "$PURGE_IMAGES" = true ]; then
-    echo "Purging ELK images..."
-    IMAGES=$(docker images --format="{{.Repository}} {{.ID}}" | grep -E "(elastic|kibana|logstash|filebeat)" | cut -d' ' -f2)
-    if [ -n "$IMAGES" ]; then
-        docker rmi $IMAGES 2>/dev/null
-        echo "Images purged"
-    else
-        echo "No ELK images found"
-    fi
-fi
-
-echo "ELK cleanup completed!"
+echo "[*] Done."

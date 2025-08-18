@@ -20,58 +20,115 @@ LOGSTASH_SYSTEM_PASSWORD="${LOGSTASH_SYSTEM_PASSWORD:-changeme}"
 BEATS_SYSTEM_PASSWORD="${BEATS_SYSTEM_PASSWORD:-changeme}"
 ES_HEAP="${ES_HEAP:-512}"
 
+# ---- Container runtime & compose detection ----
+CONTAINER_CMD=""
+COMPOSE_CMD=""
+COMPOSE_EXEC_T_OPT=""
+
+detect_container_runtime() {
+  if command -v podman >/dev/null 2>&1; then
+    echo "Podman detected; using Podman"
+    CONTAINER_CMD="podman"
+    if podman compose version >/dev/null 2>&1; then
+      COMPOSE_CMD="podman compose"
+    elif command -v podman-compose >/dev/null 2>&1; then
+      COMPOSE_CMD="podman-compose"
+    elif command -v docker-compose >/dev/null 2>&1; then
+      COMPOSE_CMD="docker-compose"
+      export DOCKER_HOST="unix:///run/user/$(id -u)/podman/podman.sock"
+    else
+      echo "Error: no compose frontend found for Podman (podman compose / podman-compose / docker-compose)"; exit 1
+    fi
+    COMPOSE_EXEC_T_OPT=""
+  elif command -v docker >/dev/null 2>&1; then
+    echo "Docker detected; using Docker"
+    CONTAINER_CMD="docker"
+    if docker compose version >/dev/null 2>&1; then
+      COMPOSE_CMD="docker compose"
+    elif command -v docker-compose >/dev/null 2>&1; then
+      COMPOSE_CMD="docker-compose"
+    else
+      echo "Error: neither 'docker compose' nor 'docker-compose' found"; exit 1
+    fi
+    COMPOSE_EXEC_T_OPT="-T"
+  else
+    echo "Error: neither Podman nor Docker found"; exit 1
+  fi
+  
+  export COMPOSE_PROJECT_NAME="${COMPOSE_PROJECT_NAME:-docker-elk}"
+
+  echo "Using container runtime: $CONTAINER_CMD"
+  echo "Using compose command:  $COMPOSE_CMD"
+}
+detect_container_runtime
+
 # Function to setup Elasticsearch built-in user passwords
 setup_elasticsearch_passwords() {
-    echo "Setting up Elasticsearch built-in user passwords..."
-    
-    # Wait for Elasticsearch to be ready
-    local count=0
-    while [ $count -lt 12 ]; do
-        curl -k -s -f --connect-timeout 5 -u "elastic:$ELASTIC_PASSWORD" "https://localhost:9200/_cluster/health" > /dev/null 2>&1 && break
-        echo "Waiting for Elasticsearch... ($((count+1))/12)"
-        sleep 5 && ((count++))
-    done
-    
-    # Check if authentication already works
-    if curl -k -s -f -u "elastic:$ELASTIC_PASSWORD" "https://localhost:9200/_cluster/health" > /dev/null 2>&1 && \
-       curl -k -s -f -u "kibana_system:$KIBANA_SYSTEM_PASSWORD" "https://localhost:9200/_cluster/health" > /dev/null 2>&1; then
-        echo "Authentication already configured, skipping setup"
-        return 0
+  echo "Setting up Elasticsearch built-in user passwords..."
+
+  # Wait for ES to be reachable (auth may not work yet)
+  for i in $(seq 1 12); do
+    if curl -k -s --connect-timeout 5 https://localhost:9200 >/dev/null; then
+      break
     fi
-    
-    # Stop dependent services temporarily
-    docker compose stop kibana logstash && sleep 5
-    
-    # Setup passwords based on authentication status
-    if curl -k -s -f "https://localhost:9200/_cluster/health" > /dev/null 2>&1; then
-        # Fresh install - use automatic setup
-        echo "Fresh installation detected, using automatic password setup..."
-        docker compose exec -T elasticsearch bin/elasticsearch-setup-passwords auto --batch > /tmp/es_passwords.txt 2>&1 || {
-            echo "Auto setup failed, setting elastic password manually..."
-            docker compose exec -T elasticsearch bin/elasticsearch-reset-password -u elastic -p "$ELASTIC_PASSWORD" --batch -s
-        }
-    fi
-    
-    # Set individual user passwords
-    for user in "kibana_system:$KIBANA_SYSTEM_PASSWORD" "logstash_system:$LOGSTASH_SYSTEM_PASSWORD" "beats_system:$BEATS_SYSTEM_PASSWORD"; do
-        username="${user%:*}"
-        password="${user#*:}"
-        echo "Setting password for $username..."
-        
-        docker compose exec -T elasticsearch bin/elasticsearch-reset-password -u "$username" -p "$password" --batch -s 2>/dev/null || \
-        curl -X POST "https://localhost:9200/_security/user/$username/_password" \
-          -H "Content-Type: application/json" -u "elastic:$ELASTIC_PASSWORD" -k -s \
-          -d "{\"password\": \"$password\"}" > /dev/null 2>&1 || \
-        echo "Warning: Could not set $username password"
+    echo "Waiting for Elasticsearch... ($i/12)"
+    sleep 5
+  done
+  if ! curl -k -s --connect-timeout 5 https://localhost:9200 >/dev/null; then
+    echo "ERROR: Elasticsearch is not reachable"; return 1
+  fi
+
+  # Check current auth status via Security API
+  elastic_ok=false
+  curl -k -s -f -u "elastic:$ELASTIC_PASSWORD" \
+       https://localhost:9200/_security/_authenticate >/dev/null && elastic_ok=true
+
+  kib_ok=false
+  curl -k -s -f -u "kibana_system:$KIBANA_SYSTEM_PASSWORD" \
+       https://localhost:9200/_security/_authenticate >/dev/null && kib_ok=true
+
+  if $elastic_ok && $kib_ok; then
+    echo "Authentication already configured, skipping setup"
+    return 0
+  fi
+
+  # Quiet the logs while changing creds
+  $COMPOSE_CMD stop kibana logstash >/dev/null 2>&1 || true
+  sleep 3
+
+  if ! $elastic_ok; then
+    echo "WARN: Cannot authenticate as 'elastic' with provided ELASTIC_PASSWORD."
+    echo "      Skipping password changes for built-in users. Verify the password or run the repo's setup first."
+  else
+    # Set passwords via Security API (CLI doesn't accept -p)
+    for pair in \
+      "kibana_system:$KIBANA_SYSTEM_PASSWORD" \
+      "logstash_system:$LOGSTASH_SYSTEM_PASSWORD" \
+      "beats_system:$BEATS_SYSTEM_PASSWORD"
+    do
+      username="${pair%:*}"; password="${pair#*:}"
+      echo "Setting password for $username..."
+      curl -k -s -f -u "elastic:$ELASTIC_PASSWORD" \
+           -H "Content-Type: application/json" \
+           -X POST "https://localhost:9200/_security/user/$username/_password" \
+           -d "{\"password\":\"$password\"}" >/dev/null \
+        && echo "  ✔ $username password set" \
+        || echo "  ✖ WARNING: Failed to set $username"
     done
-    
-    # Verify and restart services
-    curl -k -s -f -u "kibana_system:$KIBANA_SYSTEM_PASSWORD" "https://localhost:9200/_cluster/health" > /dev/null 2>&1 && \
-        echo "Kibana authentication verified" || echo "ERROR: Kibana authentication failed"
-    
-    docker compose start kibana logstash
-    echo "Password setup complete, services restarting..."
+  fi
+
+  # Verify and restart services
+  if curl -k -s -f -u "kibana_system:$KIBANA_SYSTEM_PASSWORD" \
+        https://localhost:9200/_security/_authenticate >/dev/null; then
+    echo "Kibana authentication verified"
+  else
+    echo "ERROR: Kibana authentication failed"
+  fi
+
+  $COMPOSE_CMD start kibana logstash
+  echo "Password setup complete, services restarting..."
 }
+
 
 # Function to check Kibana health
 check_kibana_health() {
@@ -93,7 +150,7 @@ check_kibana_health() {
     done
     
     echo "ERROR: Kibana failed to start within 300 seconds"
-    echo "Check the logs with: docker compose logs kibana"
+    echo "Check the logs with: $COMPOSE_CMD logs kibana"
     return 1
 }
 
@@ -117,7 +174,7 @@ check_elasticsearch_health() {
     done
     
     echo "ERROR: Elasticsearch failed to start within 300 seconds"
-    echo "Check the logs with: docker compose logs elasticsearch"
+    echo "Check the logs with: $COMPOSE_CMD logs elasticsearch"
     return 1
 }
 
@@ -144,57 +201,110 @@ check_logstash_health() {
     done
     
     echo "ERROR: Logstash failed to start within 300 seconds"
-    echo "Check the logs with: docker compose logs logstash"
+    echo "Check the logs with: $COMPOSE_CMD logs logstash"
     return 1
 }
 
+
 # Install and start filebeat
 setup_filebeat() {
-    local log_dir="$1" elk_dir="$2" 
+    local log_dir="$1" elk_dir="$2"
     local fb_image="docker.elastic.co/beats/filebeat:${FB_IMAGE_TAG}"
-    local fb_cfg="${elk_dir}/filebeat.yml" cert_ca_dir="${elk_dir}/docker-elk/tls/certs/ca"
-    local env_file="${elk_dir}/.env" fb_data_dir="${elk_dir}/filebeat-data"
-    
+    local fb_cfg="${elk_dir}/filebeat.yml"
+    local cert_ca_dir="${elk_dir}/docker-elk/tls/certs/ca"
+    local env_file="${elk_dir}/.env"
+    local fb_data_dir="${elk_dir}/filebeat-data"
+
     echo "Setting up Filebeat [${FB_IMAGE_TAG}]..."
-    
+
     # Validate paths
     [[ -f "$fb_cfg" ]] || { echo "filebeat.yml not found at $fb_cfg"; return 1; }
     [[ -d "$cert_ca_dir" ]] || { echo "Certificate directory not found at $cert_ca_dir"; return 1; }
     [[ -f "$env_file" ]] || { echo ".env not found at $env_file"; return 1; }
-    
+
     # Load environment
     set -o allexport; source "$env_file"; set +o allexport
     : "${ELASTIC_PASSWORD:?ELASTIC_PASSWORD missing in $env_file}"
-    
+
     echo "Found config: $fb_cfg | certs: $cert_ca_dir | env: $env_file"
-    
-    # Setup image and remove old container
-    docker pull "$fb_image"
-    docker ps -aq -f name=^filebeat$ | xargs -r docker rm -f
-    
-    # Common connection settings
-    local kibana_opts="-E setup.kibana.host=kibana:5601 -E setup.kibana.protocol=https -E setup.kibana.username=elastic -E setup.kibana.password=${ELASTIC_PASSWORD} -E setup.kibana.ssl.certificate_authorities=[/usr/share/filebeat/certs/ca/ca.crt]"
-    local es_opts="-E output.elasticsearch.hosts=[https://elasticsearch:9200] -E output.elasticsearch.username=elastic -E output.elasticsearch.password=${ELASTIC_PASSWORD} -E output.elasticsearch.ssl.certificate_authorities=[/usr/share/filebeat/certs/ca/ca.crt]"
-    local ml_flag="setup.${FB_IMAGE_TAG%%.*:+xpack.}ml.enabled=false"
-    
-    echo "Running one-time setup"
-    docker run --rm --network docker-elk_elk --env-file "$env_file" \
-        -v "$cert_ca_dir:/usr/share/filebeat/certs/ca:ro" \
-        "$fb_image" setup -e --index-management --pipelines --dashboards \
-        -E "$ml_flag" $kibana_opts $es_opts || { echo "Setup failed"; return 1; }
-    
-    echo "Starting Filebeat daemon"
+
+    # Compose network name (docker-elk defines a custom 'elk' network)
+    local network_name="${COMPOSE_PROJECT_NAME:-docker-elk}_elk"
+
+    # SELinux label option (for RHEL/Fedora/etc.)
+    local SELINUX_LABEL=""
+    if command -v getenforce >/dev/null 2>&1; then
+        local se; se="$(getenforce 2>/dev/null || echo Disabled)"
+        [[ "$se" != "Disabled" ]] && SELINUX_LABEL="Z"   # we'll combine as subopts
+    fi
+
+    # Build mount suboptions
+    # - certs & config mounts are read-only: "Z,ro" if SELinux; otherwise "ro"
+    local ro_subopts="ro"
+    [[ -n "$SELINUX_LABEL" ]] && ro_subopts="$SELINUX_LABEL,$ro_subopts"
+
+    # - data mount must be writable; add Podman UID shift and SELinux label when needed
+    local data_subopts=""
+    if [[ "$CONTAINER_CMD" == "podman" ]]; then
+        data_subopts="U"
+        [[ -n "$SELINUX_LABEL" ]] && data_subopts="Z,$data_subopts"
+    else
+        [[ -n "$SELINUX_LABEL" ]] && data_subopts="Z"
+    fi
+    local data_opts=""
+    [[ -n "$data_subopts" ]] && data_opts=":$data_subopts"
+
+    # Ensure data dir exists and is writable; fix ownership for Podman rootless
     mkdir -p "$fb_data_dir"
-    docker run -d --name filebeat --restart unless-stopped --network docker-elk_elk \
-        --env-file "$env_file" \
-        -v "$fb_cfg:/usr/share/filebeat/filebeat.yml:ro" \
-        -v "$cert_ca_dir:/usr/share/filebeat/certs/ca:ro" \
-        -v "$log_dir:/logs:ro" \
-        -v "/var/lib/docker/containers:/var/lib/docker/containers:ro" \
-        -v "/var/run/docker.sock:/var/run/docker.sock:ro" \
-        -v "$fb_data_dir:/usr/share/filebeat/data" \
-        "$fb_image" filebeat -e --strict.perms=false -c /usr/share/filebeat/filebeat.yml
-    
+    if [[ "$CONTAINER_CMD" == "podman" ]] && command -v podman >/dev/null 2>&1; then
+        # Map ownership into the user namespace so container root can write
+        podman unshare chown -R 0:0 "$fb_data_dir" 2>/dev/null || true
+    fi
+
+    # Pull image & remove any existing container
+    "$CONTAINER_CMD" pull "$fb_image"
+    "$CONTAINER_CMD" ps -aq -f name=filebeat | xargs -r "$CONTAINER_CMD" rm -f
+
+    # One-time setup (no data mount needed)
+    echo "Running one-time setup"
+    "$CONTAINER_CMD" run --rm --network "$network_name" --env-file "$env_file" \
+        -v "$cert_ca_dir:/usr/share/filebeat/certs/ca:$ro_subopts" \
+        "$fb_image" setup -e --index-management --pipelines --dashboards \
+        -E "setup.xpack.ml.enabled=false" \
+        -E "setup.kibana.host=kibana:5601" \
+        -E "setup.kibana.protocol=https" \
+        -E "setup.kibana.username=elastic" \
+        -E "setup.kibana.password=${ELASTIC_PASSWORD}" \
+        -E "setup.kibana.ssl.certificate_authorities=[/usr/share/filebeat/certs/ca/ca.crt]" \
+        -E "output.elasticsearch.hosts=[https://elasticsearch:9200]" \
+        -E "output.elasticsearch.username=elastic" \
+        -E "output.elasticsearch.password=${ELASTIC_PASSWORD}" \
+        -E "output.elasticsearch.ssl.certificate_authorities=[/usr/share/filebeat/certs/ca/ca.crt]" \
+        || { echo "Setup failed"; return 1; }
+
+    echo "Starting Filebeat daemon"
+    if [[ "$CONTAINER_CMD" == "docker" ]]; then
+        # Docker: include Docker-specific mounts (socket + container logs) if you need autodiscover
+        "$CONTAINER_CMD" run -d --name filebeat --restart unless-stopped --network "$network_name" \
+            --env-file "$env_file" \
+            -v "$fb_cfg:/usr/share/filebeat/filebeat.yml:$ro_subopts" \
+            -v "$cert_ca_dir:/usr/share/filebeat/certs/ca:$ro_subopts" \
+            -v "$log_dir:/logs:$ro_subopts" \
+            -v "/var/lib/docker/containers:/var/lib/docker/containers:ro" \
+            -v "/var/run/docker.sock:/var/run/docker.sock:ro" \
+            -v "$fb_data_dir:/usr/share/filebeat/data${data_opts}" \
+            "$fb_image" filebeat -e --strict.perms=false -c /usr/share/filebeat/filebeat.yml
+    else
+        # Podman: drop Docker-specific mounts (use host log dir only)
+        "$CONTAINER_CMD" run -d --name filebeat --restart unless-stopped --network "$network_name" \
+            --env-file "$env_file" \
+            -v "$fb_cfg:/usr/share/filebeat/filebeat.yml:$ro_subopts" \
+            -v "$cert_ca_dir:/usr/share/filebeat/certs/ca:$ro_subopts" \
+            -v "$log_dir:/logs:$ro_subopts" \
+            -v "$fb_data_dir:/usr/share/filebeat/data${data_opts}" \
+            "$fb_image" filebeat -e --strict.perms=false -c /usr/share/filebeat/filebeat.yml
+    fi
+
     echo "Filebeat ${FB_IMAGE_TAG} is up"
 }
 
@@ -262,6 +372,23 @@ else
   cd docker-elk
 fi
 
+# Pin to specific Elastic Stack version by updating .env file
+echo "[*] Setting Elastic Stack version to $DOCKER_ELK_TAG in .env file"
+if [[ -f .env ]]; then
+  # Update existing STACK_VERSION in .env file
+  if grep -q "^STACK_VERSION=" .env; then
+    sed -i "s/^STACK_VERSION=.*/STACK_VERSION=${DOCKER_ELK_TAG}/" .env
+    echo "[*] Updated STACK_VERSION to $DOCKER_ELK_TAG in existing .env file"
+  else
+    # Add STACK_VERSION if it doesn't exist
+    echo "STACK_VERSION=${DOCKER_ELK_TAG}" >> .env
+    echo "[*] Added STACK_VERSION=$DOCKER_ELK_TAG to .env file"
+  fi
+else
+  echo "[*] Creating .env file with STACK_VERSION=$DOCKER_ELK_TAG"
+  echo "STACK_VERSION=${DOCKER_ELK_TAG}" > .env
+fi
+
 # Ensure localhost traffic skips any proxy
 export no_proxy=localhost,127.0.0.0,127.0.1.1,local.home,${no_proxy:-}
 
@@ -290,19 +417,19 @@ else
 fi
 
 # Check if containers are already running
-running_containers=$(docker compose ps --services --filter "status=running" 2>/dev/null | wc -l)
-total_containers=$(docker compose ps --services 2>/dev/null | wc -l)
+running_containers=$($COMPOSE_CMD ps 2>/dev/null | grep -E "Up|running" | wc -l)
+total_containers=$($COMPOSE_CMD ps 2>/dev/null | awk 'NR>1' | wc -l)
 
 if [[ $running_containers -gt 0 ]]; then
     echo "Found $running_containers/$total_containers containers already running"
     echo "Current container status:"
-    docker compose ps
+    $COMPOSE_CMD ps
     
     read -p "Do you want to restart the ELK stack? (y/N): " -n 1 -r
     echo
     if [[ $REPLY =~ ^[Yy]$ ]]; then
         echo "Stopping existing containers..."
-        docker compose down
+        $COMPOSE_CMD down
         echo "Restarting ELK stack..."
     else
         echo "Skipping container restart, checking health..."
@@ -316,35 +443,36 @@ if [[ -f "tls/certs/ca/ca.crt" ]]; then
     echo "TLS certificates already exist, skipping generation..."
 else
     echo "Generating TLS certificates..."
-    docker compose up tls
+    $COMPOSE_CMD up tls
 fi
 
 # Check if Elasticsearch setup has been completed
-if docker volume ls | grep -q "docker-elk_elasticsearch"; then
+if $CONTAINER_CMD volume ls | grep -q "docker-elk_elasticsearch"; then
     echo "Elasticsearch volume exists, skipping setup..."
 else
     echo "Setting up Elasticsearch"
-    docker compose up setup
+    $COMPOSE_CMD up setup
 fi
 
 echo "Starting ELK stack..."
-docker compose up -d
+$COMPOSE_CMD up -d
 
-check_elasticsearch_health
-setup_elasticsearch_passwords
-check_logstash_health
-check_kibana_health
+check_elasticsearch_health || { echo "Elasticsearch health check failed, exiting"; exit 1; }
+setup_elasticsearch_passwords || { echo "Password setup failed, exiting"; exit 1; }
+check_logstash_health || { echo "Logstash health check failed, exiting"; exit 1; }
+check_kibana_health || { echo "Kibana health check failed, exiting"; exit 1; }
 
 # Set up Filebeat
-setup_filebeat "$LOG_DIR" "$ELK_DIR"
+chmod filebeat.yml
+setup_filebeat "$LOG_DIR" "$ELK_DIR" || { echo "Filebeat setup failed, exiting"; exit 1; }
 
 # Upload Dashboard
-curl -k -X POST "https://localhost:5601/api/saved_objects/_import" -H "kbn-xsrf: true" -H "securitytenant: global" --form file=@real_logs_dashboard.ndjson -u elastic:$ELASTIC_PASSWORD
+curl -k -X POST "https://localhost:5601/api/saved_objects/_import" -H "kbn-xsrf: true" --form file=@real_logs_dashboard.ndjson -u elastic:$ELASTIC_PASSWORD
 
 # Display container status
 echo ""
 echo "Final Container Status:"
-docker compose ps
+$COMPOSE_CMD ps
 echo ""
 echo "Access URLs:"
 echo "  Kibana: https://localhost:5601 (elastic/$ELASTIC_PASSWORD)"
