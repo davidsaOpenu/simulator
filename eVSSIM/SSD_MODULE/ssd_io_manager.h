@@ -104,6 +104,8 @@ void SSD_UPDATE_QEMU_OVERHEAD(int64_t delay);
 /* SSD Module Debugging */
 void SSD_PRINT_STAMP(void);
 
+/* SSD Utilization Functions */
 double SSD_UTIL(void);
+void SSD_UTIL_LOG(unsigned flash_nb);
 
 #endif

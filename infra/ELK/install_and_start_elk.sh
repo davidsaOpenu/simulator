@@ -540,7 +540,7 @@ setup_filebeat "$LOG_DIR" "$ELK_DIR" || { echo "Filebeat setup failed, exiting";
 
 # Upload Dashboard
 add_kibana_runtime_field
-curl -k -X POST "https://localhost:5601/api/saved_objects/_import" -H "kbn-xsrf: true" --form file=@eVSSIM_Logs_Dashboard.ndjson -u elastic:$ELASTIC_PASSWORD
+curl -k -X POST "https://localhost:5601/api/saved_objects/_import?overwrite=true" -H "kbn-xsrf: true" --form file=@eVSSIM_Logs_Dashboard.ndjson -u elastic:$ELASTIC_PASSWORD
 
 # Display container status
 echo ""

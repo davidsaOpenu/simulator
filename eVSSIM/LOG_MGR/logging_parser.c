@@ -452,6 +452,32 @@ void JSON_LOG_SYNC(LoggeingServerSync *src, char **dst)
     json_object_put(jobj); // Delete the json object
 }
 
+/**
+ * writes a SSD utilization log in json format to a given string
+ * @param src the struct containing all the data to be added to the json
+ * @param dst the pointer to the written string
+ */
+void JSON_SSD_UTILIZATION(SsdUtilizationLog *src, char **dst)
+{
+    struct json_object *jobj;
+
+    jobj = json_object_new_object();
+    json_object_object_add(jobj, "type", json_object_new_string("SsdUtilizationLog"));
+    json_object_object_add(jobj, "utilization_percent", json_object_new_double(src->utilization_percent));
+    json_object_object_add(jobj, "total_pages", json_object_new_int64(src->total_pages));
+    json_object_object_add(jobj, "occupied_pages", json_object_new_int64(src->occupied_pages));
+    add_time_range_to_json_object(jobj, src->metadata.logging_start_time, src->metadata.logging_end_time);
+
+    const char *json_string = json_object_to_json_string_ext(jobj, JSON_C_TO_STRING_SPACED);
+
+    size_t json_length = strlen(json_string);
+    *dst = (char *)malloc(json_length + 2);
+
+    strcpy(*dst, json_string);
+    strcat(*dst, "\n");
+    json_object_put(jobj); // Delete the json object
+}
+
 #define _LOGS_WRITER_DEFINITION_APPLIER(structure, name)            \
     void CONCAT(LOG_, name)(Logger_Pool * logger, structure buffer) \
     {                                                               \

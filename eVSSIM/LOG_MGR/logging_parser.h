@@ -376,6 +376,28 @@ typedef struct{
 }LoggeingServerSync;
 
 /**
+ * A log of SSD utilization measurement
+ */
+typedef struct {
+    /**
+     * Utilization percentage (0.0 to 1.0)
+     */
+    double utilization_percent;
+    /**
+     * Total number of pages in SSD
+     */
+    uint64_t total_pages;
+    /**
+     * Number of occupied pages
+     */
+    uint64_t occupied_pages;
+    /**
+     * Log metadata
+     */
+    LogMetadata metadata;
+} SsdUtilizationLog;
+
+/**
  * All the logs definitions; used to easily add more log types
  * Each line should contain a call to the applier, with the structure and name of the log
  * In order to add a new log type, one must only add a new line with the log definition here
@@ -395,7 +417,8 @@ APPLIER(ChannelSwitchToReadLog, CHANNEL_SWITCH_TO_READ)     \
 APPLIER(ChannelSwitchToWriteLog, CHANNEL_SWITCH_TO_WRITE)   \
 APPLIER(ObjectAddPageLog, OBJECT_ADD_PAGE)                  \
 APPLIER(ObjectCopyback, OBJECT_COPYBACK)                    \
-APPLIER(LoggeingServerSync, LOG_SYNC)                    
+APPLIER(LoggeingServerSync, LOG_SYNC)                       \
+APPLIER(SsdUtilizationLog, SSD_UTILIZATION)                 \
 
 /**
  * The enum log applier; used to create an enum of the log types' ids

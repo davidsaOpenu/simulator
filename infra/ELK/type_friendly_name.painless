@@ -16,6 +16,7 @@ m.put('RegisterWriteLog',         'Device Register Write');
 m.put('BlockEraseLog',            'Memory Block Erase');
 m.put('ChannelSwitchToReadLog',   'Channel Mode Switched to Read');
 m.put('ChannelSwitchToWriteLog',  'Channel Mode Switched to Write');
+m.put('SsdUtilizationLog',  'SSD Utilization');
 
 def label = m.get(t);
 emit(label != null ? label : t);

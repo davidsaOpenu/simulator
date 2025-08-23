@@ -245,6 +245,7 @@ ftl_ret_val SSD_PAGE_WRITE(unsigned int flash_nb, unsigned int block_nb, unsigne
     /* Update ssd page write counters */
     if (type != WRITE_COMMIT) {
         ssd.occupied_pages_counter++;
+        SSD_UTIL_LOG(flash_nb);
     }
     ssd.physical_page_writes++;
 
@@ -355,6 +356,7 @@ ftl_ret_val SSD_BLOCK_ERASE(unsigned int flash_nb, unsigned int block_nb)
     inverse_block_mapping_entry* block_entry = GET_INVERSE_BLOCK_MAPPING_ENTRY(flash_nb, block_nb);
 
     ssd.occupied_pages_counter -= block_entry->dirty_page_nb;
+    SSD_UTIL_LOG(flash_nb);
     ssd.prev_channel_mode[channel] = ERASE;
 
     LOG_BLOCK_ERASE(GET_LOGGER(flash_nb), (BlockEraseLog) {
@@ -884,6 +886,7 @@ ftl_ret_val SSD_PAGE_COPYBACK(uint32_t source, uint32_t destination, int type){
     SSD_REG_RECORD(reg, type, 0, channel);
 
     ssd.occupied_pages_counter++;
+    SSD_UTIL_LOG(flash_nb);
     ssd.physical_page_writes++;
 
     dest_block_nb = CALC_BLOCK(destination);
@@ -905,5 +908,25 @@ ftl_ret_val SSD_PAGE_COPYBACK(uint32_t source, uint32_t destination, int type){
 }
 
 double SSD_UTIL(void) {
-    return (double)ssd.occupied_pages_counter / PAGES_IN_SSD;
+    const uint64_t total_pages    = (uint64_t)PAGES_IN_SSD;
+    const uint64_t occupied_pages = (uint64_t)ssd.occupied_pages_counter;
+    if (total_pages == 0) return 0.0;
+    return (double)occupied_pages / (double)total_pages;
+}
+
+void SSD_UTIL_LOG(unsigned  flash_nb) {
+    int64_t now = get_usec();
+
+    const uint64_t total_pages    = (uint64_t)PAGES_IN_SSD;
+    const uint64_t occupied_pages = (uint64_t)ssd.occupied_pages_counter;
+    const double utilization = SSD_UTIL();
+
+    // TODO: We are currently logging to flash_nb but the log is system wide
+    // We might want to add a GET_SYSTEM_LOGGER() or a system_logger
+    LOG_SSD_UTILIZATION(GET_LOGGER(flash_nb), (SsdUtilizationLog){
+        .utilization_percent = utilization,
+        .total_pages         = total_pages,
+        .occupied_pages      = occupied_pages,
+        .metadata            = {now, now}
+    });
 }
