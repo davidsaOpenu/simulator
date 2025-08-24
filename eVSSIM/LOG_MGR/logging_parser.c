@@ -70,26 +70,40 @@ void add_time_to_json_object(struct json_object *jobj, int64_t cur_ts)
     json_object_object_add(jobj, "logging_time", json_object_new_string(timestamp_to_str(cur_ts, time_buf)));
 }
 
-static void add_time_range_to_json_object(struct json_object *jobj,
-                                          int64_t start_ts,
-                                          int64_t end_ts)
+static void add_metadata_to_json_object(struct json_object *jobj, const LogMetadata *m)
 {
+    // times
     char buf_start[TIME_STAMP_LEN];
     char buf_end[TIME_STAMP_LEN];
+    char test_time_buf[TIME_STAMP_LEN];
 
-    // legacy: keep "logging_time" as the START time
     json_object_object_add(
         jobj, "logging_time",
-        json_object_new_string(timestamp_to_str(start_ts, buf_start)));
+        json_object_new_string(timestamp_to_str(m->logging_start_time, buf_start)));
 
-    // new fields
     json_object_object_add(
         jobj, "logging_end_time",
-        json_object_new_string(timestamp_to_str(end_ts, buf_end)));
+        json_object_new_string(timestamp_to_str(m->logging_end_time, buf_end)));
 
     json_object_object_add(
         jobj, "duration_us",
-        json_object_new_int64(end_ts - start_ts));
+        json_object_new_int64(m->logging_end_time - m->logging_start_time));
+
+    if (m->test_name[0] != '\0') {
+        json_object_object_add(jobj, "test.name", json_object_new_string(m->test_name));
+    }
+    if (m->test_suite[0] != '\0') {
+        json_object_object_add(jobj, "test.suite", json_object_new_string(m->test_suite));
+    }
+    if (m->test_uuid[0] != '\0') {
+        json_object_object_add(jobj, "test.uuid", json_object_new_string(m->test_uuid));
+    }
+    if (m->ssd_size_bytes != 0) {
+        json_object_object_add(jobj, "test.ssd.size", json_object_new_int64(m->ssd_size_bytes));
+    }
+    if (m->test_start_time_us != 0) {
+        json_object_object_add(jobj, "test.start_time", json_object_new_string(timestamp_to_str(m->test_start_time_us, test_time_buf)));
+    }
 }
 
 /**
@@ -110,7 +124,7 @@ void JSON_PHYSICAL_CELL_READ(PhysicalCellReadLog *src, char **dst)
     json_object_object_add(jobj, "channel", json_object_new_int(src->channel));
     json_object_object_add(jobj, "block", json_object_new_int(src->block));
     json_object_object_add(jobj, "page", json_object_new_int(src->page));
-    add_time_range_to_json_object(jobj, src->metadata.logging_start_time, src->metadata.logging_end_time);
+    add_metadata_to_json_object(jobj, &src->metadata);
 
     const char *json_string = json_object_to_json_string_ext(jobj, JSON_C_TO_STRING_SPACED);
 
@@ -136,7 +150,7 @@ void JSON_PHYSICAL_CELL_PROGRAM(PhysicalCellProgramLog *src, char **dst)
     json_object_object_add(jobj, "channel", json_object_new_int(src->channel));
     json_object_object_add(jobj, "block", json_object_new_int(src->block));
     json_object_object_add(jobj, "page", json_object_new_int(src->page));
-    add_time_range_to_json_object(jobj, src->metadata.logging_start_time, src->metadata.logging_end_time);
+    add_metadata_to_json_object(jobj, &src->metadata);
 
     const char *json_string = json_object_to_json_string_ext(jobj, JSON_C_TO_STRING_SPACED);
 
@@ -162,7 +176,7 @@ void JSON_PHYSICAL_CELL_PROGRAM_COMPATIBLE(PhysicalCellProgramCompatibleLog *src
     json_object_object_add(jobj, "channel", json_object_new_int(src->channel));
     json_object_object_add(jobj, "block", json_object_new_int(src->block));
     json_object_object_add(jobj, "page", json_object_new_int(src->page));
-    add_time_range_to_json_object(jobj, src->metadata.logging_start_time, src->metadata.logging_end_time);
+    add_metadata_to_json_object(jobj, &src->metadata);
 
     const char *json_string = json_object_to_json_string_ext(jobj, JSON_C_TO_STRING_SPACED);
 
@@ -188,7 +202,7 @@ void JSON_LOGICAL_CELL_PROGRAM(LogicalCellProgramLog *src, char **dst)
     json_object_object_add(jobj, "channel", json_object_new_int(src->channel));
     json_object_object_add(jobj, "block", json_object_new_int(src->block));
     json_object_object_add(jobj, "page", json_object_new_int(src->page));
-    add_time_range_to_json_object(jobj, src->metadata.logging_start_time, src->metadata.logging_end_time);
+    add_metadata_to_json_object(jobj, &src->metadata);
 
     const char *json_string = json_object_to_json_string_ext(jobj, JSON_C_TO_STRING_SPACED);
 
@@ -211,7 +225,7 @@ void JSON_GARBAGE_COLLECTION(GarbageCollectionLog *src, char **dst)
 
     jobj = json_object_new_object();
     json_object_object_add(jobj, "type", json_object_new_string("GarbageCollectionLog"));
-    // add_time_range_to_json_object(jobj, src->metadata.logging_start_time, src->metadata.logging_end_time);
+    // add_metadata_to_json_object(jobj, &src->metadata);
 
     const char *json_string = json_object_to_json_string_ext(jobj, JSON_C_TO_STRING_SPACED);
 
@@ -239,7 +253,7 @@ void JSON_REGISTER_READ(RegisterReadLog *src, char **dst)
     json_object_object_add(jobj, "channel", json_object_new_int(src->channel));
     json_object_object_add(jobj, "die", json_object_new_int(src->die));
     json_object_object_add(jobj, "reg", json_object_new_int(src->reg));
-    add_time_range_to_json_object(jobj, src->metadata.logging_start_time, src->metadata.logging_end_time);
+    add_metadata_to_json_object(jobj, &src->metadata);
 
     const char *json_string = json_object_to_json_string_ext(jobj, JSON_C_TO_STRING_SPACED);
 
@@ -265,7 +279,7 @@ void JSON_REGISTER_WRITE(RegisterWriteLog *src, char **dst)
     json_object_object_add(jobj, "channel", json_object_new_int(src->channel));
     json_object_object_add(jobj, "die", json_object_new_int(src->die));
     json_object_object_add(jobj, "reg", json_object_new_int(src->reg));
-    add_time_range_to_json_object(jobj, src->metadata.logging_start_time, src->metadata.logging_end_time);
+    add_metadata_to_json_object(jobj, &src->metadata);
 
     const char *json_string = json_object_to_json_string_ext(jobj, JSON_C_TO_STRING_SPACED);
 
@@ -292,7 +306,7 @@ void JSON_BLOCK_ERASE(BlockEraseLog *src, char **dst)
     json_object_object_add(jobj, "die", json_object_new_int(src->die));
     json_object_object_add(jobj, "block", json_object_new_int(src->block));
     json_object_object_add(jobj, "dirty_page_nb", json_object_new_int(src->dirty_page_nb));
-    add_time_range_to_json_object(jobj, src->metadata.logging_start_time, src->metadata.logging_end_time);
+    add_metadata_to_json_object(jobj, &src->metadata);
 
     const char *json_string = json_object_to_json_string_ext(jobj, JSON_C_TO_STRING_SPACED);
 
@@ -320,7 +334,7 @@ void JSON_PAGE_COPYBACK(PageCopyBackLog *src, char **dst)
     json_object_object_add(jobj, "block", json_object_new_int(src->block));
     json_object_object_add(jobj, "source_page", json_object_new_int(src->source_page));
     json_object_object_add(jobj, "destination_page", json_object_new_int(src->destination_page));
-    add_time_range_to_json_object(jobj, src->metadata.logging_start_time, src->metadata.logging_end_time);
+    add_metadata_to_json_object(jobj, &src->metadata);
 
     const char *json_string = json_object_to_json_string_ext(jobj, JSON_C_TO_STRING_SPACED);
 
@@ -344,7 +358,7 @@ void JSON_CHANNEL_SWITCH_TO_READ(ChannelSwitchToReadLog *src, char **dst)
     jobj = json_object_new_object();
     json_object_object_add(jobj, "type", json_object_new_string("ChannelSwitchToReadLog"));
     json_object_object_add(jobj, "channel", json_object_new_int(src->channel));
-    add_time_range_to_json_object(jobj, src->metadata.logging_start_time, src->metadata.logging_end_time);
+    add_metadata_to_json_object(jobj, &src->metadata);
 
     const char *json_string = json_object_to_json_string_ext(jobj, JSON_C_TO_STRING_SPACED);
 
@@ -368,7 +382,7 @@ void JSON_CHANNEL_SWITCH_TO_WRITE(ChannelSwitchToWriteLog *src, char **dst)
     jobj = json_object_new_object();
     json_object_object_add(jobj, "type", json_object_new_string("ChannelSwitchToWriteLog"));
     json_object_object_add(jobj, "channel", json_object_new_int(src->channel));
-    add_time_range_to_json_object(jobj, src->metadata.logging_start_time, src->metadata.logging_end_time);
+    add_metadata_to_json_object(jobj, &src->metadata);
 
     const char *json_string = json_object_to_json_string_ext(jobj, JSON_C_TO_STRING_SPACED);
 
@@ -466,7 +480,7 @@ void JSON_SSD_UTILIZATION(SsdUtilizationLog *src, char **dst)
     json_object_object_add(jobj, "utilization_percent", json_object_new_double(src->utilization_percent));
     json_object_object_add(jobj, "total_pages", json_object_new_int64(src->total_pages));
     json_object_object_add(jobj, "occupied_pages", json_object_new_int64(src->occupied_pages));
-    add_time_range_to_json_object(jobj, src->metadata.logging_start_time, src->metadata.logging_end_time);
+    add_metadata_to_json_object(jobj, &src->metadata);
 
     const char *json_string = json_object_to_json_string_ext(jobj, JSON_C_TO_STRING_SPACED);
 

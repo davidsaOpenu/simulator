@@ -4,6 +4,10 @@
 // Embedded Software Systems Lab. All right reserved
 
 #include "common.h"
+#include <string.h>
+#include <stdlib.h>
+#include "test_context.h"
+#include "logging_parser.h"
 
 int* reg_io_cmd;    // READ, WRITE, ERASE
 int* reg_io_type;    // SEQ, RAN, MERGE, GC, etc..
@@ -162,6 +166,7 @@ int SSD_IO_TERM(void)
     free(io_overhead);
     free(ssd.prev_channel_mode);
     free(ssd.cur_channel_mode);
+    SSD_CLEAR_TEST_CONTEXT();
     return 0;
 }
 
@@ -232,10 +237,7 @@ ftl_ret_val SSD_PAGE_WRITE(unsigned int flash_nb, unsigned int block_nb, unsigne
 
     if (old_channel_nb == channel && ssd.prev_channel_mode[channel] != WRITE) {
     LOG_CHANNEL_SWITCH_TO_WRITE(GET_LOGGER(flash_nb), (ChannelSwitchToWriteLog) {
-    .channel = channel, .metadata = {
-      _start,
-      _end
-    }
+    .channel = channel, .metadata = LOG_META(_start, _end)
     });
     }
 
@@ -255,13 +257,13 @@ ftl_ret_val SSD_PAGE_WRITE(unsigned int flash_nb, unsigned int block_nb, unsigne
     if (type == WRITE_COMMIT) {
         LOG_PHYSICAL_CELL_PROGRAM_COMPATIBLE(GET_LOGGER(flash_nb), (PhysicalCellProgramCompatibleLog) {
             .channel = channel, .block = block_nb, .page = page_nb,
-            .metadata = {_start, _end}
+            .metadata = LOG_META(_start, _end)
         });
     }
     else {
         LOG_PHYSICAL_CELL_PROGRAM(GET_LOGGER(flash_nb), (PhysicalCellProgramLog) {
             .channel = channel, .block = block_nb, .page = page_nb,
-            .metadata = {_start, _end}
+            .metadata = LOG_META(_start, _end)
         });
     }
 
@@ -271,7 +273,7 @@ ftl_ret_val SSD_PAGE_WRITE(unsigned int flash_nb, unsigned int block_nb, unsigne
 
         LOG_LOGICAL_CELL_PROGRAM(GET_LOGGER(flash_nb),(LogicalCellProgramLog) {
             .channel = channel, .block = block_nb, .page = page_nb,
-            .metadata = {_start, _end}
+            .metadata = LOG_META(_start, _end)
         });
     }
 
@@ -310,10 +312,7 @@ ftl_ret_val SSD_PAGE_READ(unsigned int flash_nb, unsigned int block_nb, unsigned
 
     if (old_channel_nb == channel && ssd.prev_channel_mode[channel] != READ && ssd.prev_channel_mode[channel] != NOOP) {
     LOG_CHANNEL_SWITCH_TO_READ(GET_LOGGER(flash_nb), (ChannelSwitchToReadLog) {
-    .channel = channel, .metadata = {
-      _start,
-      _end
-    }
+    .channel = channel, .metadata = LOG_META(_start, _end)
     });
     }
 
@@ -322,7 +321,7 @@ ftl_ret_val SSD_PAGE_READ(unsigned int flash_nb, unsigned int block_nb, unsigned
 
     LOG_PHYSICAL_CELL_READ(GET_LOGGER(flash_nb), (PhysicalCellReadLog) {
         .channel = channel, .block = block_nb, .page = page_nb,
-        .metadata = {_start, _end}
+        .metadata = LOG_META(_start, _end)
     });
 
     return FTL_SUCCESS;
@@ -361,7 +360,7 @@ ftl_ret_val SSD_BLOCK_ERASE(unsigned int flash_nb, unsigned int block_nb)
 
     LOG_BLOCK_ERASE(GET_LOGGER(flash_nb), (BlockEraseLog) {
         .channel = channel, .die = flash_nb, .block = block_nb, .dirty_page_nb = block_entry->dirty_page_nb,
-        .metadata = {_start, _end}
+        .metadata = LOG_META(_start, _end)
     });
 
     block_entry->dirty_page_nb = 0;
@@ -545,13 +544,13 @@ int64_t SSD_CH_SWITCH_DELAY(unsigned int flash_nb, int channel)
     case READ:
         LOG_CHANNEL_SWITCH_TO_READ(GET_LOGGER(flash_nb), (ChannelSwitchToReadLog){
                                                              .channel = channel,
-                                                             .metadata = {_start, _end}});
+                                                             .metadata = LOG_META(_start, _end)});
         break;
 
     case WRITE:
         LOG_CHANNEL_SWITCH_TO_WRITE(GET_LOGGER(flash_nb), (ChannelSwitchToWriteLog){
                                                               .channel = channel,
-                                                              .metadata = {_start, _end}});
+                                                              .metadata = LOG_META(_start, _end)});
         break;
 
     case COPYBACK:
@@ -601,7 +600,7 @@ int SSD_REG_WRITE_DELAY(unsigned int flash_nb, int channel, int reg)
     int64_t _end = get_usec();
 
     LOG_REGISTER_WRITE(GET_LOGGER(flash_nb), (RegisterWriteLog){
-                                                 .channel = channel, .die = flash_nb, .reg = reg, .metadata = {_start, _end}});
+                                                 .channel = channel, .die = flash_nb, .reg = reg, .metadata = LOG_META(_start, _end)});
 
     return ret;
 }
@@ -638,7 +637,7 @@ int SSD_REG_READ_DELAY(unsigned int flash_nb, int channel, int reg)
     int64_t _end = get_usec();
 
     LOG_REGISTER_READ(GET_LOGGER(flash_nb), (RegisterReadLog){
-                                                .channel = channel, .die = flash_nb, .reg = reg, .metadata = {_start, _end}});
+                                                .channel = channel, .die = flash_nb, .reg = reg, .metadata = LOG_META(_start, _end)});
 
     return ret;
 }
@@ -900,7 +899,7 @@ ftl_ret_val SSD_PAGE_COPYBACK(uint32_t source, uint32_t destination, int type){
 
     LOG_PAGE_COPYBACK(GET_LOGGER(flash_nb), (PageCopyBackLog) {
         .channel = channel, .block = block_nb, .source_page = source, .destination_page = destination,
-        .metadata = {_start, _end}
+        .metadata = LOG_META(_start, _end)
     });
 
 
@@ -927,6 +926,6 @@ void SSD_UTIL_LOG(unsigned  flash_nb) {
         .utilization_percent = utilization,
         .total_pages         = total_pages,
         .occupied_pages      = occupied_pages,
-        .metadata            = {now, now}
+        .metadata            = LOG_META(now, now)
     });
 }
