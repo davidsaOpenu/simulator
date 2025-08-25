@@ -28,6 +28,7 @@ uint64_t PAGES_IN_SSD;
 
 // Size in blocks.
 uint64_t NAMESPACES_SIZE[MAX_NUMBER_OF_NAMESPACES] = {0,};
+uint32_t CURRENT_NAMESPACE_NB = 0;
 
 uint32_t WAY_NB;
 
@@ -175,6 +176,8 @@ void INIT_SSD_CONFIG(void)
                 RERR(, "Can't read %s\n", szCommand);
             }
 
+            CURRENT_NAMESPACE_NB++;
+
             memset(szCommand, 0x00, 1024);
             continue;
         }
@@ -253,7 +256,7 @@ void update_globals(void) {
 	/* SSD Configuration */
 	SECTORS_PER_PAGE = PAGE_SIZE / SECTOR_SIZE;
 	PAGES_PER_FLASH = PAGE_NB * BLOCK_NB;
-	SECTOR_NB = (uint64_t)SECTORS_PER_PAGE * (uint64_t)PAGE_NB * (uint64_t)BLOCK_NB * (uint64_t)FLASH_NB;
+    SECTOR_NB = (uint64_t)SECTORS_PER_PAGE * (uint64_t)PAGE_NB * (uint64_t)BLOCK_NB * (uint64_t)FLASH_NB;
 
 	/* Mapping Table */
 	BLOCK_MAPPING_ENTRY_NB = (int64_t)BLOCK_NB * (int64_t)FLASH_NB;
@@ -350,7 +353,6 @@ void clear_globals(void) {
     PAGE_SIZE = 0;
 
     SECTOR_NB = 0;
-    
     PAGE_NB = 0;
     FLASH_NB = 0;
     BLOCK_NB = 0;

@@ -26,6 +26,7 @@ extern uint64_t PAGES_IN_SSD;
 
 extern uint32_t WAY_NB;
 
+extern uint32_t CURRENT_NAMESPACE_NB;
 extern uint64_t NAMESPACES_SIZE[MAX_NUMBER_OF_NAMESPACES];
 
 /* Mapping Table */
@@ -155,3 +156,4 @@ ssd_config_t* GET_DEVICES(void);
 uint64_t GET_NAMESPACE_TOTAL_SIZE(void);
 
 #endif
+// testing locks - to be removed later
