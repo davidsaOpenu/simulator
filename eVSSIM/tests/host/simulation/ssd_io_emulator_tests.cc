@@ -54,7 +54,7 @@ namespace ssd_io_emulator_tests {
     std::vector<SSDConf*> GetTestParams() {
         std::vector<SSDConf*> ssd_configs;
 
-        ssd_configs.push_back(new SSDConf(parameters::Allsizemb[0]));
+        ssd_configs.push_back(new SSDConf(parameters::Allsizemb[0], true));
 
         return ssd_configs;
     }
@@ -397,7 +397,7 @@ namespace ssd_io_emulator_tests {
         SSDConf* ssd_config = base_test_get_ssd_config();
 
         size_t flash_num = ssd_config->get_flash_nb();
-        size_t block_x_flash = ssd_config->get_pages() / ssd_config->get_pages_per_block();
+        size_t block_x_flash = ssd_config->get_pages_ns(DEFAULT_NSID) / ssd_config->get_pages_per_block();
         size_t blocks_per_flash = block_x_flash / flash_num;
 
         int expected_rw = ssd_config->get_pages_per_block() * blocks_per_flash;
@@ -428,35 +428,38 @@ namespace ssd_io_emulator_tests {
 
     /**
      * testing the write amplification calculation by writing over the whole flash twice
-     * - write over flash twice using the FTL layer
-     * - validate statistics
+     * - write over flash twice using the FTL layer.
+     * - validate statistics.
      */
     TEST_P(SSDIoEmulatorUnitTest, WriteAmplificationTest) {
         SSDConf* ssd_config = base_test_get_ssd_config();
-        int expected_write_amplification = 1;
 
-        // Write all flash
+        const size_t page_x_flash = (ssd_config->get_pages_ns(DEFAULT_NSID));
+
+        // Write all flash.
         for(int x=0; x<2; x++){
-            for(size_t p=0; p < ssd_config->get_pages(); p++){
-                ASSERT_EQ(FTL_SUCCESS, _FTL_WRITE_SECT(p * ssd_config->get_page_size(), 1, NULL));
+            for(size_t p=0; p < page_x_flash; p++){
+                ASSERT_EQ(FTL_SUCCESS, _FTL_WRITE_SECT(DEFAULT_NSID, p * ssd_config->get_page_size(), 1, NULL));
             }
             MONITOR_SYNC_DELAY(15000000);
 
             //at most one block that wasn't cleared by GC algorithem
             double error_util = (double)(ssd_config->get_pages_per_block()) / (ssd_config->get_page_nb() * ssd_config->get_block_nb() * ssd_config->get_flash_nb());
-            ASSERT_NEAR(0.8, ssd.current_stats->utilization, error_util);//25% over provitioning = 80% full
+            ASSERT_NEAR(0.8, ssd.current_stats->utilization, error_util); // 25% over provitioning = 80% full
 
-            ASSERT_EQ(ssd_config->get_pages() * (x + 1), ssd.current_stats->logical_write_count);
-            ASSERT_LE(ssd_config->get_pages() * (x + 1), ssd.current_stats->write_count);
-
+            ASSERT_EQ(page_x_flash * (x + 1), ssd.current_stats->logical_write_count);
+            ASSERT_LE(page_x_flash * (x + 1), ssd.current_stats->write_count);
         }
 
-        int expected_write_duration = (CHANNEL_SWITCH_DELAY_W + REG_WRITE_DELAY + CELL_PROGRAM_DELAY) * ssd_config->get_pages() * 2;
+        int expected_write_duration = (CHANNEL_SWITCH_DELAY_W + REG_WRITE_DELAY + CELL_PROGRAM_DELAY) * page_x_flash * 2;
         
         MONITOR_SYNC_DELAY(expected_write_duration);
     
         // Assert w.a. is greater then 1
-        ASSERT_GE(ssd_config->get_pages(), ssd.current_stats->garbage_collection_count);
+        ASSERT_GE(page_x_flash, ssd.current_stats->garbage_collection_count);
+
+        int expected_write_amplification = 1;
+
         //write amp = 1 because we work with over-provitioning and write sequentionally, on the second pass
         //we re-allocate the first block, when we get to the second block, there is now a free block that can be used
         //for re-allocating the second block
