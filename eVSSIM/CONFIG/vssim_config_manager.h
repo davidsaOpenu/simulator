@@ -26,6 +26,7 @@ extern uint64_t PAGES_IN_SSD;
 
 extern uint32_t WAY_NB;
 
+extern uint32_t CURRENT_NAMESPACE_NB;
 extern uint64_t NAMESPACES_SIZE[MAX_NUMBER_OF_NAMESPACES];
 
 /* Mapping Table */
