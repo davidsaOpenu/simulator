@@ -175,7 +175,7 @@ declare -a dependency_results=()
 if [[ "$BUILD_SOURCE" == "gerrit" ]]; then
     echo "Fetching commit message from Gerrit REST API..."
     # Remove the )]}' prefix that Gerrit adds to prevent XSSI attacks
-    commit_message=$(curl -s "https://${GERRIT_HOST}/changes/${GERRIT_USER}%2F${PROJECT}~${CHANGE_ID}/revisions/current/commit" \
+    commit_message=$(curl --noproxy "*" -s "https://${GERRIT_HOST}/changes/${GERRIT_USER}%2F${PROJECT}~${CHANGE_ID}/revisions/current/commit" \
         | sed "1s/^)]}'*//" | jq -r '.message' 2>/dev/null)
 
     if [[ -z "$commit_message" || "$commit_message" == "null" ]]; then
@@ -255,7 +255,7 @@ for url in $depends_on_lines; do
 
     # Try REST API first
     echo "Trying REST API..."
-    api_response=$(curl -s "https://${gerrit_host}/changes/${gerrit_user}%2F${project_name}~${change_num}/detail" 2>/dev/null)
+    api_response=$(curl --noproxy "*" -s "https://${gerrit_host}/changes/${gerrit_user}%2F${project_name}~${change_num}/detail" 2>/dev/null)
 
     if [[ -n "$api_response" && "$api_response" != *"Not Found"* ]]; then
         echo "REST API successful"
