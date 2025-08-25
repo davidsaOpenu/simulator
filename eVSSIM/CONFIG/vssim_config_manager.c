@@ -93,6 +93,9 @@ void INIT_SSD_CONFIG(void)
             if (fscanf(pfData, "%" SCNu64, &current_device->namespaces_size[i-1]) == EOF){
                 RERR(, "Can't read %s\n", key);
             }
+
+            // Increase the counter on new namespace. 
+            current_device->current_namespace_nb++;
             continue;
         }
 
@@ -112,9 +115,15 @@ void INIT_SSD_CONFIG(void)
     if (NULL == inverse_mappings_manager)
         RERR(, "inverse_mappings_manager allocation failed!\n");
 
-    mapping_table = (uint64_t**)calloc(sizeof(uint64_t*) * device_count, 1);
+    mapping_table = (uint64_t***)calloc(sizeof(uint64_t**) * device_count , 1);
+
     if (NULL == mapping_table)
         RERR(, "mapping_table allocation failed!\n");
+
+    for (i = 0; i < device_count; i++)
+    {
+        mapping_table[i] = (uint64_t**)calloc(sizeof(uint64_t*) * MAX_NUMBER_OF_NAMESPACES, 1);
+    }
 
     g_init_ftl = (int*)calloc(sizeof(int) * device_count, 1);
     if (NULL == g_init_ftl)
@@ -127,8 +136,15 @@ void INIT_SSD_CONFIG(void)
 
 void TERM_SSD_CONFIG(void)
 {
+    uint32_t i;
+
     free(inverse_mappings_manager);
     inverse_mappings_manager = NULL;
+
+    for (i = 0; i < device_count; i++)
+    {
+        free(mapping_table[i]);
+    }
 
     free(mapping_table);
     mapping_table = NULL;

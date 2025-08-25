@@ -3,75 +3,105 @@
 // Hanyang University, Seoul, Korea
 // Embedded Software Systems Lab. All right reserved
 
-#include "common.h"
+#include "ftl_mapping_manager.h"
 
-#define MAPPING_TABLE_INIT_VAL UINT64_MAX
-
-uint64_t **mapping_table = NULL;
+uint64_t ***mapping_table = NULL;
 
 extern GCAlgorithm gc_algo;
 
 void INIT_MAPPING_TABLE(uint8_t device_index)
 {
-	/* Allocation Memory for Mapping Table */
-	mapping_table[device_index] = (uint64_t *)calloc((uint64_t)devices[device_index].page_mapping_entry_nb, sizeof(uint64_t));
-	if (mapping_table[device_index] == NULL)
-		RERR(, "Calloc mapping table fail\n");
+	char filename[MAX_FILENAME_LENGTH];
+	int namespaceIndex;
 
-	char *data_filename = GET_DATA_FILENAME(device_index, "mapping_table.dat");
-	if (data_filename == NULL)
-		RERR(, "GET_DATA_FILENAME failed\n");
+	for (namespaceIndex = 0; namespaceIndex < MAX_NUMBER_OF_NAMESPACES; namespaceIndex++)
+	{
+		if (devices[device_index].namespaces_size[namespaceIndex] == 0){
+			/* Skip un-used namespace */
+			continue;
+		}
 
-	FILE *fp = fopen(data_filename, "r");
-	free(data_filename);
-	if (fp != NULL)
-	{
-		if (fread(mapping_table[device_index], sizeof(uint64_t), (uint64_t)devices[device_index].page_mapping_entry_nb, fp) <= 0)
-			PERR("fread\n");
-		fclose(fp);
-	}
-	else
-	{
-		uint64_t i;
-		for (i = 0; i < devices[device_index].page_mapping_entry_nb; i++)
-		{
-			mapping_table[device_index][i] = MAPPING_TABLE_INIT_VAL;
+		/* Allocation Memory for Mapping Table */
+		mapping_table[device_index][namespaceIndex] = (uint64_t *)calloc(devices[device_index].namespaces_size[namespaceIndex] * (uint64_t)devices[device_index].page_nb, sizeof(uint64_t));
+
+		if (mapping_table[device_index][namespaceIndex] == NULL)
+			RERR(, "Calloc mapping table fail\n");
+
+		/* Initialization Mapping Table */
+
+		snprintf(filename, sizeof(filename), "mapping_table_namespace_%d.dat", namespaceIndex);
+
+		char *data_filename = GET_DATA_FILENAME(device_index, filename);
+		if (data_filename == NULL)
+			RERR(, "GET_DATA_FILENAME failed\n");
+
+		/* If mapping_table.dat file exists */
+		FILE *fp = fopen(data_filename, "r");
+		free(data_filename);
+
+		if(fp != NULL){
+			if(fread(mapping_table[device_index][namespaceIndex], sizeof(uint64_t), devices[device_index].namespaces_size[namespaceIndex] * (uint64_t)devices[device_index].page_nb, fp) <= 0)
+				PERR("fread\n");
+			fclose(fp);
+		}
+		else{
+			uint64_t i;
+			for(i=0; i < devices[device_index].namespaces_size[namespaceIndex] * (uint64_t)devices[device_index].page_nb; i++){
+				mapping_table[device_index][namespaceIndex][i] = MAPPING_TABLE_INIT_VAL;
+			}
 		}
 	}
 }
 
 void TERM_MAPPING_TABLE(uint8_t device_index)
 {
-	char *data_filename = GET_DATA_FILENAME(device_index, "mapping_table.dat");
-	if (data_filename == NULL)
-		RERR(, "GET_DATA_FILENAME failed\n");
+	char filename[MAX_FILENAME_LENGTH];
+	int namespaceIndex;
 
-	FILE *fp = fopen(data_filename, "w");
-	free(data_filename);
-	if (fp == NULL)
-		RERR(, "File open fail\n");
+	for (namespaceIndex = 0; namespaceIndex < MAX_NUMBER_OF_NAMESPACES; namespaceIndex++)
+	{
+		if (devices[device_index].namespaces_size[namespaceIndex] == 0){
+			/* Skip un-used namespace */
+			continue;
+		}
 
-	/* Write the mapping table to file */
-	if (fwrite(mapping_table[device_index], sizeof(uint64_t), (uint64_t)devices[device_index].page_mapping_entry_nb, fp) <= 0)
-		PERR("fwrite\n");
+		snprintf(filename, sizeof(filename), "mapping_table_namespace_%d.dat", namespaceIndex);
 
-	/* Free memory for mapping table */
-	free(mapping_table[device_index]);
-	fclose(fp);
+		char* data_filename = GET_DATA_FILENAME(device_index, filename);
+		if (data_filename == NULL)
+			RERR(, "GET_DATA_FILENAME failed\n");
+
+		/* If mapping_table.dat file exists */
+		FILE* fp = fopen(data_filename, "w");
+		free(data_filename);
+
+		if (fp == NULL)
+			RERR(, "File open fail\n");
+
+
+		/* Write the mapping table to file */
+		if(fwrite(mapping_table[device_index][namespaceIndex], sizeof(uint64_t), devices[device_index].namespaces_size[namespaceIndex] * (uint64_t)devices[device_index].page_nb ,fp) <= 0)
+			PERR("fwrite\n");
+
+		/* Free memory for mapping table */
+		free(mapping_table[device_index][namespaceIndex]);
+		fclose(fp);
+	}
 }
 
-uint64_t GET_MAPPING_INFO(uint8_t device_index, uint64_t lpn)
+
+uint64_t GET_MAPPING_INFO(uint8_t device_index, uint32_t nsid, uint64_t lpn)
 {
-	if (lpn >= ((uint64_t)devices[device_index].page_mapping_entry_nb))
-	{
+	if(nsid >= MAX_NUMBER_OF_NAMESPACES || mapping_table[device_index] == NULL || mapping_table[device_index][nsid] == NULL || lpn >= (devices[device_index].namespaces_size[nsid] * (uint64_t)devices[device_index].page_nb)){
 		PERR("overflow!\n");
 	}
 
-	const uint64_t ppn = mapping_table[device_index][lpn];
+	const uint64_t ppn = mapping_table[device_index][nsid][lpn];
 	return ppn;
 }
 
-ftl_ret_val GET_NEW_PAGE(uint8_t device_index, int mode, uint64_t mapping_index, uint64_t *ppn)
+
+ftl_ret_val GET_NEW_PAGE(uint8_t device_index, int mode, uint64_t mapping_index, uint64_t* ppn)
 {
 	return gc_algo.next_page(device_index, mode, mapping_index, ppn);
 }
@@ -103,40 +133,40 @@ ftl_ret_val DEFAULT_NEXT_PAGE_ALGO(uint8_t device_index, int mode, uint64_t mapp
 	return FTL_SUCCESS;
 }
 
-int UPDATE_OLD_PAGE_MAPPING(uint8_t device_index, uint64_t lpn)
+int UPDATE_OLD_PAGE_MAPPING(uint8_t device_index, uint32_t nsid, uint64_t lpn)
 {
 	uint64_t old_ppn;
 
-	old_ppn = GET_MAPPING_INFO(device_index, lpn);
+	old_ppn = GET_MAPPING_INFO(device_index, nsid, lpn);
 
 	if (old_ppn == MAPPING_TABLE_INIT_VAL)
-
 		RDBG_FTL(FTL_FAILURE, "New page \n");
 
 	UPDATE_INVERSE_BLOCK_VALIDITY(device_index,
 								  CALC_FLASH(device_index, old_ppn),
-								  CALC_BLOCK(device_index, old_ppn),
-								  CALC_PAGE(device_index, old_ppn),
-								  PAGE_INVALID);
-	UPDATE_INVERSE_PAGE_MAPPING(device_index, old_ppn, MAPPING_TABLE_INIT_VAL);
+                                  CALC_BLOCK(device_index, old_ppn),
+                                  CALC_PAGE(device_index, old_ppn),
+                                  PAGE_INVALID);
+
+    UPDATE_INVERSE_PAGE_MAPPING(device_index, old_ppn, INVALID_NSID, MAPPING_TABLE_INIT_VAL);
 
 	return FTL_SUCCESS;
 }
 
-int UPDATE_NEW_PAGE_MAPPING(uint8_t device_index, uint64_t lpn, uint64_t ppn)
+int UPDATE_NEW_PAGE_MAPPING(uint8_t device_index, uint32_t nsid, uint64_t lpn, uint64_t ppn)
 {
-	if (lpn >= (uint64_t)devices[device_index].page_mapping_entry_nb)
-	{
+	if(nsid >= MAX_NUMBER_OF_NAMESPACES || mapping_table[device_index] == NULL || mapping_table[device_index][nsid] == NULL || lpn >= (devices[device_index].namespaces_size[nsid] * (uint64_t)devices[device_index].page_nb)){
 		PERR("overflow!\n");
 	}
+
 	/* Update Page Mapping Table */
-	mapping_table[device_index][lpn] = ppn;
+	mapping_table[device_index][nsid][lpn] = ppn;
 
 	/* Update Inverse Page Mapping Table */
 	UPDATE_INVERSE_BLOCK_VALIDITY(device_index, CALC_FLASH(device_index, ppn), CALC_BLOCK(device_index, ppn), CALC_PAGE(device_index, ppn), PAGE_VALID);
 	UPDATE_INVERSE_BLOCK_MAPPING(device_index, CALC_FLASH(device_index, ppn), CALC_BLOCK(device_index, ppn), DATA_BLOCK);
-	UPDATE_INVERSE_PAGE_MAPPING(device_index, ppn, lpn);
-
+	UPDATE_INVERSE_PAGE_MAPPING(device_index, ppn, nsid, lpn);
+	
 	return FTL_SUCCESS;
 }
 
