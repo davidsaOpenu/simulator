@@ -27,6 +27,7 @@ void FTL_INIT(void)
 		INIT_SSD_CONFIG();
 		INIT_MAPPING_TABLE();
 		INIT_INVERSE_PAGE_MAPPING();
+		INIT_INVERSE_PAGE_NAMESPACE_MAPPING();
 		INIT_INVERSE_BLOCK_MAPPING();
 		INIT_VALID_ARRAY();
 		INIT_EMPTY_BLOCK_LIST();
@@ -49,6 +50,7 @@ void FTL_TERM(void)
 	PINFO("start\n");
 
 	TERM_MAPPING_TABLE();
+	TERM_INVERSE_PAGE_NAMESPACE_MAPPING();
 	TERM_INVERSE_PAGE_MAPPING();
 	TERM_VALID_ARRAY();
 	TERM_INVERSE_BLOCK_MAPPING();
@@ -312,6 +314,34 @@ void FTL_RECORD_STATISTICS(void){
 	}
 
 	fclose(fp);
+}
+
+uint32_t FTL_GET_MAX_NAMESPACE_NB(void) {
+  return MAX_NUMBER_OF_NAMESPACES;
+}
+
+uint32_t FTL_GET_NAMESPACE_NB(void) {
+  return CURRENT_NAMESPACE_NB;
+}
+
+uint32_t FTL_GET_NAMESPACE_SIZE(uint32_t nsid)
+{
+  return NAMESPACES_SIZE[nsid-1];
+}
+
+void FTL_GET_NAMESPACE_DESCS(ftl_ns_desc *descs, const uint16_t available_ns)
+{
+	uint32_t i, j;
+  	for (i = 0, j = 0; i < MAX_NUMBER_OF_NAMESPACES; i++) {
+		if (NAMESPACES_SIZE[i] != 0) {
+			if (j >= available_ns)
+				return;
+
+			// Set the curret ns ID.
+			descs[j].nsid = i + 1;
+			j++;
+		}
+	}
 }
 
 void *STAT_LISTEN(void *socket){
