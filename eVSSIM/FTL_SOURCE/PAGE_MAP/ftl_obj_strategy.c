@@ -240,7 +240,8 @@ ftl_ret_val _FTL_OBJ_WRITE(uint8_t device_index, obj_id_t object_loc, const void
                 CALC_BLOCK(device_index, current_page->page_id),
                 CALC_PAGE(device_index, current_page->page_id),
                 PAGE_INVALID);
-            UPDATE_INVERSE_PAGE_MAPPING(device_index, current_page->page_id, MAPPING_TABLE_INIT_VAL);
+
+            UPDATE_INVERSE_PAGE_MAPPING(device_index, current_page->page_id, INVALID_NSID, MAPPING_TABLE_INIT_VAL);
 
             HASH_DEL(global_page_table, current_page);
             current_page->page_id = page_id;
@@ -265,7 +266,7 @@ ftl_ret_val _FTL_OBJ_WRITE(uint8_t device_index, obj_id_t object_loc, const void
         // TODO: fix
         if (ret == FTL_FAILURE)
         {
-            PDBG_FTL("Error[FTL_WRITE] %d page write fail \n", page_id);
+            PDBG_FTL("Error[FTL_WRITE] %lu page write fail \n", page_id);
         }
 
         //        page_node *page;
