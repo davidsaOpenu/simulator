@@ -29,8 +29,36 @@ void INIT_INVERSE_PAGE_MAPPING(uint8_t device_index)
 	}
 	else{
 		uint64_t i;
-		for(i=0;i < devices[device_index].page_mapping_entry_nb;i++){
-			inverse_mappings_manager[device_index].inverse_page_mapping_table[i] = -1;
+		for(i=0; i < devices[device_index].page_mapping_entry_nb; i++){
+			inverse_mappings_manager[device_index].inverse_page_mapping_table[i] = MAPPING_TABLE_INIT_VAL;
+		}
+	}
+}
+
+void INIT_INVERSE_PAGE_NAMESPACE_MAPPING(uint8_t device_index)
+{
+	/* Allocation Memory for Inverse Page Mapping Table */
+	inverse_mappings_manager[device_index].inverse_page_mapping_namespace_table = (void*)calloc(devices[device_index].page_mapping_entry_nb, sizeof(uint32_t));
+	if (inverse_mappings_manager[device_index].inverse_page_mapping_namespace_table == NULL)
+		RERR(, "Calloc mapping table fail\n");
+
+	/* Initialization Inverse Page Mapping Table */
+	char* filename = GET_DATA_FILENAME(device_index, "inverse_page_mapping_namespace.dat");
+	if (filename == NULL)
+		RERR(, "GET_DATA_FILENAME failed\n");
+
+	FILE* fp = fopen(filename, "r");
+	free(filename);
+
+	if(READ_MAPPING_INFO_FROM_FILES && fp != NULL){
+		if(fread(inverse_mappings_manager[device_index].inverse_page_mapping_namespace_table, sizeof(uint32_t), devices[device_index].page_mapping_entry_nb, fp) <= 0)
+			PERR("fread\n");
+		fclose(fp);
+	}
+	else{
+		uint64_t i;
+		for(i=0; i<devices[device_index].page_mapping_entry_nb; i++){
+			inverse_mappings_manager[device_index].inverse_page_mapping_namespace_table[i] = INVALID_NSID;
 		}
 	}
 }
@@ -290,10 +318,33 @@ void TERM_INVERSE_PAGE_MAPPING(uint8_t device_index)
 	/* Write The inverse page table to file */
 	if(fwrite(inverse_mappings_manager[device_index].inverse_page_mapping_table, sizeof(uint64_t), devices[device_index].page_mapping_entry_nb, fp) <= 0)
 		PERR("fwrite\n");
+
 	fclose(fp);
 
 	/* Free the inverse page table memory */
 	free(inverse_mappings_manager[device_index].inverse_page_mapping_table);
+}
+
+void TERM_INVERSE_PAGE_NAMESPACE_MAPPING(uint8_t device_index)
+{
+	char* filename = GET_DATA_FILENAME(device_index, "inverse_page_mapping_namespace.dat");
+	if (filename == NULL)
+		RERR(, "GET_DATA_FILENAME failed\n");
+
+	FILE* fp = fopen(filename, "w");
+	free(filename);
+
+	if (fp == NULL)
+		RERR(, "File open fail\n");
+
+	/* Write The inverse page table to file */
+	if(fwrite(inverse_mappings_manager[device_index].inverse_page_mapping_namespace_table, sizeof(uint32_t), devices[device_index].page_mapping_entry_nb, fp) <= 0)
+		PERR("fwrite\n");
+
+	fclose(fp);
+
+	/* Free the inverse page table memory */
+	free(inverse_mappings_manager[device_index].inverse_page_mapping_namespace_table);
 }
 
 void TERM_INVERSE_BLOCK_MAPPING(uint8_t device_index)
@@ -755,18 +806,24 @@ inverse_block_mapping_entry* GET_INVERSE_BLOCK_MAPPING_ENTRY(uint8_t device_inde
 	return mapping_entry;
 }
 
-void GET_INVERSE_MAPPING_INFO(uint8_t device_index, uint64_t ppn, uint64_t *o_lpn)
+void GET_INVERSE_MAPPING_INFO(uint8_t device_index, uint64_t ppn, uint32_t *o_nsid, uint64_t *o_lpn)
 {
 	if(ppn >= devices[device_index].page_mapping_entry_nb) {
 		PERR("overflow!\n");
 	}
 
-  	*o_lpn = inverse_mappings_manager[device_index].inverse_page_mapping_table[ppn];
+	*o_lpn = inverse_mappings_manager[device_index].inverse_page_mapping_table[ppn];
+	*o_nsid = inverse_mappings_manager[device_index].inverse_page_mapping_namespace_table[ppn];
 }
 
-int UPDATE_INVERSE_PAGE_MAPPING(uint8_t device_index, uint64_t ppn, uint64_t lpn)
+int UPDATE_INVERSE_PAGE_MAPPING(uint8_t device_index, uint64_t ppn, uint32_t nsid, uint64_t lpn)
 {
+	if(nsid >= MAX_NUMBER_OF_NAMESPACES && nsid != INVALID_NSID){
+		PERR("overflow!\n");
+	}
+	
 	inverse_mappings_manager[device_index].inverse_page_mapping_table[ppn] = lpn;
+	inverse_mappings_manager[device_index].inverse_page_mapping_namespace_table[ppn] = nsid;
 
 	return FTL_SUCCESS;
 }

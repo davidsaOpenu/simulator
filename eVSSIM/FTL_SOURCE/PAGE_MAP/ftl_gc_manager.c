@@ -45,8 +45,9 @@ ftl_ret_val GARBAGE_COLLECTION(uint8_t device_index, uint64_t mapping_index, int
 
 ftl_ret_val DEFAULT_GC_COLLECTION_ALGO(uint8_t device_index, uint64_t mapping_index, int l2, bool isObjectStrategy)
 {
-	uint64_t i;
 	int ret;
+	uint32_t nsid;
+	uint64_t i;
 	uint64_t lpn;
 	uint64_t old_ppn;
 	uint64_t new_ppn;
@@ -104,8 +105,9 @@ ftl_ret_val DEFAULT_GC_COLLECTION_ALGO(uint8_t device_index, uint64_t mapping_in
                 SSD_PAGE_READ(device_index, victim_phy_flash_nb, victim_phy_block_nb, i, i, GC_READ);
                 SSD_PAGE_WRITE(device_index, CALC_FLASH(device_index, new_ppn), CALC_BLOCK(device_index, new_ppn), CALC_PAGE(device_index, new_ppn), i, GC_WRITE);
                 old_ppn = victim_phy_flash_nb * devices[device_index].pages_per_flash + victim_phy_block_nb * devices[device_index].page_nb + i;
-                GET_INVERSE_MAPPING_INFO(device_index, old_ppn, &lpn);
-                UPDATE_NEW_PAGE_MAPPING(device_index, lpn, new_ppn);
+
+				GET_INVERSE_MAPPING_INFO(device_index, old_ppn, &nsid, &lpn);
+                UPDATE_NEW_PAGE_MAPPING(device_index, nsid, lpn, new_ppn);
             }else{
                 // Got new page on-chip, can do copy back
 
@@ -123,8 +125,9 @@ ftl_ret_val DEFAULT_GC_COLLECTION_ALGO(uint8_t device_index, uint64_t mapping_in
                     SSD_PAGE_READ(device_index, victim_phy_flash_nb, victim_phy_block_nb, i, i, GC_READ);
                     SSD_PAGE_WRITE(device_index, CALC_FLASH(device_index, new_ppn), CALC_BLOCK(device_index, new_ppn), CALC_PAGE(device_index, new_ppn), i, GC_WRITE);
                     old_ppn = victim_phy_flash_nb*devices[device_index].pages_per_flash + victim_phy_block_nb* devices[device_index].page_nb + i;
-                    GET_INVERSE_MAPPING_INFO(device_index, old_ppn, &lpn);
-                    UPDATE_NEW_PAGE_MAPPING(device_index, lpn, new_ppn);
+
+					GET_INVERSE_MAPPING_INFO(device_index, old_ppn, &nsid, &lpn);
+                    UPDATE_NEW_PAGE_MAPPING(device_index, nsid, lpn, new_ppn);
                 }
             }
 
