@@ -32,6 +32,7 @@ void FTL_INIT(uint8_t device_index)
 		INIT_VALID_ARRAY(device_index);
 		INIT_EMPTY_BLOCK_LIST(device_index);
 		INIT_VICTIM_BLOCK_LIST(device_index);
+		INIT_INVERSE_PAGE_NAMESPACE_MAPPING(device_index);
 
 		INIT_PERF_CHECKER();
         INIT_GC_MANAGER();
@@ -58,6 +59,7 @@ void FTL_TERM(uint8_t device_index)
 	TERM_INVERSE_BLOCK_MAPPING(device_index);
 	TERM_EMPTY_BLOCK_LIST(device_index);
 	TERM_VICTIM_BLOCK_LIST(device_index);
+	TERM_INVERSE_PAGE_NAMESPACE_MAPPING(device_index);
 
 	TERM_PERF_CHECKER();
 	FTL_TERM_STRATEGY();
@@ -324,7 +326,35 @@ void FTL_RECORD_STATISTICS(uint8_t device_index){
 	fclose(fp);
 }
 
-void *STAT_LISTEN(uint8_t device_index, void *socket){
+uint32_t FTL_GET_MAX_NAMESPACE_NB(void) {
+	return MAX_NUMBER_OF_NAMESPACES;
+}
+
+uint32_t FTL_GET_NAMESPACE_NB(uint8_t device_index) {
+	return devices[device_index].current_namespace_nb;
+}
+
+uint32_t FTL_GET_NAMESPACE_SIZE(uint8_t device_index, uint32_t nsid)
+{
+	return devices[device_index].namespaces_size[nsid - 1];
+}
+
+void FTL_GET_NAMESPACE_DESCS(uint8_t device_index, ftl_ns_desc *descs, const uint16_t available_ns)
+{
+	uint32_t i, j;
+  	for (i = 0, j = 0; i < MAX_NUMBER_OF_NAMESPACES; i++) {
+		if (devices[device_index].namespaces_size[i] != 0) {
+			if (j >= available_ns)
+				return;
+
+			// Set the curret ns ID.
+			descs[j].nsid = i + 1;
+			j++;
+		}
+	}
+}
+
+void *STAT_LISTEN(uint8_t device_index, void *socket) {
 	char buffer[256];
 	int sock = (*(int *) socket);
 	int stopListen = 1;
