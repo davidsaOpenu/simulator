@@ -30,6 +30,7 @@ typedef struct ssd_config {
 
 	uint32_t way_nb;
 
+	uint32_t current_namespace_nb;
 	uint64_t namespaces_size[MAX_NUMBER_OF_NAMESPACES];
 
 	// Mapping Table

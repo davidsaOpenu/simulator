@@ -50,8 +50,8 @@ namespace program_compatible_test
     std::vector<SSDConf *> GetTestParams()
     {
         std::vector<SSDConf *> ssd_configs;
-        ssd_configs.push_back(new SSDConf(pow(2, 5), 1));
-        ssd_configs.push_back(new SSDConf(pow(2, 5), 2));
+        ssd_configs.push_back(new SSDConf(pow(2, 5), true, 1));
+        ssd_configs.push_back(new SSDConf(pow(2, 5), true, 2));
         return ssd_configs;
     }
 
@@ -64,11 +64,11 @@ namespace program_compatible_test
         SSDStatistics expected_stats = stats_init();
 
         unsigned char data[ssd_config->get_page_size() / 2];
-        memset(data, 0xF0, sizeof(data));
-        ASSERT_EQ(_FTL_WRITE(g_device_index, 0, sizeof(data) / ssd_config->get_sector_size(), data), FTL_SUCCESS);
+        memset(data, 0xF0, sizeof(data)); 
+        ASSERT_EQ(_FTL_WRITE(g_device_index, DEFAULT_NSID, 0, sizeof(data) / ssd_config->get_sector_size(), data), FTL_SUCCESS);
 
         unsigned char read_data[sizeof(data)];
-        ASSERT_EQ(_FTL_READ(g_device_index, 0, sizeof(read_data) / ssd_config->get_sector_size(), read_data), FTL_SUCCESS);
+        ASSERT_EQ(_FTL_READ(g_device_index, DEFAULT_NSID, 0, sizeof(read_data) / ssd_config->get_sector_size(), read_data), FTL_SUCCESS);
         ASSERT_EQ(memcmp(data, read_data, sizeof(data)), 0);
 
         expected_stats.occupied_pages++;
@@ -77,9 +77,9 @@ namespace program_compatible_test
 
 
         memset(data, 0x00, sizeof(data));
-        ASSERT_EQ(_FTL_WRITE(g_device_index, 0, sizeof(data) / ssd_config->get_sector_size(), data), FTL_SUCCESS);
+        ASSERT_EQ(_FTL_WRITE(g_device_index, DEFAULT_NSID, 0, sizeof(data) / ssd_config->get_sector_size(), data), FTL_SUCCESS);
 
-        ASSERT_EQ(_FTL_READ(g_device_index, 0, sizeof(read_data) / ssd_config->get_sector_size(), read_data), FTL_SUCCESS);
+        ASSERT_EQ(_FTL_READ(g_device_index, DEFAULT_NSID, 0, sizeof(read_data) / ssd_config->get_sector_size(), read_data), FTL_SUCCESS);
         ASSERT_EQ(memcmp(data, read_data, sizeof(data)), 0);
 
         MONITOR_SYNC(g_device_index, &(log_server.stats), MONITOR_SLEEP_MAX_USEC);
@@ -87,10 +87,10 @@ namespace program_compatible_test
         ASSERT_EQ(expected_stats.block_erase_count, log_server.stats.block_erase_count);
 
         memset(data, 0x0F, sizeof(data));
-        ASSERT_EQ(_FTL_WRITE(g_device_index, 0, sizeof(data) / ssd_config->get_sector_size(), data), FTL_SUCCESS);
+        ASSERT_EQ(_FTL_WRITE(g_device_index, DEFAULT_NSID, 0, sizeof(data) / ssd_config->get_sector_size(), data), FTL_SUCCESS);
         expected_stats.occupied_pages++;
 
-        ASSERT_EQ(_FTL_READ(g_device_index, 0, sizeof(read_data) / ssd_config->get_sector_size(), read_data), FTL_SUCCESS);
+        ASSERT_EQ(_FTL_READ(g_device_index, DEFAULT_NSID, 0, sizeof(read_data) / ssd_config->get_sector_size(), read_data), FTL_SUCCESS);
         ASSERT_EQ(memcmp(data, read_data, sizeof(data)), 0);
 
         MONITOR_SYNC(g_device_index, &(log_server.stats), MONITOR_SLEEP_MAX_USEC);
@@ -105,11 +105,11 @@ namespace program_compatible_test
         SSDStatistics expected_stats = stats_init();
 
         unsigned char data[ssd_config->get_page_size() * 2];
-        memset(data, 0xF0, sizeof(data));
-        ASSERT_EQ(_FTL_WRITE(g_device_index, 0, sizeof(data) / ssd_config->get_sector_size(), data), FTL_SUCCESS);
+        memset(data, 0xF0, sizeof(data)); 
+        ASSERT_EQ(_FTL_WRITE(g_device_index, DEFAULT_NSID, 0, sizeof(data) / ssd_config->get_sector_size(), data), FTL_SUCCESS);
 
         unsigned char read_data[sizeof(data)];
-        ASSERT_EQ(_FTL_READ(g_device_index, 0, sizeof(read_data) / ssd_config->get_sector_size(), read_data), FTL_SUCCESS);
+        ASSERT_EQ(_FTL_READ(g_device_index, DEFAULT_NSID, 0, sizeof(read_data) / ssd_config->get_sector_size(), read_data), FTL_SUCCESS);
         ASSERT_EQ(memcmp(data, read_data, sizeof(data)), 0);
 
         expected_stats.occupied_pages+=2;
@@ -118,9 +118,9 @@ namespace program_compatible_test
 
 
         memset(data, 0x00, sizeof(data));
-        ASSERT_EQ(_FTL_WRITE(g_device_index, 0, sizeof(data) / ssd_config->get_sector_size(), data), FTL_SUCCESS);
+        ASSERT_EQ(_FTL_WRITE(g_device_index, DEFAULT_NSID, 0, sizeof(data) / ssd_config->get_sector_size(), data), FTL_SUCCESS);
 
-        ASSERT_EQ(_FTL_READ(g_device_index, 0, sizeof(read_data) / ssd_config->get_sector_size(), read_data), FTL_SUCCESS);
+        ASSERT_EQ(_FTL_READ(g_device_index, DEFAULT_NSID, 0, sizeof(read_data) / ssd_config->get_sector_size(), read_data), FTL_SUCCESS);
         ASSERT_EQ(memcmp(data, read_data, sizeof(data)), 0);
 
         MONITOR_SYNC(g_device_index, &(log_server.stats), MONITOR_SLEEP_MAX_USEC);
@@ -128,10 +128,10 @@ namespace program_compatible_test
         ASSERT_EQ(expected_stats.block_erase_count, log_server.stats.block_erase_count);
 
         memset(data, 0x0F, sizeof(data));
-        ASSERT_EQ(_FTL_WRITE(g_device_index, 0, sizeof(data) / ssd_config->get_sector_size(), data), FTL_SUCCESS);
+        ASSERT_EQ(_FTL_WRITE(g_device_index, DEFAULT_NSID, 0, sizeof(data) / ssd_config->get_sector_size(), data), FTL_SUCCESS);
         expected_stats.occupied_pages+=2;
-
-        ASSERT_EQ(_FTL_READ(g_device_index, 0, sizeof(read_data) / ssd_config->get_sector_size(), read_data), FTL_SUCCESS);
+        
+        ASSERT_EQ(_FTL_READ(g_device_index, DEFAULT_NSID, 0, sizeof(read_data) / ssd_config->get_sector_size(), read_data), FTL_SUCCESS);
         ASSERT_EQ(memcmp(data, read_data, sizeof(data)), 0);
 
         MONITOR_SYNC(g_device_index, &(log_server.stats), MONITOR_SLEEP_MAX_USEC);
@@ -163,10 +163,10 @@ namespace program_compatible_test
         unsigned char read_data[sizeof(data)];
 
         for (unsigned int i = 0; i < BASE_TEST_ARRAY_SIZE(data_values); ++i) {
-            memset(data, data_values[i], sizeof(data));
-            ASSERT_EQ(_FTL_WRITE(g_device_index, 0, sizeof(data) / ssd_config->get_sector_size(), data), FTL_SUCCESS);
+            memset(data, data_values[i], sizeof(data)); 
+            ASSERT_EQ(_FTL_WRITE(g_device_index, DEFAULT_NSID, 0, sizeof(data) / ssd_config->get_sector_size(), data), FTL_SUCCESS);
 
-            ASSERT_EQ(_FTL_READ(g_device_index, 0, sizeof(read_data) / ssd_config->get_sector_size(), read_data), FTL_SUCCESS);
+            ASSERT_EQ(_FTL_READ(g_device_index, DEFAULT_NSID, 0, sizeof(read_data) / ssd_config->get_sector_size(), read_data), FTL_SUCCESS);
             ASSERT_EQ(memcmp(data, read_data, sizeof(data)), 0);
         }
 
@@ -192,9 +192,9 @@ namespace program_compatible_test
         unsigned char read_data[sizeof(data)];
 
         memset(data, 0x0F, sizeof(data));
-        ASSERT_EQ(_FTL_WRITE(g_device_index, offset / ssd_config->get_sector_size(), sizeof(data) / ssd_config->get_sector_size(), data), FTL_SUCCESS);
+        ASSERT_EQ(_FTL_WRITE(g_device_index, DEFAULT_NSID, offset / ssd_config->get_sector_size(), sizeof(data) / ssd_config->get_sector_size(), data), FTL_SUCCESS);
 
-        ASSERT_EQ(_FTL_READ(g_device_index, offset / ssd_config->get_sector_size(), sizeof(read_data) / ssd_config->get_sector_size(), read_data), FTL_SUCCESS);
+        ASSERT_EQ(_FTL_READ(g_device_index, DEFAULT_NSID, offset / ssd_config->get_sector_size(), sizeof(read_data) / ssd_config->get_sector_size(), read_data), FTL_SUCCESS);
         ASSERT_EQ(memcmp(data, read_data, sizeof(data)), 0);
 
         expected_stats.occupied_pages = page_span;
@@ -203,9 +203,9 @@ namespace program_compatible_test
 
         // Write program compatible data
         memset(data, 0x0C, sizeof(data));
-        ASSERT_EQ(_FTL_WRITE(g_device_index, offset / ssd_config->get_sector_size(), sizeof(data) / ssd_config->get_sector_size(), data), FTL_SUCCESS);
+        ASSERT_EQ(_FTL_WRITE(g_device_index, DEFAULT_NSID, offset / ssd_config->get_sector_size(), sizeof(data) / ssd_config->get_sector_size(), data), FTL_SUCCESS);
 
-        ASSERT_EQ(_FTL_READ(g_device_index, offset / ssd_config->get_sector_size(), sizeof(read_data) / ssd_config->get_sector_size(), read_data), FTL_SUCCESS);
+        ASSERT_EQ(_FTL_READ(g_device_index, DEFAULT_NSID, offset / ssd_config->get_sector_size(), sizeof(read_data) / ssd_config->get_sector_size(), read_data), FTL_SUCCESS);
         ASSERT_EQ(memcmp(data, read_data, sizeof(data)), 0);
 
         MONITOR_SYNC(g_device_index, &(log_server.stats), MONITOR_SLEEP_MAX_USEC);
@@ -218,9 +218,9 @@ namespace program_compatible_test
         memset(data + offset % ssd_config->get_page_size(), 0xF0, (write_page_amount - 1) * ssd_config->get_page_size());
         // last page (partial page write)
         memset(data + (write_page_amount - 1) * ssd_config->get_page_size(), 0x00, offset % ssd_config->get_page_size());
-        ASSERT_EQ(_FTL_WRITE(g_device_index, offset / ssd_config->get_sector_size(), sizeof(data) / ssd_config->get_sector_size(), data), FTL_SUCCESS);
+        ASSERT_EQ(_FTL_WRITE(g_device_index, DEFAULT_NSID, offset / ssd_config->get_sector_size(), sizeof(data) / ssd_config->get_sector_size(), data), FTL_SUCCESS);
 
-        ASSERT_EQ(_FTL_READ(g_device_index, offset / ssd_config->get_sector_size(), sizeof(read_data) / ssd_config->get_sector_size(), read_data), FTL_SUCCESS);
+        ASSERT_EQ(_FTL_READ(g_device_index, DEFAULT_NSID, offset / ssd_config->get_sector_size(), sizeof(read_data) / ssd_config->get_sector_size(), read_data), FTL_SUCCESS);
         ASSERT_EQ(memcmp(data, read_data, sizeof(data)), 0);
 
         expected_stats.occupied_pages += page_span - 2;
@@ -237,21 +237,22 @@ namespace program_compatible_test
         SSDConf *ssd_config = base_test_get_ssd_config();
 
         uint64_t action_count = 0;
-        uint64_t check_trigger = (double)ssd_config->get_pages() * CHECK_THRESHOLD;
+        uint64_t check_trigger = (double)ssd_config->get_pages_ns(DEFAULT_NSID) * CHECK_THRESHOLD;
 
         SSDStatistics expected_stats = stats_init();
         expected_stats.write_amplification = 1;
 
+        unsigned char data[ssd_config->get_page_size()];
+
         // writes the whole ssd
-        for (unsigned int p = 0; p < ssd_config->get_pages(); p++)
+        for (unsigned int p = 0; p < ssd_config->get_pages_ns(DEFAULT_NSID); p++)
         {
-            unsigned char data[ssd_config->get_page_size()];
             // Write data twice to the page
             memset(data, 0x0F, sizeof(data));
-            ASSERT_EQ(_FTL_WRITE(g_device_index, p * ssd_config->get_page_size() / ssd_config->get_sector_size(),
+            ASSERT_EQ(_FTL_WRITE(g_device_index, DEFAULT_NSID, p * ssd_config->get_page_size() / ssd_config->get_sector_size(), 
             sizeof(data) / ssd_config->get_sector_size(), data), FTL_SUCCESS);
             memset(data, 0x00, sizeof(data));
-            ASSERT_EQ(_FTL_WRITE(g_device_index, p * ssd_config->get_page_size() / ssd_config->get_sector_size(),
+            ASSERT_EQ(_FTL_WRITE(g_device_index, DEFAULT_NSID, p * ssd_config->get_page_size() / ssd_config->get_sector_size(),
             sizeof(data) / ssd_config->get_sector_size(), data), FTL_SUCCESS);
 
             action_count++;
@@ -278,13 +279,12 @@ namespace program_compatible_test
 
 
         // reads the whole ssd
-        for (unsigned int p = 0; p < ssd_config->get_pages(); p++)
+        for (unsigned int p = 0; p < ssd_config->get_pages_ns(DEFAULT_NSID); p++)
         {
-            unsigned char data[ssd_config->get_page_size()];
             memset(data, 0x00, sizeof(data));
             unsigned char read_data[ssd_config->get_page_size()];
 
-            ASSERT_EQ(_FTL_READ(g_device_index, p * ssd_config->get_page_size() / ssd_config->get_sector_size(),
+            ASSERT_EQ(_FTL_READ(g_device_index, DEFAULT_NSID, p * ssd_config->get_page_size() / ssd_config->get_sector_size(),
             sizeof(read_data) / ssd_config->get_sector_size(), read_data), FTL_SUCCESS);
             ASSERT_EQ(memcmp(data, read_data, sizeof(data)), 0);
 
@@ -311,8 +311,8 @@ namespace program_compatible_test
         MONITOR_SYNC(g_device_index, &(log_server.stats), MONITOR_SLEEP_MAX_USEC);
 
         // checks that log_server.stats (the stats on the monitor) are accurate
-        ASSERT_EQ(ssd_config->get_pages(), log_server.stats.read_count);
-        ASSERT_EQ(2 * ssd_config->get_pages(), log_server.stats.write_count); // We write twice to every page but as program compatible (only 1 -> 0)
+        ASSERT_EQ(ssd_config->get_pages_ns(DEFAULT_NSID), log_server.stats.read_count);
+        ASSERT_EQ(2 * ssd_config->get_pages_ns(DEFAULT_NSID), log_server.stats.write_count); // We write twice to every page but as program compatible (only 1 -> 0)
         ASSERT_EQ(1, log_server.stats.write_amplification);
         ASSERT_EQ(0, log_server.stats.garbage_collection_count); // Because the write we do is program compatible GC shouldn't be called
     }
@@ -326,17 +326,17 @@ namespace program_compatible_test
         SSDConf *ssd_config = base_test_get_ssd_config();
 
         uint64_t action_count = 0;
-        uint64_t check_trigger = (double)ssd_config->get_pages() * CHECK_THRESHOLD;
+        uint64_t check_trigger = (double)ssd_config->get_pages_ns(DEFAULT_NSID) * CHECK_THRESHOLD;
 
         SSDStatistics expected_stats = stats_init();
         expected_stats.write_amplification = 1;
 
         // writes the whole ssd with 0s
-        for (unsigned int p = 0; p < ssd_config->get_pages(); p++)
+        for (unsigned int p = 0; p < ssd_config->get_pages_ns(DEFAULT_NSID); p++)
         {
             unsigned char data[ssd_config->get_page_size()];
             memset(data, 0x00, sizeof(data));
-            ASSERT_EQ(_FTL_WRITE(g_device_index, p * ssd_config->get_page_size() / ssd_config->get_sector_size(),
+            ASSERT_EQ(_FTL_WRITE(g_device_index, DEFAULT_NSID, p * ssd_config->get_page_size() / ssd_config->get_sector_size(),
             sizeof(data) / ssd_config->get_sector_size(), data), FTL_SUCCESS);
 
             action_count++;
@@ -362,11 +362,11 @@ namespace program_compatible_test
         }
 
         // writes the whole ssd with data with 1s
-        for (unsigned int p = 0; p < ssd_config->get_pages(); p++)
+        for (unsigned int p = 0; p < ssd_config->get_pages_ns(DEFAULT_NSID); p++)
         {
             unsigned char data[ssd_config->get_page_size()];
             memset(data, 0xF0, sizeof(data));
-            ASSERT_EQ(_FTL_WRITE(g_device_index, p * ssd_config->get_page_size() / ssd_config->get_sector_size(),
+            ASSERT_EQ(_FTL_WRITE(g_device_index, DEFAULT_NSID, p * ssd_config->get_page_size() / ssd_config->get_sector_size(),
             sizeof(data) / ssd_config->get_sector_size(), data), FTL_SUCCESS);
 
             action_count++;
@@ -402,12 +402,12 @@ namespace program_compatible_test
         expected_stats.read_count = log_server.stats.write_count - expected_stats.write_count;
 
         // reads the whole ssd
-        for (unsigned int p = 0; p < ssd_config->get_pages(); p++)
+        for (unsigned int p = 0; p < ssd_config->get_pages_ns(DEFAULT_NSID); p++)
         {
             unsigned char data[ssd_config->get_page_size()];
             memset(data, 0xF0, sizeof(data));
             unsigned char read_data[ssd_config->get_page_size()];
-            ASSERT_EQ(_FTL_READ(g_device_index, p * ssd_config->get_page_size() / ssd_config->get_sector_size(),
+            ASSERT_EQ(_FTL_READ(g_device_index, DEFAULT_NSID, p * ssd_config->get_page_size() / ssd_config->get_sector_size(),
             sizeof(read_data) / ssd_config->get_sector_size(), read_data), FTL_SUCCESS);
             // This check that copyback happens as expected during GC.
             ASSERT_EQ(memcmp(data, read_data, sizeof(data)), 0);
@@ -432,7 +432,7 @@ namespace program_compatible_test
         MONITOR_SYNC(g_device_index, &(log_server.stats), MONITOR_SLEEP_MAX_USEC);
 
         // checks that log_server.stats (the stats on the monitor) are accurate
-        ASSERT_LT(2 * ssd_config->get_pages(), log_server.stats.write_count); // We write twice to every page but not as program compatible.
+        ASSERT_LT(2 * ssd_config->get_pages_ns(DEFAULT_NSID), log_server.stats.write_count); // We write twice to every page but not as program compatible.
         ASSERT_LT(0, log_server.stats.garbage_collection_count); // Because the write we do is NOT program compatible GC should be called
     }
 } // namespace
