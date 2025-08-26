@@ -1,0 +1,1000 @@
+{ "type": "RegisterWriteLog", "channel": 0, "die": 0, "reg": 0 , "logging_time"  : "2021-07-04 18:14:47.000"}
+{ "type": "RegisterWriteLog", "channel": 1, "die": 1, "reg": 1 , "logging_time"  : "2021-07-04 18:14:47.000"}
+{ "type": "RegisterWriteLog", "channel": 2, "die": 2, "reg": 2 , "logging_time"  : "2021-07-04 18:14:47.000"}
+{ "type": "RegisterWriteLog", "channel": 3, "die": 3, "reg": 3 , "logging_time"  : "2021-07-04 18:14:47.000"}
+{ "type": "LogicalCellProgramLog", "channel": 3, "block": 0, "page": 0 , "logging_time"  : "2021-07-04 18:14:47.000"}
+{ "type": "LogicalCellProgramLog", "channel": 0, "block": 0, "page": 0 , "logging_time"  : "2021-07-04 18:14:47.000"}
+{ "type": "LogicalCellProgramLog", "channel": 1, "block": 0, "page": 0 , "logging_time"  : "2021-07-04 18:14:47.000"}
+{ "type": "PhysicalCellProgramLog", "channel": 1, "block": 0, "page": 0 , "logging_time"  : "2021-07-04 18:14:47.000"}
+{ "type": "ChannelSwitchToReadLog", "channel": 1 , "logging_time"  : "2021-07-04 18:14:47.000"}
+{ "type": "RegisterWriteLog", "channel": 1, "die": 1, "reg": 1 , "logging_time"  : "2021-07-04 18:14:47.000"}
+{ "type": "LogicalCellProgramLog", "channel": 1, "block": 0, "page": 1 , "logging_time"  : "2021-07-04 18:14:47.000"}
+{ "type": "PhysicalCellProgramLog", "channel": 1, "block": 0, "page": 1 , "logging_time"  : "2021-07-04 18:14:47.000"}
+{ "type": "PhysicalCellProgramLog", "channel": 0, "block": 0, "page": 0 , "logging_time"  : "2021-07-04 18:14:47.000"}
+{ "type": "ChannelSwitchToReadLog", "channel": 0 , "logging_time"  : "2021-07-04 18:14:47.000"}
+{ "type": "RegisterWriteLog", "channel": 0, "die": 0, "reg": 0 , "logging_time"  : "2021-07-04 18:14:47.000"}
+{ "type": "LogicalCellProgramLog", "channel": 0, "block": 0, "page": 1 , "logging_time"  : "2021-07-04 18:14:47.000"}
+{ "type": "LogicalCellProgramLog", "channel": 2, "block": 0, "page": 0 , "logging_time"  : "2021-07-04 18:14:47.000"}
+{ "type": "PhysicalCellProgramLog", "channel": 3, "block": 0, "page": 0 , "logging_time"  : "2021-07-04 18:14:47.000"}
+{ "type": "ChannelSwitchToReadLog", "channel": 1 , "logging_time"  : "2021-07-04 18:14:47.000"}
+{ "type": "PhysicalCellProgramLog", "channel": 0, "block": 0, "page": 1 , "logging_time"  : "2021-07-04 18:14:47.000"}
+{ "type": "ChannelSwitchToReadLog", "channel": 0 , "logging_time"  : "2021-07-04 18:14:47.000"}
+{ "type": "RegisterWriteLog", "channel": 0, "die": 0, "reg": 0 , "logging_time"  : "2021-07-04 18:14:47.000"}
+{ "type": "RegisterWriteLog", "channel": 1, "die": 1, "reg": 1 , "logging_time"  : "2021-07-04 18:14:47.000"}
+{ "type": "PhysicalCellProgramLog", "channel": 2, "block": 0, "page": 0 , "logging_time"  : "2021-07-04 18:14:47.000"}
+{ "type": "ChannelSwitchToReadLog", "channel": 3 , "logging_time"  : "2021-07-04 18:14:47.000"}
+{ "type": "LogicalCellProgramLog", "channel": 0, "block": 0, "page": 2 , "logging_time"  : "2021-07-04 18:14:47.000"}
+{ "type": "PhysicalCellProgramLog", "channel": 0, "block": 0, "page": 2 , "logging_time"  : "2021-07-04 18:14:47.000"}
+{ "type": "ChannelSwitchToReadLog", "channel": 0 , "logging_time"  : "2021-07-04 18:14:47.000"}
+{ "type": "RegisterWriteLog", "channel": 0, "die": 0, "reg": 0 , "logging_time"  : "2021-07-04 18:14:47.000"}
+{ "type": "LogicalCellProgramLog", "channel": 0, "block": 0, "page": 3 , "logging_time"  : "2021-07-04 18:14:47.000"}
+{ "type": "PhysicalCellProgramLog", "channel": 0, "block": 0, "page": 3 , "logging_time"  : "2021-07-04 18:14:47.000"}
+{ "type": "RegisterWriteLog", "channel": 3, "die": 3, "reg": 3 , "logging_time"  : "2021-07-04 18:14:47.000"}
+{ "type": "LogicalCellProgramLog", "channel": 3, "block": 0, "page": 1 , "logging_time"  : "2021-07-04 18:14:47.000"}
+{ "type": "ChannelSwitchToReadLog", "channel": 2 , "logging_time"  : "2021-07-04 18:14:47.000"}
+{ "type": "ChannelSwitchToReadLog", "channel": 0 , "logging_time"  : "2021-07-04 18:14:47.000"}
+{ "type": "RegisterWriteLog", "channel": 0, "die": 0, "reg": 0 , "logging_time"  : "2021-07-04 18:14:47.000"}
+{ "type": "LogicalCellProgramLog", "channel": 0, "block": 0, "page": 4 , "logging_time"  : "2021-07-04 18:14:47.000"}
+{ "type": "PhysicalCellProgramLog", "channel": 0, "block": 0, "page": 4 , "logging_time"  : "2021-07-04 18:14:47.000"}
+{ "type": "LogicalCellProgramLog", "channel": 1, "block": 0, "page": 2 , "logging_time"  : "2021-07-04 18:14:47.000"}
+{ "type": "ChannelSwitchToReadLog", "channel": 0 , "logging_time"  : "2021-07-04 18:14:47.000"}
+{ "type": "RegisterWriteLog", "channel": 2, "die": 2, "reg": 2 , "logging_time"  : "2021-07-04 18:14:47.000"}
+{ "type": "LogicalCellProgramLog", "channel": 2, "block": 0, "page": 1 , "logging_time"  : "2021-07-04 18:14:47.000"}
+{ "type": "PhysicalCellProgramLog", "channel": 2, "block": 0, "page": 1 , "logging_time"  : "2021-07-04 18:14:47.000"}
+{ "type": "ChannelSwitchToReadLog", "channel": 2 , "logging_time"  : "2021-07-04 18:14:47.000"}
+{ "type": "RegisterWriteLog", "channel": 2, "die": 2, "reg": 2 , "logging_time"  : "2021-07-04 18:14:47.000"}
+{ "type": "LogicalCellProgramLog", "channel": 2, "block": 0, "page": 2 , "logging_time"  : "2021-07-04 18:14:47.000"}
+{ "type": "PhysicalCellProgramLog", "channel": 2, "block": 0, "page": 2 , "logging_time"  : "2021-07-04 18:14:47.000"}
+{ "type": "ChannelSwitchToReadLog", "channel": 2 , "logging_time"  : "2021-07-04 18:14:47.000"}
+{ "type": "RegisterWriteLog", "channel": 2, "die": 2, "reg": 2 , "logging_time"  : "2021-07-04 18:14:47.000"}
+{ "type": "LogicalCellProgramLog", "channel": 2, "block": 0, "page": 3 , "logging_time"  : "2021-07-04 18:14:47.000"}
+{ "type": "PhysicalCellProgramLog", "channel": 2, "block": 0, "page": 3 , "logging_time"  : "2021-07-04 18:14:47.000"}
+{ "type": "ChannelSwitchToReadLog", "channel": 2 , "logging_time"  : "2021-07-04 18:14:47.000"}
+{ "type": "RegisterWriteLog", "channel": 2, "die": 2, "reg": 2 , "logging_time"  : "2021-07-04 18:14:47.000"}
+{ "type": "LogicalCellProgramLog", "channel": 2, "block": 0, "page": 4 , "logging_time"  : "2021-07-04 18:14:47.000"}
+{ "type": "PhysicalCellProgramLog", "channel": 2, "block": 0, "page": 4 , "logging_time"  : "2021-07-04 18:14:47.000"}
+{ "type": "ChannelSwitchToReadLog", "channel": 2 , "logging_time"  : "2021-07-04 18:14:47.000"}
+{ "type": "RegisterWriteLog", "channel": 2, "die": 2, "reg": 2 , "logging_time"  : "2021-07-04 18:14:47.000"}
+{ "type": "LogicalCellProgramLog", "channel": 2, "block": 0, "page": 5 , "logging_time"  : "2021-07-04 18:14:47.000"}
+{ "type": "PhysicalCellProgramLog", "channel": 2, "block": 0, "page": 5 , "logging_time"  : "2021-07-04 18:14:47.000"}
+{ "type": "ChannelSwitchToReadLog", "channel": 2 , "logging_time"  : "2021-07-04 18:14:47.000"}
+{ "type": "RegisterWriteLog", "channel": 2, "die": 2, "reg": 2 , "logging_time"  : "2021-07-04 18:14:47.000"}
+{ "type": "LogicalCellProgramLog", "channel": 2, "block": 0, "page": 6 , "logging_time"  : "2021-07-04 18:14:47.000"}
+{ "type": "PhysicalCellProgramLog", "channel": 2, "block": 0, "page": 6 , "logging_time"  : "2021-07-04 18:14:47.000"}
+{ "type": "ChannelSwitchToReadLog", "channel": 2 , "logging_time"  : "2021-07-04 18:14:47.000"}
+{ "type": "RegisterWriteLog", "channel": 2, "die": 2, "reg": 2 , "logging_time"  : "2021-07-04 18:14:47.000"}
+{ "type": "LogicalCellProgramLog", "channel": 2, "block": 0, "page": 7 , "logging_time"  : "2021-07-04 18:14:47.000"}
+{ "type": "PhysicalCellProgramLog", "channel": 2, "block": 0, "page": 7 , "logging_time"  : "2021-07-04 18:14:47.000"}
+{ "type": "ChannelSwitchToReadLog", "channel": 2 , "logging_time"  : "2021-07-04 18:14:47.000"}
+{ "type": "RegisterWriteLog", "channel": 2, "die": 2, "reg": 2 , "logging_time"  : "2021-07-04 18:14:47.000"}
+{ "type": "LogicalCellProgramLog", "channel": 2, "block": 0, "page": 8 , "logging_time"  : "2021-07-04 18:14:47.000"}
+{ "type": "PhysicalCellProgramLog", "channel": 2, "block": 0, "page": 8 , "logging_time"  : "2021-07-04 18:14:47.000"}
+{ "type": "ChannelSwitchToReadLog", "channel": 2 , "logging_time"  : "2021-07-04 18:14:47.000"}
+{ "type": "RegisterWriteLog", "channel": 2, "die": 2, "reg": 2 , "logging_time"  : "2021-07-04 18:14:47.000"}
+{ "type": "LogicalCellProgramLog", "channel": 2, "block": 0, "page": 9 , "logging_time"  : "2021-07-04 18:14:47.000"}
+{ "type": "PhysicalCellProgramLog", "channel": 2, "block": 0, "page": 9 , "logging_time"  : "2021-07-04 18:14:47.000"}
+{ "type": "PhysicalCellProgramLog", "channel": 3, "block": 0, "page": 1 , "logging_time"  : "2021-07-04 18:14:47.000"}
+{ "type": "PhysicalCellProgramLog", "channel": 1, "block": 0, "page": 2 , "logging_time"  : "2021-07-04 18:14:47.000"}
+{ "type": "ChannelSwitchToReadLog", "channel": 3 , "logging_time"  : "2021-07-04 18:14:47.000"}
+{ "type": "ChannelSwitchToReadLog", "channel": 1 , "logging_time"  : "2021-07-04 18:14:47.000"}
+{ "type": "RegisterWriteLog", "channel": 1, "die": 1, "reg": 1 , "logging_time"  : "2021-07-04 18:14:47.000"}
+{ "type": "ChannelSwitchToReadLog", "channel": 2 , "logging_time"  : "2021-07-04 18:14:47.000"}
+{ "type": "RegisterWriteLog", "channel": 2, "die": 2, "reg": 2 , "logging_time"  : "2021-07-04 18:14:47.000"}
+{ "type": "RegisterWriteLog", "channel": 3, "die": 3, "reg": 3 , "logging_time"  : "2021-07-04 18:14:47.000"}
+{ "type": "LogicalCellProgramLog", "channel": 2, "block": 1, "page": 0 , "logging_time"  : "2021-07-04 18:14:47.000"}
+{ "type": "LogicalCellProgramLog", "channel": 3, "block": 0, "page": 2 , "logging_time"  : "2021-07-04 18:14:47.000"}
+{ "type": "LogicalCellProgramLog", "channel": 1, "block": 0, "page": 3 , "logging_time"  : "2021-07-04 18:14:47.000"}
+{ "type": "PhysicalCellProgramLog", "channel": 3, "block": 0, "page": 2 , "logging_time"  : "2021-07-04 18:14:47.000"}
+{ "type": "PhysicalCellProgramLog", "channel": 2, "block": 1, "page": 0 , "logging_time"  : "2021-07-04 18:14:47.000"}
+{ "type": "ChannelSwitchToReadLog", "channel": 3 , "logging_time"  : "2021-07-04 18:14:47.000"}
+{ "type": "RegisterWriteLog", "channel": 3, "die": 3, "reg": 3 , "logging_time"  : "2021-07-04 18:14:47.000"}
+{ "type": "LogicalCellProgramLog", "channel": 3, "block": 0, "page": 3 , "logging_time"  : "2021-07-04 18:14:47.000"}
+{ "type": "PhysicalCellProgramLog", "channel": 3, "block": 0, "page": 3 , "logging_time"  : "2021-07-04 18:14:47.000"}
+{ "type": "ChannelSwitchToReadLog", "channel": 3 , "logging_time"  : "2021-07-04 18:14:47.000"}
+{ "type": "RegisterWriteLog", "channel": 3, "die": 3, "reg": 3 , "logging_time"  : "2021-07-04 18:14:47.000"}
+{ "type": "LogicalCellProgramLog", "channel": 3, "block": 0, "page": 4 , "logging_time"  : "2021-07-04 18:14:47.000"}
+{ "type": "PhysicalCellProgramLog", "channel": 3, "block": 0, "page": 4 , "logging_time"  : "2021-07-04 18:14:47.000"}
+{ "type": "ChannelSwitchToReadLog", "channel": 3 , "logging_time"  : "2021-07-04 18:14:47.000"}
+{ "type": "RegisterWriteLog", "channel": 3, "die": 3, "reg": 3 , "logging_time"  : "2021-07-04 18:14:47.000"}
+{ "type": "LogicalCellProgramLog", "channel": 3, "block": 0, "page": 5 , "logging_time"  : "2021-07-04 18:14:47.000"}
+{ "type": "PhysicalCellProgramLog", "channel": 1, "block": 0, "page": 3 , "logging_time"  : "2021-07-04 18:14:47.000"}
+{ "type": "RegisterWriteLog", "channel": 0, "die": 0, "reg": 0 , "logging_time"  : "2021-07-04 18:14:47.000"}
+{ "type": "PhysicalCellProgramLog", "channel": 3, "block": 0, "page": 5 , "logging_time"  : "2021-07-04 18:14:47.000"}
+{ "type": "ChannelSwitchToReadLog", "channel": 1 , "logging_time"  : "2021-07-04 18:14:47.000"}
+{ "type": "RegisterWriteLog", "channel": 1, "die": 1, "reg": 1 , "logging_time"  : "2021-07-04 18:14:47.000"}
+{ "type": "LogicalCellProgramLog", "channel": 1, "block": 0, "page": 4 , "logging_time"  : "2021-07-04 18:14:47.000"}
+{ "type": "PhysicalCellProgramLog", "channel": 1, "block": 0, "page": 4 , "logging_time"  : "2021-07-04 18:14:47.000"}
+{ "type": "ChannelSwitchToReadLog", "channel": 1 , "logging_time"  : "2021-07-04 18:14:47.000"}
+{ "type": "RegisterWriteLog", "channel": 1, "die": 1, "reg": 1 , "logging_time"  : "2021-07-04 18:14:47.000"}
+{ "type": "ChannelSwitchToReadLog", "channel": 3 , "logging_time"  : "2021-07-04 18:14:47.000"}
+{ "type": "LogicalCellProgramLog", "channel": 0, "block": 0, "page": 5 , "logging_time"  : "2021-07-04 18:14:47.000"}
+{ "type": "LogicalCellProgramLog", "channel": 1, "block": 0, "page": 5 , "logging_time"  : "2021-07-04 18:14:47.000"}
+{ "type": "RegisterWriteLog", "channel": 3, "die": 3, "reg": 3 , "logging_time"  : "2021-07-04 18:14:47.000"}
+{ "type": "PhysicalCellProgramLog", "channel": 0, "block": 0, "page": 5 , "logging_time"  : "2021-07-04 18:14:47.000"}
+{ "type": "ChannelSwitchToReadLog", "channel": 0 , "logging_time"  : "2021-07-04 18:14:47.000"}
+{ "type": "LogicalCellProgramLog", "channel": 3, "block": 0, "page": 6 , "logging_time"  : "2021-07-04 18:14:47.000"}
+{ "type": "PhysicalCellProgramLog", "channel": 1, "block": 0, "page": 5 , "logging_time"  : "2021-07-04 18:14:47.000"}
+{ "type": "RegisterWriteLog", "channel": 0, "die": 0, "reg": 0 , "logging_time"  : "2021-07-04 18:14:47.000"}
+{ "type": "PhysicalCellProgramLog", "channel": 3, "block": 0, "page": 6 , "logging_time"  : "2021-07-04 18:14:47.000"}
+{ "type": "ChannelSwitchToReadLog", "channel": 1 , "logging_time"  : "2021-07-04 18:14:47.000"}
+{ "type": "LogicalCellProgramLog", "channel": 0, "block": 0, "page": 6 , "logging_time"  : "2021-07-04 18:14:47.000"}
+{ "type": "ChannelSwitchToReadLog", "channel": 3 , "logging_time"  : "2021-07-04 18:14:47.000"}
+{ "type": "RegisterWriteLog", "channel": 3, "die": 3, "reg": 3 , "logging_time"  : "2021-07-04 18:14:47.000"}
+{ "type": "LogicalCellProgramLog", "channel": 3, "block": 0, "page": 7 , "logging_time"  : "2021-07-04 18:14:47.000"}
+{ "type": "PhysicalCellProgramLog", "channel": 0, "block": 0, "page": 6 , "logging_time"  : "2021-07-04 18:14:47.000"}
+{ "type": "RegisterWriteLog", "channel": 1, "die": 1, "reg": 1 , "logging_time"  : "2021-07-04 18:14:47.000"}
+{ "type": "LogicalCellProgramLog", "channel": 1, "block": 0, "page": 6 , "logging_time"  : "2021-07-04 18:14:47.000"}
+{ "type": "ChannelSwitchToReadLog", "channel": 0 , "logging_time"  : "2021-07-04 18:14:47.000"}
+{ "type": "PhysicalCellProgramLog", "channel": 1, "block": 0, "page": 6 , "logging_time"  : "2021-07-04 18:14:47.000"}
+{ "type": "ChannelSwitchToReadLog", "channel": 1 , "logging_time"  : "2021-07-04 18:14:47.000"}
+{ "type": "PhysicalCellProgramLog", "channel": 3, "block": 0, "page": 7 , "logging_time"  : "2021-07-04 18:14:47.000"}
+{ "type": "RegisterWriteLog", "channel": 1, "die": 1, "reg": 1 , "logging_time"  : "2021-07-04 18:14:47.000"}
+{ "type": "ChannelSwitchToReadLog", "channel": 3 , "logging_time"  : "2021-07-04 18:14:47.000"}
+{ "type": "RegisterWriteLog", "channel": 3, "die": 3, "reg": 3 , "logging_time"  : "2021-07-04 18:14:47.000"}
+{ "type": "LogicalCellProgramLog", "channel": 3, "block": 0, "page": 8 , "logging_time"  : "2021-07-04 18:14:47.000"}
+{ "type": "PhysicalCellProgramLog", "channel": 3, "block": 0, "page": 8 , "logging_time"  : "2021-07-04 18:14:47.000"}
+{ "type": "RegisterWriteLog", "channel": 0, "die": 0, "reg": 0 , "logging_time"  : "2021-07-04 18:14:47.000"}
+{ "type": "LogicalCellProgramLog", "channel": 0, "block": 0, "page": 7 , "logging_time"  : "2021-07-04 18:14:47.000"}
+{ "type": "PhysicalCellProgramLog", "channel": 0, "block": 0, "page": 7 , "logging_time"  : "2021-07-04 18:14:47.000"}
+{ "type": "ChannelSwitchToReadLog", "channel": 0 , "logging_time"  : "2021-07-04 18:14:47.000"}
+{ "type": "RegisterWriteLog", "channel": 0, "die": 0, "reg": 0 , "logging_time"  : "2021-07-04 18:14:47.000"}
+{ "type": "LogicalCellProgramLog", "channel": 0, "block": 0, "page": 8 , "logging_time"  : "2021-07-04 18:14:47.000"}
+{ "type": "ChannelSwitchToReadLog", "channel": 3 , "logging_time"  : "2021-07-04 18:14:47.000"}
+{ "type": "RegisterWriteLog", "channel": 3, "die": 3, "reg": 3 , "logging_time"  : "2021-07-04 18:14:47.000"}
+{ "type": "LogicalCellProgramLog", "channel": 3, "block": 0, "page": 9 , "logging_time"  : "2021-07-04 18:14:47.000"}
+{ "type": "PhysicalCellProgramLog", "channel": 3, "block": 0, "page": 9 , "logging_time"  : "2021-07-04 18:14:47.000"}
+{ "type": "PhysicalCellProgramLog", "channel": 0, "block": 0, "page": 8 , "logging_time"  : "2021-07-04 18:14:47.000"}
+{ "type": "ChannelSwitchToReadLog", "channel": 0 , "logging_time"  : "2021-07-04 18:14:47.000"}
+{ "type": "ChannelSwitchToReadLog", "channel": 3 , "logging_time"  : "2021-07-04 18:14:47.000"}
+{ "type": "RegisterWriteLog", "channel": 3, "die": 3, "reg": 3 , "logging_time"  : "2021-07-04 18:14:47.000"}
+{ "type": "LogicalCellProgramLog", "channel": 3, "block": 1, "page": 0 , "logging_time"  : "2021-07-04 18:14:47.000"}
+{ "type": "PhysicalCellProgramLog", "channel": 3, "block": 1, "page": 0 , "logging_time"  : "2021-07-04 18:14:47.000"}
+{ "type": "RegisterWriteLog", "channel": 0, "die": 0, "reg": 0 , "logging_time"  : "2021-07-04 18:14:47.000"}
+{ "type": "LogicalCellProgramLog", "channel": 1, "block": 0, "page": 7 , "logging_time"  : "2021-07-04 18:14:47.000"}
+{ "type": "LogicalCellProgramLog", "channel": 0, "block": 0, "page": 9 , "logging_time"  : "2021-07-04 18:14:47.000"}
+{ "type": "PhysicalCellProgramLog", "channel": 0, "block": 0, "page": 9 , "logging_time"  : "2021-07-04 18:14:47.000"}
+{ "type": "ChannelSwitchToReadLog", "channel": 0 , "logging_time"  : "2021-07-04 18:14:47.000"}
+{ "type": "RegisterWriteLog", "channel": 0, "die": 0, "reg": 0 , "logging_time"  : "2021-07-04 18:14:47.000"}
+{ "type": "LogicalCellProgramLog", "channel": 0, "block": 1, "page": 0 , "logging_time"  : "2021-07-04 18:14:47.000"}
+{ "type": "PhysicalCellProgramLog", "channel": 0, "block": 1, "page": 0 , "logging_time"  : "2021-07-04 18:14:47.000"}
+{ "type": "ChannelSwitchToReadLog", "channel": 0 , "logging_time"  : "2021-07-04 18:14:47.000"}
+{ "type": "RegisterWriteLog", "channel": 0, "die": 0, "reg": 0 , "logging_time"  : "2021-07-04 18:14:47.000"}
+{ "type": "PhysicalCellProgramLog", "channel": 1, "block": 0, "page": 7 , "logging_time"  : "2021-07-04 18:14:47.000"}
+{ "type": "ChannelSwitchToReadLog", "channel": 1 , "logging_time"  : "2021-07-04 18:14:47.000"}
+{ "type": "RegisterWriteLog", "channel": 1, "die": 1, "reg": 1 , "logging_time"  : "2021-07-04 18:14:47.000"}
+{ "type": "LogicalCellProgramLog", "channel": 1, "block": 0, "page": 8 , "logging_time"  : "2021-07-04 18:14:47.000"}
+{ "type": "PhysicalCellProgramLog", "channel": 1, "block": 0, "page": 8 , "logging_time"  : "2021-07-04 18:14:47.000"}
+{ "type": "ChannelSwitchToReadLog", "channel": 1 , "logging_time"  : "2021-07-04 18:14:47.000"}
+{ "type": "RegisterWriteLog", "channel": 1, "die": 1, "reg": 1 , "logging_time"  : "2021-07-04 18:14:47.000"}
+{ "type": "LogicalCellProgramLog", "channel": 1, "block": 0, "page": 9 , "logging_time"  : "2021-07-04 18:14:47.000"}
+{ "type": "PhysicalCellProgramLog", "channel": 1, "block": 0, "page": 9 , "logging_time"  : "2021-07-04 18:14:47.000"}
+{ "type": "ChannelSwitchToReadLog", "channel": 1 , "logging_time"  : "2021-07-04 18:14:47.000"}
+{ "type": "RegisterWriteLog", "channel": 1, "die": 1, "reg": 1 , "logging_time"  : "2021-07-04 18:14:47.000"}
+{ "type": "LogicalCellProgramLog", "channel": 1, "block": 1, "page": 0 , "logging_time"  : "2021-07-04 18:14:47.000"}
+{ "type": "PhysicalCellProgramLog", "channel": 1, "block": 1, "page": 0 , "logging_time"  : "2021-07-04 18:14:47.000"}
+{ "type": "ChannelSwitchToReadLog", "channel": 2 , "logging_time"  : "2021-07-04 18:14:47.000"}
+{ "type": "RegisterWriteLog", "channel": 2, "die": 2, "reg": 2 , "logging_time"  : "2021-07-04 18:14:47.000"}
+{ "type": "LogicalCellProgramLog", "channel": 2, "block": 1, "page": 1 , "logging_time"  : "2021-07-04 18:14:47.000"}
+{ "type": "PhysicalCellProgramLog", "channel": 2, "block": 1, "page": 1 , "logging_time"  : "2021-07-04 18:14:47.000"}
+{ "type": "ChannelSwitchToReadLog", "channel": 2 , "logging_time"  : "2021-07-04 18:14:47.000"}
+{ "type": "RegisterWriteLog", "channel": 2, "die": 2, "reg": 2 , "logging_time"  : "2021-07-04 18:14:47.000"}
+{ "type": "LogicalCellProgramLog", "channel": 2, "block": 1, "page": 2 , "logging_time"  : "2021-07-04 18:14:47.000"}
+{ "type": "PhysicalCellProgramLog", "channel": 2, "block": 1, "page": 2 , "logging_time"  : "2021-07-04 18:14:47.000"}
+{ "type": "ChannelSwitchToReadLog", "channel": 2 , "logging_time"  : "2021-07-04 18:14:47.000"}
+{ "type": "RegisterWriteLog", "channel": 2, "die": 2, "reg": 2 , "logging_time"  : "2021-07-04 18:14:47.000"}
+{ "type": "LogicalCellProgramLog", "channel": 2, "block": 1, "page": 3 , "logging_time"  : "2021-07-04 18:14:47.000"}
+{ "type": "PhysicalCellProgramLog", "channel": 2, "block": 1, "page": 3 , "logging_time"  : "2021-07-04 18:14:47.000"}
+{ "type": "ChannelSwitchToReadLog", "channel": 2 , "logging_time"  : "2021-07-04 18:14:47.000"}
+{ "type": "RegisterWriteLog", "channel": 2, "die": 2, "reg": 2 , "logging_time"  : "2021-07-04 18:14:47.000"}
+{ "type": "LogicalCellProgramLog", "channel": 2, "block": 1, "page": 4 , "logging_time"  : "2021-07-04 18:14:47.000"}
+{ "type": "PhysicalCellProgramLog", "channel": 2, "block": 1, "page": 4 , "logging_time"  : "2021-07-04 18:14:47.000"}
+{ "type": "ChannelSwitchToReadLog", "channel": 2 , "logging_time"  : "2021-07-04 18:14:47.000"}
+{ "type": "RegisterWriteLog", "channel": 2, "die": 2, "reg": 2 , "logging_time"  : "2021-07-04 18:14:47.000"}
+{ "type": "LogicalCellProgramLog", "channel": 2, "block": 1, "page": 5 , "logging_time"  : "2021-07-04 18:14:47.000"}
+{ "type": "PhysicalCellProgramLog", "channel": 2, "block": 1, "page": 5 , "logging_time"  : "2021-07-04 18:14:47.000"}
+{ "type": "ChannelSwitchToReadLog", "channel": 2 , "logging_time"  : "2021-07-04 18:14:47.000"}
+{ "type": "RegisterWriteLog", "channel": 2, "die": 2, "reg": 2 , "logging_time"  : "2021-07-04 18:14:47.000"}
+{ "type": "LogicalCellProgramLog", "channel": 2, "block": 1, "page": 6 , "logging_time"  : "2021-07-04 18:14:47.000"}
+{ "type": "PhysicalCellProgramLog", "channel": 2, "block": 1, "page": 6 , "logging_time"  : "2021-07-04 18:14:47.000"}
+{ "type": "ChannelSwitchToReadLog", "channel": 2 , "logging_time"  : "2021-07-04 18:14:47.000"}
+{ "type": "RegisterWriteLog", "channel": 2, "die": 2, "reg": 2 , "logging_time"  : "2021-07-04 18:14:47.000"}
+{ "type": "LogicalCellProgramLog", "channel": 2, "block": 1, "page": 7 , "logging_time"  : "2021-07-04 18:14:47.000"}
+{ "type": "PhysicalCellProgramLog", "channel": 2, "block": 1, "page": 7 , "logging_time"  : "2021-07-04 18:14:47.000"}
+{ "type": "ChannelSwitchToReadLog", "channel": 2 , "logging_time"  : "2021-07-04 18:14:47.000"}
+{ "type": "RegisterWriteLog", "channel": 2, "die": 2, "reg": 2 , "logging_time"  : "2021-07-04 18:14:47.000"}
+{ "type": "LogicalCellProgramLog", "channel": 2, "block": 1, "page": 8 , "logging_time"  : "2021-07-04 18:14:47.000"}
+{ "type": "PhysicalCellProgramLog", "channel": 2, "block": 1, "page": 8 , "logging_time"  : "2021-07-04 18:14:47.000"}
+{ "type": "ChannelSwitchToReadLog", "channel": 2 , "logging_time"  : "2021-07-04 18:14:47.000"}
+{ "type": "RegisterWriteLog", "channel": 2, "die": 2, "reg": 2 , "logging_time"  : "2021-07-04 18:14:47.000"}
+{ "type": "LogicalCellProgramLog", "channel": 2, "block": 1, "page": 9 , "logging_time"  : "2021-07-04 18:14:47.000"}
+{ "type": "PhysicalCellProgramLog", "channel": 2, "block": 1, "page": 9 , "logging_time"  : "2021-07-04 18:14:47.000"}
+{ "type": "ChannelSwitchToReadLog", "channel": 2 , "logging_time"  : "2021-07-04 18:14:47.000"}
+{ "type": "RegisterWriteLog", "channel": 2, "die": 2, "reg": 2 , "logging_time"  : "2021-07-04 18:14:47.000"}
+{ "type": "LogicalCellProgramLog", "channel": 2, "block": 2, "page": 0 , "logging_time"  : "2021-07-04 18:14:47.000"}
+{ "type": "PhysicalCellProgramLog", "channel": 2, "block": 2, "page": 0 , "logging_time"  : "2021-07-04 18:14:47.000"}
+{ "type": "ChannelSwitchToReadLog", "channel": 2 , "logging_time"  : "2021-07-04 18:14:47.000"}
+{ "type": "RegisterWriteLog", "channel": 2, "die": 2, "reg": 2 , "logging_time"  : "2021-07-04 18:14:47.000"}
+{ "type": "LogicalCellProgramLog", "channel": 2, "block": 2, "page": 1 , "logging_time"  : "2021-07-04 18:14:47.000"}
+{ "type": "PhysicalCellProgramLog", "channel": 2, "block": 2, "page": 1 , "logging_time"  : "2021-07-04 18:14:47.000"}
+{ "type": "ChannelSwitchToReadLog", "channel": 2 , "logging_time"  : "2021-07-04 18:14:47.000"}
+{ "type": "RegisterWriteLog", "channel": 2, "die": 2, "reg": 2 , "logging_time"  : "2021-07-04 18:14:47.000"}
+{ "type": "LogicalCellProgramLog", "channel": 2, "block": 2, "page": 2 , "logging_time"  : "2021-07-04 18:14:47.000"}
+{ "type": "PhysicalCellProgramLog", "channel": 2, "block": 2, "page": 2 , "logging_time"  : "2021-07-04 18:14:47.000"}
+{ "type": "ChannelSwitchToReadLog", "channel": 2 , "logging_time"  : "2021-07-04 18:14:47.000"}
+{ "type": "RegisterWriteLog", "channel": 2, "die": 2, "reg": 2 , "logging_time"  : "2021-07-04 18:14:47.000"}
+{ "type": "LogicalCellProgramLog", "channel": 2, "block": 2, "page": 3 , "logging_time"  : "2021-07-04 18:14:47.000"}
+{ "type": "PhysicalCellProgramLog", "channel": 2, "block": 2, "page": 3 , "logging_time"  : "2021-07-04 18:14:47.000"}
+{ "type": "ChannelSwitchToReadLog", "channel": 2 , "logging_time"  : "2021-07-04 18:14:47.000"}
+{ "type": "RegisterWriteLog", "channel": 2, "die": 2, "reg": 2 , "logging_time"  : "2021-07-04 18:14:47.000"}
+{ "type": "LogicalCellProgramLog", "channel": 2, "block": 2, "page": 4 , "logging_time"  : "2021-07-04 18:14:47.000"}
+{ "type": "PhysicalCellProgramLog", "channel": 2, "block": 2, "page": 4 , "logging_time"  : "2021-07-04 18:14:47.000"}
+{ "type": "ChannelSwitchToReadLog", "channel": 2 , "logging_time"  : "2021-07-04 18:14:47.000"}
+{ "type": "RegisterWriteLog", "channel": 2, "die": 2, "reg": 2 , "logging_time"  : "2021-07-04 18:14:47.000"}
+{ "type": "LogicalCellProgramLog", "channel": 2, "block": 2, "page": 5 , "logging_time"  : "2021-07-04 18:14:47.000"}
+{ "type": "PhysicalCellProgramLog", "channel": 2, "block": 2, "page": 5 , "logging_time"  : "2021-07-04 18:14:47.000"}
+{ "type": "ChannelSwitchToReadLog", "channel": 2 , "logging_time"  : "2021-07-04 18:14:47.000"}
+{ "type": "RegisterWriteLog", "channel": 2, "die": 2, "reg": 2 , "logging_time"  : "2021-07-04 18:14:47.000"}
+{ "type": "LogicalCellProgramLog", "channel": 2, "block": 2, "page": 6 , "logging_time"  : "2021-07-04 18:14:47.000"}
+{ "type": "PhysicalCellProgramLog", "channel": 2, "block": 2, "page": 6 , "logging_time"  : "2021-07-04 18:14:47.000"}
+{ "type": "ChannelSwitchToReadLog", "channel": 2 , "logging_time"  : "2021-07-04 18:14:47.000"}
+{ "type": "RegisterWriteLog", "channel": 2, "die": 2, "reg": 2 , "logging_time"  : "2021-07-04 18:14:47.000"}
+{ "type": "LogicalCellProgramLog", "channel": 2, "block": 2, "page": 7 , "logging_time"  : "2021-07-04 18:14:47.000"}
+{ "type": "PhysicalCellProgramLog", "channel": 2, "block": 2, "page": 7 , "logging_time"  : "2021-07-04 18:14:47.000"}
+{ "type": "ChannelSwitchToReadLog", "channel": 2 , "logging_time"  : "2021-07-04 18:14:47.000"}
+{ "type": "RegisterWriteLog", "channel": 2, "die": 2, "reg": 2 , "logging_time"  : "2021-07-04 18:14:47.000"}
+{ "type": "LogicalCellProgramLog", "channel": 2, "block": 2, "page": 8 , "logging_time"  : "2021-07-04 18:14:47.000"}
+{ "type": "PhysicalCellProgramLog", "channel": 2, "block": 2, "page": 8 , "logging_time"  : "2021-07-04 18:14:47.000"}
+{ "type": "ChannelSwitchToReadLog", "channel": 2 , "logging_time"  : "2021-07-04 18:14:47.000"}
+{ "type": "RegisterWriteLog", "channel": 2, "die": 2, "reg": 2 , "logging_time"  : "2021-07-04 18:14:47.000"}
+{ "type": "LogicalCellProgramLog", "channel": 2, "block": 2, "page": 9 , "logging_time"  : "2021-07-04 18:14:47.000"}
+{ "type": "PhysicalCellProgramLog", "channel": 2, "block": 2, "page": 9 , "logging_time"  : "2021-07-04 18:14:47.000"}
+{ "type": "ChannelSwitchToReadLog", "channel": 2 , "logging_time"  : "2021-07-04 18:14:47.000"}
+{ "type": "RegisterWriteLog", "channel": 2, "die": 2, "reg": 2 , "logging_time"  : "2021-07-04 18:14:47.000"}
+{ "type": "LogicalCellProgramLog", "channel": 2, "block": 3, "page": 0 , "logging_time"  : "2021-07-04 18:14:47.000"}
+{ "type": "PhysicalCellProgramLog", "channel": 2, "block": 3, "page": 0 , "logging_time"  : "2021-07-04 18:14:47.000"}
+{ "type": "ChannelSwitchToReadLog", "channel": 2 , "logging_time"  : "2021-07-04 18:14:47.000"}
+{ "type": "RegisterWriteLog", "channel": 2, "die": 2, "reg": 2 , "logging_time"  : "2021-07-04 18:14:47.000"}
+{ "type": "LogicalCellProgramLog", "channel": 2, "block": 3, "page": 1 , "logging_time"  : "2021-07-04 18:14:47.000"}
+{ "type": "PhysicalCellProgramLog", "channel": 2, "block": 3, "page": 1 , "logging_time"  : "2021-07-04 18:14:47.000"}
+{ "type": "ChannelSwitchToReadLog", "channel": 2 , "logging_time"  : "2021-07-04 18:14:47.000"}
+{ "type": "RegisterWriteLog", "channel": 2, "die": 2, "reg": 2 , "logging_time"  : "2021-07-04 18:14:47.000"}
+{ "type": "LogicalCellProgramLog", "channel": 2, "block": 3, "page": 2 , "logging_time"  : "2021-07-04 18:14:47.000"}
+{ "type": "PhysicalCellProgramLog", "channel": 2, "block": 3, "page": 2 , "logging_time"  : "2021-07-04 18:14:47.000"}
+{ "type": "ChannelSwitchToReadLog", "channel": 2 , "logging_time"  : "2021-07-04 18:14:47.000"}
+{ "type": "RegisterWriteLog", "channel": 2, "die": 2, "reg": 2 , "logging_time"  : "2021-07-04 18:14:47.000"}
+{ "type": "LogicalCellProgramLog", "channel": 2, "block": 3, "page": 3 , "logging_time"  : "2021-07-04 18:14:47.000"}
+{ "type": "PhysicalCellProgramLog", "channel": 2, "block": 3, "page": 3 , "logging_time"  : "2021-07-04 18:14:47.000"}
+{ "type": "ChannelSwitchToReadLog", "channel": 2 , "logging_time"  : "2021-07-04 18:14:47.000"}
+{ "type": "RegisterWriteLog", "channel": 2, "die": 2, "reg": 2 , "logging_time"  : "2021-07-04 18:14:47.000"}
+{ "type": "LogicalCellProgramLog", "channel": 2, "block": 3, "page": 4 , "logging_time"  : "2021-07-04 18:14:47.000"}
+{ "type": "PhysicalCellProgramLog", "channel": 2, "block": 3, "page": 4 , "logging_time"  : "2021-07-04 18:14:47.000"}
+{ "type": "ChannelSwitchToReadLog", "channel": 2 , "logging_time"  : "2021-07-04 18:14:47.000"}
+{ "type": "RegisterWriteLog", "channel": 2, "die": 2, "reg": 2 , "logging_time"  : "2021-07-04 18:14:47.000"}
+{ "type": "LogicalCellProgramLog", "channel": 2, "block": 3, "page": 5 , "logging_time"  : "2021-07-04 18:14:47.000"}
+{ "type": "PhysicalCellProgramLog", "channel": 2, "block": 3, "page": 5 , "logging_time"  : "2021-07-04 18:14:47.000"}
+{ "type": "ChannelSwitchToReadLog", "channel": 2 , "logging_time"  : "2021-07-04 18:14:47.000"}
+{ "type": "RegisterWriteLog", "channel": 2, "die": 2, "reg": 2 , "logging_time"  : "2021-07-04 18:14:47.000"}
+{ "type": "LogicalCellProgramLog", "channel": 2, "block": 3, "page": 6 , "logging_time"  : "2021-07-04 18:14:47.000"}
+{ "type": "PhysicalCellProgramLog", "channel": 2, "block": 3, "page": 6 , "logging_time"  : "2021-07-04 18:14:47.000"}
+{ "type": "ChannelSwitchToReadLog", "channel": 2 , "logging_time"  : "2021-07-04 18:14:47.000"}
+{ "type": "RegisterWriteLog", "channel": 2, "die": 2, "reg": 2 , "logging_time"  : "2021-07-04 18:14:47.000"}
+{ "type": "LogicalCellProgramLog", "channel": 2, "block": 3, "page": 7 , "logging_time"  : "2021-07-04 18:14:47.000"}
+{ "type": "PhysicalCellProgramLog", "channel": 2, "block": 3, "page": 7 , "logging_time"  : "2021-07-04 18:14:47.000"}
+{ "type": "ChannelSwitchToReadLog", "channel": 2 , "logging_time"  : "2021-07-04 18:14:47.000"}
+{ "type": "RegisterWriteLog", "channel": 2, "die": 2, "reg": 2 , "logging_time"  : "2021-07-04 18:14:47.000"}
+{ "type": "LogicalCellProgramLog", "channel": 2, "block": 3, "page": 8 , "logging_time"  : "2021-07-04 18:14:47.000"}
+{ "type": "PhysicalCellProgramLog", "channel": 2, "block": 3, "page": 8 , "logging_time"  : "2021-07-04 18:14:47.000"}
+{ "type": "ChannelSwitchToReadLog", "channel": 2 , "logging_time"  : "2021-07-04 18:14:47.000"}
+{ "type": "RegisterWriteLog", "channel": 2, "die": 2, "reg": 2 , "logging_time"  : "2021-07-04 18:14:47.000"}
+{ "type": "LogicalCellProgramLog", "channel": 2, "block": 3, "page": 9 , "logging_time"  : "2021-07-04 18:14:47.000"}
+{ "type": "PhysicalCellProgramLog", "channel": 2, "block": 3, "page": 9 , "logging_time"  : "2021-07-04 18:14:47.000"}
+{ "type": "ChannelSwitchToReadLog", "channel": 2 , "logging_time"  : "2021-07-04 18:14:47.000"}
+{ "type": "RegisterWriteLog", "channel": 2, "die": 2, "reg": 2 , "logging_time"  : "2021-07-04 18:14:47.000"}
+{ "type": "LogicalCellProgramLog", "channel": 2, "block": 4, "page": 0 , "logging_time"  : "2021-07-04 18:14:47.000"}
+{ "type": "PhysicalCellProgramLog", "channel": 2, "block": 4, "page": 0 , "logging_time"  : "2021-07-04 18:14:47.000"}
+{ "type": "ChannelSwitchToReadLog", "channel": 3 , "logging_time"  : "2021-07-04 18:14:47.000"}
+{ "type": "ChannelSwitchToReadLog", "channel": 2 , "logging_time"  : "2021-07-04 18:14:47.000"}
+{ "type": "RegisterWriteLog", "channel": 3, "die": 3, "reg": 3 , "logging_time"  : "2021-07-04 18:14:47.000"}
+{ "type": "RegisterWriteLog", "channel": 2, "die": 2, "reg": 2 , "logging_time"  : "2021-07-04 18:14:47.000"}
+{ "type": "LogicalCellProgramLog", "channel": 3, "block": 1, "page": 1 , "logging_time"  : "2021-07-04 18:14:47.000"}
+{ "type": "LogicalCellProgramLog", "channel": 0, "block": 1, "page": 1 , "logging_time"  : "2021-07-04 18:14:47.000"}
+{ "type": "LogicalCellProgramLog", "channel": 2, "block": 4, "page": 1 , "logging_time"  : "2021-07-04 18:14:47.000"}
+{ "type": "PhysicalCellProgramLog", "channel": 0, "block": 1, "page": 1 , "logging_time"  : "2021-07-04 18:14:47.000"}
+{ "type": "PhysicalCellProgramLog", "channel": 2, "block": 4, "page": 1 , "logging_time"  : "2021-07-04 18:14:47.000"}
+{ "type": "ChannelSwitchToReadLog", "channel": 0 , "logging_time"  : "2021-07-04 18:14:47.000"}
+{ "type": "ChannelSwitchToReadLog", "channel": 2 , "logging_time"  : "2021-07-04 18:14:47.000"}
+{ "type": "RegisterWriteLog", "channel": 2, "die": 2, "reg": 2 , "logging_time"  : "2021-07-04 18:14:47.000"}
+{ "type": "ChannelSwitchToReadLog", "channel": 1 , "logging_time"  : "2021-07-04 18:14:47.000"}
+{ "type": "PhysicalCellProgramLog", "channel": 3, "block": 1, "page": 1 , "logging_time"  : "2021-07-04 18:14:47.000"}
+{ "type": "LogicalCellProgramLog", "channel": 2, "block": 4, "page": 2 , "logging_time"  : "2021-07-04 18:14:47.000"}
+{ "type": "ChannelSwitchToReadLog", "channel": 3 , "logging_time"  : "2021-07-04 18:14:47.000"}
+{ "type": "RegisterWriteLog", "channel": 0, "die": 0, "reg": 0 , "logging_time"  : "2021-07-04 18:14:47.000"}
+{ "type": "RegisterWriteLog", "channel": 3, "die": 3, "reg": 3 , "logging_time"  : "2021-07-04 18:14:47.000"}
+{ "type": "LogicalCellProgramLog", "channel": 0, "block": 1, "page": 2 , "logging_time"  : "2021-07-04 18:14:47.000"}
+{ "type": "RegisterWriteLog", "channel": 1, "die": 1, "reg": 1 , "logging_time"  : "2021-07-04 18:14:47.000"}
+{ "type": "PhysicalCellProgramLog", "channel": 0, "block": 1, "page": 2 , "logging_time"  : "2021-07-04 18:14:47.000"}
+{ "type": "PhysicalCellProgramLog", "channel": 2, "block": 4, "page": 2 , "logging_time"  : "2021-07-04 18:14:47.000"}
+{ "type": "ChannelSwitchToReadLog", "channel": 0 , "logging_time"  : "2021-07-04 18:14:47.000"}
+{ "type": "LogicalCellProgramLog", "channel": 1, "block": 1, "page": 1 , "logging_time"  : "2021-07-04 18:14:47.000"}
+{ "type": "RegisterWriteLog", "channel": 0, "die": 0, "reg": 0 , "logging_time"  : "2021-07-04 18:14:47.000"}
+{ "type": "LogicalCellProgramLog", "channel": 0, "block": 1, "page": 3 , "logging_time"  : "2021-07-04 18:14:47.000"}
+{ "type": "ChannelSwitchToReadLog", "channel": 2 , "logging_time"  : "2021-07-04 18:14:47.000"}
+{ "type": "PhysicalCellProgramLog", "channel": 1, "block": 1, "page": 1 , "logging_time"  : "2021-07-04 18:14:47.000"}
+{ "type": "ChannelSwitchToReadLog", "channel": 1 , "logging_time"  : "2021-07-04 18:14:47.000"}
+{ "type": "LogicalCellProgramLog", "channel": 3, "block": 1, "page": 2 , "logging_time"  : "2021-07-04 18:14:47.000"}
+{ "type": "RegisterWriteLog", "channel": 1, "die": 1, "reg": 1 , "logging_time"  : "2021-07-04 18:14:47.000"}
+{ "type": "RegisterWriteLog", "channel": 2, "die": 2, "reg": 2 , "logging_time"  : "2021-07-04 18:14:47.000"}
+{ "type": "LogicalCellProgramLog", "channel": 1, "block": 1, "page": 2 , "logging_time"  : "2021-07-04 18:14:47.000"}
+{ "type": "LogicalCellProgramLog", "channel": 2, "block": 4, "page": 3 , "logging_time"  : "2021-07-04 18:14:47.000"}
+{ "type": "PhysicalCellProgramLog", "channel": 1, "block": 1, "page": 2 , "logging_time"  : "2021-07-04 18:14:47.000"}
+{ "type": "PhysicalCellProgramLog", "channel": 2, "block": 4, "page": 3 , "logging_time"  : "2021-07-04 18:14:47.000"}
+{ "type": "PhysicalCellProgramLog", "channel": 3, "block": 1, "page": 2 , "logging_time"  : "2021-07-04 18:14:47.000"}
+{ "type": "PhysicalCellProgramLog", "channel": 0, "block": 1, "page": 3 , "logging_time"  : "2021-07-04 18:14:47.000"}
+{ "type": "ChannelSwitchToReadLog", "channel": 3 , "logging_time"  : "2021-07-04 18:14:47.000"}
+{ "type": "ChannelSwitchToReadLog", "channel": 0 , "logging_time"  : "2021-07-04 18:14:47.000"}
+{ "type": "ChannelSwitchToReadLog", "channel": 2 , "logging_time"  : "2021-07-04 18:14:48.000"}
+{ "type": "RegisterWriteLog", "channel": 0, "die": 0, "reg": 0 , "logging_time"  : "2021-07-04 18:14:47.000"}
+{ "type": "RegisterWriteLog", "channel": 3, "die": 3, "reg": 3 , "logging_time"  : "2021-07-04 18:14:47.000"}
+{ "type": "LogicalCellProgramLog", "channel": 0, "block": 1, "page": 4 , "logging_time"  : "2021-07-04 18:14:47.000"}
+{ "type": "RegisterWriteLog", "channel": 2, "die": 2, "reg": 2 , "logging_time"  : "2021-07-04 18:14:48.000"}
+{ "type": "PhysicalCellProgramLog", "channel": 0, "block": 1, "page": 4 , "logging_time"  : "2021-07-04 18:14:47.000"}
+{ "type": "LogicalCellProgramLog", "channel": 3, "block": 1, "page": 3 , "logging_time"  : "2021-07-04 18:14:47.000"}
+{ "type": "ChannelSwitchToReadLog", "channel": 0 , "logging_time"  : "2021-07-04 18:14:47.000"}
+{ "type": "LogicalCellProgramLog", "channel": 2, "block": 4, "page": 4 , "logging_time"  : "2021-07-04 18:14:48.000"}
+{ "type": "RegisterWriteLog", "channel": 0, "die": 0, "reg": 0 , "logging_time"  : "2021-07-04 18:14:47.000"}
+{ "type": "PhysicalCellProgramLog", "channel": 2, "block": 4, "page": 4 , "logging_time"  : "2021-07-04 18:14:48.000"}
+{ "type": "ChannelSwitchToReadLog", "channel": 1 , "logging_time"  : "2021-07-04 18:14:47.000"}
+{ "type": "ChannelSwitchToReadLog", "channel": 2 , "logging_time"  : "2021-07-04 18:14:48.000"}
+{ "type": "RegisterWriteLog", "channel": 2, "die": 2, "reg": 2 , "logging_time"  : "2021-07-04 18:14:48.000"}
+{ "type": "LogicalCellProgramLog", "channel": 2, "block": 4, "page": 5 , "logging_time"  : "2021-07-04 18:14:48.000"}
+{ "type": "PhysicalCellProgramLog", "channel": 2, "block": 4, "page": 5 , "logging_time"  : "2021-07-04 18:14:48.000"}
+{ "type": "ChannelSwitchToReadLog", "channel": 2 , "logging_time"  : "2021-07-04 18:14:48.000"}
+{ "type": "LogicalCellProgramLog", "channel": 0, "block": 1, "page": 5 , "logging_time"  : "2021-07-04 18:14:47.000"}
+{ "type": "RegisterWriteLog", "channel": 1, "die": 1, "reg": 1 , "logging_time"  : "2021-07-04 18:14:47.000"}
+{ "type": "PhysicalCellProgramLog", "channel": 3, "block": 1, "page": 3 , "logging_time"  : "2021-07-04 18:14:47.000"}
+{ "type": "PhysicalCellProgramLog", "channel": 0, "block": 1, "page": 5 , "logging_time"  : "2021-07-04 18:14:47.000"}
+{ "type": "ChannelSwitchToReadLog", "channel": 3 , "logging_time"  : "2021-07-04 18:14:47.000"}
+{ "type": "RegisterWriteLog", "channel": 3, "die": 3, "reg": 3 , "logging_time"  : "2021-07-04 18:14:47.000"}
+{ "type": "LogicalCellProgramLog", "channel": 3, "block": 1, "page": 4 , "logging_time"  : "2021-07-04 18:14:47.000"}
+{ "type": "PhysicalCellProgramLog", "channel": 3, "block": 1, "page": 4 , "logging_time"  : "2021-07-04 18:14:47.000"}
+{ "type": "ChannelSwitchToReadLog", "channel": 3 , "logging_time"  : "2021-07-04 18:14:47.000"}
+{ "type": "RegisterWriteLog", "channel": 3, "die": 3, "reg": 3 , "logging_time"  : "2021-07-04 18:14:47.000"}
+{ "type": "LogicalCellProgramLog", "channel": 3, "block": 1, "page": 5 , "logging_time"  : "2021-07-04 18:14:47.000"}
+{ "type": "PhysicalCellProgramLog", "channel": 3, "block": 1, "page": 5 , "logging_time"  : "2021-07-04 18:14:47.000"}
+{ "type": "ChannelSwitchToReadLog", "channel": 3 , "logging_time"  : "2021-07-04 18:14:47.000"}
+{ "type": "RegisterWriteLog", "channel": 3, "die": 3, "reg": 3 , "logging_time"  : "2021-07-04 18:14:47.000"}
+{ "type": "LogicalCellProgramLog", "channel": 3, "block": 1, "page": 6 , "logging_time"  : "2021-07-04 18:14:47.000"}
+{ "type": "PhysicalCellProgramLog", "channel": 3, "block": 1, "page": 6 , "logging_time"  : "2021-07-04 18:14:47.000"}
+{ "type": "ChannelSwitchToReadLog", "channel": 3 , "logging_time"  : "2021-07-04 18:14:47.000"}
+{ "type": "RegisterWriteLog", "channel": 3, "die": 3, "reg": 3 , "logging_time"  : "2021-07-04 18:14:47.000"}
+{ "type": "LogicalCellProgramLog", "channel": 3, "block": 1, "page": 7 , "logging_time"  : "2021-07-04 18:14:47.000"}
+{ "type": "PhysicalCellProgramLog", "channel": 3, "block": 1, "page": 7 , "logging_time"  : "2021-07-04 18:14:47.000"}
+{ "type": "ChannelSwitchToReadLog", "channel": 3 , "logging_time"  : "2021-07-04 18:14:47.000"}
+{ "type": "RegisterWriteLog", "channel": 3, "die": 3, "reg": 3 , "logging_time"  : "2021-07-04 18:14:47.000"}
+{ "type": "LogicalCellProgramLog", "channel": 3, "block": 1, "page": 8 , "logging_time"  : "2021-07-04 18:14:47.000"}
+{ "type": "PhysicalCellProgramLog", "channel": 3, "block": 1, "page": 8 , "logging_time"  : "2021-07-04 18:14:47.000"}
+{ "type": "ChannelSwitchToReadLog", "channel": 3 , "logging_time"  : "2021-07-04 18:14:47.000"}
+{ "type": "RegisterWriteLog", "channel": 3, "die": 3, "reg": 3 , "logging_time"  : "2021-07-04 18:14:47.000"}
+{ "type": "LogicalCellProgramLog", "channel": 3, "block": 1, "page": 9 , "logging_time"  : "2021-07-04 18:14:47.000"}
+{ "type": "PhysicalCellProgramLog", "channel": 3, "block": 1, "page": 9 , "logging_time"  : "2021-07-04 18:14:47.000"}
+{ "type": "ChannelSwitchToReadLog", "channel": 3 , "logging_time"  : "2021-07-04 18:14:47.000"}
+{ "type": "RegisterWriteLog", "channel": 3, "die": 3, "reg": 3 , "logging_time"  : "2021-07-04 18:14:47.000"}
+{ "type": "LogicalCellProgramLog", "channel": 3, "block": 2, "page": 0 , "logging_time"  : "2021-07-04 18:14:47.000"}
+{ "type": "PhysicalCellProgramLog", "channel": 3, "block": 2, "page": 0 , "logging_time"  : "2021-07-04 18:14:47.000"}
+{ "type": "ChannelSwitchToReadLog", "channel": 3 , "logging_time"  : "2021-07-04 18:14:47.000"}
+{ "type": "RegisterWriteLog", "channel": 3, "die": 3, "reg": 3 , "logging_time"  : "2021-07-04 18:14:47.000"}
+{ "type": "LogicalCellProgramLog", "channel": 3, "block": 2, "page": 1 , "logging_time"  : "2021-07-04 18:14:47.000"}
+{ "type": "PhysicalCellProgramLog", "channel": 3, "block": 2, "page": 1 , "logging_time"  : "2021-07-04 18:14:47.000"}
+{ "type": "ChannelSwitchToReadLog", "channel": 3 , "logging_time"  : "2021-07-04 18:14:47.000"}
+{ "type": "RegisterWriteLog", "channel": 3, "die": 3, "reg": 3 , "logging_time"  : "2021-07-04 18:14:47.000"}
+{ "type": "LogicalCellProgramLog", "channel": 3, "block": 2, "page": 2 , "logging_time"  : "2021-07-04 18:14:47.000"}
+{ "type": "PhysicalCellProgramLog", "channel": 3, "block": 2, "page": 2 , "logging_time"  : "2021-07-04 18:14:47.000"}
+{ "type": "ChannelSwitchToReadLog", "channel": 3 , "logging_time"  : "2021-07-04 18:14:47.000"}
+{ "type": "RegisterWriteLog", "channel": 3, "die": 3, "reg": 3 , "logging_time"  : "2021-07-04 18:14:47.000"}
+{ "type": "LogicalCellProgramLog", "channel": 3, "block": 2, "page": 3 , "logging_time"  : "2021-07-04 18:14:47.000"}
+{ "type": "PhysicalCellProgramLog", "channel": 3, "block": 2, "page": 3 , "logging_time"  : "2021-07-04 18:14:47.000"}
+{ "type": "ChannelSwitchToReadLog", "channel": 3 , "logging_time"  : "2021-07-04 18:14:47.000"}
+{ "type": "RegisterWriteLog", "channel": 3, "die": 3, "reg": 3 , "logging_time"  : "2021-07-04 18:14:47.000"}
+{ "type": "LogicalCellProgramLog", "channel": 3, "block": 2, "page": 4 , "logging_time"  : "2021-07-04 18:14:47.000"}
+{ "type": "PhysicalCellProgramLog", "channel": 3, "block": 2, "page": 4 , "logging_time"  : "2021-07-04 18:14:47.000"}
+{ "type": "ChannelSwitchToReadLog", "channel": 3 , "logging_time"  : "2021-07-04 18:14:47.000"}
+{ "type": "RegisterWriteLog", "channel": 3, "die": 3, "reg": 3 , "logging_time"  : "2021-07-04 18:14:47.000"}
+{ "type": "LogicalCellProgramLog", "channel": 3, "block": 2, "page": 5 , "logging_time"  : "2021-07-04 18:14:47.000"}
+{ "type": "PhysicalCellProgramLog", "channel": 3, "block": 2, "page": 5 , "logging_time"  : "2021-07-04 18:14:47.000"}
+{ "type": "ChannelSwitchToReadLog", "channel": 3 , "logging_time"  : "2021-07-04 18:14:47.000"}
+{ "type": "RegisterWriteLog", "channel": 3, "die": 3, "reg": 3 , "logging_time"  : "2021-07-04 18:14:47.000"}
+{ "type": "LogicalCellProgramLog", "channel": 3, "block": 2, "page": 6 , "logging_time"  : "2021-07-04 18:14:47.000"}
+{ "type": "PhysicalCellProgramLog", "channel": 3, "block": 2, "page": 6 , "logging_time"  : "2021-07-04 18:14:47.000"}
+{ "type": "ChannelSwitchToReadLog", "channel": 3 , "logging_time"  : "2021-07-04 18:14:47.000"}
+{ "type": "RegisterWriteLog", "channel": 3, "die": 3, "reg": 3 , "logging_time"  : "2021-07-04 18:14:47.000"}
+{ "type": "LogicalCellProgramLog", "channel": 3, "block": 2, "page": 7 , "logging_time"  : "2021-07-04 18:14:47.000"}
+{ "type": "PhysicalCellProgramLog", "channel": 3, "block": 2, "page": 7 , "logging_time"  : "2021-07-04 18:14:47.000"}
+{ "type": "ChannelSwitchToReadLog", "channel": 3 , "logging_time"  : "2021-07-04 18:14:47.000"}
+{ "type": "RegisterWriteLog", "channel": 3, "die": 3, "reg": 3 , "logging_time"  : "2021-07-04 18:14:47.000"}
+{ "type": "LogicalCellProgramLog", "channel": 3, "block": 2, "page": 8 , "logging_time"  : "2021-07-04 18:14:47.000"}
+{ "type": "PhysicalCellProgramLog", "channel": 3, "block": 2, "page": 8 , "logging_time"  : "2021-07-04 18:14:47.000"}
+{ "type": "ChannelSwitchToReadLog", "channel": 3 , "logging_time"  : "2021-07-04 18:14:47.000"}
+{ "type": "RegisterWriteLog", "channel": 3, "die": 3, "reg": 3 , "logging_time"  : "2021-07-04 18:14:47.000"}
+{ "type": "LogicalCellProgramLog", "channel": 3, "block": 2, "page": 9 , "logging_time"  : "2021-07-04 18:14:47.000"}
+{ "type": "PhysicalCellProgramLog", "channel": 3, "block": 2, "page": 9 , "logging_time"  : "2021-07-04 18:14:47.000"}
+{ "type": "ChannelSwitchToReadLog", "channel": 3 , "logging_time"  : "2021-07-04 18:14:47.000"}
+{ "type": "RegisterWriteLog", "channel": 3, "die": 3, "reg": 3 , "logging_time"  : "2021-07-04 18:14:47.000"}
+{ "type": "LogicalCellProgramLog", "channel": 3, "block": 3, "page": 0 , "logging_time"  : "2021-07-04 18:14:47.000"}
+{ "type": "PhysicalCellProgramLog", "channel": 3, "block": 3, "page": 0 , "logging_time"  : "2021-07-04 18:14:47.000"}
+{ "type": "ChannelSwitchToReadLog", "channel": 3 , "logging_time"  : "2021-07-04 18:14:47.000"}
+{ "type": "RegisterWriteLog", "channel": 3, "die": 3, "reg": 3 , "logging_time"  : "2021-07-04 18:14:47.000"}
+{ "type": "LogicalCellProgramLog", "channel": 3, "block": 3, "page": 1 , "logging_time"  : "2021-07-04 18:14:47.000"}
+{ "type": "PhysicalCellProgramLog", "channel": 3, "block": 3, "page": 1 , "logging_time"  : "2021-07-04 18:14:47.000"}
+{ "type": "ChannelSwitchToReadLog", "channel": 3 , "logging_time"  : "2021-07-04 18:14:47.000"}
+{ "type": "RegisterWriteLog", "channel": 3, "die": 3, "reg": 3 , "logging_time"  : "2021-07-04 18:14:47.000"}
+{ "type": "LogicalCellProgramLog", "channel": 3, "block": 3, "page": 2 , "logging_time"  : "2021-07-04 18:14:47.000"}
+{ "type": "PhysicalCellProgramLog", "channel": 3, "block": 3, "page": 2 , "logging_time"  : "2021-07-04 18:14:47.000"}
+{ "type": "ChannelSwitchToReadLog", "channel": 3 , "logging_time"  : "2021-07-04 18:14:47.000"}
+{ "type": "RegisterWriteLog", "channel": 3, "die": 3, "reg": 3 , "logging_time"  : "2021-07-04 18:14:47.000"}
+{ "type": "LogicalCellProgramLog", "channel": 3, "block": 3, "page": 3 , "logging_time"  : "2021-07-04 18:14:47.000"}
+{ "type": "PhysicalCellProgramLog", "channel": 3, "block": 3, "page": 3 , "logging_time"  : "2021-07-04 18:14:47.000"}
+{ "type": "ChannelSwitchToReadLog", "channel": 3 , "logging_time"  : "2021-07-04 18:14:47.000"}
+{ "type": "RegisterWriteLog", "channel": 3, "die": 3, "reg": 3 , "logging_time"  : "2021-07-04 18:14:47.000"}
+{ "type": "LogicalCellProgramLog", "channel": 3, "block": 3, "page": 4 , "logging_time"  : "2021-07-04 18:14:47.000"}
+{ "type": "PhysicalCellProgramLog", "channel": 3, "block": 3, "page": 4 , "logging_time"  : "2021-07-04 18:14:47.000"}
+{ "type": "ChannelSwitchToReadLog", "channel": 3 , "logging_time"  : "2021-07-04 18:14:47.000"}
+{ "type": "RegisterWriteLog", "channel": 3, "die": 3, "reg": 3 , "logging_time"  : "2021-07-04 18:14:47.000"}
+{ "type": "LogicalCellProgramLog", "channel": 3, "block": 3, "page": 5 , "logging_time"  : "2021-07-04 18:14:47.000"}
+{ "type": "PhysicalCellProgramLog", "channel": 3, "block": 3, "page": 5 , "logging_time"  : "2021-07-04 18:14:47.000"}
+{ "type": "ChannelSwitchToReadLog", "channel": 3 , "logging_time"  : "2021-07-04 18:14:47.000"}
+{ "type": "RegisterWriteLog", "channel": 3, "die": 3, "reg": 3 , "logging_time"  : "2021-07-04 18:14:47.000"}
+{ "type": "LogicalCellProgramLog", "channel": 3, "block": 3, "page": 6 , "logging_time"  : "2021-07-04 18:14:47.000"}
+{ "type": "PhysicalCellProgramLog", "channel": 3, "block": 3, "page": 6 , "logging_time"  : "2021-07-04 18:14:47.000"}
+{ "type": "ChannelSwitchToReadLog", "channel": 3 , "logging_time"  : "2021-07-04 18:14:47.000"}
+{ "type": "RegisterWriteLog", "channel": 3, "die": 3, "reg": 3 , "logging_time"  : "2021-07-04 18:14:47.000"}
+{ "type": "LogicalCellProgramLog", "channel": 3, "block": 3, "page": 7 , "logging_time"  : "2021-07-04 18:14:47.000"}
+{ "type": "PhysicalCellProgramLog", "channel": 3, "block": 3, "page": 7 , "logging_time"  : "2021-07-04 18:14:47.000"}
+{ "type": "ChannelSwitchToReadLog", "channel": 3 , "logging_time"  : "2021-07-04 18:14:47.000"}
+{ "type": "RegisterWriteLog", "channel": 3, "die": 3, "reg": 3 , "logging_time"  : "2021-07-04 18:14:47.000"}
+{ "type": "LogicalCellProgramLog", "channel": 3, "block": 3, "page": 8 , "logging_time"  : "2021-07-04 18:14:47.000"}
+{ "type": "PhysicalCellProgramLog", "channel": 3, "block": 3, "page": 8 , "logging_time"  : "2021-07-04 18:14:47.000"}
+{ "type": "ChannelSwitchToReadLog", "channel": 3 , "logging_time"  : "2021-07-04 18:14:47.000"}
+{ "type": "RegisterWriteLog", "channel": 3, "die": 3, "reg": 3 , "logging_time"  : "2021-07-04 18:14:47.000"}
+{ "type": "LogicalCellProgramLog", "channel": 3, "block": 3, "page": 9 , "logging_time"  : "2021-07-04 18:14:47.000"}
+{ "type": "PhysicalCellProgramLog", "channel": 3, "block": 3, "page": 9 , "logging_time"  : "2021-07-04 18:14:47.000"}
+{ "type": "ChannelSwitchToReadLog", "channel": 3 , "logging_time"  : "2021-07-04 18:14:47.000"}
+{ "type": "RegisterWriteLog", "channel": 3, "die": 3, "reg": 3 , "logging_time"  : "2021-07-04 18:14:47.000"}
+{ "type": "LogicalCellProgramLog", "channel": 3, "block": 4, "page": 0 , "logging_time"  : "2021-07-04 18:14:47.000"}
+{ "type": "PhysicalCellProgramLog", "channel": 3, "block": 4, "page": 0 , "logging_time"  : "2021-07-04 18:14:47.000"}
+{ "type": "ChannelSwitchToReadLog", "channel": 3 , "logging_time"  : "2021-07-04 18:14:47.000"}
+{ "type": "RegisterWriteLog", "channel": 3, "die": 3, "reg": 3 , "logging_time"  : "2021-07-04 18:14:47.000"}
+{ "type": "LogicalCellProgramLog", "channel": 3, "block": 4, "page": 1 , "logging_time"  : "2021-07-04 18:14:47.000"}
+{ "type": "PhysicalCellProgramLog", "channel": 3, "block": 4, "page": 1 , "logging_time"  : "2021-07-04 18:14:47.000"}
+{ "type": "ChannelSwitchToReadLog", "channel": 3 , "logging_time"  : "2021-07-04 18:14:47.000"}
+{ "type": "RegisterWriteLog", "channel": 3, "die": 3, "reg": 3 , "logging_time"  : "2021-07-04 18:14:47.000"}
+{ "type": "LogicalCellProgramLog", "channel": 3, "block": 4, "page": 2 , "logging_time"  : "2021-07-04 18:14:47.000"}
+{ "type": "PhysicalCellProgramLog", "channel": 3, "block": 4, "page": 2 , "logging_time"  : "2021-07-04 18:14:47.000"}
+{ "type": "ChannelSwitchToReadLog", "channel": 3 , "logging_time"  : "2021-07-04 18:14:47.000"}
+{ "type": "RegisterWriteLog", "channel": 3, "die": 3, "reg": 3 , "logging_time"  : "2021-07-04 18:14:47.000"}
+{ "type": "LogicalCellProgramLog", "channel": 3, "block": 4, "page": 3 , "logging_time"  : "2021-07-04 18:14:47.000"}
+{ "type": "PhysicalCellProgramLog", "channel": 3, "block": 4, "page": 3 , "logging_time"  : "2021-07-04 18:14:47.000"}
+{ "type": "ChannelSwitchToReadLog", "channel": 3 , "logging_time"  : "2021-07-04 18:14:48.000"}
+{ "type": "RegisterWriteLog", "channel": 3, "die": 3, "reg": 3 , "logging_time"  : "2021-07-04 18:14:48.000"}
+{ "type": "LogicalCellProgramLog", "channel": 3, "block": 4, "page": 4 , "logging_time"  : "2021-07-04 18:14:48.000"}
+{ "type": "PhysicalCellProgramLog", "channel": 3, "block": 4, "page": 4 , "logging_time"  : "2021-07-04 18:14:48.000"}
+{ "type": "ChannelSwitchToReadLog", "channel": 3 , "logging_time"  : "2021-07-04 18:14:48.000"}
+{ "type": "RegisterWriteLog", "channel": 3, "die": 3, "reg": 3 , "logging_time"  : "2021-07-04 18:14:48.000"}
+{ "type": "LogicalCellProgramLog", "channel": 3, "block": 4, "page": 5 , "logging_time"  : "2021-07-04 18:14:48.000"}
+{ "type": "PhysicalCellProgramLog", "channel": 3, "block": 4, "page": 5 , "logging_time"  : "2021-07-04 18:14:48.000"}
+{ "type": "ChannelSwitchToReadLog", "channel": 3 , "logging_time"  : "2021-07-04 18:14:48.000"}
+{ "type": "RegisterWriteLog", "channel": 3, "die": 3, "reg": 3 , "logging_time"  : "2021-07-04 18:14:48.000"}
+{ "type": "LogicalCellProgramLog", "channel": 3, "block": 4, "page": 6 , "logging_time"  : "2021-07-04 18:14:48.000"}
+{ "type": "PhysicalCellProgramLog", "channel": 3, "block": 4, "page": 6 , "logging_time"  : "2021-07-04 18:14:48.000"}
+{ "type": "ChannelSwitchToReadLog", "channel": 3 , "logging_time"  : "2021-07-04 18:14:48.000"}
+{ "type": "RegisterWriteLog", "channel": 3, "die": 3, "reg": 3 , "logging_time"  : "2021-07-04 18:14:48.000"}
+{ "type": "LogicalCellProgramLog", "channel": 3, "block": 4, "page": 7 , "logging_time"  : "2021-07-04 18:14:48.000"}
+{ "type": "PhysicalCellProgramLog", "channel": 3, "block": 4, "page": 7 , "logging_time"  : "2021-07-04 18:14:48.000"}
+{ "type": "ChannelSwitchToReadLog", "channel": 3 , "logging_time"  : "2021-07-04 18:14:48.000"}
+{ "type": "RegisterWriteLog", "channel": 3, "die": 3, "reg": 3 , "logging_time"  : "2021-07-04 18:14:48.000"}
+{ "type": "LogicalCellProgramLog", "channel": 3, "block": 4, "page": 8 , "logging_time"  : "2021-07-04 18:14:48.000"}
+{ "type": "PhysicalCellProgramLog", "channel": 3, "block": 4, "page": 8 , "logging_time"  : "2021-07-04 18:14:48.000"}
+{ "type": "ChannelSwitchToReadLog", "channel": 3 , "logging_time"  : "2021-07-04 18:14:48.000"}
+{ "type": "RegisterWriteLog", "channel": 3, "die": 3, "reg": 3 , "logging_time"  : "2021-07-04 18:14:48.000"}
+{ "type": "LogicalCellProgramLog", "channel": 3, "block": 4, "page": 9 , "logging_time"  : "2021-07-04 18:14:48.000"}
+{ "type": "PhysicalCellProgramLog", "channel": 3, "block": 4, "page": 9 , "logging_time"  : "2021-07-04 18:14:48.000"}
+{ "type": "ChannelSwitchToReadLog", "channel": 3 , "logging_time"  : "2021-07-04 18:14:48.000"}
+{ "type": "RegisterWriteLog", "channel": 3, "die": 3, "reg": 3 , "logging_time"  : "2021-07-04 18:14:48.000"}
+{ "type": "LogicalCellProgramLog", "channel": 3, "block": 5, "page": 0 , "logging_time"  : "2021-07-04 18:14:48.000"}
+{ "type": "PhysicalCellProgramLog", "channel": 3, "block": 5, "page": 0 , "logging_time"  : "2021-07-04 18:14:48.000"}
+{ "type": "ChannelSwitchToReadLog", "channel": 3 , "logging_time"  : "2021-07-04 18:14:48.000"}
+{ "type": "RegisterWriteLog", "channel": 3, "die": 3, "reg": 3 , "logging_time"  : "2021-07-04 18:14:48.000"}
+{ "type": "LogicalCellProgramLog", "channel": 3, "block": 5, "page": 1 , "logging_time"  : "2021-07-04 18:14:48.000"}
+{ "type": "PhysicalCellProgramLog", "channel": 3, "block": 5, "page": 1 , "logging_time"  : "2021-07-04 18:14:48.000"}
+{ "type": "ChannelSwitchToReadLog", "channel": 3 , "logging_time"  : "2021-07-04 18:14:48.000"}
+{ "type": "RegisterWriteLog", "channel": 3, "die": 3, "reg": 3 , "logging_time"  : "2021-07-04 18:14:48.000"}
+{ "type": "LogicalCellProgramLog", "channel": 3, "block": 5, "page": 2 , "logging_time"  : "2021-07-04 18:14:48.000"}
+{ "type": "PhysicalCellProgramLog", "channel": 3, "block": 5, "page": 2 , "logging_time"  : "2021-07-04 18:14:48.000"}
+{ "type": "ChannelSwitchToReadLog", "channel": 3 , "logging_time"  : "2021-07-04 18:14:48.000"}
+{ "type": "RegisterWriteLog", "channel": 3, "die": 3, "reg": 3 , "logging_time"  : "2021-07-04 18:14:48.000"}
+{ "type": "LogicalCellProgramLog", "channel": 3, "block": 5, "page": 3 , "logging_time"  : "2021-07-04 18:14:48.000"}
+{ "type": "PhysicalCellProgramLog", "channel": 3, "block": 5, "page": 3 , "logging_time"  : "2021-07-04 18:14:48.000"}
+{ "type": "ChannelSwitchToReadLog", "channel": 3 , "logging_time"  : "2021-07-04 18:14:48.000"}
+{ "type": "RegisterWriteLog", "channel": 3, "die": 3, "reg": 3 , "logging_time"  : "2021-07-04 18:14:48.000"}
+{ "type": "LogicalCellProgramLog", "channel": 3, "block": 5, "page": 4 , "logging_time"  : "2021-07-04 18:14:48.000"}
+{ "type": "PhysicalCellProgramLog", "channel": 3, "block": 5, "page": 4 , "logging_time"  : "2021-07-04 18:14:48.000"}
+{ "type": "ChannelSwitchToReadLog", "channel": 3 , "logging_time"  : "2021-07-04 18:14:48.000"}
+{ "type": "RegisterWriteLog", "channel": 3, "die": 3, "reg": 3 , "logging_time"  : "2021-07-04 18:14:48.000"}
+{ "type": "LogicalCellProgramLog", "channel": 3, "block": 5, "page": 5 , "logging_time"  : "2021-07-04 18:14:48.000"}
+{ "type": "PhysicalCellProgramLog", "channel": 3, "block": 5, "page": 5 , "logging_time"  : "2021-07-04 18:14:48.000"}
+{ "type": "ChannelSwitchToReadLog", "channel": 3 , "logging_time"  : "2021-07-04 18:14:48.000"}
+{ "type": "RegisterWriteLog", "channel": 3, "die": 3, "reg": 3 , "logging_time"  : "2021-07-04 18:14:48.000"}
+{ "type": "LogicalCellProgramLog", "channel": 3, "block": 5, "page": 6 , "logging_time"  : "2021-07-04 18:14:48.000"}
+{ "type": "PhysicalCellProgramLog", "channel": 3, "block": 5, "page": 6 , "logging_time"  : "2021-07-04 18:14:48.000"}
+{ "type": "ChannelSwitchToReadLog", "channel": 3 , "logging_time"  : "2021-07-04 18:14:48.000"}
+{ "type": "RegisterWriteLog", "channel": 3, "die": 3, "reg": 3 , "logging_time"  : "2021-07-04 18:14:48.000"}
+{ "type": "LogicalCellProgramLog", "channel": 3, "block": 5, "page": 7 , "logging_time"  : "2021-07-04 18:14:48.000"}
+{ "type": "PhysicalCellProgramLog", "channel": 3, "block": 5, "page": 7 , "logging_time"  : "2021-07-04 18:14:48.000"}
+{ "type": "ChannelSwitchToReadLog", "channel": 3 , "logging_time"  : "2021-07-04 18:14:48.000"}
+{ "type": "RegisterWriteLog", "channel": 3, "die": 3, "reg": 3 , "logging_time"  : "2021-07-04 18:14:48.000"}
+{ "type": "LogicalCellProgramLog", "channel": 3, "block": 5, "page": 8 , "logging_time"  : "2021-07-04 18:14:48.000"}
+{ "type": "PhysicalCellProgramLog", "channel": 3, "block": 5, "page": 8 , "logging_time"  : "2021-07-04 18:14:48.000"}
+{ "type": "ChannelSwitchToReadLog", "channel": 3 , "logging_time"  : "2021-07-04 18:14:48.000"}
+{ "type": "RegisterWriteLog", "channel": 3, "die": 3, "reg": 3 , "logging_time"  : "2021-07-04 18:14:48.000"}
+{ "type": "LogicalCellProgramLog", "channel": 3, "block": 5, "page": 9 , "logging_time"  : "2021-07-04 18:14:48.000"}
+{ "type": "PhysicalCellProgramLog", "channel": 3, "block": 5, "page": 9 , "logging_time"  : "2021-07-04 18:14:48.000"}
+{ "type": "LogicalCellProgramLog", "channel": 1, "block": 1, "page": 3 , "logging_time"  : "2021-07-04 18:14:47.000"}
+{ "type": "PhysicalCellProgramLog", "channel": 1, "block": 1, "page": 3 , "logging_time"  : "2021-07-04 18:14:47.000"}
+{ "type": "ChannelSwitchToReadLog", "channel": 1 , "logging_time"  : "2021-07-04 18:14:47.000"}
+{ "type": "RegisterWriteLog", "channel": 1, "die": 1, "reg": 1 , "logging_time"  : "2021-07-04 18:14:47.000"}
+{ "type": "LogicalCellProgramLog", "channel": 1, "block": 1, "page": 4 , "logging_time"  : "2021-07-04 18:14:47.000"}
+{ "type": "PhysicalCellProgramLog", "channel": 1, "block": 1, "page": 4 , "logging_time"  : "2021-07-04 18:14:47.000"}
+{ "type": "ChannelSwitchToReadLog", "channel": 1 , "logging_time"  : "2021-07-04 18:14:47.000"}
+{ "type": "RegisterWriteLog", "channel": 1, "die": 1, "reg": 1 , "logging_time"  : "2021-07-04 18:14:47.000"}
+{ "type": "LogicalCellProgramLog", "channel": 1, "block": 1, "page": 5 , "logging_time"  : "2021-07-04 18:14:47.000"}
+{ "type": "PhysicalCellProgramLog", "channel": 1, "block": 1, "page": 5 , "logging_time"  : "2021-07-04 18:14:47.000"}
+{ "type": "ChannelSwitchToReadLog", "channel": 1 , "logging_time"  : "2021-07-04 18:14:47.000"}
+{ "type": "RegisterWriteLog", "channel": 1, "die": 1, "reg": 1 , "logging_time"  : "2021-07-04 18:14:47.000"}
+{ "type": "LogicalCellProgramLog", "channel": 1, "block": 1, "page": 6 , "logging_time"  : "2021-07-04 18:14:47.000"}
+{ "type": "PhysicalCellProgramLog", "channel": 1, "block": 1, "page": 6 , "logging_time"  : "2021-07-04 18:14:47.000"}
+{ "type": "ChannelSwitchToReadLog", "channel": 1 , "logging_time"  : "2021-07-04 18:14:47.000"}
+{ "type": "RegisterWriteLog", "channel": 1, "die": 1, "reg": 1 , "logging_time"  : "2021-07-04 18:14:47.000"}
+{ "type": "LogicalCellProgramLog", "channel": 1, "block": 1, "page": 7 , "logging_time"  : "2021-07-04 18:14:47.000"}
+{ "type": "PhysicalCellProgramLog", "channel": 1, "block": 1, "page": 7 , "logging_time"  : "2021-07-04 18:14:47.000"}
+{ "type": "ChannelSwitchToReadLog", "channel": 1 , "logging_time"  : "2021-07-04 18:14:47.000"}
+{ "type": "RegisterWriteLog", "channel": 1, "die": 1, "reg": 1 , "logging_time"  : "2021-07-04 18:14:47.000"}
+{ "type": "LogicalCellProgramLog", "channel": 1, "block": 1, "page": 8 , "logging_time"  : "2021-07-04 18:14:47.000"}
+{ "type": "PhysicalCellProgramLog", "channel": 1, "block": 1, "page": 8 , "logging_time"  : "2021-07-04 18:14:47.000"}
+{ "type": "ChannelSwitchToReadLog", "channel": 1 , "logging_time"  : "2021-07-04 18:14:47.000"}
+{ "type": "RegisterWriteLog", "channel": 1, "die": 1, "reg": 1 , "logging_time"  : "2021-07-04 18:14:47.000"}
+{ "type": "LogicalCellProgramLog", "channel": 1, "block": 1, "page": 9 , "logging_time"  : "2021-07-04 18:14:47.000"}
+{ "type": "PhysicalCellProgramLog", "channel": 1, "block": 1, "page": 9 , "logging_time"  : "2021-07-04 18:14:47.000"}
+{ "type": "ChannelSwitchToReadLog", "channel": 1 , "logging_time"  : "2021-07-04 18:14:47.000"}
+{ "type": "RegisterWriteLog", "channel": 1, "die": 1, "reg": 1 , "logging_time"  : "2021-07-04 18:14:47.000"}
+{ "type": "LogicalCellProgramLog", "channel": 1, "block": 2, "page": 0 , "logging_time"  : "2021-07-04 18:14:47.000"}
+{ "type": "PhysicalCellProgramLog", "channel": 1, "block": 2, "page": 0 , "logging_time"  : "2021-07-04 18:14:47.000"}
+{ "type": "ChannelSwitchToReadLog", "channel": 1 , "logging_time"  : "2021-07-04 18:14:47.000"}
+{ "type": "RegisterWriteLog", "channel": 1, "die": 1, "reg": 1 , "logging_time"  : "2021-07-04 18:14:47.000"}
+{ "type": "LogicalCellProgramLog", "channel": 1, "block": 2, "page": 1 , "logging_time"  : "2021-07-04 18:14:47.000"}
+{ "type": "PhysicalCellProgramLog", "channel": 1, "block": 2, "page": 1 , "logging_time"  : "2021-07-04 18:14:47.000"}
+{ "type": "ChannelSwitchToReadLog", "channel": 1 , "logging_time"  : "2021-07-04 18:14:47.000"}
+{ "type": "RegisterWriteLog", "channel": 1, "die": 1, "reg": 1 , "logging_time"  : "2021-07-04 18:14:47.000"}
+{ "type": "LogicalCellProgramLog", "channel": 1, "block": 2, "page": 2 , "logging_time"  : "2021-07-04 18:14:47.000"}
+{ "type": "PhysicalCellProgramLog", "channel": 1, "block": 2, "page": 2 , "logging_time"  : "2021-07-04 18:14:47.000"}
+{ "type": "ChannelSwitchToReadLog", "channel": 1 , "logging_time"  : "2021-07-04 18:14:47.000"}
+{ "type": "RegisterWriteLog", "channel": 1, "die": 1, "reg": 1 , "logging_time"  : "2021-07-04 18:14:47.000"}
+{ "type": "LogicalCellProgramLog", "channel": 1, "block": 2, "page": 3 , "logging_time"  : "2021-07-04 18:14:47.000"}
+{ "type": "PhysicalCellProgramLog", "channel": 1, "block": 2, "page": 3 , "logging_time"  : "2021-07-04 18:14:47.000"}
+{ "type": "ChannelSwitchToReadLog", "channel": 1 , "logging_time"  : "2021-07-04 18:14:47.000"}
+{ "type": "RegisterWriteLog", "channel": 1, "die": 1, "reg": 1 , "logging_time"  : "2021-07-04 18:14:47.000"}
+{ "type": "LogicalCellProgramLog", "channel": 1, "block": 2, "page": 4 , "logging_time"  : "2021-07-04 18:14:47.000"}
+{ "type": "PhysicalCellProgramLog", "channel": 1, "block": 2, "page": 4 , "logging_time"  : "2021-07-04 18:14:47.000"}
+{ "type": "ChannelSwitchToReadLog", "channel": 1 , "logging_time"  : "2021-07-04 18:14:47.000"}
+{ "type": "RegisterWriteLog", "channel": 1, "die": 1, "reg": 1 , "logging_time"  : "2021-07-04 18:14:47.000"}
+{ "type": "LogicalCellProgramLog", "channel": 1, "block": 2, "page": 5 , "logging_time"  : "2021-07-04 18:14:47.000"}
+{ "type": "PhysicalCellProgramLog", "channel": 1, "block": 2, "page": 5 , "logging_time"  : "2021-07-04 18:14:47.000"}
+{ "type": "ChannelSwitchToReadLog", "channel": 1 , "logging_time"  : "2021-07-04 18:14:47.000"}
+{ "type": "RegisterWriteLog", "channel": 1, "die": 1, "reg": 1 , "logging_time"  : "2021-07-04 18:14:47.000"}
+{ "type": "LogicalCellProgramLog", "channel": 1, "block": 2, "page": 6 , "logging_time"  : "2021-07-04 18:14:47.000"}
+{ "type": "PhysicalCellProgramLog", "channel": 1, "block": 2, "page": 6 , "logging_time"  : "2021-07-04 18:14:47.000"}
+{ "type": "ChannelSwitchToReadLog", "channel": 1 , "logging_time"  : "2021-07-04 18:14:47.000"}
+{ "type": "RegisterWriteLog", "channel": 1, "die": 1, "reg": 1 , "logging_time"  : "2021-07-04 18:14:47.000"}
+{ "type": "LogicalCellProgramLog", "channel": 1, "block": 2, "page": 7 , "logging_time"  : "2021-07-04 18:14:47.000"}
+{ "type": "PhysicalCellProgramLog", "channel": 1, "block": 2, "page": 7 , "logging_time"  : "2021-07-04 18:14:47.000"}
+{ "type": "ChannelSwitchToReadLog", "channel": 1 , "logging_time"  : "2021-07-04 18:14:47.000"}
+{ "type": "RegisterWriteLog", "channel": 1, "die": 1, "reg": 1 , "logging_time"  : "2021-07-04 18:14:47.000"}
+{ "type": "LogicalCellProgramLog", "channel": 1, "block": 2, "page": 8 , "logging_time"  : "2021-07-04 18:14:47.000"}
+{ "type": "PhysicalCellProgramLog", "channel": 1, "block": 2, "page": 8 , "logging_time"  : "2021-07-04 18:14:47.000"}
+{ "type": "ChannelSwitchToReadLog", "channel": 1 , "logging_time"  : "2021-07-04 18:14:47.000"}
+{ "type": "RegisterWriteLog", "channel": 1, "die": 1, "reg": 1 , "logging_time"  : "2021-07-04 18:14:47.000"}
+{ "type": "LogicalCellProgramLog", "channel": 1, "block": 2, "page": 9 , "logging_time"  : "2021-07-04 18:14:47.000"}
+{ "type": "PhysicalCellProgramLog", "channel": 1, "block": 2, "page": 9 , "logging_time"  : "2021-07-04 18:14:47.000"}
+{ "type": "ChannelSwitchToReadLog", "channel": 1 , "logging_time"  : "2021-07-04 18:14:47.000"}
+{ "type": "RegisterWriteLog", "channel": 1, "die": 1, "reg": 1 , "logging_time"  : "2021-07-04 18:14:47.000"}
+{ "type": "LogicalCellProgramLog", "channel": 1, "block": 3, "page": 0 , "logging_time"  : "2021-07-04 18:14:47.000"}
+{ "type": "PhysicalCellProgramLog", "channel": 1, "block": 3, "page": 0 , "logging_time"  : "2021-07-04 18:14:47.000"}
+{ "type": "ChannelSwitchToReadLog", "channel": 1 , "logging_time"  : "2021-07-04 18:14:47.000"}
+{ "type": "RegisterWriteLog", "channel": 1, "die": 1, "reg": 1 , "logging_time"  : "2021-07-04 18:14:47.000"}
+{ "type": "LogicalCellProgramLog", "channel": 1, "block": 3, "page": 1 , "logging_time"  : "2021-07-04 18:14:47.000"}
+{ "type": "PhysicalCellProgramLog", "channel": 1, "block": 3, "page": 1 , "logging_time"  : "2021-07-04 18:14:47.000"}
+{ "type": "ChannelSwitchToReadLog", "channel": 1 , "logging_time"  : "2021-07-04 18:14:47.000"}
+{ "type": "RegisterWriteLog", "channel": 1, "die": 1, "reg": 1 , "logging_time"  : "2021-07-04 18:14:47.000"}
+{ "type": "LogicalCellProgramLog", "channel": 1, "block": 3, "page": 2 , "logging_time"  : "2021-07-04 18:14:47.000"}
+{ "type": "PhysicalCellProgramLog", "channel": 1, "block": 3, "page": 2 , "logging_time"  : "2021-07-04 18:14:47.000"}
+{ "type": "ChannelSwitchToReadLog", "channel": 1 , "logging_time"  : "2021-07-04 18:14:47.000"}
+{ "type": "RegisterWriteLog", "channel": 1, "die": 1, "reg": 1 , "logging_time"  : "2021-07-04 18:14:47.000"}
+{ "type": "LogicalCellProgramLog", "channel": 1, "block": 3, "page": 3 , "logging_time"  : "2021-07-04 18:14:47.000"}
+{ "type": "PhysicalCellProgramLog", "channel": 1, "block": 3, "page": 3 , "logging_time"  : "2021-07-04 18:14:47.000"}
+{ "type": "ChannelSwitchToReadLog", "channel": 1 , "logging_time"  : "2021-07-04 18:14:47.000"}
+{ "type": "RegisterWriteLog", "channel": 1, "die": 1, "reg": 1 , "logging_time"  : "2021-07-04 18:14:47.000"}
+{ "type": "LogicalCellProgramLog", "channel": 1, "block": 3, "page": 4 , "logging_time"  : "2021-07-04 18:14:47.000"}
+{ "type": "PhysicalCellProgramLog", "channel": 1, "block": 3, "page": 4 , "logging_time"  : "2021-07-04 18:14:47.000"}
+{ "type": "ChannelSwitchToReadLog", "channel": 1 , "logging_time"  : "2021-07-04 18:14:47.000"}
+{ "type": "RegisterWriteLog", "channel": 1, "die": 1, "reg": 1 , "logging_time"  : "2021-07-04 18:14:47.000"}
+{ "type": "LogicalCellProgramLog", "channel": 1, "block": 3, "page": 5 , "logging_time"  : "2021-07-04 18:14:47.000"}
+{ "type": "PhysicalCellProgramLog", "channel": 1, "block": 3, "page": 5 , "logging_time"  : "2021-07-04 18:14:47.000"}
+{ "type": "ChannelSwitchToReadLog", "channel": 1 , "logging_time"  : "2021-07-04 18:14:47.000"}
+{ "type": "RegisterWriteLog", "channel": 1, "die": 1, "reg": 1 , "logging_time"  : "2021-07-04 18:14:47.000"}
+{ "type": "LogicalCellProgramLog", "channel": 1, "block": 3, "page": 6 , "logging_time"  : "2021-07-04 18:14:47.000"}
+{ "type": "PhysicalCellProgramLog", "channel": 1, "block": 3, "page": 6 , "logging_time"  : "2021-07-04 18:14:47.000"}
+{ "type": "ChannelSwitchToReadLog", "channel": 1 , "logging_time"  : "2021-07-04 18:14:47.000"}
+{ "type": "RegisterWriteLog", "channel": 1, "die": 1, "reg": 1 , "logging_time"  : "2021-07-04 18:14:47.000"}
+{ "type": "LogicalCellProgramLog", "channel": 1, "block": 3, "page": 7 , "logging_time"  : "2021-07-04 18:14:47.000"}
+{ "type": "PhysicalCellProgramLog", "channel": 1, "block": 3, "page": 7 , "logging_time"  : "2021-07-04 18:14:47.000"}
+{ "type": "ChannelSwitchToReadLog", "channel": 1 , "logging_time"  : "2021-07-04 18:14:47.000"}
+{ "type": "RegisterWriteLog", "channel": 1, "die": 1, "reg": 1 , "logging_time"  : "2021-07-04 18:14:47.000"}
+{ "type": "LogicalCellProgramLog", "channel": 1, "block": 3, "page": 8 , "logging_time"  : "2021-07-04 18:14:47.000"}
+{ "type": "PhysicalCellProgramLog", "channel": 1, "block": 3, "page": 8 , "logging_time"  : "2021-07-04 18:14:47.000"}
+{ "type": "ChannelSwitchToReadLog", "channel": 1 , "logging_time"  : "2021-07-04 18:14:47.000"}
+{ "type": "RegisterWriteLog", "channel": 1, "die": 1, "reg": 1 , "logging_time"  : "2021-07-04 18:14:47.000"}
+{ "type": "LogicalCellProgramLog", "channel": 1, "block": 3, "page": 9 , "logging_time"  : "2021-07-04 18:14:47.000"}
+{ "type": "PhysicalCellProgramLog", "channel": 1, "block": 3, "page": 9 , "logging_time"  : "2021-07-04 18:14:47.000"}
+{ "type": "ChannelSwitchToReadLog", "channel": 1 , "logging_time"  : "2021-07-04 18:14:47.000"}
+{ "type": "RegisterWriteLog", "channel": 1, "die": 1, "reg": 1 , "logging_time"  : "2021-07-04 18:14:47.000"}
+{ "type": "LogicalCellProgramLog", "channel": 1, "block": 4, "page": 0 , "logging_time"  : "2021-07-04 18:14:47.000"}
+{ "type": "PhysicalCellProgramLog", "channel": 1, "block": 4, "page": 0 , "logging_time"  : "2021-07-04 18:14:47.000"}
+{ "type": "ChannelSwitchToReadLog", "channel": 1 , "logging_time"  : "2021-07-04 18:14:47.000"}
+{ "type": "RegisterWriteLog", "channel": 1, "die": 1, "reg": 1 , "logging_time"  : "2021-07-04 18:14:47.000"}
+{ "type": "LogicalCellProgramLog", "channel": 1, "block": 4, "page": 1 , "logging_time"  : "2021-07-04 18:14:47.000"}
+{ "type": "PhysicalCellProgramLog", "channel": 1, "block": 4, "page": 1 , "logging_time"  : "2021-07-04 18:14:47.000"}
+{ "type": "ChannelSwitchToReadLog", "channel": 1 , "logging_time"  : "2021-07-04 18:14:47.000"}
+{ "type": "RegisterWriteLog", "channel": 1, "die": 1, "reg": 1 , "logging_time"  : "2021-07-04 18:14:47.000"}
+{ "type": "LogicalCellProgramLog", "channel": 1, "block": 4, "page": 2 , "logging_time"  : "2021-07-04 18:14:47.000"}
+{ "type": "PhysicalCellProgramLog", "channel": 1, "block": 4, "page": 2 , "logging_time"  : "2021-07-04 18:14:47.000"}
+{ "type": "ChannelSwitchToReadLog", "channel": 1 , "logging_time"  : "2021-07-04 18:14:47.000"}
+{ "type": "RegisterWriteLog", "channel": 1, "die": 1, "reg": 1 , "logging_time"  : "2021-07-04 18:14:47.000"}
+{ "type": "LogicalCellProgramLog", "channel": 1, "block": 4, "page": 3 , "logging_time"  : "2021-07-04 18:14:47.000"}
+{ "type": "PhysicalCellProgramLog", "channel": 1, "block": 4, "page": 3 , "logging_time"  : "2021-07-04 18:14:47.000"}
+{ "type": "ChannelSwitchToReadLog", "channel": 1 , "logging_time"  : "2021-07-04 18:14:48.000"}
+{ "type": "RegisterWriteLog", "channel": 1, "die": 1, "reg": 1 , "logging_time"  : "2021-07-04 18:14:48.000"}
+{ "type": "LogicalCellProgramLog", "channel": 1, "block": 4, "page": 4 , "logging_time"  : "2021-07-04 18:14:48.000"}
+{ "type": "PhysicalCellProgramLog", "channel": 1, "block": 4, "page": 4 , "logging_time"  : "2021-07-04 18:14:48.000"}
+{ "type": "ChannelSwitchToReadLog", "channel": 1 , "logging_time"  : "2021-07-04 18:14:48.000"}
+{ "type": "RegisterWriteLog", "channel": 1, "die": 1, "reg": 1 , "logging_time"  : "2021-07-04 18:14:48.000"}
+{ "type": "LogicalCellProgramLog", "channel": 1, "block": 4, "page": 5 , "logging_time"  : "2021-07-04 18:14:48.000"}
+{ "type": "PhysicalCellProgramLog", "channel": 1, "block": 4, "page": 5 , "logging_time"  : "2021-07-04 18:14:48.000"}
+{ "type": "ChannelSwitchToReadLog", "channel": 1 , "logging_time"  : "2021-07-04 18:14:48.000"}
+{ "type": "RegisterWriteLog", "channel": 1, "die": 1, "reg": 1 , "logging_time"  : "2021-07-04 18:14:48.000"}
+{ "type": "LogicalCellProgramLog", "channel": 1, "block": 4, "page": 6 , "logging_time"  : "2021-07-04 18:14:48.000"}
+{ "type": "PhysicalCellProgramLog", "channel": 1, "block": 4, "page": 6 , "logging_time"  : "2021-07-04 18:14:48.000"}
+{ "type": "ChannelSwitchToReadLog", "channel": 1 , "logging_time"  : "2021-07-04 18:14:48.000"}
+{ "type": "RegisterWriteLog", "channel": 1, "die": 1, "reg": 1 , "logging_time"  : "2021-07-04 18:14:48.000"}
+{ "type": "LogicalCellProgramLog", "channel": 1, "block": 4, "page": 7 , "logging_time"  : "2021-07-04 18:14:48.000"}
+{ "type": "PhysicalCellProgramLog", "channel": 1, "block": 4, "page": 7 , "logging_time"  : "2021-07-04 18:14:48.000"}
+{ "type": "ChannelSwitchToReadLog", "channel": 1 , "logging_time"  : "2021-07-04 18:14:48.000"}
+{ "type": "RegisterWriteLog", "channel": 1, "die": 1, "reg": 1 , "logging_time"  : "2021-07-04 18:14:48.000"}
+{ "type": "LogicalCellProgramLog", "channel": 1, "block": 4, "page": 8 , "logging_time"  : "2021-07-04 18:14:48.000"}
+{ "type": "PhysicalCellProgramLog", "channel": 1, "block": 4, "page": 8 , "logging_time"  : "2021-07-04 18:14:48.000"}
+{ "type": "ChannelSwitchToReadLog", "channel": 1 , "logging_time"  : "2021-07-04 18:14:48.000"}
+{ "type": "RegisterWriteLog", "channel": 1, "die": 1, "reg": 1 , "logging_time"  : "2021-07-04 18:14:48.000"}
+{ "type": "LogicalCellProgramLog", "channel": 1, "block": 4, "page": 9 , "logging_time"  : "2021-07-04 18:14:48.000"}
+{ "type": "PhysicalCellProgramLog", "channel": 1, "block": 4, "page": 9 , "logging_time"  : "2021-07-04 18:14:48.000"}
+{ "type": "ChannelSwitchToReadLog", "channel": 1 , "logging_time"  : "2021-07-04 18:14:48.000"}
+{ "type": "RegisterWriteLog", "channel": 1, "die": 1, "reg": 1 , "logging_time"  : "2021-07-04 18:14:48.000"}
+{ "type": "LogicalCellProgramLog", "channel": 1, "block": 5, "page": 0 , "logging_time"  : "2021-07-04 18:14:48.000"}
+{ "type": "PhysicalCellProgramLog", "channel": 1, "block": 5, "page": 0 , "logging_time"  : "2021-07-04 18:14:48.000"}
+{ "type": "ChannelSwitchToReadLog", "channel": 1 , "logging_time"  : "2021-07-04 18:14:48.000"}
+{ "type": "RegisterWriteLog", "channel": 1, "die": 1, "reg": 1 , "logging_time"  : "2021-07-04 18:14:48.000"}
+{ "type": "LogicalCellProgramLog", "channel": 1, "block": 5, "page": 1 , "logging_time"  : "2021-07-04 18:14:48.000"}
+{ "type": "PhysicalCellProgramLog", "channel": 1, "block": 5, "page": 1 , "logging_time"  : "2021-07-04 18:14:48.000"}
+{ "type": "ChannelSwitchToReadLog", "channel": 1 , "logging_time"  : "2021-07-04 18:14:48.000"}
+{ "type": "RegisterWriteLog", "channel": 1, "die": 1, "reg": 1 , "logging_time"  : "2021-07-04 18:14:48.000"}
+{ "type": "LogicalCellProgramLog", "channel": 1, "block": 5, "page": 2 , "logging_time"  : "2021-07-04 18:14:48.000"}
+{ "type": "PhysicalCellProgramLog", "channel": 1, "block": 5, "page": 2 , "logging_time"  : "2021-07-04 18:14:48.000"}
+{ "type": "ChannelSwitchToReadLog", "channel": 1 , "logging_time"  : "2021-07-04 18:14:48.000"}
+{ "type": "RegisterWriteLog", "channel": 1, "die": 1, "reg": 1 , "logging_time"  : "2021-07-04 18:14:48.000"}
+{ "type": "LogicalCellProgramLog", "channel": 1, "block": 5, "page": 3 , "logging_time"  : "2021-07-04 18:14:48.000"}
+{ "type": "PhysicalCellProgramLog", "channel": 1, "block": 5, "page": 3 , "logging_time"  : "2021-07-04 18:14:48.000"}
+{ "type": "ChannelSwitchToReadLog", "channel": 1 , "logging_time"  : "2021-07-04 18:14:48.000"}
+{ "type": "RegisterWriteLog", "channel": 1, "die": 1, "reg": 1 , "logging_time"  : "2021-07-04 18:14:48.000"}
+{ "type": "LogicalCellProgramLog", "channel": 1, "block": 5, "page": 4 , "logging_time"  : "2021-07-04 18:14:48.000"}
+{ "type": "PhysicalCellProgramLog", "channel": 1, "block": 5, "page": 4 , "logging_time"  : "2021-07-04 18:14:48.000"}
+{ "type": "ChannelSwitchToReadLog", "channel": 1 , "logging_time"  : "2021-07-04 18:14:48.000"}
+{ "type": "RegisterWriteLog", "channel": 1, "die": 1, "reg": 1 , "logging_time"  : "2021-07-04 18:14:48.000"}
+{ "type": "LogicalCellProgramLog", "channel": 1, "block": 5, "page": 5 , "logging_time"  : "2021-07-04 18:14:48.000"}
+{ "type": "PhysicalCellProgramLog", "channel": 1, "block": 5, "page": 5 , "logging_time"  : "2021-07-04 18:14:48.000"}
+{ "type": "ChannelSwitchToReadLog", "channel": 1 , "logging_time"  : "2021-07-04 18:14:48.000"}
+{ "type": "RegisterWriteLog", "channel": 1, "die": 1, "reg": 1 , "logging_time"  : "2021-07-04 18:14:48.000"}
+{ "type": "LogicalCellProgramLog", "channel": 1, "block": 5, "page": 6 , "logging_time"  : "2021-07-04 18:14:48.000"}
+{ "type": "PhysicalCellProgramLog", "channel": 1, "block": 5, "page": 6 , "logging_time"  : "2021-07-04 18:14:48.000"}
+{ "type": "ChannelSwitchToReadLog", "channel": 1 , "logging_time"  : "2021-07-04 18:14:48.000"}
+{ "type": "RegisterWriteLog", "channel": 1, "die": 1, "reg": 1 , "logging_time"  : "2021-07-04 18:14:48.000"}
+{ "type": "LogicalCellProgramLog", "channel": 1, "block": 5, "page": 7 , "logging_time"  : "2021-07-04 18:14:48.000"}
+{ "type": "PhysicalCellProgramLog", "channel": 1, "block": 5, "page": 7 , "logging_time"  : "2021-07-04 18:14:48.000"}
+{ "type": "ChannelSwitchToReadLog", "channel": 1 , "logging_time"  : "2021-07-04 18:14:48.000"}
+{ "type": "RegisterWriteLog", "channel": 1, "die": 1, "reg": 1 , "logging_time"  : "2021-07-04 18:14:48.000"}
+{ "type": "LogicalCellProgramLog", "channel": 1, "block": 5, "page": 8 , "logging_time"  : "2021-07-04 18:14:48.000"}
+{ "type": "PhysicalCellProgramLog", "channel": 1, "block": 5, "page": 8 , "logging_time"  : "2021-07-04 18:14:48.000"}
+{ "type": "ChannelSwitchToReadLog", "channel": 1 , "logging_time"  : "2021-07-04 18:14:48.000"}
+{ "type": "RegisterWriteLog", "channel": 1, "die": 1, "reg": 1 , "logging_time"  : "2021-07-04 18:14:48.000"}
+{ "type": "LogicalCellProgramLog", "channel": 1, "block": 5, "page": 9 , "logging_time"  : "2021-07-04 18:14:48.000"}
+{ "type": "PhysicalCellProgramLog", "channel": 1, "block": 5, "page": 9 , "logging_time"  : "2021-07-04 18:14:48.000"}
+{ "type": "ChannelSwitchToReadLog", "channel": 1 , "logging_time"  : "2021-07-04 18:14:48.000"}
+{ "type": "RegisterWriteLog", "channel": 1, "die": 1, "reg": 1 , "logging_time"  : "2021-07-04 18:14:48.000"}
+{ "type": "LogicalCellProgramLog", "channel": 1, "block": 6, "page": 0 , "logging_time"  : "2021-07-04 18:14:48.000"}
+{ "type": "PhysicalCellProgramLog", "channel": 1, "block": 6, "page": 0 , "logging_time"  : "2021-07-04 18:14:48.000"}
+{ "type": "ChannelSwitchToReadLog", "channel": 0 , "logging_time"  : "2021-07-04 18:14:47.000"}
+{ "type": "RegisterWriteLog", "channel": 0, "die": 0, "reg": 0 , "logging_time"  : "2021-07-04 18:14:47.000"}
+{ "type": "LogicalCellProgramLog", "channel": 0, "block": 1, "page": 6 , "logging_time"  : "2021-07-04 18:14:47.000"}
+{ "type": "PhysicalCellProgramLog", "channel": 0, "block": 1, "page": 6 , "logging_time"  : "2021-07-04 18:14:47.000"}
+{ "type": "ChannelSwitchToReadLog", "channel": 0 , "logging_time"  : "2021-07-04 18:14:47.000"}
+{ "type": "RegisterWriteLog", "channel": 0, "die": 0, "reg": 0 , "logging_time"  : "2021-07-04 18:14:47.000"}
+{ "type": "LogicalCellProgramLog", "channel": 0, "block": 1, "page": 7 , "logging_time"  : "2021-07-04 18:14:47.000"}
+{ "type": "PhysicalCellProgramLog", "channel": 0, "block": 1, "page": 7 , "logging_time"  : "2021-07-04 18:14:47.000"}
+{ "type": "ChannelSwitchToReadLog", "channel": 0 , "logging_time"  : "2021-07-04 18:14:47.000"}
+{ "type": "RegisterWriteLog", "channel": 0, "die": 0, "reg": 0 , "logging_time"  : "2021-07-04 18:14:47.000"}
+{ "type": "LogicalCellProgramLog", "channel": 0, "block": 1, "page": 8 , "logging_time"  : "2021-07-04 18:14:47.000"}
+{ "type": "PhysicalCellProgramLog", "channel": 0, "block": 1, "page": 8 , "logging_time"  : "2021-07-04 18:14:47.000"}
+{ "type": "ChannelSwitchToReadLog", "channel": 0 , "logging_time"  : "2021-07-04 18:14:47.000"}
+{ "type": "RegisterWriteLog", "channel": 0, "die": 0, "reg": 0 , "logging_time"  : "2021-07-04 18:14:47.000"}
+{ "type": "LogicalCellProgramLog", "channel": 0, "block": 1, "page": 9 , "logging_time"  : "2021-07-04 18:14:47.000"}
+{ "type": "PhysicalCellProgramLog", "channel": 0, "block": 1, "page": 9 , "logging_time"  : "2021-07-04 18:14:47.000"}
+{ "type": "ChannelSwitchToReadLog", "channel": 0 , "logging_time"  : "2021-07-04 18:14:47.000"}
+{ "type": "RegisterWriteLog", "channel": 0, "die": 0, "reg": 0 , "logging_time"  : "2021-07-04 18:14:47.000"}
+{ "type": "LogicalCellProgramLog", "channel": 0, "block": 2, "page": 0 , "logging_time"  : "2021-07-04 18:14:47.000"}
+{ "type": "PhysicalCellProgramLog", "channel": 0, "block": 2, "page": 0 , "logging_time"  : "2021-07-04 18:14:47.000"}
+{ "type": "ChannelSwitchToReadLog", "channel": 0 , "logging_time"  : "2021-07-04 18:14:47.000"}
+{ "type": "RegisterWriteLog", "channel": 0, "die": 0, "reg": 0 , "logging_time"  : "2021-07-04 18:14:47.000"}
+{ "type": "LogicalCellProgramLog", "channel": 0, "block": 2, "page": 1 , "logging_time"  : "2021-07-04 18:14:47.000"}
+{ "type": "PhysicalCellProgramLog", "channel": 0, "block": 2, "page": 1 , "logging_time"  : "2021-07-04 18:14:47.000"}
+{ "type": "ChannelSwitchToReadLog", "channel": 0 , "logging_time"  : "2021-07-04 18:14:47.000"}
+{ "type": "RegisterWriteLog", "channel": 0, "die": 0, "reg": 0 , "logging_time"  : "2021-07-04 18:14:47.000"}
+{ "type": "LogicalCellProgramLog", "channel": 0, "block": 2, "page": 2 , "logging_time"  : "2021-07-04 18:14:47.000"}
+{ "type": "PhysicalCellProgramLog", "channel": 0, "block": 2, "page": 2 , "logging_time"  : "2021-07-04 18:14:47.000"}
+{ "type": "ChannelSwitchToReadLog", "channel": 0 , "logging_time"  : "2021-07-04 18:14:47.000"}
+{ "type": "RegisterWriteLog", "channel": 0, "die": 0, "reg": 0 , "logging_time"  : "2021-07-04 18:14:47.000"}
+{ "type": "LogicalCellProgramLog", "channel": 0, "block": 2, "page": 3 , "logging_time"  : "2021-07-04 18:14:47.000"}
+{ "type": "PhysicalCellProgramLog", "channel": 0, "block": 2, "page": 3 , "logging_time"  : "2021-07-04 18:14:47.000"}
+{ "type": "ChannelSwitchToReadLog", "channel": 0 , "logging_time"  : "2021-07-04 18:14:47.000"}
+{ "type": "RegisterWriteLog", "channel": 0, "die": 0, "reg": 0 , "logging_time"  : "2021-07-04 18:14:47.000"}
+{ "type": "LogicalCellProgramLog", "channel": 0, "block": 2, "page": 4 , "logging_time"  : "2021-07-04 18:14:47.000"}
+{ "type": "PhysicalCellProgramLog", "channel": 0, "block": 2, "page": 4 , "logging_time"  : "2021-07-04 18:14:47.000"}
+{ "type": "ChannelSwitchToReadLog", "channel": 0 , "logging_time"  : "2021-07-04 18:14:47.000"}
+{ "type": "RegisterWriteLog", "channel": 0, "die": 0, "reg": 0 , "logging_time"  : "2021-07-04 18:14:47.000"}
+{ "type": "LogicalCellProgramLog", "channel": 0, "block": 2, "page": 5 , "logging_time"  : "2021-07-04 18:14:47.000"}
+{ "type": "PhysicalCellProgramLog", "channel": 0, "block": 2, "page": 5 , "logging_time"  : "2021-07-04 18:14:47.000"}
+{ "type": "ChannelSwitchToReadLog", "channel": 0 , "logging_time"  : "2021-07-04 18:14:47.000"}
+{ "type": "RegisterWriteLog", "channel": 0, "die": 0, "reg": 0 , "logging_time"  : "2021-07-04 18:14:47.000"}
+{ "type": "LogicalCellProgramLog", "channel": 0, "block": 2, "page": 6 , "logging_time"  : "2021-07-04 18:14:47.000"}
+{ "type": "PhysicalCellProgramLog", "channel": 0, "block": 2, "page": 6 , "logging_time"  : "2021-07-04 18:14:47.000"}
+{ "type": "ChannelSwitchToReadLog", "channel": 0 , "logging_time"  : "2021-07-04 18:14:47.000"}
+{ "type": "RegisterWriteLog", "channel": 0, "die": 0, "reg": 0 , "logging_time"  : "2021-07-04 18:14:47.000"}
+{ "type": "LogicalCellProgramLog", "channel": 0, "block": 2, "page": 7 , "logging_time"  : "2021-07-04 18:14:47.000"}
+{ "type": "PhysicalCellProgramLog", "channel": 0, "block": 2, "page": 7 , "logging_time"  : "2021-07-04 18:14:47.000"}
+{ "type": "ChannelSwitchToReadLog", "channel": 0 , "logging_time"  : "2021-07-04 18:14:47.000"}
+{ "type": "RegisterWriteLog", "channel": 0, "die": 0, "reg": 0 , "logging_time"  : "2021-07-04 18:14:47.000"}
+{ "type": "LogicalCellProgramLog", "channel": 0, "block": 2, "page": 8 , "logging_time"  : "2021-07-04 18:14:47.000"}
+{ "type": "PhysicalCellProgramLog", "channel": 0, "block": 2, "page": 8 , "logging_time"  : "2021-07-04 18:14:47.000"}
+{ "type": "ChannelSwitchToReadLog", "channel": 0 , "logging_time"  : "2021-07-04 18:14:47.000"}
+{ "type": "RegisterWriteLog", "channel": 0, "die": 0, "reg": 0 , "logging_time"  : "2021-07-04 18:14:47.000"}
+{ "type": "LogicalCellProgramLog", "channel": 0, "block": 2, "page": 9 , "logging_time"  : "2021-07-04 18:14:47.000"}
+{ "type": "PhysicalCellProgramLog", "channel": 0, "block": 2, "page": 9 , "logging_time"  : "2021-07-04 18:14:47.000"}
+{ "type": "ChannelSwitchToReadLog", "channel": 0 , "logging_time"  : "2021-07-04 18:14:47.000"}
+{ "type": "RegisterWriteLog", "channel": 0, "die": 0, "reg": 0 , "logging_time"  : "2021-07-04 18:14:47.000"}
+{ "type": "LogicalCellProgramLog", "channel": 0, "block": 3, "page": 0 , "logging_time"  : "2021-07-04 18:14:47.000"}
+{ "type": "PhysicalCellProgramLog", "channel": 0, "block": 3, "page": 0 , "logging_time"  : "2021-07-04 18:14:47.000"}
+{ "type": "ChannelSwitchToReadLog", "channel": 0 , "logging_time"  : "2021-07-04 18:14:47.000"}
+{ "type": "RegisterWriteLog", "channel": 0, "die": 0, "reg": 0 , "logging_time"  : "2021-07-04 18:14:47.000"}
+{ "type": "LogicalCellProgramLog", "channel": 0, "block": 3, "page": 1 , "logging_time"  : "2021-07-04 18:14:47.000"}
+{ "type": "PhysicalCellProgramLog", "channel": 0, "block": 3, "page": 1 , "logging_time"  : "2021-07-04 18:14:47.000"}
+{ "type": "ChannelSwitchToReadLog", "channel": 0 , "logging_time"  : "2021-07-04 18:14:47.000"}
+{ "type": "RegisterWriteLog", "channel": 0, "die": 0, "reg": 0 , "logging_time"  : "2021-07-04 18:14:47.000"}
+{ "type": "LogicalCellProgramLog", "channel": 0, "block": 3, "page": 2 , "logging_time"  : "2021-07-04 18:14:47.000"}
+{ "type": "PhysicalCellProgramLog", "channel": 0, "block": 3, "page": 2 , "logging_time"  : "2021-07-04 18:14:47.000"}
+{ "type": "ChannelSwitchToReadLog", "channel": 0 , "logging_time"  : "2021-07-04 18:14:47.000"}
+{ "type": "RegisterWriteLog", "channel": 0, "die": 0, "reg": 0 , "logging_time"  : "2021-07-04 18:14:47.000"}
+{ "type": "LogicalCellProgramLog", "channel": 0, "block": 3, "page": 3 , "logging_time"  : "2021-07-04 18:14:47.000"}
+{ "type": "PhysicalCellProgramLog", "channel": 0, "block": 3, "page": 3 , "logging_time"  : "2021-07-04 18:14:47.000"}
+{ "type": "ChannelSwitchToReadLog", "channel": 0 , "logging_time"  : "2021-07-04 18:14:47.000"}
+{ "type": "RegisterWriteLog", "channel": 0, "die": 0, "reg": 0 , "logging_time"  : "2021-07-04 18:14:47.000"}
+{ "type": "LogicalCellProgramLog", "channel": 0, "block": 3, "page": 4 , "logging_time"  : "2021-07-04 18:14:47.000"}
+{ "type": "PhysicalCellProgramLog", "channel": 0, "block": 3, "page": 4 , "logging_time"  : "2021-07-04 18:14:47.000"}
+{ "type": "ChannelSwitchToReadLog", "channel": 0 , "logging_time"  : "2021-07-04 18:14:47.000"}
+{ "type": "RegisterWriteLog", "channel": 0, "die": 0, "reg": 0 , "logging_time"  : "2021-07-04 18:14:47.000"}
+{ "type": "LogicalCellProgramLog", "channel": 0, "block": 3, "page": 5 , "logging_time"  : "2021-07-04 18:14:47.000"}
+{ "type": "PhysicalCellProgramLog", "channel": 0, "block": 3, "page": 5 , "logging_time"  : "2021-07-04 18:14:47.000"}
+{ "type": "ChannelSwitchToReadLog", "channel": 0 , "logging_time"  : "2021-07-04 18:14:47.000"}
+{ "type": "RegisterWriteLog", "channel": 0, "die": 0, "reg": 0 , "logging_time"  : "2021-07-04 18:14:47.000"}
+{ "type": "LogicalCellProgramLog", "channel": 0, "block": 3, "page": 6 , "logging_time"  : "2021-07-04 18:14:47.000"}
+{ "type": "PhysicalCellProgramLog", "channel": 0, "block": 3, "page": 6 , "logging_time"  : "2021-07-04 18:14:47.000"}
+{ "type": "ChannelSwitchToReadLog", "channel": 0 , "logging_time"  : "2021-07-04 18:14:47.000"}
+{ "type": "RegisterWriteLog", "channel": 0, "die": 0, "reg": 0 , "logging_time"  : "2021-07-04 18:14:47.000"}
+{ "type": "LogicalCellProgramLog", "channel": 0, "block": 3, "page": 7 , "logging_time"  : "2021-07-04 18:14:47.000"}
+{ "type": "PhysicalCellProgramLog", "channel": 0, "block": 3, "page": 7 , "logging_time"  : "2021-07-04 18:14:47.000"}
+{ "type": "ChannelSwitchToReadLog", "channel": 0 , "logging_time"  : "2021-07-04 18:14:47.000"}
+{ "type": "RegisterWriteLog", "channel": 0, "die": 0, "reg": 0 , "logging_time"  : "2021-07-04 18:14:47.000"}
+{ "type": "LogicalCellProgramLog", "channel": 0, "block": 3, "page": 8 , "logging_time"  : "2021-07-04 18:14:47.000"}
+{ "type": "PhysicalCellProgramLog", "channel": 0, "block": 3, "page": 8 , "logging_time"  : "2021-07-04 18:14:47.000"}
+{ "type": "ChannelSwitchToReadLog", "channel": 0 , "logging_time"  : "2021-07-04 18:14:47.000"}
+{ "type": "RegisterWriteLog", "channel": 0, "die": 0, "reg": 0 , "logging_time"  : "2021-07-04 18:14:47.000"}
+{ "type": "LogicalCellProgramLog", "channel": 0, "block": 3, "page": 9 , "logging_time"  : "2021-07-04 18:14:47.000"}
+{ "type": "PhysicalCellProgramLog", "channel": 0, "block": 3, "page": 9 , "logging_time"  : "2021-07-04 18:14:47.000"}
+{ "type": "ChannelSwitchToReadLog", "channel": 0 , "logging_time"  : "2021-07-04 18:14:47.000"}
+{ "type": "RegisterWriteLog", "channel": 0, "die": 0, "reg": 0 , "logging_time"  : "2021-07-04 18:14:47.000"}
+{ "type": "LogicalCellProgramLog", "channel": 0, "block": 4, "page": 0 , "logging_time"  : "2021-07-04 18:14:47.000"}
+{ "type": "PhysicalCellProgramLog", "channel": 0, "block": 4, "page": 0 , "logging_time"  : "2021-07-04 18:14:47.000"}
+{ "type": "ChannelSwitchToReadLog", "channel": 0 , "logging_time"  : "2021-07-04 18:14:47.000"}
+{ "type": "RegisterWriteLog", "channel": 0, "die": 0, "reg": 0 , "logging_time"  : "2021-07-04 18:14:47.000"}
+{ "type": "LogicalCellProgramLog", "channel": 0, "block": 4, "page": 1 , "logging_time"  : "2021-07-04 18:14:47.000"}
+{ "type": "PhysicalCellProgramLog", "channel": 0, "block": 4, "page": 1 , "logging_time"  : "2021-07-04 18:14:47.000"}
+{ "type": "ChannelSwitchToReadLog", "channel": 0 , "logging_time"  : "2021-07-04 18:14:47.000"}
+{ "type": "RegisterWriteLog", "channel": 0, "die": 0, "reg": 0 , "logging_time"  : "2021-07-04 18:14:47.000"}
+{ "type": "LogicalCellProgramLog", "channel": 0, "block": 4, "page": 2 , "logging_time"  : "2021-07-04 18:14:47.000"}
+{ "type": "PhysicalCellProgramLog", "channel": 0, "block": 4, "page": 2 , "logging_time"  : "2021-07-04 18:14:47.000"}
+{ "type": "ChannelSwitchToReadLog", "channel": 0 , "logging_time"  : "2021-07-04 18:14:47.000"}
+{ "type": "RegisterWriteLog", "channel": 0, "die": 0, "reg": 0 , "logging_time"  : "2021-07-04 18:14:47.000"}
+{ "type": "LogicalCellProgramLog", "channel": 0, "block": 4, "page": 3 , "logging_time"  : "2021-07-04 18:14:47.000"}
+{ "type": "PhysicalCellProgramLog", "channel": 0, "block": 4, "page": 3 , "logging_time"  : "2021-07-04 18:14:47.000"}
+{ "type": "ChannelSwitchToReadLog", "channel": 0 , "logging_time"  : "2021-07-04 18:14:47.000"}
+{ "type": "RegisterWriteLog", "channel": 0, "die": 0, "reg": 0 , "logging_time"  : "2021-07-04 18:14:47.000"}
+{ "type": "LogicalCellProgramLog", "channel": 0, "block": 4, "page": 4 , "logging_time"  : "2021-07-04 18:14:47.000"}
+{ "type": "PhysicalCellProgramLog", "channel": 0, "block": 4, "page": 4 , "logging_time"  : "2021-07-04 18:14:47.000"}
+{ "type": "ChannelSwitchToReadLog", "channel": 0 , "logging_time"  : "2021-07-04 18:14:48.000"}
+{ "type": "RegisterWriteLog", "channel": 0, "die": 0, "reg": 0 , "logging_time"  : "2021-07-04 18:14:48.000"}
+{ "type": "LogicalCellProgramLog", "channel": 0, "block": 4, "page": 5 , "logging_time"  : "2021-07-04 18:14:48.000"}
+{ "type": "PhysicalCellProgramLog", "channel": 0, "block": 4, "page": 5 , "logging_time"  : "2021-07-04 18:14:48.000"}
+{ "type": "ChannelSwitchToReadLog", "channel": 0 , "logging_time"  : "2021-07-04 18:14:48.000"}
+{ "type": "RegisterWriteLog", "channel": 0, "die": 0, "reg": 0 , "logging_time"  : "2021-07-04 18:14:48.000"}
+{ "type": "LogicalCellProgramLog", "channel": 0, "block": 4, "page": 6 , "logging_time"  : "2021-07-04 18:14:48.000"}
+{ "type": "PhysicalCellProgramLog", "channel": 0, "block": 4, "page": 6 , "logging_time"  : "2021-07-04 18:14:48.000"}
+{ "type": "ChannelSwitchToReadLog", "channel": 0 , "logging_time"  : "2021-07-04 18:14:48.000"}
+{ "type": "RegisterWriteLog", "channel": 0, "die": 0, "reg": 0 , "logging_time"  : "2021-07-04 18:14:48.000"}
+{ "type": "LogicalCellProgramLog", "channel": 0, "block": 4, "page": 7 , "logging_time"  : "2021-07-04 18:14:48.000"}
+{ "type": "PhysicalCellProgramLog", "channel": 0, "block": 4, "page": 7 , "logging_time"  : "2021-07-04 18:14:48.000"}
+{ "type": "ChannelSwitchToReadLog", "channel": 0 , "logging_time"  : "2021-07-04 18:14:48.000"}
+{ "type": "RegisterWriteLog", "channel": 0, "die": 0, "reg": 0 , "logging_time"  : "2021-07-04 18:14:48.000"}
+{ "type": "LogicalCellProgramLog", "channel": 0, "block": 4, "page": 8 , "logging_time"  : "2021-07-04 18:14:48.000"}
+{ "type": "PhysicalCellProgramLog", "channel": 0, "block": 4, "page": 8 , "logging_time"  : "2021-07-04 18:14:48.000"}
+{ "type": "ChannelSwitchToReadLog", "channel": 0 , "logging_time"  : "2021-07-04 18:14:48.000"}
+{ "type": "RegisterWriteLog", "channel": 0, "die": 0, "reg": 0 , "logging_time"  : "2021-07-04 18:14:48.000"}
+{ "type": "LogicalCellProgramLog", "channel": 0, "block": 4, "page": 9 , "logging_time"  : "2021-07-04 18:14:48.000"}
+{ "type": "PhysicalCellProgramLog", "channel": 0, "block": 4, "page": 9 , "logging_time"  : "2021-07-04 18:14:48.000"}
+{ "type": "ChannelSwitchToReadLog", "channel": 0 , "logging_time"  : "2021-07-04 18:14:48.000"}
+{ "type": "RegisterWriteLog", "channel": 0, "die": 0, "reg": 0 , "logging_time"  : "2021-07-04 18:14:48.000"}
+{ "type": "LogicalCellProgramLog", "channel": 0, "block": 5, "page": 0 , "logging_time"  : "2021-07-04 18:14:48.000"}
+{ "type": "PhysicalCellProgramLog", "channel": 0, "block": 5, "page": 0 , "logging_time"  : "2021-07-04 18:14:48.000"}
+{ "type": "ChannelSwitchToReadLog", "channel": 0 , "logging_time"  : "2021-07-04 18:14:48.000"}
+{ "type": "RegisterWriteLog", "channel": 0, "die": 0, "reg": 0 , "logging_time"  : "2021-07-04 18:14:48.000"}
+{ "type": "LogicalCellProgramLog", "channel": 0, "block": 5, "page": 1 , "logging_time"  : "2021-07-04 18:14:48.000"}
+{ "type": "PhysicalCellProgramLog", "channel": 0, "block": 5, "page": 1 , "logging_time"  : "2021-07-04 18:14:48.000"}
+{ "type": "ChannelSwitchToReadLog", "channel": 0 , "logging_time"  : "2021-07-04 18:14:48.000"}
+{ "type": "RegisterWriteLog", "channel": 0, "die": 0, "reg": 0 , "logging_time"  : "2021-07-04 18:14:48.000"}
+{ "type": "LogicalCellProgramLog", "channel": 0, "block": 5, "page": 2 , "logging_time"  : "2021-07-04 18:14:48.000"}
+{ "type": "PhysicalCellProgramLog", "channel": 0, "block": 5, "page": 2 , "logging_time"  : "2021-07-04 18:14:48.000"}
+{ "type": "ChannelSwitchToReadLog", "channel": 0 , "logging_time"  : "2021-07-04 18:14:48.000"}
+{ "type": "RegisterWriteLog", "channel": 0, "die": 0, "reg": 0 , "logging_time"  : "2021-07-04 18:14:48.000"}
+{ "type": "LogicalCellProgramLog", "channel": 0, "block": 5, "page": 3 , "logging_time"  : "2021-07-04 18:14:48.000"}
+{ "type": "PhysicalCellProgramLog", "channel": 0, "block": 5, "page": 3 , "logging_time"  : "2021-07-04 18:14:48.000"}
+{ "type": "ChannelSwitchToReadLog", "channel": 0 , "logging_time"  : "2021-07-04 18:14:48.000"}
+{ "type": "RegisterWriteLog", "channel": 0, "die": 0, "reg": 0 , "logging_time"  : "2021-07-04 18:14:48.000"}
+{ "type": "LogicalCellProgramLog", "channel": 0, "block": 5, "page": 4 , "logging_time"  : "2021-07-04 18:14:48.000"}
+{ "type": "PhysicalCellProgramLog", "channel": 0, "block": 5, "page": 4 , "logging_time"  : "2021-07-04 18:14:48.000"}
+{ "type": "ChannelSwitchToReadLog", "channel": 0 , "logging_time"  : "2021-07-04 18:14:48.000"}
+{ "type": "RegisterWriteLog", "channel": 0, "die": 0, "reg": 0 , "logging_time"  : "2021-07-04 18:14:48.000"}
+{ "type": "LogicalCellProgramLog", "channel": 0, "block": 5, "page": 5 , "logging_time"  : "2021-07-04 18:14:48.000"}
+{ "type": "PhysicalCellProgramLog", "channel": 0, "block": 5, "page": 5 , "logging_time"  : "2021-07-04 18:14:48.000"}
+{ "type": "ChannelSwitchToReadLog", "channel": 0 , "logging_time"  : "2021-07-04 18:14:48.000"}
+{ "type": "RegisterWriteLog", "channel": 0, "die": 0, "reg": 0 , "logging_time"  : "2021-07-04 18:14:48.000"}
+{ "type": "LogicalCellProgramLog", "channel": 0, "block": 5, "page": 6 , "logging_time"  : "2021-07-04 18:14:48.000"}
+{ "type": "PhysicalCellProgramLog", "channel": 0, "block": 5, "page": 6 , "logging_time"  : "2021-07-04 18:14:48.000"}
+{ "type": "ChannelSwitchToReadLog", "channel": 0 , "logging_time"  : "2021-07-04 18:14:48.000"}
+{ "type": "RegisterWriteLog", "channel": 0, "die": 0, "reg": 0 , "logging_time"  : "2021-07-04 18:14:48.000"}
+{ "type": "LogicalCellProgramLog", "channel": 0, "block": 5, "page": 7 , "logging_time"  : "2021-07-04 18:14:48.000"}
+{ "type": "PhysicalCellProgramLog", "channel": 0, "block": 5, "page": 7 , "logging_time"  : "2021-07-04 18:14:48.000"}
+{ "type": "ChannelSwitchToReadLog", "channel": 0 , "logging_time"  : "2021-07-04 18:14:48.000"}
+{ "type": "RegisterWriteLog", "channel": 0, "die": 0, "reg": 0 , "logging_time"  : "2021-07-04 18:14:48.000"}
+{ "type": "LogicalCellProgramLog", "channel": 0, "block": 5, "page": 8 , "logging_time"  : "2021-07-04 18:14:48.000"}
+{ "type": "PhysicalCellProgramLog", "channel": 0, "block": 5, "page": 8 , "logging_time"  : "2021-07-04 18:14:48.000"}
+{ "type": "ChannelSwitchToReadLog", "channel": 0 , "logging_time"  : "2021-07-04 18:14:48.000"}
+{ "type": "RegisterWriteLog", "channel": 0, "die": 0, "reg": 0 , "logging_time"  : "2021-07-04 18:14:48.000"}
+{ "type": "LogicalCellProgramLog", "channel": 0, "block": 5, "page": 9 , "logging_time"  : "2021-07-04 18:14:48.000"}
+{ "type": "PhysicalCellProgramLog", "channel": 0, "block": 5, "page": 9 , "logging_time"  : "2021-07-04 18:14:48.000"}
+{ "type": "ChannelSwitchToReadLog", "channel": 0 , "logging_time"  : "2021-07-04 18:14:48.000"}
+{ "type": "RegisterWriteLog", "channel": 0, "die": 0, "reg": 0 , "logging_time"  : "2021-07-04 18:14:48.000"}
+{ "type": "LogicalCellProgramLog", "channel": 0, "block": 6, "page": 0 , "logging_time"  : "2021-07-04 18:14:48.000"}
+{ "type": "PhysicalCellProgramLog", "channel": 0, "block": 6, "page": 0 , "logging_time"  : "2021-07-04 18:14:48.000"}
+{ "type": "ChannelSwitchToReadLog", "channel": 0 , "logging_time"  : "2021-07-04 18:14:48.000"}
+{ "type": "RegisterWriteLog", "channel": 0, "die": 0, "reg": 0 , "logging_time"  : "2021-07-04 18:14:48.000"}
+{ "type": "RegisterWriteLog", "channel": 2, "die": 2, "reg": 2 , "logging_time"  : "2021-07-04 18:14:48.000"}
+{ "type": "LogicalCellProgramLog", "channel": 2, "block": 4, "page": 6 , "logging_time"  : "2021-07-04 18:14:48.000"}
+{ "type": "PhysicalCellProgramLog", "channel": 2, "block": 4, "page": 6 , "logging_time"  : "2021-07-04 18:14:48.000"}
+{ "type": "ChannelSwitchToReadLog", "channel": 2 , "logging_time"  : "2021-07-04 18:14:48.000"}
+{ "type": "RegisterWriteLog", "channel": 2, "die": 2, "reg": 2 , "logging_time"  : "2021-07-04 18:14:48.000"}
+{ "type": "LogicalCellProgramLog", "channel": 2, "block": 4, "page": 7 , "logging_time"  : "2021-07-04 18:14:48.000"}
+{ "type": "PhysicalCellProgramLog", "channel": 2, "block": 4, "page": 7 , "logging_time"  : "2021-07-04 18:14:48.000"}
+{ "type": "ChannelSwitchToReadLog", "channel": 2 , "logging_time"  : "2021-07-04 18:14:48.000"}
+{ "type": "RegisterWriteLog", "channel": 2, "die": 2, "reg": 2 , "logging_time"  : "2021-07-04 18:14:48.000"}
+{ "type": "LogicalCellProgramLog", "channel": 2, "block": 4, "page": 8 , "logging_time"  : "2021-07-04 18:14:48.000"}
+{ "type": "PhysicalCellProgramLog", "channel": 2, "block": 4, "page": 8 , "logging_time"  : "2021-07-04 18:14:48.000"}
+{ "type": "ChannelSwitchToReadLog", "channel": 2 , "logging_time"  : "2021-07-04 18:14:48.000"}
+{ "type": "RegisterWriteLog", "channel": 2, "die": 2, "reg": 2 , "logging_time"  : "2021-07-04 18:14:48.000"}
+{ "type": "LogicalCellProgramLog", "channel": 2, "block": 4, "page": 9 , "logging_time"  : "2021-07-04 18:14:48.000"}
+{ "type": "PhysicalCellProgramLog", "channel": 2, "block": 4, "page": 9 , "logging_time"  : "2021-07-04 18:14:48.000"}
+{ "type": "ChannelSwitchToReadLog", "channel": 2 , "logging_time"  : "2021-07-04 18:14:48.000"}
+{ "type": "RegisterWriteLog", "channel": 2, "die": 2, "reg": 2 , "logging_time"  : "2021-07-04 18:14:48.000"}
+{ "type": "LogicalCellProgramLog", "channel": 2, "block": 5, "page": 0 , "logging_time"  : "2021-07-04 18:14:48.000"}
+{ "type": "PhysicalCellProgramLog", "channel": 2, "block": 5, "page": 0 , "logging_time"  : "2021-07-04 18:14:48.000"}
+{ "type": "ChannelSwitchToReadLog", "channel": 2 , "logging_time"  : "2021-07-04 18:14:48.000"}
+{ "type": "RegisterWriteLog", "channel": 2, "die": 2, "reg": 2 , "logging_time"  : "2021-07-04 18:14:48.000"}
+{ "type": "LogicalCellProgramLog", "channel": 2, "block": 5, "page": 1 , "logging_time"  : "2021-07-04 18:14:48.000"}
+{ "type": "PhysicalCellProgramLog", "channel": 2, "block": 5, "page": 1 , "logging_time"  : "2021-07-04 18:14:48.000"}
+{ "type": "ChannelSwitchToReadLog", "channel": 2 , "logging_time"  : "2021-07-04 18:14:48.000"}
+{ "type": "RegisterWriteLog", "channel": 2, "die": 2, "reg": 2 , "logging_time"  : "2021-07-04 18:14:48.000"}
+{ "type": "LogicalCellProgramLog", "channel": 2, "block": 5, "page": 2 , "logging_time"  : "2021-07-04 18:14:48.000"}
+{ "type": "PhysicalCellProgramLog", "channel": 2, "block": 5, "page": 2 , "logging_time"  : "2021-07-04 18:14:48.000"}
+{ "type": "ChannelSwitchToReadLog", "channel": 2 , "logging_time"  : "2021-07-04 18:14:48.000"}
+{ "type": "RegisterWriteLog", "channel": 2, "die": 2, "reg": 2 , "logging_time"  : "2021-07-04 18:14:48.000"}
+{ "type": "LogicalCellProgramLog", "channel": 2, "block": 5, "page": 3 , "logging_time"  : "2021-07-04 18:14:48.000"}
+{ "type": "PhysicalCellProgramLog", "channel": 2, "block": 5, "page": 3 , "logging_time"  : "2021-07-04 18:14:48.000"}
+{ "type": "ChannelSwitchToReadLog", "channel": 2 , "logging_time"  : "2021-07-04 18:14:48.000"}
+{ "type": "RegisterWriteLog", "channel": 2, "die": 2, "reg": 2 , "logging_time"  : "2021-07-04 18:14:48.000"}
+{ "type": "LogicalCellProgramLog", "channel": 2, "block": 5, "page": 4 , "logging_time"  : "2021-07-04 18:14:48.000"}
+{ "type": "PhysicalCellProgramLog", "channel": 2, "block": 5, "page": 4 , "logging_time"  : "2021-07-04 18:14:48.000"}
+{ "type": "ChannelSwitchToReadLog", "channel": 2 , "logging_time"  : "2021-07-04 18:14:48.000"}
+{ "type": "RegisterWriteLog", "channel": 2, "die": 2, "reg": 2 , "logging_time"  : "2021-07-04 18:14:48.000"}
+{ "type": "LogicalCellProgramLog", "channel": 2, "block": 5, "page": 5 , "logging_time"  : "2021-07-04 18:14:48.000"}
+{ "type": "PhysicalCellProgramLog", "channel": 2, "block": 5, "page": 5 , "logging_time"  : "2021-07-04 18:14:48.000"}
+{ "type": "ChannelSwitchToReadLog", "channel": 2 , "logging_time"  : "2021-07-04 18:14:48.000"}
+{ "type": "RegisterWriteLog", "channel": 2, "die": 2, "reg": 2 , "logging_time"  : "2021-07-04 18:14:48.000"}
+{ "type": "LogicalCellProgramLog", "channel": 2, "block": 5, "page": 6 , "logging_time"  : "2021-07-04 18:14:48.000"}
+{ "type": "PhysicalCellProgramLog", "channel": 2, "block": 5, "page": 6 , "logging_time"  : "2021-07-04 18:14:48.000"}
+{ "type": "ChannelSwitchToReadLog", "channel": 2 , "logging_time"  : "2021-07-04 18:14:48.000"}
+{ "type": "RegisterWriteLog", "channel": 2, "die": 2, "reg": 2 , "logging_time"  : "2021-07-04 18:14:48.000"}
+{ "type": "LogicalCellProgramLog", "channel": 2, "block": 5, "page": 7 , "logging_time"  : "2021-07-04 18:14:48.000"}
+{ "type": "PhysicalCellProgramLog", "channel": 2, "block": 5, "page": 7 , "logging_time"  : "2021-07-04 18:14:48.000"}
+{ "type": "ChannelSwitchToReadLog", "channel": 2 , "logging_time"  : "2021-07-04 18:14:48.000"}
+{ "type": "RegisterWriteLog", "channel": 2, "die": 2, "reg": 2 , "logging_time"  : "2021-07-04 18:14:48.000"}
+{ "type": "LogicalCellProgramLog", "channel": 2, "block": 5, "page": 8 , "logging_time"  : "2021-07-04 18:14:48.000"}
+{ "type": "PhysicalCellProgramLog", "channel": 2, "block": 5, "page": 8 , "logging_time"  : "2021-07-04 18:14:48.000"}
+{ "type": "ChannelSwitchToReadLog", "channel": 2 , "logging_time"  : "2021-07-04 18:14:48.000"}
+{ "type": "RegisterWriteLog", "channel": 2, "die": 2, "reg": 2 , "logging_time"  : "2021-07-04 18:14:48.000"}
+{ "type": "LogicalCellProgramLog", "channel": 2, "block": 5, "page": 9 , "logging_time"  : "2021-07-04 18:14:48.000"}
+{ "type": "PhysicalCellProgramLog", "channel": 2, "block": 5, "page": 9 , "logging_time"  : "2021-07-04 18:14:48.000"}
+{ "type": "ChannelSwitchToReadLog", "channel": 2 , "logging_time"  : "2021-07-04 18:14:48.000"}
+{ "type": "RegisterWriteLog", "channel": 2, "die": 2, "reg": 2 , "logging_time"  : "2021-07-04 18:14:48.000"}
+{ "type": "LogicalCellProgramLog", "channel": 2, "block": 6, "page": 0 , "logging_time"  : "2021-07-04 18:14:48.000"}
+{ "type": "PhysicalCellProgramLog", "channel": 2, "block": 6, "page": 0 , "logging_time"  : "2021-07-04 18:14:48.000"}
+{ "type": "ChannelSwitchToReadLog", "channel": 3 , "logging_time"  : "2021-07-04 18:14:48.000"}
+{ "type": "RegisterWriteLog", "channel": 3, "die": 3, "reg": 3 , "logging_time"  : "2021-07-04 18:14:48.000"}
+{ "type": "LogicalCellProgramLog", "channel": 3, "block": 6, "page": 0 , "logging_time"  : "2021-07-04 18:14:48.000"}
+{ "type": "PhysicalCellProgramLog", "channel": 3, "block": 6, "page": 0 , "logging_time"  : "2021-07-04 18:14:48.000"}
+{ "type": "ChannelSwitchToReadLog", "channel": 3 , "logging_time"  : "2021-07-04 18:14:48.000"}
+{ "type": "RegisterWriteLog", "channel": 3, "die": 3, "reg": 3 , "logging_time"  : "2021-07-04 18:14:48.000"}
+{ "type": "LogicalCellProgramLog", "channel": 3, "block": 6, "page": 1 , "logging_time"  : "2021-07-04 18:14:48.000"}
+{ "type": "PhysicalCellProgramLog", "channel": 3, "block": 6, "page": 1 , "logging_time"  : "2021-07-04 18:14:48.000"}
+{ "type": "ChannelSwitchToReadLog", "channel": 3 , "logging_time"  : "2021-07-04 18:14:48.000"}
+{ "type": "RegisterWriteLog", "channel": 3, "die": 3, "reg": 3 , "logging_time"  : "2021-07-04 18:14:48.000"}
+{ "type": "LogicalCellProgramLog", "channel": 3, "block": 6, "page": 2 , "logging_time"  : "2021-07-04 18:14:48.000"}
+{ "type": "PhysicalCellProgramLog", "channel": 3, "block": 6, "page": 2 , "logging_time"  : "2021-07-04 18:14:48.000"}
+{ "type": "ChannelSwitchToReadLog", "channel": 3 , "logging_time"  : "2021-07-04 18:14:48.000"}
+{ "type": "RegisterWriteLog", "channel": 3, "die": 3, "reg": 3 , "logging_time"  : "2021-07-04 18:14:48.000"}
+{ "type": "LogicalCellProgramLog", "channel": 3, "block": 6, "page": 3 , "logging_time"  : "2021-07-04 18:14:48.000"}
+{ "type": "PhysicalCellProgramLog", "channel": 3, "block": 6, "page": 3 , "logging_time"  : "2021-07-04 18:14:48.000"}
+{ "type": "ChannelSwitchToReadLog", "channel": 3 , "logging_time"  : "2021-07-04 18:14:48.000"}
+{ "type": "RegisterWriteLog", "channel": 3, "die": 3, "reg": 3 , "logging_time"  : "2021-07-04 18:14:48.000"}
+{ "type": "LogicalCellProgramLog", "channel": 3, "block": 6, "page": 4 , "logging_time"  : "2021-07-04 18:14:48.000"}
+{ "type": "PhysicalCellProgramLog", "channel": 3, "block": 6, "page": 4 , "logging_time"  : "2021-07-04 18:14:48.000"}
+{ "type": "ChannelSwitchToReadLog", "channel": 3 , "logging_time"  : "2021-07-04 18:14:48.000"}
+{ "type": "RegisterWriteLog", "channel": 3, "die": 3, "reg": 3 , "logging_time"  : "2021-07-04 18:14:48.000"}
+{ "type": "LogicalCellProgramLog", "channel": 3, "block": 6, "page": 5 , "logging_time"  : "2021-07-04 18:14:48.000"}
+{ "type": "PhysicalCellProgramLog", "channel": 3, "block": 6, "page": 5 , "logging_time"  : "2021-07-04 18:14:48.000"}
+{ "type": "ChannelSwitchToReadLog", "channel": 3 , "logging_time"  : "2021-07-04 18:14:48.000"}
+{ "type": "RegisterWriteLog", "channel": 3, "die": 3, "reg": 3 , "logging_time"  : "2021-07-04 18:14:48.000"}
+{ "type": "LogicalCellProgramLog", "channel": 3, "block": 6, "page": 6 , "logging_time"  : "2021-07-04 18:14:48.000"}
+{ "type": "PhysicalCellProgramLog", "channel": 3, "block": 6, "page": 6 , "logging_time"  : "2021-07-04 18:14:48.000"}
+{ "type": "ChannelSwitchToReadLog", "channel": 3 , "logging_time"  : "2021-07-04 18:14:48.000"}
+{ "type": "RegisterWriteLog", "channel": 3, "die": 3, "reg": 3 , "logging_time"  : "2021-07-04 18:14:48.000"}
