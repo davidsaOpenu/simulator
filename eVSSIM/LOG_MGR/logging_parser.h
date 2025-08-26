@@ -22,7 +22,10 @@
 #include <sys/time.h>
 
 //the maxmimum length of a timestamp
-#define TIME_STAMP_LEN 80
+#define TIME_STAMP_LEN    80
+#define TEST_NAME_MAX    128
+#define TEST_SUITE_MAX   128
+#define TEST_UUID_MAX     64
 
 /**
  * Concatenate the parameters given
@@ -51,17 +54,43 @@ t *= 1000000; \
 t += logging_parser_tv.tv_usec;
 
 /**
- * Log meta data structer
+ * Log meta data structure
  */
 typedef struct {
     /**
-     * Logging start time
+     * Logging start time (microseconds since epoch)
      */
     int64_t logging_start_time;
+
     /**
-     * Logging end time
+     * Logging end time (microseconds since epoch)
      */
     int64_t logging_end_time;
+
+    /**
+     * Test name
+     */
+    char    test_name[TEST_NAME_MAX];
+
+    /**
+     * Test suite name
+     */
+    char    test_suite[TEST_SUITE_MAX];
+
+    /**
+     * Run UUID of test
+     */
+    char    test_uuid[TEST_UUID_MAX];
+
+    /**
+     * Total SSD size in bytes
+     */
+    uint64_t ssd_size_bytes;
+
+    /**
+     * Test start time (Real Time)
+     */
+    int64_t test_start_time_us;
 } LogMetadata;
 
 /**
@@ -376,6 +405,28 @@ typedef struct{
 }LoggeingServerSync;
 
 /**
+ * A log of SSD utilization measurement
+ */
+typedef struct {
+    /**
+     * Utilization percentage (0.0 to 1.0)
+     */
+    double utilization_percent;
+    /**
+     * Total number of pages in SSD
+     */
+    uint64_t total_pages;
+    /**
+     * Number of occupied pages
+     */
+    uint64_t occupied_pages;
+    /**
+     * Log metadata
+     */
+    LogMetadata metadata;
+} SsdUtilizationLog;
+
+/**
  * All the logs definitions; used to easily add more log types
  * Each line should contain a call to the applier, with the structure and name of the log
  * In order to add a new log type, one must only add a new line with the log definition here
@@ -395,7 +446,8 @@ APPLIER(ChannelSwitchToReadLog, CHANNEL_SWITCH_TO_READ)     \
 APPLIER(ChannelSwitchToWriteLog, CHANNEL_SWITCH_TO_WRITE)   \
 APPLIER(ObjectAddPageLog, OBJECT_ADD_PAGE)                  \
 APPLIER(ObjectCopyback, OBJECT_COPYBACK)                    \
-APPLIER(LoggeingServerSync, LOG_SYNC)                    
+APPLIER(LoggeingServerSync, LOG_SYNC)                       \
+APPLIER(SsdUtilizationLog, SSD_UTILIZATION)                 \
 
 /**
  * The enum log applier; used to create an enum of the log types' ids
