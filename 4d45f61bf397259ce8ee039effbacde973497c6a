@@ -16,6 +16,23 @@
       "message": "recheck",
       "revId": "4d45f61bf397259ce8ee039effbacde973497c6a",
       "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "5f77ee7a_956f3534",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 3
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 1007990
+      },
+      "writtenOn": "2025-08-26T01:19:18Z",
+      "side": 1,
+      "message": "Rebasing on HEAD causes to \n\n\n\n03:17:39  hw/vssim/simulator/ssd_io_manager.c:9:26: fatal error: test_context.h: No such file or directory\n03:17:39   #include \"test_context.h\"\n\n\nhttp://192.114.0.189/jenkins/job/simulator-docker-ng-infra/684/console",
+      "revId": "4d45f61bf397259ce8ee039effbacde973497c6a",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
     }
   ]
 }
