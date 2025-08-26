@@ -1,0 +1,79 @@
+{"ChannelSwitchToReadLog":{"channel":1,"logging_time":"2021-06-20 16:34:52"}}
+{"RegisterWriteLog":{"channel":1,"die":100,"reg":100,"logging_time":"2021-06-20 16:35:08"}}
+{"type":"PhysicalCellProgramLog","channel":1,"block":100,"page":100,"logging_time":"2021-06-20 16:36:30"}
+{"GarbageCollectionLog":{}}
+{"ChannelSwitchToReadLog":{"channel":1,"logging_time":"2021-06-20 16:51:30"}}
+{"RegisterWriteLog":{"channel":2,"die":100,"reg":100,"logging_time":"2021-06-20 19:21:32"}}
+{"type":"PhysicalCellProgramLog","channel":2,"block":100,"page":100,"logging_time":"2021-06-20 19:22:54"}
+{"GarbageCollectionLog":{}}
+{"ChannelSwitchToReadLog":{"channel":1,"logging_time":"2021-06-20 16:51:46"}}
+{"RegisterWriteLog":{"channel":3,"die":100,"reg":100,"logging_time":"2021-06-20 22:08:12"}}
+{"type":"PhysicalCellProgramLog","channel":3,"block":100,"page":100,"logging_time":"2021-06-20 22:09:34"}
+{"GarbageCollectionLog":{}}
+{"ChannelSwitchToReadLog":{"channel":1,"logging_time":"2021-06-20 16:52:02"}}
+{"RegisterWriteLog":{"channel":4,"die":100,"reg":100,"logging_time":"2021-06-21 00:54:52"}}
+{"type":"PhysicalCellProgramLog","channel":4,"block":100,"page":100,"logging_time":"2021-06-21 00:56:14"}
+{"GarbageCollectionLog":{}}
+{"BlockEraseLog":{"channel":1,"die":100,"block":100,"logging_time":"2021-06-20 16:52:18"}}
+{"GarbageCollectionLog":{}}
+{"BlockEraseLog":{"channel":2,"die":100,"block":100,"logging_time":"2021-06-20 19:37:54"}}
+{"GarbageCollectionLog":{}}
+{"BlockEraseLog":{"channel":3,"die":100,"block":100,"logging_time":"2021-06-20 22:24:34"}}
+{"GarbageCollectionLog":{}}
+{"BlockEraseLog":{"channel":4,"die":100,"block":100,"logging_time":"2021-06-21 01:11:14"}}
+{"GarbageCollectionLog":{}}
+{"PhysicalCellReadLog":{"channel":1,"block":100,"page":100,"logging_time":"2021-06-20 17:25:38"}}
+{"GarbageCollectionLog":{}}
+{"PhysicalCellReadLog":{"channel":2,"block":100,"page":100,"logging_time":"2021-06-20 20:11:14"}}
+{"GarbageCollectionLog":{}}
+{"PhysicalCellReadLog":{"channel":3,"block":100,"page":100,"logging_time":"2021-06-20 22:57:54"}}
+{"GarbageCollectionLog":{}}
+{"PhysicalCellReadLog":{"channel":4,"block":100,"page":100,"logging_time":"2021-06-21 01:44:34"}}
+{"GarbageCollectionLog":{}}
+{"ChannelSwitchToReadLog":{"channel":1,"logging_time":"2021-06-20 17:25:38"}}
+{"RegisterWriteLog":{"channel":1,"die":100,"reg":100,"logging_time":"2021-06-20 17:25:54"}}
+{"type":"PhysicalCellProgramLog","channel":1,"block":100,"page":100,"logging_time":"2021-06-20 17:27:16"}
+{"GarbageCollectionLog":{}}
+{"ChannelSwitchToReadLog":{"channel":1,"logging_time":"2021-06-20 17:42:16"}}
+{"RegisterWriteLog":{"channel":2,"die":100,"reg":100,"logging_time":"2021-06-20 20:11:14"}}
+{"type":"PhysicalCellProgramLog","channel":2,"block":100,"page":100,"logging_time":"2021-06-20 20:12:36"}
+{"GarbageCollectionLog":{}}
+{"ChannelSwitchToReadLog":{"channel":1,"logging_time":"2021-06-20 17:42:32"}}
+{"RegisterWriteLog":{"channel":3,"die":100,"reg":100,"logging_time":"2021-06-20 22:57:54"}}
+{"type":"PhysicalCellProgramLog","channel":3,"block":100,"page":100,"logging_time":"2021-06-20 22:59:16"}
+{"GarbageCollectionLog":{}}
+{"ChannelSwitchToReadLog":{"channel":1,"logging_time":"2021-06-20 17:42:48"}}
+{"RegisterWriteLog":{"channel":4,"die":100,"reg":100,"logging_time":"2021-06-21 01:44:34"}}
+{"type":"PhysicalCellProgramLog","channel":4,"block":100,"page":100,"logging_time":"2021-06-21 01:45:56"}
+{"GarbageCollectionLog":{}}
+{"ChannelSwitchToReadLog":{"channel":1,"logging_time":"2021-06-20 17:43:04"}}
+{"ChannelSwitchToWriteLog":{"channel":1,"logging_time":"2021-06-20 17:43:20"}}
+{"type":"PhysicalCellProgramLog","channel":1,"block":100,"page":100,"logging_time":"2021-06-20 17:43:53"}
+{"type":"PhysicalCellProgramLog","channel":1,"block":100,"page":100,"logging_time":"2021-06-20 17:58:53"}
+{"type":"PhysicalCellProgramLog","channel":1,"block":100,"page":100,"logging_time":"2021-06-20 18:13:53"}
+{"BlockEraseLog":{"channel":1,"die":100,"block":100,"logging_time":"2021-06-20 18:28:53"}}
+{"type":"PhysicalCellProgramLog","channel":1,"block":100,"page":100,"logging_time":"2021-06-20 19:02:13"}
+{"LogicalCellProgramLog":{"channel":1,"block":100,"page":100,"logging_time":"2021-06-20 19:17:13"}}
+{"GarbageCollectionLog":{}}
+{"ChannelSwitchToReadLog":{"channel":1,"logging_time":"2021-06-20 19:17:13"}}
+{"ChannelSwitchToWriteLog":{"channel":2,"logging_time":"2021-06-20 20:27:36"}}
+{"BlockEraseLog":{"channel":2,"die":100,"block":100,"logging_time":"2021-06-20 20:28:09"}}
+{"type":"PhysicalCellProgramLog","channel":2,"block":100,"page":100,"logging_time":"2021-06-20 21:01:29"}
+{"LogicalCellProgramLog":{"channel":2,"block":100,"page":100,"logging_time":"2021-06-20 21:16:29"}}
+{"GarbageCollectionLog":{}}
+{"ChannelSwitchToReadLog":{"channel":1,"logging_time":"2021-06-20 19:17:29"}}
+{"ChannelSwitchToWriteLog":{"channel":3,"logging_time":"2021-06-20 23:14:16"}}
+{"type":"PhysicalCellProgramLog","channel":3,"block":100,"page":100,"logging_time":"2021-06-20 23:14:49"}
+{"type":"PhysicalCellProgramLog","channel":3,"block":100,"page":100,"logging_time":"2021-06-20 23:29:49"}
+{"type":"PhysicalCellProgramLog","channel":3,"block":100,"page":100,"logging_time":"2021-06-20 23:44:49"}
+{"BlockEraseLog":{"channel":3,"die":100,"block":100,"logging_time":"2021-06-20 23:59:49"}}
+{"type":"PhysicalCellProgramLog","channel":3,"block":100,"page":100,"logging_time":"2021-06-21 00:33:09"}
+{"LogicalCellProgramLog":{"channel":3,"block":100,"page":100,"logging_time":"2021-06-21 00:48:09"}}
+{"GarbageCollectionLog":{}}
+{"ChannelSwitchToReadLog":{"channel":1,"logging_time":"2021-06-20 19:17:45"}}
+{"ChannelSwitchToWriteLog":{"channel":4,"logging_time":"2021-06-21 02:00:56"}}
+{"type":"PhysicalCellProgramLog","channel":4,"block":100,"page":100,"logging_time":"2021-06-21 02:01:29"}
+{"BlockEraseLog":{"channel":4,"die":100,"block":100,"logging_time":"2021-06-21 02:16:29"}}
+{"type":"PhysicalCellProgramLog","channel":4,"block":100,"page":100,"logging_time":"2021-06-21 02:49:49"}
+{"LogicalCellProgramLog":{"channel":4,"block":100,"page":100,"logging_time":"2021-06-21 03:04:49"}}
+{"GarbageCollectionLog":{}}
