@@ -44,8 +44,9 @@ echo > "/sys/kernel/debug/tracing/set_graph_function"
 echo "__x64_sys_$1" > /sys/kernel/debug/tracing/set_graph_function
 echo > /sys/kernel/debug/tracing/trace
 # do some file operations here
+dmesg -c
 ./test $1 cache_$2
-
+dmesg -c > "$OUTPUT_DIR/$1_dmesg.txt"
 cat /sys/kernel/debug/tracing/trace > /tmp/my_log.tmp
 echo > /sys/kernel/debug/tracing/trace
 echo nop > /sys/kernel/debug/tracing/current_tracer
