@@ -16,6 +16,23 @@
       "message": "will not pass on Jenkins without rebase",
       "revId": "324794b4ac1051599bc618a8b808e85059f24cf1",
       "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "1704c214_2f4a5ec7",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 1038797
+      },
+      "writtenOn": "2025-08-26T20:18:46Z",
+      "side": 1,
+      "message": "recheck",
+      "revId": "324794b4ac1051599bc618a8b808e85059f24cf1",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
     }
   ]
 }
