@@ -124,7 +124,8 @@ void flipAuto();
             {"RegisterReadLog", 0},
             {"RegisterWriteLog", 0},        
             {"ChannelSwitchToReadLog", 0},
-            {"ChannelSwitchToWriteLog", 0}
+            {"ChannelSwitchToWriteLog", 0},
+            {"SsdUtilizationLog", 0}
         };
         return stats;
     }
@@ -142,6 +143,7 @@ void flipAuto();
                 stats["LogicalCellProgramLog"] = PAGES_IN_SSD;
                 stats["PhysicalCellProgramLog"] = PAGES_IN_SSD;
                 stats["ChannelSwitchToWriteLog"] = FLASH_NB;
+                stats["SsdUtilizationLog"] = PAGES_IN_SSD;
                 break;
             case MODE_RW:
                 stats["RegisterWriteLog"] = PAGES_IN_SSD;
@@ -151,6 +153,7 @@ void flipAuto();
                 stats["PhysicalCellReadLog"] = PAGES_IN_SSD;
                 stats["ChannelSwitchToReadLog"] = PAGES_IN_SSD;
                 stats["ChannelSwitchToWriteLog"] = PAGES_IN_SSD;
+                stats["SsdUtilizationLog"] = PAGES_IN_SSD;
                 break;
         }
         return stats;
