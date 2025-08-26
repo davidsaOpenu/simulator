@@ -128,7 +128,8 @@ void flipAuto();
             {"RegisterReadLog", 0},
             {"RegisterWriteLog", 0},
             {"ChannelSwitchToReadLog", 0},
-            {"ChannelSwitchToWriteLog", 0}
+            {"ChannelSwitchToWriteLog", 0},
+            {"SsdUtilizationLog", 0}
         };
         return stats;
     }
@@ -146,6 +147,7 @@ void flipAuto();
                 stats["LogicalCellProgramLog"] = devices[g_device_index].pages_in_ssd;
                 stats["PhysicalCellProgramLog"] = devices[g_device_index].pages_in_ssd;
                 stats["ChannelSwitchToWriteLog"] = devices[g_device_index].flash_nb;
+                stats["SsdUtilizationLog"] = devices[g_device_index].pages_in_ssd;
                 break;
             case MODE_RW:
                 stats["RegisterWriteLog"] = devices[g_device_index].pages_in_ssd;
@@ -155,6 +157,7 @@ void flipAuto();
                 stats["PhysicalCellReadLog"] = devices[g_device_index].pages_in_ssd;
                 stats["ChannelSwitchToReadLog"] = devices[g_device_index].pages_in_ssd;
                 stats["ChannelSwitchToWriteLog"] = devices[g_device_index].pages_in_ssd;
+                stats["SsdUtilizationLog"] = devices[g_device_index].pages_in_ssd;
                 break;
         }
         return stats;
