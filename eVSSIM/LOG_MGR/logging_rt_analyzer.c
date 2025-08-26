@@ -252,6 +252,14 @@ void rt_log_analyzer_loop(RTLogAnalyzer* analyzer, int max_logs) {
                 stats.log_id = res.log_id;
                 break;
             }
+            case SSD_UTILIZATION_LOG_UID:
+            {
+                SsdUtilizationLog log;
+                NEXT_SSD_UTILIZATION_LOG(analyzer->logger, &log, RT_ANALYZER);
+                // This is a snapshot, so we just set the value directly.
+                stats.occupied_pages = log.occupied_pages;
+                break;
+            }
             default:
                 fprintf(stderr, "WARNING: unknown log type id! [%d]\n", log_type);
                 fprintf(stderr, "WARNING: rt_log_analyzer_loop may not be up to date!\n");
