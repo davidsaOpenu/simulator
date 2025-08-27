@@ -35,7 +35,7 @@ namespace ssd_file_ops_test
 
         ASSERT_EQ(SSD_FILE_OPS_SUCCESS, ssd_write(TEST_FILE, 0, SECTOR_SIZE, data));
         ASSERT_EQ(SSD_FILE_OPS_SUCCESS, ssd_read(TEST_FILE, 0, SECTOR_SIZE, read_back));
-        ASSERT_EQ(memcmp(data, read_back, SECTOR_SIZE), 0);
+        ASSERT_EQ(memcmp(data, read_back, SECTOR_SIZE), 0); 
     }
 
     TEST_F(SsdFileOpsTest, IsProgramCompatibleTrueTest) {

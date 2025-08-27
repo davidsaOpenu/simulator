@@ -127,6 +127,8 @@ eVSSIM/tests/host/*/ssd.h
 eVSSIM/tests/host/*/ssd.c
 eVSSIM/tests/host/*/ssd_io_manager.c
 eVSSIM/tests/host/*/ssd_io_manager.h
+eVSSIM/tests/host/*/onfi.c
+eVSSIM/tests/host/*/onfi.h
 eVSSIM/tests/host/*/ssd_log_manager.c
 eVSSIM/tests/host/*/ssd_log_manager.h
 eVSSIM/tests/host/*/ssd_util.h
