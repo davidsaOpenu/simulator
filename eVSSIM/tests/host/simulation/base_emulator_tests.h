@@ -26,6 +26,7 @@ extern "C" int g_init;
 extern "C" int clientSock;
 extern "C" int g_init_log_server;
 
+
 #define GTEST_DONT_DEFINE_FAIL 1
 #include <gtest/gtest.h>
 
@@ -106,8 +107,10 @@ namespace {
         void ssd_conf_calc_based_size_mb(size_t size_mb) {
             // number_of_pages = disk_size (in MB) * 1048576 / page_size
             this->pages = size_mb * ((1024 * 1024) / CONST_PAGE_SIZE_IN_BYTES);
+
             // all_blocks_on_all_flashes = number_of_pages / pages_in_block
             size_t block_x_flash = this->pages / CONST_PAGES_PER_BLOCK;
+
             // number_of_flashes = all_blocks_on_all_flashes / number_of_blocks_in_flash
             size_t blocks_per_flash = block_x_flash / DEFAULT_FLASH_NB;
             this->block_nb = blocks_per_flash;
@@ -128,8 +131,8 @@ namespace {
                 size_t flash_nb, size_t block_nb, size_t channel_nb)
                 : page_size(page_size), page_nb(page_nb), sector_size(sector_size),
                   flash_nb(flash_nb), block_nb(block_nb), channel_nb(channel_nb) {
-				  this->pages = page_nb * block_nb * flash_nb;
-                  }
+                    this->pages = page_nb * block_nb * flash_nb;
+                }
 
         size_t get_page_size(void) {
             return this->page_size;
@@ -163,12 +166,12 @@ namespace {
             return this->object_size;
         }
 
-        size_t get_pages(void) {
-            return this->pages;
-        }
-
         size_t get_pages_per_block(void) {
             return CONST_PAGES_PER_BLOCK;
+        }
+
+        size_t get_pages(void) {
+            return this->pages;
         }
 
         void set_logger_size(size_t val) {
@@ -188,8 +191,6 @@ namespace {
                 "SECTOR_SIZE " << get_sector_size() << "\n"
                 "FLASH_NB " << get_flash_nb() << "\n"
                 "BLOCK_NB " << get_block_nb() << "\n"
-                "NS1 " << (get_block_nb() / 2) << "\n"
-                "NS2 " << (get_block_nb() / 4) << "\n"
                 "PLANES_PER_FLASH 1\n"
                 "REG_WRITE_DELAY 82\n"
                 "CELL_PROGRAM_DELAY 900\n"
@@ -202,7 +203,7 @@ namespace {
                 "STAT_TYPE 15\n"
                 "STAT_SCOPE 62\n"
                 "STAT_PATH /tmp/stat.csv\n"
-                "STORAGE_STRATEGY 1\n" // sector strategy
+                "STORAGE_STRATEGY 1\n"
                 "GC_LOW_THR 20\n"
                 "GC_HI_THR 80\n"
                 "[nvme02]\n"
@@ -212,8 +213,6 @@ namespace {
                 "SECTOR_SIZE " << get_sector_size() << "\n"
                 "FLASH_NB " << get_flash_nb() << "\n"
                 "BLOCK_NB " << get_block_nb() << "\n"
-                "NS1 " << (get_block_nb() / 2) << "\n"
-                "NS2 " << (get_block_nb() / 4) << "\n"
                 "PLANES_PER_FLASH 1\n"
                 "REG_WRITE_DELAY 82\n"
                 "CELL_PROGRAM_DELAY 900\n"
@@ -236,8 +235,6 @@ namespace {
                 "SECTOR_SIZE " << get_sector_size() << "\n"
                 "FLASH_NB " << get_flash_nb() << "\n"
                 "BLOCK_NB " << get_block_nb() << "\n"
-                "NS1 " << (get_block_nb() / 2) << "\n"
-                "NS2 " << (get_block_nb() / 4) << "\n"
                 "PLANES_PER_FLASH 1\n"
                 "REG_WRITE_DELAY 82\n"
                 "CELL_PROGRAM_DELAY 900\n"
@@ -271,18 +268,13 @@ namespace {
             virtual void SetUp(void) {
                 ssd_config = GetParam();
                 ssd_config->ssd_conf_serialize();
-                FTL_INIT();
+                INIT_SSD_CONFIG();
+                FTL_INIT(g_device_index);
             }
 
-            virtual void TearDown() {
-                FTL_TERM();
-                remove("data/empty_block_list.dat");
-                remove("data/inverse_block_mapping.dat");
-                remove("data/inverse_page_mapping.dat");
-                remove("data/mapping_table.dat");
-                remove("data/valid_array.dat");
-                remove("data/victim_block_list.dat");
-                remove("data/ssd.conf");
+            virtual void TearDown(void) {
+                FTL_TERM(g_device_index);
+                std::ignore = system((std::string("rm -rf data/") + std::to_string(g_device_index)).c_str());
                 g_init = 0;
                 clientSock = 0;
                 g_init_log_server = 0;
