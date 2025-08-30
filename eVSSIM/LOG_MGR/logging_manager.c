@@ -26,8 +26,8 @@
  * Transforms pages in a usec to megabytes in a second
  * @param {double} x pages in a usec
  */
-#define PAGES_PER_USEC_TO_MEGABYTES_PER_SECOND(x) \
-    ((((double) (x)) * (GET_PAGE_SIZE()) * (SECOND_IN_USEC)) / (MEGABYTE_IN_BYTES))
+#define PAGES_PER_USEC_TO_MEGABYTES_PER_SECOND(device_index, x) \
+    ((((double) (x)) * (GET_PAGE_SIZE(device_index)) * (SECOND_IN_USEC)) / (MEGABYTE_IN_BYTES))
 
 
 /**
@@ -93,19 +93,23 @@ int log_manager_add_analyzer(LogManager* manager, RTLogAnalyzer* analyzer) {
 }
 
 
-void* log_manager_run(void* manager) {
-    log_manager_loop((LogManager*) manager, -1);
+void* log_manager_run(void* args) {
+    log_manager_run_args_t* log_args = (log_manager_run_args_t*)args;
+    log_manager_loop(log_args->device_index, log_args->manager, -1);
     return NULL;
 }
 
-void log_manager_loop(LogManager* manager, int max_loops) {
+void log_manager_loop(uint8_t device_index, LogManager* manager, int max_loops) {
+    // TODO: For now we don't support multiple disks logging properly
+    device_index = 0;
+
     SSDStatistics old_stats = stats_init();
     int first_loop = 1;
     int loops = 0;
     while (max_loops < 0 || loops < max_loops) {
         // init the current statistics
         SSDStatistics stats = stats_init();
-        ssd.current_stats = &stats;
+        ssds_manager[device_index].ssd.current_stats = &stats;
 
         unsigned int analyzer_id;
         // update the statistics according to the different analyzers
@@ -127,14 +131,14 @@ void log_manager_loop(LogManager* manager, int max_loops) {
             stats.block_erase_count += current_stats.block_erase_count;
             stats.channel_switch_to_read += current_stats.channel_switch_to_read;
             stats.channel_switch_to_write += current_stats.channel_switch_to_write;
-            
+
 
             if(current_stats.log_id != 0){
                 stats.log_id = current_stats.log_id;
                 current_stats.log_id = 0;
             }
         }
-        stats.utilization = (double)stats.occupied_pages / PAGES_IN_SSD;
+        stats.utilization = (double)stats.occupied_pages / devices[device_index].pages_in_ssd;
 
         if (stats.logical_write_count == 0)
             stats.write_amplification = 0.0;
@@ -145,6 +149,7 @@ void log_manager_loop(LogManager* manager, int max_loops) {
             stats.write_speed = 0.0;
         else
             stats.write_speed = PAGES_PER_USEC_TO_MEGABYTES_PER_SECOND(
+                device_index,
                 ((double) stats.logical_write_count) / stats.write_elapsed_time
             );
 
@@ -152,6 +157,7 @@ void log_manager_loop(LogManager* manager, int max_loops) {
             stats.read_speed = 0.0;
         else
             stats.read_speed = PAGES_PER_USEC_TO_MEGABYTES_PER_SECOND(
+                device_index,
                 ((double) stats.read_count) / stats.read_elapsed_time
             );
 
@@ -179,7 +185,7 @@ void log_manager_loop(LogManager* manager, int max_loops) {
             manager->exit_loop_flag = 0;
             break;
         }
-        
+
         // wait before going to the next loop
         if (usleep(MANGER_LOOP_SLEEP))
             break;          // if an error occurred (probably a signal interrupt) just exit
