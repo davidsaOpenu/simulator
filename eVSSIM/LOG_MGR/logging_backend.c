@@ -234,8 +234,12 @@ int logger_read(Logger_Pool* logger_pool, Byte* buffer, int length, AnalyzerType
     pthread_mutex_lock(&logger_pool->lock);
 
     log = logger_pool->dummy_log->next;
+    if (NULL == log)
+    {
+        return -1;
+    }
 
-    while(number_of_bytes_to_read > 0)
+    while (number_of_bytes_to_read > 0)
     {
         // if the log is not clean and the analyzer have not
         // finished to read from it then read length bytes of data
