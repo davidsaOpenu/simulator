@@ -86,7 +86,8 @@ mklink:
 	touch ssd.conf
 
 clean:
-	rm -f $(TEST_TARGET) $(TEST_OBJ) $(VSSIM_OBJ) data/*
+	rm -f $(TEST_TARGET) $(TEST_OBJ) $(VSSIM_OBJ)
+	rm -rf data/*
 
 distclean: clean
 	rm -rf   ssd_io_manager.h ssd_io_manager.c ssd_log_manager.h ssd_log_manager.c ssd_util.h \
