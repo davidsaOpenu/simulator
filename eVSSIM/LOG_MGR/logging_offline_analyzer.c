@@ -64,10 +64,10 @@ void offline_log_analyzer_loop(OfflineLogAnalyzer* analyzer) {
             int log_type;
             int bytes_read = 0;
 
-            bytes_read = logger_read(analyzer->logger_pool, ((Byte*)&log_type),sizeof(log_type),OFFLINE_ANALYZER);
+            bytes_read = logger_read(analyzer->logger_pool, ((Byte*)&log_type), sizeof(log_type), OFFLINE_ANALYZER);
 
             // exit if needed
-            if (analyzer->exit_loop_flag || 0 == bytes_read) {
+            if (analyzer->exit_loop_flag || 0 == bytes_read || -1 == bytes_read) {
                 break;
             }
 
