@@ -26,8 +26,12 @@
 #endif
 #define DEL_QEMU_OVERHEAD
 
-/* SSD Namespace */
+#define MAPPING_TABLE_INIT_VAL UINT64_MAX
+
 #define MAX_NUMBER_OF_NAMESPACES 32
+
+// INVALID_DEVICE_INDEX is 0xFF because the type of the device index is uint8_t
+#define INVALID_DEVICE_INDEX 0xFF
 
 #include "vssim_config_manager.h"
 #include "ftl.h"
