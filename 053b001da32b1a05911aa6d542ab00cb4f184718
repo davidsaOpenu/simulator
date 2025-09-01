@@ -69,6 +69,23 @@
       "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "4f6171e9_87518ecb",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 1007990
+      },
+      "writtenOn": "2025-09-01T10:56:32Z",
+      "side": 1,
+      "message": "is infra/ELK/.DS_Store  required?",
+      "revId": "053b001da32b1a05911aa6d542ab00cb4f184718",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "11f98bd9_246fbe0c",
