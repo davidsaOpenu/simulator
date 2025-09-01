@@ -67,6 +67,40 @@
       "message": "ah, and also add depend on directive when making a change of qemu to create symlinks",
       "revId": "053b001da32b1a05911aa6d542ab00cb4f184718",
       "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "11f98bd9_246fbe0c",
+        "filename": "eVSSIM/QEMU/Makefile.objs",
+        "patchSetId": 1
+      },
+      "lineNbr": 308,
+      "author": {
+        "id": 1007990
+      },
+      "writtenOn": "2025-09-01T10:56:17Z",
+      "side": 1,
+      "message": "same here: https://review.gerrithub.io/admin/repos/davidsaOpenu/qemu,general has to be changed instead",
+      "revId": "053b001da32b1a05911aa6d542ab00cb4f184718",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "6d8dfdd4_c8fba4ca",
+        "filename": "eVSSIM/QEMU/configure",
+        "patchSetId": 1
+      },
+      "lineNbr": 3541,
+      "author": {
+        "id": 1007990
+      },
+      "writtenOn": "2025-09-01T10:56:17Z",
+      "side": 1,
+      "message": "this project is not used anymore. We are using https://review.gerrithub.io/admin/repos/davidsaOpenu/qemu,general",
+      "revId": "053b001da32b1a05911aa6d542ab00cb4f184718",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
     }
   ]
 }
