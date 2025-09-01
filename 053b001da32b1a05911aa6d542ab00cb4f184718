@@ -86,6 +86,23 @@
       "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "7290938e_7ba264ef",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 1007990
+      },
+      "writtenOn": "2025-09-01T11:09:34Z",
+      "side": 1,
+      "message": "are infra/ELK/LogsSerializer/* files required?",
+      "revId": "053b001da32b1a05911aa6d542ab00cb4f184718",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "11f98bd9_246fbe0c",
@@ -116,6 +133,92 @@
       "writtenOn": "2025-09-01T10:56:17Z",
       "side": 1,
       "message": "this project is not used anymore. We are using https://review.gerrithub.io/admin/repos/davidsaOpenu/qemu,general",
+      "revId": "053b001da32b1a05911aa6d542ab00cb4f184718",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "9bcfeceb_5460ac87",
+        "filename": "infra/ELK/elk_cleanup.sh",
+        "patchSetId": 1
+      },
+      "lineNbr": 45,
+      "author": {
+        "id": 1007990
+      },
+      "writtenOn": "2025-09-01T11:09:34Z",
+      "side": 1,
+      "message": "uh, we sill need to verify it works on the VM with podman, right?",
+      "range": {
+        "startLine": 30,
+        "startChar": 0,
+        "endLine": 45,
+        "endChar": 2
+      },
+      "revId": "053b001da32b1a05911aa6d542ab00cb4f184718",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "1049e014_20db21ea",
+        "filename": "infra/ELK/elk_installer.sh",
+        "patchSetId": 1
+      },
+      "lineNbr": 66,
+      "author": {
+        "id": 1007990
+      },
+      "writtenOn": "2025-09-01T11:09:34Z",
+      "side": 1,
+      "message": "can you run tox on this change, plz?",
+      "range": {
+        "startLine": 47,
+        "startChar": 0,
+        "endLine": 66,
+        "endChar": 21
+      },
+      "revId": "053b001da32b1a05911aa6d542ab00cb4f184718",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "89d68982_2f3d6532",
+        "filename": "infra/ELK/install_and_start_elk.sh",
+        "patchSetId": 1
+      },
+      "lineNbr": 3,
+      "author": {
+        "id": 1007990
+      },
+      "writtenOn": "2025-09-01T11:09:34Z",
+      "side": 1,
+      "message": "lets use same detection in this and cleanup scripts.",
+      "range": {
+        "startLine": 3,
+        "startChar": 0,
+        "endLine": 3,
+        "endChar": 28
+      },
+      "revId": "053b001da32b1a05911aa6d542ab00cb4f184718",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "485106ca_5d7bc59d",
+        "filename": "infra/ELK/install_and_start_elk.sh",
+        "patchSetId": 1
+      },
+      "lineNbr": 186,
+      "author": {
+        "id": 1007990
+      },
+      "writtenOn": "2025-09-01T11:09:34Z",
+      "side": 1,
+      "message": "and also lets put in one place the regular expressions and use them from that place\n\n\nRGX_IMG\u003d\u0027(docker\\.elastic\\.co/.*/(elasticsearch|kibana|logstash|filebeat)|(^|[/:])(elasticsearch|kibana|logstash|filebeat)([:@]|$))\u0027\nin cleanup \nand\nfb_image\u003d\"docker.elastic.co/beats/filebeat:${FB_IMAGE_TAG}\"\nrequire changes in 2 places (when a change comes)",
       "revId": "053b001da32b1a05911aa6d542ab00cb4f184718",
       "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
     }
