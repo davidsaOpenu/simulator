@@ -1,6 +1,23 @@
 {
   "comments": [
     {
+      "unresolved": true,
+      "key": {
+        "uuid": "60ff1b6c_e418f96f",
+        "filename": "/COMMIT_MSG",
+        "patchSetId": 1
+      },
+      "lineNbr": 7,
+      "author": {
+        "id": 1007990
+      },
+      "writtenOn": "2025-09-01T10:46:11Z",
+      "side": 1,
+      "message": "can you move the exaborated commit meesage from the previous CR, plz?",
+      "revId": "053b001da32b1a05911aa6d542ab00cb4f184718",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
+    },
+    {
       "unresolved": false,
       "key": {
         "uuid": "d7815d58_6adbfe5b",
@@ -31,6 +48,23 @@
       "writtenOn": "2025-09-01T10:42:23Z",
       "side": 1,
       "message": "1. qemu repo also has to be updated. Just replace ssd_io_manager with text_context \n\n$ grep \"ssd_io_manager\" * -rn \nconfigure:1993:    symlink \"$vssim_source/SSD_MODULE/ssd_io_manager.h\" \"$vssim_target/ssd_io_manager.h\"\nconfigure:1994:    symlink \"$vssim_source/SSD_MODULE/ssd_io_manager.c\" \"$vssim_target/ssd_io_manager.c\"\nhw/vssim/Makefile.objs:9:common-obj-$(CONFIG_VSSIM) +\u003d simulator/ssd_io_manager.o\n\n2. is there any usage of static json files? Especially this 80K lince one?",
+      "revId": "053b001da32b1a05911aa6d542ab00cb4f184718",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "f6063ac9_8585cc49",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 1007990
+      },
+      "writtenOn": "2025-09-01T10:46:11Z",
+      "side": 1,
+      "message": "ah, and also add depend on directive when making a change of qemu to create symlinks",
       "revId": "053b001da32b1a05911aa6d542ab00cb4f184718",
       "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
     }
