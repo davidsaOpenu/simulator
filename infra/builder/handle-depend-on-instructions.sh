@@ -61,6 +61,21 @@ print_dependency_summary() {
     echo "=========================================="
 }
 
+
+
+# Configure Git identity if not already set
+configure_git_identity() {
+    # Check if user.name and user.email are configured
+    if ! git config --global user.name >/dev/null 2>&1; then
+        echo "Configuring Git user.name..."
+        git config --global user.name "Jenkins Build System"
+    fi
+    if ! git config --global user.email >/dev/null 2>&1; then
+        echo "Configuring Git user.email..."
+        git config --global user.email "jenkins@build.system"
+}
+
+
 # input: $1 - project name
 #        $2 - fetch_cmd
 #        $3 - commit hash
@@ -85,6 +100,8 @@ fetch_ref_spec() {
     echo "PWD: $(pwd)"
     echo "BRANCH PRIOR TO FETCH CMD: $(git branch -a)"
     echo "REPO STATUS PRIOR TO FETCH CMD: $(git status)"
+
+    configure_git_identity
 
     # Check if the commit is already in the current repository
     if git cat-file -e "$commit_hash" 2>/dev/null; then
