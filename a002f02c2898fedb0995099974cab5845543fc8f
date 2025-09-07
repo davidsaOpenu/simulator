@@ -16,6 +16,23 @@
       "message": "recheck",
       "revId": "a002f02c2898fedb0995099974cab5845543fc8f",
       "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "1b1572fe_6bc53435",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 2
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 1007990
+      },
+      "writtenOn": "2025-09-07T12:02:55Z",
+      "side": 1,
+      "message": "@yonatan.gaffen@outlook.com @yonatanworkg@gmail.com adding Depends-On:  https://review.gerrithub.io/c/davidsaOpenu/qemu/+/1222064 was of no help. \nhttps://review.gerrithub.io/c/davidsaOpenu/simulator/+/1219788 is ready for review \u003d\u003e ELK change will require rebase unless you have a time for a quick fix.",
+      "revId": "a002f02c2898fedb0995099974cab5845543fc8f",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
     }
   ]
 }
