@@ -20,6 +20,24 @@
     {
       "unresolved": false,
       "key": {
+        "uuid": "57d4c48e_f2a96839",
+        "filename": "/COMMIT_MSG",
+        "patchSetId": 23
+      },
+      "lineNbr": 8,
+      "author": {
+        "id": 1038805
+      },
+      "writtenOn": "2025-09-08T17:24:19Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "b87f5941_1b1647ec",
+      "revId": "10afc7620fdd1cee1e9fa881529e69c3755bbcb5",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
+    },
+    {
+      "unresolved": false,
+      "key": {
         "uuid": "38874b89_cb59550a",
         "filename": "/PATCHSET_LEVEL",
         "patchSetId": 23
@@ -69,6 +87,24 @@
       "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "5227e7ea_5f6b31c2",
+        "filename": "eVSSIM/CONFIG/vssim_config_manager.c",
+        "patchSetId": 23
+      },
+      "lineNbr": 1,
+      "author": {
+        "id": 1038805
+      },
+      "writtenOn": "2025-09-08T17:24:19Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "f089d210_98b81fc9",
+      "revId": "10afc7620fdd1cee1e9fa881529e69c3755bbcb5",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "83416176_3c61cbd5",
@@ -86,6 +122,24 @@
       "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "e2ae7472_57b5583e",
+        "filename": "eVSSIM/FTL_SOURCE/COMMON/common.h",
+        "patchSetId": 23
+      },
+      "lineNbr": 29,
+      "author": {
+        "id": 1038805
+      },
+      "writtenOn": "2025-09-08T17:24:19Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "83416176_3c61cbd5",
+      "revId": "10afc7620fdd1cee1e9fa881529e69c3755bbcb5",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "d4a52d1a_c4a13f43",
@@ -99,6 +153,30 @@
       "writtenOn": "2025-09-08T08:05:34Z",
       "side": 1,
       "message": "let\u0027s dynamically allocate disks according to ssd.conf",
+      "range": {
+        "startLine": 31,
+        "startChar": 0,
+        "endLine": 31,
+        "endChar": 22
+      },
+      "revId": "10afc7620fdd1cee1e9fa881529e69c3755bbcb5",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "6e9ac3a8_00f1b913",
+        "filename": "eVSSIM/FTL_SOURCE/COMMON/common.h",
+        "patchSetId": 23
+      },
+      "lineNbr": 31,
+      "author": {
+        "id": 1038805
+      },
+      "writtenOn": "2025-09-08T17:24:19Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "d4a52d1a_c4a13f43",
       "range": {
         "startLine": 31,
         "startChar": 0,
@@ -132,6 +210,30 @@
       "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "32ddcaca_1a0aa720",
+        "filename": "eVSSIM/FTL_SOURCE/COMMON/common.h",
+        "patchSetId": 23
+      },
+      "lineNbr": 32,
+      "author": {
+        "id": 1038805
+      },
+      "writtenOn": "2025-09-08T17:24:19Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "e3fa4071_8afc8352",
+      "range": {
+        "startLine": 32,
+        "startChar": 0,
+        "endLine": 32,
+        "endChar": 33
+      },
+      "revId": "10afc7620fdd1cee1e9fa881529e69c3755bbcb5",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "cee78963_a2fd4854",
@@ -145,6 +247,24 @@
       "writtenOn": "2025-09-08T08:44:56Z",
       "side": 1,
       "message": "here, actually, managing disks according to ssd.conf creates some complucation. How about making reading ssd.conf from env.sh and setting those pors numbers accordingly?",
+      "revId": "10afc7620fdd1cee1e9fa881529e69c3755bbcb5",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "7cb6d0cd_c3089df7",
+        "filename": "infra/builder/env.sh",
+        "patchSetId": 23
+      },
+      "lineNbr": 48,
+      "author": {
+        "id": 1038805
+      },
+      "writtenOn": "2025-09-08T17:24:19Z",
+      "side": 1,
+      "message": "Currently we don\u0027t support logging for multiple disks correctly (choosing the first disk) so I\u0027ve removed the port range. It will be looked at again in the task of the logging.",
+      "parentUuid": "cee78963_a2fd4854",
       "revId": "10afc7620fdd1cee1e9fa881529e69c3755bbcb5",
       "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
     }

@@ -24,6 +24,30 @@
       "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "941b77df_c27209f1",
+        "filename": "eVSSIM/CONFIG/ssd.conf",
+        "patchSetId": 23
+      },
+      "lineNbr": 22,
+      "author": {
+        "id": 1038805
+      },
+      "writtenOn": "2025-09-08T17:24:19Z",
+      "side": 0,
+      "message": "Done",
+      "parentUuid": "dfdd7d0f_587bdf72",
+      "range": {
+        "startLine": 21,
+        "startChar": 0,
+        "endLine": 22,
+        "endChar": 6
+      },
+      "revId": "bce7611e0f1a4f2674fc3409fa770ccc7c66a560",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "c22a9242_96162e9c",
@@ -37,6 +61,30 @@
       "writtenOn": "2025-09-08T07:36:12Z",
       "side": 0,
       "message": "please make sure the ns size stays in the refactored code",
+      "range": {
+        "startLine": 169,
+        "startChar": 0,
+        "endLine": 180,
+        "endChar": 9
+      },
+      "revId": "bce7611e0f1a4f2674fc3409fa770ccc7c66a560",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "2866a07b_3c79e4ef",
+        "filename": "eVSSIM/CONFIG/vssim_config_manager.c",
+        "patchSetId": 23
+      },
+      "lineNbr": 180,
+      "author": {
+        "id": 1038805
+      },
+      "writtenOn": "2025-09-08T17:24:19Z",
+      "side": 0,
+      "message": "Done",
+      "parentUuid": "c22a9242_96162e9c",
       "range": {
         "startLine": 169,
         "startChar": 0,
@@ -72,6 +120,30 @@
     {
       "unresolved": true,
       "key": {
+        "uuid": "1ae17e0f_56d2fad8",
+        "filename": "eVSSIM/CONFIG/vssim_config_manager.h",
+        "patchSetId": 23
+      },
+      "lineNbr": 92,
+      "author": {
+        "id": 1038805
+      },
+      "writtenOn": "2025-09-08T17:24:19Z",
+      "side": 0,
+      "message": "Unused, if I\u0027m not mistaken it was add in the namespaces feature",
+      "parentUuid": "335197b6_c7747886",
+      "range": {
+        "startLine": 92,
+        "startChar": 10,
+        "endLine": 92,
+        "endChar": 19
+      },
+      "revId": "bce7611e0f1a4f2674fc3409fa770ccc7c66a560",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
+    },
+    {
+      "unresolved": true,
+      "key": {
         "uuid": "cdc728d8_dc7c1354",
         "filename": "eVSSIM/CONFIG/vssim_config_manager.h",
         "patchSetId": 23
@@ -83,6 +155,30 @@
       "writtenOn": "2025-09-08T07:36:12Z",
       "side": 0,
       "message": "relates to ns epic",
+      "range": {
+        "startLine": 105,
+        "startChar": 0,
+        "endLine": 105,
+        "endChar": 52
+      },
+      "revId": "bce7611e0f1a4f2674fc3409fa770ccc7c66a560",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "87236b9a_93cb6a03",
+        "filename": "eVSSIM/CONFIG/vssim_config_manager.h",
+        "patchSetId": 23
+      },
+      "lineNbr": 105,
+      "author": {
+        "id": 1038805
+      },
+      "writtenOn": "2025-09-08T17:24:19Z",
+      "side": 0,
+      "message": "Done",
+      "parentUuid": "cdc728d8_dc7c1354",
       "range": {
         "startLine": 105,
         "startChar": 0,
@@ -118,6 +214,30 @@
     {
       "unresolved": true,
       "key": {
+        "uuid": "212528cf_293f30dd",
+        "filename": "eVSSIM/FTL_SOURCE/COMMON/common.h",
+        "patchSetId": 23
+      },
+      "lineNbr": 30,
+      "author": {
+        "id": 1038805
+      },
+      "writtenOn": "2025-09-08T17:24:19Z",
+      "side": 0,
+      "message": "Just to clarify, this isn\u0027t related to us?",
+      "parentUuid": "7ee4e6e8_2299d29a",
+      "range": {
+        "startLine": 30,
+        "startChar": 8,
+        "endLine": 30,
+        "endChar": 32
+      },
+      "revId": "bce7611e0f1a4f2674fc3409fa770ccc7c66a560",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
+    },
+    {
+      "unresolved": true,
+      "key": {
         "uuid": "0ef7fd34_dc40075f",
         "filename": "eVSSIM/tests/host/simulation/base_emulator_tests.h",
         "patchSetId": 23
@@ -129,6 +249,30 @@
       "writtenOn": "2025-09-08T08:44:56Z",
       "side": 0,
       "message": "related to ns epic",
+      "range": {
+        "startLine": 191,
+        "startChar": 0,
+        "endLine": 191,
+        "endChar": 54
+      },
+      "revId": "bce7611e0f1a4f2674fc3409fa770ccc7c66a560",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "eeafa0a5_8f570d2e",
+        "filename": "eVSSIM/tests/host/simulation/base_emulator_tests.h",
+        "patchSetId": 23
+      },
+      "lineNbr": 191,
+      "author": {
+        "id": 1038805
+      },
+      "writtenOn": "2025-09-08T17:24:19Z",
+      "side": 0,
+      "message": "Done",
+      "parentUuid": "0ef7fd34_dc40075f",
       "range": {
         "startLine": 191,
         "startChar": 0,
@@ -152,6 +296,24 @@
       "writtenOn": "2025-09-08T08:44:56Z",
       "side": 0,
       "message": "related to ns epic",
+      "revId": "bce7611e0f1a4f2674fc3409fa770ccc7c66a560",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "faebdc8a_6fbeec9d",
+        "filename": "infra/builder/docker/ssd.conf.template",
+        "patchSetId": 23
+      },
+      "lineNbr": 23,
+      "author": {
+        "id": 1038805
+      },
+      "writtenOn": "2025-09-08T17:24:19Z",
+      "side": 0,
+      "message": "Done",
+      "parentUuid": "a0e14d20_d4b75b56",
       "revId": "bce7611e0f1a4f2674fc3409fa770ccc7c66a560",
       "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
     }
