@@ -35,6 +35,23 @@
       "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "249d215a_55542fdd",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 23
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 1007990
+      },
+      "writtenOn": "2025-09-08T08:05:34Z",
+      "side": 1,
+      "message": "let\u0027s leave \neVSSIM/QEMU/hw/ide/core.c \neVSSIM/QEMU/hw/nvme_storage.c \n\neVSSIM/QEMU to be removed in a separate commit",
+      "revId": "10afc7620fdd1cee1e9fa881529e69c3755bbcb5",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "f089d210_98b81fc9",
@@ -48,6 +65,69 @@
       "writtenOn": "2025-09-08T07:36:12Z",
       "side": 1,
       "message": "Thanks for tidying up the code",
+      "revId": "10afc7620fdd1cee1e9fa881529e69c3755bbcb5",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "83416176_3c61cbd5",
+        "filename": "eVSSIM/FTL_SOURCE/COMMON/common.h",
+        "patchSetId": 23
+      },
+      "lineNbr": 29,
+      "author": {
+        "id": 1007990
+      },
+      "writtenOn": "2025-09-08T08:05:34Z",
+      "side": 1,
+      "message": "please add a comment that explains the rationale",
+      "revId": "10afc7620fdd1cee1e9fa881529e69c3755bbcb5",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "d4a52d1a_c4a13f43",
+        "filename": "eVSSIM/FTL_SOURCE/COMMON/common.h",
+        "patchSetId": 23
+      },
+      "lineNbr": 31,
+      "author": {
+        "id": 1007990
+      },
+      "writtenOn": "2025-09-08T08:05:34Z",
+      "side": 1,
+      "message": "let\u0027s dynamically allocate disks according to ssd.conf",
+      "range": {
+        "startLine": 31,
+        "startChar": 0,
+        "endLine": 31,
+        "endChar": 22
+      },
+      "revId": "10afc7620fdd1cee1e9fa881529e69c3755bbcb5",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "e3fa4071_8afc8352",
+        "filename": "eVSSIM/FTL_SOURCE/COMMON/common.h",
+        "patchSetId": 23
+      },
+      "lineNbr": 32,
+      "author": {
+        "id": 1007990
+      },
+      "writtenOn": "2025-09-08T08:05:34Z",
+      "side": 1,
+      "message": "please add a comment that explains the rationale",
+      "range": {
+        "startLine": 32,
+        "startChar": 0,
+        "endLine": 32,
+        "endChar": 33
+      },
       "revId": "10afc7620fdd1cee1e9fa881529e69c3755bbcb5",
       "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
     }
