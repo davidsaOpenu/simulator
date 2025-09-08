@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "6b439f2f_3720a133",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 26
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 1038805
+      },
+      "writtenOn": "2025-09-08T17:27:37Z",
+      "side": 1,
+      "message": "Marked as unresolved.\nCurrently the recent change is WIP, test will not pass.",
+      "revId": "fc01e2f4157a77b2e0071c0e7f7a2830148055d4",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
+    }
+  ]
+}
