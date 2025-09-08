@@ -130,6 +130,23 @@
       },
       "revId": "10afc7620fdd1cee1e9fa881529e69c3755bbcb5",
       "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "cee78963_a2fd4854",
+        "filename": "infra/builder/env.sh",
+        "patchSetId": 23
+      },
+      "lineNbr": 48,
+      "author": {
+        "id": 1007990
+      },
+      "writtenOn": "2025-09-08T08:44:56Z",
+      "side": 1,
+      "message": "here, actually, managing disks according to ssd.conf creates some complucation. How about making reading ssd.conf from env.sh and setting those pors numbers accordingly?",
+      "revId": "10afc7620fdd1cee1e9fa881529e69c3755bbcb5",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
     }
   ]
 }

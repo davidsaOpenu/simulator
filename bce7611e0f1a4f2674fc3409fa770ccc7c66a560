@@ -114,6 +114,46 @@
       },
       "revId": "bce7611e0f1a4f2674fc3409fa770ccc7c66a560",
       "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "0ef7fd34_dc40075f",
+        "filename": "eVSSIM/tests/host/simulation/base_emulator_tests.h",
+        "patchSetId": 23
+      },
+      "lineNbr": 191,
+      "author": {
+        "id": 1007990
+      },
+      "writtenOn": "2025-09-08T08:44:56Z",
+      "side": 0,
+      "message": "related to ns epic",
+      "range": {
+        "startLine": 191,
+        "startChar": 0,
+        "endLine": 191,
+        "endChar": 54
+      },
+      "revId": "bce7611e0f1a4f2674fc3409fa770ccc7c66a560",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "a0e14d20_d4b75b56",
+        "filename": "infra/builder/docker/ssd.conf.template",
+        "patchSetId": 23
+      },
+      "lineNbr": 23,
+      "author": {
+        "id": 1007990
+      },
+      "writtenOn": "2025-09-08T08:44:56Z",
+      "side": 0,
+      "message": "related to ns epic",
+      "revId": "bce7611e0f1a4f2674fc3409fa770ccc7c66a560",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
     }
   ]
 }
