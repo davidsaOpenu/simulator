@@ -1,0 +1,96 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "dfdd7d0f_587bdf72",
+        "filename": "eVSSIM/CONFIG/ssd.conf",
+        "patchSetId": 23
+      },
+      "lineNbr": 22,
+      "author": {
+        "id": 1007990
+      },
+      "writtenOn": "2025-09-08T07:36:12Z",
+      "side": 0,
+      "message": "related to ns epic \u003d\u003e not for removal",
+      "range": {
+        "startLine": 21,
+        "startChar": 0,
+        "endLine": 22,
+        "endChar": 6
+      },
+      "revId": "bce7611e0f1a4f2674fc3409fa770ccc7c66a560",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "c22a9242_96162e9c",
+        "filename": "eVSSIM/CONFIG/vssim_config_manager.c",
+        "patchSetId": 23
+      },
+      "lineNbr": 180,
+      "author": {
+        "id": 1007990
+      },
+      "writtenOn": "2025-09-08T07:36:12Z",
+      "side": 0,
+      "message": "please make sure the ns size stays in the refactored code",
+      "range": {
+        "startLine": 169,
+        "startChar": 0,
+        "endLine": 180,
+        "endChar": 9
+      },
+      "revId": "bce7611e0f1a4f2674fc3409fa770ccc7c66a560",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "335197b6_c7747886",
+        "filename": "eVSSIM/CONFIG/vssim_config_manager.h",
+        "patchSetId": 23
+      },
+      "lineNbr": 92,
+      "author": {
+        "id": 1007990
+      },
+      "writtenOn": "2025-09-08T07:36:12Z",
+      "side": 0,
+      "message": "what\u0027s behind the sector number removal in ssd_config?",
+      "range": {
+        "startLine": 92,
+        "startChar": 10,
+        "endLine": 92,
+        "endChar": 19
+      },
+      "revId": "bce7611e0f1a4f2674fc3409fa770ccc7c66a560",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "cdc728d8_dc7c1354",
+        "filename": "eVSSIM/CONFIG/vssim_config_manager.h",
+        "patchSetId": 23
+      },
+      "lineNbr": 105,
+      "author": {
+        "id": 1007990
+      },
+      "writtenOn": "2025-09-08T07:36:12Z",
+      "side": 0,
+      "message": "relates to ns epic",
+      "range": {
+        "startLine": 105,
+        "startChar": 0,
+        "endLine": 105,
+        "endChar": 52
+      },
+      "revId": "bce7611e0f1a4f2674fc3409fa770ccc7c66a560",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
+    }
+  ]
+}

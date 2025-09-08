@@ -1,6 +1,23 @@
 {
   "comments": [
     {
+      "unresolved": true,
+      "key": {
+        "uuid": "b87f5941_1b1647ec",
+        "filename": "/COMMIT_MSG",
+        "patchSetId": 23
+      },
+      "lineNbr": 8,
+      "author": {
+        "id": 1007990
+      },
+      "writtenOn": "2025-09-08T07:36:12Z",
+      "side": 1,
+      "message": "let\u0027s add a reference to the corresponding story/stories in Trello.",
+      "revId": "10afc7620fdd1cee1e9fa881529e69c3755bbcb5",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
+    },
+    {
       "unresolved": false,
       "key": {
         "uuid": "38874b89_cb59550a",
@@ -14,6 +31,23 @@
       "writtenOn": "2025-09-07T06:15:34Z",
       "side": 1,
       "message": "recheck",
+      "revId": "10afc7620fdd1cee1e9fa881529e69c3755bbcb5",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "f089d210_98b81fc9",
+        "filename": "eVSSIM/CONFIG/vssim_config_manager.c",
+        "patchSetId": 23
+      },
+      "lineNbr": 1,
+      "author": {
+        "id": 1007990
+      },
+      "writtenOn": "2025-09-08T07:36:12Z",
+      "side": 1,
+      "message": "Thanks for tidying up the code",
       "revId": "10afc7620fdd1cee1e9fa881529e69c3755bbcb5",
       "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
     }
