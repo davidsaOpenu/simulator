@@ -24,6 +24,30 @@
       "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
     },
     {
+      "unresolved": true,
+      "key": {
+        "uuid": "2dd5f86d_d37eac54",
+        "filename": "/COMMIT_MSG",
+        "patchSetId": 10
+      },
+      "lineNbr": 9,
+      "author": {
+        "id": 1038807
+      },
+      "writtenOn": "2025-09-09T11:24:49Z",
+      "side": 1,
+      "message": "Edited the commit.\nWhen we mount we dont use any flags. we run exofs.mkfs without any flags or mount configurations. The current tests confirm that mount is working properly by checking the magic and verifying the dmesg output that we get during these tests. The nvme calls are implicitly tested, since mount uses them. Should they fail, mount will subsequently fail.",
+      "parentUuid": "db5c4c27_18e2dc23",
+      "range": {
+        "startLine": 9,
+        "startChar": 0,
+        "endLine": 9,
+        "endChar": 19
+      },
+      "revId": "7d941a5efd08f2c916b775e95a8be23cc03f1db4",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
+    },
+    {
       "unresolved": false,
       "key": {
         "uuid": "df6748af_cdc6878b",
