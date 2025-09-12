@@ -87,7 +87,7 @@ void TERM_OBJ_STRATEGY(void)
     }
 }
 
-ftl_ret_val _FTL_OBJ_READ(obj_id_t obj_loc, void *data, offset_t offset, length_t *p_length)
+ftl_ret_val _FTL_OBJ_READ(uint8_t device_index, obj_id_t obj_loc, void *data, offset_t offset, length_t *p_length)
 {
     stored_object *object;
     page_node *current_page;
@@ -119,23 +119,26 @@ ftl_ret_val _FTL_OBJ_READ(obj_id_t obj_loc, void *data, offset_t offset, length_
     if (object->size < (offset + length))
         return FTL_FAILURE;
 
-    if (!(current_page = page_by_offset(object, offset)))
+    if (!(current_page = page_by_offset(device_index, object, offset)))
     {
         RERR(FTL_FAILURE, "%u lookup page by offset failed \n", current_page->page_id);
     }
 
     // just calculate the overhead of allocating the request. io_page_nb will be the total number of pages we're gonna read
-    io_alloc_overhead = ALLOC_IO_REQUEST(current_page->page_id * SECTORS_PER_PAGE, length, READ, &io_page_nb);
+    ssds_manager[device_index].io_alloc_overhead = ALLOC_IO_REQUEST(device_index, current_page->page_id * devices[device_index].sectors_per_page, length, READ, &io_page_nb);
 
     for (curr_io_page_nb = 0; curr_io_page_nb < io_page_nb; curr_io_page_nb++)
     {
         // simulate the page read
-        ret = SSD_PAGE_READ(CALC_FLASH(current_page->page_id), CALC_BLOCK(current_page->page_id), CALC_PAGE(current_page->page_id), curr_io_page_nb, READ);
+        ret = SSD_PAGE_READ(device_index, CALC_FLASH(device_index, current_page->page_id),
+                    CALC_BLOCK(device_index, current_page->page_id),
+                    CALC_PAGE(device_index, current_page->page_id),
+                    curr_io_page_nb, READ);
 
         // send a physical read action being done to the statistics gathering
         if (ret == FTL_SUCCESS)
         {
-            FTL_STATISTICS_GATHERING(current_page->page_id, PHYSICAL_READ);
+            FTL_STATISTICS_GATHERING(device_index, current_page->page_id, PHYSICAL_READ);
         }
         // TODO: fix
         if (ret == FTL_FAILURE)
@@ -169,7 +172,7 @@ ftl_ret_val _FTL_OBJ_READ(obj_id_t obj_loc, void *data, offset_t offset, length_
     return ret;
 }
 
-ftl_ret_val _FTL_OBJ_WRITE(obj_id_t object_loc, const void *data, offset_t offset, length_t length)
+ftl_ret_val _FTL_OBJ_WRITE(uint8_t device_index, obj_id_t object_loc, const void *data, offset_t offset, length_t length)
 {
     stored_object *object;
     page_node *current_page = NULL, *temp_page;
@@ -186,33 +189,33 @@ ftl_ret_val _FTL_OBJ_WRITE(obj_id_t object_loc, const void *data, offset_t offse
         RERR(FTL_FAILURE, "failed lookup\n");
 
     // calculate the overhead of allocating the request. io_page_nb will be the total number of pages we're gonna write
-    io_alloc_overhead = ALLOC_IO_REQUEST(offset, length, WRITE, &io_page_nb);
+    ssds_manager[device_index].io_alloc_overhead = ALLOC_IO_REQUEST(device_index, offset, length, WRITE, &io_page_nb);
 
     // if the offset is past the current size of the stored_object we need to append new pages until we can start writing
     while (offset > object->size)
     {
-        if (GET_NEW_PAGE(VICTIM_OVERALL, EMPTY_TABLE_ENTRY_NB, &page_id) == FTL_FAILURE)
+        if (GET_NEW_PAGE(device_index, VICTIM_OVERALL, devices[device_index].empty_table_entry_nb, &page_id) == FTL_FAILURE)
         {
             // not enough memory presumably
             RERR(FTL_FAILURE, "[FTL_WRITE] Get new page fail \n");
         }
-        if (!add_page(object, page_id))
+        if (!add_page(device_index, object, page_id))
             return FTL_FAILURE;
 
         // mark new page as valid and used
-        UPDATE_NEW_PAGE_MAPPING_NO_LOGICAL(page_id);
+        UPDATE_NEW_PAGE_MAPPING_NO_LOGICAL(device_index, page_id);
     }
 
     for (curr_io_page_nb = 0; curr_io_page_nb < io_page_nb; curr_io_page_nb++)
     {
         // if this is the first iteration we need to find the page by offset, otherwise we can go with the page chain
         if (current_page == NULL)
-            current_page = page_by_offset(object, offset);
+            current_page = page_by_offset(device_index, object, offset);
         else
             current_page = current_page->next;
 
         // get the pge we'll be writing to
-        if (GET_NEW_PAGE(VICTIM_OVERALL, EMPTY_TABLE_ENTRY_NB, &page_id) == FTL_FAILURE)
+        if (GET_NEW_PAGE(device_index, VICTIM_OVERALL, devices[device_index].empty_table_entry_nb, &page_id) == FTL_FAILURE)
         {
             RERR(FTL_FAILURE, "[FTL_WRITE] Get new page fail \n");
         }
@@ -222,19 +225,22 @@ ftl_ret_val _FTL_OBJ_WRITE(obj_id_t object_loc, const void *data, offset_t offse
         }
 
         // mark new page as valid and used
-        UPDATE_NEW_PAGE_MAPPING_NO_LOGICAL(page_id);
+        UPDATE_NEW_PAGE_MAPPING_NO_LOGICAL(device_index, page_id);
 
         if (current_page == NULL) // writing at the end of the object and need to allocate more space for it
         {
-            current_page = add_page(object, page_id);
+            current_page = add_page(device_index, object, page_id);
             if (!current_page)
                 return FTL_FAILURE;
         }
         else // writing over parts of the object
         {
             // invalidate the old physical page and replace the page_node's page
-            UPDATE_INVERSE_BLOCK_VALIDITY(CALC_FLASH(current_page->page_id), CALC_BLOCK(current_page->page_id), CALC_PAGE(current_page->page_id), PAGE_INVALID);
-            UPDATE_INVERSE_PAGE_MAPPING(current_page->page_id, -1);
+            UPDATE_INVERSE_BLOCK_VALIDITY(device_index, CALC_FLASH(device_index, current_page->page_id),
+                CALC_BLOCK(device_index, current_page->page_id),
+                CALC_PAGE(device_index, current_page->page_id),
+                PAGE_INVALID);
+            UPDATE_INVERSE_PAGE_MAPPING(device_index, current_page->page_id, MAPPING_TABLE_INIT_VAL);
 
             HASH_DEL(global_page_table, current_page);
             current_page->page_id = page_id;
@@ -243,16 +249,17 @@ ftl_ret_val _FTL_OBJ_WRITE(obj_id_t object_loc, const void *data, offset_t offse
 #ifdef GC_ON
         // must improve this because it is very possible that we will do multiple GCs on the same flash chip and block
         // probably gonna add an array to hold the unique ones and in the end GC all of them
-        
+
         // GC_CHECK(CALC_FLASH(current_page->page_id), CALC_BLOCK(current_page->page_id), false, true);
 #endif
 
-        ret = SSD_PAGE_WRITE(CALC_FLASH(page_id), CALC_BLOCK(page_id), CALC_PAGE(page_id), curr_io_page_nb, WRITE);
+        ret = SSD_PAGE_WRITE(device_index, CALC_FLASH(device_index, page_id),
+            CALC_BLOCK(device_index, page_id), CALC_PAGE(device_index, page_id), curr_io_page_nb, WRITE);
 
         // send a physical write action being done to the statistics gathering
         if (ret == FTL_SUCCESS)
         {
-            FTL_STATISTICS_GATHERING(page_id, PHYSICAL_WRITE);
+            FTL_STATISTICS_GATHERING(device_index, page_id, PHYSICAL_WRITE);
         }
 
         // TODO: fix
@@ -284,7 +291,7 @@ ftl_ret_val _FTL_OBJ_WRITE(obj_id_t object_loc, const void *data, offset_t offse
     return ret;
 }
 
-ftl_ret_val _FTL_OBJ_COPYBACK(int32_t source, int32_t destination)
+ftl_ret_val _FTL_OBJ_COPYBACK(uint8_t device_index, int32_t source, int32_t destination)
 {
     page_node *source_p;
 
@@ -294,10 +301,11 @@ ftl_ret_val _FTL_OBJ_COPYBACK(int32_t source, int32_t destination)
     if (source_p != NULL)
     {
         // invalidate the source page
-        UPDATE_INVERSE_BLOCK_VALIDITY(CALC_FLASH(source), CALC_BLOCK(source), CALC_PAGE(source), PAGE_INVALID);
+        UPDATE_INVERSE_BLOCK_VALIDITY(device_index, CALC_FLASH(device_index, source),
+            CALC_BLOCK(device_index, source), CALC_PAGE(device_index, source), PAGE_INVALID);
 
         // mark new page as valid and used
-        UPDATE_NEW_PAGE_MAPPING_NO_LOGICAL(destination);
+        UPDATE_NEW_PAGE_MAPPING_NO_LOGICAL(device_index, destination);
 
         // change the object's page mapping to the new page
         HASH_DEL(global_page_table, source_p);
@@ -313,13 +321,12 @@ ftl_ret_val _FTL_OBJ_COPYBACK(int32_t source, int32_t destination)
     return FTL_SUCCESS;
 }
 
-bool _FTL_OBJ_CREATE(obj_id_t obj_loc, size_t size)
+bool _FTL_OBJ_CREATE(uint8_t device_index, obj_id_t obj_loc, size_t size)
 {
     stored_object *new_object;
     int osd_ret;
 
-
-    new_object = create_object(obj_loc.object_id, size);
+    new_object = create_object(device_index, obj_loc.object_id, size);
 
     if (new_object == NULL)
     {
@@ -328,7 +335,7 @@ bool _FTL_OBJ_CREATE(obj_id_t obj_loc, size_t size)
 
     osd_ret = osd_create(&osd, obj_loc.partition_id, obj_loc.object_id, 1, 0, osd_sense);
     if (osd_ret < 0) {
-        if (_FTL_OBJ_DELETE(obj_loc) != FTL_SUCCESS) {
+        if (_FTL_OBJ_DELETE(device_index, obj_loc) != FTL_SUCCESS) {
             PDBG_FTL("Warning! couldn't delete object.\n");
         }
 
@@ -339,7 +346,7 @@ bool _FTL_OBJ_CREATE(obj_id_t obj_loc, size_t size)
     return true;
 }
 
-ftl_ret_val _FTL_OBJ_DELETE(obj_id_t obj_loc)
+ftl_ret_val _FTL_OBJ_DELETE(uint8_t device_index, obj_id_t obj_loc)
 {
     stored_object *object;
     object_map *obj_map;
@@ -363,7 +370,7 @@ ftl_ret_val _FTL_OBJ_DELETE(obj_id_t obj_loc)
         return FTL_FAILURE;
     }
 
-    return remove_object(object, obj_map);
+    return remove_object(device_index, object, obj_map);
 }
 
 ftl_ret_val _FTL_OBJ_LIST(void *data, size_t *size, uint64_t initial_oid)
@@ -409,9 +416,8 @@ object_map *lookup_object_mapping(object_id_t object_id)
     return obj_map;
 }
 
-stored_object *create_object(object_id_t obj_id, size_t size)
+stored_object *create_object(uint8_t device_index, object_id_t obj_id, size_t size)
 {
-
     stored_object *obj = malloc(sizeof(stored_object));
     uint64_t page_id;
 
@@ -438,27 +444,27 @@ stored_object *create_object(object_id_t obj_id, size_t size)
 
     // add the new object to the objects' hashtable
     HASH_ADD_INT(objects_table, id, obj);
-    
+
     while (size > obj->size)
     {
-        if (GET_NEW_PAGE(VICTIM_OVERALL, EMPTY_TABLE_ENTRY_NB, &page_id) == FTL_FAILURE)
+        if (GET_NEW_PAGE(device_index, VICTIM_OVERALL, devices[device_index].empty_table_entry_nb, &page_id) == FTL_FAILURE)
         {
             // cleanup just in case we managed to do anything up until now
-            remove_object(obj, obj_map);
+            remove_object(device_index, obj, obj_map);
             return NULL;
         }
-        
-        if (!add_page(obj, page_id))
+
+        if (!add_page(device_index, obj, page_id))
             return NULL;
 
         // mark new page as valid and used
-        UPDATE_NEW_PAGE_MAPPING_NO_LOGICAL(page_id);
+        UPDATE_NEW_PAGE_MAPPING_NO_LOGICAL(device_index, page_id);
     }
 
     return obj;
 }
 
-int remove_object(stored_object *object, object_map *obj_map)
+int remove_object(uint8_t device_index, stored_object *object, object_map *obj_map)
 {
     page_node *current_page;
     page_node *invalidated_page;
@@ -481,7 +487,8 @@ int remove_object(stored_object *object, object_map *obj_map)
     while (current_page != NULL)
     {
         // invalidate the physical page and update its mapping
-        UPDATE_INVERSE_BLOCK_VALIDITY(CALC_FLASH(current_page->page_id), CALC_BLOCK(current_page->page_id), CALC_PAGE(current_page->page_id), PAGE_INVALID);
+        UPDATE_INVERSE_BLOCK_VALIDITY(device_index, CALC_FLASH(device_index, current_page->page_id),
+            CALC_BLOCK(device_index, current_page->page_id), CALC_PAGE(device_index, current_page->page_id), PAGE_INVALID);
 
 #ifdef GC_ON
         // should we really perform GC for every page? we know we are invalidating a lot of them now...
@@ -513,22 +520,22 @@ page_node *allocate_new_page(object_id_t object_id, uint32_t page_id)
     return page;
 }
 
-page_node *add_page(stored_object *object, uint32_t page_id)
+page_node *add_page(uint8_t device_index, stored_object *object, uint32_t page_id)
 {
     page_node *curr, *page;
-    
+
     HASH_FIND_INT(global_page_table, &page_id, page);
     if (page)
     {
         RERR(NULL, "[add_page] Object %lu already contains page %d\n", page->object_id, page_id);
     }
 
-    object->size += GET_PAGE_SIZE();
+    object->size += GET_PAGE_SIZE(device_index);
     if (object->pages == NULL)
     {
         page = allocate_new_page(object->id, page_id);
         HASH_ADD_INT(global_page_table, page_id, page);
-                
+
         object->pages = page;
         return object->pages;
     }
@@ -538,15 +545,15 @@ page_node *add_page(stored_object *object, uint32_t page_id)
     {
         RERR(NULL, "[add_page] Object %lu already contains page %d\n", page->object_id, page_id);
     }
-    
+
     page = allocate_new_page(object->id, page_id);
-        
+
     HASH_ADD_INT(global_page_table, page_id, page);
     curr->next = page;
     return curr->next;
 }
 
-page_node *page_by_offset(stored_object *object, unsigned int offset)
+page_node *page_by_offset(uint8_t device_index, stored_object *object, unsigned int offset)
 {
     page_node *page;
 
@@ -555,7 +562,7 @@ page_node *page_by_offset(stored_object *object, unsigned int offset)
         return NULL;
 
     // skim through pages until offset is less than a page's size
-    for (page = object->pages; page && offset >= GET_PAGE_SIZE(); offset -= GET_PAGE_SIZE(), page = page->next)
+    for (page = object->pages; page && offset >= GET_PAGE_SIZE(device_index); offset -= GET_PAGE_SIZE(device_index), page = page->next)
         ;
 
     // if page==NULL then page collection < size - report error? or assume it's valid? - this technically shouldn't happen after the if at the beginning. just return NULL if it does
