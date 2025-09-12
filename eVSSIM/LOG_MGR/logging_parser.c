@@ -19,13 +19,19 @@
 #include <string.h>
 
 #include "logging_parser.h"
+#include "common.h"
 
 EmptyLog empty_log;
 
 void logger_busy_read(Logger_Pool* logger, Byte* buffer, int length, AnalyzerType analyzer) {
     int bytes_read = 0;
+    int bytes_read_total = 0;
     while (bytes_read < length) {
-        bytes_read += logger_read(logger, buffer + bytes_read, length - bytes_read, analyzer);
+        bytes_read = logger_read(logger, buffer + bytes_read, length - bytes_read, analyzer);
+        if (-1 == bytes_read)
+            RERR(, "WARNING: Log is null, the log may be corrupted and unusable!\n");
+
+        bytes_read_total += bytes_read;
     }
 }
 

@@ -327,7 +327,7 @@ namespace rt_subscriber {
         });
         TIME_MICROSEC(end9);
         LOG_BLOCK_ERASE(logger, (BlockEraseLog) {
-            .channel = 25, .die = 26, .block = 27, .dirty_page_nb = PAGE_NB,
+            .channel = 25, .die = 26, .block = 27, .dirty_page_nb = devices[g_device_index].page_nb,
             .metadata = {start, end9}
         });
         TIME_MICROSEC(end10);
@@ -344,7 +344,7 @@ namespace rt_subscriber {
     }
 
     void read() {
-        rt_log_analyzer_loop(_analyzer, 13);
+        rt_log_analyzer_loop(g_device_index, _analyzer, 13);
     }
 
     /**
