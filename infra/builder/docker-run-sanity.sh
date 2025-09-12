@@ -20,3 +20,10 @@ else
     echo "eVSSIM Failed to find /dev/nvme0n1."
     exit 1
 fi
+# Check with multiple disks
+if evssim_guest ls -al /dev/nvme1n1 2>/dev/null >/dev/null; then
+    echo "eVSSIM Up & Running!"
+else
+    echo "eVSSIM Failed to find /dev/nvme1n1."
+    exit 1
+fi
