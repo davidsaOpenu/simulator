@@ -9,12 +9,13 @@ namespace sector_tests {
         public:
             virtual void SetUp() {
                 BaseTest::SetUp();
-                INIT_LOG_MANAGER();
+                INIT_LOG_MANAGER(g_device_index);
             }
 
             virtual void TearDown() {
-                BaseTest::TearDown();
-                TERM_LOG_MANAGER();
+                BaseTest::TearDown(false);
+                TERM_LOG_MANAGER(g_device_index);
+                TERM_SSD_CONFIG();
             }
     };
 
@@ -35,7 +36,7 @@ namespace sector_tests {
 
         for(int x=0; x<2 /*8*/; x++){
             for(size_t p=0; p < ssd_config->get_pages(); p++){
-                ASSERT_EQ(FTL_SUCCESS, _FTL_WRITE_SECT(p * ssd_config->get_page_size(), 1, NULL));
+                ASSERT_EQ(FTL_SUCCESS, _FTL_WRITE_SECT(g_device_index, p * ssd_config->get_page_size(), 1, NULL));
             }
         }
     }
@@ -45,7 +46,7 @@ namespace sector_tests {
 
         for(int x=0; x<2 /*8*/; x++){
             for(size_t p=0; p < ssd_config->get_pages(); p++){
-                ASSERT_EQ(FTL_SUCCESS, _FTL_WRITE_SECT((rand() % ssd_config->get_pages()) * ssd_config->get_page_size(), 1, NULL));
+                ASSERT_EQ(FTL_SUCCESS, _FTL_WRITE_SECT(g_device_index, (rand() % ssd_config->get_pages()) * ssd_config->get_page_size(), 1, NULL));
             }
         }
     }
@@ -55,10 +56,10 @@ namespace sector_tests {
 
         for(int x=0; x<2; x++){
             for(size_t p=0; p < ssd_config->get_pages(); p++){
-                ASSERT_EQ(FTL_SUCCESS, _FTL_WRITE_SECT((rand() % ssd_config->get_pages()) * ssd_config->get_page_size(), 1, NULL));
+                ASSERT_EQ(FTL_SUCCESS, _FTL_WRITE_SECT(g_device_index, (rand() % ssd_config->get_pages()) * ssd_config->get_page_size(), 1, NULL));
             }
             for(size_t p=0; p < ssd_config->get_pages(); p++){
-                ASSERT_EQ(FTL_SUCCESS, _FTL_WRITE_SECT(p * ssd_config->get_page_size(), 1, NULL));
+                ASSERT_EQ(FTL_SUCCESS, _FTL_WRITE_SECT(g_device_index, p * ssd_config->get_page_size(), 1, NULL));
             }
         }
     }
