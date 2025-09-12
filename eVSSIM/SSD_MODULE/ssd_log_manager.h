@@ -14,9 +14,8 @@
 #include "logging_server.h"
 #include "logging_statistics.h"
 
-
-void INIT_LOG_MANAGER(void);
-void TERM_LOG_MANAGER(void);
+void INIT_LOG_MANAGER(uint8_t device_index);
+void TERM_LOG_MANAGER(uint8_t device_index);
 
 void THREAD_SERVER(void);
 void THREAD_CLIENT(void *arg);
@@ -27,12 +26,12 @@ void THREAD_CLIENT(void *arg);
  * @return the appropriate logger of the flash, or NULL if an error occurred
  *         (or if the logger is not set up)
  */
-Logger_Pool* GET_LOGGER(unsigned int flash_number);
+Logger_Pool* GET_LOGGER(uint8_t device_index, unsigned int flash_number);
 
 /**
  * Reset all the data saved in the analyzers, to clear the entire logging
  * mechanism.
  */
-void reset_analyzers(void);
+void reset_analyzers(uint8_t device_index);
 
 #endif

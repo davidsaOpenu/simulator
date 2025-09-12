@@ -3535,6 +3535,8 @@ if test "$vssim" = "yes" ; then
 #    symlink "$source_path/../SSD_MODULE/ssd.c" "$source_path/hw/ssd.c"
     symlink "$source_path/../SSD_MODULE/ssd_io_manager.h" "$source_path/hw/ssd_io_manager.h"
     symlink "$source_path/../SSD_MODULE/ssd_io_manager.c" "$source_path/hw/ssd_io_manager.c"
+    symlink "$source_path/../SSD_MODULE/onfi.h" "$source_path/hw/onfi.h"
+    symlink "$source_path/../SSD_MODULE/onfi.c" "$source_path/hw/onfi.c"
     symlink "$source_path/../SSD_MODULE/ssd_log_manager.h" "$source_path/hw/ssd_log_manager.h"
     symlink "$source_path/../SSD_MODULE/ssd_log_manager.c" "$source_path/hw/ssd_log_manager.c"
     symlink "$source_path/../SSD_MODULE/ssd_util.h" "$source_path/hw/ssd_util.h"
