@@ -1,0 +1,38 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "c3deac85_ddf31b1a",
+        "filename": "eVSSIM/tests/host/simulation/onfi_ops_test.cc",
+        "patchSetId": 1
+      },
+      "lineNbr": 2,
+      "author": {
+        "id": 1007990
+      },
+      "writtenOn": "2025-09-12T05:42:16Z",
+      "side": 1,
+      "message": "s/2023/2025",
+      "revId": "1f7019e074611e3d6dd96a6a6f0e20d71fc9dcaf",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "5a3670bd_252fc0f3",
+        "filename": "eVSSIM/tests/host/unit/test_ssd_file_ops.cc",
+        "patchSetId": 1
+      },
+      "lineNbr": 38,
+      "author": {
+        "id": 1007990
+      },
+      "writtenOn": "2025-09-12T05:42:16Z",
+      "side": 1,
+      "message": "nit: whitespace",
+      "revId": "1f7019e074611e3d6dd96a6a6f0e20d71fc9dcaf",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
+    }
+  ]
+}
