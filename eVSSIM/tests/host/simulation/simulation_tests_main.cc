@@ -34,6 +34,9 @@ int main(int argc, char **argv) {
         else if (strcmp(argv[i], "--ssd_program_compatible_test") == 0) {
             tests_filter = "*ProgramCompatibleTest*";
         }
+        else if (strcmp(argv[i], "--onfi_ops_test") == 0) {
+            tests_filter = "*OnfiCommandsTest*";
+        }
     }
 
     testing::GTEST_FLAG(filter) = tests_filter;
