@@ -33,7 +33,6 @@ mkdir -p "$OUTPUT_DIR"
 make clean
 make
 rm -rf /mnt/exofs0/my_file /tmp/my_log.tmp
-head -c 4096 /dev/urandom > /mnt/exofs0/my_file
 
 # prepare to trace
 echo function_graph > /sys/kernel/debug/tracing/current_tracer # trace all functions
