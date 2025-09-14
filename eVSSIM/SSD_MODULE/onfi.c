@@ -1,4 +1,6 @@
 #include "onfi.h"
+#include "common.h"
+#include "ssd_file_operations.h"
 #include <stdbool.h>
 
 static onfi_status_reg_t g_status_register = {0};
@@ -29,12 +31,34 @@ void update_status_register(onfi_status_reg_t *status_reg, onfi_ret_val last_op_
 onfi_ret_val ONFI_READ(uint64_t row_address, uint32_t column_address,
                        uint8_t *o_buffer, size_t buffer_size, size_t *o_read_bytes_amount)
 {
-    (void)row_address;
-    (void)column_address;
-    (void)o_buffer;
-    (void)buffer_size;
-    (void)o_read_bytes_amount;
-    return ONFI_FAILURE;
+    if (o_buffer == NULL || o_read_bytes_amount == NULL)
+    {
+        PERR("Got null paramater\n")
+        return ONFI_FAILURE;
+    }
+
+    if (row_address >= GET_PAGE_NB(g_device_index) || column_address >= GET_PAGE_SIZE(g_device_index))
+    {
+        PERR("Invalid address to read (row_address = %zu, column_address = %zu)\n", (size_t)row_address, (size_t)column_address)
+        return ONFI_FAILURE;
+    }
+
+    const size_t amount_to_read = (buffer_size + column_address > GET_PAGE_SIZE(g_device_index)) ? (GET_PAGE_SIZE(g_device_index) - column_address) : buffer_size;
+
+    if (SSD_PAGE_READ(g_device_index, CALC_FLASH(g_device_index, row_address), CALC_BLOCK(g_device_index, row_address), CALC_PAGE(g_device_index, row_address), 0, READ) != FTL_SUCCESS)
+    {
+        PERR("Failed reading\n")
+        return ONFI_FAILURE;
+    }
+
+    if (ssd_read(GET_FILE_NAME(g_device_index), row_address * GET_PAGE_SIZE(g_device_index) + column_address, amount_to_read, o_buffer) != SSD_FILE_OPS_SUCCESS)
+    {
+        PERR("Failed reading\n")
+        return ONFI_FAILURE;
+    }
+
+    *o_read_bytes_amount = amount_to_read;
+    return ONFI_SUCCESS;
 }
 
 onfi_ret_val ONFI_PAGE_PROGRAM(uint64_t row_address, uint32_t column_address,
