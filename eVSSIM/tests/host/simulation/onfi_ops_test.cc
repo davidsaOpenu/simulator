@@ -17,6 +17,11 @@
 #include <cmath>
 #include "base_emulator_tests.h"
 
+extern "C"
+{
+#include "onfi.h"
+}
+
 extern RTLogStatistics *rt_log_stats;
 extern LogServer log_server;
 
@@ -56,11 +61,96 @@ namespace program_compatible_test
 
     INSTANTIATE_TEST_CASE_P(DiskSize, OnfiCommandsTest, ::testing::ValuesIn(GetTestParams()));
 
-    TEST_P(OnfiCommandsTest, Try)
+
+    /* ========== ONFI_READ tests ========== */
+
+    TEST_P(OnfiCommandsTest, NullBufferReadFails)
     {
+        SSDConf *ssd_config = base_test_get_ssd_config();
 
-        ASSERT_EQ(1, 1);
+        size_t nread = 0;
+        ASSERT_EQ(ONFI_READ(0, 0, NULL, ssd_config->get_page_size(), &nread), ONFI_FAILURE);
+    }
 
+    TEST_P(OnfiCommandsTest, NullReadAmountReadFails)
+    {
+        SSDConf *ssd_config = base_test_get_ssd_config();
+
+        unsigned char buffer[ssd_config->get_page_size()];
+
+        ASSERT_EQ(ONFI_READ(0, 0, buffer, ssd_config->get_page_size(), NULL), ONFI_FAILURE);
+    }
+
+    TEST_P(OnfiCommandsTest, OutOfBoundsRowAddressReadFails)
+    {
+        SSDConf *ssd_config = base_test_get_ssd_config();
+
+        unsigned char buffer[ssd_config->get_page_size()];
+        size_t nread = 0;
+
+        ASSERT_EQ(ONFI_READ(ssd_config->get_page_nb(), 0, buffer, ssd_config->get_page_size(), &nread), ONFI_FAILURE);
+    }
+
+    TEST_P(OnfiCommandsTest, OutOfBoundsColumnAddressReadFails)
+    {
+        SSDConf *ssd_config = base_test_get_ssd_config();
+
+        unsigned char buffer[ssd_config->get_page_size()];
+        size_t nread = 0;
+
+        ASSERT_EQ(ONFI_READ(0, ssd_config->get_page_size(), buffer, 1, &nread), ONFI_FAILURE);
+    }
+
+    TEST_P(OnfiCommandsTest, ReadAllSuccess)
+    {
+        SSDConf *ssd_config = base_test_get_ssd_config();
+
+        size_t nread = 0;
+        unsigned char buffer[ssd_config->get_page_size()];
+        unsigned char reference_buffer[ssd_config->get_page_size()];
+        memset(reference_buffer, 0xFF, ssd_config->get_page_size());
+
+        for (size_t page = 0; page < ssd_config->get_page_nb(); ++page)
+        {
+            memset(buffer, 0x00, ssd_config->get_page_size());
+            ASSERT_EQ(ONFI_READ(page, 0, buffer, ssd_config->get_page_size(), &nread), ONFI_SUCCESS);
+            ASSERT_EQ(nread, ssd_config->get_page_size());
+            ASSERT_EQ(memcmp(reference_buffer, buffer, ssd_config->get_page_size()), 0);
+        }
+    }
+
+    TEST_P(OnfiCommandsTest, ReadPartialPageSuccess)
+    {
+        SSDConf *ssd_config = base_test_get_ssd_config();
+
+        size_t nread = 0;
+        unsigned char buffer[ssd_config->get_page_size()];
+        unsigned char reference_buffer[ssd_config->get_page_size()];
+        memset(reference_buffer, 0xFF, ssd_config->get_page_size());
+
+        size_t column = ssd_config->get_page_size() / 4;
+        size_t read_size = ssd_config->get_page_size() / 2;
+
+        ASSERT_EQ(ONFI_READ(0, column, buffer, read_size, &nread), ONFI_SUCCESS);
+        ASSERT_EQ(nread, read_size);
+        ASSERT_EQ(memcmp(reference_buffer, buffer, read_size), 0);
+    }
+
+    TEST_P(OnfiCommandsTest, ReadPartialPageWithPageOverflowSuccess)
+    {
+        SSDConf *ssd_config = base_test_get_ssd_config();
+
+        size_t nread = 0;
+        unsigned char buffer[ssd_config->get_page_size()];
+        unsigned char reference_buffer[ssd_config->get_page_size()];
+        memset(reference_buffer, 0xFF, ssd_config->get_page_size());
+
+        size_t column = ssd_config->get_page_size() / 4;
+        size_t expected_nread = ssd_config->get_page_size() - column;
+
+        ASSERT_EQ(ONFI_READ(0, column, buffer, ssd_config->get_page_size(), &nread), ONFI_SUCCESS);
+        ASSERT_EQ(nread, expected_nread);
+        ASSERT_EQ(memcmp(reference_buffer, buffer, nread), 0);
     }
 
 } // namespace
