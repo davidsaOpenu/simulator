@@ -39,6 +39,7 @@ namespace object_tests {
 
             virtual void TearDown() {
                 BaseTest::TearDown(false);
+                TERM_OBJ_STRATEGY();
                 TERM_LOG_MANAGER(g_device_index);
                 TERM_SSD_CONFIG();
             }
