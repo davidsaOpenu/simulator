@@ -267,7 +267,7 @@ ftl_ret_val _FTL_WRITE_SECT(uint8_t device_index, uint32_t nsid, uint64_t sector
 		FTL_STATISTICS_GATHERING(device_index, lpn , LOGICAL_WRITE);
 
 		if (ret == FTL_FAILURE) {
-			PDBG_FTL("Error[FTL_WRITE] %d page write fail \n", GET_MAPPING_INFO(device_index, nsid, lpn));
+			PDBG_FTL("Error[FTL_WRITE] %lu page write fail \n", GET_MAPPING_INFO(device_index, nsid, lpn));
 		}
 
 		lba += write_sects;
@@ -326,7 +326,7 @@ ftl_ret_val _FTL_COPYBACK(uint8_t device_index, uint64_t source, uint64_t destin
 	if (ssd_read(GET_FILE_NAME(device_index), source * GET_PAGE_SIZE(device_index), GET_PAGE_SIZE(device_index), buff) == SSD_FILE_OPS_SUCCESS) {
 		if (ssd_write(GET_FILE_NAME(device_index), destination * GET_PAGE_SIZE(device_index), GET_PAGE_SIZE(device_index), buff) == SSD_FILE_OPS_ERROR) {
 			// If ssd_read succeeded this fail shouldn't happen !!
-			RDBG_FTL(FTL_FAILURE, "%u page copyback fail \n", source);
+			RDBG_FTL(FTL_FAILURE, "%lu page copyback fail \n", source);
 		}
 	}
 
