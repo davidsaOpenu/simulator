@@ -48,6 +48,10 @@ typedef struct object_map
 void INIT_OBJ_STRATEGY(void);
 void TERM_OBJ_STRATEGY(void);
 
+void free_obj_table(void);
+void free_page_table(void);
+void free_obj_mapping(void);
+
 /* FTL functions */
 ftl_ret_val _FTL_OBJ_READ(uint8_t device_index, obj_id_t object_loc, void *data, offset_t offset, length_t *length);
 ftl_ret_val _FTL_OBJ_WRITE(uint8_t device_index, obj_id_t object_loc, const void *data, offset_t offset, length_t length);
@@ -61,14 +65,12 @@ stored_object *lookup_object(object_id_t object_id);
 object_map *lookup_object_mapping(object_id_t object_id);
 stored_object *create_object(uint8_t device_index, object_id_t obj_id, size_t size);
 int remove_object(uint8_t device_index, stored_object *object, object_map *obj_map);
+bool expend_object(uint8_t device_index, stored_object *object, size_t size);
 
 page_node *allocate_new_page(object_id_t object_id, uint32_t page_id);
 page_node *add_page(uint8_t device_index, stored_object *object, uint32_t page_id);
+page_node *remove_page(page_node *page);
 page_node *page_by_offset(uint8_t device_index, stored_object *object, unsigned int offset);
 page_node *lookup_page(uint32_t page_id);
-page_node *next_page(stored_object *object, page_node *current);
-void free_obj_table(void);
-void free_page_table(void);
-void free_obj_mapping(void);
 
-#endif
+#endif // _FTL_OBJ_H_
