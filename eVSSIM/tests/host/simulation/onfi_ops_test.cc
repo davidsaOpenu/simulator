@@ -34,15 +34,16 @@ namespace program_compatible_test
         virtual void SetUp()
         {
             BaseTest::SetUp();
-            INIT_LOG_MANAGER();
-            ASSERT_EQ(_FTL_CREATE(), FTL_SUCCESS);
+            INIT_LOG_MANAGER(g_device_index);
+            ASSERT_EQ(_FTL_CREATE(g_device_index), FTL_SUCCESS);
         }
 
         virtual void TearDown()
         {
-            BaseTest::TearDown();
-            TERM_LOG_MANAGER();
-            remove(GET_FILE_NAME());
+            BaseTest::TearDown(false);
+            TERM_LOG_MANAGER(g_device_index);
+            remove(GET_FILE_NAME(g_device_index));
+            TERM_SSD_CONFIG();
         }
     };
 
