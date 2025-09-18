@@ -285,6 +285,24 @@
       "parentUuid": "cee78963_a2fd4854",
       "revId": "10afc7620fdd1cee1e9fa881529e69c3755bbcb5",
       "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "ed63c50f_0a752aae",
+        "filename": "infra/builder/env.sh",
+        "patchSetId": 23
+      },
+      "lineNbr": 48,
+      "author": {
+        "id": 1007990
+      },
+      "writtenOn": "2025-09-18T14:45:41Z",
+      "side": 1,
+      "message": "Acknowledged",
+      "parentUuid": "7cb6d0cd_c3089df7",
+      "revId": "10afc7620fdd1cee1e9fa881529e69c3755bbcb5",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
     }
   ]
 }
