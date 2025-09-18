@@ -22,9 +22,6 @@ extern int* g_init_ftl;
 void FTL_INIT(uint8_t device_index);
 void FTL_TERM(uint8_t device_index);
 
-//TODO: get rid of this (we have no init anymore)
-void FTL_TERM_STRATEGY(void);
-
 void FTL_INIT_STATS(void);
 ftl_ret_val FTL_STATISTICS_GATHERING(uint8_t device_index, uint32_t page_nb, int type);
 uint32_t FTL_STATISTICS_QUERY(uint8_t device_index, uint32_t address, int scope, int type);

@@ -62,7 +62,6 @@ void FTL_TERM(uint8_t device_index)
 	TERM_INVERSE_PAGE_NAMESPACE_MAPPING(device_index);
 
 	TERM_PERF_CHECKER();
-	FTL_TERM_STRATEGY();
 	FTL_TERM_STATS();
 
 	SSD_IO_TERM(device_index);
@@ -70,15 +69,6 @@ void FTL_TERM(uint8_t device_index)
 	g_init_ftl[device_index] = 0;
 
 	PINFO("complete\n");
-}
-
-void FTL_TERM_STRATEGY(void)
-{
-	// As we can't figure out the storage strategy at this point,
-	// We can terminate the object strategy anyway... at the worst
-	// case where we're actually using the sector strategy, it won't do
-	// anything and return
-	TERM_OBJ_STRATEGY();
 }
 
 void FTL_INIT_STATS(void)
