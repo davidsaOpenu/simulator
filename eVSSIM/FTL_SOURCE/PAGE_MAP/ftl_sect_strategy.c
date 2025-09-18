@@ -90,7 +90,7 @@ ftl_ret_val _FTL_READ_SECT(uint8_t device_index, uint64_t sector_nb, unsigned in
 
 #ifdef FTL_DEBUG
 		if (ret == FTL_FAILURE)
-			PERR("%u page read fail \n", ppn);
+			PERR("%lu page read fail \n", ppn);
 #endif
 		read_page_nb++;
 
@@ -251,7 +251,7 @@ ftl_ret_val _FTL_WRITE_SECT(uint8_t device_index, uint64_t sector_nb, unsigned i
 		FTL_STATISTICS_GATHERING(device_index, lpn , LOGICAL_WRITE);
 
 		if (ret == FTL_FAILURE) {
-			PDBG_FTL("Error[FTL_WRITE] %d page write fail \n", GET_MAPPING_INFO(device_index, lpn));
+			PDBG_FTL("Error[FTL_WRITE] %lu page write fail \n", GET_MAPPING_INFO(device_index, lpn));
 		}
 
 		lba += write_sects;
@@ -293,7 +293,7 @@ ftl_ret_val _FTL_COPYBACK(uint8_t device_index, uint64_t source, uint64_t destin
 
 
 	if (ret == FTL_FAILURE)
-        RDBG_FTL(FTL_FAILURE, "%u page copyback fail \n", source);
+        RDBG_FTL(FTL_FAILURE, "%lu page copyback fail \n", source);
 
 	// Actual page copy
 	unsigned char buff[GET_PAGE_SIZE(device_index)];
@@ -302,7 +302,7 @@ ftl_ret_val _FTL_COPYBACK(uint8_t device_index, uint64_t source, uint64_t destin
 	if (ssd_read(GET_FILE_NAME(device_index), source * GET_PAGE_SIZE(device_index), GET_PAGE_SIZE(device_index), buff) == SSD_FILE_OPS_SUCCESS) {
 		if (ssd_write(GET_FILE_NAME(device_index), destination * GET_PAGE_SIZE(device_index), GET_PAGE_SIZE(device_index), buff) == SSD_FILE_OPS_ERROR) {
 			// If ssd_read succeeded this fail shouldn't happen !!
-			RDBG_FTL(FTL_FAILURE, "%u page copyback fail \n", source);
+			RDBG_FTL(FTL_FAILURE, "%lu page copyback fail \n", source);
 		}
 	}
 
