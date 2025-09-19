@@ -1,0 +1,44 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "cc2d609d_d648f4e6",
+        "filename": "/COMMIT_MSG",
+        "patchSetId": 1
+      },
+      "lineNbr": 7,
+      "author": {
+        "id": 1007990
+      },
+      "writtenOn": "2025-09-19T03:59:35Z",
+      "side": 1,
+      "message": "let\u0027s add a link to the corresponding trello card",
+      "revId": "3543549caac0a96352c95c3cd7e60d8df839f259",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "b4f326b6_98946019",
+        "filename": "eVSSIM/SSD_MODULE/onfi.c",
+        "patchSetId": 1
+      },
+      "lineNbr": 41,
+      "author": {
+        "id": 1007990
+      },
+      "writtenOn": "2025-09-19T03:59:35Z",
+      "side": 1,
+      "message": "nit: any particular reason for conversion from uint64_t to size_t?",
+      "range": {
+        "startLine": 41,
+        "startChar": 0,
+        "endLine": 41,
+        "endChar": 128
+      },
+      "revId": "3543549caac0a96352c95c3cd7e60d8df839f259",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
+    }
+  ]
+}
