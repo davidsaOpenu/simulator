@@ -171,6 +171,8 @@ typedef struct
 } __attribute__((packed)) onfi_param_page_t;
 #pragma pack(pop)
 
+uint16_t _ONFI_CRC16(uint8_t *data, size_t data_size);
+
 void _ONFI_UPDATE_STATUS_REGISTER(onfi_status_reg_t *status_reg, onfi_ret_val last_op_ret_val);
 
 onfi_ret_val _ONFI_INIT(void);

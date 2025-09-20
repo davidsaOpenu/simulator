@@ -406,4 +406,58 @@ namespace program_compatible_test
         ASSERT_EQ(status.ARDY, 1);
     }
 
+    /* ========== ONFI_READ_PARAMETER_PAGE tests ========== */
+
+    TEST_P(OnfiCommandsTest, ReadParameterPageTimingModeNonzeroFails)
+    {
+        onfi_param_page_t param_page;
+
+        ASSERT_EQ(ONFI_READ_PARAMETER_PAGE(1, (uint8_t *)&param_page, sizeof(onfi_param_page_t)), ONFI_FAILURE);
+    }
+
+    TEST_P(OnfiCommandsTest, ReadParameterPageNullBufferFails)
+    {
+        ASSERT_EQ(ONFI_READ_PARAMETER_PAGE(0, NULL, sizeof(onfi_param_page_t)), ONFI_FAILURE);
+    }
+
+    TEST_P(OnfiCommandsTest, ReadParameterPageBufferSizeZeroFails)
+    {
+        onfi_param_page_t param_page;
+
+        ASSERT_EQ(ONFI_READ_PARAMETER_PAGE(0, (uint8_t *)&param_page, 0), ONFI_FAILURE);
+    }
+
+    TEST_P(OnfiCommandsTest, ReadParameterPageValidArgumentsSuccess)
+    {
+        onfi_param_page_t param_page;
+
+        ASSERT_EQ(ONFI_READ_PARAMETER_PAGE(0, (uint8_t *)&param_page, sizeof(onfi_param_page_t)), ONFI_SUCCESS);
+
+        // TODO: use value that differs based on SSDConf in current test and compare with own
+        ASSERT_EQ(param_page.mem_org_block.data_bytes_per_page, GET_PAGE_SIZE(g_device_index));
+    }
+
+    TEST_P(OnfiCommandsTest, ReadParameterPageSmallBuffer)
+    {
+        onfi_param_page_t param_page;
+
+        ASSERT_EQ(ONFI_READ_PARAMETER_PAGE(0, (uint8_t *)&param_page, 8), ONFI_SUCCESS);
+
+        ASSERT_EQ(memcmp(param_page.signature, "ONFI", 4), 0);
+        ASSERT_GE(param_page.revision, 0x0001);
+    }
+
+    TEST_P(OnfiCommandsTest, ReadParameterPageBigBuffer)
+    {
+        unsigned repetitions = 4;
+        onfi_param_page_t param_page[repetitions];
+
+        ASSERT_EQ(ONFI_READ_PARAMETER_PAGE(0, (uint8_t *)&param_page, sizeof(onfi_param_page_t) * repetitions), ONFI_SUCCESS);
+
+        for (unsigned i = 0; i < repetitions - 1; ++i)
+        {
+            ASSERT_EQ(memcmp(param_page + i, param_page + (i + 1), sizeof(onfi_param_page_t)), 0);
+        }
+    }
+
 } // namespace
