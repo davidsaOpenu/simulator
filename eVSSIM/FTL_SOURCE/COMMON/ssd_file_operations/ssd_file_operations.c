@@ -101,3 +101,36 @@ ssd_file_ops_ret_val ssd_read(const char *path, size_t offset, size_t length, un
     return (read_bytes == (ssize_t)length) ? SSD_FILE_OPS_SUCCESS : SSD_FILE_OPS_ERROR;
 }
 
+ssd_file_ops_ret_val ssd_erase(const char *path, size_t offset, size_t length) {
+    if (path == NULL) return SSD_FILE_OPS_ERROR;
+    size_t capacity = ssd_get_capacity(path);
+    if (capacity == 0) return SSD_FILE_OPS_ERROR;
+
+    if (offset + length > capacity) return SSD_FILE_OPS_ERROR;
+
+    int fd = open(path, O_WRONLY);
+    if (fd < 0) return SSD_FILE_OPS_ERROR;
+
+
+    unsigned char buffer[BUFFER_SIZE];
+
+    // Fill with 1s like a real ssd
+    memset(buffer, 0xFF, sizeof(buffer));
+
+    size_t written = 0;
+    while (written < length) {
+        size_t to_write = (length - written < sizeof(buffer)) ? (length - written) : sizeof(buffer);
+        ssize_t w = pwrite(fd, buffer, to_write, offset);
+        if (w <= 0) {
+            close(fd);
+            return SSD_FILE_OPS_ERROR;
+        }
+        written += w;
+        offset += w;
+    }
+
+    
+    close(fd);
+    return SSD_FILE_OPS_SUCCESS;
+}
+
