@@ -101,8 +101,33 @@ onfi_ret_val ONFI_PAGE_PROGRAM(uint64_t row_address, uint32_t column_address,
 
 onfi_ret_val ONFI_BLOCK_ERASE(uint64_t row_address)
 {
-    (void)row_address;
-    return ONFI_FAILURE;
+    if (row_address >= PAGE_NB)
+    {
+        PERR("Invalid address to erasw (row_address = %zu)\n", (size_t)row_address)
+        _ONFI_UPDATE_STATUS_REGISTER(&g_status_register, ONFI_FAILURE);
+        return ONFI_FAILURE;
+    }
+
+    const uint64_t block_nb = CALC_BLOCK(row_address);
+    const uint64_t flash_nb = CALC_FLASH(row_address);
+
+    if (SSD_BLOCK_ERASE(flash_nb, block_nb) != FTL_SUCCESS) {
+        PERR("Failed erasing\n")
+        _ONFI_UPDATE_STATUS_REGISTER(&g_status_register, ONFI_FAILURE);
+        return ONFI_FAILURE;
+    }
+
+    const size_t block_size = PAGE_NB * GET_PAGE_SIZE();
+    const uint64_t first_page_in_block = block_nb * PAGE_NB;
+
+    if (ssd_erase(GET_FILE_NAME(), first_page_in_block * GET_PAGE_SIZE(), block_size) != SSD_FILE_OPS_SUCCESS) {
+        PERR("Failed erasing\n")
+        _ONFI_UPDATE_STATUS_REGISTER(&g_status_register, ONFI_FAILURE);
+        return ONFI_FAILURE;
+    }
+
+    _ONFI_UPDATE_STATUS_REGISTER(&g_status_register, ONFI_SUCCESS);
+    return ONFI_SUCCESS;
 }
 
 onfi_ret_val ONFI_READ_ID(uint8_t address, uint8_t *o_buffer, size_t buffer_size)

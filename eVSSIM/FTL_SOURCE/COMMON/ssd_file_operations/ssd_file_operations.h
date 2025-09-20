@@ -21,4 +21,7 @@ ssd_file_ops_ret_val ssd_write(const char *path, size_t offset, size_t length, c
 // Reads SSD file content to a given buffer.
 ssd_file_ops_ret_val ssd_read(const char *path, size_t offset, size_t length, unsigned char *buff);
 
+// Erases SSD file content from the given `offset` for `length` bytes.
+ssd_file_ops_ret_val ssd_erase(const char *path, size_t offset, size_t length);
+
 #endif
