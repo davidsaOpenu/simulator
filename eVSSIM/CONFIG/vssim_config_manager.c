@@ -249,6 +249,10 @@ uint32_t GET_PAGE_SIZE(uint8_t device_index){
     return devices[device_index].page_size;
 }
 
+uint64_t GET_PAGE_NB(uint8_t device_index){
+    return devices[device_index].page_nb;
+}
+
 ssd_config_t* GET_DEVICES(void){
     return devices;
 }

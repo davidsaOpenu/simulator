@@ -45,21 +45,21 @@ onfi_ret_val ONFI_READ(uint64_t row_address, uint32_t column_address,
         return ONFI_FAILURE;
     }
 
-    if (row_address >= PAGE_NB || column_address >= GET_PAGE_SIZE())
+    if (row_address >= GET_PAGE_NB(g_device_index) || column_address >= GET_PAGE_SIZE(g_device_index))
     {
         PERR("Invalid address to read (row_address = %zu, column_address = %zu)\n", (size_t)row_address, (size_t)column_address)
         return ONFI_FAILURE;
     }
 
-    const size_t amount_to_read = (buffer_size + column_address > GET_PAGE_SIZE()) ? (GET_PAGE_SIZE() - column_address) : buffer_size;
+    const size_t amount_to_read = (buffer_size + column_address > GET_PAGE_SIZE(g_device_index)) ? (GET_PAGE_SIZE(g_device_index) - column_address) : buffer_size;
 
-    if (SSD_PAGE_READ(CALC_FLASH(row_address), CALC_BLOCK(row_address), CALC_PAGE(row_address), 0, READ) != FTL_SUCCESS)
+    if (SSD_PAGE_READ(g_device_index, CALC_FLASH(g_device_index, row_address), CALC_BLOCK(g_device_index, row_address), CALC_PAGE(g_device_index, row_address), 0, READ) != FTL_SUCCESS)
     {
         PERR("Failed reading\n")
         return ONFI_FAILURE;
     }
 
-    if (ssd_read(GET_FILE_NAME(), row_address * GET_PAGE_SIZE() + column_address, amount_to_read, o_buffer) != SSD_FILE_OPS_SUCCESS)
+    if (ssd_read(GET_FILE_NAME(g_device_index), row_address * GET_PAGE_SIZE(g_device_index) + column_address, amount_to_read, o_buffer) != SSD_FILE_OPS_SUCCESS)
     {
         PERR("Failed reading\n")
         return ONFI_FAILURE;
@@ -79,23 +79,23 @@ onfi_ret_val ONFI_PAGE_PROGRAM(uint64_t row_address, uint32_t column_address,
         return ONFI_FAILURE;
     }
 
-    if (row_address >= PAGE_NB || column_address >= GET_PAGE_SIZE())
+    if (row_address >= GET_PAGE_NB(g_device_index) || column_address >= GET_PAGE_SIZE(g_device_index))
     {
         PERR("Invalid address to read (row_address = %zu, column_address = %zu)\n", (size_t)row_address, (size_t)column_address)
         _ONFI_UPDATE_STATUS_REGISTER(&g_status_register, ONFI_FAILURE);
         return ONFI_FAILURE;
     }
 
-    const size_t amount_to_write = (buffer_size + column_address > GET_PAGE_SIZE()) ? (GET_PAGE_SIZE() - column_address) : buffer_size;
+    const size_t amount_to_write = (buffer_size + column_address > GET_PAGE_SIZE(g_device_index)) ? (GET_PAGE_SIZE(g_device_index) - column_address) : buffer_size;
 
-    if (SSD_PAGE_WRITE(CALC_FLASH(row_address), CALC_BLOCK(row_address), CALC_PAGE(row_address), 0, WRITE) != FTL_SUCCESS)
+    if (SSD_PAGE_WRITE(g_device_index, CALC_FLASH(g_device_index, row_address), CALC_BLOCK(g_device_index, row_address), CALC_PAGE(g_device_index, row_address), 0, WRITE) != FTL_SUCCESS)
     {
         PERR("Failed writing\n")
         _ONFI_UPDATE_STATUS_REGISTER(&g_status_register, ONFI_FAILURE);
         return ONFI_FAILURE;
     }
 
-    if (ssd_write(GET_FILE_NAME(), row_address * GET_PAGE_SIZE() + column_address, amount_to_write, buffer) != SSD_FILE_OPS_SUCCESS)
+    if (ssd_write(GET_FILE_NAME(g_device_index), row_address * GET_PAGE_SIZE(g_device_index) + column_address, amount_to_write, buffer) != SSD_FILE_OPS_SUCCESS)
     {
         PERR("Failed writing\n")
         _ONFI_UPDATE_STATUS_REGISTER(&g_status_register, ONFI_FAILURE);
@@ -109,26 +109,28 @@ onfi_ret_val ONFI_PAGE_PROGRAM(uint64_t row_address, uint32_t column_address,
 
 onfi_ret_val ONFI_BLOCK_ERASE(uint64_t row_address)
 {
-    if (row_address >= PAGE_NB)
+    if (row_address >= GET_PAGE_NB(g_device_index))
     {
         PERR("Invalid address to erasw (row_address = %zu)\n", (size_t)row_address)
         _ONFI_UPDATE_STATUS_REGISTER(&g_status_register, ONFI_FAILURE);
         return ONFI_FAILURE;
     }
 
-    const uint64_t block_nb = CALC_BLOCK(row_address);
-    const uint64_t flash_nb = CALC_FLASH(row_address);
+    const uint64_t block_nb = CALC_BLOCK(g_device_index, row_address);
+    const uint64_t flash_nb = CALC_FLASH(g_device_index, row_address);
 
-    if (SSD_BLOCK_ERASE(flash_nb, block_nb) != FTL_SUCCESS) {
+    if (SSD_BLOCK_ERASE(g_device_index, flash_nb, block_nb) != FTL_SUCCESS)
+    {
         PERR("Failed erasing\n")
         _ONFI_UPDATE_STATUS_REGISTER(&g_status_register, ONFI_FAILURE);
         return ONFI_FAILURE;
     }
 
-    const size_t block_size = PAGE_NB * GET_PAGE_SIZE();
-    const uint64_t first_page_in_block = block_nb * PAGE_NB;
+    const size_t block_size = GET_PAGE_NB(g_device_index) * GET_PAGE_SIZE(g_device_index);
+    const uint64_t first_page_in_block = block_nb * GET_PAGE_NB(g_device_index);
 
-    if (ssd_erase(GET_FILE_NAME(), first_page_in_block * GET_PAGE_SIZE(), block_size) != SSD_FILE_OPS_SUCCESS) {
+    if (ssd_erase(GET_FILE_NAME(g_device_index), first_page_in_block * GET_PAGE_SIZE(g_device_index), block_size) != SSD_FILE_OPS_SUCCESS)
+    {
         PERR("Failed erasing\n")
         _ONFI_UPDATE_STATUS_REGISTER(&g_status_register, ONFI_FAILURE);
         return ONFI_FAILURE;
