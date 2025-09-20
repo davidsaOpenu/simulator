@@ -28,6 +28,14 @@ void _ONFI_UPDATE_STATUS_REGISTER(onfi_status_reg_t *status_reg, onfi_ret_val la
     // RDY/ARDY are set by the command path; WP left unchanged by this helper
 }
 
+onfi_ret_val _ONFI_INIT(void)
+{
+    memset(&g_status_register, 0, sizeof(g_status_register));
+    set_ready(true);
+
+    return ONFI_SUCCESS;
+}
+
 onfi_ret_val ONFI_READ(uint64_t row_address, uint32_t column_address,
                        uint8_t *o_buffer, size_t buffer_size, size_t *o_read_bytes_amount)
 {
@@ -146,10 +154,16 @@ onfi_ret_val ONFI_READ_PARAMETER_PAGE(uint8_t timing_mode, uint8_t *o_buffer, si
     return ONFI_FAILURE;
 }
 
-onfi_ret_val ONFI_READ_STATUS(uint8_t *o_status_register)
+onfi_ret_val ONFI_READ_STATUS(onfi_status_reg_t *o_status_register)
 {
-    (void)o_status_register;
-    return ONFI_FAILURE;
+    if (o_status_register == NULL)
+    {
+        PERR("Got null paramater\n")
+        return ONFI_FAILURE;
+    }
+
+    memcpy(o_status_register, &g_status_register, sizeof(g_status_register));
+    return ONFI_SUCCESS;
 }
 
 onfi_ret_val ONFI_RESET(void)
