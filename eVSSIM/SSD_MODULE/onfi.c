@@ -10,16 +10,17 @@ static inline void set_ready(bool ready)
 }
 
 // Status helper: FAILC <- old FAIL; FAIL <- last_ret.
-void update_status_register(onfi_status_reg_t* status_reg, onfi_ret_val last_op_ret_val)
+void update_status_register(onfi_status_reg_t *status_reg, onfi_ret_val last_op_ret_val)
 {
-    if (!status_reg) {
+    if (!status_reg)
+    {
         return;
     }
     status_reg->FAILC = status_reg->FAIL;
-    status_reg->FAIL  = last_op_ret_val;
+    status_reg->FAIL = last_op_ret_val;
 
     // Reserved bits must be 0
-    status_reg->R  = 0;
+    status_reg->R = 0;
     status_reg->R2 = 0;
     status_reg->R3 = 0;
     // RDY/ARDY are set by the command path; WP left unchanged by this helper
