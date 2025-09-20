@@ -153,4 +153,111 @@ namespace program_compatible_test
         ASSERT_EQ(memcmp(reference_buffer, buffer, nread), 0);
     }
 
+    /* ========== ONFI_PAGE_PROGRAM tests ========== */
+
+    TEST_P(OnfiCommandsTest, NullBufferPageProgramFails)
+    {
+        SSDConf *ssd_config = base_test_get_ssd_config();
+
+        size_t nprogrammed = 0;
+        ASSERT_EQ(ONFI_PAGE_PROGRAM(0, 0, NULL, ssd_config->get_page_size(), &nprogrammed), ONFI_FAILURE);
+    }
+
+    TEST_P(OnfiCommandsTest, NullProgramAmountPageProgramFails)
+    {
+        SSDConf *ssd_config = base_test_get_ssd_config();
+
+        unsigned char buffer[ssd_config->get_page_size()];
+
+        ASSERT_EQ(ONFI_PAGE_PROGRAM(0, 0, buffer, ssd_config->get_page_size(), NULL), ONFI_FAILURE);
+    }
+
+    TEST_P(OnfiCommandsTest, OutOfBoundsRowAddressPageProgramFails)
+    {
+        SSDConf *ssd_config = base_test_get_ssd_config();
+
+        unsigned char buffer[ssd_config->get_page_size()];
+        size_t nprogrammed = 0;
+
+        ASSERT_EQ(ONFI_PAGE_PROGRAM(ssd_config->get_page_nb(), 0, buffer, ssd_config->get_page_size(), &nprogrammed), ONFI_FAILURE);
+    }
+
+    TEST_P(OnfiCommandsTest, OutOfBoundsColumnAddressPageProgramFails)
+    {
+        SSDConf *ssd_config = base_test_get_ssd_config();
+
+        unsigned char buffer[ssd_config->get_page_size()];
+        size_t nprogrammed = 0;
+
+        ASSERT_EQ(ONFI_PAGE_PROGRAM(0, ssd_config->get_page_size(), buffer, 1, &nprogrammed), ONFI_FAILURE);
+    }
+
+    TEST_P(OnfiCommandsTest, PageProgramAllSuccess)
+    {
+        SSDConf *ssd_config = base_test_get_ssd_config();
+
+        size_t nprogrammed = 0;
+        size_t nread = 0;
+        unsigned char buffer[ssd_config->get_page_size()];
+        unsigned char reference_buffer[ssd_config->get_page_size()];
+        memset(reference_buffer, 0x00, ssd_config->get_page_size());
+
+        for (size_t page = 0; page < ssd_config->get_page_nb(); ++page)
+        {
+            memset(buffer, 0x00, ssd_config->get_page_size());
+            ASSERT_EQ(ONFI_PAGE_PROGRAM(page, 0, buffer, ssd_config->get_page_size(), &nprogrammed), ONFI_SUCCESS);
+            ASSERT_EQ(nprogrammed, ssd_config->get_page_size());
+            memset(buffer, 0xFF, ssd_config->get_page_size());
+            ASSERT_EQ(ONFI_READ(page, 0, buffer, ssd_config->get_page_size(), &nread), ONFI_SUCCESS);
+            ASSERT_EQ(memcmp(reference_buffer, buffer, ssd_config->get_page_size()), 0);
+            // TODO: Assert status register OK
+        }
+    }
+
+    TEST_P(OnfiCommandsTest, PageProgramPartialPageSuccess)
+    {
+        SSDConf *ssd_config = base_test_get_ssd_config();
+
+        size_t nprogrammed = 0;
+        size_t nread = 0;
+        unsigned char buffer[ssd_config->get_page_size()];
+        unsigned char reference_buffer[ssd_config->get_page_size()];
+
+        memset(buffer, 0x00, ssd_config->get_page_size());
+        memset(reference_buffer, 0x00, ssd_config->get_page_size());
+
+        size_t column = ssd_config->get_page_size() / 4;
+        size_t program_size = ssd_config->get_page_size() / 2;
+
+        ASSERT_EQ(ONFI_PAGE_PROGRAM(0, column, buffer, program_size, &nprogrammed), ONFI_SUCCESS);
+        ASSERT_EQ(nprogrammed, program_size);
+        memset(buffer, 0xFF, ssd_config->get_page_size());
+        ASSERT_EQ(ONFI_READ(0, column, buffer, program_size, &nread), ONFI_SUCCESS);
+        ASSERT_EQ(memcmp(reference_buffer, buffer, program_size), 0);
+        // TODO: Assert status register OK
+    }
+
+    TEST_P(OnfiCommandsTest, PageProgramPartialPageWithPageOverflowSuccess)
+    {
+        SSDConf *ssd_config = base_test_get_ssd_config();
+
+        size_t nprogrammed = 0;
+        size_t nread = 0;
+        unsigned char buffer[ssd_config->get_page_size()];
+        unsigned char reference_buffer[ssd_config->get_page_size()];
+
+        memset(buffer, 0x00, ssd_config->get_page_size());
+        memset(reference_buffer, 0x00, ssd_config->get_page_size());
+
+        size_t column = ssd_config->get_page_size() / 4;
+        size_t expected_nprogrammed = ssd_config->get_page_size() - column;
+
+        ASSERT_EQ(ONFI_PAGE_PROGRAM(0, column, buffer, ssd_config->get_page_size(), &nprogrammed), ONFI_SUCCESS);
+        ASSERT_EQ(nprogrammed, expected_nprogrammed);
+        memset(buffer, 0xFF, ssd_config->get_page_size());
+        ASSERT_EQ(ONFI_READ(0, column, buffer, ssd_config->get_page_size(), &nread), ONFI_SUCCESS);
+        ASSERT_EQ(memcmp(reference_buffer, buffer, nprogrammed), 0);
+        // TODO: Assert status register OK
+    }
+
 } // namespace
