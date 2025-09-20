@@ -6,11 +6,11 @@ if [[ "$#" -ne 2 ]]; then
 fi
 
 case "$1" in
-    open|close|read|write|mount|umount)
+    open|close|read|write|mount|umount|ls)
         ;;
     *)
         echo "Invalid operation: $1"
-        echo "Supported operations: open, close, read, write, mount, umount"
+        echo "Supported operations: open, close, read, write, mount, umount, ls"
         exit 1
         ;;
 esac
@@ -42,9 +42,9 @@ echo > /sys/kernel/debug/tracing/set_ftrace_filter
 echo > "/sys/kernel/debug/tracing/set_graph_function"
 echo "__x64_sys_$1" > /sys/kernel/debug/tracing/set_graph_function
 echo > /sys/kernel/debug/tracing/trace
+
 # do some file operations here
 dmesg -c
-
 ./test $1 cache_$2
 
 dmesg -c > "$OUTPUT_DIR/$1_dmesg.txt"
