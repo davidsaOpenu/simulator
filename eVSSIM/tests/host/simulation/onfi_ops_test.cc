@@ -260,4 +260,44 @@ namespace program_compatible_test
         // TODO: Assert status register OK
     }
 
+    /* ========== ONFI_BLOCK_ERASE tests ========== */
+
+    TEST_P(OnfiCommandsTest, OutOfBoundsRowAddressBlockEraseFails)
+    {
+        SSDConf *ssd_config = base_test_get_ssd_config();
+
+        ASSERT_EQ(ONFI_BLOCK_ERASE(ssd_config->get_page_nb()), ONFI_FAILURE);
+    }
+
+    TEST_P(OnfiCommandsTest, BlockEraseAllSuccess)
+    {
+        SSDConf *ssd_config = base_test_get_ssd_config();
+
+        size_t nprogrammed = 0;
+        size_t nread = 0;
+        unsigned char buffer[ssd_config->get_page_size()];
+        unsigned char reference_buffer_written[ssd_config->get_page_size()];
+        unsigned char reference_buffer_erased[ssd_config->get_page_size()];
+        memset(reference_buffer_written, 0x00, ssd_config->get_page_size());
+        memset(reference_buffer_erased, 0xFF, ssd_config->get_page_size());
+
+        for (size_t page = 0; page < ssd_config->get_page_nb(); page += ssd_config->get_pages_per_block())
+        {
+            memset(buffer, 0x00, ssd_config->get_page_size());
+            ASSERT_EQ(ONFI_PAGE_PROGRAM(page, 0, buffer, ssd_config->get_page_size(), &nprogrammed), ONFI_SUCCESS);
+            ASSERT_EQ(nprogrammed, ssd_config->get_page_size());
+            // TODO: Assert status register OK
+            // set to value opposite of expected value to read
+            memset(buffer, 0xFF, ssd_config->get_page_size());
+            ASSERT_EQ(ONFI_READ(page, 0, buffer, ssd_config->get_page_size(), &nread), ONFI_SUCCESS);
+            ASSERT_EQ(memcmp(reference_buffer_written, buffer, ssd_config->get_page_size()), 0);
+            ASSERT_EQ(ONFI_BLOCK_ERASE(page), ONFI_SUCCESS);
+            // TODO: Assert status register OK
+            // set to value opposite of expected value to read
+            memset(buffer, 0x00, ssd_config->get_page_size());
+            ASSERT_EQ(ONFI_READ(page, 0, buffer, ssd_config->get_page_size(), &nread), ONFI_SUCCESS);
+            ASSERT_EQ(memcmp(reference_buffer_erased, buffer, ssd_config->get_page_size()), 0);
+        }
+    }
+
 } // namespace
