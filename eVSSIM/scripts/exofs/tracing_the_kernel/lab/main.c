@@ -6,6 +6,7 @@
 #include <sys/mount.h>
 #include <errno.h>
 #include <string.h>
+#include <dirent.h>
 
 #define MEM_BLOCK_SIZE 4096
 
@@ -19,6 +20,7 @@ void perform_read();
 void perform_write();
 void perform_mount();
 void perform_umount();
+void perform_ls();
 int open_file(const char *path, int flags, mode_t mode);
 void* allocate_aligned_buffer(size_t size);
 void cleanup(FILE *fd1, FILE *fd2);
@@ -28,6 +30,7 @@ FILE *trace_file = NULL;
 FILE *tracing_on_file = NULL;
 
 const char *file_path = "/mnt/exofs0/my_file";
+const char *dir_path = "/mnt/exofs0";
 const char *mount_source = "/dev/osd0";
 const char *mount_target = "/mnt/exofs0";
 const char *filesystem_type = "exofs";
@@ -37,7 +40,7 @@ int use_cache = 0;
 
 int main(int argc, char *argv[]) {
     if (argc != 3) {
-        fprintf(stderr, "Usage: %s <read/write/open/close/mount/umount> <cache_disabled/cache_enabled>\n", argv[0]);
+        fprintf(stderr, "Usage: %s <read/write/open/close/mount/umount/ls> <cache_disabled/cache_enabled>\n", argv[0]);
         return EXIT_FAILURE;
     }
 
@@ -65,8 +68,10 @@ int main(int argc, char *argv[]) {
         perform_mount();
     } else if (strcmp(argv[1], "umount") == 0) {
         perform_umount();
+    } else if (strcmp(argv[1], "ls") == 0) {
+        perform_ls();
     } else {
-        fprintf(stderr, "Invalid operation. Use read, write, open, close, mount, or umount.\n");
+        fprintf(stderr, "Invalid operation. Use read, write, open, close, mount, umount, or ls.\n");
         return EXIT_FAILURE;
     }
 
@@ -207,6 +212,31 @@ void perform_umount() {
     } else {
         printf("Unmounted %s\n", mount_target);
     }
+    stop_tracing();
+}
+
+void perform_ls() {
+    DIR *dir;
+    struct dirent *entry;
+    
+    start_tracing();
+    
+    dir = opendir(dir_path);
+    if (dir == NULL) {
+        perror("Failed to open directory");
+        stop_tracing();
+        return;
+    }
+    
+    printf("Directory listing for %s:\n", dir_path);
+    while ((entry = readdir(dir)) != NULL) {
+        printf("  %s (type: %d)\n", entry->d_name, entry->d_type);
+    }
+    
+    if (closedir(dir) == -1) {
+        perror("Failed to close directory");
+    }
+    
     stop_tracing();
 }
 
