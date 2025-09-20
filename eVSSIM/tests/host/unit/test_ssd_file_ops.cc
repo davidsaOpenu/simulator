@@ -75,6 +75,9 @@ namespace ssd_file_ops_test
     TEST_F(SsdFileOpsTest, CreateGetNullPathTest) {
         ASSERT_EQ(SSD_FILE_OPS_ERROR, ssd_create(NULL, 5000));
     }
+       TEST_F(SsdFileOpsTest, EraseGetNullPathTest) {
+        ASSERT_EQ(SSD_FILE_OPS_ERROR, ssd_erase(NULL, 0, 10));
+    }
 
     TEST_F(SsdFileOpsTest, WriteGetNullPathTest) {
         unsigned char data[SECTOR_SIZE] = "Fail write";
@@ -84,5 +87,18 @@ namespace ssd_file_ops_test
     TEST_F(SsdFileOpsTest, ReadGetNullPathTest) {
         unsigned char data[SECTOR_SIZE];
         ASSERT_EQ(SSD_FILE_OPS_ERROR, ssd_read(NULL, 5000, SECTOR_SIZE, data));
+    }
+
+    TEST_F(SsdFileOpsTest, EraseSuccessTest) {
+        unsigned char data[SECTOR_SIZE] = "SSD sector test";
+        unsigned char read_back[SECTOR_SIZE] = {0};
+
+        ASSERT_EQ(SSD_FILE_OPS_SUCCESS, ssd_write(TEST_FILE, 0, SECTOR_SIZE, data));
+        ASSERT_EQ(SSD_FILE_OPS_SUCCESS, ssd_read(TEST_FILE, 0, SECTOR_SIZE, read_back));
+        ASSERT_EQ(memcmp(data, read_back, SECTOR_SIZE), 0);
+        ASSERT_EQ(SSD_FILE_OPS_SUCCESS, ssd_erase(TEST_FILE, 0, SECTOR_SIZE));
+        ASSERT_EQ(SSD_FILE_OPS_SUCCESS, ssd_read(TEST_FILE, 0, SECTOR_SIZE, read_back));
+        memset(data, 0xFF, sizeof(data));
+        ASSERT_EQ(memcmp(data, read_back, SECTOR_SIZE), 0);
     }
 };
