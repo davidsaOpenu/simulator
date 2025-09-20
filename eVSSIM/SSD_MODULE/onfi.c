@@ -30,10 +30,7 @@ void _ONFI_UPDATE_STATUS_REGISTER(onfi_status_reg_t *status_reg, onfi_ret_val la
 
 onfi_ret_val _ONFI_INIT(void)
 {
-    memset(&g_status_register, 0, sizeof(g_status_register));
-    set_ready(true);
-
-    return ONFI_SUCCESS;
+    return ONFI_RESET();
 }
 
 onfi_ret_val ONFI_READ(uint64_t row_address, uint32_t column_address,
@@ -168,5 +165,8 @@ onfi_ret_val ONFI_READ_STATUS(onfi_status_reg_t *o_status_register)
 
 onfi_ret_val ONFI_RESET(void)
 {
-    return ONFI_FAILURE;
+    memset(&g_status_register, 0, sizeof(g_status_register));
+    set_ready(true);
+
+    return ONFI_SUCCESS;
 }

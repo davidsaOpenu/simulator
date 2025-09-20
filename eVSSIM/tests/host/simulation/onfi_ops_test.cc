@@ -382,4 +382,28 @@ namespace program_compatible_test
         }
     }
 
+    /* ========== ONFI_RESET tests ========== */
+
+    TEST_P(OnfiCommandsTest, StatusRegisterFailValuesResetAfterResetOperation)
+    {
+        onfi_status_reg_t status;
+
+        ASSERT_EQ(ONFI_PAGE_PROGRAM(0, 0, NULL, 0, NULL), ONFI_FAILURE);
+        ASSERT_EQ(ONFI_READ_STATUS(&status), ONFI_SUCCESS);
+        ASSERT_EQ(status.FAIL, 1);
+        ASSERT_EQ(status.FAILC, 0);
+
+        ASSERT_EQ(ONFI_PAGE_PROGRAM(0, 0, NULL, 0, NULL), ONFI_FAILURE);
+        ASSERT_EQ(ONFI_READ_STATUS(&status), ONFI_SUCCESS);
+        ASSERT_EQ(status.FAIL, 1);
+        ASSERT_EQ(status.FAILC, 1);
+
+        ASSERT_EQ(ONFI_RESET(), ONFI_SUCCESS);
+        ASSERT_EQ(ONFI_READ_STATUS(&status), ONFI_SUCCESS);
+        ASSERT_EQ(status.FAIL, 0);
+        ASSERT_EQ(status.FAILC, 0);
+        ASSERT_EQ(status.RDY, 1);
+        ASSERT_EQ(status.ARDY, 1);
+    }
+
 } // namespace
