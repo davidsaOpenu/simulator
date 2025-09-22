@@ -460,4 +460,91 @@ namespace program_compatible_test
         }
     }
 
+    /* ========== ONFI_READ_ID tests ========== */
+    TEST_P(OnfiCommandsTest, ReadIDNullBufferParameter)
+    {
+        ASSERT_EQ(ONFI_READ_ID(JEDEC_ID_ADDR, NULL, 0), ONFI_FAILURE);
+    }
+
+    TEST_P(OnfiCommandsTest, ReadIDInvalidAddressParameter)
+    {
+        uint8_t buff[2] = {0};
+        ASSERT_EQ(ONFI_READ_ID(1, buff, sizeof(buff)), ONFI_FAILURE);
+    }
+
+    TEST_P(OnfiCommandsTest, ReadIDReadCorrectJedecID)
+    {
+        uint8_t ids[2] = {0};
+        ASSERT_EQ(ONFI_READ_ID(JEDEC_ID_ADDR, ids, sizeof(ids)), ONFI_SUCCESS);
+
+        onfi_param_page_t param_page;
+        ASSERT_EQ(ONFI_READ_PARAMETER_PAGE(0, (uint8_t *)&param_page, sizeof(onfi_param_page_t)), ONFI_SUCCESS);
+
+        ASSERT_EQ(ids[0], param_page.manufacturer_info_block.jedec_manufacturer);
+        ASSERT_EQ(ids[1], 0x10);
+    }
+
+    TEST_P(OnfiCommandsTest, ReadIDReadJedecIDIntoSmallerBuffer)
+    {
+        uint8_t ids[2] = {0};
+        memset(ids, 0, sizeof(ids));
+        ASSERT_EQ(ONFI_READ_ID(JEDEC_ID_ADDR, ids, sizeof(ids) - 1), ONFI_SUCCESS);
+
+        onfi_param_page_t param_page;
+        ASSERT_EQ(ONFI_READ_PARAMETER_PAGE(0, (uint8_t *)&param_page, sizeof(onfi_param_page_t)), ONFI_SUCCESS);
+
+        ASSERT_EQ(ids[0], param_page.manufacturer_info_block.jedec_manufacturer);
+        ASSERT_EQ(ids[1], 0);
+    }
+
+    TEST_P(OnfiCommandsTest, ReadIDReadJedecIDIntoBiggerBuffer)
+    {
+        uint8_t ids[3] = {0};
+        memset(ids, 0, sizeof(ids));
+        ASSERT_EQ(ONFI_READ_ID(JEDEC_ID_ADDR, ids, sizeof(ids)), ONFI_SUCCESS);
+
+        onfi_param_page_t param_page;
+        ASSERT_EQ(ONFI_READ_PARAMETER_PAGE(0, (uint8_t *)&param_page, sizeof(onfi_param_page_t)), ONFI_SUCCESS);
+
+        ASSERT_EQ(ids[0], param_page.manufacturer_info_block.jedec_manufacturer);
+        ASSERT_EQ(ids[1], 0x10);
+        ASSERT_EQ(ids[2], 0);
+    }
+
+    TEST_P(OnfiCommandsTest, ReadIDReadOnfiSignature)
+    {
+        uint8_t onfi_signature[4] = {0};
+        ASSERT_EQ(ONFI_READ_ID(ONFI_SIGNATURE_ADDR, onfi_signature, sizeof(onfi_signature)), ONFI_SUCCESS);
+
+        ASSERT_EQ(onfi_signature[0], 'O');
+        ASSERT_EQ(onfi_signature[1], 'N');
+        ASSERT_EQ(onfi_signature[2], 'F');
+        ASSERT_EQ(onfi_signature[3], 'I');
+    }
+
+    TEST_P(OnfiCommandsTest, ReadIDReadOnfiSignatureIntoSmallerBuffer)
+    {
+        uint8_t onfi_signature[4] = {0};
+        memset(onfi_signature, 0, sizeof(onfi_signature));
+        ASSERT_EQ(ONFI_READ_ID(ONFI_SIGNATURE_ADDR, onfi_signature, sizeof(onfi_signature) - 1), ONFI_SUCCESS);
+
+        ASSERT_EQ(onfi_signature[0], 'O');
+        ASSERT_EQ(onfi_signature[1], 'N');
+        ASSERT_EQ(onfi_signature[2], 'F');
+        ASSERT_EQ(onfi_signature[3], 0);
+    }
+
+    TEST_P(OnfiCommandsTest, ReadIDReadOnfiSignatureIntoBiggerBuffer)
+    {
+        uint8_t onfi_signature[5] = {0};
+        memset(onfi_signature, 0, sizeof(onfi_signature));
+        ASSERT_EQ(ONFI_READ_ID(ONFI_SIGNATURE_ADDR, onfi_signature, sizeof(onfi_signature)), ONFI_SUCCESS);
+
+        ASSERT_EQ(onfi_signature[0], 'O');
+        ASSERT_EQ(onfi_signature[1], 'N');
+        ASSERT_EQ(onfi_signature[2], 'F');
+        ASSERT_EQ(onfi_signature[3], 'I');
+        ASSERT_EQ(onfi_signature[4], 0);
+    }
+
 } // namespace

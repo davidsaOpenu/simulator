@@ -10,6 +10,9 @@ typedef enum
     ONFI_FAILURE = 1
 } onfi_ret_val;
 
+#define ONFI_SIGNATURE_ADDR 0x20
+#define JEDEC_ID_ADDR 0x00
+
 // One-byte packed status register per ONFI 1.0 layout.
 #pragma pack(push, 1)
 typedef struct

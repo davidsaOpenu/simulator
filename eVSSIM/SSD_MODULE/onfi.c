@@ -7,6 +7,9 @@ static onfi_status_reg_t g_status_register = {0};
 
 static onfi_param_page_t g_parameter_page;
 
+#define JEDEC_MANUFACTURER_ID 0xCC
+#define DEVICE_ID 0x10
+
 static inline void set_ready(bool ready)
 {
     g_status_register.RDY = (ready ? 1 : 0);
@@ -111,7 +114,7 @@ static void initialize_page_parameter(void)
     g_parameter_page.manufacturer_info_block.device_model[18] = 0x20;
     g_parameter_page.manufacturer_info_block.device_model[19] = 0x20;
 
-    g_parameter_page.manufacturer_info_block.jedec_manufacturer = 0xCC;
+    g_parameter_page.manufacturer_info_block.jedec_manufacturer = JEDEC_MANUFACTURER_ID;
 
     memset(&(g_parameter_page.manufacturer_info_block.data_code), 0, sizeof(g_parameter_page.manufacturer_info_block.data_code));
 
@@ -269,7 +272,8 @@ onfi_ret_val ONFI_BLOCK_ERASE(uint64_t row_address)
     const uint64_t block_nb = CALC_BLOCK(g_device_index, row_address);
     const uint64_t flash_nb = CALC_FLASH(g_device_index, row_address);
 
-    if (SSD_BLOCK_ERASE(g_device_index, flash_nb, block_nb) != FTL_SUCCESS) {
+    if (SSD_BLOCK_ERASE(g_device_index, flash_nb, block_nb) != FTL_SUCCESS)
+    {
         PERR("Failed erasing\n")
         _ONFI_UPDATE_STATUS_REGISTER(&g_status_register, ONFI_FAILURE);
         return ONFI_FAILURE;
@@ -278,7 +282,8 @@ onfi_ret_val ONFI_BLOCK_ERASE(uint64_t row_address)
     const size_t block_size = GET_PAGE_NB(g_device_index) * GET_PAGE_SIZE(g_device_index);
     const uint64_t first_page_in_block = block_nb * GET_PAGE_NB(g_device_index);
 
-    if (ssd_erase(GET_FILE_NAME(g_device_index), first_page_in_block * GET_PAGE_SIZE(g_device_index), block_size) != SSD_FILE_OPS_SUCCESS) {
+    if (ssd_erase(GET_FILE_NAME(g_device_index), first_page_in_block * GET_PAGE_SIZE(g_device_index), block_size) != SSD_FILE_OPS_SUCCESS)
+    {
         PERR("Failed erasing\n")
         _ONFI_UPDATE_STATUS_REGISTER(&g_status_register, ONFI_FAILURE);
         return ONFI_FAILURE;
@@ -290,10 +295,40 @@ onfi_ret_val ONFI_BLOCK_ERASE(uint64_t row_address)
 
 onfi_ret_val ONFI_READ_ID(uint8_t address, uint8_t *o_buffer, size_t buffer_size)
 {
-    (void)address;
-    (void)o_buffer;
-    (void)buffer_size;
-    return ONFI_FAILURE;
+    if (o_buffer == NULL)
+    {
+        PERR("Got null paramater\n");
+        return ONFI_FAILURE;
+    }
+
+    switch (address)
+    {
+    case ONFI_SIGNATURE_ADDR:
+    {
+        static const uint8_t onfi_signature[4] = {'O', 'N', 'F', 'I'};
+
+        // Copy up to buffer_size bytes
+        const size_t copy_size = (buffer_size >= sizeof(onfi_signature)) ? sizeof(onfi_signature) : buffer_size;
+        memcpy(o_buffer, onfi_signature, copy_size);
+        break;
+    }
+    case JEDEC_ID_ADDR:
+    {
+        static const uint8_t ids[2] = {JEDEC_MANUFACTURER_ID, DEVICE_ID};
+
+        // Copy up to buffer_size bytes
+        const size_t copy_size = (buffer_size >= sizeof(ids)) ? sizeof(ids) : buffer_size;
+        memcpy(o_buffer, ids, copy_size);
+        break;
+    }
+    default:
+    {
+        PERR("Got invalid address\n");
+        return ONFI_FAILURE;
+    }
+    }
+
+    return ONFI_SUCCESS;
 }
 
 onfi_ret_val ONFI_READ_PARAMETER_PAGE(uint8_t timing_mode, uint8_t *o_buffer, size_t buffer_size)
