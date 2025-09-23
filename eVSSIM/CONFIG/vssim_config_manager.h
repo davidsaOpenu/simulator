@@ -31,7 +31,7 @@ typedef struct ssd_config {
 	uint32_t way_nb;
 
 	uint32_t current_namespace_nb;
-	uint64_t namespaces_size[MAX_NUMBER_OF_NAMESPACES];
+	ftl_ns namespaces[MAX_NUMBER_OF_NAMESPACES];
 
 	// Mapping Table
 	uint32_t data_block_nb;
@@ -74,9 +74,26 @@ typedef struct ssd_config {
 	int stat_scope;
 	char stat_path[PATH_MAX];
 	char osd_path[PATH_MAX];
-
-	int storage_strategy; // 1 = sector-based, 2 = object-based
 } ssd_config_t;
+
+typedef enum {
+    FTL_NS_SECTOR = 1,
+    FTL_NS_OBJECT = 2
+} ftl_ns_type;
+
+typedef struct {
+    ftl_ns_type type;
+    uint32_t nsid = 0;
+
+    uint64_t ns_page_nb;
+
+	// Only relevent while (type == FTL_NS_OBJECT).
+    uint64_t size  = 0;
+	uint16_t kvkml = 0; // Maximum length of key in bytes (Only <=16 is supported)
+	uint32_t kvvml = 0; // Maximum length of value in bytes
+	uint32_t mnks  = 0; // Maximum number of keys
+
+} ftl_ns;
 
 /* NVMe devices manager */
 extern ssd_config_t* devices;
