@@ -14,7 +14,6 @@
 ssd_config_t* devices = NULL;
 uint8_t device_count = 0;
 
-bool parse_header(char* str, ssd_config_t* device);
 void calculate_derived_values(ssd_config_t *device);
 bool parse_config_line(const char* key, FILE* file, ssd_config_t* device);
 void update_globals(void);
@@ -28,8 +27,9 @@ void INIT_SSD_CONFIG(void)
         exit(1);
     }
 
-    char key[64];    
+    char key[64];
     uint8_t device_index = 0;
+
     int i = 0;
     ssd_config_t *current_device = NULL;
 
@@ -39,15 +39,24 @@ void INIT_SSD_CONFIG(void)
         if (!strlen(key))
             continue;
 
-        if (key[0] == '[') {
-            if (device_index + 1 == INVALID_DEVICE_INDEX) {
-                RERR(, "Maximum number of devices reached\n");
+        uint32_t disk_num = 0;
+
+        // Match string of format "[nvmeXX]"
+        if (sscanf(key, "[nvme%2u]", &disk_num) == 1) {
+            if (disk_num == 0 || disk_num + 1 == INVALID_DEVICE_INDEX) {
+                RERR(, "Invalid device number, out of scope\n");
             }
 
-            // Finalize previous device
-            if (current_device != NULL) {
-                calculate_derived_values(current_device);
+            if (current_device == NULL) {
+                if (disk_num != 1) {
+                    RERR(, "Invalid device number, starting from 1 not with %u\n", disk_num);
+                }
+            } else if (disk_num != (uint32_t)(device_index + 2)) {
+                RERR(, "Invalid device number, not sequential. It should be %u not %u\n", (device_index + 2), disk_num);
             }
+
+            // Set the current dev index.
+            device_index = disk_num - 1;
 
             // Create data directory for the device
             char* dirname = GET_DATA_FILENAME(device_index, "");
@@ -61,20 +70,22 @@ void INIT_SSD_CONFIG(void)
             if (NULL == devices)
                 RERR(, "devices allocation failed!\n");
 
-            memset((uint8_t*)devices + sizeof(ssd_config_t) * (device_index), 0, sizeof(ssd_config_t));
+            // Clean the new config.
+            memset((sizeof(ssd_config_t) * (device_index)) + (uint8_t*)devices, 0, sizeof(ssd_config_t));
 
             current_device = &devices[device_index];
 
-            ++device_index;
-            ++device_count;
-            if (!parse_header(key, current_device)) {
-                RERR(, "Invalid nvme device format: %s\n", key);
-            }
+            // Start after the opening bracket '[' and copy 6 characters: "nvmeXX"
+            strncpy(current_device->device_name, key + 1, 6);
+            current_device->device_name[6] = '\0';
+
             continue;
         }
+
         if (current_device == NULL) {
             RERR(, "Configuration parameter found before device header: %s\n", key);
         }
+
         if (strcmp(key, "STAT_PATH") == 0){
             if (fgets(current_device->stat_path, PATH_MAX, pfData) == NULL)
                 RERR(, "Can't read STAT_PATH\n");
@@ -101,12 +112,16 @@ void INIT_SSD_CONFIG(void)
         }
     }
 
-    // Finalize the last device
-    if (current_device != NULL) {
-        calculate_derived_values(current_device);
-    }
-
     fclose(pfData);
+
+    // Set the device to the last device index + 1.
+    device_count = device_index + 1;
+
+    // Finalize the devices
+    for (i = 0; i < device_count; i++)
+    {
+        calculate_derived_values(&devices[i]);
+    }
 
     inverse_mappings_manager = (inverse_mapping_manager_t*)calloc(sizeof(inverse_mapping_manager_t) * device_count, 1);
     if (NULL == inverse_mappings_manager)
@@ -280,30 +295,6 @@ ssd_config_t* GET_DEVICES(void){
     return devices;
 }
 
-bool parse_header(char *str, ssd_config_t *device) {
-    if (str == NULL || device == NULL) {
-        return false;
-    }
-
-    int disk_num, offset;
-
-    // Match string of format "[nvmeXX]"
-    if (sscanf(str, "[nvme%2d]%n", &disk_num, &offset) != 1) {
-        return false;
-    }
-
-    // Check if disk_num is valid and offset matches the expected length
-    if (disk_num == 0 || strlen(str) != (unsigned int)offset) {
-        return false;
-    }
-
-    // Start after the opening bracket '[' and copy 6 characters: "nvmeXX"
-    strncpy(device->device_name, str + 1, 6);
-    device->device_name[6] = '\0';
-
-    return true;
-}
-
 void calculate_derived_values(ssd_config_t* device) {
     // Exception Handler
     if (device->flash_nb < device->channel_nb)
@@ -332,7 +323,7 @@ void calculate_derived_values(ssd_config_t* device) {
 
     double gc_l2_threshold = 0.1;
     device->gc_l2_threshold_block_nb = (int)((1-gc_l2_threshold) * (double)device->block_mapping_entry_nb);
-#endif
+#endif // PAGE_MAP
 }
 
 char* GET_DATA_FILENAME(uint8_t device_index, const char* filename) {
