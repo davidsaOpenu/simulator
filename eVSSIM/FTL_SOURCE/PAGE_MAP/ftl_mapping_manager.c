@@ -16,13 +16,13 @@ void INIT_MAPPING_TABLE(uint8_t device_index)
 
 	for (namespaceIndex = 0; namespaceIndex < MAX_NUMBER_OF_NAMESPACES; namespaceIndex++)
 	{
-		if (devices[device_index].namespaces_size[namespaceIndex] == 0){
+		if (devices[device_index].namespaces[namespaceIndex].nsid == INVALID_NSID){
 			/* Skip un-used namespace */
 			continue;
 		}
 
 		/* Allocation Memory for Mapping Table */
-		mapping_table[device_index][namespaceIndex] = (uint64_t *)calloc(devices[device_index].namespaces_size[namespaceIndex] * (uint64_t)devices[device_index].page_nb, sizeof(uint64_t));
+		mapping_table[device_index][namespaceIndex] = (uint64_t *)calloc(devices[device_index].namespaces[namespaceIndex].ns_page_nb, sizeof(uint64_t));
 
 		if (mapping_table[device_index][namespaceIndex] == NULL)
 			RERR(, "Calloc mapping table fail\n");
@@ -40,13 +40,13 @@ void INIT_MAPPING_TABLE(uint8_t device_index)
 		free(data_filename);
 
 		if(fp != NULL){
-			if(fread(mapping_table[device_index][namespaceIndex], sizeof(uint64_t), devices[device_index].namespaces_size[namespaceIndex] * (uint64_t)devices[device_index].page_nb, fp) <= 0)
+			if(fread(mapping_table[device_index][namespaceIndex], sizeof(uint64_t), devices[device_index].namespaces[namespaceIndex].ns_page_nb, fp) <= 0)
 				PERR("fread\n");
 			fclose(fp);
 		}
 		else{
 			uint64_t i;
-			for(i=0; i < devices[device_index].namespaces_size[namespaceIndex] * (uint64_t)devices[device_index].page_nb; i++){
+			for(i = 0; i < devices[device_index].namespaces[namespaceIndex].ns_page_nb; i++){
 				mapping_table[device_index][namespaceIndex][i] = MAPPING_TABLE_INIT_VAL;
 			}
 		}
@@ -60,7 +60,7 @@ void TERM_MAPPING_TABLE(uint8_t device_index)
 
 	for (namespaceIndex = 0; namespaceIndex < MAX_NUMBER_OF_NAMESPACES; namespaceIndex++)
 	{
-		if (devices[device_index].namespaces_size[namespaceIndex] == 0){
+		if (devices[device_index].namespaces[namespaceIndex].nsid == INVALID_NSID){
 			/* Skip un-used namespace */
 			continue;
 		}
@@ -80,7 +80,7 @@ void TERM_MAPPING_TABLE(uint8_t device_index)
 
 
 		/* Write the mapping table to file */
-		if(fwrite(mapping_table[device_index][namespaceIndex], sizeof(uint64_t), devices[device_index].namespaces_size[namespaceIndex] * (uint64_t)devices[device_index].page_nb ,fp) <= 0)
+		if(fwrite(mapping_table[device_index][namespaceIndex], sizeof(uint64_t), devices[device_index].namespaces[namespaceIndex].ns_page_nb, fp) <= 0)
 			PERR("fwrite\n");
 
 		/* Free memory for mapping table */
@@ -92,7 +92,9 @@ void TERM_MAPPING_TABLE(uint8_t device_index)
 
 uint64_t GET_MAPPING_INFO(uint8_t device_index, uint32_t nsid, uint64_t lpn)
 {
-	if(nsid >= MAX_NUMBER_OF_NAMESPACES || mapping_table[device_index] == NULL || mapping_table[device_index][nsid] == NULL || lpn >= (devices[device_index].namespaces_size[nsid] * (uint64_t)devices[device_index].page_nb)){
+	if(nsid >= MAX_NUMBER_OF_NAMESPACES ||
+		mapping_table[device_index] == NULL || mapping_table[device_index][nsid] == NULL ||
+		lpn >= devices[device_index].namespaces[nsid].ns_page_nb) {
 		PERR("Can't get the ppn for: device %u, nsid: %u, lpn: %lu\n", device_index, nsid, lpn);
 	}
 
@@ -155,7 +157,9 @@ int UPDATE_OLD_PAGE_MAPPING(uint8_t device_index, uint32_t nsid, uint64_t lpn)
 
 int UPDATE_NEW_PAGE_MAPPING(uint8_t device_index, uint32_t nsid, uint64_t lpn, uint64_t ppn)
 {
-	if(nsid >= MAX_NUMBER_OF_NAMESPACES || mapping_table[device_index] == NULL || mapping_table[device_index][nsid] == NULL || lpn >= (devices[device_index].namespaces_size[nsid] * (uint64_t)devices[device_index].page_nb)){
+	if(nsid >= MAX_NUMBER_OF_NAMESPACES ||
+		mapping_table[device_index] == NULL || mapping_table[device_index][nsid] == NULL ||
+		lpn >= devices[device_index].namespaces[nsid].ns_page_nb) {
 		PERR("overflow!\n");
 	}
 

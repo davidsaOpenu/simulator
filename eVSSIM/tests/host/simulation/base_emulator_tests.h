@@ -170,10 +170,6 @@ namespace {
             return this->block_nb;
         }
 
-        size_t get_block_ns_nb(uint32_t nsid) {
-            return this->block_ns_nb[nsid];
-        }
-
         size_t get_pages_ns(uint32_t nsid) {
             return this->block_ns_nb[nsid] * this->page_nb * 0.8;
         }
@@ -211,8 +207,6 @@ namespace {
                 "SECTOR_SIZE " << get_sector_size() << "\n"
                 "FLASH_NB " << get_flash_nb() << "\n"
                 "BLOCK_NB " << get_block_nb() << "\n"
-                "NS1 " << get_block_ns_nb(DEFAULT_NSID) << "\n"
-                "NS2 " << get_block_ns_nb(OTHER_NSID) << "\n"
                 "PLANES_PER_FLASH 1\n"
                 "REG_WRITE_DELAY 82\n"
                 "CELL_PROGRAM_DELAY 900\n"
@@ -228,6 +222,13 @@ namespace {
                 "STORAGE_STRATEGY 1\n"
                 "GC_LOW_THR 20\n"
                 "GC_HI_THR 80\n"
+                "[ns01]\n"
+                "STORAGE_STRATEGY 1\n"
+                "NAMESPACE_PAGE_NB " << get_pages_ns(DEFAULT_NSID) << "\n"
+                "[ns02]\n"
+                "STORAGE_STRATEGY 1\n"
+                "NAMESPACE_PAGE_NB " << get_pages_ns(OTHER_NSID) << "\n"
+
                 "[nvme02]\n"
                 "FILE_NAME ./data/ssd2.img\n"
                 "PAGE_SIZE " << get_page_size() << "\n"
@@ -236,8 +237,6 @@ namespace {
                 "FLASH_NB " << get_flash_nb() << "\n"
                 "BLOCK_NB " << get_block_nb() << "\n"
                 "PLANES_PER_FLASH 1\n"
-                "NS1 " << (get_block_nb() / 2) << "\n"
-                "NS2 " << (get_block_nb() / 4) << "\n"
                 "REG_WRITE_DELAY 82\n"
                 "CELL_PROGRAM_DELAY 900\n"
                 "REG_READ_DELAY 82\n"
@@ -252,6 +251,13 @@ namespace {
                 "STORAGE_STRATEGY 1\n" // sector strategy
                 "GC_LOW_THR 20\n"
                 "GC_HI_THR 80\n"
+                "[ns03]\n"
+                "STORAGE_STRATEGY 2\n"
+                "SIZE 4096\n"
+                "OBJECT_KEY_SIZE 16\n"
+                "OBJECT_MAX_VALUE_SIZE 4096\n"
+                "OBJECT_MAX_CAPACITY 4096\n"
+
                 "[nvme03]\n"
                 "FILE_NAME ./data/ssd3.img\n"
                 "PAGE_SIZE " << get_page_size() << "\n"
@@ -259,8 +265,6 @@ namespace {
                 "SECTOR_SIZE " << get_sector_size() << "\n"
                 "FLASH_NB " << get_flash_nb() << "\n"
                 "BLOCK_NB " << get_block_nb() << "\n"
-                "NS1 " << get_block_ns_nb(DEFAULT_NSID) << "\n"
-                "NS2 " << get_block_ns_nb(OTHER_NSID) << "\n"
                 "PLANES_PER_FLASH 1\n"
                 "REG_WRITE_DELAY 82\n"
                 "CELL_PROGRAM_DELAY 900\n"
@@ -275,7 +279,14 @@ namespace {
                 "STAT_PATH /tmp/stat3.csv\n"
                 "STORAGE_STRATEGY 1\n" // sector strategy
                 "GC_LOW_THR 20\n"
-                "GC_HI_THR 80\n";
+                "GC_HI_THR 80\n"
+                "[ns01]\n"
+                "STORAGE_STRATEGY 1\n"
+                "NAMESPACE_PAGE_NB " << get_pages_ns(DEFAULT_NSID) << "\n"
+                "[ns02]\n"
+                "STORAGE_STRATEGY 1\n"
+                "NAMESPACE_PAGE_NB " << get_pages_ns(OTHER_NSID) << "\n";
+
             ssd_conf.close();
         }
     };
