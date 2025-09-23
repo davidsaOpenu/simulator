@@ -31,7 +31,7 @@ ftl_ret_val _FTL_READ_SECT(uint8_t device_index, uint32_t nsid, uint64_t sector_
 {
 	PDBG_FTL("Start: sector_nb %ld length %u\n", sector_nb, length);
 
-	const uint64_t NUM_SECTORS_IN_NS = (uint64_t)devices[device_index].namespaces_size[nsid] * (uint64_t)devices[device_index].sectors_per_page * (uint64_t)devices[device_index].page_nb;
+	const uint64_t NUM_SECTORS_IN_NS = devices[device_index].namespaces[nsid].ns_page_nb * (uint64_t)devices[device_index].sectors_per_page;
 
 	if (sector_nb + length > NUM_SECTORS_IN_NS)
 		RERR(FTL_FAILURE, "[FTL_READ] Invalid read request, base sector: %lu, length: %u\n", sector_nb, length);
@@ -184,7 +184,7 @@ ftl_ret_val _FTL_WRITE_SECT(uint8_t device_index, uint32_t nsid, uint64_t sector
 
 	int io_page_nb;
 
-	const uint64_t NUM_SECTORS_IN_NS = (uint64_t)devices[device_index].namespaces_size[nsid] * (uint64_t)devices[device_index].sectors_per_page * (uint64_t)devices[device_index].page_nb;
+	const uint64_t NUM_SECTORS_IN_NS = devices[device_index].namespaces[nsid].ns_page_nb * (uint64_t)devices[device_index].sectors_per_page;
 
 	if (sector_nb + length > NUM_SECTORS_IN_NS)
 		RERR(FTL_FAILURE, "[FTL_READ] Invalid write request, base sector: %lu, length: %u\n", sector_nb, length);
