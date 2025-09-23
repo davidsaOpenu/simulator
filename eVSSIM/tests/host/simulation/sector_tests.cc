@@ -75,4 +75,21 @@ namespace sector_tests {
         }
     }
 
+    TEST_P(SectorUnitTest, ReadWriteInvalidSectorAddressTest)
+    {
+        SSDConf* ssd_config = base_test_get_ssd_config();
+
+        // Invalid address for the default namespace.
+        ASSERT_EQ(FTL_FAILURE, _FTL_WRITE_SECT(g_device_index, DEFAULT_NSID, ssd_config->get_pages_ns(DEFAULT_NSID) * ssd_config->get_page_size(), 1, NULL));
+        ASSERT_EQ(FTL_FAILURE, _FTL_READ_SECT(g_device_index, DEFAULT_NSID, ssd_config->get_pages_ns(DEFAULT_NSID) * ssd_config->get_page_size(), 1, NULL));
+
+        // Invalid address for the other namespace.
+        ASSERT_EQ(FTL_FAILURE, _FTL_WRITE_SECT(g_device_index, OTHER_NSID, ssd_config->get_pages_ns(OTHER_NSID) * ssd_config->get_page_size(), 1, NULL));
+        ASSERT_EQ(FTL_FAILURE, _FTL_READ_SECT(g_device_index, OTHER_NSID, ssd_config->get_pages_ns(OTHER_NSID) * ssd_config->get_page_size(), 1, NULL));
+
+        // Useing invalid namespace ID.
+        ASSERT_EQ(FTL_FAILURE, _FTL_WRITE_SECT(g_device_index, 4, 0, 1, NULL));
+        ASSERT_EQ(FTL_FAILURE, _FTL_READ_SECT(g_device_index, 4, 0, 1, NULL));
+    }
+
 } //namespace

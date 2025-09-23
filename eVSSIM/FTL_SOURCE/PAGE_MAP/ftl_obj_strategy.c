@@ -30,15 +30,18 @@ void INIT_OBJ_STRATEGY(void)
     objects_mapping = NULL;
     global_page_table = NULL;
 
-    const char *root = "/tmp/osd/";
-    assert(!system("rm -rf /tmp/osd"));
-    assert(!osd_open(root, &osd));
-    osd_sense = (uint8_t*)malloc(OSD_SENSE_BUFFER_SIZE);
-    memset(osd_sense, 0x0, OSD_SENSE_BUFFER_SIZE);
+    if (osd_sense == NULL)
+    {
+        const char *root = "/tmp/osd/";
+        assert(!system("rm -rf /tmp/osd"));
+        assert(!osd_open(root, &osd));
+        osd_sense = (uint8_t*)malloc(OSD_SENSE_BUFFER_SIZE);
+        memset(osd_sense, 0x0, OSD_SENSE_BUFFER_SIZE);
 
-    // creating a single partition, to be used later to store all
-    // user objects
-    assert(!osd_create_partition(&osd, PARTITION_PID_LB, 0, osd_sense));
+        // creating a single partition, to be used later to store all
+        // user objects
+        assert(!osd_create_partition(&osd, PARTITION_PID_LB, 0, osd_sense));
+    }
 }
 
 void free_obj_table(void)

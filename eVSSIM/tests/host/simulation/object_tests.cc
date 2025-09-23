@@ -27,7 +27,6 @@ namespace object_tests {
         public:
             virtual void SetUp() {
                 BaseTest::SetUp();
-                INIT_OBJ_STRATEGY();
                 INIT_LOG_MANAGER(g_device_index);
 
                 SSDConf* ssd_config = base_test_get_ssd_config();
