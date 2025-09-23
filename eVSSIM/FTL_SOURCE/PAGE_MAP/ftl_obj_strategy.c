@@ -16,6 +16,7 @@ page_node *global_page_table = NULL;
 
 static struct osd_device osd = { 0x0 };
 static uint8_t osd_sense[OSD_SENSE_BUFFER_SIZE];
+static bool is_osd_init = false;
 
 #ifndef MIN
 #define MIN(x, y) ((x) > (y) ? (y) : (x))
@@ -29,15 +30,20 @@ void INIT_OBJ_STRATEGY(void)
     objects_mapping = NULL;
     global_page_table = NULL;
 
-    const char *root = "/tmp/osd/";
-    assert(!system("rm -rf /tmp/osd"));
-    assert(!osd_open(root, &osd));
+    if (!is_osd_init)
+    {
+        const char *root = "/tmp/osd/";
+        assert(!system("rm -rf /tmp/osd"));
+        assert(!osd_open(root, &osd));
 
-    // Clean the buffer.
-    memset(osd_sense, 0x0, OSD_SENSE_BUFFER_SIZE);
+        // Clean the buffer.
+        memset(osd_sense, 0x0, OSD_SENSE_BUFFER_SIZE);
 
-    // creating a single partition, to be used later to store all user objects
-    assert(!osd_create_partition(&osd, PARTITION_PID_LB, 0, osd_sense));
+        // creating a single partition, to be used later to store all user objects
+        assert(!osd_create_partition(&osd, PARTITION_PID_LB, 0, osd_sense));
+
+        is_osd_init = true;
+    }
 }
 
 void free_obj_table(void)
@@ -82,8 +88,9 @@ void TERM_OBJ_STRATEGY(void)
     free_obj_mapping();
     free_page_table();
 
-    if (osd_sense != NULL) {
+    if (is_osd_init) {
         osd_close(&osd);
+        is_osd_init = false;
     }
 }
 

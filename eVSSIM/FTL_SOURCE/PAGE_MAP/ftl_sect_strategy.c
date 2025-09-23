@@ -31,7 +31,16 @@ ftl_ret_val _FTL_READ_SECT(uint8_t device_index, uint32_t nsid, uint64_t sector_
 {
 	PDBG_FTL("Start: sector_nb %ld length %u\n", sector_nb, length);
 
-	const uint64_t NUM_SECTORS_IN_NS = (uint64_t)devices[device_index].namespaces_size[nsid] * (uint64_t)devices[device_index].sectors_per_page * (uint64_t)devices[device_index].page_nb;
+	if (device_index >=  device_count) {
+		RERR(FTL_FAILURE, "Invalid device index: %u\n", device_index);
+	}
+
+	if (devices[device_index].namespaces[nsid].nsid != nsid ||
+		devices[device_index].namespaces[nsid].type != FTL_NS_SECTOR) {
+		RERR(FTL_FAILURE, "Can't read from invalid namespace, device_index: %u, nsid: %u\n", device_index, nsid);
+	}
+
+	const uint64_t NUM_SECTORS_IN_NS = devices[device_index].namespaces[nsid].ns_page_nb * (uint64_t)devices[device_index].sectors_per_page;
 
 	if (sector_nb + length > NUM_SECTORS_IN_NS)
 		RERR(FTL_FAILURE, "[FTL_READ] Invalid read request, base sector: %lu, length: %u\n", sector_nb, length);
@@ -182,9 +191,18 @@ ftl_ret_val _FTL_WRITE_SECT(uint8_t device_index, uint32_t nsid, uint64_t sector
 {
 	PDBG_FTL("Start: sector_nb %" PRIu64 " length %u\n", sector_nb, length);
 
+	if (device_index >=  device_count) {
+		RERR(FTL_FAILURE, "Invalid device index: %u\n", device_index);
+	}
+
+	if (devices[device_index].namespaces[nsid].nsid != nsid ||
+		devices[device_index].namespaces[nsid].type != FTL_NS_SECTOR) {
+		RERR(FTL_FAILURE, "Can't write into invalid namespace, device_index: %u, nsid: %u\n", device_index, nsid);
+	}
+
 	int io_page_nb;
 
-	const uint64_t NUM_SECTORS_IN_NS = (uint64_t)devices[device_index].namespaces_size[nsid] * (uint64_t)devices[device_index].sectors_per_page * (uint64_t)devices[device_index].page_nb;
+	const uint64_t NUM_SECTORS_IN_NS = devices[device_index].namespaces[nsid].ns_page_nb * (uint64_t)devices[device_index].sectors_per_page;
 
 	if (sector_nb + length > NUM_SECTORS_IN_NS)
 		RERR(FTL_FAILURE, "[FTL_READ] Invalid write request, base sector: %lu, length: %u\n", sector_nb, length);
@@ -291,6 +309,10 @@ ftl_ret_val _FTL_COPYBACK(uint8_t device_index, uint64_t source, uint64_t destin
 	uint64_t lpn; //The logical page address, the page that being moved.
 	unsigned int ret = FTL_FAILURE;
 
+	if (device_index >=  device_count) {
+		RERR(FTL_FAILURE, "Invalid device index: %u\n", device_index);
+	}
+
 	//Handle copyback delays
 	ret = SSD_PAGE_COPYBACK(device_index, source, destination, COPYBACK);
 
@@ -299,7 +321,6 @@ ftl_ret_val _FTL_COPYBACK(uint8_t device_index, uint64_t source, uint64_t destin
     SSD_PAGE_WRITE(CALC_FLASH(destination), CALC_BLOCK(destination), CALC_PAGE(destination), 0, GC_WRITE);
     lpn = GET_INVERSE_MAPPING_INFO(source);
     UPDATE_NEW_PAGE_MAPPING(lpn, destination);*/
-
 
 	if (ret == FTL_FAILURE)
         RDBG_FTL(FTL_FAILURE, "%lu page copyback fail \n", source);
@@ -318,6 +339,11 @@ ftl_ret_val _FTL_COPYBACK(uint8_t device_index, uint64_t source, uint64_t destin
 	//Handle page map
 	GET_INVERSE_MAPPING_INFO(device_index, source, &nsid, &lpn);
 	
+	if (devices[device_index].namespaces[nsid].nsid != nsid ||
+		devices[device_index].namespaces[nsid].type != FTL_NS_SECTOR) {
+		RERR(FTL_FAILURE, "Can't copy from invalid namespace, device_index: %u, nsid: %u\n", device_index, nsid);
+	}
+
 	if (lpn != MAPPING_TABLE_INIT_VAL)
 	{
 		// The given physical page is being map, the mapping information need to be changed,
