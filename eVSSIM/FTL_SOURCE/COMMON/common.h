@@ -129,9 +129,6 @@
 #define COLLECT_CHANNEL	16
 #define COLLECT_SSD		32
 
-#define STRATEGY_SECTOR 1
-#define STRATEGY_OBJECT 2
-
 /* VSSIM Function Debug */
 #define MNT_DEBUG			// MONITOR Debugging
 

@@ -18,16 +18,15 @@ extern "C" int g_init_log_server;
 #include <assert.h>
 #include <typeinfo>
 
-
 using namespace std;
-
 
 namespace object_tests {
     class ObjectUnitTest : public BaseTest {
         public:
             virtual void SetUp() {
+                g_device_index = OBJECT_DEV;
+
                 BaseTest::SetUp();
-                INIT_OBJ_STRATEGY();
                 INIT_LOG_MANAGER(g_device_index);
 
                 SSDConf* ssd_config = base_test_get_ssd_config();
@@ -39,9 +38,10 @@ namespace object_tests {
 
             virtual void TearDown() {
                 BaseTest::TearDown(false);
-                TERM_OBJ_STRATEGY();
                 TERM_LOG_MANAGER(g_device_index);
                 TERM_SSD_CONFIG();
+
+                g_device_index = SECTOR_DEV;
             }
 
         protected:
