@@ -15,7 +15,7 @@ ssd_config_t* devices = NULL;
 uint8_t device_count = 0;
 
 void calculate_derived_values(ssd_config_t *device);
-bool parse_config_line(const char* key, FILE* file, ssd_config_t* device);
+bool parse_config_line(const char* key, FILE* file, ssd_config_t* device, const uint32_t nsid);
 void update_globals(void);
 
 void INIT_SSD_CONFIG(void)
@@ -29,6 +29,7 @@ void INIT_SSD_CONFIG(void)
 
     char key[64];
     uint8_t device_index = 0;
+    uint32_t current_nsid = 0;
 
     int i = 0;
     ssd_config_t *current_device = NULL;
@@ -78,6 +79,12 @@ void INIT_SSD_CONFIG(void)
             // Start after the opening bracket '[' and copy 6 characters: "nvmeXX"
             strncpy(current_device->device_name, key + 1, 6);
             current_device->device_name[6] = '\0';
+            
+            uint32_t namespaceIndex;
+            for (namespaceIndex = 0; namespaceIndex < MAX_NUMBER_OF_NAMESPACES; namespaceIndex++)
+            {
+                current_device->namespaces[namespaceIndex].nsid = INVALID_NSID;
+            }
 
             continue;
         }
@@ -98,19 +105,27 @@ void INIT_SSD_CONFIG(void)
             continue;
         }
 
-        if (sscanf(key, "NS%d", &i) == 1){
-            if (i > MAX_NUMBER_OF_NAMESPACES || i <= 0)
+        // Match string of format "[nvmeXX]"
+        if (sscanf(key, "[ns%2u]", &current_nsid) == 1) {
+            if (current_nsid > MAX_NUMBER_OF_NAMESPACES || current_nsid <= 0)
                 RERR(, "Invalid namespaces index\n");
-            if (fscanf(pfData, "%" SCNu64, &current_device->namespaces_size[i-1]) == EOF){
-                RERR(, "Can't read %s\n", key);
+
+            // Conveert the nsid into arry form.
+            current_nsid -= 1;
+
+            // Validate the new namespace index.
+            if (current_device->namespaces[current_nsid].nsid != INVALID_NSID) {
+                RERR(, "The nsid %d already in use\n", current_nsid);
             }
+
+            current_device->namespaces[current_nsid].nsid = current_nsid;
 
             // Increase the counter on new namespace. 
             current_device->current_namespace_nb++;
             continue;
         }
 
-        if (!parse_config_line(key, pfData, current_device)) {
+        if (!parse_config_line(key, pfData, current_device, current_nsid)) {
             RERR(, "Unknown configuration option: %s.\n", key);
         }
     }
@@ -176,7 +191,7 @@ void TERM_SSD_CONFIG(void)
     device_count = 0;
 }
 
-bool parse_config_line(const char* key, FILE* file, ssd_config_t* device) {
+bool parse_config_line(const char* key, FILE* file, ssd_config_t* device, const uint32_t nsid) {
 
     if (strcmp(key, "FILE_NAME") == 0) {
         return fscanf(file, "%s", device->file_name) == 1;
@@ -235,14 +250,62 @@ bool parse_config_line(const char* key, FILE* file, ssd_config_t* device) {
     if (strcmp(key, "STAT_SCOPE") == 0) {
         return fscanf(file, "%d", &device->stat_scope) == 1;
     }
-    if (strcmp(key, "STORAGE_STRATEGY") == 0) {
-        return fscanf(file, "%d", &device->storage_strategy) == 1;
-    }
     if (strcmp(key, "GC_LOW_THR") == 0) {
         return fscanf(file, "%d", &device->gc_low_thr) == 1;
     }
     if (strcmp(key, "GC_HI_THR") == 0) {
         return fscanf(file, "%d", &device->gc_hi_thr) == 1;
+    }
+    if (strcmp(key, "STORAGE_STRATEGY") == 0) {
+        uint32_t var;
+        const bool ans = (fscanf(file, "%u", &var) == 1);
+
+        if (var != FTL_NS_SECTOR && var != FTL_NS_OBJECT) {
+            RERR(false, "Invalid namespace type\n");
+        }
+
+        device->namespaces[nsid].type = var;
+
+        return ans;
+    }
+    if (strcmp(key, "NAMESPACE_PAGE_NB") == 0) {
+        if (device->namespaces[nsid].type != FTL_NS_SECTOR) {
+            RERR(false, "Config NAMESPACE_PAGE_NB is only for sector strategy\n");
+        }
+
+        return fscanf(file, "%lu", &device->namespaces[nsid].ns_page_nb) == 1;
+    }
+    if (strcmp(key, "SIZE") == 0) {
+        if (device->namespaces[nsid].type != FTL_NS_OBJECT) {
+            RERR(false, "Config SIZE is only for object strategy\n");
+        }
+
+        return fscanf(file, "%lu", &device->namespaces[nsid].size) == 1;
+    }
+    if (strcmp(key, "OBJECT_KEY_SIZE") == 0) {
+        if (device->namespaces[nsid].type != FTL_NS_OBJECT) {
+            RERR(false, "Config OBJECT_KEY_SIZE is only for object strategy\n");
+        }
+
+        uint32_t var;
+        const bool ans = (fscanf(file, "%u", &var) == 1);
+        device->namespaces[nsid].kvkml = var;
+
+        return ans;
+    }
+    if (strcmp(key, "OBJECT_MAX_VALUE_SIZE") == 0) {
+        if (device->namespaces[nsid].type != FTL_NS_OBJECT) {
+            RERR(false, "Config OBJECT_MAX_VALUE_SIZE is only for object strategy\n");
+        }
+
+        return fscanf(file, "%u", &device->namespaces[nsid].kvvml) == 1;
+    }
+    if (strcmp(key, "OBJECT_MAX_CAPACITY") == 0) {
+        if (device->namespaces[nsid].type != FTL_NS_OBJECT) {
+            RERR(false, "Config OBJECT_MAX_CAPACITY is only for object strategy\n");
+        }
+
+        return fscanf(file, "%u", &device->namespaces[nsid].mnks) == 1;
     }
 
 #if defined FTL_MAP_CACHE
@@ -317,6 +380,22 @@ void calculate_derived_values(ssd_config_t* device) {
         RERR(, "Wrong CHANNEL_NB %d\n", device->channel_nb);
     if (device->planes_per_flash != 1 && device->planes_per_flash % 2 != 0)
         RERR(, "Wrong PLANES_PER_FLASH %d\n", device->planes_per_flash);
+
+    int namespaceIndex;
+
+    // Calculate namespace page number with object type.
+    for (namespaceIndex = 0; namespaceIndex < MAX_NUMBER_OF_NAMESPACES; namespaceIndex++)
+    {
+        if (device->namespaces[namespaceIndex].nsid == INVALID_NSID){
+            /* Skip un-used namespace */
+            continue;
+        }
+
+        if (device->namespaces[namespaceIndex].type == FTL_NS_OBJECT)
+        {
+            device->namespaces[namespaceIndex].ns_page_nb = (device->namespaces[namespaceIndex].size / device->page_size);
+        }
+    }
 
     // Calculate derived values
     device->sectors_per_page = device->page_size / device->sector_size;
