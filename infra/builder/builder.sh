@@ -145,7 +145,7 @@ for line in lines:
         continue
 
     # Check if this is a device header like [nvme01]
-    if line.startswith('[') and line.endswith(']'):
+    if line.startswith('[nvme') and line.endswith(']'):
         current_device = line[1:-1]  # Remove brackets
         if current_device not in devices:
             devices[current_device] = {}
@@ -179,7 +179,7 @@ import sys
 count = 0
 for line in sys.stdin.readlines():
     line = line.strip()
-    if line.startswith('[') and line.endswith(']'):
+    if line.startswith('[nvme') and line.endswith(']'):
         count += 1
 print(count)
 PYTHON
