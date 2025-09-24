@@ -32,7 +32,7 @@ OUTPUT_DIR=${OUTPUT_DIR:-output}
 mkdir -p "$OUTPUT_DIR"
 make clean
 make
-rm -rf /mnt/exofs0/my_file /tmp/my_log.tmp
+rm -rf /tmp/my_log.tmp
 
 # prepare to trace
 echo function_graph > /sys/kernel/debug/tracing/current_tracer # trace all functions
