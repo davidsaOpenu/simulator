@@ -1,23 +1,32 @@
 #!/bin/bash
 sudo umount "${MOUNT_POINT}"
 
+function run_test() {
+    ./run.sh $1 $2
+    if [ $? -ne 0 ]; then
+        echo "Test $1 $2 failed"
+        dmesg
+        exit 1
+    fi
+}
+
+dmesg -c > /dev/null
+
 echo \n\> Tracing 'mount' operation...
-./run.sh mount disabled
+run_test mount disabled
 
 echo \n\> Tracing 'open' operation...
-./run.sh open disabled
+run_test open disabled
 
-# comment out close, read, write operations because they are not supported yet by exofs on nvme backend
-# since some of the function still going to osd this causes kernel panic
-# TODO: uncomment these operations when they are supported
+echo \n\> Tracing 'close' operation...
+run_test close disabled
 
-# echo \n\> Tracing 'close' operation...
-# ./run.sh close disabled
+echo \n\> Tracing 'write' operation...
+run_test write disabled
 
-# echo \n\> Tracing 'read' operation...
-# ./run.sh read disabled
+echo \n\> Tracing 'read' operation...
+run_test read disabled
 
-# echo \n\> Tracing 'write' operation...
-# ./run.sh write disabled
+
 
 echo All log files can be found at $(pwd)/output
