@@ -89,6 +89,8 @@ char* GET_FILE_NAME(uint8_t device_index);
 uint32_t GET_SECTOR_SIZE(uint8_t device_index);
 uint32_t GET_PAGE_SIZE(uint8_t device_index);
 uint64_t GET_PAGE_NB(uint8_t device_index);
+uint64_t GET_BLOCK_NB(uint8_t device_index);
+uint32_t GET_FLASH_NB(uint8_t device_index);
 ssd_config_t* GET_DEVICES(void);
 char* GET_DATA_FILENAME(uint8_t device_index, const char* filename);
 

@@ -242,15 +242,38 @@ char* GET_FILE_NAME(uint8_t device_index){
 }
 
 uint32_t GET_SECTOR_SIZE(uint8_t device_index){
+    if (devices == NULL) {
+        return 0;
+    }
     return devices[device_index].sector_size;
 }
 
 uint32_t GET_PAGE_SIZE(uint8_t device_index){
+    if (devices == NULL) {
+        return 0;
+    }
     return devices[device_index].page_size;
 }
 
 uint64_t GET_PAGE_NB(uint8_t device_index){
+    if (devices == NULL) {
+        return 0;
+    }
     return devices[device_index].page_nb;
+}
+
+uint64_t GET_BLOCK_NB(uint8_t device_index){
+    if (devices == NULL) {
+        return 0;
+    }
+    return devices[device_index].block_nb;
+}
+
+uint32_t GET_FLASH_NB(uint8_t device_index){
+    if (devices == NULL) {
+        return 0;
+    }
+    return devices[device_index].flash_nb;
 }
 
 ssd_config_t* GET_DEVICES(void){
