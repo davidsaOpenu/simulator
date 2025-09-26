@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "c2fe9b9b_b25561e7",
+        "filename": "/COMMIT_MSG",
+        "patchSetId": 3
+      },
+      "lineNbr": 8,
+      "author": {
+        "id": 1007990
+      },
+      "writtenOn": "2025-09-26T05:54:49Z",
+      "side": 1,
+      "message": "Please add a link to the related Trello card",
+      "revId": "bb95f8c2aac1cefe8314a48d4a751fdea327473a",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
+    }
+  ]
+}
