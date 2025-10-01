@@ -16,6 +16,24 @@
       "message": "please add a description of the rational behind the change and a link to the corresponding Trello card",
       "revId": "f9368a157a29116dbb217cc8f0a53f5756079632",
       "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "652ef0a5_53f7b64e",
+        "filename": "/COMMIT_MSG",
+        "patchSetId": 5
+      },
+      "lineNbr": 7,
+      "author": {
+        "id": 1038797
+      },
+      "writtenOn": "2025-10-01T07:10:52Z",
+      "side": 1,
+      "message": "There is no trello card, this is just a bug fix.",
+      "parentUuid": "e739c9fc_00f16aa9",
+      "revId": "f9368a157a29116dbb217cc8f0a53f5756079632",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
     }
   ]
 }
