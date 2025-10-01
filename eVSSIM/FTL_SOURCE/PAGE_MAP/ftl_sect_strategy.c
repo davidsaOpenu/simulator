@@ -266,8 +266,7 @@ ftl_ret_val _FTL_WRITE_SECT(uint8_t device_index, uint64_t sector_nb, unsigned i
 
 #ifdef GC_ON
 	if (is_new_page_allocated) {
-		GC_CHECK(device_index, CALC_FLASH(device_index, new_ppn),
-			CALC_BLOCK(device_index, new_ppn), false, false); // is this a bug? gc will only happen on the last page's flash and block
+		GC_CHECK(device_index, false);
 	}
 #endif
 

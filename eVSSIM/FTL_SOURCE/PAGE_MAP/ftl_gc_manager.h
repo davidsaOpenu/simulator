@@ -1,4 +1,4 @@
-// Copyright(c)2013 
+// Copyright(c)2013
 //
 // Hanyang University, Seoul, Korea
 // Embedded Software Systems Lab. All right reserved
@@ -10,7 +10,7 @@
 
 extern unsigned int gc_count;
 
-typedef ftl_ret_val (*gc_collection_algo)(uint8_t, uint64_t, int, bool);
+typedef ftl_ret_val (*gc_collection_algo)(uint8_t, int);
 typedef ftl_ret_val (*gc_next_page_algo)(uint8_t, int, int, uint64_t*);
 
 /**
@@ -18,17 +18,17 @@ typedef ftl_ret_val (*gc_next_page_algo)(uint8_t, int, int, uint64_t*);
  */
 void INIT_GC_MANAGER(void);
 
-void GC_CHECK(uint8_t device_index, unsigned int phy_flash_nb, uint64_t phy_block_nb, bool force, bool isObjectStrategy);
+bool GC_CHECK(uint8_t device_index, bool force);
 
 /**
  * Default garbage collection algorithm
  */
-ftl_ret_val DEFAULT_GC_COLLECTION_ALGO(uint8_t device_index, uint64_t mapping_index, int l2, bool isObjectStrategy);
+ftl_ret_val DEFAULT_GC_COLLECTION_ALGO(uint8_t device_index, int l2);
 
 /**
  * Run garbage collection operation
  */
-ftl_ret_val GARBAGE_COLLECTION(uint8_t device_index, uint64_t mapping_index, int l2, bool isObjectStrategy);
+ftl_ret_val GARBAGE_COLLECTION(uint8_t device_index, int l2);
 ftl_ret_val SELECT_VICTIM_BLOCK(uint8_t device_index, unsigned int* phy_flash_nb, uint64_t* phy_block_nb);
 
 typedef struct write_amplification_counters
