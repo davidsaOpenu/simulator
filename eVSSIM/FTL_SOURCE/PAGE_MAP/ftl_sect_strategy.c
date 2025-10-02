@@ -27,7 +27,6 @@ ftl_ret_val _FTL_READ(uint8_t device_index, uint64_t sector_nb, unsigned int len
 
 ftl_ret_val _FTL_READ_SECT(uint8_t device_index, uint64_t sector_nb, unsigned int length, unsigned char *data)
 {
-
 	PDBG_FTL("Start: sector_nb %ld length %u\n", sector_nb, length);
 
 	if (sector_nb + length > (uint64_t)devices[device_index].sectors_per_page * (uint64_t)devices[device_index].page_nb *
@@ -110,6 +109,14 @@ ftl_ret_val _FTL_READ_SECT(uint8_t device_index, uint64_t sector_nb, unsigned in
 
 	PDBG_FTL("Complete\n");
 
+	return ret;
+}
+
+ftl_ret_val FTL_READ_SECT(uint8_t device_index, uint64_t sector_nb, unsigned int length, unsigned char *data)
+{
+	pthread_mutex_lock(&g_lock);
+	ftl_ret_val ret = _FTL_READ_SECT(device_index, sector_nb, length, data);
+	pthread_mutex_unlock(&g_lock);
 	return ret;
 }
 
@@ -272,6 +279,14 @@ ftl_ret_val _FTL_WRITE_SECT(uint8_t device_index, uint64_t sector_nb, unsigned i
 
     PDBG_FTL("Complete\n");
 
+	return ret;
+}
+
+ftl_ret_val FTL_WRITE_SECT(uint8_t device_index, uint64_t sector_nb, unsigned int length, const unsigned char *data)
+{
+	pthread_mutex_lock(&g_lock);
+	ftl_ret_val ret = _FTL_WRITE_SECT(device_index, sector_nb, length, data);
+	pthread_mutex_unlock(&g_lock);
 	return ret;
 }
 

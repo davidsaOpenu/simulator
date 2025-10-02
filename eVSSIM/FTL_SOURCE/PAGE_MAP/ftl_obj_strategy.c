@@ -172,6 +172,14 @@ ftl_ret_val _FTL_OBJ_READ(uint8_t device_index, obj_id_t obj_loc, void *data, of
     return ret;
 }
 
+ftl_ret_val FTL_OBJ_READ(uint8_t device_index, obj_id_t obj_loc, void *data, offset_t offset, length_t *p_length)
+{
+	pthread_mutex_lock(&g_lock);
+	ftl_ret_val ret = _FTL_OBJ_READ(device_index, obj_loc, data, offset, p_length);
+	pthread_mutex_unlock(&g_lock);
+	return ret;
+}
+
 ftl_ret_val _FTL_OBJ_WRITE(uint8_t device_index, obj_id_t object_loc, const void *data, offset_t offset, length_t length)
 {
     stored_object *object;
@@ -291,6 +299,14 @@ ftl_ret_val _FTL_OBJ_WRITE(uint8_t device_index, obj_id_t object_loc, const void
     return ret;
 }
 
+ftl_ret_val FTL_OBJ_WRITE(uint8_t device_index, obj_id_t object_loc, const void *data, offset_t offset, length_t length)
+{
+	pthread_mutex_lock(&g_lock);
+	ftl_ret_val ret = _FTL_OBJ_WRITE(device_index, object_loc, data, offset, length);
+	pthread_mutex_unlock(&g_lock);
+	return ret;
+}
+
 ftl_ret_val _FTL_OBJ_COPYBACK(uint8_t device_index, int32_t source, int32_t destination)
 {
     page_node *source_p;
@@ -346,6 +362,14 @@ bool _FTL_OBJ_CREATE(uint8_t device_index, obj_id_t obj_loc, size_t size)
     return true;
 }
 
+bool FTL_OBJ_CREATE(uint8_t device_index, obj_id_t obj_loc, size_t size)
+{
+	pthread_mutex_lock(&g_lock);
+	bool ret = _FTL_OBJ_CREATE(device_index, obj_loc, size);
+	pthread_mutex_unlock(&g_lock);
+	return ret;
+}
+
 ftl_ret_val _FTL_OBJ_DELETE(uint8_t device_index, obj_id_t obj_loc)
 {
     stored_object *object;
@@ -373,6 +397,14 @@ ftl_ret_val _FTL_OBJ_DELETE(uint8_t device_index, obj_id_t obj_loc)
     return remove_object(device_index, object, obj_map);
 }
 
+ftl_ret_val FTL_OBJ_DELETE(uint8_t device_index, obj_id_t obj_loc)
+{
+	pthread_mutex_lock(&g_lock);
+	ftl_ret_val ret = _FTL_OBJ_DELETE(device_index, obj_loc);
+	pthread_mutex_unlock(&g_lock);
+	return ret;
+}
+
 ftl_ret_val _FTL_OBJ_LIST(void *data, size_t *size, uint64_t initial_oid)
 {
     int osd_ret;
@@ -394,6 +426,14 @@ ftl_ret_val _FTL_OBJ_LIST(void *data, size_t *size, uint64_t initial_oid)
     }
 
     return FTL_SUCCESS;
+}
+
+ftl_ret_val FTL_OBJ_LIST(void *data, size_t *size, uint64_t initial_oid)
+{
+	pthread_mutex_lock(&g_lock);
+    ftl_ret_val ret = _FTL_OBJ_LIST(data, size, initial_oid);
+	pthread_mutex_unlock(&g_lock);
+	return ret;
 }
 
 stored_object *lookup_object(object_id_t object_id)

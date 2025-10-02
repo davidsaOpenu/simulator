@@ -5,6 +5,10 @@
 #include <stddef.h>
 #include <stdbool.h>
 
+// Sector write strategy API functions to be called by QEMU
+ftl_ret_val FTL_READ_SECT(uint8_t device_index, uint64_t sector_nb, unsigned int length, unsigned char *data);
+ftl_ret_val FTL_WRITE_SECT(uint8_t device_index, uint64_t sector_nb, unsigned int length, const unsigned char *data);
+
 // NOTE: `data` buffer should be the size of `length` * SECTOR_SIZE because `length` means amount of sectors.
 ftl_ret_val _FTL_READ_SECT(uint8_t device_index, uint64_t sector_nb, unsigned int length, unsigned char *data);
 ftl_ret_val _FTL_WRITE_SECT(uint8_t device_index, uint64_t sector_nb, unsigned int length, const unsigned char *data);

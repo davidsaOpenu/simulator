@@ -1,4 +1,4 @@
-// Copyright(c)2013 
+// Copyright(c)2013
 //
 // Hanyang University, Seoul, Korea
 // Embedded Software Systems Lab. All right reserved
@@ -8,12 +8,14 @@
 
 #include <stdint.h>
 #include <stdio.h>
+#include <pthread.h>
 
 typedef enum {FTL_FAILURE, FTL_SUCCESS} ftl_ret_val;
 
 extern uint32_t** mapping_stats_table;
 extern uint8_t g_device_index;
 extern int* g_init_ftl;
+extern pthread_mutex_t g_lock;
 
 void FTL_INIT(uint8_t device_index);
 void FTL_TERM(uint8_t device_index);
