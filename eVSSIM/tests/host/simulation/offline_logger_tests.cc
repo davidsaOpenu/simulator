@@ -50,9 +50,11 @@ void flipAuto();
             virtual void SetUp(){
                 BaseTest::SetUp();
                 INIT_LOG_MANAGER(g_device_index);
+                pthread_mutex_lock(&g_lock); // prevent the GC thread from running
             }
 
             virtual void TearDown(){
+                pthread_mutex_unlock(&g_lock);
                 BaseTest::TearDown(false);
                 TERM_LOG_MANAGER(g_device_index);
                 TERM_SSD_CONFIG();

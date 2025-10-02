@@ -90,7 +90,7 @@ namespace write_read_test
         // Writes the whole ssd in the default namespace.
         for (size_t p = 0; p < ssd_config->get_pages(); p++)
         {
-            _FTL_WRITE_SECT(g_device_index, p * ssd_config->get_page_size(), 1, NULL);
+            FTL_WRITE_SECT(g_device_index, p * ssd_config->get_page_size(), 1, NULL);
 
             action_count++;
 
@@ -168,7 +168,7 @@ namespace write_read_test
         // writes the whole ssd
         for (unsigned int p = 0; p < ssd_config->get_pages(); p++)
         {
-            _FTL_WRITE_SECT(g_device_index, p * ssd_config->get_page_size(), 1, NULL);
+            FTL_WRITE_SECT(g_device_index, p * ssd_config->get_page_size(), 1, NULL);
 
             action_count++;
 
@@ -219,7 +219,7 @@ namespace write_read_test
         // reads the whole ssd
         for (unsigned int p = 0; p < ssd_config->get_pages(); p++)
         {
-            _FTL_READ_SECT(g_device_index, p * ssd_config->get_page_size(), 1, NULL);
+            FTL_READ_SECT(g_device_index, p * ssd_config->get_page_size(), 1, NULL);
 
             action_count++;
 
@@ -296,8 +296,8 @@ namespace write_read_test
 
         for (unsigned int p = 0; p < ssd_config->get_pages(); p++)
         {
-            _FTL_WRITE_SECT(g_device_index, p * ssd_config->get_page_size(), 1, NULL);
-            _FTL_READ_SECT(g_device_index, p * ssd_config->get_page_size(), 1, NULL);
+            FTL_WRITE_SECT(g_device_index, p * ssd_config->get_page_size(), 1, NULL);
+            FTL_READ_SECT(g_device_index, p * ssd_config->get_page_size(), 1, NULL);
 
             action_count++;
 
@@ -381,8 +381,8 @@ namespace write_read_test
 
         for (unsigned int p = 0; p < total_pages; p++)
         {
-            _FTL_WRITE_SECT(g_device_index, p * ssd_config->get_page_size(), 1, NULL);
-            _FTL_READ_SECT(g_device_index, p * ssd_config->get_page_size(), 1, NULL);
+            FTL_WRITE_SECT(g_device_index, p * ssd_config->get_page_size(), 1, NULL);
+            FTL_READ_SECT(g_device_index, p * ssd_config->get_page_size(), 1, NULL);
 
             action_count++;
 
@@ -446,7 +446,7 @@ namespace write_read_test
 
         for (unsigned int p = 0; p < total_pages; p++)
         {
-            _FTL_WRITE_SECT(g_device_index, p * ssd_config->get_page_size(), 1, NULL);
+            FTL_WRITE_SECT(g_device_index, p * ssd_config->get_page_size(), 1, NULL);
 
             action_count++;
 
