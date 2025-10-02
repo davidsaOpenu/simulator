@@ -25,6 +25,7 @@ static uint8_t *osd_sense = NULL;
 
 void INIT_OBJ_STRATEGY(void)
 {
+    pthread_mutex_lock(&g_lock);
     current_id = 1;
     objects_table = NULL;
     objects_mapping = NULL;
@@ -39,6 +40,7 @@ void INIT_OBJ_STRATEGY(void)
     // creating a single partition, to be used later to store all
     // user objects
     assert(!osd_create_partition(&osd, PARTITION_PID_LB, 0, osd_sense));
+    pthread_mutex_unlock(&g_lock);
 }
 
 void free_obj_table(void)
@@ -76,6 +78,7 @@ void free_page_table(void)
 
 void TERM_OBJ_STRATEGY(void)
 {
+    pthread_mutex_lock(&g_lock);
     free_obj_table();
     free_obj_mapping();
     free_page_table();
@@ -85,10 +88,15 @@ void TERM_OBJ_STRATEGY(void)
         osd_sense = NULL;
         osd_close(&osd);
     }
+    pthread_mutex_unlock(&g_lock);
 }
 
 ftl_ret_val _FTL_OBJ_READ(uint8_t device_index, obj_id_t obj_loc, void *data, offset_t offset, length_t *p_length)
 {
+    if (devices[device_index].storage_strategy != STRATEGY_OBJECT) {
+        DEV_RERR(FTL_FAILURE, device_index, "wrong storage strategy %d\n", devices[device_index].storage_strategy);
+    }
+
     stored_object *object;
     page_node *current_page;
     int io_page_nb;
@@ -182,6 +190,10 @@ ftl_ret_val FTL_OBJ_READ(uint8_t device_index, obj_id_t obj_loc, void *data, off
 
 ftl_ret_val _FTL_OBJ_WRITE(uint8_t device_index, obj_id_t object_loc, const void *data, offset_t offset, length_t length)
 {
+    if (devices[device_index].storage_strategy != STRATEGY_OBJECT) {
+        DEV_RERR(FTL_FAILURE, device_index, "wrong storage strategy %d\n", devices[device_index].storage_strategy);
+    }
+
     stored_object *object;
     page_node *current_page = NULL, *temp_page;
     uint64_t page_id;
@@ -309,6 +321,10 @@ ftl_ret_val FTL_OBJ_WRITE(uint8_t device_index, obj_id_t object_loc, const void 
 
 ftl_ret_val _FTL_OBJ_COPYBACK(uint8_t device_index, int32_t source, int32_t destination)
 {
+    if (devices[device_index].storage_strategy != STRATEGY_OBJECT) {
+        DEV_RERR(FTL_FAILURE, device_index, "wrong storage strategy %d\n", devices[device_index].storage_strategy);
+    }
+
     page_node *source_p;
 
     source_p = lookup_page(source);
@@ -339,6 +355,10 @@ ftl_ret_val _FTL_OBJ_COPYBACK(uint8_t device_index, int32_t source, int32_t dest
 
 bool _FTL_OBJ_CREATE(uint8_t device_index, obj_id_t obj_loc, size_t size)
 {
+    if (devices[device_index].storage_strategy != STRATEGY_OBJECT) {
+        DEV_RERR(FTL_FAILURE, device_index, "wrong storage strategy %d\n", devices[device_index].storage_strategy);
+    }
+
     stored_object *new_object;
     int osd_ret;
 
@@ -372,6 +392,10 @@ bool FTL_OBJ_CREATE(uint8_t device_index, obj_id_t obj_loc, size_t size)
 
 ftl_ret_val _FTL_OBJ_DELETE(uint8_t device_index, obj_id_t obj_loc)
 {
+    if (devices[device_index].storage_strategy != STRATEGY_OBJECT) {
+        DEV_RERR(FTL_FAILURE, device_index, "wrong storage strategy %d\n", devices[device_index].storage_strategy);
+    }
+
     stored_object *object;
     object_map *obj_map;
     int osd_ret;
