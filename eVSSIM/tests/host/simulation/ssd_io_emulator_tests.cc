@@ -42,10 +42,12 @@ namespace ssd_io_emulator_tests {
         public:
             virtual void SetUp() {
                 BaseTest::SetUp();
+                pthread_mutex_lock(&g_lock);
                 INIT_LOG_MANAGER(g_device_index);
             }
 
             virtual void TearDown() {
+                pthread_mutex_unlock(&g_lock);
                 BaseTest::TearDown(false);
                 TERM_LOG_MANAGER(g_device_index);
                 TERM_SSD_CONFIG();

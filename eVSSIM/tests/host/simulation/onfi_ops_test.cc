@@ -39,6 +39,7 @@ namespace program_compatible_test
         virtual void SetUp()
         {
             BaseTest::SetUp();
+            pthread_mutex_lock(&g_lock);
             INIT_LOG_MANAGER(g_device_index);
             ASSERT_EQ(_FTL_CREATE(g_device_index), FTL_SUCCESS);
             ASSERT_EQ(_ONFI_INIT(), ONFI_SUCCESS);
@@ -46,6 +47,7 @@ namespace program_compatible_test
 
         virtual void TearDown()
         {
+            pthread_mutex_unlock(&g_lock);
             BaseTest::TearDown(false);
             TERM_LOG_MANAGER(g_device_index);
             remove(GET_FILE_NAME(g_device_index));
