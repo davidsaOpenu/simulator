@@ -27,6 +27,10 @@ ftl_ret_val _FTL_READ(uint8_t device_index, uint64_t sector_nb, unsigned int len
 
 ftl_ret_val _FTL_READ_SECT(uint8_t device_index, uint64_t sector_nb, unsigned int length, unsigned char *data)
 {
+	if (devices[device_index].storage_strategy != STRATEGY_SECTOR) {
+		DEV_RERR(FTL_FAILURE, device_index, "wrong storage strategy %d\n", devices[device_index].storage_strategy);
+	}
+
 	PDBG_FTL("Start: sector_nb %ld length %u\n", sector_nb, length);
 
 	if (sector_nb + length > (uint64_t)devices[device_index].sectors_per_page * (uint64_t)devices[device_index].page_nb *
@@ -182,6 +186,10 @@ static ftl_ret_val _FTL_WRITE_COMMIT(uint8_t device_index, uint64_t lba, int wri
 
 ftl_ret_val _FTL_WRITE_SECT(uint8_t device_index, uint64_t sector_nb, unsigned int length, const unsigned char *data)
 {
+	if (devices[device_index].storage_strategy != STRATEGY_SECTOR) {
+		DEV_RERR(FTL_FAILURE, device_index, "wrong storage strategy %d\n", devices[device_index].storage_strategy);
+	}
+
 	PDBG_FTL("Start: sector_nb %" PRIu64 "length %u\n", sector_nb, length);
 
 	int io_page_nb;
@@ -293,6 +301,10 @@ ftl_ret_val FTL_WRITE_SECT(uint8_t device_index, uint64_t sector_nb, unsigned in
 //Get 2 physical page address, the source page which need to be moved to the destination page
 ftl_ret_val _FTL_COPYBACK(uint8_t device_index, uint64_t source, uint64_t destination)
 {
+	if (devices[device_index].storage_strategy != STRATEGY_SECTOR) {
+		DEV_RERR(FTL_FAILURE, device_index, "wrong storage strategy %d\n", devices[device_index].storage_strategy);
+	}
+
 	uint64_t lpn; //The logical page address, the page that being moved.
 	unsigned int ret = FTL_FAILURE;
 
@@ -335,6 +347,10 @@ ftl_ret_val _FTL_COPYBACK(uint8_t device_index, uint64_t source, uint64_t destin
 
 ftl_ret_val _FTL_CREATE(uint8_t device_index)
 {
+	if (devices[device_index].storage_strategy != STRATEGY_SECTOR) {
+		DEV_RERR(FTL_FAILURE, device_index, "wrong storage strategy %d\n", devices[device_index].storage_strategy);
+	}
+
     // no "creation" in address-based storage
 	return (ssd_create(GET_FILE_NAME(device_index), (uint64_t)devices[device_index].sectors_per_page * (uint64_t)devices[device_index].page_nb *
 			(uint64_t)devices[device_index].block_nb * (uint64_t)devices[device_index].flash_nb * GET_SECTOR_SIZE(device_index))

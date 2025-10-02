@@ -67,6 +67,8 @@ typedef struct ssd_config {
 
 	int gc_low_thr;
 	int gc_hi_thr;
+	uint64_t gc_low_thr_block_nb;
+	uint64_t gc_hi_thr_block_nb;
 
 	// Statistics
 	int stat_type;

@@ -15,6 +15,8 @@ typedef enum {FTL_FAILURE, FTL_SUCCESS} ftl_ret_val;
 extern uint32_t** mapping_stats_table;
 extern uint8_t g_device_index;
 extern int* g_init_ftl;
+
+// FTL global lock. Does not allow the GC thread to do work while the main thread is inside FTL code.
 extern pthread_mutex_t g_lock;
 
 void FTL_INIT(uint8_t device_index);

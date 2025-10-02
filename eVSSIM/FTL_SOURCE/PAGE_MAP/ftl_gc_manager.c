@@ -6,6 +6,7 @@
 #include "common.h"
 #include "ftl_sect_strategy.h"
 #include "ftl_obj_strategy.h"
+#include <time.h>
 
 unsigned int gc_count = 0;
 
@@ -14,11 +15,80 @@ extern double ssd_util;
 
 write_amplification_counters wa_counters;
 extern ssd_disk ssd;
-GCAlgorithm gc_algo;
+GCAlgorithm gc_algo = {
+    &DEFAULT_GC_COLLECTION_ALGO,
+    (gc_next_page_algo) &DEFAULT_NEXT_PAGE_ALGO,
+};
 
-void INIT_GC_MANAGER(void) {
-    gc_algo.collection = &DEFAULT_GC_COLLECTION_ALGO;
-    gc_algo.next_page = (gc_next_page_algo) &DEFAULT_NEXT_PAGE_ALGO;
+gc_thread_t *gc_threads;
+
+static void *GC_BACKGROUND_LOOP(void *arg) {
+    gc_thread_t *gc_thread = arg;
+    uint8_t device_index = gc_thread->device_index;
+    DEV_PINFO(device_index, "background GC thread started\n");
+
+    pthread_mutex_lock(&g_lock);
+    while (!gc_thread->gc_stop_flag) {
+        bool collected;
+        uint64_t total_empty_block_nb;
+        do {
+            collected = GC_CHECK(gc_thread->device_index, false);
+            total_empty_block_nb = inverse_mappings_manager[device_index].total_empty_block_nb;
+        } while (collected && total_empty_block_nb < devices[device_index].gc_hi_thr_block_nb);
+
+        struct timespec ts;
+        clock_gettime(CLOCK_REALTIME, &ts);
+        if (total_empty_block_nb >= devices[device_index].gc_low_thr_block_nb) {
+            ts.tv_sec += 10;
+        } else if (total_empty_block_nb >= devices[device_index].gc_hi_thr_block_nb) {
+            ts.tv_sec += 1;
+        } else {
+            DEV_PINFO(device_index, "background GC wait for invalid page is not implemented yet\n");
+            break;
+        }
+
+        if (!gc_thread->gc_stop_flag) {
+            pthread_cond_timedwait(&gc_thread->gc_stop_cond, &g_lock, &ts);
+            // gc_stop_flag must be rechecked immediately - FTL may be already deinitialized
+        }
+    }
+    pthread_mutex_unlock(&g_lock);
+
+    DEV_PINFO(device_index, "background GC thread stopped\n");
+    return NULL;
+}
+
+void INIT_GC_MANAGER(uint8_t device_index) {
+    if (devices[device_index].storage_strategy == STRATEGY_OBJECT) {
+        DEV_PINFO(device_index, "GC of object strategy is not currently supported.\n");
+        return;
+    }
+
+    gc_thread_t *gc_thread = &gc_threads[device_index];
+
+    gc_thread->device_index = device_index;
+    if (0 != pthread_create(&gc_thread->tid, NULL, GC_BACKGROUND_LOOP, gc_thread)) {
+        DEV_RERR(, device_index, "failed to create GC background thread\n");
+    }
+
+    DEV_PINFO(device_index, "background GC initialized\n");
+}
+
+void TERM_GC_MANAGER(uint8_t device_index) {
+    if (devices[device_index].storage_strategy == STRATEGY_OBJECT) {
+        return;
+    }
+
+    gc_thread_t *gc_thread = &gc_threads[device_index];
+
+    gc_thread->gc_stop_flag = true;
+    pthread_cond_broadcast(&gc_thread->gc_stop_cond);
+
+    pthread_mutex_unlock(&g_lock);
+    if (0 != pthread_join(gc_thread->tid, NULL)) {
+        DEV_PERR(device_index, "failed to join GC background thread\n");
+    }
+    pthread_mutex_lock(&g_lock);
 }
 
 bool GC_CHECK(uint8_t device_index, bool force)
