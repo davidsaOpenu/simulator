@@ -48,6 +48,13 @@ typedef struct object_map
 void INIT_OBJ_STRATEGY(void);
 void TERM_OBJ_STRATEGY(void);
 
+// Object write strategy API functions to be called by QEMU
+ftl_ret_val FTL_OBJ_READ(uint8_t device_index, obj_id_t object_loc, void *data, offset_t offset, length_t *length);
+ftl_ret_val FTL_OBJ_WRITE(uint8_t device_index, obj_id_t object_loc, const void *data, offset_t offset, length_t length);
+bool FTL_OBJ_CREATE(uint8_t device_index, obj_id_t obj_loc, size_t size);
+ftl_ret_val FTL_OBJ_DELETE(uint8_t device_index, obj_id_t object_loc);
+ftl_ret_val FTL_OBJ_LIST(void *data, size_t *size, uint64_t initial_oid);
+
 /* FTL functions */
 ftl_ret_val _FTL_OBJ_READ(uint8_t device_index, obj_id_t object_loc, void *data, offset_t offset, length_t *length);
 ftl_ret_val _FTL_OBJ_WRITE(uint8_t device_index, obj_id_t object_loc, const void *data, offset_t offset, length_t length);
