@@ -19,12 +19,13 @@ extern double ssd_util;
 int gatherStats = 0;
 // Hold statistics information
 uint32_t** mapping_stats_table;
+pthread_mutex_t g_lock;
 
 void FTL_INIT(uint8_t device_index)
 {
 	if (g_init_ftl[device_index] == 0) {
         PINFO("start\n");
-		
+
 		INIT_MAPPING_TABLE(device_index);
 
 		INIT_INVERSE_PAGE_MAPPING(device_index);
@@ -42,6 +43,9 @@ void FTL_INIT(uint8_t device_index)
 		g_init_ftl[device_index] = 1;
 
 		SSD_IO_INIT(device_index);
+
+		if (pthread_mutex_init(&g_lock, NULL))
+			RERR(, "failed to initialize global mutex\n");
 
 		PINFO("complete\n");
 	}
