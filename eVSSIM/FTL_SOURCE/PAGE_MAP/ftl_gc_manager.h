@@ -13,10 +13,20 @@ extern unsigned int gc_count;
 typedef ftl_ret_val (*gc_collection_algo)(uint8_t, int);
 typedef ftl_ret_val (*gc_next_page_algo)(uint8_t, int, int, uint64_t*);
 
+typedef struct gc_thread {
+    pthread_t tid;
+    uint8_t device_index;
+    pthread_cond_t gc_stop_cond;
+    bool gc_stop_flag;
+} gc_thread_t;
+
+extern gc_thread_t *gc_threads;
+
 /**
  * Init gc manger
  */
-void INIT_GC_MANAGER(void);
+void INIT_GC_MANAGER(uint8_t device_index);
+void TERM_GC_MANAGER(uint8_t device_index);
 
 bool GC_CHECK(uint8_t device_index, bool force);
 

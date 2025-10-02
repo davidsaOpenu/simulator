@@ -44,6 +44,7 @@ namespace log_mgr_tests {
 
             virtual void SetUp() {
                 BaseTest::SetUp();
+                pthread_mutex_lock(&g_lock);
 
                 if (g_server_mode) {
                     log_server_init(g_device_index);
@@ -59,6 +60,7 @@ namespace log_mgr_tests {
 
             virtual void TearDown() {
                 logger_free(_logger);
+                pthread_mutex_unlock(&g_lock);
                 BaseTest::TearDown(false);
                 if (g_monitor_mode) {
                     printf("Waiting for monitor to close...\n");
@@ -730,7 +732,7 @@ namespace log_mgr_tests {
         pthread_join(offline_log_analyzer_thread, NULL);
         offline_log_analyzer_free(analyzer);
     }*/
-    
+
     /* Log Manager Tests */
     /**
      * Do a simple test of the log manager
