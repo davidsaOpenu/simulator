@@ -21,6 +21,8 @@ void update_globals(void);
 
 void INIT_SSD_CONFIG(void)
 {
+    pthread_mutex_lock(&g_lock);
+
     FILE *pfData = fopen("./data/ssd.conf", "r");
 
     if (pfData == NULL){
@@ -28,7 +30,7 @@ void INIT_SSD_CONFIG(void)
         exit(1);
     }
 
-    char key[64];    
+    char key[64];
     uint8_t device_index = 0;
     int i = 0;
     ssd_config_t *current_device = NULL;
@@ -127,10 +129,18 @@ void INIT_SSD_CONFIG(void)
     ssds_manager = (ssd_manager_t*)calloc(sizeof(ssd_manager_t) * device_count, 1);
     if (NULL == ssds_manager)
         RERR(, "ssds_manager allocation failed!\n");
+
+    gc_threads = calloc(device_count, sizeof(*gc_threads));
+    if (NULL == gc_threads)
+        RERR(, "gc_threads allocation failed!\n");
+
+    pthread_mutex_unlock(&g_lock);
 }
 
 void TERM_SSD_CONFIG(void)
 {
+    pthread_mutex_lock(&g_lock);
+
     free(inverse_mappings_manager);
     inverse_mappings_manager = NULL;
 
@@ -146,10 +156,15 @@ void TERM_SSD_CONFIG(void)
     free(ssds_manager);
     ssds_manager = NULL;
 
+    free(gc_threads);
+    gc_threads = NULL;
+
     free(devices);
     devices = NULL;
 
     device_count = 0;
+
+    pthread_mutex_unlock(&g_lock);
 }
 
 bool parse_config_line(const char* key, FILE* file, ssd_config_t* device) {
@@ -346,6 +361,11 @@ void calculate_derived_values(ssd_config_t* device) {
     double gc_l2_threshold = 0.1;
     device->gc_l2_threshold_block_nb = (int)((1-gc_l2_threshold) * (double)device->block_mapping_entry_nb);
 #endif
+
+    device->gc_low_thr_block_nb = (100 - device->gc_low_thr) * device->block_mapping_entry_nb / 100;
+    device->gc_hi_thr_block_nb = (100 - device->gc_hi_thr) * device->block_mapping_entry_nb / 100;
+    device->gc_low_thr_interval_sec = 10;
+    device->gc_hi_thr_interval_sec = 1;
 }
 
 char* GET_DATA_FILENAME(uint8_t device_index, const char* filename) {

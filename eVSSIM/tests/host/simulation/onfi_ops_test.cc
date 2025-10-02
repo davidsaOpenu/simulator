@@ -34,12 +34,14 @@ namespace program_compatible_test
         {
             BaseTest::SetUp();
             INIT_LOG_MANAGER(g_device_index);
+            pthread_mutex_lock(&g_lock); // prevent the GC thread from running
             ASSERT_EQ(_FTL_CREATE(g_device_index), FTL_SUCCESS);
             ASSERT_EQ(ONFI_INIT(g_device_index), ONFI_SUCCESS);
         }
 
         virtual void TearDown()
         {
+            pthread_mutex_unlock(&g_lock);
             BaseTest::TearDown(false);
             TERM_LOG_MANAGER(g_device_index);
             remove(GET_FILE_NAME(g_device_index));

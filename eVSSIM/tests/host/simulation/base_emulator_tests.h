@@ -96,6 +96,7 @@ namespace {
         size_t logger_size;
         size_t object_size;
         size_t pages;
+        int storage_strategy;
 
         // external blocks (non over-provisioned)
         const static size_t CONST_PAGES_PER_BLOCK = 8;
@@ -124,6 +125,7 @@ namespace {
             this->channel_nb = DEFAULT_FLASH_NB;
             this->sector_size = sector_size;
             this->object_size = 2048; // megabytes
+            this->storage_strategy = STRATEGY_SECTOR;
         }
 
         SSDConf(size_t page_size, size_t page_nb, size_t sector_size,
@@ -131,6 +133,7 @@ namespace {
                 : page_size(page_size), page_nb(page_nb), sector_size(sector_size),
                   flash_nb(flash_nb), block_nb(block_nb), channel_nb(channel_nb) {
                     this->pages = page_nb * block_nb * flash_nb;
+                    this->storage_strategy = STRATEGY_SECTOR;
                 }
 
         size_t get_page_size(void) {
@@ -181,6 +184,14 @@ namespace {
             this->object_size = val;
         }
 
+        void set_storage_strategy(int strategy) {
+            this->storage_strategy = strategy;
+        }
+
+        int get_storage_strategy() {
+            return this->storage_strategy;
+        }
+
         void ssd_conf_serialize(void) {
             ofstream ssd_conf("data/ssd.conf", ios_base::out | ios_base::trunc);
             ssd_conf << "[nvme01]\n"
@@ -204,7 +215,7 @@ namespace {
                 "STAT_TYPE 15\n"
                 "STAT_SCOPE 62\n"
                 "STAT_PATH /tmp/stat.csv\n"
-                "STORAGE_STRATEGY 1\n"
+                "STORAGE_STRATEGY " << get_storage_strategy() << "\n"
                 "GC_LOW_THR 20\n"
                 "GC_HI_THR 80\n"
                 "[nvme02]\n"
@@ -228,7 +239,7 @@ namespace {
                 "STAT_TYPE 15\n"
                 "STAT_SCOPE 62\n"
                 "STAT_PATH /tmp/stat2.csv\n"
-                "STORAGE_STRATEGY 1\n" // sector strategy
+                "STORAGE_STRATEGY " << get_storage_strategy() << "\n"
                 "GC_LOW_THR 20\n"
                 "GC_HI_THR 80\n"
                 "[nvme03]\n"
@@ -252,7 +263,7 @@ namespace {
                 "STAT_TYPE 15\n"
                 "STAT_SCOPE 62\n"
                 "STAT_PATH /tmp/stat3.csv\n"
-                "STORAGE_STRATEGY 1\n" // sector strategy
+                "STORAGE_STRATEGY " << get_storage_strategy() << "\n"
                 "GC_LOW_THR 20\n"
                 "GC_HI_THR 80\n";
             ssd_conf.close();

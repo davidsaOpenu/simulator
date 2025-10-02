@@ -36,7 +36,7 @@ namespace sector_tests {
 
         for(int x=0; x<2 /*8*/; x++){
             for(size_t p=0; p < ssd_config->get_pages(); p++){
-                ASSERT_EQ(FTL_SUCCESS, _FTL_WRITE_SECT(g_device_index, p * ssd_config->get_page_size(), 1, NULL));
+                ASSERT_EQ(FTL_SUCCESS, FTL_WRITE_SECT(g_device_index, p * ssd_config->get_page_size(), 1, NULL));
             }
         }
     }
@@ -46,7 +46,7 @@ namespace sector_tests {
 
         for(int x=0; x<2 /*8*/; x++){
             for(size_t p=0; p < ssd_config->get_pages(); p++){
-                ASSERT_EQ(FTL_SUCCESS, _FTL_WRITE_SECT(g_device_index, (rand() % ssd_config->get_pages()) * ssd_config->get_page_size(), 1, NULL));
+                ASSERT_EQ(FTL_SUCCESS, FTL_WRITE_SECT(g_device_index, (rand() % ssd_config->get_pages()) * ssd_config->get_page_size(), 1, NULL));
             }
         }
     }
@@ -56,10 +56,10 @@ namespace sector_tests {
 
         for(int x=0; x<2; x++){
             for(size_t p=0; p < ssd_config->get_pages(); p++){
-                ASSERT_EQ(FTL_SUCCESS, _FTL_WRITE_SECT(g_device_index, (rand() % ssd_config->get_pages()) * ssd_config->get_page_size(), 1, NULL));
+                ASSERT_EQ(FTL_SUCCESS, FTL_WRITE_SECT(g_device_index, (rand() % ssd_config->get_pages()) * ssd_config->get_page_size(), 1, NULL));
             }
             for(size_t p=0; p < ssd_config->get_pages(); p++){
-                ASSERT_EQ(FTL_SUCCESS, _FTL_WRITE_SECT(g_device_index, p * ssd_config->get_page_size(), 1, NULL));
+                ASSERT_EQ(FTL_SUCCESS, FTL_WRITE_SECT(g_device_index, p * ssd_config->get_page_size(), 1, NULL));
             }
         }
     }

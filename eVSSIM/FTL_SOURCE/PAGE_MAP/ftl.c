@@ -19,12 +19,13 @@ extern double ssd_util;
 int gatherStats = 0;
 // Hold statistics information
 uint32_t** mapping_stats_table;
-pthread_mutex_t g_lock;
+pthread_mutex_t g_lock = PTHREAD_MUTEX_INITIALIZER;
 
 void FTL_INIT(uint8_t device_index)
 {
+	pthread_mutex_lock(&g_lock);
 	if (g_init_ftl[device_index] == 0) {
-        PINFO("start\n");
+		PINFO("start\n");
 
 		INIT_MAPPING_TABLE(device_index);
 
@@ -35,7 +36,7 @@ void FTL_INIT(uint8_t device_index)
 		INIT_VICTIM_BLOCK_LIST(device_index);
 
 		INIT_PERF_CHECKER();
-        INIT_GC_MANAGER();
+        INIT_GC_MANAGER(device_index);
 
 		// Initialize The Statistics gathering component.
 		FTL_INIT_STATS();
@@ -45,15 +46,14 @@ void FTL_INIT(uint8_t device_index)
 		SSD_IO_INIT(device_index);
 		ONFI_INIT(device_index);
 
-		if (pthread_mutex_init(&g_lock, NULL))
-			RERR(, "failed to initialize global mutex\n");
-
 		PINFO("complete\n");
 	}
+	pthread_mutex_unlock(&g_lock);
 }
 
 void FTL_TERM(uint8_t device_index)
 {
+	pthread_mutex_lock(&g_lock);
 	PINFO("start\n");
 
 	TERM_MAPPING_TABLE(device_index);
@@ -65,7 +65,7 @@ void FTL_TERM(uint8_t device_index)
 	TERM_VICTIM_BLOCK_LIST(device_index);
 
 	TERM_PERF_CHECKER();
-	FTL_TERM_STRATEGY();
+	TERM_GC_MANAGER(device_index);
 	FTL_TERM_STATS();
 
 	SSD_IO_TERM(device_index);
@@ -73,15 +73,7 @@ void FTL_TERM(uint8_t device_index)
 	g_init_ftl[device_index] = 0;
 
 	PINFO("complete\n");
-}
-
-void FTL_TERM_STRATEGY(void)
-{
-	// As we can't figure out the storage strategy at this point,
-	// We can terminate the object strategy anyway... at the worst
-	// case where we're actually using the sector strategy, it won't do
-	// anything and return
-	TERM_OBJ_STRATEGY();
+	pthread_mutex_unlock(&g_lock);
 }
 
 void FTL_INIT_STATS(void)
