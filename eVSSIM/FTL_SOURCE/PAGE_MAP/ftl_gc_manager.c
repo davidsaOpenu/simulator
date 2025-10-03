@@ -21,29 +21,30 @@ void INIT_GC_MANAGER(void) {
     gc_algo.next_page = (gc_next_page_algo) &DEFAULT_NEXT_PAGE_ALGO;
 }
 
-void GC_CHECK(uint8_t device_index, unsigned int phy_flash_nb, uint64_t phy_block_nb, bool force, bool isObjectStrategy)
+bool GC_CHECK(uint8_t device_index, bool force)
 {
 	int i, ret;
-	int plane_nb = phy_block_nb % devices[device_index].planes_per_flash;
-	uint64_t mapping_index = plane_nb * devices[device_index].flash_nb + phy_flash_nb;
+	bool collected = false;
 
 	if(force || inverse_mappings_manager[device_index].total_empty_block_nb < (uint64_t)devices[device_index].gc_threshold_block_nb) {
         int l2 = inverse_mappings_manager[device_index].total_empty_block_nb < (uint64_t)devices[device_index].gc_l2_threshold_block_nb;
 		for(i=0; i<devices[device_index].gc_victim_nb; i++){
-			ret = GARBAGE_COLLECTION(device_index, mapping_index, l2, isObjectStrategy);
+			ret = GARBAGE_COLLECTION(device_index, l2);
 			if(ret == FTL_FAILURE){
 				break;
 			}
+			collected = true;
 		}
 	}
+	return collected;
 }
 
-ftl_ret_val GARBAGE_COLLECTION(uint8_t device_index, uint64_t mapping_index, int l2, bool isObjectStrategy)
+ftl_ret_val GARBAGE_COLLECTION(uint8_t device_index, int l2)
 {
-    return gc_algo.collection(device_index, mapping_index, l2, isObjectStrategy);
+    return gc_algo.collection(device_index, l2);
 }
 
-ftl_ret_val DEFAULT_GC_COLLECTION_ALGO(uint8_t device_index, uint64_t mapping_index, int l2, bool isObjectStrategy)
+ftl_ret_val DEFAULT_GC_COLLECTION_ALGO(uint8_t device_index, int l2)
 {
 	uint64_t i;
 	int ret;
@@ -65,6 +66,9 @@ ftl_ret_val DEFAULT_GC_COLLECTION_ALGO(uint8_t device_index, uint64_t mapping_in
 	if (ret == FTL_FAILURE)
 		RDBG_FTL(FTL_FAILURE, "There is no available victim block\n");
 
+	// attempt to find new pages in the same flash as the victim block, for copyback
+	int victim_phy_plane_nb = victim_phy_block_nb % devices[device_index].planes_per_flash;
+	uint64_t mapping_index = victim_phy_plane_nb * devices[device_index].flash_nb + victim_phy_flash_nb;
 
 	inverse_block_entry = GET_INVERSE_BLOCK_MAPPING_ENTRY(device_index, victim_phy_flash_nb, victim_phy_block_nb);
 	valid_array = inverse_block_entry->valid_array;
@@ -109,14 +113,18 @@ ftl_ret_val DEFAULT_GC_COLLECTION_ALGO(uint8_t device_index, uint64_t mapping_in
             }else{
                 // Got new page on-chip, can do copy back
 
-            	if (!isObjectStrategy)
-				{
-            		ret = _FTL_COPYBACK(device_index, victim_phy_flash_nb * devices[device_index].pages_per_flash + victim_phy_block_nb * devices[device_index].page_nb + i , new_ppn);
-				}
-            	else
-				{
-            		ret = _FTL_OBJ_COPYBACK(device_index, victim_phy_flash_nb * devices[device_index].pages_per_flash + victim_phy_block_nb * devices[device_index].page_nb + i , new_ppn);
-				}
+                if (devices[device_index].storage_strategy == STRATEGY_SECTOR)
+                {
+                    ret = _FTL_COPYBACK(device_index, victim_phy_flash_nb * devices[device_index].pages_per_flash + victim_phy_block_nb * devices[device_index].page_nb + i , new_ppn);
+                }
+                else if (devices[device_index].storage_strategy == STRATEGY_OBJECT)
+                {
+                    ret = _FTL_OBJ_COPYBACK(device_index, victim_phy_flash_nb * devices[device_index].pages_per_flash + victim_phy_block_nb * devices[device_index].page_nb + i , new_ppn);
+                }
+                else
+                {
+                    ret = FTL_FAILURE;
+                }
 
                 if(ret == FTL_FAILURE){
                     PDBG_FTL("failed to copyback\n");
