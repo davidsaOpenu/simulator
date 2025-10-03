@@ -23,37 +23,61 @@ pthread_mutex_t g_lock;
 
 void FTL_INIT(uint8_t device_index)
 {
-	if (g_init_ftl[device_index] == 0) {
-        PINFO("start\n");
+	PINFO("start device: %d\n", device_index);
 
-		INIT_MAPPING_TABLE(device_index);
-
-		INIT_INVERSE_PAGE_MAPPING(device_index);
-		INIT_INVERSE_BLOCK_MAPPING(device_index);
-		INIT_VALID_ARRAY(device_index);
-		INIT_EMPTY_BLOCK_LIST(device_index);
-		INIT_VICTIM_BLOCK_LIST(device_index);
-
-		INIT_PERF_CHECKER();
-        INIT_GC_MANAGER();
-
-		// Initialize The Statistics gathering component.
-		FTL_INIT_STATS();
-
-		g_init_ftl[device_index] = 1;
-
-		SSD_IO_INIT(device_index);
-
-		if (pthread_mutex_init(&g_lock, NULL))
-			RERR(, "failed to initialize global mutex\n");
-
-		PINFO("complete\n");
+	if (device_index >=  device_count) {
+		RERR(, "Invalid device index\n");
 	}
+
+	if (g_init_ftl[device_index] == 1) {
+		RERR(, "Try to init the second time\n");
+	}
+
+	size_t namespaceIndex = 0;
+	for (namespaceIndex = 0; namespaceIndex < MAX_NUMBER_OF_NAMESPACES; namespaceIndex++)
+	{
+		if (devices[device_index].namespaces[namespaceIndex].type == FTL_NS_OBJECT) {
+			// Init the object strategy namespaces.
+			INIT_OBJ_STRATEGY();
+		}
+	}
+
+	INIT_MAPPING_TABLE(device_index);
+
+	INIT_INVERSE_PAGE_MAPPING(device_index);
+	INIT_INVERSE_BLOCK_MAPPING(device_index);
+	INIT_VALID_ARRAY(device_index);
+	INIT_EMPTY_BLOCK_LIST(device_index);
+	INIT_VICTIM_BLOCK_LIST(device_index);
+	INIT_INVERSE_PAGE_NAMESPACE_MAPPING(device_index);
+
+	INIT_PERF_CHECKER();
+	INIT_GC_MANAGER();
+
+	// Initialize The Statistics gathering component.
+	FTL_INIT_STATS();
+
+	g_init_ftl[device_index] = 1;
+
+	SSD_IO_INIT(device_index);
+
+	if (pthread_mutex_init(&g_lock, NULL))
+		RERR(, "failed to initialize global mutex\n");
+
+	PINFO("complete\n");
 }
 
 void FTL_TERM(uint8_t device_index)
 {
-	PINFO("start\n");
+	PINFO("start device: %d\n", device_index);
+
+	if (device_index >=  device_count) {
+		RERR(, "Invalid device index\n");
+	}
+
+	if (g_init_ftl[device_index] != 1) {
+		RERR(, "Can't temo un init device\n");
+	}
 
 	TERM_MAPPING_TABLE(device_index);
 
@@ -62,25 +86,24 @@ void FTL_TERM(uint8_t device_index)
 	TERM_INVERSE_BLOCK_MAPPING(device_index);
 	TERM_EMPTY_BLOCK_LIST(device_index);
 	TERM_VICTIM_BLOCK_LIST(device_index);
+	TERM_INVERSE_PAGE_NAMESPACE_MAPPING(device_index);
 
 	TERM_PERF_CHECKER();
-	FTL_TERM_STRATEGY();
 	FTL_TERM_STATS();
 
 	SSD_IO_TERM(device_index);
 
+	size_t namespaceIndex = 0;
+	for (namespaceIndex = 0; namespaceIndex < MAX_NUMBER_OF_NAMESPACES; namespaceIndex++)
+	{
+		if (devices[device_index].namespaces[namespaceIndex].type == FTL_NS_OBJECT) {
+			TERM_OBJ_STRATEGY();
+		}
+	}
+
 	g_init_ftl[device_index] = 0;
 
 	PINFO("complete\n");
-}
-
-void FTL_TERM_STRATEGY(void)
-{
-	// As we can't figure out the storage strategy at this point,
-	// We can terminate the object strategy anyway... at the worst
-	// case where we're actually using the sector strategy, it won't do
-	// anything and return
-	TERM_OBJ_STRATEGY();
 }
 
 void FTL_INIT_STATS(void)
@@ -328,7 +351,35 @@ void FTL_RECORD_STATISTICS(uint8_t device_index){
 	fclose(fp);
 }
 
-void *STAT_LISTEN(uint8_t device_index, void *socket){
+uint32_t FTL_GET_MAX_NAMESPACE_NB(void) {
+	return MAX_NUMBER_OF_NAMESPACES;
+}
+
+uint32_t FTL_GET_NAMESPACE_NB(uint8_t device_index) {
+	return devices[device_index].current_namespace_nb;
+}
+
+uint32_t FTL_GET_NAMESPACE_SIZE(uint8_t device_index, uint32_t nsid)
+{
+	return devices[device_index].namespaces[nsid - 1].ns_page_nb;
+}
+
+void FTL_GET_NAMESPACE_DESCS(uint8_t device_index, ftl_ns_desc *descs, const uint16_t available_ns)
+{
+	uint32_t i, j;
+  	for (i = 0, j = 0; i < MAX_NUMBER_OF_NAMESPACES; i++) {
+		if (devices[device_index].namespaces[i].nsid != INVALID_NSID) {
+			if (j >= available_ns)
+				return;
+
+			// Set the curret ns ID.
+			descs[j].nsid = i + 1;
+			j++;
+		}
+	}
+}
+
+void *STAT_LISTEN(uint8_t device_index, void *socket) {
 	char buffer[256];
 	int sock = (*(int *) socket);
 	int stopListen = 1;

@@ -11,6 +11,24 @@
 
 #define MAX_DEVICE_NAME_LEN 8
 
+typedef enum {
+    FTL_NS_SECTOR = 1,
+    FTL_NS_OBJECT = 2
+} ftl_ns_type;
+
+typedef struct {
+    ftl_ns_type type;
+    uint32_t nsid;
+
+    uint64_t ns_page_nb;
+
+	// Only relevent while (type == FTL_NS_OBJECT).
+    uint64_t size;
+	uint16_t kvkml; // Maximum length of key in bytes (Only <=16 is supported)
+	uint32_t kvvml; // Maximum length of value in bytes
+	uint32_t mnks; // Maximum number of keys
+} ftl_ns;
+
 typedef struct ssd_config {
 	char device_name[MAX_DEVICE_NAME_LEN];
     char file_name[PATH_MAX];
@@ -30,7 +48,8 @@ typedef struct ssd_config {
 
 	uint32_t way_nb;
 
-	uint64_t namespaces_size[MAX_NUMBER_OF_NAMESPACES];
+	uint32_t current_namespace_nb;
+	ftl_ns namespaces[MAX_NUMBER_OF_NAMESPACES];
 
 	// Mapping Table
 	uint32_t data_block_nb;
@@ -73,8 +92,6 @@ typedef struct ssd_config {
 	int stat_scope;
 	char stat_path[PATH_MAX];
 	char osd_path[PATH_MAX];
-
-	int storage_strategy; // 1 = sector-based, 2 = object-based
 } ssd_config_t;
 
 /* NVMe devices manager */
