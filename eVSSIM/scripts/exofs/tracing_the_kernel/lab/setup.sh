@@ -8,7 +8,7 @@ mount_point=/mnt/osd0
 pid=0x10000
 
 echo "> Installing dependencies..."
-sudo apt install -y open-iscsi open-iscsi-utils
+sudo apt install -y open-iscsi open-iscsi-utils fio bc
 
 
 echo "> Setup OSD emulation..."
