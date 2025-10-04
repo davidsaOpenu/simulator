@@ -16,7 +16,7 @@ cd guest
 ./nvme set-feature $nvme_dev -f 0xc0 --value=1
 
 echo "> Installing dependencies..."
-sudo apt install -y open-iscsi open-iscsi-utils
+sudo apt install -y open-iscsi open-iscsi-utils fio bc
 
 
 echo "> Setup OSD emulation..."
