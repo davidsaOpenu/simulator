@@ -30,6 +30,21 @@ run_test write disabled
 echo \n\> Tracing 'read' operation...
 run_test read disabled
 
+echo \n\> Testing 'rm' operation...
+touch /mnt/exofs0/test1
+ls /mnt/exofs0
+rm /mnt/exofs0/test1
+ls /mnt/exofs0
 
+echo \n\> Testing 'mv' operation...
+touch /mnt/exofs0/test_move
+ls /mnt/exofs0
+mv /mnt/exofs0/test_move /mnt/exofs0/moved_correctly 
+ls /mnt/exofs0
+rm /mnt/exofs0/moved_correctly
+
+# Run benchmarks on exofs
+chmod +x exofs_benchmark.sh
+./exofs_benchmark.sh
 
 echo All log files can be found at $(pwd)/output
