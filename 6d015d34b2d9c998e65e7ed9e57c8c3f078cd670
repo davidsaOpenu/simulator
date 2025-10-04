@@ -1,0 +1,72 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "3f4ff551_c5c04779",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 1038819
+      },
+      "writtenOn": "2025-10-04T22:53:53Z",
+      "side": 1,
+      "message": "Please answer the questions, and feel free to contact me and discuss solutions.",
+      "revId": "6d015d34b2d9c998e65e7ed9e57c8c3f078cd670",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "4f692dfb_37fba6c9",
+        "filename": "eVSSIM/CONFIG/vssim_config_manager.h",
+        "patchSetId": 1
+      },
+      "lineNbr": 26,
+      "author": {
+        "id": 1038819
+      },
+      "writtenOn": "2025-10-04T22:53:53Z",
+      "side": 1,
+      "message": "I can\u0027t find any use of `kvkml`/`kvvml`/etc.",
+      "revId": "6d015d34b2d9c998e65e7ed9e57c8c3f078cd670",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "f7460f9f_b69de8c2",
+        "filename": "eVSSIM/FTL_SOURCE/PAGE_MAP/ftl_gc_manager.c",
+        "patchSetId": 1
+      },
+      "lineNbr": 142,
+      "author": {
+        "id": 1038819
+      },
+      "writtenOn": "2025-10-04T22:53:53Z",
+      "side": 1,
+      "message": "fail the GC because of wrong nsid? what does it mean? To me it seems like GC should be able to move physical pages around, independently of what namespace they\u0027re in. As long as they\u0027re on the same `device_index`.\n\nAnd if you do want to limit GC into the limits of a certain namespace, then choose victim from the same namespace. Such error as \"Invalid page namespace\" should simply not happen.",
+      "revId": "6d015d34b2d9c998e65e7ed9e57c8c3f078cd670",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "e8455a27_6f123310",
+        "filename": "eVSSIM/FTL_SOURCE/PAGE_MAP/ftl_obj_strategy.h",
+        "patchSetId": 1
+      },
+      "lineNbr": 56,
+      "author": {
+        "id": 1038819
+      },
+      "writtenOn": "2025-10-04T22:53:53Z",
+      "side": 1,
+      "message": "why object strategy functions don\u0027t accept nsid parameter, like sector strategy? According to the trello card, it seems like they should have.",
+      "revId": "6d015d34b2d9c998e65e7ed9e57c8c3f078cd670",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
+    }
+  ]
+}
