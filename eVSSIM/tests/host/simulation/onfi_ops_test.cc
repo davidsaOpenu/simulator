@@ -22,12 +22,6 @@ extern "C"
 #include "onfi.h"
 }
 
-extern RTLogStatistics *rt_log_stats;
-extern LogServer log_server;
-
-// for performance.
-#define CHECK_THRESHOLD 0.1 // 10%
-
 using namespace std;
 
 namespace program_compatible_test
@@ -41,7 +35,7 @@ namespace program_compatible_test
             BaseTest::SetUp();
             INIT_LOG_MANAGER(g_device_index);
             ASSERT_EQ(_FTL_CREATE(g_device_index), FTL_SUCCESS);
-            ASSERT_EQ(_ONFI_INIT(), ONFI_SUCCESS);
+            ASSERT_EQ(ONFI_INIT(g_device_index), ONFI_SUCCESS);
         }
 
         virtual void TearDown()
@@ -55,7 +49,7 @@ namespace program_compatible_test
         void AssertStatusRegisterOk()
         {
             onfi_status_reg_t status;
-            ASSERT_EQ(ONFI_READ_STATUS(&status), ONFI_SUCCESS);
+            ASSERT_EQ(ONFI_READ_STATUS(g_device_index, &status), ONFI_SUCCESS);
             ASSERT_EQ(status.FAIL, 0);
         }
     };
@@ -63,8 +57,8 @@ namespace program_compatible_test
     std::vector<SSDConf *> GetTestParams()
     {
         std::vector<SSDConf *> ssd_configs;
-        ssd_configs.push_back(new SSDConf(pow(2, 5), 1));
-        ssd_configs.push_back(new SSDConf(pow(2, 5), 2));
+        ssd_configs.push_back(new SSDConf(pow(2, 12), 10, 1, 8, pow(2, 12), 4));
+        ssd_configs.push_back(new SSDConf(pow(2, 10), 8, 2, 8, pow(2, 12), 4));
         return ssd_configs;
     }
 
@@ -74,13 +68,13 @@ namespace program_compatible_test
 
     TEST_P(OnfiCommandsTest, NullRegisterReadStatusFails)
     {
-        ASSERT_EQ(ONFI_READ_STATUS(NULL), ONFI_FAILURE);
+        ASSERT_EQ(ONFI_READ_STATUS(g_device_index, NULL), ONFI_FAILURE);
     }
 
     TEST_P(OnfiCommandsTest, StatusRegisterInitializedWithSuccess)
     {
         onfi_status_reg_t status;
-        ASSERT_EQ(ONFI_READ_STATUS(&status), ONFI_SUCCESS);
+        ASSERT_EQ(ONFI_READ_STATUS(g_device_index, &status), ONFI_SUCCESS);
         ASSERT_EQ(status.FAIL, 0);
         ASSERT_EQ(status.FAILC, 0);
         ASSERT_EQ(status.R, 0);
@@ -97,23 +91,23 @@ namespace program_compatible_test
         size_t nprogrammed = 0;
         uint8_t data = 0xFF;
 
-        ASSERT_EQ(ONFI_PAGE_PROGRAM(0, 0, NULL, 0, NULL), ONFI_FAILURE);
-        ASSERT_EQ(ONFI_READ_STATUS(&status), ONFI_SUCCESS);
+        ASSERT_EQ(ONFI_PAGE_PROGRAM(g_device_index, 0, 0, NULL, 0, NULL), ONFI_FAILURE);
+        ASSERT_EQ(ONFI_READ_STATUS(g_device_index, &status), ONFI_SUCCESS);
         ASSERT_EQ(status.FAIL, 1);
         ASSERT_EQ(status.FAILC, 0);
 
-        ASSERT_EQ(ONFI_PAGE_PROGRAM(0, 0, NULL, 0, NULL), ONFI_FAILURE);
-        ASSERT_EQ(ONFI_READ_STATUS(&status), ONFI_SUCCESS);
+        ASSERT_EQ(ONFI_PAGE_PROGRAM(g_device_index, 0, 0, NULL, 0, NULL), ONFI_FAILURE);
+        ASSERT_EQ(ONFI_READ_STATUS(g_device_index, &status), ONFI_SUCCESS);
         ASSERT_EQ(status.FAIL, 1);
         ASSERT_EQ(status.FAILC, 1);
 
-        ASSERT_EQ(ONFI_PAGE_PROGRAM(0, 0, &data, sizeof(data), &nprogrammed), ONFI_SUCCESS);
-        ASSERT_EQ(ONFI_READ_STATUS(&status), ONFI_SUCCESS);
+        ASSERT_EQ(ONFI_PAGE_PROGRAM(g_device_index, 0, 0, &data, sizeof(data), &nprogrammed), ONFI_SUCCESS);
+        ASSERT_EQ(ONFI_READ_STATUS(g_device_index, &status), ONFI_SUCCESS);
         ASSERT_EQ(status.FAIL, 0);
         ASSERT_EQ(status.FAILC, 1);
 
-        ASSERT_EQ(ONFI_PAGE_PROGRAM(0, 0, &data, sizeof(data), &nprogrammed), ONFI_SUCCESS);
-        ASSERT_EQ(ONFI_READ_STATUS(&status), ONFI_SUCCESS);
+        ASSERT_EQ(ONFI_PAGE_PROGRAM(g_device_index, 0, 0, &data, sizeof(data), &nprogrammed), ONFI_SUCCESS);
+        ASSERT_EQ(ONFI_READ_STATUS(g_device_index, &status), ONFI_SUCCESS);
         ASSERT_EQ(status.FAIL, 0);
         ASSERT_EQ(status.FAILC, 0);
     }
@@ -123,23 +117,23 @@ namespace program_compatible_test
         SSDConf *ssd_config = base_test_get_ssd_config();
         onfi_status_reg_t status;
 
-        ASSERT_EQ(ONFI_BLOCK_ERASE(ssd_config->get_block_nb()), ONFI_FAILURE);
-        ASSERT_EQ(ONFI_READ_STATUS(&status), ONFI_SUCCESS);
+        ASSERT_EQ(ONFI_BLOCK_ERASE(g_device_index, ssd_config->get_pages()), ONFI_FAILURE);
+        ASSERT_EQ(ONFI_READ_STATUS(g_device_index, &status), ONFI_SUCCESS);
         ASSERT_EQ(status.FAIL, 1);
         ASSERT_EQ(status.FAILC, 0);
 
-        ASSERT_EQ(ONFI_BLOCK_ERASE(ssd_config->get_block_nb()), ONFI_FAILURE);
-        ASSERT_EQ(ONFI_READ_STATUS(&status), ONFI_SUCCESS);
+        ASSERT_EQ(ONFI_BLOCK_ERASE(g_device_index, ssd_config->get_pages()), ONFI_FAILURE);
+        ASSERT_EQ(ONFI_READ_STATUS(g_device_index, &status), ONFI_SUCCESS);
         ASSERT_EQ(status.FAIL, 1);
         ASSERT_EQ(status.FAILC, 1);
 
-        ASSERT_EQ(ONFI_BLOCK_ERASE(0), ONFI_SUCCESS);
-        ASSERT_EQ(ONFI_READ_STATUS(&status), ONFI_SUCCESS);
+        ASSERT_EQ(ONFI_BLOCK_ERASE(g_device_index, 0), ONFI_SUCCESS);
+        ASSERT_EQ(ONFI_READ_STATUS(g_device_index, &status), ONFI_SUCCESS);
         ASSERT_EQ(status.FAIL, 0);
         ASSERT_EQ(status.FAILC, 1);
 
-        ASSERT_EQ(ONFI_BLOCK_ERASE(0), ONFI_SUCCESS);
-        ASSERT_EQ(ONFI_READ_STATUS(&status), ONFI_SUCCESS);
+        ASSERT_EQ(ONFI_BLOCK_ERASE(g_device_index, 0), ONFI_SUCCESS);
+        ASSERT_EQ(ONFI_READ_STATUS(g_device_index, &status), ONFI_SUCCESS);
         ASSERT_EQ(status.FAIL, 0);
         ASSERT_EQ(status.FAILC, 0);
     }
@@ -151,7 +145,7 @@ namespace program_compatible_test
         SSDConf *ssd_config = base_test_get_ssd_config();
 
         size_t nread = 0;
-        ASSERT_EQ(ONFI_READ(0, 0, NULL, ssd_config->get_page_size(), &nread), ONFI_FAILURE);
+        ASSERT_EQ(ONFI_READ(g_device_index, 0, 0, NULL, ssd_config->get_page_size(), &nread), ONFI_FAILURE);
     }
 
     TEST_P(OnfiCommandsTest, NullReadAmountReadFails)
@@ -160,7 +154,7 @@ namespace program_compatible_test
 
         unsigned char buffer[ssd_config->get_page_size()];
 
-        ASSERT_EQ(ONFI_READ(0, 0, buffer, ssd_config->get_page_size(), NULL), ONFI_FAILURE);
+        ASSERT_EQ(ONFI_READ(g_device_index, 0, 0, buffer, ssd_config->get_page_size(), NULL), ONFI_FAILURE);
     }
 
     TEST_P(OnfiCommandsTest, OutOfBoundsRowAddressReadFails)
@@ -170,7 +164,7 @@ namespace program_compatible_test
         unsigned char buffer[ssd_config->get_page_size()];
         size_t nread = 0;
 
-        ASSERT_EQ(ONFI_READ(ssd_config->get_page_nb(), 0, buffer, ssd_config->get_page_size(), &nread), ONFI_FAILURE);
+        ASSERT_EQ(ONFI_READ(g_device_index, ssd_config->get_pages(), 0, buffer, ssd_config->get_page_size(), &nread), ONFI_FAILURE);
     }
 
     TEST_P(OnfiCommandsTest, OutOfBoundsColumnAddressReadFails)
@@ -180,7 +174,7 @@ namespace program_compatible_test
         unsigned char buffer[ssd_config->get_page_size()];
         size_t nread = 0;
 
-        ASSERT_EQ(ONFI_READ(0, ssd_config->get_page_size(), buffer, 1, &nread), ONFI_FAILURE);
+        ASSERT_EQ(ONFI_READ(g_device_index, 0, ssd_config->get_page_size(), buffer, 1, &nread), ONFI_FAILURE);
     }
 
     TEST_P(OnfiCommandsTest, ReadAllSuccess)
@@ -192,10 +186,10 @@ namespace program_compatible_test
         unsigned char reference_buffer[ssd_config->get_page_size()];
         memset(reference_buffer, 0xFF, ssd_config->get_page_size());
 
-        for (size_t page = 0; page < ssd_config->get_page_nb(); ++page)
+        for (size_t page = 0; page < ssd_config->get_pages(); ++page)
         {
             memset(buffer, 0x00, ssd_config->get_page_size());
-            ASSERT_EQ(ONFI_READ(page, 0, buffer, ssd_config->get_page_size(), &nread), ONFI_SUCCESS);
+            ASSERT_EQ(ONFI_READ(g_device_index, page, 0, buffer, ssd_config->get_page_size(), &nread), ONFI_SUCCESS);
             ASSERT_EQ(nread, ssd_config->get_page_size());
             ASSERT_EQ(memcmp(reference_buffer, buffer, ssd_config->get_page_size()), 0);
         }
@@ -213,7 +207,7 @@ namespace program_compatible_test
         size_t column = ssd_config->get_page_size() / 4;
         size_t read_size = ssd_config->get_page_size() / 2;
 
-        ASSERT_EQ(ONFI_READ(0, column, buffer, read_size, &nread), ONFI_SUCCESS);
+        ASSERT_EQ(ONFI_READ(g_device_index, 0, column, buffer, read_size, &nread), ONFI_SUCCESS);
         ASSERT_EQ(nread, read_size);
         ASSERT_EQ(memcmp(reference_buffer, buffer, read_size), 0);
     }
@@ -230,7 +224,7 @@ namespace program_compatible_test
         size_t column = ssd_config->get_page_size() / 4;
         size_t expected_nread = ssd_config->get_page_size() - column;
 
-        ASSERT_EQ(ONFI_READ(0, column, buffer, ssd_config->get_page_size(), &nread), ONFI_SUCCESS);
+        ASSERT_EQ(ONFI_READ(g_device_index, 0, column, buffer, ssd_config->get_page_size(), &nread), ONFI_SUCCESS);
         ASSERT_EQ(nread, expected_nread);
         ASSERT_EQ(memcmp(reference_buffer, buffer, nread), 0);
     }
@@ -242,7 +236,7 @@ namespace program_compatible_test
         SSDConf *ssd_config = base_test_get_ssd_config();
 
         size_t nprogrammed = 0;
-        ASSERT_EQ(ONFI_PAGE_PROGRAM(0, 0, NULL, ssd_config->get_page_size(), &nprogrammed), ONFI_FAILURE);
+        ASSERT_EQ(ONFI_PAGE_PROGRAM(g_device_index, 0, 0, NULL, ssd_config->get_page_size(), &nprogrammed), ONFI_FAILURE);
     }
 
     TEST_P(OnfiCommandsTest, NullProgramAmountPageProgramFails)
@@ -251,7 +245,7 @@ namespace program_compatible_test
 
         unsigned char buffer[ssd_config->get_page_size()];
 
-        ASSERT_EQ(ONFI_PAGE_PROGRAM(0, 0, buffer, ssd_config->get_page_size(), NULL), ONFI_FAILURE);
+        ASSERT_EQ(ONFI_PAGE_PROGRAM(g_device_index, 0, 0, buffer, ssd_config->get_page_size(), NULL), ONFI_FAILURE);
     }
 
     TEST_P(OnfiCommandsTest, OutOfBoundsRowAddressPageProgramFails)
@@ -261,7 +255,7 @@ namespace program_compatible_test
         unsigned char buffer[ssd_config->get_page_size()];
         size_t nprogrammed = 0;
 
-        ASSERT_EQ(ONFI_PAGE_PROGRAM(ssd_config->get_page_nb(), 0, buffer, ssd_config->get_page_size(), &nprogrammed), ONFI_FAILURE);
+        ASSERT_EQ(ONFI_PAGE_PROGRAM(g_device_index, ssd_config->get_pages(), 0, buffer, ssd_config->get_page_size(), &nprogrammed), ONFI_FAILURE);
     }
 
     TEST_P(OnfiCommandsTest, OutOfBoundsColumnAddressPageProgramFails)
@@ -271,7 +265,7 @@ namespace program_compatible_test
         unsigned char buffer[ssd_config->get_page_size()];
         size_t nprogrammed = 0;
 
-        ASSERT_EQ(ONFI_PAGE_PROGRAM(0, ssd_config->get_page_size(), buffer, 1, &nprogrammed), ONFI_FAILURE);
+        ASSERT_EQ(ONFI_PAGE_PROGRAM(g_device_index, 0, ssd_config->get_page_size(), buffer, 1, &nprogrammed), ONFI_FAILURE);
     }
 
     TEST_P(OnfiCommandsTest, PageProgramAllSuccess)
@@ -284,13 +278,13 @@ namespace program_compatible_test
         unsigned char reference_buffer[ssd_config->get_page_size()];
         memset(reference_buffer, 0x00, ssd_config->get_page_size());
 
-        for (size_t page = 0; page < ssd_config->get_page_nb(); ++page)
+        for (size_t page = 0; page < ssd_config->get_pages(); ++page)
         {
             memset(buffer, 0x00, ssd_config->get_page_size());
-            ASSERT_EQ(ONFI_PAGE_PROGRAM(page, 0, buffer, ssd_config->get_page_size(), &nprogrammed), ONFI_SUCCESS);
+            ASSERT_EQ(ONFI_PAGE_PROGRAM(g_device_index, page, 0, buffer, ssd_config->get_page_size(), &nprogrammed), ONFI_SUCCESS);
             ASSERT_EQ(nprogrammed, ssd_config->get_page_size());
             memset(buffer, 0xFF, ssd_config->get_page_size());
-            ASSERT_EQ(ONFI_READ(page, 0, buffer, ssd_config->get_page_size(), &nread), ONFI_SUCCESS);
+            ASSERT_EQ(ONFI_READ(g_device_index, page, 0, buffer, ssd_config->get_page_size(), &nread), ONFI_SUCCESS);
             ASSERT_EQ(memcmp(reference_buffer, buffer, ssd_config->get_page_size()), 0);
             AssertStatusRegisterOk();
         }
@@ -311,10 +305,10 @@ namespace program_compatible_test
         size_t column = ssd_config->get_page_size() / 4;
         size_t program_size = ssd_config->get_page_size() / 2;
 
-        ASSERT_EQ(ONFI_PAGE_PROGRAM(0, column, buffer, program_size, &nprogrammed), ONFI_SUCCESS);
+        ASSERT_EQ(ONFI_PAGE_PROGRAM(g_device_index, 0, column, buffer, program_size, &nprogrammed), ONFI_SUCCESS);
         ASSERT_EQ(nprogrammed, program_size);
         memset(buffer, 0xFF, ssd_config->get_page_size());
-        ASSERT_EQ(ONFI_READ(0, column, buffer, program_size, &nread), ONFI_SUCCESS);
+        ASSERT_EQ(ONFI_READ(g_device_index, 0, column, buffer, program_size, &nread), ONFI_SUCCESS);
         ASSERT_EQ(memcmp(reference_buffer, buffer, program_size), 0);
         AssertStatusRegisterOk();
     }
@@ -334,10 +328,10 @@ namespace program_compatible_test
         size_t column = ssd_config->get_page_size() / 4;
         size_t expected_nprogrammed = ssd_config->get_page_size() - column;
 
-        ASSERT_EQ(ONFI_PAGE_PROGRAM(0, column, buffer, ssd_config->get_page_size(), &nprogrammed), ONFI_SUCCESS);
+        ASSERT_EQ(ONFI_PAGE_PROGRAM(g_device_index, 0, column, buffer, ssd_config->get_page_size(), &nprogrammed), ONFI_SUCCESS);
         ASSERT_EQ(nprogrammed, expected_nprogrammed);
         memset(buffer, 0xFF, ssd_config->get_page_size());
-        ASSERT_EQ(ONFI_READ(0, column, buffer, ssd_config->get_page_size(), &nread), ONFI_SUCCESS);
+        ASSERT_EQ(ONFI_READ(g_device_index, 0, column, buffer, ssd_config->get_page_size(), &nread), ONFI_SUCCESS);
         ASSERT_EQ(memcmp(reference_buffer, buffer, nprogrammed), 0);
         AssertStatusRegisterOk();
     }
@@ -348,7 +342,7 @@ namespace program_compatible_test
     {
         SSDConf *ssd_config = base_test_get_ssd_config();
 
-        ASSERT_EQ(ONFI_BLOCK_ERASE(ssd_config->get_page_nb()), ONFI_FAILURE);
+        ASSERT_EQ(ONFI_BLOCK_ERASE(g_device_index, ssd_config->get_pages()), ONFI_FAILURE);
     }
 
     TEST_P(OnfiCommandsTest, BlockEraseAllSuccess)
@@ -366,18 +360,18 @@ namespace program_compatible_test
         for (size_t page = 0; page < ssd_config->get_page_nb(); page += ssd_config->get_pages_per_block())
         {
             memset(buffer, 0x00, ssd_config->get_page_size());
-            ASSERT_EQ(ONFI_PAGE_PROGRAM(page, 0, buffer, ssd_config->get_page_size(), &nprogrammed), ONFI_SUCCESS);
+            ASSERT_EQ(ONFI_PAGE_PROGRAM(g_device_index, page, 0, buffer, ssd_config->get_page_size(), &nprogrammed), ONFI_SUCCESS);
             ASSERT_EQ(nprogrammed, ssd_config->get_page_size());
             AssertStatusRegisterOk();
             // set to value opposite of expected value to read
             memset(buffer, 0xFF, ssd_config->get_page_size());
-            ASSERT_EQ(ONFI_READ(page, 0, buffer, ssd_config->get_page_size(), &nread), ONFI_SUCCESS);
+            ASSERT_EQ(ONFI_READ(g_device_index, page, 0, buffer, ssd_config->get_page_size(), &nread), ONFI_SUCCESS);
             ASSERT_EQ(memcmp(reference_buffer_written, buffer, ssd_config->get_page_size()), 0);
-            ASSERT_EQ(ONFI_BLOCK_ERASE(page), ONFI_SUCCESS);
+            ASSERT_EQ(ONFI_BLOCK_ERASE(g_device_index, page), ONFI_SUCCESS);
             AssertStatusRegisterOk();
             // set to value opposite of expected value to read
             memset(buffer, 0x00, ssd_config->get_page_size());
-            ASSERT_EQ(ONFI_READ(page, 0, buffer, ssd_config->get_page_size(), &nread), ONFI_SUCCESS);
+            ASSERT_EQ(ONFI_READ(g_device_index, page, 0, buffer, ssd_config->get_page_size(), &nread), ONFI_SUCCESS);
             ASSERT_EQ(memcmp(reference_buffer_erased, buffer, ssd_config->get_page_size()), 0);
         }
     }
@@ -388,18 +382,18 @@ namespace program_compatible_test
     {
         onfi_status_reg_t status;
 
-        ASSERT_EQ(ONFI_PAGE_PROGRAM(0, 0, NULL, 0, NULL), ONFI_FAILURE);
-        ASSERT_EQ(ONFI_READ_STATUS(&status), ONFI_SUCCESS);
+        ASSERT_EQ(ONFI_PAGE_PROGRAM(g_device_index, 0, 0, NULL, 0, NULL), ONFI_FAILURE);
+        ASSERT_EQ(ONFI_READ_STATUS(g_device_index, &status), ONFI_SUCCESS);
         ASSERT_EQ(status.FAIL, 1);
         ASSERT_EQ(status.FAILC, 0);
 
-        ASSERT_EQ(ONFI_PAGE_PROGRAM(0, 0, NULL, 0, NULL), ONFI_FAILURE);
-        ASSERT_EQ(ONFI_READ_STATUS(&status), ONFI_SUCCESS);
+        ASSERT_EQ(ONFI_PAGE_PROGRAM(g_device_index, 0, 0, NULL, 0, NULL), ONFI_FAILURE);
+        ASSERT_EQ(ONFI_READ_STATUS(g_device_index, &status), ONFI_SUCCESS);
         ASSERT_EQ(status.FAIL, 1);
         ASSERT_EQ(status.FAILC, 1);
 
-        ASSERT_EQ(ONFI_RESET(), ONFI_SUCCESS);
-        ASSERT_EQ(ONFI_READ_STATUS(&status), ONFI_SUCCESS);
+        ASSERT_EQ(ONFI_RESET(g_device_index), ONFI_SUCCESS);
+        ASSERT_EQ(ONFI_READ_STATUS(g_device_index, &status), ONFI_SUCCESS);
         ASSERT_EQ(status.FAIL, 0);
         ASSERT_EQ(status.FAILC, 0);
         ASSERT_EQ(status.RDY, 1);
@@ -412,26 +406,26 @@ namespace program_compatible_test
     {
         onfi_param_page_t param_page;
 
-        ASSERT_EQ(ONFI_READ_PARAMETER_PAGE(1, (uint8_t *)&param_page, sizeof(onfi_param_page_t)), ONFI_FAILURE);
+        ASSERT_EQ(ONFI_READ_PARAMETER_PAGE(g_device_index, 1, (uint8_t *)&param_page, sizeof(onfi_param_page_t)), ONFI_FAILURE);
     }
 
     TEST_P(OnfiCommandsTest, ReadParameterPageNullBufferFails)
     {
-        ASSERT_EQ(ONFI_READ_PARAMETER_PAGE(0, NULL, sizeof(onfi_param_page_t)), ONFI_FAILURE);
+        ASSERT_EQ(ONFI_READ_PARAMETER_PAGE(g_device_index, 0, NULL, sizeof(onfi_param_page_t)), ONFI_FAILURE);
     }
 
     TEST_P(OnfiCommandsTest, ReadParameterPageBufferSizeZeroFails)
     {
         onfi_param_page_t param_page;
 
-        ASSERT_EQ(ONFI_READ_PARAMETER_PAGE(0, (uint8_t *)&param_page, 0), ONFI_FAILURE);
+        ASSERT_EQ(ONFI_READ_PARAMETER_PAGE(g_device_index, 0, (uint8_t *)&param_page, 0), ONFI_FAILURE);
     }
 
     TEST_P(OnfiCommandsTest, ReadParameterPageValidArgumentsSuccess)
     {
         onfi_param_page_t param_page;
 
-        ASSERT_EQ(ONFI_READ_PARAMETER_PAGE(0, (uint8_t *)&param_page, sizeof(onfi_param_page_t)), ONFI_SUCCESS);
+        ASSERT_EQ(ONFI_READ_PARAMETER_PAGE(g_device_index, 0, (uint8_t *)&param_page, sizeof(onfi_param_page_t)), ONFI_SUCCESS);
 
         // TODO: use value that differs based on SSDConf in current test and compare with own
         ASSERT_EQ(param_page.mem_org_block.data_bytes_per_page, GET_PAGE_SIZE(g_device_index));
@@ -441,7 +435,7 @@ namespace program_compatible_test
     {
         onfi_param_page_t param_page;
 
-        ASSERT_EQ(ONFI_READ_PARAMETER_PAGE(0, (uint8_t *)&param_page, 8), ONFI_SUCCESS);
+        ASSERT_EQ(ONFI_READ_PARAMETER_PAGE(g_device_index, 0, (uint8_t *)&param_page, 8), ONFI_SUCCESS);
 
         ASSERT_EQ(memcmp(param_page.signature, "ONFI", 4), 0);
         ASSERT_GE(param_page.revision, 0x0001);
@@ -452,7 +446,7 @@ namespace program_compatible_test
         unsigned repetitions = 4;
         onfi_param_page_t param_page[repetitions];
 
-        ASSERT_EQ(ONFI_READ_PARAMETER_PAGE(0, (uint8_t *)&param_page, sizeof(onfi_param_page_t) * repetitions), ONFI_SUCCESS);
+        ASSERT_EQ(ONFI_READ_PARAMETER_PAGE(g_device_index, 0, (uint8_t *)&param_page, sizeof(onfi_param_page_t) * repetitions), ONFI_SUCCESS);
 
         for (unsigned i = 0; i < repetitions - 1; ++i)
         {
@@ -463,22 +457,22 @@ namespace program_compatible_test
     /* ========== ONFI_READ_ID tests ========== */
     TEST_P(OnfiCommandsTest, ReadIDNullBufferParameter)
     {
-        ASSERT_EQ(ONFI_READ_ID(JEDEC_ID_ADDR, NULL, 0), ONFI_FAILURE);
+        ASSERT_EQ(ONFI_READ_ID(g_device_index, JEDEC_ID_ADDR, NULL, 0), ONFI_FAILURE);
     }
 
     TEST_P(OnfiCommandsTest, ReadIDInvalidAddressParameter)
     {
         uint8_t buff[2] = {0};
-        ASSERT_EQ(ONFI_READ_ID(1, buff, sizeof(buff)), ONFI_FAILURE);
+        ASSERT_EQ(ONFI_READ_ID(g_device_index, 1, buff, sizeof(buff)), ONFI_FAILURE);
     }
 
     TEST_P(OnfiCommandsTest, ReadIDReadCorrectJedecID)
     {
         uint8_t ids[2] = {0};
-        ASSERT_EQ(ONFI_READ_ID(JEDEC_ID_ADDR, ids, sizeof(ids)), ONFI_SUCCESS);
+        ASSERT_EQ(ONFI_READ_ID(g_device_index, JEDEC_ID_ADDR, ids, sizeof(ids)), ONFI_SUCCESS);
 
         onfi_param_page_t param_page;
-        ASSERT_EQ(ONFI_READ_PARAMETER_PAGE(0, (uint8_t *)&param_page, sizeof(onfi_param_page_t)), ONFI_SUCCESS);
+        ASSERT_EQ(ONFI_READ_PARAMETER_PAGE(g_device_index, 0, (uint8_t *)&param_page, sizeof(onfi_param_page_t)), ONFI_SUCCESS);
 
         ASSERT_EQ(ids[0], param_page.manufacturer_info_block.jedec_manufacturer);
         ASSERT_EQ(ids[1], 0x10);
@@ -488,10 +482,10 @@ namespace program_compatible_test
     {
         uint8_t ids[2] = {0};
         memset(ids, 0, sizeof(ids));
-        ASSERT_EQ(ONFI_READ_ID(JEDEC_ID_ADDR, ids, sizeof(ids) - 1), ONFI_SUCCESS);
+        ASSERT_EQ(ONFI_READ_ID(g_device_index, JEDEC_ID_ADDR, ids, sizeof(ids) - 1), ONFI_SUCCESS);
 
         onfi_param_page_t param_page;
-        ASSERT_EQ(ONFI_READ_PARAMETER_PAGE(0, (uint8_t *)&param_page, sizeof(onfi_param_page_t)), ONFI_SUCCESS);
+        ASSERT_EQ(ONFI_READ_PARAMETER_PAGE(g_device_index, 0, (uint8_t *)&param_page, sizeof(onfi_param_page_t)), ONFI_SUCCESS);
 
         ASSERT_EQ(ids[0], param_page.manufacturer_info_block.jedec_manufacturer);
         ASSERT_EQ(ids[1], 0);
@@ -501,10 +495,10 @@ namespace program_compatible_test
     {
         uint8_t ids[3] = {0};
         memset(ids, 0, sizeof(ids));
-        ASSERT_EQ(ONFI_READ_ID(JEDEC_ID_ADDR, ids, sizeof(ids)), ONFI_SUCCESS);
+        ASSERT_EQ(ONFI_READ_ID(g_device_index, JEDEC_ID_ADDR, ids, sizeof(ids)), ONFI_SUCCESS);
 
         onfi_param_page_t param_page;
-        ASSERT_EQ(ONFI_READ_PARAMETER_PAGE(0, (uint8_t *)&param_page, sizeof(onfi_param_page_t)), ONFI_SUCCESS);
+        ASSERT_EQ(ONFI_READ_PARAMETER_PAGE(g_device_index, 0, (uint8_t *)&param_page, sizeof(onfi_param_page_t)), ONFI_SUCCESS);
 
         ASSERT_EQ(ids[0], param_page.manufacturer_info_block.jedec_manufacturer);
         ASSERT_EQ(ids[1], 0x10);
@@ -514,7 +508,7 @@ namespace program_compatible_test
     TEST_P(OnfiCommandsTest, ReadIDReadOnfiSignature)
     {
         uint8_t onfi_signature[4] = {0};
-        ASSERT_EQ(ONFI_READ_ID(ONFI_SIGNATURE_ADDR, onfi_signature, sizeof(onfi_signature)), ONFI_SUCCESS);
+        ASSERT_EQ(ONFI_READ_ID(g_device_index, ONFI_SIGNATURE_ADDR, onfi_signature, sizeof(onfi_signature)), ONFI_SUCCESS);
 
         ASSERT_EQ(onfi_signature[0], 'O');
         ASSERT_EQ(onfi_signature[1], 'N');
@@ -526,7 +520,7 @@ namespace program_compatible_test
     {
         uint8_t onfi_signature[4] = {0};
         memset(onfi_signature, 0, sizeof(onfi_signature));
-        ASSERT_EQ(ONFI_READ_ID(ONFI_SIGNATURE_ADDR, onfi_signature, sizeof(onfi_signature) - 1), ONFI_SUCCESS);
+        ASSERT_EQ(ONFI_READ_ID(g_device_index, ONFI_SIGNATURE_ADDR, onfi_signature, sizeof(onfi_signature) - 1), ONFI_SUCCESS);
 
         ASSERT_EQ(onfi_signature[0], 'O');
         ASSERT_EQ(onfi_signature[1], 'N');
@@ -538,7 +532,7 @@ namespace program_compatible_test
     {
         uint8_t onfi_signature[5] = {0};
         memset(onfi_signature, 0, sizeof(onfi_signature));
-        ASSERT_EQ(ONFI_READ_ID(ONFI_SIGNATURE_ADDR, onfi_signature, sizeof(onfi_signature)), ONFI_SUCCESS);
+        ASSERT_EQ(ONFI_READ_ID(g_device_index, ONFI_SIGNATURE_ADDR, onfi_signature, sizeof(onfi_signature)), ONFI_SUCCESS);
 
         ASSERT_EQ(onfi_signature[0], 'O');
         ASSERT_EQ(onfi_signature[1], 'N');

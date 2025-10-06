@@ -13,7 +13,7 @@ namespace onfi_ops_test
     public:
         virtual void SetUp()
         {
-            ASSERT_EQ(_ONFI_INIT(), ONFI_SUCCESS);
+            ASSERT_EQ(ONFI_INIT(DEVICE_INDEX), ONFI_SUCCESS);
         }
 
         template <size_t N>
@@ -22,6 +22,8 @@ namespace onfi_ops_test
                 EXPECT_EQ(arr[i], 0u) << name << " byte[" << i << "] not zero";
             }
         }
+
+        static constexpr uint8_t DEVICE_INDEX = 0;
     };
 
     TEST_F(OnfiOpsTest, StatusRegisterSizeTest) {
@@ -35,7 +37,7 @@ namespace onfi_ops_test
     TEST_F(OnfiOpsTest, ParameterPageCorrectConstants) {
         onfi_param_page_t param_page;
 
-        ASSERT_EQ(ONFI_READ_PARAMETER_PAGE(0, (uint8_t *)&param_page, sizeof(onfi_param_page_t)), ONFI_SUCCESS);
+        ASSERT_EQ(ONFI_READ_PARAMETER_PAGE(DEVICE_INDEX, 0, (uint8_t *)&param_page, sizeof(onfi_param_page_t)), ONFI_SUCCESS);
         ASSERT_EQ(memcmp(param_page.signature, "ONFI", 4), 0);
         ASSERT_GE(param_page.revision, 0x0001);
 
@@ -54,7 +56,7 @@ namespace onfi_ops_test
     TEST_F(OnfiOpsTest, ParameterPageCrcCorrect) {
         onfi_param_page_t param_page;
 
-        ASSERT_EQ(ONFI_READ_PARAMETER_PAGE(0, (uint8_t *)&param_page, sizeof(onfi_param_page_t)), ONFI_SUCCESS);
+        ASSERT_EQ(ONFI_READ_PARAMETER_PAGE(DEVICE_INDEX, 0, (uint8_t *)&param_page, sizeof(onfi_param_page_t)), ONFI_SUCCESS);
         ASSERT_EQ(param_page.vendor_block.integrity_crc, _ONFI_CRC16((uint8_t *)&param_page, sizeof(param_page) - sizeof(param_page.vendor_block.integrity_crc)));
     }
 
