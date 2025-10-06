@@ -35,6 +35,24 @@
       "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "e352764b_66ff741b",
+        "filename": "eVSSIM/CONFIG/vssim_config_manager.h",
+        "patchSetId": 1
+      },
+      "lineNbr": 26,
+      "author": {
+        "id": 1038797
+      },
+      "writtenOn": "2025-10-06T13:01:04Z",
+      "side": 1,
+      "message": "This should be implemented in https://trello.com/c/y8d9plcs/39-implement-kv-formats-for-object-strategy?filter\u003dmember%3Aalonattia",
+      "parentUuid": "4f692dfb_37fba6c9",
+      "revId": "6d015d34b2d9c998e65e7ed9e57c8c3f078cd670",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "f7460f9f_b69de8c2",
@@ -52,6 +70,24 @@
       "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "6d88e1e1_80a12a4f",
+        "filename": "eVSSIM/FTL_SOURCE/PAGE_MAP/ftl_gc_manager.c",
+        "patchSetId": 1
+      },
+      "lineNbr": 142,
+      "author": {
+        "id": 1038797
+      },
+      "writtenOn": "2025-10-06T13:01:04Z",
+      "side": 1,
+      "message": "Opps,you are right,TY :)",
+      "parentUuid": "f7460f9f_b69de8c2",
+      "revId": "6d015d34b2d9c998e65e7ed9e57c8c3f078cd670",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "e8455a27_6f123310",
@@ -65,6 +101,24 @@
       "writtenOn": "2025-10-04T22:53:53Z",
       "side": 1,
       "message": "why object strategy functions don\u0027t accept nsid parameter, like sector strategy? According to the trello card, it seems like they should have.",
+      "revId": "6d015d34b2d9c998e65e7ed9e57c8c3f078cd670",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "c2929cd3_eba02e66",
+        "filename": "eVSSIM/FTL_SOURCE/PAGE_MAP/ftl_obj_strategy.h",
+        "patchSetId": 1
+      },
+      "lineNbr": 56,
+      "author": {
+        "id": 1038797
+      },
+      "writtenOn": "2025-10-06T13:01:04Z",
+      "side": 1,
+      "message": "You are right, this should be implemented in a different story.",
+      "parentUuid": "e8455a27_6f123310",
       "revId": "6d015d34b2d9c998e65e7ed9e57c8c3f078cd670",
       "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
     }
