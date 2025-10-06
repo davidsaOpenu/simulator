@@ -214,6 +214,7 @@ ftl_ret_val _FTL_WRITE_SECT(uint8_t device_index, uint64_t sector_nb, unsigned i
 
 	uint64_t lba = sector_nb; // logical block address
 	uint64_t lpn;			  // logical page number
+	uint64_t offset_in_page;
 	uint64_t new_ppn = MAPPING_TABLE_INIT_VAL; // physical page number
 	bool is_new_page_allocated = false;
 
@@ -221,6 +222,7 @@ ftl_ret_val _FTL_WRITE_SECT(uint8_t device_index, uint64_t sector_nb, unsigned i
 	unsigned int left_skip = sector_nb % devices[device_index].sectors_per_page; // offset from start of page (when write to part of page)
 	unsigned int right_skip;
 	unsigned int write_sects;
+	size_t amount_of_bytes_to_write;
 
 	unsigned int ret = FTL_FAILURE;
 	int write_page_nb=0;
@@ -237,9 +239,13 @@ ftl_ret_val _FTL_WRITE_SECT(uint8_t device_index, uint64_t sector_nb, unsigned i
 		}
 
 		write_sects = devices[device_index].sectors_per_page - left_skip - right_skip;
+		amount_of_bytes_to_write = write_sects * GET_SECTOR_SIZE(device_index);
 
-		//Calculate the logical page number -> the current sector_number / amount_of_sectors_per_page
+		// Calculate the logical page number -> the current sector_number / amount_of_sectors_per_page
 		lpn = lba / (uint64_t)devices[device_index].sectors_per_page;
+
+		// Calculate the offset inside the page
+		offset_in_page = lba % (int32_t)devices[device_index].sectors_per_page;
 
 		// First try writing to the page without erasing it if it is program compatile (there is not need to flip bits from 0 to 1).
 		_FTL_WRITE_DRY_SECT(device_index, lba, write_sects, data);
@@ -252,11 +258,15 @@ ftl_ret_val _FTL_WRITE_SECT(uint8_t device_index, uint64_t sector_nb, unsigned i
 				RERR(FTL_FAILURE, "[FTL_WRITE] Get new page fail \n");
 			}
 			is_new_page_allocated = true;
-			ret = SSD_PAGE_WRITE(device_index, CALC_FLASH(device_index, new_ppn), CALC_BLOCK(device_index, new_ppn), CALC_PAGE(device_index, new_ppn), write_page_nb, WRITE);
-			uint64_t abs_physical_offset = new_ppn * GET_PAGE_SIZE(device_index) + lba % (int32_t)devices[device_index].sectors_per_page;
-			if (ret == FTL_SUCCESS && data != NULL &&
-				ssd_write(GET_FILE_NAME(device_index), abs_physical_offset, write_sects * GET_SECTOR_SIZE(device_index), data) == SSD_FILE_OPS_SUCCESS) {
-				ret = FTL_SUCCESS;
+
+			// ONFI doesn't allow data to be NULL, but FTL does.
+			// Therefore, in order to keep the statistics in check, in that case we call SSD_PAGE_WRITE directly.
+			if (data != NULL) {
+				size_t nwritten = 0;
+				onfi_ret_val onfi_ret = ONFI_PAGE_PROGRAM(device_index, new_ppn, offset_in_page, data, amount_of_bytes_to_write, &nwritten);
+				ret = (onfi_ret == ONFI_SUCCESS && nwritten == amount_of_bytes_to_write) ? FTL_SUCCESS : FTL_FAILURE;
+			} else { // Only for statistics gathering without an actual writing of data.
+				ret = SSD_PAGE_WRITE(device_index, CALC_FLASH(device_index, new_ppn), CALC_BLOCK(device_index, new_ppn), CALC_PAGE(device_index, new_ppn), write_page_nb, WRITE);
 			}
 
 			// logical page number to physical. will need to be changed to account for objectid
@@ -284,7 +294,7 @@ ftl_ret_val _FTL_WRITE_SECT(uint8_t device_index, uint64_t sector_nb, unsigned i
 		lba += write_sects;
 		remain -= write_sects;
 		if (data != NULL) {
-			data += write_sects * GET_SECTOR_SIZE(device_index);
+			data += amount_of_bytes_to_write;
 		}
 		left_skip = 0;
 	}
