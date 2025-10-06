@@ -259,25 +259,38 @@ uint32_t GET_PAGE_SIZE(uint8_t device_index){
     return devices[device_index].page_size;
 }
 
-uint64_t GET_PAGE_NB(uint8_t device_index){
-    if (devices == NULL) {
+// Get the number of pages in a block.
+uint64_t GET_PAGE_NB(uint8_t device_index)
+{
+    if (devices == NULL)
+    {
         return 0;
     }
     return devices[device_index].page_nb;
 }
 
-uint64_t GET_BLOCK_NB(uint8_t device_index){
-    if (devices == NULL) {
+// Get the number of blocks in a flash.
+uint64_t GET_BLOCK_NB(uint8_t device_index)
+{
+    if (devices == NULL)
+    {
         return 0;
     }
     return devices[device_index].block_nb;
 }
 
-uint32_t GET_FLASH_NB(uint8_t device_index){
-    if (devices == NULL) {
+uint32_t GET_FLASH_NB(uint8_t device_index)
+{
+    if (devices == NULL)
+    {
         return 0;
     }
     return devices[device_index].flash_nb;
+}
+
+uint64_t GET_TOTAL_NUMBER_OF_PAGES(uint8_t device_index)
+{
+    return GET_PAGE_NB(device_index) * GET_BLOCK_NB(device_index) * GET_FLASH_NB(device_index);
 }
 
 ssd_config_t* GET_DEVICES(void){

@@ -124,6 +124,7 @@ namespace {
             this->channel_nb = DEFAULT_FLASH_NB;
             this->sector_size = sector_size;
             this->object_size = 2048; // megabytes
+            this->pages = page_nb * block_nb * flash_nb;
         }
 
         SSDConf(size_t page_size, size_t page_nb, size_t sector_size,

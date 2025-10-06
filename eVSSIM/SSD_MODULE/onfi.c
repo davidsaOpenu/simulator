@@ -207,7 +207,7 @@ onfi_ret_val ONFI_READ(uint8_t device_index, uint64_t row_address, uint32_t colu
         return ONFI_FAILURE;
     }
 
-    if (row_address >= GET_PAGE_NB(device_index) || column_address >= GET_PAGE_SIZE(device_index))
+    if (row_address >= GET_TOTAL_NUMBER_OF_PAGES(device_index) || column_address >= GET_PAGE_SIZE(device_index))
     {
         PERR("Invalid address to read (row_address = %zu, column_address = %zu)\n", (size_t)row_address, (size_t)column_address)
         return ONFI_FAILURE;
@@ -241,7 +241,7 @@ onfi_ret_val ONFI_PAGE_PROGRAM(uint8_t device_index, uint64_t row_address, uint3
         return ONFI_FAILURE;
     }
 
-    if (row_address >= GET_PAGE_NB(device_index) || column_address >= GET_PAGE_SIZE(device_index))
+    if (row_address >= GET_TOTAL_NUMBER_OF_PAGES(device_index) || column_address >= GET_PAGE_SIZE(device_index))
     {
         PERR("Invalid address to read (row_address = %zu, column_address = %zu)\n", (size_t)row_address, (size_t)column_address)
         _ONFI_UPDATE_STATUS_REGISTER(get_status_reg(device_index), ONFI_FAILURE);
@@ -271,7 +271,7 @@ onfi_ret_val ONFI_PAGE_PROGRAM(uint8_t device_index, uint64_t row_address, uint3
 
 onfi_ret_val ONFI_BLOCK_ERASE(uint8_t device_index, uint64_t row_address)
 {
-    if (row_address >= GET_PAGE_NB(device_index))
+    if (row_address >= GET_TOTAL_NUMBER_OF_PAGES(device_index))
     {
         PERR("Invalid address to erasw (row_address = %zu)\n", (size_t)row_address)
         _ONFI_UPDATE_STATUS_REGISTER(get_status_reg(device_index), ONFI_FAILURE);
