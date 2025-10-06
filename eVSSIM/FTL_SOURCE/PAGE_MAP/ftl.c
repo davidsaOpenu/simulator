@@ -21,6 +21,21 @@ int gatherStats = 0;
 uint32_t** mapping_stats_table;
 pthread_mutex_t g_lock;
 
+static void _verify_onfi_device(uint8_t device_index)
+{
+	uint8_t onfi_signature[4] = {0};
+	memset(onfi_signature, 0, sizeof(onfi_signature));
+	onfi_ret_val ret = ONFI_READ_ID(device_index, ONFI_SIGNATURE_ADDR, onfi_signature, sizeof(onfi_signature));
+
+	if (ret == ONFI_FAILURE) {
+		RERR(, "failed to read ONFI ID\n");
+		return;
+	}
+
+	if (memcmp(onfi_signature, "ONFI", sizeof(onfi_signature)) != 0)
+		RERR(, "device is not ONFI");
+}
+
 void FTL_INIT(uint8_t device_index)
 {
 	if (g_init_ftl[device_index] == 0) {
@@ -44,6 +59,7 @@ void FTL_INIT(uint8_t device_index)
 
 		SSD_IO_INIT(device_index);
 		ONFI_INIT(device_index);
+		_verify_onfi_device(device_index);
 
 		if (pthread_mutex_init(&g_lock, NULL))
 			RERR(, "failed to initialize global mutex\n");
