@@ -43,6 +43,7 @@ void FTL_INIT(uint8_t device_index)
 		g_init_ftl[device_index] = 1;
 
 		SSD_IO_INIT(device_index);
+		ONFI_INIT(device_index);
 
 		if (pthread_mutex_init(&g_lock, NULL))
 			RERR(, "failed to initialize global mutex\n");

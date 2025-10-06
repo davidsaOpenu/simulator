@@ -172,28 +172,35 @@ typedef struct
         uint16_t integrity_crc;          // 254–255: CRC for parameter page
     } vendor_block;
 } __attribute__((packed)) onfi_param_page_t;
+
+typedef struct {
+    onfi_status_reg_t status_reg;
+    onfi_param_page_t param_page;
+} __attribute__((packed)) onfi_device_t;
 #pragma pack(pop)
+
+extern onfi_device_t *g_onfi_devices;
 
 uint16_t _ONFI_CRC16(uint8_t *data, size_t data_size);
 
 void _ONFI_UPDATE_STATUS_REGISTER(onfi_status_reg_t *status_reg, onfi_ret_val last_op_ret_val);
 
-onfi_ret_val _ONFI_INIT(void);
+onfi_ret_val ONFI_INIT(uint8_t device_index);
 
-onfi_ret_val ONFI_READ(uint64_t row_address, uint32_t column_address,
+onfi_ret_val ONFI_READ(uint8_t device_index, uint64_t row_address, uint32_t column_address,
                        uint8_t *o_buffer, size_t buffer_size, size_t *o_read_bytes_amount);
 
-onfi_ret_val ONFI_PAGE_PROGRAM(uint64_t row_address, uint32_t column_address,
+onfi_ret_val ONFI_PAGE_PROGRAM(uint8_t device_index, uint64_t row_address, uint32_t column_address,
                                const uint8_t *buffer, size_t buffer_size, size_t *o_programmed_bytes_amount);
 
-onfi_ret_val ONFI_BLOCK_ERASE(uint64_t row_address);
+onfi_ret_val ONFI_BLOCK_ERASE(uint8_t device_index, uint64_t row_address);
 
-onfi_ret_val ONFI_READ_ID(uint8_t address, uint8_t *o_buffer, size_t buffer_size);
+onfi_ret_val ONFI_READ_ID(uint8_t device_index, uint8_t address, uint8_t *o_buffer, size_t buffer_size);
 
-onfi_ret_val ONFI_READ_PARAMETER_PAGE(uint8_t timing_mode, uint8_t *o_buffer, size_t buffer_size);
+onfi_ret_val ONFI_READ_PARAMETER_PAGE(uint8_t device_index, uint8_t timing_mode, uint8_t *o_buffer, size_t buffer_size);
 
-onfi_ret_val ONFI_READ_STATUS(onfi_status_reg_t *o_status_register);
+onfi_ret_val ONFI_READ_STATUS(uint8_t device_index, onfi_status_reg_t *o_status_register);
 
-onfi_ret_val ONFI_RESET(void);
+onfi_ret_val ONFI_RESET(uint8_t device_index);
 
 #endif // ONFI_H

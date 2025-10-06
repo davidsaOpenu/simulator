@@ -120,6 +120,10 @@ void INIT_SSD_CONFIG(void)
     if (NULL == g_init_ftl)
         RERR(, "g_init_ftl allocation failed!\n");
 
+    g_onfi_devices = (onfi_device_t*)calloc(sizeof(onfi_device_t) * device_count, 1);
+    if (NULL == g_onfi_devices)
+        RERR(, "g_onfi_devices allocation failed!\n");
+
     ssds_manager = (ssd_manager_t*)calloc(sizeof(ssd_manager_t) * device_count, 1);
     if (NULL == ssds_manager)
         RERR(, "ssds_manager allocation failed!\n");
