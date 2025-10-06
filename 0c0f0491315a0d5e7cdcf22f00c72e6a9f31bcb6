@@ -1,0 +1,72 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "15baa4b4_5c58d9d8",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 2
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 1038819
+      },
+      "writtenOn": "2025-10-06T17:26:25Z",
+      "side": 1,
+      "message": "The change was good but more changes are needed.",
+      "revId": "0c0f0491315a0d5e7cdcf22f00c72e6a9f31bcb6",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "c049a356_47e3a63f",
+        "filename": "eVSSIM/FTL_SOURCE/PAGE_MAP/ftl_gc_manager.c",
+        "patchSetId": 2
+      },
+      "lineNbr": 114,
+      "author": {
+        "id": 1038819
+      },
+      "writtenOn": "2025-10-06T17:26:25Z",
+      "side": 1,
+      "message": "I now understand better what\u0027s going on here after working on my branch. This indeed looks better now, but still wrong:\n\n1. Remove the `nsid` parameter in GC_CHECK, GARBAGE_COLLECTION, etc. - it\u0027s completely useless. There used to be additional irrelevant parameters that I\u0027ve removed as well.\n2. You are basically taking the `lpn` from some random `nsid` (the parameter I just asked you to remove), and moving it to a different `page_nsid`. If I understand correctly, `lpn` and `nsid` should be seen as a tight pair that must stay together.",
+      "revId": "0c0f0491315a0d5e7cdcf22f00c72e6a9f31bcb6",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "53e96d58_4ca977fa",
+        "filename": "eVSSIM/FTL_SOURCE/PAGE_MAP/ftl_sect_strategy.c",
+        "patchSetId": 2
+      },
+      "lineNbr": 303,
+      "author": {
+        "id": 1038819
+      },
+      "writtenOn": "2025-10-06T17:26:25Z",
+      "side": 1,
+      "message": "remove `nsid`",
+      "revId": "0c0f0491315a0d5e7cdcf22f00c72e6a9f31bcb6",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "85d1e10c_698ecc05",
+        "filename": "eVSSIM/QEMU/hw/nvme_storage.c",
+        "patchSetId": 2
+      },
+      "lineNbr": 58,
+      "author": {
+        "id": 1038819
+      },
+      "writtenOn": "2025-10-06T17:26:25Z",
+      "side": 1,
+      "message": "`eVSSIM/QEMU` is deprecated, please don\u0027t bother changing it. As you can see, `_FTL_WRITE_SECT` and `_FTL_READ_SECT` are missing the first `device_index` parameter that is relatively new. Therefore, it can be concluded that the changes in this file are untested and probably unnecessary.",
+      "revId": "0c0f0491315a0d5e7cdcf22f00c72e6a9f31bcb6",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
+    }
+  ]
+}
