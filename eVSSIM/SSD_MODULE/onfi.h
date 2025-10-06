@@ -172,28 +172,105 @@ typedef struct
         uint16_t integrity_crc;          // 254–255: CRC for parameter page
     } vendor_block;
 } __attribute__((packed)) onfi_param_page_t;
+
+typedef struct {
+    onfi_status_reg_t status_reg;
+    onfi_param_page_t param_page;
+} __attribute__((packed)) onfi_device_t;
 #pragma pack(pop)
 
+extern onfi_device_t *g_onfi_devices;
+
+/**** Some ONFI helper functions ****/
 uint16_t _ONFI_CRC16(uint8_t *data, size_t data_size);
 
 void _ONFI_UPDATE_STATUS_REGISTER(onfi_status_reg_t *status_reg, onfi_ret_val last_op_ret_val);
 
-onfi_ret_val _ONFI_INIT(void);
+onfi_ret_val ONFI_INIT(uint8_t device_index);
 
-onfi_ret_val ONFI_READ(uint64_t row_address, uint32_t column_address,
+/**
+* Reads from a page of data identified by the given row address starting at the column address specified.
+* o_buffer is filled with the read bytes and o_read_bytes_amount is set to the amount of read bytes.
+* Reading beyond the end of a page results in indeterminate values being written to the buffer.
+* 
+* device_index - index (0-based) of the target SSD device
+* row_address - consists of LUN address, block address and page number (ppn - physical page number)
+* column_address - offset in page
+* o_buffer - will be filled with page read
+* buffer_size - output buffer size (the amount of bytes asked to be read)
+* o_read_bytes_amount - will be set according to number of bytes read
+**/
+onfi_ret_val ONFI_READ(uint8_t device_index, uint64_t row_address, uint32_t column_address,
                        uint8_t *o_buffer, size_t buffer_size, size_t *o_read_bytes_amount);
 
-onfi_ret_val ONFI_PAGE_PROGRAM(uint64_t row_address, uint32_t column_address,
+/**
+* Programs a page or portion of a page of data to the page identified by the given row address starting at the column address specified.
+* Writing beyond the end of a page is undefined. 
+* 
+* device_index - index (0-based) of the target SSD device
+* row_address - consists of LUN address, block address and page number (ppn - physical page number)
+* column_address - offset in page
+* buffer -  contains data to program
+* buffer_size - data buffer size (the amount of bytes asked to be programmed/written)
+* o_programmed_bytes_amount - will be set according to number of bytes programmed
+**/
+onfi_ret_val ONFI_PAGE_PROGRAM(uint8_t device_index, uint64_t row_address, uint32_t column_address,
                                const uint8_t *buffer, size_t buffer_size, size_t *o_programmed_bytes_amount);
 
-onfi_ret_val ONFI_BLOCK_ERASE(uint64_t row_address);
+/**
+* Erases the block consisting of the specified row address (ppn - physical page number).
+* After a successful Block Erase, all bits are set to one in the block.
+* 
+* device_index - index (0-based) of the target SSD device
+* row_address - consists of LUN address, block address and page number (ppn - physical page number)
+**/                          
+onfi_ret_val ONFI_BLOCK_ERASE(uint8_t device_index, uint64_t row_address);
 
-onfi_ret_val ONFI_READ_ID(uint8_t address, uint8_t *o_buffer, size_t buffer_size);
+/**
+* Returns ID of specified address. There are two options:
+* 1. When the address is 20h the function returns the ONFI signature if the target supports the ONFI specification.
+*    The ONFI signature is the ASCII encoding of ‘ONFI’ where ‘O’ = 4Fh, ‘N’ = 4Eh, ‘F’ = 46h, and ‘I’ = 49h.
+*    Reading beyond four bytes yields indeterminate values. 
+* 2. When the address is 00h the function returns the JEDEC manufacturer ID and the device ID for the particular NAND part.
+*    Reading beyond the first two bytes yields values as specified by the manufacturer. In our case, there is no meaning to those bytes,
+*    so reading beyond those two bytes yields indeterminate values.
+*
+* device_index - index (0-based) of the target SSD device - currently all the SDD devices will return the same values.
+* address - only addresses of 00h (JEDEC_ID_ADDR) and 20h (ONFI_SIGNATURE_ADDR) are valid according to ONFI specification
+*           (20h for ONFI signature and 00h for the JEDEC manufacturer ID and device ID)
+* o_buffer - will be filled with ID of specified address
+* buffer_size - output buffer size (the amount of bytes asked to be read)
+**/
+onfi_ret_val ONFI_READ_ID(uint8_t device_index, uint8_t address, uint8_t *o_buffer, size_t buffer_size);
 
-onfi_ret_val ONFI_READ_PARAMETER_PAGE(uint8_t timing_mode, uint8_t *o_buffer, size_t buffer_size);
+/**
+ * Retrieves the data structure that describes some flash’s behavioral parameters as described in parameter page data
+ * structure definition (according to 5.4.1 in ONFI 1.0 specification).
+ * Values in the parameter page are static and shall not change. See onfi_param_page_t structure for full values reference.
+ * If buffer size is larger than the parameter page data structure then fill the buffer with repeating copies of it.
+ * 
+ * device_index - index (0-based) of the target SSD device
+ * timing_mode - will be 0 as this is the only mode we are going to support (reserved)
+ * o_buffer - will be filled with the parameter page data as described in parameter page data structure definition 
+ *            (see onfi_param_page_t structure which is written according to 5.4.1 in ONFI 1.0 specification)
+ * buffer_size - output buffer size (the amount of bytes asked to be read)
+ **/
+onfi_ret_val ONFI_READ_PARAMETER_PAGE(uint8_t device_index, uint8_t timing_mode, uint8_t *o_buffer, size_t buffer_size);
 
-onfi_ret_val ONFI_READ_STATUS(onfi_status_reg_t *o_status_register);
+/**
+ * Retrieves one byte status value of the flash and for the last operation issued.
+ * 
+ * device_index - index (0-based) of the target SSD device
+ * o_status_register - a pointer to one byte value which represents status register fields according to
+ * section 5.10 in the ONFI 0.1 specification (see onfi_status_reg_t which is one bytes struct).
+ **/
+onfi_ret_val ONFI_READ_STATUS(uint8_t device_index, onfi_status_reg_t *o_status_register);
 
-onfi_ret_val ONFI_RESET(void);
+/**
+ * Clears the status register of the SSD device.
+ * 
+ * device_index - index (0-based) of the target SSD device
+ **/
+onfi_ret_val ONFI_RESET(uint8_t device_index);
 
 #endif // ONFI_H

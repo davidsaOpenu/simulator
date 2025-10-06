@@ -44,6 +44,7 @@
 #include "ssd_util.h"
 #include "ssd_io_manager.h"
 #include "ssd_log_manager.h"
+#include "onfi.h"
 
 #ifdef PAGE_MAP
 	#include "ftl_gc_manager.h"
