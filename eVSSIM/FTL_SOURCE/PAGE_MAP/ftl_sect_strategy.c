@@ -40,6 +40,8 @@ ftl_ret_val _FTL_READ_SECT(uint8_t device_index, uint64_t sector_nb, unsigned in
 	unsigned long left_skip = sector_nb % devices[device_index].sectors_per_page;
 	unsigned long right_skip;
 	unsigned int read_sects;
+	size_t amount_of_bytes_to_read;
+	uint64_t offset_in_page;
 
 	unsigned int ret = FTL_FAILURE;
 	int read_page_nb = 0;
@@ -64,32 +66,48 @@ ftl_ret_val _FTL_READ_SECT(uint8_t device_index, uint64_t sector_nb, unsigned in
 		}
 
 		read_sects = devices[device_index].sectors_per_page - left_skip - right_skip;
+		amount_of_bytes_to_read = read_sects * GET_SECTOR_SIZE(device_index);
 
 		lpn = lba / (int32_t)devices[device_index].sectors_per_page;
 		//Send a logical read action being done to the statistics gathering
 		FTL_STATISTICS_GATHERING(device_index, lpn , LOGICAL_READ);
 
-		// Calculate absolute physical offset and ppn from lba
-		size_t abs_physical_offset = physical_address_from_logical_address(device_index, lba, &ppn);
+		offset_in_page = lba % (int32_t)devices[device_index].sectors_per_page;
+		ppn = GET_MAPPING_INFO(device_index, lpn);
+        if (ppn == MAPPING_TABLE_INIT_VAL)
+        {
+            RDBG_FTL(FTL_FAILURE, "No Mapping info\n");
+        }
 
-		if (ppn == MAPPING_TABLE_INIT_VAL || abs_physical_offset == FAILURE_VALUE) {
-			RDBG_FTL(FTL_FAILURE, "No Mapping info\n");
-		}
+        if (data != NULL)
+        {
+            size_t nread = 0;
+            onfi_ret_val onfi_ret = ONFI_READ(device_index, ppn, offset_in_page, data, amount_of_bytes_to_read, &nread);
+            // Send a physical read action being done to the statistics gathering
+            if (onfi_ret == ONFI_SUCCESS)
+            {
+                ret = FTL_SUCCESS;
+                FTL_STATISTICS_GATHERING(device_index, ppn, PHYSICAL_READ);
+            }
 
-		ret = SSD_PAGE_READ(device_index, CALC_FLASH(device_index, ppn), CALC_BLOCK(device_index, ppn), CALC_PAGE(device_index, ppn), read_page_nb, READ);
-		//Send a physical read action being done to the statistics gathering
-		if (ret == FTL_SUCCESS)
-		{
-			FTL_STATISTICS_GATHERING(device_index, ppn , PHYSICAL_READ);
-			if (data != NULL &&
-				ssd_read(GET_FILE_NAME(device_index), abs_physical_offset, read_sects * GET_SECTOR_SIZE(device_index), data) != SSD_FILE_OPS_SUCCESS) {
-				RDBG_FTL(FTL_FAILURE, "Failed to read from ppn %lu\n", ppn);
-			}
-		}
+            if (onfi_ret == ONFI_FAILURE || nread != amount_of_bytes_to_read)
+            {
+                ret = FTL_FAILURE;
+            }
+        }
+        else
+        { // Preform operations only for statistics gathering without an actual reading of data.
+            ret = SSD_PAGE_READ(device_index, CALC_FLASH(device_index, ppn), CALC_BLOCK(device_index, ppn), CALC_PAGE(device_index, ppn), read_page_nb, READ);
+            // Send a physical read action being done to the statistics gathering
+            if (ret == FTL_SUCCESS)
+            {
+                FTL_STATISTICS_GATHERING(device_index, ppn, PHYSICAL_READ);
+            }
+        }
 
 #ifdef FTL_DEBUG
-		if (ret == FTL_FAILURE)
-			PERR("%u page read fail \n", ppn);
+        if (ret == FTL_FAILURE)
+            PERR("%zu page read fail \n", ppn);
 #endif
 		read_page_nb++;
 
@@ -97,7 +115,7 @@ ftl_ret_val _FTL_READ_SECT(uint8_t device_index, uint64_t sector_nb, unsigned in
 		remain -= read_sects;
 		left_skip = 0;
 		if (data != NULL) {
-			data += read_sects * GET_SECTOR_SIZE(device_index);
+			data += amount_of_bytes_to_read;
 		}
 
 		// Normally, there would be a LOG_LOGICAL_CELL_READ call here. As it happens, each physical read
