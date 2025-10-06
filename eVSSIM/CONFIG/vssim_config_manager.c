@@ -120,6 +120,10 @@ void INIT_SSD_CONFIG(void)
     if (NULL == g_init_ftl)
         RERR(, "g_init_ftl allocation failed!\n");
 
+    g_onfi_devices = (onfi_device_t*)calloc(sizeof(onfi_device_t) * device_count, 1);
+    if (NULL == g_onfi_devices)
+        RERR(, "g_onfi_devices allocation failed!\n");
+
     ssds_manager = (ssd_manager_t*)calloc(sizeof(ssd_manager_t) * device_count, 1);
     if (NULL == ssds_manager)
         RERR(, "ssds_manager allocation failed!\n");
@@ -135,6 +139,9 @@ void TERM_SSD_CONFIG(void)
 
     free(g_init_ftl);
     g_init_ftl = NULL;
+
+    free(g_onfi_devices);
+    g_onfi_devices = NULL;
 
     free(ssds_manager);
     ssds_manager = NULL;
@@ -255,6 +262,7 @@ uint32_t GET_PAGE_SIZE(uint8_t device_index){
     return devices[device_index].page_size;
 }
 
+// Get the number of pages in a block.
 uint64_t GET_PAGE_NB(uint8_t device_index){
     if (devices == NULL) {
         return 0;
@@ -262,6 +270,7 @@ uint64_t GET_PAGE_NB(uint8_t device_index){
     return devices[device_index].page_nb;
 }
 
+// Get the number of blocks in a flash.
 uint64_t GET_BLOCK_NB(uint8_t device_index){
     if (devices == NULL) {
         return 0;
@@ -274,6 +283,10 @@ uint32_t GET_FLASH_NB(uint8_t device_index){
         return 0;
     }
     return devices[device_index].flash_nb;
+}
+
+uint64_t GET_TOTAL_NUMBER_OF_PAGES(uint8_t device_index) {
+    return GET_PAGE_NB(device_index) * GET_BLOCK_NB(device_index) * GET_FLASH_NB(device_index);
 }
 
 ssd_config_t* GET_DEVICES(void){
