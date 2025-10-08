@@ -270,8 +270,8 @@ evssim_qemu () {
         done
     else
         # Non-simulator mode - use default size
-        drive_args="-drive format=vssim,size=$device_size,simulator=$device_simulator,if=none,id=memory,device_index=0"
-        device_args="-device nvme,drive=memory,serial=1"
+        drive_args="-drive format=vssim,size=$device_size,simulator=$device_simulator,if=none,id=memory,device_index=0 -drive format=vssim,size=$device_size,simulator=$device_simulator,if=none,id=memory2,device_index=1 -drive format=vssim,size=$device_size,simulator=$device_simulator,if=none,id=memory3,device_index=2"
+        device_args="-device nvme,drive=memory,serial=1 -device nvme,drive=memory2,serial=2 -device nvme,drive=memory3,serial=3"
         echo "INFO Non-simulator mode, Default size: $(numfmt --from=iec --to=iec $device_size)"
     fi
 
