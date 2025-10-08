@@ -235,32 +235,18 @@ evssim_qemu () {
     local device_simulator="off";
     local device_size=$EVSSIM_QEMU_DEFAULT_DISK_SIZE
 
+    local device_count=($(evssim_get_device_count))
+    local device_sizes=($(evssim_calculate_ssd_conf_disk_sizes))
+
+    if [ ${#device_sizes[@]} -eq 0 ]; then
+        echo "ERROR: No devices found in SSD configuration"
+        exit 1
+    fi
+
     # Simulator state
     if [[ "$EVSSIM_QEMU_SIMULATOR_ENABLED" =~ y.* ]]; then
         device_simulator="on";
         echo "Starting simulator mode"
-
-        local device_count=($(evssim_get_device_count))
-        local device_sizes=($(evssim_calculate_ssd_conf_disk_sizes))
-
-        if [ ${#device_sizes[@]} -eq 0 ]; then
-            echo "ERROR: No devices found in SSD configuration"
-            exit 1
-        fi
-
-        # Multi-device mode with real configuration
-        local serial_number=1
-        local device_index=0
-        for device_size in "${device_sizes[@]}"; do
-            # Create drive argument
-            drive_args="$drive_args -drive format=vssim,size=$device_size,simulator=$device_simulator,if=none,id=memory$serial_number,device_index=$device_index"
-
-            # Create NVMe device argument
-            device_args="$device_args -device nvme,drive=memory$serial_number,serial=$serial_number"
-
-            ((++device_index))
-            ((++serial_number))
-        done
 
         echo "INFO Simulator mode ($device_count devices)"
         local serial_number=1
@@ -270,10 +256,22 @@ evssim_qemu () {
         done
     else
         # Non-simulator mode - use default size
-        drive_args="-drive format=vssim,size=$device_size,simulator=$device_simulator,if=none,id=memory,device_index=0"
-        device_args="-device nvme,drive=memory,serial=1"
         echo "INFO Non-simulator mode, Default size: $(numfmt --from=iec --to=iec $device_size)"
     fi
+
+    # Multi-device mode with real configuration
+    local serial_number=1
+    local device_index=0
+    for device_size in "${device_sizes[@]}"; do
+        # Create drive argument
+        drive_args="$drive_args -drive format=vssim,size=$device_size,simulator=$device_simulator,if=none,id=memory$serial_number,device_index=$device_index"
+
+        # Create NVMe device argument
+        device_args="$device_args -device nvme,drive=memory$serial_number,serial=$serial_number"
+
+        ((++device_index))
+        ((++serial_number))
+    done
 
     # Build the complete args
     local args="cd $EVSSIM_DOCKER_ROOT_PATH/$EVSSIM_QEMU_FOLDER/hw && $timeout ../x86_64-softmmu/qemu-system-x86_64 -rtc base=localtime,clock=host -pidfile /tmp/qemu.pid $trace_config -m 4096 -smp 4 -drive format=raw,file=$image $drive_args $device_args -device e1000,netdev=net0 -netdev user,id=net0,hostfwd=tcp::$EVSSIM_QEMU_PORT-:22 -vnc :$EVSSIM_QEMU_VNC -machine accel=kvm -kernel $kernel -initrd $initrd -L /usr/share/seabios -L ../pc-bios/optionrom -append '$append'";

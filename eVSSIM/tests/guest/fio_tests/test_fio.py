@@ -29,4 +29,5 @@ class TestFio:
     def test_run_surface_scan(self):
         assert 0 == os.system("fio ./fio_jobs/surface-scan.fio")
 
-
+    def test_run_multi_disks(self):
+        assert 0 == os.system("./perf_test_multi_disks.sh")
