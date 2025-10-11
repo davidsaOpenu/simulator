@@ -19,6 +19,12 @@ extern int* g_init_ftl;
 // FTL global lock. Does not allow the GC thread to do work while the main thread is inside FTL code.
 extern pthread_mutex_t g_lock;
 
+// Per-device locks for FTL data-path operations.
+extern pthread_mutex_t *g_device_locks;
+
+void FTL_LOCK_DEVICE(uint8_t device_index);
+void FTL_UNLOCK_DEVICE(uint8_t device_index);
+
 void FTL_INIT(uint8_t device_index);
 void FTL_TERM(uint8_t device_index);
 

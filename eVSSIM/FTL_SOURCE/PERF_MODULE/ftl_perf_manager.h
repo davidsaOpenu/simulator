@@ -7,6 +7,7 @@
 #define _PERF_MANAGER_H_
 
 #include <stdint.h>
+#include <stdbool.h>
 
 #define MEGABYTE_IN_BYTES (1024*1024)
 #define SECOND_IN_USEC 1000000
@@ -27,12 +28,46 @@ typedef struct io_request
 	struct io_request* next;
 }io_request;
 
-/* IO Latency */
-extern unsigned int io_request_nb;
-extern unsigned int io_request_seq_nb;
+typedef struct perf_checker {
+	bool initialized;
 
-extern struct io_request* io_request_start;
-extern struct io_request* io_request_end;
+	/* Average IO Time */
+	double avg_write_delay;
+	double total_write_count;
+	double total_write_delay;
+
+	double avg_read_delay;
+	double total_read_count;
+	double total_read_delay;
+
+	double avg_gc_write_delay;
+	double total_gc_write_count;
+	double total_gc_write_delay;
+
+	double avg_gc_read_delay;
+	double total_gc_read_count;
+	double total_gc_read_delay;
+
+	/* IO Latency */
+	unsigned int io_request_nb;
+	unsigned int io_request_seq_nb;
+
+	struct io_request* io_request_start;
+	struct io_request* io_request_end;
+
+	/* Calculate IO Latency */
+	double read_latency_count;
+	double write_latency_count;
+
+	double avg_read_latency;
+	double avg_write_latency;
+
+	/* SSD Util */
+	double ssd_util;
+	uint64_t written_page_nb;
+} perf_checker_t;
+
+extern perf_checker_t *perf_checker;
 
 /* GC Latency */
 extern unsigned int gc_request_nb;
@@ -43,17 +78,17 @@ extern struct io_request* gc_request_end;
 
 double GET_IO_BANDWIDTH(uint8_t device_index, double delay);
 
-void INIT_PERF_CHECKER(void);
-void TERM_PERF_CHECKER(void);
+void INIT_PERF_CHECKER(uint8_t device_index);
+void TERM_PERF_CHECKER(uint8_t device_index);
 
 void SEND_TO_PERF_CHECKER(uint8_t device_index, int op_type, int64_t op_delay, int type);
 
 int64_t ALLOC_IO_REQUEST(uint8_t device_index, uint32_t sector_nb, unsigned int length, int io_type, int* page_nb);
-void FREE_DUMMY_IO_REQUEST(void);
-void FREE_IO_REQUEST(io_request* request);
+void FREE_DUMMY_IO_REQUEST(uint8_t device_index);
+void FREE_IO_REQUEST(uint8_t device_index, io_request* request);
 int64_t UPDATE_IO_REQUEST(uint8_t device_index, uint32_t request_nb, int offset, int64_t time, int type);
-void INCREASE_IO_REQUEST_SEQ_NB(void);
-io_request* LOOKUP_IO_REQUEST(uint32_t request_nb);
+void INCREASE_IO_REQUEST_SEQ_NB(uint8_t device_index);
+io_request* LOOKUP_IO_REQUEST(uint8_t device_index, uint32_t request_nb);
 int64_t CALC_IO_LATENCY(uint8_t device_index, io_request* request);
 
 #endif
