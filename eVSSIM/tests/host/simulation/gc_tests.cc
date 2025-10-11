@@ -24,11 +24,11 @@ namespace ssd_io_emulator_tests {
                 BaseTest::SetUp();
                 INIT_LOG_MANAGER(g_device_index);
 
-                pthread_mutex_lock(&g_lock); // prevent the GC thread from running
+                LOCK_DEVICE(g_device_index); // prevent the GC thread from running
                 devices[g_device_index].gc_low_thr_interval_sec = 0;
                 devices[g_device_index].gc_hi_thr_interval_sec = 0;
 
-                // Since there's a short duration in which g_lock is unlocked, the GC thread may
+                // Since there's a short duration in which the device lock is unlocked, the GC thread may
                 // have done a loop already. We reset it to run ASAP.
                 if (gc_threads[g_device_index].gc_loop_count > 0) {
                     pthread_cond_signal(&gc_threads[g_device_index].gc_signal_cond);
@@ -37,7 +37,7 @@ namespace ssd_io_emulator_tests {
             }
 
             virtual void TearDown() {
-                pthread_mutex_unlock(&g_lock);
+                UNLOCK_DEVICE(g_device_index);
                 BaseTest::TearDown(false);
                 TERM_LOG_MANAGER(g_device_index);
                 TERM_SSD_CONFIG();
@@ -57,9 +57,9 @@ namespace ssd_io_emulator_tests {
     static bool WaitForGC() {
         uint64_t before = gc_threads[g_device_index].gc_loop_count;
         for (int i = 0; i < 100; i++) {
-            pthread_mutex_unlock(&g_lock);
+            UNLOCK_DEVICE(g_device_index);
             usleep(1000);
-            pthread_mutex_lock(&g_lock);
+            LOCK_DEVICE(g_device_index);
             if (gc_threads[g_device_index].gc_loop_count > before) {
                 return true;
             }
@@ -190,9 +190,9 @@ namespace ssd_io_emulator_tests {
         for (size_t i = 0; i < sizeof(sectors) / sizeof(sectors[0]); i++) {
             uint64_t lba = sectors[i];
             ASSERT_EQ(config->page_nb, inverse_mappings_manager[g_device_index].total_zero_page_nb);
-            pthread_mutex_unlock(&g_lock);
+            UNLOCK_DEVICE(g_device_index);
             ASSERT_EQ(FTL_SUCCESS, FTL_WRITE_SECT(g_device_index, lba, 1, NULL));
-            pthread_mutex_lock(&g_lock);
+            LOCK_DEVICE(g_device_index);
             ASSERT_EQ(config->page_nb, inverse_mappings_manager[g_device_index].total_zero_page_nb);
         }
     }
@@ -200,11 +200,11 @@ namespace ssd_io_emulator_tests {
     TEST_P(GCTest, CaseReservedLBAs) {
         ssd_config_t *config = &devices[g_device_index];
 
-        pthread_mutex_unlock(&g_lock);
+        UNLOCK_DEVICE(g_device_index);
         // "Exceed Sector number" error - reserved pages for GC
         ASSERT_EQ(FTL_FAILURE, FTL_WRITE_SECT(g_device_index, config->sectors_in_ssd, 1, NULL));
         ASSERT_EQ(FTL_SUCCESS, FTL_WRITE_SECT(g_device_index, config->sectors_in_ssd - 1, 1, NULL));
-        pthread_mutex_lock(&g_lock);
+        LOCK_DEVICE(g_device_index);
     }
 
     TEST_P(GCTest, CasePerfGCThreadDisable) {
@@ -236,7 +236,7 @@ namespace ssd_io_emulator_tests {
         // 25% over-provisioning => 80% utilization
         const uint64_t max_sector_nb = config->sectors_in_ssd * 8 / 10;
 
-        pthread_mutex_unlock(&g_lock);
+        UNLOCK_DEVICE(g_device_index);
         unsigned int seed = 0;
         for (uint64_t i = 0; i < 10 * config->pages_in_ssd; i++) {
             uint64_t sector_nb = rand_r(&seed) % max_sector_nb;
@@ -244,12 +244,12 @@ namespace ssd_io_emulator_tests {
 
             // Simulate some "idle time" to really emphasize the benefits of background GC.
             if (i % (config->pages_in_ssd / background_gc_freq) == 0) {
-                pthread_mutex_lock(&g_lock);
+                LOCK_DEVICE(g_device_index);
                 WaitForGC();
-                pthread_mutex_unlock(&g_lock);
+                UNLOCK_DEVICE(g_device_index);
             }
         }
-        pthread_mutex_lock(&g_lock);
+        LOCK_DEVICE(g_device_index);
 
         _MONITOR_SYNC(g_device_index, &(log_server.stats), MONITOR_SLEEP_MAX_USEC);
         printSSDStat(&log_server.stats);

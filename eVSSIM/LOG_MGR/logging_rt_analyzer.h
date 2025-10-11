@@ -83,6 +83,8 @@ typedef struct {
 
 } RTLogStatistics;
 
+extern RTLogStatistics** rt_log_stats;
+
 typedef struct {
     /**
      * The logger to analyze
