@@ -37,6 +37,7 @@
 elk_logger_writer elk_logger_writer_obj;
 int lines_read_in_json = 0;
 int auto_delete = TRUE;
+static int elk_logger_writer_initialized = FALSE;
 
 OfflineLogAnalyzer* offline_log_analyzer_init(Logger_Pool* logger_pool) {
     OfflineLogAnalyzer* analyzer = (OfflineLogAnalyzer*) malloc(sizeof(OfflineLogAnalyzer));
@@ -369,7 +370,6 @@ static int delete_shipped(void){
     }
 
     char *filelist[amount];
-
     get_log_files(ELK_LOGGER_WRITER_LOGS_PATH, filelist);
 
     const int arrsize = amount;
@@ -481,6 +481,11 @@ static void elk_logger_writer_close_file(void) {
 }
 
 void elk_logger_writer_init(void) {
+    // Only initialize once across all devices
+    if (elk_logger_writer_initialized) {
+        return;
+    }
+
     elk_logger_writer_obj.log_file_size = 10 *1024 * 1024; // 10 MB
     elk_logger_writer_obj.curr_size = 0;
 
@@ -496,13 +501,19 @@ void elk_logger_writer_init(void) {
         elk_logger_writer_free();
         return;
     }
+
+    elk_logger_writer_initialized = TRUE;
 }
 
 /**
  * frees the writer
  */
 void elk_logger_writer_free(void) {
+    if (!elk_logger_writer_initialized) {
+        return;
+    }
     elk_logger_writer_close_file();
+    elk_logger_writer_initialized = FALSE;
 }
 
 /**

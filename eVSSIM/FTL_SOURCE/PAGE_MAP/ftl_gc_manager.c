@@ -9,7 +9,6 @@
 #include <time.h>
 
 int fail_cnt = 0;
-extern double ssd_util;
 
 write_amplification_counters wa_counters;
 extern ssd_disk ssd;
