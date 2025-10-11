@@ -70,8 +70,6 @@ pthread_t log_server_thread;
 
 void reset_analyzers(uint8_t device_index) {
     uint32_t i;
-    // TODO: For now we don't support multiple disks logging properly
-    device_index = 0;
     for (i = 0; i < devices[device_index].flash_nb; i++)
         analyzers_storage[i].rt_log_analyzer->reset_flag = 1;
 }
@@ -80,8 +78,6 @@ void INIT_LOG_MANAGER(uint8_t device_index)
 {
     uint32_t i;
 
-    // TODO: For now we don't support multiple disks logging properly
-    device_index = 0;
     if (NULL != analyzers_storage)
     {
         // Already inited
@@ -130,7 +126,7 @@ void INIT_LOG_MANAGER(uint8_t device_index)
     }
     run_args->device_index = device_index;
     run_args->manager = log_manager;
-    
+
     pthread_create(&log_manager_thread, NULL, log_manager_run, run_args);
     for (i = 0; i < devices[device_index].flash_nb; i++) {
         // Run rt log analyzer
@@ -157,8 +153,6 @@ void TERM_LOG_MANAGER(uint8_t device_index)
 {
     uint32_t i;
 
-    // TODO: For now we don't support multiple disks logging properly
-    device_index = 0;
     if (NULL == analyzers_storage)
     {
         // Already termed
@@ -196,8 +190,6 @@ void TERM_LOG_MANAGER(uint8_t device_index)
 }
 
 Logger_Pool* GET_LOGGER(uint8_t device_index, unsigned int flash_number) {
-    // TODO: For now we don't support multiple disks logging properly
-    device_index = 0;
     if (flash_number < devices[device_index].flash_nb)
         return analyzers_storage[flash_number].logger;
     return NULL;

@@ -10,6 +10,8 @@
 #include <string.h>
 #include <ctype.h>
 
+#include "logging_rt_analyzer.h"
+
 /* Devices Configuration */
 ssd_config_t* devices = NULL;
 uint8_t device_count = 0;
@@ -117,6 +119,10 @@ void INIT_SSD_CONFIG(void)
     mapping_table = (uint64_t**)calloc(sizeof(uint64_t*) * device_count, 1);
     if (NULL == mapping_table)
         RERR(, "mapping_table allocation failed!\n");
+    
+    obj_manager = (obj_strategy_manager_t*)calloc(sizeof(obj_strategy_manager_t) * device_count, 1);
+    if (NULL == obj_manager)
+        RERR(, "obj_manager allocation failed!\n");
 
     g_init_ftl = (int*)calloc(sizeof(int) * device_count, 1);
     if (NULL == g_init_ftl)
@@ -134,6 +140,10 @@ void INIT_SSD_CONFIG(void)
     if (NULL == gc_threads)
         RERR(, "gc_threads allocation failed!\n");
 
+    rt_log_stats = (RTLogStatistics**)calloc(sizeof(RTLogStatistics*) * device_count, 1);
+    if (NULL == rt_log_stats)
+        RERR(, "rt_log_stats allocation failed!\n");
+
     pthread_mutex_unlock(&g_lock);
 }
 
@@ -147,6 +157,8 @@ void TERM_SSD_CONFIG(void)
     free(mapping_table);
     mapping_table = NULL;
 
+    TERM_OBJ_STRATEGY_ALL();
+
     free(g_init_ftl);
     g_init_ftl = NULL;
 
@@ -158,6 +170,18 @@ void TERM_SSD_CONFIG(void)
 
     free(gc_threads);
     gc_threads = NULL;
+
+    if (rt_log_stats != NULL) {
+        uint8_t i;
+        for (i = 0; i < device_count; i++) {
+            if (rt_log_stats[i] != NULL) {
+                free(rt_log_stats[i]);
+                rt_log_stats[i] = NULL;
+            }
+        }
+        free(rt_log_stats);
+        rt_log_stats = NULL;
+    }
 
     free(devices);
     devices = NULL;
