@@ -9,6 +9,10 @@ static uint64_t physical_address_from_logical_address(uint8_t device_index, uint
 static ftl_ret_val _READ_STATUS_ENHANCED(void);
 
 #define FAILURE_VALUE UINT64_MAX
+static bool is_valid_device_index(uint8_t device_index) {
+	return devices != NULL && device_index < device_count;
+}
+
 static uint64_t physical_address_from_logical_address(uint8_t device_index, uint64_t lba, uint64_t* o_ppn) {
 	uint64_t lpn = lba / (int32_t)devices[device_index].sectors_per_page;
 	uint64_t offset_in_page = lba % (int32_t)devices[device_index].sectors_per_page;
@@ -27,6 +31,11 @@ ftl_ret_val _FTL_READ(uint8_t device_index, uint64_t sector_nb, unsigned int len
 
 ftl_ret_val _FTL_READ_SECT(uint8_t device_index, uint64_t sector_nb, unsigned int length, unsigned char *data)
 {
+	if (!is_valid_device_index(device_index)) {
+		RERR(FTL_FAILURE, "Invalid device index %u (device_count=%u)\n",
+			(unsigned int)device_index, (unsigned int)device_count);
+	}
+
 	if (devices[device_index].storage_strategy != STRATEGY_SECTOR) {
 		DEV_RERR(FTL_FAILURE, device_index, "wrong storage strategy %d\n", devices[device_index].storage_strategy);
 	}
@@ -128,7 +137,7 @@ ftl_ret_val _FTL_READ_SECT(uint8_t device_index, uint64_t sector_nb, unsigned in
 		// read log all together, and refer to the physical one as an indication to both.
 	}
 
-	INCREASE_IO_REQUEST_SEQ_NB();
+	INCREASE_IO_REQUEST_SEQ_NB(device_index);
 
 	PDBG_FTL("Complete\n");
 
@@ -137,9 +146,9 @@ ftl_ret_val _FTL_READ_SECT(uint8_t device_index, uint64_t sector_nb, unsigned in
 
 ftl_ret_val FTL_READ_SECT(uint8_t device_index, uint64_t sector_nb, unsigned int length, unsigned char *data)
 {
-	pthread_mutex_lock(&g_lock);
+	LOCK_DEVICE(device_index);
 	ftl_ret_val ret = _FTL_READ_SECT(device_index, sector_nb, length, data);
-	pthread_mutex_unlock(&g_lock);
+	UNLOCK_DEVICE(device_index);
 	return ret;
 }
 
@@ -205,6 +214,11 @@ static ftl_ret_val _FTL_WRITE_COMMIT(uint8_t device_index, uint64_t lba, int wri
 
 ftl_ret_val _FTL_WRITE_SECT(uint8_t device_index, uint64_t sector_nb, unsigned int length, const unsigned char *data)
 {
+	if (!is_valid_device_index(device_index)) {
+		RERR(FTL_FAILURE, "Invalid device index %u (device_count=%u)\n",
+			(unsigned int)device_index, (unsigned int)device_count);
+	}
+
 	if (devices[device_index].storage_strategy != STRATEGY_SECTOR) {
 		DEV_RERR(FTL_FAILURE, device_index, "wrong storage strategy %d\n", devices[device_index].storage_strategy);
 	}
@@ -310,7 +324,7 @@ ftl_ret_val _FTL_WRITE_SECT(uint8_t device_index, uint64_t sector_nb, unsigned i
 		left_skip = 0;
 	}
 
-	INCREASE_IO_REQUEST_SEQ_NB();
+	INCREASE_IO_REQUEST_SEQ_NB(device_index);
 
 #ifdef GC_ON
 	if (device_full) {
@@ -325,9 +339,9 @@ ftl_ret_val _FTL_WRITE_SECT(uint8_t device_index, uint64_t sector_nb, unsigned i
 
 ftl_ret_val FTL_WRITE_SECT(uint8_t device_index, uint64_t sector_nb, unsigned int length, const unsigned char *data)
 {
-	pthread_mutex_lock(&g_lock);
+	LOCK_DEVICE(device_index);
 	ftl_ret_val ret = _FTL_WRITE_SECT(device_index, sector_nb, length, data);
-	pthread_mutex_unlock(&g_lock);
+	UNLOCK_DEVICE(device_index);
 	return ret;
 }
 

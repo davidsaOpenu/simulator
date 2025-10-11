@@ -15,11 +15,30 @@
 
 int* g_init_ftl = NULL;
 uint8_t g_device_index = 0;
-extern double ssd_util;
 int gatherStats = 0;
 // Hold statistics information
 uint32_t** mapping_stats_table;
-pthread_mutex_t g_lock = PTHREAD_MUTEX_INITIALIZER;
+pthread_mutex_t *g_device_locks = NULL;
+
+pthread_mutex_t *GET_LOCK_FOR_DEVICE(uint8_t device_index)
+{
+	if (g_device_locks == NULL || device_index >= device_count)
+		RERR(NULL, "Device lock unavailable for device %u\n", device_index);
+
+	return &g_device_locks[device_index];
+}
+
+void LOCK_DEVICE(uint8_t device_index)
+{
+	pthread_mutex_t *device_lock = GET_LOCK_FOR_DEVICE(device_index);
+	pthread_mutex_lock(device_lock);
+}
+
+void UNLOCK_DEVICE(uint8_t device_index)
+{
+	pthread_mutex_t *device_lock = GET_LOCK_FOR_DEVICE(device_index);
+	pthread_mutex_unlock(device_lock);
+}
 
 static void _verify_onfi_device(uint8_t device_index)
 {
@@ -38,7 +57,7 @@ static void _verify_onfi_device(uint8_t device_index)
 
 void FTL_INIT(uint8_t device_index)
 {
-	pthread_mutex_lock(&g_lock);
+	LOCK_DEVICE(device_index);
 	if (g_init_ftl[device_index] == 0) {
 		PINFO("start\n");
 
@@ -49,8 +68,8 @@ void FTL_INIT(uint8_t device_index)
 		INIT_VALID_ARRAY(device_index);
 		INIT_EMPTY_BLOCK_LIST(device_index);
 		INIT_VICTIM_BLOCK_LIST(device_index);
-
-		INIT_PERF_CHECKER();
+		INIT_OBJ_STRATEGY(device_index);
+		INIT_PERF_CHECKER(device_index);
         INIT_GC_MANAGER(device_index);
 
 		// Initialize The Statistics gathering component.
@@ -64,12 +83,12 @@ void FTL_INIT(uint8_t device_index)
 
 		PINFO("complete\n");
 	}
-	pthread_mutex_unlock(&g_lock);
+	UNLOCK_DEVICE(device_index);
 }
 
 void FTL_TERM(uint8_t device_index)
 {
-	pthread_mutex_lock(&g_lock);
+	LOCK_DEVICE(device_index);
 	PINFO("start\n");
 
 	TERM_MAPPING_TABLE(device_index);
@@ -79,17 +98,16 @@ void FTL_TERM(uint8_t device_index)
 	TERM_INVERSE_BLOCK_MAPPING(device_index);
 	TERM_EMPTY_BLOCK_LIST(device_index);
 	TERM_VICTIM_BLOCK_LIST(device_index);
-
-	TERM_PERF_CHECKER();
-	TERM_GC_MANAGER(device_index);
+	TERM_OBJ_STRATEGY(device_index);
+	TERM_PERF_CHECKER(device_index);
 	FTL_TERM_STATS();
-
+	TERM_GC_MANAGER(device_index);
 	SSD_IO_TERM(device_index);
 
 	g_init_ftl[device_index] = 0;
 
 	PINFO("complete\n");
-	pthread_mutex_unlock(&g_lock);
+	UNLOCK_DEVICE(device_index);
 }
 
 void FTL_INIT_STATS(void)
