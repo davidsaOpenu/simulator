@@ -27,7 +27,6 @@ extern int errno;
 
 extern ssd_disk ssd;
 extern write_amplification_counters wa_counters;
-extern RTLogStatistics* rt_log_stats;
 
 // New browser delay values
 extern int write_elapsed_time;
@@ -91,7 +90,7 @@ namespace ssd_io_emulator_tests {
         uint32_t i;
 
         for (i = 0; i < devices[g_device_index].flash_nb; i++) {
-            write_elapsed_time += rt_log_stats[i].write_elapsed_time;
+            write_elapsed_time += rt_log_stats[g_device_index][i].write_elapsed_time;
         }
         // new monitor write delay
         ASSERT_LE(write_elapsed_time - expected_write_duration, DELAY_THRESHOLD);
@@ -124,7 +123,7 @@ namespace ssd_io_emulator_tests {
         uint32_t i;
 
         for (i = 0; i < devices[g_device_index].flash_nb; i++) {
-            read_elapsed_time += rt_log_stats[i].read_elapsed_time;
+            read_elapsed_time += rt_log_stats[g_device_index][i].read_elapsed_time;
         }
         // new monitor read delay
         ASSERT_LE(read_elapsed_time - expected_read_duration, DELAY_THRESHOLD);
@@ -171,8 +170,8 @@ namespace ssd_io_emulator_tests {
         uint32_t i;
 
         for (i = 0; i < devices[g_device_index].flash_nb; i++) {
-            write_elapsed_time += rt_log_stats[i].write_elapsed_time;
-            read_elapsed_time += rt_log_stats[i].read_elapsed_time;
+            write_elapsed_time += rt_log_stats[g_device_index][i].write_elapsed_time;
+            read_elapsed_time += rt_log_stats[g_device_index][i].read_elapsed_time;
         }
         // new monitor write delay
         ASSERT_LE(write_elapsed_time - expected_write_duration, DELAY_THRESHOLD);
@@ -313,7 +312,7 @@ namespace ssd_io_emulator_tests {
         uint32_t i;
 
         for (i = 0; i < devices[g_device_index].flash_nb; i++) {
-            logical_write_count += rt_log_stats[i].logical_write_count;
+            logical_write_count += rt_log_stats[g_device_index][i].logical_write_count;
         }
 
         ASSERT_EQ(ssds_manager[g_device_index].ssd.physical_page_writes, physical_page_writes);
@@ -348,7 +347,7 @@ namespace ssd_io_emulator_tests {
         uint32_t i;
 
         for (i = 0; i < devices[g_device_index].flash_nb; i++) {
-            logical_write_count += rt_log_stats[i].logical_write_count;
+            logical_write_count += rt_log_stats[g_device_index][i].logical_write_count;
         }
 
         ASSERT_EQ(physical_page_writes, ssds_manager[g_device_index].ssd.physical_page_writes);

@@ -203,8 +203,6 @@ static const struct lws_http_mount http_mount = {
 
 
 int log_server_init(uint8_t device_index) {
-    // TODO: For now we don't support multiple disks logging properly
-    device_index = 0;
 
     // set debug level
     lws_set_log_level(LLL_ERR | LLL_WARN, NULL);
@@ -230,6 +228,7 @@ int log_server_init(uint8_t device_index) {
         context = lws_create_context(&info);
         if (context == NULL)
         {
+            PERR("lws create context failed\n");
             return 1;
         }
     }
@@ -313,9 +312,6 @@ static void _MONITOR_SYNC_LOG_ID(SSDStatistics *stats, uint64_t log_id, uint64_t
 }
 
 void _MONITOR_SYNC(uint8_t device_index, SSDStatistics *stats, uint64_t max_sleep) {
-    // TODO: For now we don't support multiple disks logging properly
-    device_index = 0;
-
     size_t i;
     uint64_t log_id;
     for(i = 0; i < devices[device_index].flash_nb; i++){

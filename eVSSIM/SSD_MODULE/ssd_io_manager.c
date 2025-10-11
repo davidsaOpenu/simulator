@@ -373,7 +373,7 @@ int SSD_FLASH_ACCESS(uint8_t device_index, unsigned int flash_nb, unsigned int c
 
     for (i=0;i<devices[device_index].planes_per_flash;i++) {
 
-        if (r_num != reg && ssds_manager[device_index].access_nb[r_num][0] == io_request_seq_nb) {
+        if (r_num != reg && ssds_manager[device_index].access_nb[r_num][0] == perf_checker[device_index].io_request_seq_nb) {
             /* That's OK */
         }
         else{
@@ -434,9 +434,9 @@ ftl_ret_val SSD_REG_RECORD(uint8_t device_index, int reg, int type, int offset, 
 
             /* Update SATA request Info */
             if(type == WRITE) {
-                ssds_manager[device_index].access_nb[reg][0] = io_request_seq_nb;
+                ssds_manager[device_index].access_nb[reg][0] = perf_checker[device_index].io_request_seq_nb;
                 ssds_manager[device_index].access_nb[reg][1] = offset;
-                ssds_manager[device_index].io_update_overhead = UPDATE_IO_REQUEST(device_index, io_request_seq_nb, offset, ssds_manager[device_index].last_operation_time_us, UPDATE_START_TIME);
+                ssds_manager[device_index].io_update_overhead = UPDATE_IO_REQUEST(device_index, perf_checker[device_index].io_request_seq_nb, offset, ssds_manager[device_index].last_operation_time_us, UPDATE_START_TIME);
                 SSD_UPDATE_IO_OVERHEAD(device_index, reg, ssds_manager[device_index].io_update_overhead);
             }
             else{
@@ -451,9 +451,9 @@ ftl_ret_val SSD_REG_RECORD(uint8_t device_index, int reg, int type, int offset, 
             }
             /* Update SATA request Info */
             if(type == READ){
-                ssds_manager[device_index].access_nb[reg][0] = io_request_seq_nb;
+                ssds_manager[device_index].access_nb[reg][0] = perf_checker[device_index].io_request_seq_nb;
                 ssds_manager[device_index].access_nb[reg][1] = offset;
-                ssds_manager[device_index].io_update_overhead = UPDATE_IO_REQUEST(device_index, io_request_seq_nb, offset, ssds_manager[device_index].last_operation_time_us, UPDATE_START_TIME);
+                ssds_manager[device_index].io_update_overhead = UPDATE_IO_REQUEST(device_index, perf_checker[device_index].io_request_seq_nb, offset, ssds_manager[device_index].last_operation_time_us, UPDATE_START_TIME);
                 SSD_UPDATE_IO_OVERHEAD(device_index, reg, ssds_manager[device_index].io_update_overhead);
             }
             else{
@@ -468,9 +468,9 @@ ftl_ret_val SSD_REG_RECORD(uint8_t device_index, int reg, int type, int offset, 
         break;
     case COPYBACK:
         ssds_manager[device_index].reg_io_time[reg] = ssds_manager[device_index].cell_io_time[reg] + devices[device_index].cell_read_delay;
-        ssds_manager[device_index].access_nb[reg][0] = io_request_seq_nb;
+        ssds_manager[device_index].access_nb[reg][0] = perf_checker[device_index].io_request_seq_nb;
         ssds_manager[device_index].access_nb[reg][1] = offset;
-        ssds_manager[device_index].io_update_overhead = UPDATE_IO_REQUEST(device_index, io_request_seq_nb, offset, ssds_manager[device_index].last_operation_time_us, UPDATE_START_TIME);
+        ssds_manager[device_index].io_update_overhead = UPDATE_IO_REQUEST(device_index, perf_checker[device_index].io_request_seq_nb, offset, ssds_manager[device_index].last_operation_time_us, UPDATE_START_TIME);
         SSD_UPDATE_IO_OVERHEAD(device_index, reg, ssds_manager[device_index].io_update_overhead);
         break;
     default:
