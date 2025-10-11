@@ -2,7 +2,8 @@ VSSIM_HOME = ../../..
 
 TEST_OBJ :=  object_tests.o sector_tests.o log_mgr_tests.o ssd_io_emulator_tests.o \
 			rt_analyzer_subscriber.o log_manager_subscriber.o simulation_tests_main.o   \
-			offline_logger_tests.o ssd_write_read_test.o ssd_program_compatible_test.o onfi_ops_test.o vssim_config_manager.o onfi.o
+			offline_logger_tests.o ssd_write_read_test.o ssd_program_compatible_test.o onfi_ops_test.o \
+			multi_device_tests.o vssim_config_manager.o onfi.o
 
 TEST_TARGET := simulation_tests_main
 
