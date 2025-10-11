@@ -9,7 +9,6 @@
 #include <time.h>
 
 int fail_cnt = 0;
-extern double ssd_util;
 
 write_amplification_counters wa_counters;
 extern ssd_disk ssd;
@@ -20,11 +19,20 @@ GCAlgorithm gc_algo = {
 
 gc_thread_t *gc_threads;
 
+static pthread_mutex_t *GC_GET_LOCK_FOR_DEVICE(uint8_t device_index) {
+    if (g_device_locks != NULL && device_index < device_count) {
+        return &g_device_locks[device_index];
+    }
+
+    return &g_lock;
+}
+
 static void *GC_BACKGROUND_LOOP(void *arg) {
     gc_thread_t *gc_thread = arg;
     uint8_t device_index = gc_thread->device_index;
+    pthread_mutex_t *device_lock = GC_GET_LOCK_FOR_DEVICE(device_index);
 
-    pthread_mutex_lock(&g_lock);
+    pthread_mutex_lock(device_lock);
     while (!gc_thread->gc_stop_flag) {
         gc_thread->gc_loop_count++;
         bool collected;
@@ -41,17 +49,17 @@ static void *GC_BACKGROUND_LOOP(void *arg) {
         } else if (total_zero_page_nb >= devices[device_index].gc_hi_thr_page_nb) {
             ts.tv_sec += devices[device_index].gc_hi_thr_interval_sec;
         } else {
-            pthread_cond_wait(&gc_thread->gc_signal_cond, &g_lock);
+            pthread_cond_wait(&gc_thread->gc_signal_cond, device_lock);
             // gc_stop_flag must be rechecked immediately
             continue;
         }
 
         if (!gc_thread->gc_stop_flag) {
-            pthread_cond_timedwait(&gc_thread->gc_signal_cond, &g_lock, &ts);
+            pthread_cond_timedwait(&gc_thread->gc_signal_cond, device_lock, &ts);
             // gc_stop_flag must be rechecked immediately
         }
     }
-    pthread_mutex_unlock(&g_lock);
+    pthread_mutex_unlock(device_lock);
 
     return NULL;
 }
@@ -79,14 +87,21 @@ void TERM_GC_MANAGER(uint8_t device_index) {
     }
 
     gc_thread_t *gc_thread = &gc_threads[device_index];
+    pthread_mutex_t *device_lock = GC_GET_LOCK_FOR_DEVICE(device_index);
+    bool caller_holds_global_lock = (device_lock == &g_lock);
 
+    if (!caller_holds_global_lock) {
+        pthread_mutex_lock(device_lock);
+    }
     gc_thread->gc_stop_flag = true;
     pthread_cond_signal(&gc_thread->gc_signal_cond);
-    pthread_mutex_unlock(&g_lock);
+    if (!caller_holds_global_lock) {
+        pthread_mutex_unlock(device_lock);
+    }
+
     if (0 != pthread_join(gc_thread->tid, NULL)) {
         DEV_PERR(device_index, "failed to join GC background thread\n");
     }
-    pthread_mutex_lock(&g_lock);
 
     pthread_cond_destroy(&gc_thread->gc_signal_cond);
 }

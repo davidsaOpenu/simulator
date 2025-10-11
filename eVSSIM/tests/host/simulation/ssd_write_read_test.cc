@@ -17,7 +17,6 @@
 #include <cmath>
 #include "base_emulator_tests.h"
 
-extern RTLogStatistics* rt_log_stats;
 extern LogServer log_server;
 
 // 2^10 mb = 1 GB
