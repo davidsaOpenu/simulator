@@ -7,8 +7,11 @@
 #include <string.h>
 #include <inttypes.h>
 #include <sys/stat.h>
+#include <errno.h>
 #include <string.h>
 #include <ctype.h>
+
+#include "logging_rt_analyzer.h"
 
 /* Devices Configuration */
 ssd_config_t* devices = NULL;
@@ -117,6 +120,13 @@ void INIT_SSD_CONFIG(void)
     mapping_table = (uint64_t**)calloc(sizeof(uint64_t*) * device_count, 1);
     if (NULL == mapping_table)
         RERR(, "mapping_table allocation failed!\n");
+    
+    obj_manager = (obj_strategy_manager_t*)calloc(sizeof(obj_strategy_manager_t) * device_count, 1);
+    if (NULL == obj_manager)
+        RERR(, "obj_manager allocation failed!\n");
+
+    if (mkdir("/tmp/osd", 0777) != 0 && errno != EEXIST)
+        RERR(, "Failed to create /tmp/osd directory\n");
 
     g_init_ftl = (int*)calloc(sizeof(int) * device_count, 1);
     if (NULL == g_init_ftl)
@@ -134,6 +144,22 @@ void INIT_SSD_CONFIG(void)
     if (NULL == gc_threads)
         RERR(, "gc_threads allocation failed!\n");
 
+    rt_log_stats = (RTLogStatistics**)calloc(sizeof(RTLogStatistics*) * device_count, 1);
+    if (NULL == rt_log_stats)
+        RERR(, "rt_log_stats allocation failed!\n");
+
+    analyzers_storage = (LoggerAnalyzerStorage**)calloc(sizeof(LoggerAnalyzerStorage*) * device_count, 1);
+    if (NULL == analyzers_storage)
+        RERR(, "analyzers_storage allocation failed!\n");
+
+    log_manager = (LogManager**)calloc(sizeof(LogManager*) * device_count, 1);
+    if (NULL == log_manager)
+        RERR(, "log_manager allocation failed!\n");
+
+    log_manager_thread = (pthread_t*)calloc(sizeof(pthread_t) * device_count, 1);
+    if (NULL == log_manager_thread)
+        RERR(, "log_manager_thread allocation failed!\n");
+
     pthread_mutex_unlock(&g_lock);
 }
 
@@ -147,6 +173,13 @@ void TERM_SSD_CONFIG(void)
     free(mapping_table);
     mapping_table = NULL;
 
+    free(obj_manager);
+    obj_manager = NULL;
+
+    if (system("rm -rf /tmp/osd") != 0) {
+        RERR(, "Failed to remove /tmp/osd directory\n");
+    }
+
     free(g_init_ftl);
     g_init_ftl = NULL;
 
@@ -158,6 +191,27 @@ void TERM_SSD_CONFIG(void)
 
     free(gc_threads);
     gc_threads = NULL;
+
+    if (rt_log_stats != NULL) {
+        uint8_t i;
+        for (i = 0; i < device_count; i++) {
+            if (rt_log_stats[i] != NULL) {
+                free(rt_log_stats[i]);
+                rt_log_stats[i] = NULL;
+            }
+        }
+        free(rt_log_stats);
+        rt_log_stats = NULL;
+    }
+
+    free(analyzers_storage);
+    analyzers_storage = NULL;
+
+    free(log_manager);
+    log_manager = NULL;
+
+    free(log_manager_thread);
+    log_manager_thread = NULL;
 
     free(devices);
     devices = NULL;
