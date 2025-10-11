@@ -16,8 +16,13 @@ extern uint32_t** mapping_stats_table;
 extern uint8_t g_device_index;
 extern int* g_init_ftl;
 
-// FTL global lock. Does not allow the GC thread to do work while the main thread is inside FTL code.
-extern pthread_mutex_t g_lock;
+// Per-device FTL global locks. Does not allow the GC thread to do work while the main thread is inside FTL code.
+extern pthread_mutex_t *g_device_locks;
+
+pthread_mutex_t *GET_LOCK_FOR_DEVICE(uint8_t device_index);
+
+void LOCK_DEVICE(uint8_t device_index);
+void UNLOCK_DEVICE(uint8_t device_index);
 
 void FTL_INIT(uint8_t device_index);
 void FTL_TERM(uint8_t device_index);
