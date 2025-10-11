@@ -79,6 +79,8 @@ typedef struct {
     unsigned int exit_loop_flag : 1;
 } LogManager;
 
+extern LogManager** log_manager;
+
 /**
  * Create a new log manager
  * @return the newly created log manager
