@@ -45,6 +45,6 @@ rm /mnt/exofs0/moved_correctly
 
 # Run benchmarks on exofs
 chmod +x exofs_benchmark.sh
-./exofs_benchmark.sh
+#./exofs_benchmark.sh
 
 echo All log files can be found at $(pwd)/output
