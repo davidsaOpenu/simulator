@@ -42,13 +42,14 @@ static void *GC_BACKGROUND_LOOP(void *arg) {
         } else if (total_empty_block_nb >= devices[device_index].gc_hi_thr_block_nb) {
             ts.tv_sec += devices[device_index].gc_hi_thr_interval_sec;
         } else {
-            DEV_PINFO(device_index, "background GC wait for invalid page is not implemented yet\n");
-            break;
+            pthread_cond_wait(&gc_thread->gc_signal_cond, &g_lock);
+            // gc_stop_flag must be rechecked immediately
+            continue;
         }
 
         if (!gc_thread->gc_stop_flag) {
             pthread_cond_timedwait(&gc_thread->gc_signal_cond, &g_lock, &ts);
-            // gc_stop_flag must be rechecked immediately - FTL may be already deinitialized
+            // gc_stop_flag must be rechecked immediately
         }
     }
     pthread_mutex_unlock(&g_lock);

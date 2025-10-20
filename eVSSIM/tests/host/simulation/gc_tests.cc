@@ -49,7 +49,11 @@ namespace ssd_io_emulator_tests {
     std::vector<SSDConf*> GetTestParams() {
         std::vector<SSDConf*> ssd_configs;
 
-        ssd_configs.push_back(new SSDConf(parameters::Allsizemb[0]));
+        //TODO: until empty block reserve is implemented (https://trello.com/c/GYZSz1dA/46-empty-block-reserve),
+        //      we must never reach the state where `total_empty_block_nb == 0`, otherwise it *will* deadlock. However,
+        //      I still want to reach the high 80% threshold, so I must ensure that the SSD is big enough so that
+        //      `empty_table_entry_nb < gc_hi_thr_block_nb` is true. `mb2` is enough (`mb1` is not).
+        ssd_configs.push_back(new SSDConf(parameters::sizemb::mb2));
 
         return ssd_configs;
     }
@@ -98,5 +102,59 @@ namespace ssd_io_emulator_tests {
 
         ASSERT_GT(devices[g_device_index].block_mapping_entry_nb / 2, inverse_mappings_manager[g_device_index].total_victim_block_nb);
         ASSERT_LT(devices[g_device_index].block_mapping_entry_nb / 2, inverse_mappings_manager[g_device_index].total_empty_block_nb);
+    }
+
+    TEST_P(GCTest, CaseWaitForInvalidPage) {
+        //TODO: see note about empty block reserve above.
+        ASSERT_LT(devices[g_device_index].empty_table_entry_nb, devices[g_device_index].gc_hi_thr_block_nb);
+
+        MONITOR_SYNC(g_device_index, &(log_server.stats), MONITOR_SLEEP_MAX_USEC);
+        ASSERT_EQ(0, log_server.stats.garbage_collection_count);
+        ASSERT_EQ(0, gc_threads[g_device_index].gc_loop_count);
+
+        ssd_config_t *config = &devices[g_device_index];
+        uint64_t pages_total = config->page_mapping_entry_nb;
+
+        //TODO: see note about empty block reserve above.
+        pages_total -= config->page_nb;
+
+        uint64_t ppn;
+        for (uint64_t i = 0; i < pages_total; i++) {
+            uint64_t lpn = i;
+            ASSERT_EQ(FTL_SUCCESS, GET_NEW_PAGE(g_device_index, VICTIM_OVERALL, devices[g_device_index].empty_table_entry_nb, &ppn));
+            ASSERT_EQ(FTL_SUCCESS, UPDATE_NEW_PAGE_MAPPING(g_device_index, lpn, ppn));
+        }
+
+        MONITOR_SYNC(g_device_index, &(log_server.stats), MONITOR_SLEEP_MAX_USEC);
+        ASSERT_EQ(0, log_server.stats.garbage_collection_count);
+        ASSERT_EQ(0, gc_threads[g_device_index].gc_loop_count);
+
+        ASSERT_TRUE(WaitForGC()) << "GC thread did not advance";
+
+        // thread should be waiting for new invalid pages right now.
+        MONITOR_SYNC(g_device_index, &(log_server.stats), MONITOR_SLEEP_MAX_USEC);
+        ASSERT_EQ(0, log_server.stats.garbage_collection_count);
+        ASSERT_EQ(1, gc_threads[g_device_index].gc_loop_count);
+
+        ASSERT_FALSE(WaitForGC()) << "GC thread should not have advanced";
+
+        MONITOR_SYNC(g_device_index, &(log_server.stats), MONITOR_SLEEP_MAX_USEC);
+        ASSERT_EQ(0, log_server.stats.garbage_collection_count);
+        ASSERT_EQ(1, gc_threads[g_device_index].gc_loop_count);
+
+        for (uint64_t i = 0; i < pages_total; i++) {
+            uint64_t lpn = i;
+            ASSERT_EQ(FTL_SUCCESS, UPDATE_OLD_PAGE_MAPPING(g_device_index, lpn));
+        }
+
+        MONITOR_SYNC(g_device_index, &(log_server.stats), MONITOR_SLEEP_MAX_USEC);
+        ASSERT_EQ(0, log_server.stats.garbage_collection_count);
+        ASSERT_EQ(1, gc_threads[g_device_index].gc_loop_count);
+
+        ASSERT_TRUE(WaitForGC()) << "GC thread did not advance";
+
+        MONITOR_SYNC(g_device_index, &(log_server.stats), MONITOR_SLEEP_MAX_USEC);
+        ASSERT_LT(0, log_server.stats.garbage_collection_count);
+        ASSERT_LT(1, gc_threads[g_device_index].gc_loop_count);
     }
 }
