@@ -120,6 +120,8 @@ int UPDATE_OLD_PAGE_MAPPING(uint8_t device_index, uint64_t lpn)
 								  PAGE_INVALID);
 	UPDATE_INVERSE_PAGE_MAPPING(device_index, old_ppn, MAPPING_TABLE_INIT_VAL);
 
+    pthread_cond_signal(&gc_threads[device_index].gc_signal_cond);
+
 	return FTL_SUCCESS;
 }
 

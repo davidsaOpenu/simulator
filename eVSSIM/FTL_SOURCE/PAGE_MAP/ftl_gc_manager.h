@@ -8,16 +8,15 @@
 
 #include "ftl.h"
 
-extern unsigned int gc_count;
-
 typedef ftl_ret_val (*gc_collection_algo)(uint8_t, int);
 typedef ftl_ret_val (*gc_next_page_algo)(uint8_t, int, int, uint64_t*);
 
 typedef struct gc_thread {
     pthread_t tid;
     uint8_t device_index;
-    pthread_cond_t gc_stop_cond;
+    pthread_cond_t gc_signal_cond;
     bool gc_stop_flag;
+    uint64_t gc_loop_count;
 } gc_thread_t;
 
 extern gc_thread_t *gc_threads;

@@ -8,8 +8,6 @@
 #include "ftl_obj_strategy.h"
 #include <time.h>
 
-unsigned int gc_count = 0;
-
 int fail_cnt = 0;
 extern double ssd_util;
 
@@ -29,6 +27,7 @@ static void *GC_BACKGROUND_LOOP(void *arg) {
 
     pthread_mutex_lock(&g_lock);
     while (!gc_thread->gc_stop_flag) {
+        gc_thread->gc_loop_count++;
         bool collected;
         uint64_t total_empty_block_nb;
         do {
@@ -39,17 +38,18 @@ static void *GC_BACKGROUND_LOOP(void *arg) {
         struct timespec ts;
         clock_gettime(CLOCK_REALTIME, &ts);
         if (total_empty_block_nb >= devices[device_index].gc_low_thr_block_nb) {
-            ts.tv_sec += 10;
+            ts.tv_sec += devices[device_index].gc_low_thr_interval_sec;
         } else if (total_empty_block_nb >= devices[device_index].gc_hi_thr_block_nb) {
-            ts.tv_sec += 1;
+            ts.tv_sec += devices[device_index].gc_hi_thr_interval_sec;
         } else {
-            DEV_PINFO(device_index, "background GC wait for invalid page is not implemented yet\n");
-            break;
+            pthread_cond_wait(&gc_thread->gc_signal_cond, &g_lock);
+            // gc_stop_flag must be rechecked immediately
+            continue;
         }
 
         if (!gc_thread->gc_stop_flag) {
-            pthread_cond_timedwait(&gc_thread->gc_stop_cond, &g_lock, &ts);
-            // gc_stop_flag must be rechecked immediately - FTL may be already deinitialized
+            pthread_cond_timedwait(&gc_thread->gc_signal_cond, &g_lock, &ts);
+            // gc_stop_flag must be rechecked immediately
         }
     }
     pthread_mutex_unlock(&g_lock);
@@ -82,7 +82,7 @@ void TERM_GC_MANAGER(uint8_t device_index) {
     gc_thread_t *gc_thread = &gc_threads[device_index];
 
     gc_thread->gc_stop_flag = true;
-    pthread_cond_broadcast(&gc_thread->gc_stop_cond);
+    pthread_cond_signal(&gc_thread->gc_signal_cond);
 
     pthread_mutex_unlock(&g_lock);
     if (0 != pthread_join(gc_thread->tid, NULL)) {
@@ -224,7 +224,6 @@ ftl_ret_val DEFAULT_GC_COLLECTION_ALGO(uint8_t device_index, int l2)
 	UPDATE_INVERSE_BLOCK_MAPPING(device_index, victim_phy_flash_nb, victim_phy_block_nb, EMPTY_BLOCK);
 	INSERT_EMPTY_BLOCK(device_index, victim_phy_flash_nb, victim_phy_block_nb);
 
-	gc_count++;
 	LOG_GARBAGE_COLLECTION(GET_LOGGER(device_index, victim_phy_flash_nb), (GarbageCollectionLog) empty_log);
 
 	return FTL_SUCCESS;
