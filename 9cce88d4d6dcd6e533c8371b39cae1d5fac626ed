@@ -16,6 +16,91 @@
       "message": "recheck",
       "revId": "9cce88d4d6dcd6e533c8371b39cae1d5fac626ed",
       "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "5c0c35a8_e5299c57",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 2
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 1038819
+      },
+      "writtenOn": "2025-10-21T20:46:53Z",
+      "side": 1,
+      "message": "Looks pretty good. A few questions that I\u0027d like to hear your thoughts about before I give a +1",
+      "revId": "9cce88d4d6dcd6e533c8371b39cae1d5fac626ed",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "94b2c5a4_bafaf1b5",
+        "filename": "eVSSIM/tests/guest/fio_tests/fio_jobs/test_rw_short_multi_disk.fio",
+        "patchSetId": 2
+      },
+      "lineNbr": 5,
+      "author": {
+        "id": 1038819
+      },
+      "writtenOn": "2025-10-21T20:46:53Z",
+      "side": 1,
+      "message": "Remove strange tabs at end of lines (highlighted in pink by gerrithub). honestly, I recommend configuring your IDE to auto trim whitespace at end of lines on save.",
+      "revId": "9cce88d4d6dcd6e533c8371b39cae1d5fac626ed",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "b26ffc22_c67ff249",
+        "filename": "eVSSIM/tests/guest/fio_tests/test_fio.py",
+        "patchSetId": 2
+      },
+      "lineNbr": 33,
+      "author": {
+        "id": 1038819
+      },
+      "writtenOn": "2025-10-21T20:46:53Z",
+      "side": 1,
+      "message": "What is this test actually testing, other than generating I/O traffic? What could make it fail?\n\nConsider adding some of those options to the .fio config, given to me by ChatGPT - I don\u0027t actually know how to use these:\n```\nverify\u003d...\ndo_verify\u003d1\nverify_only\u003d1\n```\n\nThankfully this tests takes just 2 seconds to run on CI, so no harm done.",
+      "revId": "9cce88d4d6dcd6e533c8371b39cae1d5fac626ed",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "8d75418b_0be21a67",
+        "filename": "infra/builder/builder.sh",
+        "patchSetId": 2
+      },
+      "lineNbr": 242,
+      "author": {
+        "id": 1038819
+      },
+      "writtenOn": "2025-10-21T20:46:53Z",
+      "side": 1,
+      "message": "Does it really make sense to error out when `device_sizes` is empty, but we\u0027re actually trying to run in non-simulator mode?",
+      "revId": "9cce88d4d6dcd6e533c8371b39cae1d5fac626ed",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "dde23cce_95cf62ab",
+        "filename": "infra/builder/builder.sh",
+        "patchSetId": 2
+      },
+      "lineNbr": 265,
+      "author": {
+        "id": 1038819
+      },
+      "writtenOn": "2025-10-21T20:46:53Z",
+      "side": 1,
+      "message": "This seems kind of wrong? I\u0027m not sure. I compared this code to the original code from previous semester (commit 9b5d2ee9d79828aa279396752a68ce1f6a79617f).\n\nFor starters, `EVSSIM_QEMU_DEFAULT_DISK_SIZE` is being overridden here. If `device_simulator\u003d\"off\"` (Non-simulator mode), `device_size` won\u0027t have the default size. It will have whatever in `device_sizes`. So at the very least, the comment \"Non-simulator mode - use default size\" is wrong. And there will be multiple devices instead of one - is that intentional?\n\nI can\u0027t find a decisive bug though, and I\u0027m not sure non-simulator mode is even relevant.",
+      "revId": "9cce88d4d6dcd6e533c8371b39cae1d5fac626ed",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
     }
   ]
 }
