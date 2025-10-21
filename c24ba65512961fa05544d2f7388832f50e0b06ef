@@ -43,6 +43,30 @@
     {
       "unresolved": true,
       "key": {
+        "uuid": "01f387d2_da4df10f",
+        "filename": "eVSSIM/tests/host/simulation/gc_tests.cc",
+        "patchSetId": 3
+      },
+      "lineNbr": 25,
+      "author": {
+        "id": 1038819
+      },
+      "writtenOn": "2025-10-21T18:36:42Z",
+      "side": 1,
+      "message": "It\u0027s the opposite - I lock the mutex here to *prevent* the GC thread from running. `g_lock` is basically a \"big global lock\" that prevents the GC thread and the main thread from running at the same time, since the FTL code is not designed for parallel execution. It was simply the easiest solution, as described in the technical spec I made for this epic. There really isn\u0027t a reason to have two separate locks.\n\nIf you\u0027ll look closer, `FTL_INIT` locks `g_lock` at the beginning, but then it *unlocks* it before returning. Same goes to `INIT_SSD_CONFIG` and to strategy functions such as `FTL_WRITE_SECT`.\n\nThe reason locking is necessary here is because this (and some other) unit tests are \"whitebox\" tests - they bypass the strategy functions (`FTL_READ_SECT`/`FTL_OBJ_WRITE` and such), so they don\u0027t lock `g_lock` which may lead to unexpected behavior.\n\nI do agree that it could be documented better, so I\u0027ll try to make it clearer via comments.",
+      "parentUuid": "fbf7f6ba_59fcf379",
+      "range": {
+        "startLine": 25,
+        "startChar": 7,
+        "endLine": 25,
+        "endChar": 8
+      },
+      "revId": "c24ba65512961fa05544d2f7388832f50e0b06ef",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
+    },
+    {
+      "unresolved": true,
+      "key": {
         "uuid": "55fc58e0_2a609297",
         "filename": "eVSSIM/tests/host/simulation/log_mgr_tests.cc",
         "patchSetId": 3
@@ -54,6 +78,24 @@
       "writtenOn": "2025-10-21T15:00:54Z",
       "side": 1,
       "message": "Why is this necessary in this test and all of the others?",
+      "revId": "c24ba65512961fa05544d2f7388832f50e0b06ef",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "c607047f_a3807e47",
+        "filename": "eVSSIM/tests/host/simulation/log_mgr_tests.cc",
+        "patchSetId": 3
+      },
+      "lineNbr": 47,
+      "author": {
+        "id": 1038819
+      },
+      "writtenOn": "2025-10-21T18:36:42Z",
+      "side": 1,
+      "message": "It\u0027s necessary in tests that access internal FTL functions such as `SSD_PAGE_WRITE` that don\u0027t lock `g_lock`.\n\nAs it happens, `log_mgr_tests.cc` doesn\u0027t actually touch any of these functions, so I\u0027ll try to remove the mutex locking from this file.",
+      "parentUuid": "55fc58e0_2a609297",
       "revId": "c24ba65512961fa05544d2f7388832f50e0b06ef",
       "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
     }
