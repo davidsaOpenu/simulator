@@ -20,6 +20,24 @@
     {
       "unresolved": true,
       "key": {
+        "uuid": "9a5f04cd_274c69a3",
+        "filename": "eVSSIM/FTL_SOURCE/PAGE_MAP/ftl_gc_manager.c",
+        "patchSetId": 1
+      },
+      "lineNbr": 85,
+      "author": {
+        "id": 1038819
+      },
+      "writtenOn": "2025-10-21T21:48:37Z",
+      "side": 1,
+      "message": "`gc_loop_count` is just a counter that normally only goes up. It\u0027s being set to zero in `INIT_SSD_CONFIG` by `gc_threads \u003d calloc(device_count, sizeof(*gc_threads));`.\n\nI\u0027ve added initialization in `INIT_GC_MANAGER`.",
+      "parentUuid": "ca5ac10c_95be9b3c",
+      "revId": "e325b23a505dbe77b95d269bef0b2cd8e09a171a",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
+    },
+    {
+      "unresolved": true,
+      "key": {
         "uuid": "e86b47b7_ba2f5622",
         "filename": "eVSSIM/FTL_SOURCE/PAGE_MAP/ftl_mapping_manager.c",
         "patchSetId": 1
@@ -31,6 +49,24 @@
       "writtenOn": "2025-10-21T15:09:39Z",
       "side": 1,
       "message": "Set `gc_loop_count` to 0 just in case someone uses it outside of the tests",
+      "revId": "e325b23a505dbe77b95d269bef0b2cd8e09a171a",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "0ce5899c_59f241f3",
+        "filename": "eVSSIM/FTL_SOURCE/PAGE_MAP/ftl_mapping_manager.c",
+        "patchSetId": 1
+      },
+      "lineNbr": 123,
+      "author": {
+        "id": 1038819
+      },
+      "writtenOn": "2025-10-21T21:48:37Z",
+      "side": 1,
+      "message": "`gc_loop_count` is a counter that goes *up*. That\u0027s all. No need to reset to 0 in regular operation, definitely not in `UPDATE_OLD_PAGE_MAPPING`.",
+      "parentUuid": "e86b47b7_ba2f5622",
       "revId": "e325b23a505dbe77b95d269bef0b2cd8e09a171a",
       "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
     },
@@ -54,6 +90,24 @@
     {
       "unresolved": true,
       "key": {
+        "uuid": "8744aa6e_ff044f70",
+        "filename": "eVSSIM/tests/host/simulation/gc_tests.cc",
+        "patchSetId": 1
+      },
+      "lineNbr": 64,
+      "author": {
+        "id": 1038819
+      },
+      "writtenOn": "2025-10-21T21:48:37Z",
+      "side": 1,
+      "message": "What a silly mistake, thank you for noticing!",
+      "parentUuid": "d1bf8b28_6f16bb93",
+      "revId": "e325b23a505dbe77b95d269bef0b2cd8e09a171a",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
+    },
+    {
+      "unresolved": true,
+      "key": {
         "uuid": "262625c0_f2d48aa9",
         "filename": "eVSSIM/tests/host/simulation/gc_tests.cc",
         "patchSetId": 1
@@ -65,6 +119,24 @@
       "writtenOn": "2025-10-21T15:09:39Z",
       "side": 1,
       "message": "Add : (`TODO:`) in both cases so it will be searchable in the feature.",
+      "revId": "e325b23a505dbe77b95d269bef0b2cd8e09a171a",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "6652bd41_60d19818",
+        "filename": "eVSSIM/tests/host/simulation/gc_tests.cc",
+        "patchSetId": 1
+      },
+      "lineNbr": 110,
+      "author": {
+        "id": 1038819
+      },
+      "writtenOn": "2025-10-21T21:48:37Z",
+      "side": 1,
+      "message": "done",
+      "parentUuid": "262625c0_f2d48aa9",
       "revId": "e325b23a505dbe77b95d269bef0b2cd8e09a171a",
       "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
     }
