@@ -50,6 +50,23 @@
       "message": "recheck",
       "revId": "26bd5670b6b1f1503f0073bf2414301d24bc52e1",
       "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "63cc32ac_b23fbc3e",
+        "filename": "eVSSIM/CONFIG/vssim_config_manager.c",
+        "patchSetId": 7
+      },
+      "lineNbr": 118,
+      "author": {
+        "id": 1038865
+      },
+      "writtenOn": "2025-10-21T21:20:42Z",
+      "side": 1,
+      "message": "What will happen if in one device creation a failure happen (RERR macro is called) and then the function stops before reaching this line of code. We ok with the fact that device_count \u003d 0?",
+      "revId": "26bd5670b6b1f1503f0073bf2414301d24bc52e1",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
     }
   ]
 }
