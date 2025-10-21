@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "27fa5871_b535c3f7",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 5
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 1038819
+      },
+      "writtenOn": "2025-10-21T21:32:52Z",
+      "side": 1,
+      "message": "Ported some fixes from https://review.gerrithub.io/c/davidsaOpenu/simulator/+/1224625 to fix failing CI",
+      "revId": "626c9d80405b9a4cb1a9030e78e1238d4be02866",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
+    }
+  ]
+}
