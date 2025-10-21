@@ -67,6 +67,30 @@
     {
       "unresolved": true,
       "key": {
+        "uuid": "12ce1f3a_ccc38771",
+        "filename": "eVSSIM/tests/host/simulation/gc_tests.cc",
+        "patchSetId": 3
+      },
+      "lineNbr": 25,
+      "author": {
+        "id": 1038819
+      },
+      "writtenOn": "2025-10-21T19:01:03Z",
+      "side": 1,
+      "message": "fixed",
+      "parentUuid": "01f387d2_da4df10f",
+      "range": {
+        "startLine": 25,
+        "startChar": 7,
+        "endLine": 25,
+        "endChar": 8
+      },
+      "revId": "c24ba65512961fa05544d2f7388832f50e0b06ef",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
+    },
+    {
+      "unresolved": true,
+      "key": {
         "uuid": "55fc58e0_2a609297",
         "filename": "eVSSIM/tests/host/simulation/log_mgr_tests.cc",
         "patchSetId": 3
@@ -96,6 +120,24 @@
       "side": 1,
       "message": "It\u0027s necessary in tests that access internal FTL functions such as `SSD_PAGE_WRITE` that don\u0027t lock `g_lock`.\n\nAs it happens, `log_mgr_tests.cc` doesn\u0027t actually touch any of these functions, so I\u0027ll try to remove the mutex locking from this file.",
       "parentUuid": "55fc58e0_2a609297",
+      "revId": "c24ba65512961fa05544d2f7388832f50e0b06ef",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "066fb9ba_30a11b03",
+        "filename": "eVSSIM/tests/host/simulation/log_mgr_tests.cc",
+        "patchSetId": 3
+      },
+      "lineNbr": 47,
+      "author": {
+        "id": 1038819
+      },
+      "writtenOn": "2025-10-21T19:01:03Z",
+      "side": 1,
+      "message": "fixed",
+      "parentUuid": "c607047f_a3807e47",
       "revId": "c24ba65512961fa05544d2f7388832f50e0b06ef",
       "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
     }
