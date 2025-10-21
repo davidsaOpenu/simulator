@@ -16,6 +16,46 @@
       "message": "recheck",
       "revId": "c24ba65512961fa05544d2f7388832f50e0b06ef",
       "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "fbf7f6ba_59fcf379",
+        "filename": "eVSSIM/tests/host/simulation/gc_tests.cc",
+        "patchSetId": 3
+      },
+      "lineNbr": 25,
+      "author": {
+        "id": 1038805
+      },
+      "writtenOn": "2025-10-21T15:00:54Z",
+      "side": 1,
+      "message": "Why a lock here is necessary? There\u0027s a lock inside `FTL_INIT` which happens in `BaseTest::SetUp`. If it\u0027s for the GC thread to unlock later I think it\u0027s better to have 2 different locks, one for the init of the configuration and one for things that are related to gc (thread, init, term).",
+      "range": {
+        "startLine": 25,
+        "startChar": 7,
+        "endLine": 25,
+        "endChar": 8
+      },
+      "revId": "c24ba65512961fa05544d2f7388832f50e0b06ef",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "55fc58e0_2a609297",
+        "filename": "eVSSIM/tests/host/simulation/log_mgr_tests.cc",
+        "patchSetId": 3
+      },
+      "lineNbr": 47,
+      "author": {
+        "id": 1038805
+      },
+      "writtenOn": "2025-10-21T15:00:54Z",
+      "side": 1,
+      "message": "Why is this necessary in this test and all of the others?",
+      "revId": "c24ba65512961fa05544d2f7388832f50e0b06ef",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
     }
   ]
 }
