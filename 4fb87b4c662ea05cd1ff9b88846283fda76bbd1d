@@ -16,6 +16,23 @@
       "message": "CR fixes",
       "revId": "4fb87b4c662ea05cd1ff9b88846283fda76bbd1d",
       "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "7e3a0bf9_c9d66f35",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 4
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 1038805
+      },
+      "writtenOn": "2025-10-21T19:35:42Z",
+      "side": 1,
+      "message": "lgtm",
+      "revId": "4fb87b4c662ea05cd1ff9b88846283fda76bbd1d",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
     }
   ]
 }
