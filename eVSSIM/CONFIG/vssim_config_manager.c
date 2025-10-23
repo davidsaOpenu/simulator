@@ -349,8 +349,8 @@ void calculate_derived_values(ssd_config_t* device) {
     device->gc_l2_threshold_block_nb = (int)((1-gc_l2_threshold) * (double)device->block_mapping_entry_nb);
 #endif
 
-    device->gc_low_thr_block_nb = (100 - device->gc_low_thr) * device->block_mapping_entry_nb / 100;
-    device->gc_hi_thr_block_nb = (100 - device->gc_hi_thr) * device->block_mapping_entry_nb / 100;
+    device->gc_low_thr_page_nb = device->page_nb * (100 - device->gc_low_thr) * device->block_mapping_entry_nb / 100;
+    device->gc_hi_thr_page_nb = device->page_nb * (100 - device->gc_hi_thr) * device->block_mapping_entry_nb / 100;
     device->gc_low_thr_interval_sec = 10;
     device->gc_hi_thr_interval_sec = 1;
 }

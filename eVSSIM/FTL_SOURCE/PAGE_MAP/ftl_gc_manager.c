@@ -29,17 +29,17 @@ static void *GC_BACKGROUND_LOOP(void *arg) {
     while (!gc_thread->gc_stop_flag) {
         gc_thread->gc_loop_count++;
         bool collected;
-        uint64_t total_empty_block_nb;
+        uint64_t total_zero_page_nb;
         do {
             collected = GC_CHECK(gc_thread->device_index, false);
-            total_empty_block_nb = inverse_mappings_manager[device_index].total_empty_block_nb;
-        } while (collected && total_empty_block_nb < devices[device_index].gc_hi_thr_block_nb);
+            total_zero_page_nb = inverse_mappings_manager[device_index].total_zero_page_nb;
+        } while (collected && total_zero_page_nb < devices[device_index].gc_hi_thr_page_nb);
 
         struct timespec ts;
         clock_gettime(CLOCK_REALTIME, &ts);
-        if (total_empty_block_nb >= devices[device_index].gc_low_thr_block_nb) {
+        if (total_zero_page_nb >= devices[device_index].gc_low_thr_page_nb) {
             ts.tv_sec += devices[device_index].gc_low_thr_interval_sec;
-        } else if (total_empty_block_nb >= devices[device_index].gc_hi_thr_block_nb) {
+        } else if (total_zero_page_nb >= devices[device_index].gc_hi_thr_page_nb) {
             ts.tv_sec += devices[device_index].gc_hi_thr_interval_sec;
         } else {
             pthread_cond_wait(&gc_thread->gc_signal_cond, &g_lock);
@@ -100,8 +100,8 @@ bool GC_CHECK(uint8_t device_index, bool force)
 	int i, ret;
 	bool collected = false;
 
-	if(force || inverse_mappings_manager[device_index].total_empty_block_nb < (uint64_t)devices[device_index].gc_threshold_block_nb) {
-        int l2 = inverse_mappings_manager[device_index].total_empty_block_nb < (uint64_t)devices[device_index].gc_l2_threshold_block_nb;
+	if(force || inverse_mappings_manager[device_index].total_zero_page_nb < devices[device_index].gc_threshold_block_nb * devices[device_index].page_nb) {
+        int l2 = inverse_mappings_manager[device_index].total_zero_page_nb < devices[device_index].gc_l2_threshold_block_nb * devices[device_index].page_nb;
 		for(i=0; i<devices[device_index].gc_victim_nb; i++){
 			ret = GARBAGE_COLLECTION(device_index, l2);
 			if(ret == FTL_FAILURE){
@@ -169,15 +169,15 @@ ftl_ret_val DEFAULT_GC_COLLECTION_ALGO(uint8_t device_index, int l2)
 
 
 
-			ret = GET_NEW_PAGE(device_index, VICTIM_INCHIP, mapping_index, &new_ppn);
+			ret = GET_NEW_PAGE(device_index, VICTIM_INCHIP_GC, mapping_index, &new_ppn);
 
             if(ret == FTL_FAILURE){
                 if (!l2)
-				    RERR(FTL_FAILURE, "GET_NEW_PAGE(VICTIM_INCHIP, %lx): failed\n", mapping_index);
+				    RERR(FTL_FAILURE, "GET_NEW_PAGE(VICTIM_INCHIP_GC, %lx): failed\n", mapping_index);
                 // l2 threshold reached. let's re-write the page
-                ret = GET_NEW_PAGE(device_index, VICTIM_OVERALL, devices[device_index].empty_table_entry_nb, &new_ppn);
+                ret = GET_NEW_PAGE(device_index, VICTIM_OVERALL_GC, devices[device_index].empty_table_entry_nb, &new_ppn);
                 if(ret == FTL_FAILURE)
-				    RERR(FTL_FAILURE, "GET_NEW_PAGE(VICTIM_OVERALL, devices[device_index].empty_table_entry_nb): failed\n");
+				    RERR(FTL_FAILURE, "GET_NEW_PAGE(VICTIM_OVERALL_GC, devices[device_index].empty_table_entry_nb): failed\n");
 
                 SSD_PAGE_READ(device_index, victim_phy_flash_nb, victim_phy_block_nb, i, i, GC_READ);
                 SSD_PAGE_WRITE(device_index, CALC_FLASH(device_index, new_ppn), CALC_BLOCK(device_index, new_ppn), CALC_PAGE(device_index, new_ppn), i, GC_WRITE);
