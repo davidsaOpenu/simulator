@@ -333,6 +333,9 @@ void calculate_derived_values(ssd_config_t* device) {
     device->block_mapping_entry_nb = (uint64_t)device->block_nb * device->flash_nb;
     device->pages_in_ssd = device->page_nb * device->block_nb * device->flash_nb;
 
+    // reserve one block for GC
+    device->sectors_in_ssd = device->sectors_per_page * (device->pages_in_ssd - device->page_nb);
+
 #ifdef PAGE_MAP
     device->page_mapping_entry_nb = device->page_nb * device->block_nb * device->flash_nb;
     device->each_empty_table_entry_nb = device->block_nb / device->planes_per_flash;
@@ -349,8 +352,8 @@ void calculate_derived_values(ssd_config_t* device) {
     device->gc_l2_threshold_block_nb = (int)((1-gc_l2_threshold) * (double)device->block_mapping_entry_nb);
 #endif
 
-    device->gc_low_thr_block_nb = (100 - device->gc_low_thr) * device->block_mapping_entry_nb / 100;
-    device->gc_hi_thr_block_nb = (100 - device->gc_hi_thr) * device->block_mapping_entry_nb / 100;
+    device->gc_low_thr_page_nb = device->page_nb * (100 - device->gc_low_thr) * device->block_mapping_entry_nb / 100;
+    device->gc_hi_thr_page_nb = device->page_nb * (100 - device->gc_hi_thr) * device->block_mapping_entry_nb / 100;
     device->gc_low_thr_interval_sec = 10;
     device->gc_hi_thr_interval_sec = 1;
 }
