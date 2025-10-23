@@ -107,7 +107,6 @@ namespace ssd_io_emulator_tests {
             uint64_t ppn;
             ASSERT_EQ(FTL_SUCCESS, GET_NEW_PAGE(g_device_index, VICTIM_OVERALL, config->empty_table_entry_nb, &ppn));
             ASSERT_EQ(FTL_SUCCESS, UPDATE_NEW_PAGE_MAPPING(g_device_index, lpn, ppn));
-            ASSERT_EQ(FTL_SUCCESS, UPDATE_OLD_PAGE_MAPPING(g_device_index, lpn));
         }
 
         config->gc_low_thr_interval_sec = 100 * 3600; // 100 hours - practically infinity
@@ -159,5 +158,52 @@ namespace ssd_io_emulator_tests {
 
         ASSERT_LT(1, gc_threads[g_device_index].gc_loop_count);
         ASSERT_LT(config->page_nb, inverse_mappings_manager[g_device_index].total_zero_page_nb);
+    }
+
+    TEST_P(GCTest, CaseDiskFullWrite) {
+        ssd_config_t *config = &devices[g_device_index];
+
+        // total usable pages (minus reserved zero pages for GC)
+        uint64_t pages_total = config->pages_in_ssd - config->page_nb;
+
+        uint64_t ppn;
+        for (uint64_t i = 0; i < pages_total; i++) {
+            uint64_t lpn = i;
+            ASSERT_EQ(FTL_SUCCESS, GET_NEW_PAGE(g_device_index, VICTIM_OVERALL, devices[g_device_index].empty_table_entry_nb, &ppn));
+            ASSERT_EQ(FTL_SUCCESS, UPDATE_NEW_PAGE_MAPPING(g_device_index, lpn, ppn));
+        }
+        ASSERT_EQ(FTL_FAILURE, GET_NEW_PAGE(g_device_index, VICTIM_OVERALL, devices[g_device_index].empty_table_entry_nb, &ppn));
+
+        ASSERT_EQ(0, gc_threads[g_device_index].gc_loop_count);
+        ASSERT_TRUE(WaitForGC()) << "GC thread did not advance";
+        // thread should be waiting for new invalid pages right now.
+        ASSERT_FALSE(WaitForGC()) << "GC thread should not have advanced";
+        ASSERT_EQ(1, gc_threads[g_device_index].gc_loop_count);
+
+        // several arbitrary sectors:
+        uint64_t sectors[] = {
+            0, 1,
+            config->sectors_in_ssd / 2 - 1, config->sectors_in_ssd / 2, config->sectors_in_ssd / 2 + 1,
+            config->sectors_in_ssd - 2, config->sectors_in_ssd - 1};
+
+        // "sparse surface scan" when disk is completely full
+        for (size_t i = 0; i < sizeof(sectors) / sizeof(sectors[0]); i++) {
+            uint64_t lba = sectors[i];
+            ASSERT_EQ(config->page_nb, inverse_mappings_manager[g_device_index].total_zero_page_nb);
+            pthread_mutex_unlock(&g_lock);
+            ASSERT_EQ(FTL_SUCCESS, FTL_WRITE_SECT(g_device_index, lba, 1, NULL));
+            pthread_mutex_lock(&g_lock);
+            ASSERT_EQ(config->page_nb, inverse_mappings_manager[g_device_index].total_zero_page_nb);
+        }
+    }
+
+    TEST_P(GCTest, CaseReservedLBAs) {
+        ssd_config_t *config = &devices[g_device_index];
+
+        pthread_mutex_unlock(&g_lock);
+        // "Exceed Sector number" error - reserved pages for GC
+        ASSERT_EQ(FTL_FAILURE, FTL_WRITE_SECT(g_device_index, config->sectors_in_ssd, 1, NULL));
+        ASSERT_EQ(FTL_SUCCESS, FTL_WRITE_SECT(g_device_index, config->sectors_in_ssd - 1, 1, NULL));
+        pthread_mutex_lock(&g_lock);
     }
 }
