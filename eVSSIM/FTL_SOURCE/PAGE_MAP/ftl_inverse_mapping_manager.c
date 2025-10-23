@@ -121,7 +121,7 @@ void INIT_EMPTY_BLOCK_LIST(uint8_t device_index)
 	FILE* fp = fopen(filename, "r");
 	free(filename);
 	if(READ_MAPPING_INFO_FROM_FILES && fp != NULL){
-		inverse_mappings_manager[device_index].total_empty_block_nb = 0;
+		inverse_mappings_manager[device_index].total_zero_page_nb = 0;
 		if(fread(inverse_mappings_manager[device_index].empty_block_table_start,sizeof(empty_block_root),devices[device_index].planes_per_flash*devices[device_index].flash_nb, fp) <= 0)
 			PERR("fread\n");
 		curr_root = inverse_mappings_manager[device_index].empty_block_table_start;
@@ -130,7 +130,6 @@ void INIT_EMPTY_BLOCK_LIST(uint8_t device_index)
 
 			for(j=0;j<devices[device_index].flash_nb;j++){
 
-				inverse_mappings_manager[device_index].total_empty_block_nb += curr_root->empty_block_nb;
 				k = curr_root->empty_block_nb;
 				while(k > 0){
 					curr_entry = calloc(1, sizeof(empty_block_entry));
@@ -151,6 +150,7 @@ void INIT_EMPTY_BLOCK_LIST(uint8_t device_index)
 						curr_root->tail->next = curr_entry;
 						curr_root->tail = curr_entry;
 					}
+					inverse_mappings_manager[device_index].total_zero_page_nb += curr_entry->curr_phy_page_nb;
 					k--;
 				}
 				curr_root += 1;
@@ -196,7 +196,7 @@ void INIT_EMPTY_BLOCK_LIST(uint8_t device_index)
 				curr_root += 1;
 			}
 		}
-		inverse_mappings_manager[device_index].total_empty_block_nb = (int64_t)devices[device_index].block_mapping_entry_nb;
+		inverse_mappings_manager[device_index].total_zero_page_nb = devices[device_index].pages_in_ssd;
 		inverse_mappings_manager[device_index].empty_block_table_index = 0;
 	}
 }
@@ -437,15 +437,29 @@ void TERM_VICTIM_BLOCK_LIST(uint8_t device_index)
 // all over again)
 empty_block_entry* GET_EMPTY_BLOCK(uint8_t device_index, int mode, uint64_t mapping_index)
 {
-	if (inverse_mappings_manager[device_index].total_empty_block_nb == 0)
-		RERR(NULL, "There is no empty block\n");
-
 	uint64_t input_mapping_index = mapping_index;
 
 	empty_block_entry* curr_empty_block;
 	empty_block_root* curr_root_entry;
 
-	while(inverse_mappings_manager[device_index].total_empty_block_nb != 0){
+	uint64_t min_zero_page_nb = 0;
+	switch (mode)
+	{
+		case VICTIM_OVERALL_GC:
+			mode = VICTIM_OVERALL;
+			break;
+		case VICTIM_INCHIP_GC:
+			mode = VICTIM_INCHIP;
+			break;
+		case VICTIM_NOPARAL_GC:
+			mode = VICTIM_NOPARAL;
+			break;
+		default:
+			min_zero_page_nb = devices[device_index].page_nb;
+			break;
+	}
+
+	while(inverse_mappings_manager[device_index].total_zero_page_nb > min_zero_page_nb){
 
 		if (mode == VICTIM_OVERALL){
 			curr_root_entry = inverse_mappings_manager[device_index].empty_block_table_start + inverse_mappings_manager[device_index].empty_block_table_index;
@@ -474,9 +488,6 @@ empty_block_entry* GET_EMPTY_BLOCK(uint8_t device_index, int mode, uint64_t mapp
 
 					/* Eject Empty Block from the list */
 					INSERT_VICTIM_BLOCK(device_index, curr_empty_block);
-
-					/* Update The total number of empty block */
-					inverse_mappings_manager[device_index].total_empty_block_nb--;
 
 					inverse_mappings_manager[device_index].empty_block_table_index++;
 					if(inverse_mappings_manager[device_index].empty_block_table_index == devices[device_index].empty_table_entry_nb){
@@ -521,9 +532,6 @@ empty_block_entry* GET_EMPTY_BLOCK(uint8_t device_index, int mode, uint64_t mapp
 					/* Eject Empty Block from the list */
 					INSERT_VICTIM_BLOCK(device_index, curr_empty_block);
 
-					/* Update The total number of empty block */
-					inverse_mappings_manager[device_index].total_empty_block_nb--;
-
 					continue;
 				}
 				else{
@@ -563,9 +571,6 @@ empty_block_entry* GET_EMPTY_BLOCK(uint8_t device_index, int mode, uint64_t mapp
 
 					/* Eject Empty Block from the list */
 					INSERT_VICTIM_BLOCK(device_index, curr_empty_block);
-
-					/* Update The total number of empty block */
-					inverse_mappings_manager[device_index].total_empty_block_nb--;
 
 					continue;
 				}
@@ -615,7 +620,7 @@ ftl_ret_val INSERT_EMPTY_BLOCK(uint8_t device_index, unsigned int phy_flash_nb, 
 		curr_root_entry->tail = new_empty_block;
 		curr_root_entry->empty_block_nb++;
 	}
-	inverse_mappings_manager[device_index].total_empty_block_nb++;
+	inverse_mappings_manager[device_index].total_zero_page_nb += devices[device_index].page_nb;
 
 	return FTL_SUCCESS;
 }

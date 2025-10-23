@@ -99,6 +99,7 @@ ftl_ret_val DEFAULT_NEXT_PAGE_ALGO(uint8_t device_index, int mode, uint64_t mapp
 	*ppn = curr_empty_block->phy_flash_nb * devices[device_index].block_nb * devices[device_index].page_nb + curr_empty_block->phy_block_nb * devices[device_index].page_nb + curr_empty_block->curr_phy_page_nb;
 
 	curr_empty_block->curr_phy_page_nb += 1;
+	inverse_mappings_manager[device_index].total_zero_page_nb--;
 
 	return FTL_SUCCESS;
 }
