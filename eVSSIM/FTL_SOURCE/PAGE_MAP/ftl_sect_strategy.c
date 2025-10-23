@@ -201,7 +201,7 @@ ftl_ret_val _FTL_WRITE_SECT(uint8_t device_index, uint64_t sector_nb, unsigned i
 	uint64_t lba = sector_nb; // logical block address
 	uint64_t lpn;			  // logical page number
 	uint64_t new_ppn = MAPPING_TABLE_INIT_VAL; // physical page number
-	bool is_new_page_allocated = false;
+	bool device_full = false;
 
 	unsigned int remain = length;
 	unsigned int left_skip = sector_nb % devices[device_index].sectors_per_page; // offset from start of page (when write to part of page)
@@ -235,9 +235,14 @@ ftl_ret_val _FTL_WRITE_SECT(uint8_t device_index, uint64_t sector_nb, unsigned i
 		else {
 			ret = GET_NEW_PAGE(device_index, VICTIM_OVERALL, devices[device_index].empty_table_entry_nb, &new_ppn);
 			if (ret == FTL_FAILURE) {
-				RERR(FTL_FAILURE, "[FTL_WRITE] Get new page fail \n");
+				ret = GET_NEW_PAGE(device_index, VICTIM_OVERALL_GC, devices[device_index].empty_table_entry_nb, &new_ppn);
+				if (ret == FTL_FAILURE) {
+					RERR(FTL_FAILURE, "[FTL_WRITE] Get new page fail \n");
+				} else {
+					device_full = true;
+					DEV_PINFO(device_index, "[FTL_WRITE] obtained a GC reserved page because device is full\n");
+				}
 			}
-			is_new_page_allocated = true;
 			ret = SSD_PAGE_WRITE(device_index, CALC_FLASH(device_index, new_ppn), CALC_BLOCK(device_index, new_ppn), CALC_PAGE(device_index, new_ppn), write_page_nb, WRITE);
 			uint64_t abs_physical_offset = new_ppn * GET_PAGE_SIZE(device_index) + lba % (int32_t)devices[device_index].sectors_per_page;
 			if (ret == FTL_SUCCESS && data != NULL &&
@@ -278,8 +283,8 @@ ftl_ret_val _FTL_WRITE_SECT(uint8_t device_index, uint64_t sector_nb, unsigned i
 	INCREASE_IO_REQUEST_SEQ_NB();
 
 #ifdef GC_ON
-	if (is_new_page_allocated) {
-		GC_CHECK(device_index, false);
+	if (device_full) {
+		GC_CHECK(device_index, true);
 	}
 #endif
 
