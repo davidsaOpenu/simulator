@@ -65,9 +65,12 @@
 #define EMPTY_DATA_BLOCK        40
 
 /* GC Copy Valid Page Type */
-#define VICTIM_OVERALL	41
-#define VICTIM_INCHIP	42
-#define VICTIM_NOPARAL	43
+#define VICTIM_OVERALL		41
+#define VICTIM_INCHIP		42
+#define VICTIM_NOPARAL		43
+#define VICTIM_OVERALL_GC	44
+#define VICTIM_INCHIP_GC	45
+#define VICTIM_NOPARAL_GC	46
 
 /* Page Type */
 #define PAGE_VALID		'V'
