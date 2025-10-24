@@ -16,6 +16,23 @@
       "message": "Ported some fixes from https://review.gerrithub.io/c/davidsaOpenu/simulator/+/1224625 to fix failing CI",
       "revId": "626c9d80405b9a4cb1a9030e78e1238d4be02866",
       "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "d2e1b73c_b0f2456c",
+        "filename": "eVSSIM/tests/host/simulation/gc_tests.cc",
+        "patchSetId": 5
+      },
+      "lineNbr": 1,
+      "author": {
+        "id": 1007990
+      },
+      "writtenOn": "2025-10-24T06:18:06Z",
+      "side": 1,
+      "message": "the test is not running currently (according to the trello card). Should not it be a part of a different change request?",
+      "revId": "626c9d80405b9a4cb1a9030e78e1238d4be02866",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
     }
   ]
 }
