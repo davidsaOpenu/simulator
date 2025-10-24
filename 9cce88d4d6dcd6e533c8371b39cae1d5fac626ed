@@ -69,6 +69,24 @@
       "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "7377950a_00f3d0fb",
+        "filename": "eVSSIM/tests/guest/fio_tests/fio_jobs/test_rw_short_multi_disk.fio",
+        "patchSetId": 2
+      },
+      "lineNbr": 5,
+      "author": {
+        "id": 1038805
+      },
+      "writtenOn": "2025-10-24T07:21:20Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "94b2c5a4_bafaf1b5",
+      "revId": "9cce88d4d6dcd6e533c8371b39cae1d5fac626ed",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "b26ffc22_c67ff249",
@@ -104,6 +122,24 @@
       "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "52d5bf31_a047528f",
+        "filename": "eVSSIM/tests/guest/fio_tests/test_fio.py",
+        "patchSetId": 2
+      },
+      "lineNbr": 33,
+      "author": {
+        "id": 1038805
+      },
+      "writtenOn": "2025-10-24T07:21:20Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "b26ffc22_c67ff249",
+      "revId": "9cce88d4d6dcd6e533c8371b39cae1d5fac626ed",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "8d75418b_0be21a67",
@@ -121,6 +157,24 @@
       "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "58374478_935dc9e0",
+        "filename": "infra/builder/builder.sh",
+        "patchSetId": 2
+      },
+      "lineNbr": 242,
+      "author": {
+        "id": 1038805
+      },
+      "writtenOn": "2025-10-24T07:21:20Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "8d75418b_0be21a67",
+      "revId": "9cce88d4d6dcd6e533c8371b39cae1d5fac626ed",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "dde23cce_95cf62ab",
@@ -134,6 +188,24 @@
       "writtenOn": "2025-10-21T20:46:53Z",
       "side": 1,
       "message": "This seems kind of wrong? I\u0027m not sure. I compared this code to the original code from previous semester (commit 9b5d2ee9d79828aa279396752a68ce1f6a79617f).\n\nFor starters, `EVSSIM_QEMU_DEFAULT_DISK_SIZE` is being overridden here. If `device_simulator\u003d\"off\"` (Non-simulator mode), `device_size` won\u0027t have the default size. It will have whatever in `device_sizes`. So at the very least, the comment \"Non-simulator mode - use default size\" is wrong. And there will be multiple devices instead of one - is that intentional?\n\nI can\u0027t find a decisive bug though, and I\u0027m not sure non-simulator mode is even relevant.",
+      "revId": "9cce88d4d6dcd6e533c8371b39cae1d5fac626ed",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "441a8c87_d6688b3d",
+        "filename": "infra/builder/builder.sh",
+        "patchSetId": 2
+      },
+      "lineNbr": 265,
+      "author": {
+        "id": 1038805
+      },
+      "writtenOn": "2025-10-24T07:21:20Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "dde23cce_95cf62ab",
       "revId": "9cce88d4d6dcd6e533c8371b39cae1d5fac626ed",
       "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
     }
