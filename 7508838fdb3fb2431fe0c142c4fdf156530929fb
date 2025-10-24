@@ -26,6 +26,30 @@
     {
       "unresolved": true,
       "key": {
+        "uuid": "1d899bfc_8ca07806",
+        "filename": "eVSSIM/tests/host/simulation/gc_tests.cc",
+        "patchSetId": 3
+      },
+      "lineNbr": 56,
+      "author": {
+        "id": 1007990
+      },
+      "writtenOn": "2025-10-24T07:38:57Z",
+      "side": 1,
+      "message": "done in https://review.gerrithub.io/c/davidsaOpenu/simulator/+/1224915/",
+      "parentUuid": "f07caad1_05405586",
+      "range": {
+        "startLine": 52,
+        "startChar": 0,
+        "endLine": 56,
+        "endChar": 68
+      },
+      "revId": "7508838fdb3fb2431fe0c142c4fdf156530929fb",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
+    },
+    {
+      "unresolved": true,
+      "key": {
         "uuid": "36f87687_7c9f2ab4",
         "filename": "eVSSIM/tests/host/simulation/gc_tests.cc",
         "patchSetId": 3
@@ -37,6 +61,24 @@
       "writtenOn": "2025-10-24T06:28:28Z",
       "side": 1,
       "message": "just as for other change request (the one that added gc_test.ccwithout running the test). Seems worth squashing 2 changes into one that will also run the test.",
+      "revId": "7508838fdb3fb2431fe0c142c4fdf156530929fb",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "35fe216d_aebf6801",
+        "filename": "eVSSIM/tests/host/simulation/gc_tests.cc",
+        "patchSetId": 3
+      },
+      "lineNbr": 107,
+      "author": {
+        "id": 1007990
+      },
+      "writtenOn": "2025-10-24T07:38:57Z",
+      "side": 1,
+      "message": "ok. seems that the relation chain explains it .",
+      "parentUuid": "36f87687_7c9f2ab4",
       "revId": "7508838fdb3fb2431fe0c142c4fdf156530929fb",
       "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
     }
