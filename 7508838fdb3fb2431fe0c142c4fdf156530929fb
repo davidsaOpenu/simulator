@@ -36,6 +36,24 @@
       "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "c80f7bb8_3111b23e",
+        "filename": "eVSSIM/FTL_SOURCE/PAGE_MAP/ftl_inverse_mapping_manager.c",
+        "patchSetId": 3
+      },
+      "lineNbr": 479,
+      "author": {
+        "id": 1007990
+      },
+      "writtenOn": "2025-10-24T07:32:13Z",
+      "side": 0,
+      "message": "Acknowledged",
+      "parentUuid": "9440630c_e643ebd6",
+      "revId": "7508838fdb3fb2431fe0c142c4fdf156530929fb",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "82f7a24b_c6f23236",
@@ -67,6 +85,24 @@
       "side": 0,
       "message": "In `DEFAULT_NEXT_PAGE_ALGO` which is the only caller of `GET_EMPTY_BLOCK`, so it\u0027s guaranteed to happen every time.",
       "parentUuid": "82f7a24b_c6f23236",
+      "revId": "7508838fdb3fb2431fe0c142c4fdf156530929fb",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "be9dc1bb_cbc57ef8",
+        "filename": "eVSSIM/FTL_SOURCE/PAGE_MAP/ftl_inverse_mapping_manager.c",
+        "patchSetId": 3
+      },
+      "lineNbr": 525,
+      "author": {
+        "id": 1007990
+      },
+      "writtenOn": "2025-10-24T07:32:13Z",
+      "side": 0,
+      "message": "Acknowledged",
+      "parentUuid": "0561eff3_9253cb2a",
       "revId": "7508838fdb3fb2431fe0c142c4fdf156530929fb",
       "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
     }
