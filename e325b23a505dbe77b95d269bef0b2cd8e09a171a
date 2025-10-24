@@ -36,6 +36,24 @@
       "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "40b4f730_ef586289",
+        "filename": "eVSSIM/FTL_SOURCE/PAGE_MAP/ftl_gc_manager.c",
+        "patchSetId": 1
+      },
+      "lineNbr": 85,
+      "author": {
+        "id": 1038805
+      },
+      "writtenOn": "2025-10-24T05:24:04Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "9a5f04cd_274c69a3",
+      "revId": "e325b23a505dbe77b95d269bef0b2cd8e09a171a",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "e86b47b7_ba2f5622",
@@ -67,6 +85,24 @@
       "side": 1,
       "message": "`gc_loop_count` is a counter that goes *up*. That\u0027s all. No need to reset to 0 in regular operation, definitely not in `UPDATE_OLD_PAGE_MAPPING`.",
       "parentUuid": "e86b47b7_ba2f5622",
+      "revId": "e325b23a505dbe77b95d269bef0b2cd8e09a171a",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "bae2f1a2_8434f419",
+        "filename": "eVSSIM/FTL_SOURCE/PAGE_MAP/ftl_mapping_manager.c",
+        "patchSetId": 1
+      },
+      "lineNbr": 123,
+      "author": {
+        "id": 1038805
+      },
+      "writtenOn": "2025-10-24T05:24:04Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "0ce5899c_59f241f3",
       "revId": "e325b23a505dbe77b95d269bef0b2cd8e09a171a",
       "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
     },
@@ -106,6 +142,24 @@
       "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "22bd5f20_e7c79ff1",
+        "filename": "eVSSIM/tests/host/simulation/gc_tests.cc",
+        "patchSetId": 1
+      },
+      "lineNbr": 64,
+      "author": {
+        "id": 1038805
+      },
+      "writtenOn": "2025-10-24T05:24:04Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "8744aa6e_ff044f70",
+      "revId": "e325b23a505dbe77b95d269bef0b2cd8e09a171a",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "262625c0_f2d48aa9",
@@ -137,6 +191,24 @@
       "side": 1,
       "message": "done",
       "parentUuid": "262625c0_f2d48aa9",
+      "revId": "e325b23a505dbe77b95d269bef0b2cd8e09a171a",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "7643d87a_cb2f6b98",
+        "filename": "eVSSIM/tests/host/simulation/gc_tests.cc",
+        "patchSetId": 1
+      },
+      "lineNbr": 110,
+      "author": {
+        "id": 1038805
+      },
+      "writtenOn": "2025-10-24T05:24:04Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "6652bd41_60d19818",
       "revId": "e325b23a505dbe77b95d269bef0b2cd8e09a171a",
       "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
     }
