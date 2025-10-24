@@ -20,6 +20,24 @@
     {
       "unresolved": true,
       "key": {
+        "uuid": "9440630c_e643ebd6",
+        "filename": "eVSSIM/FTL_SOURCE/PAGE_MAP/ftl_inverse_mapping_manager.c",
+        "patchSetId": 3
+      },
+      "lineNbr": 479,
+      "author": {
+        "id": 1038819
+      },
+      "writtenOn": "2025-10-24T07:02:00Z",
+      "side": 0,
+      "message": "In `DEFAULT_NEXT_PAGE_ALGO` which is the only caller of `GET_EMPTY_BLOCK`, so it\u0027s guaranteed to happen every time.",
+      "parentUuid": "556ef6a4_dd57c0ea",
+      "revId": "7508838fdb3fb2431fe0c142c4fdf156530929fb",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
+    },
+    {
+      "unresolved": true,
+      "key": {
         "uuid": "82f7a24b_c6f23236",
         "filename": "eVSSIM/FTL_SOURCE/PAGE_MAP/ftl_inverse_mapping_manager.c",
         "patchSetId": 3
@@ -31,6 +49,24 @@
       "writtenOn": "2025-10-24T06:12:22Z",
       "side": 0,
       "message": "no need to update total_zero_page_nb somewhere here?",
+      "revId": "7508838fdb3fb2431fe0c142c4fdf156530929fb",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "0561eff3_9253cb2a",
+        "filename": "eVSSIM/FTL_SOURCE/PAGE_MAP/ftl_inverse_mapping_manager.c",
+        "patchSetId": 3
+      },
+      "lineNbr": 525,
+      "author": {
+        "id": 1038819
+      },
+      "writtenOn": "2025-10-24T07:02:00Z",
+      "side": 0,
+      "message": "In `DEFAULT_NEXT_PAGE_ALGO` which is the only caller of `GET_EMPTY_BLOCK`, so it\u0027s guaranteed to happen every time.",
+      "parentUuid": "82f7a24b_c6f23236",
       "revId": "7508838fdb3fb2431fe0c142c4fdf156530929fb",
       "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
     }
