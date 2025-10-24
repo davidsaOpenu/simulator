@@ -16,6 +16,23 @@
       "message": "recheck",
       "revId": "5ab3c06d996239d79ce0f35a7dcc8f446b38fd3b",
       "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "947f746f_9e47bdc4",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 11
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 1007990
+      },
+      "writtenOn": "2025-10-24T05:56:32Z",
+      "side": 1,
+      "message": "+1 for the meanwhile for the general direction. Not all the tests were implemented as described by the trello card",
+      "revId": "5ab3c06d996239d79ce0f35a7dcc8f446b38fd3b",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
     }
   ]
 }
