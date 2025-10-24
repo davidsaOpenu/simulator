@@ -16,6 +16,23 @@
       "message": "recheck",
       "revId": "41a958dbe174ee0079cf1764de37dfd8541e2a86",
       "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "09d23cec_7377b6f2",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 2
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 1007990
+      },
+      "writtenOn": "2025-10-24T05:38:32Z",
+      "side": 1,
+      "message": "50% of tests were implemented. Marked the implemented tests in the trello card and moved the card to \"InProgress\" for the rest to be written.",
+      "revId": "41a958dbe174ee0079cf1764de37dfd8541e2a86",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
     }
   ]
 }
