@@ -51,6 +51,47 @@
       "parentUuid": "d2e1b73c_b0f2456c",
       "revId": "626c9d80405b9a4cb1a9030e78e1238d4be02866",
       "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "66ad2c56_9217d082",
+        "filename": "eVSSIM/tests/host/simulation/gc_tests.cc",
+        "patchSetId": 5
+      },
+      "lineNbr": 1,
+      "author": {
+        "id": 1007990
+      },
+      "writtenOn": "2025-10-28T23:59:59Z",
+      "side": 1,
+      "message": "Acknowledged",
+      "parentUuid": "5db77762_547fb0b4",
+      "revId": "626c9d80405b9a4cb1a9030e78e1238d4be02866",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "c7337cf3_85c38130",
+        "filename": "eVSSIM/tests/host/simulation/gc_tests.cc",
+        "patchSetId": 5
+      },
+      "lineNbr": 23,
+      "author": {
+        "id": 1007990
+      },
+      "writtenOn": "2025-10-28T23:59:59Z",
+      "side": 1,
+      "message": "\"s/unit/ /g\"",
+      "range": {
+        "startLine": 23,
+        "startChar": 10,
+        "endLine": 23,
+        "endChar": 20
+      },
+      "revId": "626c9d80405b9a4cb1a9030e78e1238d4be02866",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
     }
   ]
 }
