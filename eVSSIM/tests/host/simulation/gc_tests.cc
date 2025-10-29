@@ -206,4 +206,55 @@ namespace ssd_io_emulator_tests {
         ASSERT_EQ(FTL_SUCCESS, FTL_WRITE_SECT(g_device_index, config->sectors_in_ssd - 1, 1, NULL));
         pthread_mutex_lock(&g_lock);
     }
+
+    TEST_P(GCTest, CasePerfGCThreadDisable) {
+        ssd_config_t *config = &devices[g_device_index];
+
+        // 25% over-provisioning => 80% utilization
+        const uint64_t max_sector_nb = config->sectors_in_ssd * 8 / 10;
+
+        unsigned int seed = 0;
+        for (uint64_t i = 0; i < 10 * config->pages_in_ssd; i++) {
+            uint64_t sector_nb = rand_r(&seed) % max_sector_nb;
+            ASSERT_EQ(FTL_SUCCESS, _FTL_WRITE_SECT(g_device_index, sector_nb, 1, NULL));
+        }
+
+        _MONITOR_SYNC(g_device_index, &(log_server.stats), MONITOR_SLEEP_MAX_USEC);
+
+        // This test is deterministic, so I can get pretty close to the value I measured: 2.606562
+        // Feel free to update this value if something changes.
+        EXPECT_LT(2.5, log_server.stats.write_amplification);
+    }
+
+    TEST_P(GCTest, CasePerfGCThreadEnable) {
+        ssd_config_t *config = &devices[g_device_index];
+
+        // If this test fails because write_amplification is too high, try increasing this value:
+        const uint64_t background_gc_freq = 20;
+
+        // 25% over-provisioning => 80% utilization
+        const uint64_t max_sector_nb = config->sectors_in_ssd * 8 / 10;
+
+        pthread_mutex_unlock(&g_lock);
+        unsigned int seed = 0;
+        for (uint64_t i = 0; i < 10 * config->pages_in_ssd; i++) {
+            uint64_t sector_nb = rand_r(&seed) % max_sector_nb;
+            ASSERT_EQ(FTL_SUCCESS, FTL_WRITE_SECT(g_device_index, sector_nb, 1, NULL));
+
+            // Simulate some "idle time" to really emphasize the benefits of background GC.
+            if (i % (config->pages_in_ssd / background_gc_freq) == 0) {
+                pthread_mutex_lock(&g_lock);
+                WaitForGC();
+                pthread_mutex_unlock(&g_lock);
+            }
+        }
+        pthread_mutex_lock(&g_lock);
+
+        _MONITOR_SYNC(g_device_index, &(log_server.stats), MONITOR_SLEEP_MAX_USEC);
+
+        // While this test is not fully deterministic (since it's multithreaded), I've been getting
+        // a solid 1.0 write amplification. So this value seems safe enough:
+        EXPECT_GT(1.2, log_server.stats.write_amplification);
+        printf("CCC %f\n", log_server.stats.write_amplification);
+    }
 }

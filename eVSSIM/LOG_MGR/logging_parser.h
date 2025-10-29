@@ -123,6 +123,10 @@ typedef struct {
      */
     unsigned int page;
     /**
+     * Is it a background action?
+     */
+    bool background;
+    /**
      * Log metadata
      */
     LogMetadata metadata;
@@ -144,6 +148,10 @@ typedef struct {
      * The page number of the programmed cell
      */
     unsigned int page;
+    /**
+     * Is it a background action?
+     */
+    bool background;
     /**
      * Log metadata
      */
@@ -197,7 +205,12 @@ typedef struct {
 /**
  * A log of garbage collection
  */
-typedef EmptyLog GarbageCollectionLog;
+typedef struct {
+    /**
+     * Is it a background action?
+     */
+    bool background;
+} GarbageCollectionLog;
 
 /**
  * A log of a register read
@@ -264,6 +277,10 @@ typedef struct {
      */
     uint64_t dirty_page_nb;
     /**
+     * Is it a background action?
+     */
+    bool background;
+    /**
      * Log metadata
      */
     LogMetadata metadata;
@@ -293,6 +310,10 @@ typedef struct {
      * The page number of the programmed cell
      */
     uint64_t destination_page;
+    /**
+     * Is it a background action?
+     */
+    bool background;
     /**
      * Log metadata
      */
@@ -395,7 +416,7 @@ APPLIER(ChannelSwitchToReadLog, CHANNEL_SWITCH_TO_READ)     \
 APPLIER(ChannelSwitchToWriteLog, CHANNEL_SWITCH_TO_WRITE)   \
 APPLIER(ObjectAddPageLog, OBJECT_ADD_PAGE)                  \
 APPLIER(ObjectCopyback, OBJECT_COPYBACK)                    \
-APPLIER(LoggeingServerSync, LOG_SYNC)                    
+APPLIER(LoggeingServerSync, LOG_SYNC)
 
 /**
  * The enum log applier; used to create an enum of the log types' ids
