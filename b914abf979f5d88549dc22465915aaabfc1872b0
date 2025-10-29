@@ -33,6 +33,24 @@
       "message": "Why it is not advised to work at 2AM explains why I slicked changed disregarding comments that were not addressed 😓 @emilxsi47@gmail.com can you please take a look? Keeping the Trello card \"In Progress\"",
       "revId": "b914abf979f5d88549dc22465915aaabfc1872b0",
       "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "95e0feee_1b9dc5b6",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 3
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 1038805
+      },
+      "writtenOn": "2025-10-29T18:56:16Z",
+      "side": 1,
+      "message": "All of the comments were addressed and fixed.",
+      "parentUuid": "d7240254_bcc7d7b3",
+      "revId": "b914abf979f5d88549dc22465915aaabfc1872b0",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
     }
   ],
   "submitRequirementResults": []
