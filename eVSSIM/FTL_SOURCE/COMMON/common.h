@@ -153,6 +153,16 @@
         return ret;\
 }
 
+#define device_print_wrapper(prefix, device_index, msg, args...){\
+	printf("%s[%s][%s][%d][nvme%02" PRIu8 "]: ", prefix, __FILE__, __FUNCTION__, __LINE__, device_index);\
+	printf(msg, ##args);\
+}
+
+#define device_print_and_ret(ret, prefix, device_index, msg, args...){\
+        device_print_wrapper(prefix, device_index, msg, ##args);\
+        return ret;\
+}
+
 #define PDBG(msg, args...) print_wrapper("DEBUG", msg, ##args)
 #define PERR(msg, args...) print_wrapper("ERROR", msg, ##args)
 #define PINFO(msg, args...) print_wrapper("INFO", msg, ##args)
@@ -160,6 +170,14 @@
 #define RDBG(ret, msg, args...) print_and_ret(ret, "DEBUG", msg, ##args)
 #define RERR(ret, msg, args...) print_and_ret(ret, "ERROR", msg, ##args)
 #define RINFO(ret, msg, args...) print_and_ret(ret, "INFO", msg, ##args)
+
+#define DEV_PDBG(device_index, msg, args...) device_print_wrapper("DEBUG", device_index, msg, ##args)
+#define DEV_PERR(device_index, msg, args...) device_print_wrapper("ERROR", device_index, msg, ##args)
+#define DEV_PINFO(device_index, msg, args...) device_print_wrapper("INFO", device_index, msg, ##args)
+
+#define DEV_RDBG(ret, device_index, msg, args...) device_print_and_ret(ret, "DEBUG", device_index, msg, ##args)
+#define DEV_RERR(ret, device_index, msg, args...) device_print_and_ret(ret, "ERROR", device_index, msg, ##args)
+#define DEV_RINFO(ret, device_index, msg, args...) device_print_and_ret(ret, "INFO", device_index, msg, ##args)
 
 #ifdef FTL_DEBUG
 #define PDBG_FTL(msg, args...) PDBG(msg, ##args)
