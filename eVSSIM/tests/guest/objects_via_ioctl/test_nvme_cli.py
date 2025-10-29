@@ -259,3 +259,6 @@ class test_NvmeCli(object):
         """
         return int(math.ceil(size/float(self.CHUNK_SIZE))) * self.CHUNK_SIZE
 
+
+class test_NvmeCliMultiDisk(test_NvmeCli):
+    device = NvmeDevice('/dev/nvme1n1', NVME_CLI_DIR)
