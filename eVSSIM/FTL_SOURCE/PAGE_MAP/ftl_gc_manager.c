@@ -30,7 +30,7 @@ static void *GC_BACKGROUND_LOOP(void *arg) {
         bool collected;
         uint64_t total_zero_page_nb;
         do {
-            collected = GC_CHECK(gc_thread->device_index, false);
+            collected = GC_CHECK(gc_thread->device_index, false, true);
             total_zero_page_nb = inverse_mappings_manager[device_index].total_zero_page_nb;
         } while (collected && total_zero_page_nb < devices[device_index].gc_hi_thr_page_nb);
 
@@ -91,7 +91,7 @@ void TERM_GC_MANAGER(uint8_t device_index) {
     pthread_cond_destroy(&gc_thread->gc_signal_cond);
 }
 
-bool GC_CHECK(uint8_t device_index, bool force)
+bool GC_CHECK(uint8_t device_index, bool force, bool background)
 {
 	int i, ret;
 	bool collected = false;
@@ -99,7 +99,7 @@ bool GC_CHECK(uint8_t device_index, bool force)
 	if(force || inverse_mappings_manager[device_index].total_zero_page_nb < devices[device_index].gc_threshold_block_nb * devices[device_index].page_nb) {
         int l2 = inverse_mappings_manager[device_index].total_zero_page_nb < devices[device_index].gc_l2_threshold_block_nb * devices[device_index].page_nb;
 		for(i=0; i<devices[device_index].gc_victim_nb; i++){
-			ret = GARBAGE_COLLECTION(device_index, l2);
+			ret = GARBAGE_COLLECTION(device_index, l2, background);
 			if(ret == FTL_FAILURE){
 				break;
 			}
@@ -109,12 +109,12 @@ bool GC_CHECK(uint8_t device_index, bool force)
 	return collected;
 }
 
-ftl_ret_val GARBAGE_COLLECTION(uint8_t device_index, int l2)
+ftl_ret_val GARBAGE_COLLECTION(uint8_t device_index, int l2, bool background)
 {
-    return gc_algo.collection(device_index, l2);
+    return gc_algo.collection(device_index, l2, background);
 }
 
-ftl_ret_val DEFAULT_GC_COLLECTION_ALGO(uint8_t device_index, int l2)
+ftl_ret_val DEFAULT_GC_COLLECTION_ALGO(uint8_t device_index, int l2, bool background)
 {
 	uint64_t i;
 	int ret;
@@ -175,8 +175,8 @@ ftl_ret_val DEFAULT_GC_COLLECTION_ALGO(uint8_t device_index, int l2)
                 if(ret == FTL_FAILURE)
 				    RERR(FTL_FAILURE, "GET_NEW_PAGE(VICTIM_OVERALL_GC, devices[device_index].empty_table_entry_nb): failed\n");
 
-                SSD_PAGE_READ(device_index, victim_phy_flash_nb, victim_phy_block_nb, i, i, GC_READ);
-                SSD_PAGE_WRITE(device_index, CALC_FLASH(device_index, new_ppn), CALC_BLOCK(device_index, new_ppn), CALC_PAGE(device_index, new_ppn), i, GC_WRITE);
+                SSD_PAGE_READ(device_index, victim_phy_flash_nb, victim_phy_block_nb, i, i, background ? GC_READ_BACKGROUND : GC_READ);
+                SSD_PAGE_WRITE(device_index, CALC_FLASH(device_index, new_ppn), CALC_BLOCK(device_index, new_ppn), CALC_PAGE(device_index, new_ppn), i, background ? GC_WRITE_BACKGROUND : GC_WRITE);
                 old_ppn = victim_phy_flash_nb * devices[device_index].pages_per_flash + victim_phy_block_nb * devices[device_index].page_nb + i;
                 GET_INVERSE_MAPPING_INFO(device_index, old_ppn, &lpn);
                 UPDATE_NEW_PAGE_MAPPING(device_index, lpn, new_ppn);
@@ -185,7 +185,7 @@ ftl_ret_val DEFAULT_GC_COLLECTION_ALGO(uint8_t device_index, int l2)
 
                 if (devices[device_index].storage_strategy == STRATEGY_SECTOR)
                 {
-                    ret = _FTL_COPYBACK(device_index, victim_phy_flash_nb * devices[device_index].pages_per_flash + victim_phy_block_nb * devices[device_index].page_nb + i , new_ppn);
+                    ret = _FTL_COPYBACK(device_index, victim_phy_flash_nb * devices[device_index].pages_per_flash + victim_phy_block_nb * devices[device_index].page_nb + i , new_ppn, background ? COPYBACK_BACKGROUND : COPYBACK);
                 }
                 else if (devices[device_index].storage_strategy == STRATEGY_OBJECT)
                 {
@@ -198,8 +198,8 @@ ftl_ret_val DEFAULT_GC_COLLECTION_ALGO(uint8_t device_index, int l2)
 
                 if(ret == FTL_FAILURE){
                     PDBG_FTL("failed to copyback\n");
-                    SSD_PAGE_READ(device_index, victim_phy_flash_nb, victim_phy_block_nb, i, i, GC_READ);
-                    SSD_PAGE_WRITE(device_index, CALC_FLASH(device_index, new_ppn), CALC_BLOCK(device_index, new_ppn), CALC_PAGE(device_index, new_ppn), i, GC_WRITE);
+                    SSD_PAGE_READ(device_index, victim_phy_flash_nb, victim_phy_block_nb, i, i, background ? GC_READ_BACKGROUND : GC_READ);
+                    SSD_PAGE_WRITE(device_index, CALC_FLASH(device_index, new_ppn), CALC_BLOCK(device_index, new_ppn), CALC_PAGE(device_index, new_ppn), i, background ? GC_WRITE_BACKGROUND : GC_WRITE);
                     old_ppn = victim_phy_flash_nb*devices[device_index].pages_per_flash + victim_phy_block_nb* devices[device_index].page_nb + i;
                     GET_INVERSE_MAPPING_INFO(device_index, old_ppn, &lpn);
                     UPDATE_NEW_PAGE_MAPPING(device_index, lpn, new_ppn);

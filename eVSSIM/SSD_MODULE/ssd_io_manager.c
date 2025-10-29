@@ -152,6 +152,10 @@ static int SSD_CH_RECORD(uint8_t device_index, int channel, int offset, int ret)
 
 ftl_ret_val SSD_PAGE_WRITE(uint8_t device_index, unsigned int flash_nb, unsigned int block_nb, unsigned int page_nb, int offset, int type)
 {
+    if (type == GC_WRITE_BACKGROUND) {
+        return FTL_SUCCESS;
+    }
+
     uint32_t channel, reg;
     int ret = FTL_FAILURE;
     int delay_ret;
@@ -232,6 +236,10 @@ ftl_ret_val SSD_PAGE_WRITE(uint8_t device_index, unsigned int flash_nb, unsigned
 
 ftl_ret_val SSD_PAGE_READ(uint8_t device_index, unsigned int flash_nb, unsigned int block_nb, unsigned int page_nb, int offset, int type)
 {
+    if (type == GC_READ_BACKGROUND) {
+        return FTL_SUCCESS;
+    }
+
     unsigned int channel, reg;
     int delay_ret;
 
@@ -828,6 +836,9 @@ void SSD_UPDATE_QEMU_OVERHEAD(uint8_t device_index, int64_t delay)
 }
 
 ftl_ret_val SSD_PAGE_COPYBACK(uint8_t device_index, uint32_t source, uint32_t destination, int type){
+    if (type == COPYBACK_BACKGROUND) {
+        return FTL_SUCCESS;
+    }
 
     uint32_t flash_nb, block_nb;
     uint32_t dest_flash_nb, dest_block_nb;

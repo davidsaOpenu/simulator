@@ -448,7 +448,7 @@ namespace ssd_io_emulator_tests {
 
             // Since background GC is disabled for this test suite, invoke it
             // here manually to get closer to the theoretical 0.8 utilization.
-            GC_CHECK(g_device_index, false);
+            GC_CHECK(g_device_index, false, false);
 
             MONITOR_SYNC_DELAY(15000000);
 
