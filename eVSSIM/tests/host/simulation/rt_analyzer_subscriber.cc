@@ -75,7 +75,11 @@ namespace rt_subscriber {
                     .log_id = 0,
                     .block_erase_count = 0,
                     .channel_switch_to_write = 0,
-                    .channel_switch_to_read = 0
+                    .channel_switch_to_read = 0,
+                    .background_write_count = 0,
+                    .background_read_count = 0,
+                    .background_garbage_collection_count = 0,
+                    .background_block_erase_count = 0,
             },
             // physical cell read
             {
@@ -93,7 +97,11 @@ namespace rt_subscriber {
                     .log_id = 0,
                     .block_erase_count = 0,
                     .channel_switch_to_write = 0,
-                    .channel_switch_to_read = 0
+                    .channel_switch_to_read = 0,
+                    .background_write_count = 0,
+                    .background_read_count = 0,
+                    .background_garbage_collection_count = 0,
+                    .background_block_erase_count = 0,
             },
             // channel switch to write
             {
@@ -111,7 +119,11 @@ namespace rt_subscriber {
                     .log_id = 0,
                     .block_erase_count = 0,
                     .channel_switch_to_write = 1,
-                    .channel_switch_to_read = 0
+                    .channel_switch_to_read = 0,
+                    .background_write_count = 0,
+                    .background_read_count = 0,
+                    .background_garbage_collection_count = 0,
+                    .background_block_erase_count = 0,
             },
             // physical cell program
             {
@@ -129,7 +141,11 @@ namespace rt_subscriber {
                     .log_id = 0,
                     .block_erase_count = 0,
                     .channel_switch_to_write = 1,
-                    .channel_switch_to_read = 0
+                    .channel_switch_to_read = 0,
+                    .background_write_count = 0,
+                    .background_read_count = 0,
+                    .background_garbage_collection_count = 0,
+                    .background_block_erase_count = 0,
             },
             // garbage collection
             {
@@ -147,7 +163,11 @@ namespace rt_subscriber {
                     .log_id = 0,
                     .block_erase_count = 0,
                     .channel_switch_to_write = 1,
-                    .channel_switch_to_read = 0
+                    .channel_switch_to_read = 0,
+                    .background_write_count = 0,
+                    .background_read_count = 0,
+                    .background_garbage_collection_count = 0,
+                    .background_block_erase_count = 0,
             },
             // logical cell program
             // register write
@@ -166,7 +186,11 @@ namespace rt_subscriber {
                     .log_id = 0,
                     .block_erase_count = 0,
                     .channel_switch_to_write = 1,
-                    .channel_switch_to_read = 0
+                    .channel_switch_to_read = 0,
+                    .background_write_count = 0,
+                    .background_read_count = 0,
+                    .background_garbage_collection_count = 0,
+                    .background_block_erase_count = 0,
             },
             // physical cell program
             {
@@ -184,7 +208,11 @@ namespace rt_subscriber {
                     .log_id = 0,
                     .block_erase_count = 0,
                     .channel_switch_to_write = 1,
-                    .channel_switch_to_read = 0
+                    .channel_switch_to_read = 0,
+                    .background_write_count = 0,
+                    .background_read_count = 0,
+                    .background_garbage_collection_count = 0,
+                    .background_block_erase_count = 0,
             },
             // logical cell program
             {
@@ -202,7 +230,11 @@ namespace rt_subscriber {
                     .log_id = 0,
                     .block_erase_count = 0,
                     .channel_switch_to_write = 1,
-                    .channel_switch_to_read = 0
+                    .channel_switch_to_read = 0,
+                    .background_write_count = 0,
+                    .background_read_count = 0,
+                    .background_garbage_collection_count = 0,
+                    .background_block_erase_count = 0,
             },
             // block erase
                         {
@@ -220,7 +252,11 @@ namespace rt_subscriber {
                     .log_id = 0,
                     .block_erase_count = 1,
                     .channel_switch_to_write = 1,
-                    .channel_switch_to_read = 0
+                    .channel_switch_to_read = 0,
+                    .background_write_count = 0,
+                    .background_read_count = 0,
+                    .background_garbage_collection_count = 0,
+                    .background_block_erase_count = 0,
             },
             // channel switch to read
             {
@@ -238,7 +274,11 @@ namespace rt_subscriber {
                     .log_id = 0,
                     .block_erase_count = 1,
                     .channel_switch_to_write = 1,
-                    .channel_switch_to_read = 1
+                    .channel_switch_to_read = 1,
+                    .background_write_count = 0,
+                    .background_read_count = 0,
+                    .background_garbage_collection_count = 0,
+                    .background_block_erase_count = 0,
             },
             // physical cell read
             {
@@ -256,7 +296,11 @@ namespace rt_subscriber {
                     .log_id = 0,
                     .block_erase_count = 1,
                     .channel_switch_to_write = 1,
-                    .channel_switch_to_read = 1
+                    .channel_switch_to_read = 1,
+                    .background_write_count = 0,
+                    .background_read_count = 0,
+                    .background_garbage_collection_count = 0,
+                    .background_block_erase_count = 0,
             },
             // garbage collection
             {
@@ -274,7 +318,11 @@ namespace rt_subscriber {
                     .log_id = 0,
                     .block_erase_count = 1,
                     .channel_switch_to_write = 1,
-                    .channel_switch_to_read = 1
+                    .channel_switch_to_read = 1,
+                    .background_write_count = 0,
+                    .background_read_count = 0,
+                    .background_garbage_collection_count = 0,
+                    .background_block_erase_count = 0,
             }
     };
 
@@ -292,7 +340,8 @@ namespace rt_subscriber {
         TIME_MICROSEC(end2);
         LOG_PHYSICAL_CELL_READ(logger, (PhysicalCellReadLog) {
             .channel = 1, .block = 2, .page = 3,
-            .metadata = {start, end2}
+            .metadata = {start, end2},
+            .background = false,
         });
         TIME_MICROSEC(end3);
         LOG_CHANNEL_SWITCH_TO_WRITE(logger, (ChannelSwitchToWriteLog) {
@@ -302,10 +351,13 @@ namespace rt_subscriber {
         TIME_MICROSEC(end4);
         LOG_PHYSICAL_CELL_PROGRAM(logger, (PhysicalCellProgramLog) {
             .channel = 4, .block = 5, .page = 6,
-            .metadata = {start, end4}
+            .metadata = {start, end4},
+            .background = false,
         });
         TIME_MICROSEC(end5);
-        LOG_GARBAGE_COLLECTION(logger, (GarbageCollectionLog) empty_log);
+        LOG_GARBAGE_COLLECTION(logger, (GarbageCollectionLog) {
+            .background = false,
+        });
         LOG_LOGICAL_CELL_PROGRAM(logger, (LogicalCellProgramLog) {
             .channel = 7, .block = 8, .page = 9,
             .metadata = {start, end5}
@@ -318,7 +370,8 @@ namespace rt_subscriber {
         TIME_MICROSEC(end7);
         LOG_PHYSICAL_CELL_PROGRAM(logger, (PhysicalCellProgramLog) {
             .channel = 10, .block = 11, .page = 12,
-            .metadata = {start, end7}
+            .metadata = {start, end7},
+            .background = false,
         });
         TIME_MICROSEC(end8);
         LOG_LOGICAL_CELL_PROGRAM(logger, (LogicalCellProgramLog) {
@@ -328,7 +381,8 @@ namespace rt_subscriber {
         TIME_MICROSEC(end9);
         LOG_BLOCK_ERASE(logger, (BlockEraseLog) {
             .channel = 25, .die = 26, .block = 27, .dirty_page_nb = devices[g_device_index].page_nb,
-            .metadata = {start, end9}
+            .metadata = {start, end9},
+            .background = false,
         });
         TIME_MICROSEC(end10);
         LOG_CHANNEL_SWITCH_TO_READ(logger, (ChannelSwitchToReadLog) {
@@ -338,9 +392,12 @@ namespace rt_subscriber {
         TIME_MICROSEC(end11);
         LOG_PHYSICAL_CELL_READ(logger, (PhysicalCellReadLog) {
             .channel = 16, .block = 17, .page = 18,
-            .metadata = {start, end11}
+            .metadata = {start, end11},
+            .background = false,
         });
-        LOG_GARBAGE_COLLECTION(logger, (GarbageCollectionLog) empty_log);
+        LOG_GARBAGE_COLLECTION(logger, (GarbageCollectionLog) {
+            .background = false,
+        });
     }
 
     void read() {

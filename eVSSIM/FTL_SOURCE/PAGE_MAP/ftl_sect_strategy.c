@@ -314,7 +314,7 @@ ftl_ret_val _FTL_WRITE_SECT(uint8_t device_index, uint64_t sector_nb, unsigned i
 
 #ifdef GC_ON
 	if (device_full) {
-		GC_CHECK(device_index, true);
+		GC_CHECK(device_index, true, false);
 	}
 #endif
 
@@ -332,7 +332,7 @@ ftl_ret_val FTL_WRITE_SECT(uint8_t device_index, uint64_t sector_nb, unsigned in
 }
 
 //Get 2 physical page address, the source page which need to be moved to the destination page
-ftl_ret_val _FTL_COPYBACK(uint8_t device_index, uint64_t source, uint64_t destination)
+ftl_ret_val _FTL_COPYBACK(uint8_t device_index, uint64_t source, uint64_t destination, int type)
 {
 	if (devices[device_index].storage_strategy != STRATEGY_SECTOR) {
 		DEV_RERR(FTL_FAILURE, device_index, "wrong storage strategy %d\n", devices[device_index].storage_strategy);
@@ -342,7 +342,7 @@ ftl_ret_val _FTL_COPYBACK(uint8_t device_index, uint64_t source, uint64_t destin
 	unsigned int ret = FTL_FAILURE;
 
 	//Handle copyback delays
-	ret = SSD_PAGE_COPYBACK(device_index, source, destination, COPYBACK);
+	ret = SSD_PAGE_COPYBACK(device_index, source, destination, type);
 
     // actual page swap, go korea
     /*SSD_PAGE_READ(CALC_FLASH(source), CALC_BLOCK(source), CALC_PAGE(source), 0, GC_READ);

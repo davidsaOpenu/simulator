@@ -243,7 +243,7 @@ namespace ssd_io_emulator_tests {
 
         SSD_PAGE_WRITE(g_device_index, flash_nb, block_nb,page_nb,0, WRITE);
         GET_INVERSE_BLOCK_MAPPING_ENTRY(g_device_index, flash_nb, block_nb)->valid_page_nb = 1;//update mapping info
-        SSD_BLOCK_ERASE(g_device_index, flash_nb, block_nb);
+        SSD_BLOCK_ERASE(g_device_index, flash_nb, block_nb, ERASE);
 
         // wait for new monitor sync
         MONITOR_SYNC_DELAY(expected_write_duration);
@@ -275,7 +275,7 @@ namespace ssd_io_emulator_tests {
         SSD_PAGE_WRITE(g_device_index, flash_nb,block_nb+1,page_nb,0, WRITE);
         occupied_pages = 2;
         ASSERT_EQ((double)occupied_pages / devices[g_device_index].pages_in_ssd, SSD_UTIL(g_device_index));
-        SSD_BLOCK_ERASE(g_device_index, flash_nb, block_nb);
+        SSD_BLOCK_ERASE(g_device_index, flash_nb, block_nb, ERASE);
         occupied_pages = 1;
 
         ssd_utils = (double)occupied_pages / devices[g_device_index].pages_in_ssd;
@@ -448,7 +448,7 @@ namespace ssd_io_emulator_tests {
 
             // Since background GC is disabled for this test suite, invoke it
             // here manually to get closer to the theoretical 0.8 utilization.
-            GC_CHECK(g_device_index, false);
+            GC_CHECK(g_device_index, false, false);
 
             MONITOR_SYNC_DELAY(15000000);
 

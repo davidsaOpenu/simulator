@@ -135,6 +135,10 @@ void log_manager_loop(uint8_t device_index, LogManager* manager, int max_loops) 
             stats.channel_switch_to_read += current_stats.channel_switch_to_read;
             stats.channel_switch_to_write += current_stats.channel_switch_to_write;
 
+            stats.background_write_count += current_stats.background_write_count;
+            stats.background_read_count += current_stats.background_read_count;
+            stats.background_garbage_collection_count += current_stats.background_garbage_collection_count;
+            stats.background_block_erase_count += current_stats.background_block_erase_count;
 
             if(current_stats.log_id != 0){
                 stats.log_id = current_stats.log_id;

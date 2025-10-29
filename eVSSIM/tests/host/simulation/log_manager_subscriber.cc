@@ -133,12 +133,14 @@ namespace manager_subscriber {
         TIME_MICROSEC(end1);
         LOG_PHYSICAL_CELL_PROGRAM(logger1, (PhysicalCellProgramLog) {
                 .channel = 1, .block = 2, .page = 3,
-                .metadata = {start,end1}
+                .metadata = {start,end1},
+                .background = false,
                 });
         TIME_MICROSEC(end2);
         LOG_PHYSICAL_CELL_PROGRAM(logger1, (PhysicalCellProgramLog) {
                 .channel = 4, .block = 5, .page = 6,
-                .metadata = {start,end2}
+                .metadata = {start,end2},
+                .background = false,
                 });
         TIME_MICROSEC(end3);
         LOG_LOGICAL_CELL_PROGRAM(logger1, (LogicalCellProgramLog) {
@@ -148,7 +150,8 @@ namespace manager_subscriber {
         TIME_MICROSEC(end4);
         LOG_PHYSICAL_CELL_PROGRAM(logger2, (PhysicalCellProgramLog) {
                 .channel = 10, .block = 11, .page = 12,
-                .metadata = {start,end4}
+                .metadata = {start,end4},
+                .background = false,
                 });
         TIME_MICROSEC(end5);
         LOG_LOGICAL_CELL_PROGRAM(logger2, (LogicalCellProgramLog) {
@@ -158,9 +161,12 @@ namespace manager_subscriber {
         TIME_MICROSEC(end6);
         LOG_PHYSICAL_CELL_READ(logger2, (PhysicalCellReadLog) {
                 .channel = 16, .block = 17, .page = 18,
-                .metadata = {start,end6}
+                .metadata = {start,end6},
+                .background = false,
                 });
-        LOG_GARBAGE_COLLECTION(logger1, (GarbageCollectionLog) empty_log);
+        LOG_GARBAGE_COLLECTION(logger1, (GarbageCollectionLog) {
+                .background = false,
+        });
 
         // analyze the logs and propagate the changes to the manager
         rt_log_analyzer_loop(g_device_index, analyzer1, 4);

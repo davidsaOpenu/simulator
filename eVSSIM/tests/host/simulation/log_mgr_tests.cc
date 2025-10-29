@@ -522,7 +522,8 @@ namespace log_mgr_tests {
             .channel = 3,
             .block = 80,
             .page = 123,
-            .metadata = {start, start+1}
+            .metadata = {start, start+1},
+            .background = false,
         };
         LOG_PHYSICAL_CELL_READ(_logger, log);
         ASSERT_EQ(PHYSICAL_CELL_READ_LOG_UID, next_log_type(_logger));
@@ -542,7 +543,8 @@ namespace log_mgr_tests {
             .channel = 15,
             .block = 63,
             .page = 50,
-            .metadata = {start, start+1}
+            .metadata = {start, start+1},
+            .background = false,
         };
         LOG_PHYSICAL_CELL_PROGRAM(_logger, log);
         ASSERT_EQ(PHYSICAL_CELL_PROGRAM_LOG_UID, next_log_type(_logger));
@@ -576,7 +578,7 @@ namespace log_mgr_tests {
      * Test writing and reading a garbage collection log
      */
     TEST_P(LogMgrUnitTest, GarbageCollection) {
-        GarbageCollectionLog log = { };
+        GarbageCollectionLog log = { .background = false, };
         LOG_GARBAGE_COLLECTION(_logger, log);
         ASSERT_EQ(GARBAGE_COLLECTION_LOG_UID, next_log_type(_logger));
         // test that NEXT_GARBAGE_COLLECTION_LOG actually does nothing,
@@ -638,7 +640,8 @@ namespace log_mgr_tests {
             .die = 352,
             .block = 947,
             .dirty_page_nb = 10,
-            .metadata = {start, start+1}
+            .metadata = {start, start+1},
+            .background = false,
         };
         LOG_BLOCK_ERASE(_logger, log);
         ASSERT_EQ(BLOCK_ERASE_LOG_UID, next_log_type(_logger));
@@ -730,7 +733,7 @@ namespace log_mgr_tests {
         pthread_join(offline_log_analyzer_thread, NULL);
         offline_log_analyzer_free(analyzer);
     }*/
-    
+
     /* Log Manager Tests */
     /**
      * Do a simple test of the log manager
