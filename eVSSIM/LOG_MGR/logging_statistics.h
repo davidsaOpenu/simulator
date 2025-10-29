@@ -29,7 +29,7 @@ typedef struct {
      */
     uint64_t write_count;
     /**
-     * The writing speed in MB/s =  logical_write_count / write_wall_time 
+     * The writing speed in MB/s =  logical_write_count / write_wall_time
      */
     double write_speed;
     /**
@@ -84,7 +84,22 @@ typedef struct {
      * The number of chennel switches to write
      */
     uint64_t channel_switch_to_read;
-
+    /**
+     * The number of physical page written (background)
+     */
+    uint64_t background_write_count;
+    /**
+     * The number of physical page written (background)
+     */
+    uint64_t background_read_count;
+    /**
+     * The number of garbage collection done (background)
+     */
+    uint64_t background_garbage_collection_count;
+    /**
+     * The number of physical page erase actions (background)
+     */
+    uint64_t background_block_erase_count;
 } SSDStatistics;
 
 

@@ -213,7 +213,8 @@ ftl_ret_val SSD_PAGE_WRITE(uint8_t device_index, unsigned int flash_nb, unsigned
     else {
         LOG_PHYSICAL_CELL_PROGRAM(GET_LOGGER(device_index, flash_nb), (PhysicalCellProgramLog) {
             .channel = channel, .block = block_nb, .page = page_nb,
-            .metadata = {_start, _end}
+            .metadata = {_start, _end},
+            .background = (type == GC_WRITE_BACKGROUND),
         });
     }
 
@@ -272,13 +273,14 @@ ftl_ret_val SSD_PAGE_READ(uint8_t device_index, unsigned int flash_nb, unsigned 
 
     LOG_PHYSICAL_CELL_READ(GET_LOGGER(device_index, flash_nb), (PhysicalCellReadLog) {
         .channel = channel, .block = block_nb, .page = page_nb,
-        .metadata = {_start, _end}
+        .metadata = {_start, _end},
+        .background = (type == GC_READ_BACKGROUND),
     });
 
     return FTL_SUCCESS;
 }
 
-ftl_ret_val SSD_BLOCK_ERASE(uint8_t device_index, unsigned int flash_nb, unsigned int block_nb)
+ftl_ret_val SSD_BLOCK_ERASE(uint8_t device_index, unsigned int flash_nb, unsigned int block_nb, int type)
 {
     int channel, reg;
 
@@ -310,7 +312,8 @@ ftl_ret_val SSD_BLOCK_ERASE(uint8_t device_index, unsigned int flash_nb, unsigne
 
     LOG_BLOCK_ERASE(GET_LOGGER(device_index, flash_nb), (BlockEraseLog) {
         .channel = channel, .die = flash_nb, .block = block_nb, .dirty_page_nb = block_entry->dirty_page_nb,
-        .metadata = {_start, _end}
+        .metadata = {_start, _end},
+        .background = (type == ERASE_BACKGROUND),
     });
 
     block_entry->dirty_page_nb = 0;
@@ -827,8 +830,8 @@ void SSD_UPDATE_QEMU_OVERHEAD(uint8_t device_index, int64_t delay)
     qemu_overhead -= diff;
 }
 
-ftl_ret_val SSD_PAGE_COPYBACK(uint8_t device_index, uint32_t source, uint32_t destination, int type){
-
+ftl_ret_val SSD_PAGE_COPYBACK(uint8_t device_index, uint32_t source, uint32_t destination, int type)
+{
     uint32_t flash_nb, block_nb;
     uint32_t dest_flash_nb, dest_block_nb;
     uint32_t source_plane, destination_plane;
@@ -880,7 +883,8 @@ ftl_ret_val SSD_PAGE_COPYBACK(uint8_t device_index, uint32_t source, uint32_t de
 
     LOG_PAGE_COPYBACK(GET_LOGGER(device_index, flash_nb), (PageCopyBackLog) {
         .channel = channel, .block = block_nb, .source_page = source, .destination_page = destination,
-        .metadata = {_start, _end}
+        .metadata = {_start, _end},
+        .background = (type == COPYBACK_BACKGROUND),
     });
 
 

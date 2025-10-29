@@ -248,7 +248,7 @@ onfi_ret_val ONFI_PAGE_PROGRAM(uint8_t device_index, uint64_t row_address, uint3
         PERR("Got invalid device index\n")
         return ONFI_FAILURE;
     }
-    
+
     if (buffer == NULL || o_programmed_bytes_amount == NULL)
     {
         PERR("Got null paramater\n")
@@ -301,7 +301,7 @@ onfi_ret_val ONFI_BLOCK_ERASE(uint8_t device_index, uint64_t row_address)
     const uint64_t block_nb = CALC_BLOCK(device_index, row_address);
     const uint64_t flash_nb = CALC_FLASH(device_index, row_address);
 
-    if (SSD_BLOCK_ERASE(device_index, flash_nb, block_nb) != FTL_SUCCESS)
+    if (SSD_BLOCK_ERASE(device_index, flash_nb, block_nb, ERASE) != FTL_SUCCESS)
     {
         PERR("Failed erasing\n")
         _ONFI_UPDATE_STATUS_REGISTER(get_status_reg(device_index), ONFI_FAILURE);
