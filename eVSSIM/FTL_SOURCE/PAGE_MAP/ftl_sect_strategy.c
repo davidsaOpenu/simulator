@@ -33,8 +33,7 @@ ftl_ret_val _FTL_READ_SECT(uint8_t device_index, uint64_t sector_nb, unsigned in
 
 	PDBG_FTL("Start: sector_nb %ld length %u\n", sector_nb, length);
 
-	if (sector_nb + length > (uint64_t)devices[device_index].sectors_per_page * (uint64_t)devices[device_index].page_nb *
-			(uint64_t)devices[device_index].block_nb * (uint64_t)devices[device_index].flash_nb)
+	if (sector_nb + length > devices[device_index].sectors_in_ssd)
 		RERR(FTL_FAILURE, "[FTL_READ] Exceed Sector number\n");
 
 	uint64_t lpn;
@@ -214,9 +213,8 @@ ftl_ret_val _FTL_WRITE_SECT(uint8_t device_index, uint64_t sector_nb, unsigned i
 
 	int io_page_nb;
 
-	if (sector_nb + length > (uint64_t)devices[device_index].sectors_per_page * (uint64_t)devices[device_index].page_nb *
-			(uint64_t)devices[device_index].block_nb * (uint64_t)devices[device_index].flash_nb)
-		RERR(FTL_FAILURE, "Exceed Sector number\n");
+	if (sector_nb + length > devices[device_index].sectors_in_ssd)
+		RERR(FTL_FAILURE, "[FTL_WRITE] Exceed Sector number\n");
 
 	ssds_manager[device_index].io_alloc_overhead = ALLOC_IO_REQUEST(device_index, sector_nb, length, WRITE, &io_page_nb);
 

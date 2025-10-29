@@ -16,8 +16,6 @@
 
 #include "base_emulator_tests.h"
 
-extern LogServer log_server;
-
 namespace ssd_io_emulator_tests {
 
     class GCTest : public BaseTest {
@@ -49,11 +47,7 @@ namespace ssd_io_emulator_tests {
     std::vector<SSDConf*> GetTestParams() {
         std::vector<SSDConf*> ssd_configs;
 
-        //TODO: until empty block reserve is implemented (https://trello.com/c/GYZSz1dA/46-empty-block-reserve),
-        //      we must never reach the state where `total_empty_block_nb == 0`, otherwise it *will* deadlock. However,
-        //      I still want to reach the high 80% threshold, so I must ensure that the SSD is big enough so that
-        //      `empty_table_entry_nb < gc_hi_thr_block_nb` is true. `mb2` is enough (`mb1` is not).
-        ssd_configs.push_back(new SSDConf(parameters::sizemb::mb2));
+        ssd_configs.push_back(new SSDConf(parameters::sizemb::mb1));
 
         return ssd_configs;
     }
@@ -74,49 +68,62 @@ namespace ssd_io_emulator_tests {
     }
 
     TEST_P(GCTest, CaseBackgroundGC) {
-        MONITOR_SYNC(g_device_index, &(log_server.stats), MONITOR_SLEEP_MAX_USEC);
-        ASSERT_EQ(0, log_server.stats.garbage_collection_count);
-        ASSERT_EQ(0, gc_threads[g_device_index].gc_loop_count);
+        ssd_config_t *config = &devices[g_device_index];
 
-        ASSERT_EQ(0, inverse_mappings_manager[g_device_index].total_victim_block_nb);
-        ASSERT_EQ(devices[g_device_index].block_mapping_entry_nb, inverse_mappings_manager[g_device_index].total_empty_block_nb);
-        while (inverse_mappings_manager[g_device_index].total_empty_block_nb > devices[g_device_index].block_mapping_entry_nb / 2) {
+        ASSERT_EQ(0, gc_threads[g_device_index].gc_loop_count);
+        ASSERT_EQ(config->pages_in_ssd, inverse_mappings_manager[g_device_index].total_zero_page_nb);
+
+        for (uint64_t i = 0; i < config->pages_in_ssd / 2; i++) {
             uint64_t lpn = 0;
             uint64_t ppn;
-            ASSERT_EQ(FTL_SUCCESS, GET_NEW_PAGE(g_device_index, VICTIM_OVERALL, devices[g_device_index].empty_table_entry_nb, &ppn));
+            ASSERT_EQ(FTL_SUCCESS, GET_NEW_PAGE(g_device_index, VICTIM_OVERALL, config->empty_table_entry_nb, &ppn));
             ASSERT_EQ(FTL_SUCCESS, UPDATE_NEW_PAGE_MAPPING(g_device_index, lpn, ppn));
             ASSERT_EQ(FTL_SUCCESS, UPDATE_OLD_PAGE_MAPPING(g_device_index, lpn));
         }
-        ASSERT_EQ(devices[g_device_index].block_mapping_entry_nb / 2, inverse_mappings_manager[g_device_index].total_victim_block_nb);
-        ASSERT_EQ(devices[g_device_index].block_mapping_entry_nb / 2, inverse_mappings_manager[g_device_index].total_empty_block_nb);
 
-        MONITOR_SYNC(g_device_index, &(log_server.stats), MONITOR_SLEEP_MAX_USEC);
-        ASSERT_EQ(0, log_server.stats.garbage_collection_count);
         ASSERT_EQ(0, gc_threads[g_device_index].gc_loop_count);
+        ASSERT_EQ(config->pages_in_ssd / 2, inverse_mappings_manager[g_device_index].total_zero_page_nb);
 
         ASSERT_TRUE(WaitForGC()) << "GC thread did not advance";
 
-        MONITOR_SYNC(g_device_index, &(log_server.stats), MONITOR_SLEEP_MAX_USEC);
-        ASSERT_LT(0, log_server.stats.garbage_collection_count);
         ASSERT_LT(0, gc_threads[g_device_index].gc_loop_count);
+        ASSERT_LT(config->pages_in_ssd / 2, inverse_mappings_manager[g_device_index].total_zero_page_nb);
+    }
 
-        ASSERT_GT(devices[g_device_index].block_mapping_entry_nb / 2, inverse_mappings_manager[g_device_index].total_victim_block_nb);
-        ASSERT_LT(devices[g_device_index].block_mapping_entry_nb / 2, inverse_mappings_manager[g_device_index].total_empty_block_nb);
+    TEST_P(GCTest, CaseLowThresholdInterval) {
+        ssd_config_t *config = &devices[g_device_index];
+
+        config->gc_hi_thr_interval_sec = 100 * 3600; // 100 hours - practically infinity
+
+        ASSERT_TRUE(WaitForGC()) << "GC thread did not advance";
+        ASSERT_TRUE(WaitForGC()) << "GC thread did not advance";
+    }
+
+    TEST_P(GCTest, CaseHighThresholdInterval) {
+        ssd_config_t *config = &devices[g_device_index];
+
+        for (uint64_t i = 0; i < config->pages_in_ssd / 2; i++) {
+            uint64_t lpn = i;
+            uint64_t ppn;
+            ASSERT_EQ(FTL_SUCCESS, GET_NEW_PAGE(g_device_index, VICTIM_OVERALL, config->empty_table_entry_nb, &ppn));
+            ASSERT_EQ(FTL_SUCCESS, UPDATE_NEW_PAGE_MAPPING(g_device_index, lpn, ppn));
+            ASSERT_EQ(FTL_SUCCESS, UPDATE_OLD_PAGE_MAPPING(g_device_index, lpn));
+        }
+
+        config->gc_low_thr_interval_sec = 100 * 3600; // 100 hours - practically infinity
+
+        ASSERT_TRUE(WaitForGC()) << "GC thread did not advance";
+        ASSERT_TRUE(WaitForGC()) << "GC thread did not advance";
     }
 
     TEST_P(GCTest, CaseWaitForInvalidPage) {
-        //TODO: see note about empty block reserve above.
-        ASSERT_LT(devices[g_device_index].empty_table_entry_nb, devices[g_device_index].gc_hi_thr_block_nb);
-
-        MONITOR_SYNC(g_device_index, &(log_server.stats), MONITOR_SLEEP_MAX_USEC);
-        ASSERT_EQ(0, log_server.stats.garbage_collection_count);
-        ASSERT_EQ(0, gc_threads[g_device_index].gc_loop_count);
-
         ssd_config_t *config = &devices[g_device_index];
-        uint64_t pages_total = config->page_mapping_entry_nb;
 
-        //TODO: see note about empty block reserve above.
-        pages_total -= config->page_nb;
+        ASSERT_EQ(0, gc_threads[g_device_index].gc_loop_count);
+        ASSERT_EQ(config->pages_in_ssd, inverse_mappings_manager[g_device_index].total_zero_page_nb);
+
+        // total usable pages (minus reserved zero pages for GC)
+        uint64_t pages_total = config->pages_in_ssd - config->page_nb;
 
         uint64_t ppn;
         for (uint64_t i = 0; i < pages_total; i++) {
@@ -124,37 +131,33 @@ namespace ssd_io_emulator_tests {
             ASSERT_EQ(FTL_SUCCESS, GET_NEW_PAGE(g_device_index, VICTIM_OVERALL, devices[g_device_index].empty_table_entry_nb, &ppn));
             ASSERT_EQ(FTL_SUCCESS, UPDATE_NEW_PAGE_MAPPING(g_device_index, lpn, ppn));
         }
+        ASSERT_EQ(FTL_FAILURE, GET_NEW_PAGE(g_device_index, VICTIM_OVERALL, devices[g_device_index].empty_table_entry_nb, &ppn));
 
-        MONITOR_SYNC(g_device_index, &(log_server.stats), MONITOR_SLEEP_MAX_USEC);
-        ASSERT_EQ(0, log_server.stats.garbage_collection_count);
         ASSERT_EQ(0, gc_threads[g_device_index].gc_loop_count);
+        ASSERT_EQ(config->page_nb, inverse_mappings_manager[g_device_index].total_zero_page_nb);
 
         ASSERT_TRUE(WaitForGC()) << "GC thread did not advance";
 
         // thread should be waiting for new invalid pages right now.
-        MONITOR_SYNC(g_device_index, &(log_server.stats), MONITOR_SLEEP_MAX_USEC);
-        ASSERT_EQ(0, log_server.stats.garbage_collection_count);
         ASSERT_EQ(1, gc_threads[g_device_index].gc_loop_count);
+        ASSERT_EQ(config->page_nb, inverse_mappings_manager[g_device_index].total_zero_page_nb);
 
         ASSERT_FALSE(WaitForGC()) << "GC thread should not have advanced";
 
-        MONITOR_SYNC(g_device_index, &(log_server.stats), MONITOR_SLEEP_MAX_USEC);
-        ASSERT_EQ(0, log_server.stats.garbage_collection_count);
         ASSERT_EQ(1, gc_threads[g_device_index].gc_loop_count);
+        ASSERT_EQ(config->page_nb, inverse_mappings_manager[g_device_index].total_zero_page_nb);
 
         for (uint64_t i = 0; i < pages_total; i++) {
             uint64_t lpn = i;
             ASSERT_EQ(FTL_SUCCESS, UPDATE_OLD_PAGE_MAPPING(g_device_index, lpn));
         }
 
-        MONITOR_SYNC(g_device_index, &(log_server.stats), MONITOR_SLEEP_MAX_USEC);
-        ASSERT_EQ(0, log_server.stats.garbage_collection_count);
         ASSERT_EQ(1, gc_threads[g_device_index].gc_loop_count);
+        ASSERT_EQ(config->page_nb, inverse_mappings_manager[g_device_index].total_zero_page_nb);
 
         ASSERT_TRUE(WaitForGC()) << "GC thread did not advance";
 
-        MONITOR_SYNC(g_device_index, &(log_server.stats), MONITOR_SLEEP_MAX_USEC);
-        ASSERT_LT(0, log_server.stats.garbage_collection_count);
         ASSERT_LT(1, gc_threads[g_device_index].gc_loop_count);
+        ASSERT_LT(config->page_nb, inverse_mappings_manager[g_device_index].total_zero_page_nb);
     }
 }

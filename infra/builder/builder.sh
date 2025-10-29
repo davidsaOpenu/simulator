@@ -165,6 +165,7 @@ def g(device_data, name):
 for device_name in sorted(devices.keys()):
     device_data = devices[device_name]
     size = g(device_data, "FLASH_NB") * g(device_data, "BLOCK_NB") * g(device_data, "PAGE_NB") * g(device_data, "PAGE_SIZE")
+    size -= g(device_data, "PAGE_NB") * g(device_data, "PAGE_SIZE") # GC reserved pages
     print(size)
 PYTHON
 )

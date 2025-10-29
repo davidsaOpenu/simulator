@@ -66,7 +66,7 @@ typedef struct inverse_mapping_manager {
 	empty_block_root* empty_block_table_start;
 	victim_block_root* victim_block_table_start;
 
-	uint64_t total_empty_block_nb;
+	uint64_t total_zero_page_nb;
 	uint64_t total_victim_block_nb;
 
 	uint64_t empty_block_table_index;
