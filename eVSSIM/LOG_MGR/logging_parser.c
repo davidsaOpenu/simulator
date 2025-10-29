@@ -79,6 +79,7 @@ void JSON_PHYSICAL_CELL_READ(PhysicalCellReadLog *src, char ** dst)
     json_object_object_add(jobj, "channel", json_object_new_int(src->channel));
     json_object_object_add(jobj, "block", json_object_new_int(src->block));
     json_object_object_add(jobj, "page", json_object_new_int(src->page));
+    json_object_object_add(jobj, "background", json_object_new_boolean(src->background));
     add_time_to_json_object(jobj, src->metadata.logging_start_time);
 
     const char *json_string = json_object_to_json_string_ext(jobj, JSON_C_TO_STRING_SPACED);
@@ -105,13 +106,14 @@ void JSON_PHYSICAL_CELL_PROGRAM(PhysicalCellProgramLog *src, char ** dst)
     json_object_object_add(jobj, "channel", json_object_new_int(src->channel));
     json_object_object_add(jobj, "block", json_object_new_int(src->block));
     json_object_object_add(jobj, "page", json_object_new_int(src->page));
+    json_object_object_add(jobj, "background", json_object_new_boolean(src->background));
     add_time_to_json_object(jobj, src->metadata.logging_start_time);
 
     const char *json_string = json_object_to_json_string_ext(jobj, JSON_C_TO_STRING_SPACED);
 
     size_t json_length = strlen(json_string);
     *dst = (char *)malloc(json_length + 2);
-    
+
     strcpy(*dst, json_string);
     strcat(*dst, "\n");
     json_object_put(jobj); // Delete the json object
@@ -137,7 +139,7 @@ void JSON_PHYSICAL_CELL_PROGRAM_COMPATIBLE(PhysicalCellProgramCompatibleLog *src
 
     size_t json_length = strlen(json_string);
     *dst = (char *)malloc(json_length + 2);
-    
+
     strcpy(*dst, json_string);
     strcat(*dst, "\n");
     json_object_put(jobj); // Delete the json object
@@ -158,12 +160,12 @@ void JSON_LOGICAL_CELL_PROGRAM(LogicalCellProgramLog *src, char ** dst)
     json_object_object_add(jobj, "block", json_object_new_int(src->block));
     json_object_object_add(jobj, "page", json_object_new_int(src->page));
     add_time_to_json_object(jobj, src->metadata.logging_start_time);
-    
+
     const char *json_string = json_object_to_json_string_ext(jobj, JSON_C_TO_STRING_SPACED);
 
     size_t json_length = strlen(json_string);
     *dst = (char *)malloc(json_length + 2);
-    
+
     strcpy(*dst, json_string);
     strcat(*dst, "\n");
     json_object_put(jobj); // Delete the json object
@@ -180,13 +182,14 @@ void JSON_GARBAGE_COLLECTION(GarbageCollectionLog *src, char ** dst)
 
     jobj = json_object_new_object();
     json_object_object_add(jobj, "type", json_object_new_string("GarbageCollectionLog"));
+    json_object_object_add(jobj, "background", json_object_new_boolean(src->background));
     //add_time_to_json_object(jobj, src->metadata.logging_start_time);
 
     const char *json_string = json_object_to_json_string_ext(jobj, JSON_C_TO_STRING_SPACED);
 
     size_t json_length = strlen(json_string);
     *dst = (char *)malloc(json_length + 2);
-    
+
     strcpy(*dst, json_string);
     strcat(*dst, "\n");
     json_object_put(jobj); // Delete the json object
@@ -214,7 +217,7 @@ void JSON_REGISTER_READ(RegisterReadLog *src, char ** dst)
 
     size_t json_length = strlen(json_string);
     *dst = (char *)malloc(json_length + 2);
-    
+
     strcpy(*dst, json_string);
     strcat(*dst, "\n");
     json_object_put(jobj); // Delete the json object
@@ -240,7 +243,7 @@ void JSON_REGISTER_WRITE(RegisterWriteLog *src, char ** dst)
 
     size_t json_length = strlen(json_string);
     *dst = (char *)malloc(json_length + 2);
-    
+
     strcpy(*dst, json_string);
     strcat(*dst, "\n");
     json_object_put(jobj); // Delete the json object
@@ -261,13 +264,14 @@ void JSON_BLOCK_ERASE(BlockEraseLog *src, char ** dst)
     json_object_object_add(jobj, "die", json_object_new_int(src->die));
     json_object_object_add(jobj, "block", json_object_new_int(src->block));
     json_object_object_add(jobj, "dirty_page_nb", json_object_new_int(src->dirty_page_nb));
+    json_object_object_add(jobj, "background", json_object_new_boolean(src->background));
     add_time_to_json_object(jobj, src->metadata.logging_start_time);
 
     const char *json_string = json_object_to_json_string_ext(jobj, JSON_C_TO_STRING_SPACED);
 
     size_t json_length = strlen(json_string);
     *dst = (char *)malloc(json_length + 2);
-    
+
     strcpy(*dst, json_string);
     strcat(*dst, "\n");
     json_object_put(jobj); // Delete the json object
@@ -283,19 +287,20 @@ void JSON_PAGE_COPYBACK(PageCopyBackLog *src, char ** dst)
     struct json_object *jobj;
 
     jobj = json_object_new_object();
-    json_object_object_add(jobj, "type", json_object_new_string("BlockEraseLog"));
+    json_object_object_add(jobj, "type", json_object_new_string("PageCopyBackLog"));
     json_object_object_add(jobj, "channel", json_object_new_int(src->channel));
     json_object_object_add(jobj, "die", json_object_new_int(src->die));
     json_object_object_add(jobj, "block", json_object_new_int(src->block));
     json_object_object_add(jobj, "source_page", json_object_new_int(src->source_page));
     json_object_object_add(jobj, "destination_page", json_object_new_int(src->destination_page));
+    json_object_object_add(jobj, "background", json_object_new_boolean(src->background));
     add_time_to_json_object(jobj, src->metadata.logging_start_time);
 
     const char *json_string = json_object_to_json_string_ext(jobj, JSON_C_TO_STRING_SPACED);
 
     size_t json_length = strlen(json_string);
     *dst = (char *)malloc(json_length + 2);
-    
+
     strcpy(*dst, json_string);
     strcat(*dst, "\n");
     json_object_put(jobj); // Delete the json object
@@ -319,7 +324,7 @@ void JSON_CHANNEL_SWITCH_TO_READ(ChannelSwitchToReadLog *src, char ** dst)
 
     size_t json_length = strlen(json_string);
     *dst = (char *)malloc(json_length + 2);
-    
+
     strcpy(*dst, json_string);
     strcat(*dst, "\n");
     json_object_put(jobj); // Delete the json object
@@ -343,7 +348,7 @@ void JSON_CHANNEL_SWITCH_TO_WRITE(ChannelSwitchToWriteLog *src, char **dst)
 
     size_t json_length = strlen(json_string);
     *dst = (char *)malloc(json_length + 2);
-    
+
     strcpy(*dst, json_string);
     strcat(*dst, "\n");
     json_object_put(jobj); // Delete the json object
@@ -368,7 +373,7 @@ void JSON_OBJECT_ADD_PAGE(ObjectAddPageLog *src, char ** dst)
 
     size_t json_length = strlen(json_string);
     *dst = (char *)malloc(json_length + 2);
-    
+
     strcpy(*dst, json_string);
     strcat(*dst, "\n");
     json_object_put(jobj); // Delete the json object
@@ -393,7 +398,7 @@ void JSON_OBJECT_COPYBACK(ObjectCopyback *src, char ** dst)
 
     size_t json_length = strlen(json_string);
     *dst = (char *)malloc(json_length + 2);
-    
+
     strcpy(*dst, json_string);
     strcat(*dst, "\n");
     json_object_put(jobj); // Delete the json object
@@ -415,7 +420,7 @@ void JSON_LOG_SYNC(LoggeingServerSync *src, char ** dst)
 
     size_t json_length = strlen(json_string);
     *dst = (char *)malloc(json_length + 2);
-    
+
     strcpy(*dst, json_string);
     strcat(*dst, "\n");
     json_object_put(jobj); // Delete the json object

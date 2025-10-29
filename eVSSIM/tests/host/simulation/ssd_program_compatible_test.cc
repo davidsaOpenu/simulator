@@ -266,7 +266,7 @@ namespace program_compatible_test
             if (action_count >= check_trigger)
             {
                 action_count = 0;
-                GC_CHECK(g_device_index, false);
+                GC_CHECK(g_device_index, false, false);
                 _MONITOR_SYNC(g_device_index, &(log_server.stats), MONITOR_SLEEP_MAX_USEC);
 
                 ASSERT_EQ(expected_stats.write_count, log_server.stats.write_count);
@@ -299,7 +299,7 @@ namespace program_compatible_test
             if (action_count >= check_trigger)
             {
                 action_count = 0;
-                GC_CHECK(g_device_index, false);
+                GC_CHECK(g_device_index, false, false);
                 _MONITOR_SYNC(g_device_index, &(log_server.stats), MONITOR_SLEEP_MAX_USEC);
 
                 ASSERT_EQ(expected_stats.write_count, log_server.stats.write_count);
@@ -312,7 +312,7 @@ namespace program_compatible_test
             }
         }
 
-        GC_CHECK(g_device_index, false);
+        GC_CHECK(g_device_index, false, false);
         _MONITOR_SYNC(g_device_index, &(log_server.stats), MONITOR_SLEEP_MAX_USEC);
 
         // checks that log_server.stats (the stats on the monitor) are accurate
@@ -354,7 +354,7 @@ namespace program_compatible_test
             if (action_count >= check_trigger)
             {
                 action_count = 0;
-                GC_CHECK(g_device_index, false);
+                GC_CHECK(g_device_index, false, false);
                 _MONITOR_SYNC(g_device_index, &(log_server.stats), MONITOR_SLEEP_MAX_USEC);
 
                 ASSERT_EQ(expected_stats.write_count, log_server.stats.write_count);
@@ -386,7 +386,7 @@ namespace program_compatible_test
             if (action_count >= check_trigger)
             {
                 action_count = 0;
-                GC_CHECK(g_device_index, false);
+                GC_CHECK(g_device_index, false, false);
                 _MONITOR_SYNC(g_device_index, &(log_server.stats), MONITOR_SLEEP_MAX_USEC);
 
                 ASSERT_LE(expected_stats.write_count, log_server.stats.write_count);
@@ -427,7 +427,7 @@ namespace program_compatible_test
             if (action_count >= check_trigger)
             {
                 action_count = 0;
-                GC_CHECK(g_device_index, false);
+                GC_CHECK(g_device_index, false, false);
                 _MONITOR_SYNC(g_device_index, &(log_server.stats), MONITOR_SLEEP_MAX_USEC);
 
                 ASSERT_LE(expected_stats.write_count, log_server.stats.write_count);
@@ -437,7 +437,7 @@ namespace program_compatible_test
             }
         }
 
-        GC_CHECK(g_device_index, false);
+        GC_CHECK(g_device_index, false, false);
         _MONITOR_SYNC(g_device_index, &(log_server.stats), MONITOR_SLEEP_MAX_USEC);
 
         // checks that log_server.stats (the stats on the monitor) are accurate
