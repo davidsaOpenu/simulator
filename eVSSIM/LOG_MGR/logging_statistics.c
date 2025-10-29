@@ -33,7 +33,11 @@ SSDStatistics stats_init(void) {
             .channel_switch_to_read = 0,
             .channel_switch_to_write = 0,
             .block_erase_count = 0,
-            .log_id = 0
+            .background_write_count = 0,
+            .background_read_count = 0,
+            .background_garbage_collection_count = 0,
+            .background_block_erase_count = 0,
+            .log_id = 0,
     };
     return stats;
 }
@@ -53,13 +57,22 @@ int stats_json(SSDStatistics stats, Byte* buffer, int max_len) {
                     "\"read_elapsed_time\":%lu,"
                     "\"channel_switch_to_read\":%lu,"
                     "\"channel_switch_to_write\":%lu,"
-                    "\"block_erase_count\":%lu"
+                    "\"block_erase_count\":%lu,"
+                    "\"background_write_count\":%lu,"
+                    "\"background_read_count\":%lu,"
+                    "\"background_garbage_collection_count\":%lu,"
+                    "\"background_block_erase_count\":%lu"
                     "}",
                     stats.write_count, stats.write_speed, stats.read_count,
                     stats.read_speed, stats.garbage_collection_count,
                     stats.write_amplification, stats.utilization,
                     stats.logical_write_count, stats.write_elapsed_time, stats.read_elapsed_time,
-                    stats.channel_switch_to_read, stats.channel_switch_to_write, stats.block_erase_count);
+                    stats.channel_switch_to_read, stats.channel_switch_to_write, stats.block_erase_count,
+                    stats.background_write_count,
+                    stats.background_read_count,
+                    stats.background_garbage_collection_count,
+                    stats.background_block_erase_count
+                );
 }
 
 
@@ -78,6 +91,10 @@ int stats_equal(SSDStatistics first, SSDStatistics second) {
            first.block_erase_count == second.block_erase_count &&
            first.channel_switch_to_write == second.channel_switch_to_write &&
            first.channel_switch_to_read == second.channel_switch_to_read &&
+           first.background_write_count == second.background_write_count &&
+           first.background_read_count == second.background_read_count &&
+           first.background_garbage_collection_count == second.background_garbage_collection_count &&
+           first.background_block_erase_count == second.background_block_erase_count &&
            first.log_id == second.log_id;
 }
 
@@ -89,20 +106,24 @@ void printSSDStat(SSDStatistics *stat){
     fprintf(stdout, "\tread_speed = %f\n", stat->read_speed);
     fprintf(stdout, "\tgarbage_collection_count = %lu\n", stat->garbage_collection_count);
     fprintf(stdout, "\twrite_amplification = %f\n", stat->write_amplification);
-    fprintf(stdout, "\tutilization = %f\n", stat->utilization);  
-    fprintf(stdout, "\tlogical_write_count = %lu\n", stat->logical_write_count);  
-    fprintf(stdout, "\twrite_wall_time = %lu\n", stat->write_elapsed_time);  
-    fprintf(stdout, "\tread_wall_time = %lu\n", stat->read_elapsed_time);  
-    fprintf(stdout, "\tblock_erase_count = %lu\n", stat->block_erase_count);  
-    fprintf(stdout, "\tchannel_switch_to_write = %lu\n", stat->channel_switch_to_write);  
-    fprintf(stdout, "\tchannel_switch_to_read = %lu\n", stat->channel_switch_to_read);  
+    fprintf(stdout, "\tutilization = %f\n", stat->utilization);
+    fprintf(stdout, "\tlogical_write_count = %lu\n", stat->logical_write_count);
+    fprintf(stdout, "\twrite_wall_time = %lu\n", stat->write_elapsed_time);
+    fprintf(stdout, "\tread_wall_time = %lu\n", stat->read_elapsed_time);
+    fprintf(stdout, "\tblock_erase_count = %lu\n", stat->block_erase_count);
+    fprintf(stdout, "\tchannel_switch_to_write = %lu\n", stat->channel_switch_to_write);
+    fprintf(stdout, "\tchannel_switch_to_read = %lu\n", stat->channel_switch_to_read);
+    fprintf(stdout, "\tbackground_write_count = %lu\n", stat->background_write_count);
+    fprintf(stdout, "\tbackground_read_count = %lu\n", stat->background_read_count);
+    fprintf(stdout, "\tbackground_garbage_collection_count = %lu\n", stat->background_garbage_collection_count);
+    fprintf(stdout, "\tbackground_block_erase_count = %lu\n", stat->background_block_erase_count);
 };
 
 void validateSSDStat(SSDStatistics *stat){
     if(stat->utilization < 0){
         fprintf(stderr, "bad utilization : %ff", stat->utilization);
     }
-    
+
     //we don't cache writes so write amp cant be less then 1
     //2.2 was chosen as a 'good' upper limit for write amp. rben: updated to 10, there are test with lots of garbage collections, causing bad write amp, just an indication of bad ftl algorithem?
     if((stat->write_amplification < 0.9999f && stat->write_amplification != 0) || stat->write_amplification > 10){

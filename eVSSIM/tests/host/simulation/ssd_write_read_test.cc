@@ -407,22 +407,22 @@ namespace write_read_test
                 action_count = 0;
                 MONITOR_SYNC(g_device_index, &(log_server.stats), MONITOR_SLEEP_MAX_USEC);
 
-                ASSERT_EQ(expected_stats.write_count, log_server.stats.write_count);
-                ASSERT_EQ(expected_stats.read_count, log_server.stats.read_count);
+                EXPECT_EQ(expected_stats.write_count, log_server.stats.write_count);
+                EXPECT_EQ(expected_stats.read_count, log_server.stats.read_count);
 
-                ASSERT_EQ(expected_stats.write_elapsed_time, log_server.stats.write_elapsed_time);
-                ASSERT_EQ(expected_stats.read_elapsed_time, log_server.stats.read_elapsed_time);
+                EXPECT_EQ(expected_stats.write_elapsed_time, log_server.stats.write_elapsed_time);
+                EXPECT_EQ(expected_stats.read_elapsed_time, log_server.stats.read_elapsed_time);
 
-                ASSERT_EQ(expected_stats.logical_write_count, log_server.stats.logical_write_count);
-                ASSERT_EQ(expected_stats.garbage_collection_count, log_server.stats.garbage_collection_count);
-                ASSERT_EQ(expected_stats.write_amplification, log_server.stats.write_amplification);
-                ASSERT_EQ(expected_stats.utilization, log_server.stats.utilization);
+                EXPECT_EQ(expected_stats.logical_write_count, log_server.stats.logical_write_count);
+                EXPECT_EQ(expected_stats.garbage_collection_count, log_server.stats.garbage_collection_count);
+                EXPECT_EQ(expected_stats.write_amplification, log_server.stats.write_amplification);
+                EXPECT_EQ(expected_stats.utilization, log_server.stats.utilization);
 
-                ASSERT_EQ(expected_stats.occupied_pages, log_server.stats.occupied_pages);
+                EXPECT_EQ(expected_stats.occupied_pages, log_server.stats.occupied_pages);
 
-                ASSERT_EQ(expected_stats.block_erase_count, log_server.stats.block_erase_count);
-                ASSERT_EQ(expected_stats.channel_switch_to_write, log_server.stats.channel_switch_to_write);
-                ASSERT_EQ(expected_stats.channel_switch_to_read, log_server.stats.channel_switch_to_read);
+                EXPECT_EQ(expected_stats.block_erase_count, log_server.stats.block_erase_count);
+                EXPECT_EQ(expected_stats.channel_switch_to_write, log_server.stats.channel_switch_to_write);
+                EXPECT_EQ(expected_stats.channel_switch_to_read, log_server.stats.channel_switch_to_read);
             }
         }
 
@@ -436,13 +436,13 @@ namespace write_read_test
         double read_speed = CALCULATEMBPS(ssd_config->get_page_size(), time_per_read);
 
         // checks that log_server.stats (the stats on the monitor) are accurate
-        ASSERT_NEAR(write_speed, log_server.stats.write_speed, ERROR_THRESHHOLD(write_speed));
-        ASSERT_NEAR(read_speed, log_server.stats.read_speed, ERROR_THRESHHOLD(read_speed));
-        ASSERT_EQ(total_pages, log_server.stats.read_count);
-        ASSERT_EQ(total_pages, log_server.stats.write_count);
-        ASSERT_EQ(1, log_server.stats.write_amplification);
-        ASSERT_EQ(0.8, log_server.stats.utilization);
-        ASSERT_EQ(0, log_server.stats.garbage_collection_count);
+        EXPECT_NEAR(write_speed, log_server.stats.write_speed, ERROR_THRESHHOLD(write_speed));
+        EXPECT_NEAR(read_speed, log_server.stats.read_speed, ERROR_THRESHHOLD(read_speed));
+        EXPECT_EQ(total_pages, log_server.stats.read_count);
+        EXPECT_EQ(total_pages, log_server.stats.write_count);
+        EXPECT_EQ(1, log_server.stats.write_amplification);
+        EXPECT_EQ(0.8, log_server.stats.utilization);
+        EXPECT_EQ(0, log_server.stats.garbage_collection_count);
 
         for (unsigned int p = 0; p < total_pages; p++)
         {
@@ -459,29 +459,29 @@ namespace write_read_test
 
                 MONITOR_SYNC(g_device_index, &(log_server.stats), MONITOR_SLEEP_MAX_USEC);
 
-                ASSERT_LE(0.8, log_server.stats.utilization);
-                ASSERT_GE(1, log_server.stats.utilization);
+                EXPECT_LE(0.8, log_server.stats.utilization);
+                EXPECT_GE(1, log_server.stats.utilization);
 
-                ASSERT_LE(1, log_server.stats.write_amplification);
+                EXPECT_LE(1, log_server.stats.write_amplification);
 
-                ASSERT_GE(expected_stats.garbage_collection_count, log_server.stats.garbage_collection_count);
+                EXPECT_GE(expected_stats.garbage_collection_count, log_server.stats.garbage_collection_count);
 
-                ASSERT_EQ(expected_stats.logical_write_count, log_server.stats.logical_write_count);
-                ASSERT_LE(expected_stats.occupied_pages, log_server.stats.occupied_pages);
+                EXPECT_EQ(expected_stats.logical_write_count, log_server.stats.logical_write_count);
+                EXPECT_LE(expected_stats.occupied_pages, log_server.stats.occupied_pages);
             }
         };
 
         MONITOR_SYNC(g_device_index, &(log_server.stats), MONITOR_SLEEP_MAX_USEC);
 
-        ASSERT_LE(0.8, log_server.stats.utilization);
-        ASSERT_GE(1, log_server.stats.utilization);
+        EXPECT_LE(0.8, log_server.stats.utilization);
+        EXPECT_GE(1, log_server.stats.utilization);
 
-        ASSERT_LE(1, log_server.stats.write_amplification);
+        EXPECT_LE(1, log_server.stats.write_amplification);
 
-        ASSERT_GE(expected_stats.garbage_collection_count, log_server.stats.garbage_collection_count);
+        EXPECT_GE(expected_stats.garbage_collection_count, log_server.stats.garbage_collection_count);
 
-        ASSERT_EQ(expected_stats.logical_write_count, log_server.stats.logical_write_count);
-        ASSERT_LE(expected_stats.occupied_pages, log_server.stats.occupied_pages);
+        EXPECT_EQ(expected_stats.logical_write_count, log_server.stats.logical_write_count);
+        EXPECT_LE(expected_stats.occupied_pages, log_server.stats.occupied_pages);
 
         PINFO("finished WRITEREADWRITETest with stats :\n");
         printSSDStat(&log_server.stats);
