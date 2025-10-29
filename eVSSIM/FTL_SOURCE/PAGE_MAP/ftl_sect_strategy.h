@@ -15,7 +15,7 @@ ftl_ret_val _FTL_WRITE_SECT(uint8_t device_index, uint64_t sector_nb, unsigned i
 ftl_ret_val _FTL_READ(uint8_t device_index, uint64_t sector_nb, unsigned int length, unsigned char *data);
 ftl_ret_val _FTL_WRITE(uint8_t device_index, uint64_t sector_nb, unsigned int length, const unsigned char *data);
 
-ftl_ret_val _FTL_COPYBACK(uint8_t device_index, uint64_t source, uint64_t destination);
+ftl_ret_val _FTL_COPYBACK(uint8_t device_index, uint64_t source, uint64_t destination, int type);
 ftl_ret_val _FTL_CREATE(uint8_t device_index);
 ftl_ret_val _FTL_DELETE(void);
 

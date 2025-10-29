@@ -160,7 +160,11 @@ void rt_log_analyzer_loop(uint8_t device_index, RTLogAnalyzer* analyzer, int max
             {
                 PhysicalCellReadLog res;
                 NEXT_PHYSICAL_CELL_READ_LOG(analyzer->logger, &res, RT_ANALYZER);
-                stats.read_count++;
+                if (res.background) {
+                    stats.background_read_count++;
+                } else {
+                    stats.read_count++;
+                }
                 rt_log_stats[analyzer->rt_analyzer_id].current_wall_time += devices[device_index].cell_read_delay;
                 rt_log_stats[analyzer->rt_analyzer_id].read_elapsed_time += rt_log_stats[analyzer->rt_analyzer_id].current_wall_time;
                 rt_log_stats[analyzer->rt_analyzer_id].current_wall_time = 0;
@@ -170,7 +174,11 @@ void rt_log_analyzer_loop(uint8_t device_index, RTLogAnalyzer* analyzer, int max
             {
                 PhysicalCellProgramLog res;
                 NEXT_PHYSICAL_CELL_PROGRAM_LOG(analyzer->logger, &res, RT_ANALYZER);
-                stats.write_count++;
+                if (res.background) {
+                    stats.background_write_count++;
+                } else {
+                    stats.write_count++;
+                }
                 rt_log_stats[analyzer->rt_analyzer_id].occupied_pages++;
                 rt_log_stats[analyzer->rt_analyzer_id].current_wall_time += devices[device_index].cell_program_delay;
                 rt_log_stats[analyzer->rt_analyzer_id].write_elapsed_time += rt_log_stats[analyzer->rt_analyzer_id].current_wall_time;
@@ -199,7 +207,11 @@ void rt_log_analyzer_loop(uint8_t device_index, RTLogAnalyzer* analyzer, int max
             {
                 GarbageCollectionLog res;
                 NEXT_GARBAGE_COLLECTION_LOG(analyzer->logger, &res, RT_ANALYZER);
-                stats.garbage_collection_count++;
+                if (res.background) {
+                    stats.background_garbage_collection_count++;
+                } else {
+                    stats.garbage_collection_count++;
+                }
                 break;
             }
             case REGISTER_READ_LOG_UID:
@@ -222,17 +234,26 @@ void rt_log_analyzer_loop(uint8_t device_index, RTLogAnalyzer* analyzer, int max
                 NEXT_BLOCK_ERASE_LOG(analyzer->logger, &res, RT_ANALYZER);
                 rt_log_stats[analyzer->rt_analyzer_id].occupied_pages -= res.dirty_page_nb;
                 rt_log_stats[analyzer->rt_analyzer_id].current_wall_time += devices[device_index].block_erase_delay;
-                stats.block_erase_count++;
+                if (res.background) {
+                    stats.background_block_erase_count++;
+                } else {
+                    stats.block_erase_count++;
+                }
                 break;
             }
             case PAGE_COPYBACK_LOG_UID:
             {
                 PageCopyBackLog res;
-                rt_log_stats[analyzer->rt_analyzer_id].occupied_pages++;
-                stats.read_count++;
-                stats.write_count++;
                 // TODO: log time for copyback
-                NEXT_PAGE_COPYBACK_LOG(analyzer->logger, &res, RT_ANALYZER);
+                NEXT_PAGE_COPYBACK_LOG(analyzer->logger, &res, RT_ANALYZER); //!WTF???
+                rt_log_stats[analyzer->rt_analyzer_id].occupied_pages++;
+                if (res.background) {
+                    stats.background_read_count++;
+                    stats.background_write_count++;
+                } else {
+                    stats.read_count++;
+                    stats.write_count++;
+                }
                 break;
             }
             case CHANNEL_SWITCH_TO_READ_LOG_UID:
