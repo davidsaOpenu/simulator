@@ -301,18 +301,7 @@ void log_server_free(void) {
     pthread_mutex_destroy(&log_server.lock);
 }
 
-static void _MONITOR_SYNC_LOG_ID(SSDStatistics *stats, uint64_t log_id, uint64_t max_sleep){
-    uint64_t time_waited = 0;
-    while(stats->log_id != log_id && time_waited < max_sleep){
-        usleep(MONITOR_SLEEP_PERIOD_USEC);
-        time_waited += MONITOR_SLEEP_PERIOD_USEC;
-    }
-    if(time_waited >= max_sleep){
-        PINFO("Timed out syncing to logger.\n");
-    }
-}
-
-void _MONITOR_SYNC(uint8_t device_index, SSDStatistics *stats, uint64_t max_sleep) {
+void MONITOR_SYNC(uint8_t device_index, SSDStatistics *stats, uint64_t max_sleep) {
     // TODO: For now we don't support multiple disks logging properly
     device_index = 0;
 
@@ -323,7 +312,7 @@ void _MONITOR_SYNC(uint8_t device_index, SSDStatistics *stats, uint64_t max_slee
         LOG_LOG_SYNC(GET_LOGGER(device_index, i), (LoggeingServerSync) {
             .log_id = log_id
         });
-        _MONITOR_SYNC_LOG_ID(stats, log_id, max_sleep);
+        MONITOR_SYNC_LOG_ID(stats, log_id, max_sleep);
         LOG_LOG_SYNC(GET_LOGGER(device_index, i), (LoggeingServerSync) {
             .log_id = 0
         });
@@ -333,8 +322,13 @@ void _MONITOR_SYNC(uint8_t device_index, SSDStatistics *stats, uint64_t max_slee
     }
 }
 
-void MONITOR_SYNC(uint8_t device_index, SSDStatistics *stats, uint64_t max_sleep) {
-    pthread_mutex_lock(&g_lock);
-    _MONITOR_SYNC(device_index, stats, max_sleep);
-    pthread_mutex_unlock(&g_lock);
+void MONITOR_SYNC_LOG_ID(SSDStatistics *stats, uint64_t log_id, uint64_t max_sleep){
+    uint64_t time_waited = 0;
+    while(stats->log_id != log_id && time_waited < max_sleep){
+        usleep(MONITOR_SLEEP_PERIOD_USEC);
+        time_waited += MONITOR_SLEEP_PERIOD_USEC;
+    }
+    if(time_waited >= max_sleep){
+        PINFO("Timed out syncing to logger.\n");
+    }
 }

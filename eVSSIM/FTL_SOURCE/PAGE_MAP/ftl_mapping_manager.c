@@ -101,26 +101,6 @@ ftl_ret_val DEFAULT_NEXT_PAGE_ALGO(uint8_t device_index, int mode, uint64_t mapp
 	curr_empty_block->curr_phy_page_nb += 1;
 	inverse_mappings_manager[device_index].total_zero_page_nb--;
 
-	if (curr_empty_block->curr_phy_page_nb == devices[device_index].page_nb){
-		uint64_t plane_nb = curr_empty_block->phy_block_nb % devices[device_index].planes_per_flash;
-		mapping_index = plane_nb * devices[device_index].flash_nb + curr_empty_block->phy_flash_nb;
-
-		empty_block_root* curr_root_entry = inverse_mappings_manager[device_index].empty_block_table_start + mapping_index;
-
-		/* Update Empty Block List */
-		if(curr_root_entry->empty_block_nb == 1){
-			curr_root_entry->next = NULL;
-			curr_root_entry->empty_block_nb = 0;
-		}
-		else{
-			curr_root_entry->next = curr_empty_block->next;
-			curr_root_entry->empty_block_nb -= 1;
-		}
-
-		/* Eject Empty Block from the list */
-		INSERT_VICTIM_BLOCK(device_index, curr_empty_block);
-	}
-
 	return FTL_SUCCESS;
 }
 

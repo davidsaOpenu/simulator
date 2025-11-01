@@ -222,7 +222,7 @@ ftl_ret_val _FTL_WRITE_SECT(uint8_t device_index, uint64_t sector_nb, unsigned i
 	uint64_t lpn;			  // logical page number
 	uint64_t offset_in_page;
 	uint64_t new_ppn = MAPPING_TABLE_INIT_VAL; // physical page number
-	bool device_full = false;
+	bool is_new_page_allocated = false;
 
 	unsigned int remain = length;
 	unsigned int left_skip = sector_nb % devices[device_index].sectors_per_page; // offset from start of page (when write to part of page)
@@ -261,14 +261,9 @@ ftl_ret_val _FTL_WRITE_SECT(uint8_t device_index, uint64_t sector_nb, unsigned i
 		else {
 			ret = GET_NEW_PAGE(device_index, VICTIM_OVERALL, devices[device_index].empty_table_entry_nb, &new_ppn);
 			if (ret == FTL_FAILURE) {
-				ret = GET_NEW_PAGE(device_index, VICTIM_OVERALL_GC, devices[device_index].empty_table_entry_nb, &new_ppn);
-				if (ret == FTL_FAILURE) {
-					RERR(FTL_FAILURE, "[FTL_WRITE] Get new page fail \n");
-				} else {
-					device_full = true;
-					DEV_PINFO(device_index, "[FTL_WRITE] obtained a GC reserved page because device is full\n");
-				}
+				RERR(FTL_FAILURE, "[FTL_WRITE] Get new page fail \n");
 			}
+			is_new_page_allocated = true;
 
 			// ONFI doesn't allow data to be NULL, but FTL does.
 			// Therefore, in order to keep the statistics in check, in that case we call SSD_PAGE_WRITE directly.
@@ -313,8 +308,8 @@ ftl_ret_val _FTL_WRITE_SECT(uint8_t device_index, uint64_t sector_nb, unsigned i
 	INCREASE_IO_REQUEST_SEQ_NB();
 
 #ifdef GC_ON
-	if (device_full) {
-		GC_CHECK(device_index, true);
+	if (is_new_page_allocated) {
+		GC_CHECK(device_index, false);
 	}
 #endif
 

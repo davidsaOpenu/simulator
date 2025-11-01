@@ -439,6 +439,7 @@ empty_block_entry* GET_EMPTY_BLOCK(uint8_t device_index, int mode, uint64_t mapp
 {
 	uint64_t input_mapping_index = mapping_index;
 
+	empty_block_entry* curr_empty_block;
 	empty_block_root* curr_root_entry;
 
 	uint64_t min_zero_page_nb = 0;
@@ -462,17 +463,43 @@ empty_block_entry* GET_EMPTY_BLOCK(uint8_t device_index, int mode, uint64_t mapp
 
 		if (mode == VICTIM_OVERALL){
 			curr_root_entry = inverse_mappings_manager[device_index].empty_block_table_start + inverse_mappings_manager[device_index].empty_block_table_index;
-			inverse_mappings_manager[device_index].empty_block_table_index++;
-			if(inverse_mappings_manager[device_index].empty_block_table_index == devices[device_index].empty_table_entry_nb){
-				inverse_mappings_manager[device_index].empty_block_table_index = 0;
-			}
 
 			if(curr_root_entry->empty_block_nb == 0){
+				inverse_mappings_manager[device_index].empty_block_table_index++;
+				if(inverse_mappings_manager[device_index].empty_block_table_index == devices[device_index].empty_table_entry_nb){
+					inverse_mappings_manager[device_index].empty_block_table_index = 0;
+				}
 				continue;
 			}
 			else
 			{
-				return curr_root_entry->next;
+				curr_empty_block = curr_root_entry->next;
+				if(curr_empty_block->curr_phy_page_nb == devices[device_index].page_nb){
+
+					/* Update Empty Block List */
+					if(curr_root_entry->empty_block_nb == 1){
+						curr_root_entry->next = NULL;
+						curr_root_entry->empty_block_nb = 0;
+					}
+					else{
+						curr_root_entry->next = curr_empty_block->next;
+						curr_root_entry->empty_block_nb -= 1;
+					}
+
+					/* Eject Empty Block from the list */
+					INSERT_VICTIM_BLOCK(device_index, curr_empty_block);
+
+					inverse_mappings_manager[device_index].empty_block_table_index++;
+					if(inverse_mappings_manager[device_index].empty_block_table_index == devices[device_index].empty_table_entry_nb){
+						inverse_mappings_manager[device_index].empty_block_table_index = 0;
+					}
+					continue;
+				}
+				inverse_mappings_manager[device_index].empty_block_table_index++;
+				if(inverse_mappings_manager[device_index].empty_block_table_index == devices[device_index].empty_table_entry_nb){
+					inverse_mappings_manager[device_index].empty_block_table_index = 0;
+				}
+				return curr_empty_block;
 			}
 		}
 		else if(mode == VICTIM_INCHIP){
@@ -489,7 +516,29 @@ empty_block_entry* GET_EMPTY_BLOCK(uint8_t device_index, int mode, uint64_t mapp
 				continue;
 			}
 			else{
-				return curr_root_entry->next;
+				curr_empty_block = curr_root_entry->next;
+				if(curr_empty_block->curr_phy_page_nb == devices[device_index].page_nb){
+
+					/* Update Empty Block List */
+					if(curr_root_entry->empty_block_nb == 1){
+						curr_root_entry->next = NULL;
+						curr_root_entry->empty_block_nb = 0;
+					}
+					else{
+						curr_root_entry->next = curr_empty_block->next;
+						curr_root_entry->empty_block_nb -= 1;
+					}
+
+					/* Eject Empty Block from the list */
+					INSERT_VICTIM_BLOCK(device_index, curr_empty_block);
+
+					continue;
+				}
+				else{
+					curr_empty_block = curr_root_entry->next;
+				}
+
+				return curr_empty_block;
 			}
 		}
 
@@ -507,7 +556,29 @@ empty_block_entry* GET_EMPTY_BLOCK(uint8_t device_index, int mode, uint64_t mapp
 				continue;
 			}
 			else{
-				return curr_root_entry->next;
+				curr_empty_block = curr_root_entry->next;
+				if(curr_empty_block->curr_phy_page_nb == devices[device_index].page_nb){
+
+					/* Update Empty Block List */
+					if(curr_root_entry->empty_block_nb == 1){
+						curr_root_entry->next = NULL;
+						curr_root_entry->empty_block_nb = 0;
+					}
+					else{
+						curr_root_entry->next = curr_empty_block->next;
+						curr_root_entry->empty_block_nb -= 1;
+					}
+
+					/* Eject Empty Block from the list */
+					INSERT_VICTIM_BLOCK(device_index, curr_empty_block);
+
+					continue;
+				}
+				else{
+					curr_empty_block = curr_root_entry->next;
+				}
+
+				return curr_empty_block;
 			}
 		}
 	}

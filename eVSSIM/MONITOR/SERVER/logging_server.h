@@ -30,7 +30,7 @@
 #define MONITOR_SLEEP_PERIOD_USEC 100
 #define MONITOR_SLEEP_MAX_USEC 150000000
 
-void _MONITOR_SYNC(uint8_t device_index, SSDStatistics *stats, uint64_t max_sleep);
+void MONITOR_SYNC_LOG_ID(SSDStatistics *stats, uint64_t log_id, uint64_t max_sleep);
 void MONITOR_SYNC(uint8_t device_index, SSDStatistics *stats, uint64_t max_sleep);
 
 /**

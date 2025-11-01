@@ -23,6 +23,7 @@ gc_thread_t *gc_threads;
 static void *GC_BACKGROUND_LOOP(void *arg) {
     gc_thread_t *gc_thread = arg;
     uint8_t device_index = gc_thread->device_index;
+    DEV_PINFO(device_index, "background GC thread started\n");
 
     pthread_mutex_lock(&g_lock);
     while (!gc_thread->gc_stop_flag) {
@@ -53,6 +54,7 @@ static void *GC_BACKGROUND_LOOP(void *arg) {
     }
     pthread_mutex_unlock(&g_lock);
 
+    DEV_PINFO(device_index, "background GC thread stopped\n");
     return NULL;
 }
 
@@ -71,6 +73,8 @@ void INIT_GC_MANAGER(uint8_t device_index) {
     if (0 != pthread_create(&gc_thread->tid, NULL, GC_BACKGROUND_LOOP, gc_thread)) {
         DEV_RERR(, device_index, "failed to create GC background thread\n");
     }
+
+    DEV_PINFO(device_index, "background GC initialized\n");
 }
 
 void TERM_GC_MANAGER(uint8_t device_index) {

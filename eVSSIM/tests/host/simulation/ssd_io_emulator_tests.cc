@@ -445,11 +445,6 @@ namespace ssd_io_emulator_tests {
             for(size_t p=0; p < page_x_flash; p++){
                 ASSERT_EQ(FTL_SUCCESS, _FTL_WRITE_SECT(g_device_index, p * ssd_config->get_page_size(), 1, NULL));
             }
-
-            // Since background GC is disabled for this test suite, invoke it
-            // here manually to get closer to the theoretical 0.8 utilization.
-            GC_CHECK(g_device_index, false);
-
             MONITOR_SYNC_DELAY(15000000);
 
             //at most one block that wasn't cleared by GC algorithem
