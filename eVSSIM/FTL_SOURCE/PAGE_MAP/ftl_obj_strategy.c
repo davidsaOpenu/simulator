@@ -1,19 +1,10 @@
 #include <assert.h>
-
-#include "common.h"
+#include <limits.h>
 #include "ftl_obj_strategy.h"
 
-#include "osc-osd/osd-target/osd.h"
-#include "osc-osd/osd-util/osd-util.h"
-#include "osc-osd/osd-util/osd-defs.h"
 
-stored_object *objects_table = NULL;
-object_map *objects_mapping = NULL;
-page_node *global_page_table = NULL;
-object_id_t current_id;
+obj_strategy_manager_t *obj_manager = NULL;
 
-static struct osd_device osd = { 0x0 };
-static uint8_t *osd_sense = NULL;
 #define OSD_READ_VALUE_OFFSET       (44)
 #define OSD_SENSE_BUFFER_SIZE       (1024)
 
@@ -21,74 +12,142 @@ static uint8_t *osd_sense = NULL;
 #define MIN(x, y) ((x) > (y) ? (y) : (x))
 #endif
 
+#define OBJECTS_TABLE(device_index) (obj_manager[device_index].objects_table)
+#define OBJECTS_MAPPING(device_index) (obj_manager[device_index].objects_mapping)
+#define GLOBAL_PAGE_TABLE(device_index) (obj_manager[device_index].global_page_table)
+#define CURRENT_ID(device_index) (obj_manager[device_index].current_id)
+#define OSD_DEVICE(device_index) (&obj_manager[device_index].osd)
+#define OSD_SENSE(device_index) (obj_manager[device_index].osd_sense)
+
 //todo: fix object page add and copyback so that the occupied pages in ssd_io_manager.c will be updated
 
-void INIT_OBJ_STRATEGY(void)
+void INIT_OBJ_STRATEGY(uint8_t device_index)
 {
     pthread_mutex_lock(&g_lock);
-    current_id = 1;
-    objects_table = NULL;
-    objects_mapping = NULL;
-    global_page_table = NULL;
 
-    const char *root = "/tmp/osd/";
-    assert(!system("rm -rf /tmp/osd"));
-    assert(!osd_open(root, &osd));
-    osd_sense = (uint8_t*)malloc(OSD_SENSE_BUFFER_SIZE);
-    memset(osd_sense, 0x0, OSD_SENSE_BUFFER_SIZE);
+    if (obj_manager[device_index].initialized) {
+        pthread_mutex_unlock(&g_lock);
+        TERM_OBJ_STRATEGY(device_index);
+        pthread_mutex_lock(&g_lock);
+    }
 
-    // creating a single partition, to be used later to store all
-    // user objects
-    assert(!osd_create_partition(&osd, PARTITION_PID_LB, 0, osd_sense));
+    CURRENT_ID(device_index) = 1;
+    OBJECTS_TABLE(device_index) = NULL;
+    OBJECTS_MAPPING(device_index) = NULL;
+    GLOBAL_PAGE_TABLE(device_index) = NULL;
+
+    char root[PATH_MAX];
+    char cmd[512];
+    snprintf(root, sizeof(root), "/tmp/osd/%d/", device_index);
+    snprintf(cmd, sizeof(cmd), "rm -rf %s && mkdir -p %s", root, root);
+
+    if (system(cmd) != 0) {
+        RERR(, "Failed to create OSD directory for device %d\n", device_index);
+        pthread_mutex_unlock(&g_lock);
+        return;
+    }
+
+    if (osd_open(root, OSD_DEVICE(device_index)) != 0) {
+        RERR(, "Failed to open OSD for device %d\n", device_index);
+        pthread_mutex_unlock(&g_lock);
+        return;
+    }
+
+    OSD_SENSE(device_index) = (uint8_t*)malloc(OSD_SENSE_BUFFER_SIZE);
+    if (OSD_SENSE(device_index) == NULL) {
+        RERR(, "Failed to allocate OSD sense buffer for device %d\n", device_index);
+        osd_close(OSD_DEVICE(device_index));
+        pthread_mutex_unlock(&g_lock);
+        return;
+    }
+    memset(OSD_SENSE(device_index), 0x0, OSD_SENSE_BUFFER_SIZE);
+
+    if (osd_create_partition(OSD_DEVICE(device_index), PARTITION_PID_LB, 0, OSD_SENSE(device_index)) != 0) {
+        RERR(, "Failed to create OSD partition for device %d\n", device_index);
+        free(OSD_SENSE(device_index));
+        OSD_SENSE(device_index) = NULL;
+        osd_close(OSD_DEVICE(device_index));
+        pthread_mutex_unlock(&g_lock);
+        return;
+    }
+
+    obj_manager[device_index].initialized = true;
     pthread_mutex_unlock(&g_lock);
 }
 
-void free_obj_table(void)
+void free_obj_table(uint8_t device_index)
 {
     struct stored_object *current_object, *tmp;
 
-    HASH_ITER(hh, objects_table, current_object, tmp)
+    HASH_ITER(hh, OBJECTS_TABLE(device_index), current_object, tmp)
     {
-        HASH_DEL(objects_table, current_object);
+        HASH_DEL(OBJECTS_TABLE(device_index), current_object);
         free(current_object);
     }
+    OBJECTS_TABLE(device_index) = NULL;
 }
 
-void free_obj_mapping(void)
+void free_obj_mapping(uint8_t device_index)
 {
     struct object_map *current_mapping, *tmp;
 
-    HASH_ITER(hh, objects_mapping, current_mapping, tmp)
+    HASH_ITER(hh, OBJECTS_MAPPING(device_index), current_mapping, tmp)
     {
-        HASH_DEL(objects_mapping, current_mapping);
+        HASH_DEL(OBJECTS_MAPPING(device_index), current_mapping);
         free(current_mapping);
     }
+    OBJECTS_MAPPING(device_index) = NULL;
 }
 
-void free_page_table(void)
+void free_page_table(uint8_t device_index)
 {
     struct page_node *current_page, *tmp;
 
-    HASH_ITER(hh, global_page_table, current_page, tmp)
+    HASH_ITER(hh, GLOBAL_PAGE_TABLE(device_index), current_page, tmp)
     {
-        HASH_DEL(global_page_table, current_page);
+        HASH_DEL(GLOBAL_PAGE_TABLE(device_index), current_page);
         free(current_page);
     }
+    GLOBAL_PAGE_TABLE(device_index) = NULL;
 }
 
-void TERM_OBJ_STRATEGY(void)
+void TERM_OBJ_STRATEGY(uint8_t device_index)
 {
     pthread_mutex_lock(&g_lock);
-    free_obj_table();
-    free_obj_mapping();
-    free_page_table();
 
-    if (osd_sense != NULL) {
-        free(osd_sense);
-        osd_sense = NULL;
-        osd_close(&osd);
+    if (obj_manager == NULL || !obj_manager[device_index].initialized) {
+        pthread_mutex_unlock(&g_lock);
+        return;
     }
+
+    free_obj_table(device_index);
+    free_obj_mapping(device_index);
+    free_page_table(device_index);
+
+    if (OSD_SENSE(device_index) != NULL) {
+        free(OSD_SENSE(device_index));
+        OSD_SENSE(device_index) = NULL;
+        osd_close(OSD_DEVICE(device_index));
+    }
+
+    obj_manager[device_index].initialized = false;
     pthread_mutex_unlock(&g_lock);
+}
+
+void TERM_OBJ_STRATEGY_ALL(void)
+{
+    if (obj_manager == NULL) {
+        return;
+    }
+    uint8_t i;
+    for (i = 0; i < device_count; i++) {
+        if (obj_manager[i].initialized) {
+            TERM_OBJ_STRATEGY(i);
+        }
+    }
+
+    free(obj_manager);
+    obj_manager = NULL;
 }
 
 ftl_ret_val _FTL_OBJ_READ(uint8_t device_index, obj_id_t obj_loc, void *data, offset_t offset, length_t *p_length)
@@ -111,7 +170,7 @@ ftl_ret_val _FTL_OBJ_READ(uint8_t device_index, obj_id_t obj_loc, void *data, of
 
     length_t length = *p_length;
 
-    object = lookup_object(obj_loc.object_id);
+    object = lookup_object(device_index, obj_loc.object_id);
 
     // file not found
     if (object == NULL)
@@ -162,17 +221,17 @@ ftl_ret_val _FTL_OBJ_READ(uint8_t device_index, obj_id_t obj_loc, void *data, of
 
     if (data != NULL) {
         uint64_t outlen = 0;
-        osd_ret = osd_read(&osd, obj_loc.partition_id, obj_loc.object_id,
-                    length, 0, NULL, data, &outlen, 0, osd_sense, DDT_CONTIG);
+        osd_ret = osd_read(OSD_DEVICE(device_index), obj_loc.partition_id, obj_loc.object_id,
+                    length, 0, NULL, data, &outlen, 0, OSD_SENSE(device_index), DDT_CONTIG);
         if (osd_ret < 0) {
             PDBG_FTL("osd_read failed with ret: %d.\n", osd_ret);
             return FTL_FAILURE;
         }
 
-        *p_length = get_ntohll(osd_sense + OSD_READ_VALUE_OFFSET);
+        *p_length = get_ntohll(OSD_SENSE(device_index) + OSD_READ_VALUE_OFFSET);
         if (length < *p_length) *p_length = length;
 
-        memset(osd_sense, 0x0, OSD_SENSE_BUFFER_SIZE);
+        memset(OSD_SENSE(device_index), 0x0, OSD_SENSE_BUFFER_SIZE);
     }
 
     PDBG_FTL("Complete\n");
@@ -202,7 +261,7 @@ ftl_ret_val _FTL_OBJ_WRITE(uint8_t device_index, obj_id_t object_loc, const void
     unsigned int ret = FTL_SUCCESS;
     int osd_ret;
 
-    object = lookup_object(object_loc.object_id);
+    object = lookup_object(device_index, object_loc.object_id);
 
     // file not found
     if (object == NULL)
@@ -239,7 +298,7 @@ ftl_ret_val _FTL_OBJ_WRITE(uint8_t device_index, obj_id_t object_loc, const void
         {
             RERR(FTL_FAILURE, "[FTL_WRITE] Get new page fail \n");
         }
-        if ((temp_page = lookup_page(page_id)))
+        if ((temp_page = lookup_page(device_index, page_id)))
         {
             RERR(FTL_FAILURE, "[FTL_WRITE] Object %lu already contains page %lu\n", temp_page->object_id, page_id);
         }
@@ -262,9 +321,9 @@ ftl_ret_val _FTL_OBJ_WRITE(uint8_t device_index, obj_id_t object_loc, const void
                 PAGE_INVALID);
             UPDATE_INVERSE_PAGE_MAPPING(device_index, current_page->page_id, MAPPING_TABLE_INIT_VAL);
 
-            HASH_DEL(global_page_table, current_page);
+            HASH_DEL(GLOBAL_PAGE_TABLE(device_index), current_page);
             current_page->page_id = page_id;
-            HASH_ADD_INT(global_page_table, page_id, current_page);
+            HASH_ADD_INT(GLOBAL_PAGE_TABLE(device_index), page_id, current_page);
         }
 #ifdef GC_ON
         // must improve this because it is very possible that we will do multiple GCs on the same flash chip and block
@@ -296,8 +355,8 @@ ftl_ret_val _FTL_OBJ_WRITE(uint8_t device_index, obj_id_t object_loc, const void
     }
 
     if (data != NULL) {
-        osd_ret = osd_write(&osd, object_loc.partition_id, object_loc.object_id,
-            length, offset, (uint8_t *)data, 0, osd_sense, DDT_CONTIG);
+        osd_ret = osd_write(OSD_DEVICE(device_index), object_loc.partition_id, object_loc.object_id,
+            length, offset, (uint8_t *)data, 0, OSD_SENSE(device_index), DDT_CONTIG);
         if (osd_ret < 0) {
             PDBG_FTL("Failed to osd_write with ret: %d\n", osd_ret);
             return FTL_FAILURE;
@@ -327,7 +386,7 @@ ftl_ret_val _FTL_OBJ_COPYBACK(uint8_t device_index, int32_t source, int32_t dest
 
     page_node *source_p;
 
-    source_p = lookup_page(source);
+    source_p = lookup_page(device_index, source);
 
     // source_p can be NULL if the GC is working on some old pages that belonged to an object we deleted already
     if (source_p != NULL)
@@ -340,9 +399,9 @@ ftl_ret_val _FTL_OBJ_COPYBACK(uint8_t device_index, int32_t source, int32_t dest
         UPDATE_NEW_PAGE_MAPPING_NO_LOGICAL(device_index, destination);
 
         // change the object's page mapping to the new page
-        HASH_DEL(global_page_table, source_p);
+        HASH_DEL(GLOBAL_PAGE_TABLE(device_index), source_p);
         source_p->page_id = destination;
-        HASH_ADD_INT(global_page_table, page_id, source_p);
+        HASH_ADD_INT(GLOBAL_PAGE_TABLE(device_index), page_id, source_p);
     }
     else
     {
@@ -369,7 +428,7 @@ bool _FTL_OBJ_CREATE(uint8_t device_index, obj_id_t obj_loc, size_t size)
         return false;
     }
 
-    osd_ret = osd_create(&osd, obj_loc.partition_id, obj_loc.object_id, 1, 0, osd_sense);
+    osd_ret = osd_create(OSD_DEVICE(device_index), obj_loc.partition_id, obj_loc.object_id, 1, 0, OSD_SENSE(device_index));
     if (osd_ret < 0) {
         if (_FTL_OBJ_DELETE(device_index, obj_loc) != FTL_SUCCESS) {
             PDBG_FTL("Warning! couldn't delete object.\n");
@@ -400,19 +459,19 @@ ftl_ret_val _FTL_OBJ_DELETE(uint8_t device_index, obj_id_t obj_loc)
     object_map *obj_map;
     int osd_ret;
 
-    object = lookup_object(obj_loc.object_id);
+    object = lookup_object(device_index, obj_loc.object_id);
 
     // object not found
     if (object == NULL)
         return FTL_FAILURE;
 
-    obj_map = lookup_object_mapping(obj_loc.object_id);
+    obj_map = lookup_object_mapping(device_index, obj_loc.object_id);
 
     // object_map not found
     if (obj_map == NULL)
         return FTL_FAILURE;
 
-    osd_ret = osd_remove(&osd, obj_loc.partition_id, obj_loc.object_id, 0, osd_sense);
+    osd_ret = osd_remove(OSD_DEVICE(device_index), obj_loc.partition_id, obj_loc.object_id, 0, OSD_SENSE(device_index));
     if (osd_ret < 0) {
         PDBG_FTL("Failed to remove OSD object with ret: %d.\n", osd_ret);
         return FTL_FAILURE;
@@ -429,7 +488,7 @@ ftl_ret_val FTL_OBJ_DELETE(uint8_t device_index, obj_id_t obj_loc)
 	return ret;
 }
 
-ftl_ret_val _FTL_OBJ_LIST(void *data, size_t *size, uint64_t initial_oid)
+ftl_ret_val _FTL_OBJ_LIST(uint8_t device_index, void *data, size_t *size, uint64_t initial_oid)
 {
     int osd_ret;
     struct getattr_list get_attr = {
@@ -442,8 +501,8 @@ ftl_ret_val _FTL_OBJ_LIST(void *data, size_t *size, uint64_t initial_oid)
         return FTL_FAILURE;
     }
 
-    osd_ret = osd_list(&osd, 0, USEROBJECT_PID_LB, *size, initial_oid, &get_attr,
-        0, data, size, osd_sense);
+    osd_ret = osd_list(OSD_DEVICE(device_index), 0, USEROBJECT_PID_LB, *size, initial_oid, &get_attr,
+        0, data, size, OSD_SENSE(device_index));
     if (osd_ret < 0) {
         printf("failed to execute osd_list\n");
         return FTL_FAILURE;
@@ -452,30 +511,30 @@ ftl_ret_val _FTL_OBJ_LIST(void *data, size_t *size, uint64_t initial_oid)
     return FTL_SUCCESS;
 }
 
-ftl_ret_val FTL_OBJ_LIST(void *data, size_t *size, uint64_t initial_oid)
+ftl_ret_val FTL_OBJ_LIST(uint8_t device_index, void *data, size_t *size, uint64_t initial_oid)
 {
 	pthread_mutex_lock(&g_lock);
-    ftl_ret_val ret = _FTL_OBJ_LIST(data, size, initial_oid);
+    ftl_ret_val ret = _FTL_OBJ_LIST(device_index, data, size, initial_oid);
 	pthread_mutex_unlock(&g_lock);
 	return ret;
 }
 
-stored_object *lookup_object(object_id_t object_id)
+stored_object *lookup_object(uint8_t device_index, object_id_t object_id)
 {
     stored_object *object;
 
     // try to find it in our hashtable. NULL will be returned if key not found
-    HASH_FIND_INT(objects_table, &object_id, object);
+    HASH_FIND_INT(OBJECTS_TABLE(device_index), &object_id, object);
 
     return object;
 }
 
-object_map *lookup_object_mapping(object_id_t object_id)
+object_map *lookup_object_mapping(uint8_t device_index, object_id_t object_id)
 {
     object_map *obj_map;
 
     // try to find it in our hashtable. NULL will be returned if key not found
-    HASH_FIND_INT(objects_mapping, &object_id, obj_map);
+    HASH_FIND_INT(OBJECTS_MAPPING(device_index), &object_id, obj_map);
 
     return obj_map;
 }
@@ -487,14 +546,14 @@ stored_object *create_object(uint8_t device_index, object_id_t obj_id, size_t si
 
     object_map *obj_map;
 
-    HASH_FIND_INT(objects_mapping, &obj_id, obj_map);
+    HASH_FIND_INT(OBJECTS_MAPPING(device_index), &obj_id, obj_map);
     //if the requested id was not found, let's add it
     if (obj_map == NULL)
     {
         object_map *new_obj_id = (object_map *)malloc(sizeof(object_map));
         new_obj_id->id = obj_id;
         new_obj_id->exists = true;
-        HASH_ADD_INT(objects_mapping, id, new_obj_id);
+        HASH_ADD_INT(OBJECTS_MAPPING(device_index), id, new_obj_id);
     }
     else
     {
@@ -507,7 +566,7 @@ stored_object *create_object(uint8_t device_index, object_id_t obj_id, size_t si
     obj->pages = NULL;
 
     // add the new object to the objects' hashtable
-    HASH_ADD_INT(objects_table, id, obj);
+    HASH_ADD_INT(OBJECTS_TABLE(device_index), id, obj);
 
     while (size > obj->size)
     {
@@ -539,11 +598,11 @@ int remove_object(uint8_t device_index, stored_object *object, object_map *obj_m
     // object could not exist in the hashtable yet because it could just be cleanup in case create_object failed
     // if we do perform HASH_DEL on an object that is not in the hashtable, the whole hashtable will be deleted
     if (object && (object->hh.tbl != NULL))
-        HASH_DEL(objects_table, object);
+        HASH_DEL(OBJECTS_TABLE(device_index), object);
 
     if (obj_map && (obj_map->hh.tbl != NULL))
     {
-        HASH_DEL(objects_mapping, obj_map);
+        HASH_DEL(OBJECTS_MAPPING(device_index), obj_map);
         free(obj_map);
     }
 
@@ -564,7 +623,7 @@ int remove_object(uint8_t device_index, stored_object *object, object_map *obj_m
         current_page = current_page->next;
 
         if (invalidated_page->hh.tbl != NULL)
-            HASH_DEL(global_page_table, invalidated_page);
+            HASH_DEL(GLOBAL_PAGE_TABLE(device_index), invalidated_page);
 
         free(invalidated_page);
     }
@@ -588,7 +647,7 @@ page_node *add_page(uint8_t device_index, stored_object *object, uint32_t page_i
 {
     page_node *curr, *page;
 
-    HASH_FIND_INT(global_page_table, &page_id, page);
+    HASH_FIND_INT(GLOBAL_PAGE_TABLE(device_index), &page_id, page);
     if (page)
     {
         RERR(NULL, "[add_page] Object %lu already contains page %d\n", page->object_id, page_id);
@@ -598,7 +657,7 @@ page_node *add_page(uint8_t device_index, stored_object *object, uint32_t page_i
     if (object->pages == NULL)
     {
         page = allocate_new_page(object->id, page_id);
-        HASH_ADD_INT(global_page_table, page_id, page);
+        HASH_ADD_INT(GLOBAL_PAGE_TABLE(device_index), page_id, page);
 
         object->pages = page;
         return object->pages;
@@ -612,7 +671,7 @@ page_node *add_page(uint8_t device_index, stored_object *object, uint32_t page_i
 
     page = allocate_new_page(object->id, page_id);
 
-    HASH_ADD_INT(global_page_table, page_id, page);
+    HASH_ADD_INT(GLOBAL_PAGE_TABLE(device_index), page_id, page);
     curr->next = page;
     return curr->next;
 }
@@ -633,9 +692,9 @@ page_node *page_by_offset(uint8_t device_index, stored_object *object, unsigned 
     return page;
 }
 
-page_node *lookup_page(uint32_t page_id)
+page_node *lookup_page(uint8_t device_index, uint32_t page_id)
 {
     page_node *page;
-    HASH_FIND_INT(global_page_table, &page_id, page);
+    HASH_FIND_INT(GLOBAL_PAGE_TABLE(device_index), &page_id, page);
     return page;
 }

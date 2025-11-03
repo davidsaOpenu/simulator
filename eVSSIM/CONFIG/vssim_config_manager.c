@@ -117,6 +117,10 @@ void INIT_SSD_CONFIG(void)
     mapping_table = (uint64_t**)calloc(sizeof(uint64_t*) * device_count, 1);
     if (NULL == mapping_table)
         RERR(, "mapping_table allocation failed!\n");
+    
+    obj_manager = (obj_strategy_manager_t*)calloc(sizeof(obj_strategy_manager_t) * device_count, 1);
+    if (NULL == obj_manager)
+        RERR(, "obj_manager allocation failed!\n");
 
     g_init_ftl = (int*)calloc(sizeof(int) * device_count, 1);
     if (NULL == g_init_ftl)
@@ -146,6 +150,9 @@ void TERM_SSD_CONFIG(void)
 
     free(mapping_table);
     mapping_table = NULL;
+
+    free(obj_manager);
+    obj_manager = NULL;
 
     free(g_init_ftl);
     g_init_ftl = NULL;
