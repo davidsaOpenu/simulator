@@ -45,15 +45,16 @@ typedef struct object_map
     UT_hash_handle hh; /* makes this structure hashable */
 } object_map;
 
-void INIT_OBJ_STRATEGY(void);
-void TERM_OBJ_STRATEGY(void);
+void INIT_OBJ_STRATEGY(uint8_t device_index);
+void TERM_OBJ_STRATEGY(uint8_t device_index);
+void TERM_OBJ_STRATEGY_ALL(void);
 
 // Object write strategy API functions to be called by QEMU
 ftl_ret_val FTL_OBJ_READ(uint8_t device_index, obj_id_t object_loc, void *data, offset_t offset, length_t *length);
 ftl_ret_val FTL_OBJ_WRITE(uint8_t device_index, obj_id_t object_loc, const void *data, offset_t offset, length_t length);
 bool FTL_OBJ_CREATE(uint8_t device_index, obj_id_t obj_loc, size_t size);
 ftl_ret_val FTL_OBJ_DELETE(uint8_t device_index, obj_id_t object_loc);
-ftl_ret_val FTL_OBJ_LIST(void *data, size_t *size, uint64_t initial_oid);
+ftl_ret_val FTL_OBJ_LIST(uint8_t device_index, void *data, size_t *size, uint64_t initial_oid);
 
 /* FTL functions */
 ftl_ret_val _FTL_OBJ_READ(uint8_t device_index, obj_id_t object_loc, void *data, offset_t offset, length_t *length);
@@ -61,21 +62,21 @@ ftl_ret_val _FTL_OBJ_WRITE(uint8_t device_index, obj_id_t object_loc, const void
 ftl_ret_val _FTL_OBJ_COPYBACK(uint8_t device_index, int32_t source, int32_t destination);
 bool _FTL_OBJ_CREATE(uint8_t device_index, obj_id_t obj_loc, size_t size);
 ftl_ret_val _FTL_OBJ_DELETE(uint8_t device_index, obj_id_t object_loc);
-ftl_ret_val _FTL_OBJ_LIST(void *data, size_t *size, uint64_t initial_oid);
+ftl_ret_val _FTL_OBJ_LIST(uint8_t device_index, void *data, size_t *size, uint64_t initial_oid);
 
 /* Helper functions */
-stored_object *lookup_object(object_id_t object_id);
-object_map *lookup_object_mapping(object_id_t object_id);
+stored_object *lookup_object(uint8_t device_index, object_id_t object_id);
+object_map *lookup_object_mapping(uint8_t device_index, object_id_t object_id);
 stored_object *create_object(uint8_t device_index, object_id_t obj_id, size_t size);
 int remove_object(uint8_t device_index, stored_object *object, object_map *obj_map);
 
 page_node *allocate_new_page(object_id_t object_id, uint32_t page_id);
 page_node *add_page(uint8_t device_index, stored_object *object, uint32_t page_id);
 page_node *page_by_offset(uint8_t device_index, stored_object *object, unsigned int offset);
-page_node *lookup_page(uint32_t page_id);
+page_node *lookup_page(uint8_t device_index, uint32_t page_id);
 page_node *next_page(stored_object *object, page_node *current);
-void free_obj_table(void);
-void free_page_table(void);
-void free_obj_mapping(void);
+void free_obj_table(uint8_t device_index);
+void free_page_table(uint8_t device_index);
+void free_obj_mapping(uint8_t device_index);
 
 #endif
