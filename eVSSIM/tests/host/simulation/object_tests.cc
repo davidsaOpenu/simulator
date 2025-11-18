@@ -18,16 +18,15 @@ extern "C" int g_init_log_server;
 #include <assert.h>
 #include <typeinfo>
 
-
 using namespace std;
-
 
 namespace object_tests {
     class ObjectUnitTest : public BaseTest {
         public:
             virtual void SetUp() {
+                g_device_index = OBJECT_DEV;
+
                 BaseTest::SetUp();
-                INIT_OBJ_STRATEGY();
                 INIT_LOG_MANAGER(g_device_index);
 
                 SSDConf* ssd_config = base_test_get_ssd_config();
@@ -42,6 +41,8 @@ namespace object_tests {
                 TERM_OBJ_STRATEGY();
                 TERM_LOG_MANAGER(g_device_index);
                 TERM_SSD_CONFIG();
+
+                g_device_index = SECTOR_DEV;
             }
 
         protected:
@@ -56,12 +57,14 @@ namespace object_tests {
         size_t sector_size = 1;
         size_t page_nb = 10;
         size_t block_nb = 128;
+        size_t default_ns_block_nb = (block_nb * DEFAULT_FLASH_NB) / 2;
+        size_t othere_ns_block_nb = (block_nb * DEFAULT_FLASH_NB) / 4;
 
         for (unsigned int i = 0; i < BASE_TEST_ARRAY_SIZE(parameters::Allobjsize); i++) {
                 SSDConf* config = new SSDConf(
-                        page_size, page_nb, sector_size, DEFAULT_FLASH_NB, block_nb, DEFAULT_FLASH_NB);
+                        page_size, page_nb, sector_size, DEFAULT_FLASH_NB, block_nb, DEFAULT_FLASH_NB, default_ns_block_nb, othere_ns_block_nb);
                 config->set_object_size(parameters::Allobjsize[i]);
-                config->set_storage_strategy(STRATEGY_OBJECT);
+
                 ssd_configs.push_back(config);
         }
 
