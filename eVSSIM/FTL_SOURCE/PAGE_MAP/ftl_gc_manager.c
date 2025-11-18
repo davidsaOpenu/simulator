@@ -28,11 +28,13 @@ static void *GC_BACKGROUND_LOOP(void *arg) {
     while (!gc_thread->gc_stop_flag) {
         gc_thread->gc_loop_count++;
         bool collected;
-        uint64_t total_zero_page_nb;
-        do {
-            collected = GC_CHECK(gc_thread->device_index, false, true);
-            total_zero_page_nb = inverse_mappings_manager[device_index].total_zero_page_nb;
-        } while (collected && total_zero_page_nb < devices[device_index].gc_hi_thr_page_nb);
+
+        uint64_t total_zero_page_nb = 0;
+
+		do {
+			collected = GC_CHECK(gc_thread->device_index, false, true);
+			total_zero_page_nb = inverse_mappings_manager[device_index].total_zero_page_nb;
+		} while (collected && total_zero_page_nb < devices[device_index].gc_hi_thr_page_nb);
 
         struct timespec ts;
         clock_gettime(CLOCK_REALTIME, &ts);
@@ -57,9 +59,18 @@ static void *GC_BACKGROUND_LOOP(void *arg) {
 }
 
 void INIT_GC_MANAGER(uint8_t device_index) {
-    if (devices[device_index].storage_strategy == STRATEGY_OBJECT) {
-        DEV_PINFO(device_index, "GC of object strategy is not currently supported.\n");
-        return;
+	uint32_t namespaceIndex;
+    for (namespaceIndex = 0; namespaceIndex < MAX_NUMBER_OF_NAMESPACES; namespaceIndex++)
+	{
+		if (devices[device_index].namespaces[namespaceIndex].nsid == INVALID_NSID){
+			/* Skip un-used namespace */
+			continue;
+		}
+
+        if (devices[device_index].namespaces[namespaceIndex].type == FTL_NS_OBJECT) {
+            DEV_PINFO(device_index, "GC of object strategy is not currently supported.\n");
+            return;
+        }
     }
 
     gc_thread_t *gc_thread = &gc_threads[device_index];
@@ -74,8 +85,18 @@ void INIT_GC_MANAGER(uint8_t device_index) {
 }
 
 void TERM_GC_MANAGER(uint8_t device_index) {
-    if (devices[device_index].storage_strategy == STRATEGY_OBJECT) {
-        return;
+	uint32_t namespaceIndex;
+    for (namespaceIndex = 0; namespaceIndex < MAX_NUMBER_OF_NAMESPACES; namespaceIndex++)
+	{
+		if (devices[device_index].namespaces[namespaceIndex].nsid == INVALID_NSID){
+			/* Skip un-used namespace */
+			continue;
+		}
+
+        if (devices[device_index].namespaces[namespaceIndex].type == FTL_NS_OBJECT) {
+            DEV_PINFO(device_index, "GC of object strategy is not currently supported.\n");
+            return;
+        }
     }
 
     gc_thread_t *gc_thread = &gc_threads[device_index];
@@ -116,8 +137,8 @@ ftl_ret_val GARBAGE_COLLECTION(uint8_t device_index, int l2, bool background)
 
 ftl_ret_val DEFAULT_GC_COLLECTION_ALGO(uint8_t device_index, int l2, bool background)
 {
-	uint64_t i;
 	int ret;
+	uint64_t i;
 	uint64_t lpn;
 	uint64_t old_ppn;
 	uint64_t new_ppn;
@@ -178,31 +199,42 @@ ftl_ret_val DEFAULT_GC_COLLECTION_ALGO(uint8_t device_index, int l2, bool backgr
                 SSD_PAGE_READ(device_index, victim_phy_flash_nb, victim_phy_block_nb, i, i, background ? GC_READ_BACKGROUND : GC_READ);
                 SSD_PAGE_WRITE(device_index, CALC_FLASH(device_index, new_ppn), CALC_BLOCK(device_index, new_ppn), CALC_PAGE(device_index, new_ppn), i, background ? GC_WRITE_BACKGROUND : GC_WRITE);
                 old_ppn = victim_phy_flash_nb * devices[device_index].pages_per_flash + victim_phy_block_nb * devices[device_index].page_nb + i;
-                GET_INVERSE_MAPPING_INFO(device_index, old_ppn, &lpn);
-                UPDATE_NEW_PAGE_MAPPING(device_index, lpn, new_ppn);
+
+				uint32_t page_nsid;
+				GET_INVERSE_MAPPING_INFO(device_index, old_ppn, &page_nsid, &lpn);
+                UPDATE_NEW_PAGE_MAPPING(device_index, page_nsid, lpn, new_ppn);
             }else{
                 // Got new page on-chip, can do copy back
 
-                if (devices[device_index].storage_strategy == STRATEGY_SECTOR)
-                {
-                    ret = _FTL_COPYBACK(device_index, victim_phy_flash_nb * devices[device_index].pages_per_flash + victim_phy_block_nb * devices[device_index].page_nb + i , new_ppn, background ? COPYBACK_BACKGROUND : COPYBACK);
-                }
-                else if (devices[device_index].storage_strategy == STRATEGY_OBJECT)
-                {
-                    ret = _FTL_OBJ_COPYBACK(device_index, victim_phy_flash_nb * devices[device_index].pages_per_flash + victim_phy_block_nb * devices[device_index].page_nb + i , new_ppn);
-                }
-                else
-                {
-                    ret = FTL_FAILURE;
-                }
+
+				// TODO: Serch for the addres namespace from the device namespaces !!!!!!!!!!!!!!!!!!!
+				// TODO: Serch for the addres namespace from the device namespaces !!!!!!!!!!!!!!!!!!!
+				// TODO: Serch for the addres namespace from the device namespaces !!!!!!!!!!!!!!!!!!!
+				// TODO: Serch for the addres namespace from the device namespaces !!!!!!!!!!!!!!!!!!!
+
+                // if (devices[device_index].namespaces[nsid].type == FTL_NS_SECTOR)
+                // {
+                //     ret = _FTL_COPYBACK(device_index, victim_phy_flash_nb * devices[device_index].pages_per_flash + victim_phy_block_nb * devices[device_index].page_nb + i , new_ppn, background ? COPYBACK_BACKGROUND : COPYBACK);
+                // }
+                // else if (devices[device_index].namespaces[nsid].type == FTL_NS_OBJECT)
+                // {
+                //     ret = _FTL_OBJ_COPYBACK(device_index, victim_phy_flash_nb * devices[device_index].pages_per_flash + victim_phy_block_nb * devices[device_index].page_nb + i , new_ppn);
+                // }
+                // else
+                // {
+                //     ret = FTL_FAILURE;
+                // }
+
 
                 if(ret == FTL_FAILURE){
                     PDBG_FTL("failed to copyback\n");
                     SSD_PAGE_READ(device_index, victim_phy_flash_nb, victim_phy_block_nb, i, i, background ? GC_READ_BACKGROUND : GC_READ);
                     SSD_PAGE_WRITE(device_index, CALC_FLASH(device_index, new_ppn), CALC_BLOCK(device_index, new_ppn), CALC_PAGE(device_index, new_ppn), i, background ? GC_WRITE_BACKGROUND : GC_WRITE);
                     old_ppn = victim_phy_flash_nb*devices[device_index].pages_per_flash + victim_phy_block_nb* devices[device_index].page_nb + i;
-                    GET_INVERSE_MAPPING_INFO(device_index, old_ppn, &lpn);
-                    UPDATE_NEW_PAGE_MAPPING(device_index, lpn, new_ppn);
+
+					uint32_t page_nsid;
+					GET_INVERSE_MAPPING_INFO(device_index, old_ppn, &page_nsid, &lpn);
+                    UPDATE_NEW_PAGE_MAPPING(device_index, page_nsid, lpn, new_ppn);
                 }
             }
 
