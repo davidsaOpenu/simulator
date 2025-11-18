@@ -4,15 +4,17 @@
 
 extern ssd_disk ssd;
 
-static uint64_t physical_address_from_logical_address(uint8_t device_index, uint64_t lba, uint64_t* o_ppn);
+static uint64_t physical_address_from_logical_address(uint8_t device_index, uint32_t nsid, uint64_t lba, uint64_t* o_ppn);
 
 static ftl_ret_val _READ_STATUS_ENHANCED(void);
 
 #define FAILURE_VALUE UINT64_MAX
-static uint64_t physical_address_from_logical_address(uint8_t device_index, uint64_t lba, uint64_t* o_ppn) {
+
+static uint64_t physical_address_from_logical_address(uint8_t device_index, uint32_t nsid, uint64_t lba, uint64_t* o_ppn) {
 	uint64_t lpn = lba / (int32_t)devices[device_index].sectors_per_page;
 	uint64_t offset_in_page = lba % (int32_t)devices[device_index].sectors_per_page;
-	uint64_t ppn = GET_MAPPING_INFO(device_index, lpn);
+	uint64_t ppn = GET_MAPPING_INFO(device_index, nsid, lpn);
+
 	if (o_ppn != NULL) {
 		*o_ppn = ppn;
 	}
@@ -20,21 +22,31 @@ static uint64_t physical_address_from_logical_address(uint8_t device_index, uint
 	return ppn * GET_PAGE_SIZE(device_index) + offset_in_page;
 }
 
-ftl_ret_val _FTL_READ(uint8_t device_index, uint64_t sector_nb, unsigned int length, unsigned char *data)
+ftl_ret_val _FTL_READ(uint8_t device_index, uint32_t nsid, uint64_t sector_nb, unsigned int length, unsigned char *data)
 {
-	return _FTL_READ_SECT(device_index, sector_nb, length, data);
+	return _FTL_READ_SECT(device_index, nsid, sector_nb, length, data);
 }
 
-ftl_ret_val _FTL_READ_SECT(uint8_t device_index, uint64_t sector_nb, unsigned int length, unsigned char *data)
+ftl_ret_val _FTL_READ_SECT(uint8_t device_index, uint32_t nsid, uint64_t sector_nb, unsigned int length, unsigned char *data)
 {
-	if (devices[device_index].storage_strategy != STRATEGY_SECTOR) {
-		DEV_RERR(FTL_FAILURE, device_index, "wrong storage strategy %d\n", devices[device_index].storage_strategy);
-	}
-
 	PDBG_FTL("Start: sector_nb %ld length %u\n", sector_nb, length);
 
 	if (sector_nb + length > devices[device_index].sectors_in_ssd)
 		RERR(FTL_FAILURE, "[FTL_READ] Exceed Sector number\n");
+
+	if (device_index >=  device_count) {
+		RERR(FTL_FAILURE, "Invalid device index: %u\n", device_index);
+	}
+
+	if (devices[device_index].namespaces[nsid].nsid != nsid ||
+		devices[device_index].namespaces[nsid].type != FTL_NS_SECTOR) {
+		RERR(FTL_FAILURE, "Can't read from invalid namespace, device_index: %u, nsid: %u\n", device_index, nsid);
+	}
+
+	const uint64_t NUM_SECTORS_IN_NS = devices[device_index].namespaces[nsid].ns_page_nb * (uint64_t)devices[device_index].sectors_per_page;
+
+	if (sector_nb + length > NUM_SECTORS_IN_NS)
+		RERR(FTL_FAILURE, "[FTL_READ] Invalid read request, base sector: %lu, length: %u\n", sector_nb, length);
 
 	uint64_t lpn;
 	uint64_t ppn;
@@ -72,11 +84,12 @@ ftl_ret_val _FTL_READ_SECT(uint8_t device_index, uint64_t sector_nb, unsigned in
 		amount_of_bytes_to_read = read_sects * GET_SECTOR_SIZE(device_index);
 
 		lpn = lba / (int32_t)devices[device_index].sectors_per_page;
+
 		//Send a logical read action being done to the statistics gathering
 		FTL_STATISTICS_GATHERING(device_index, lpn , LOGICAL_READ);
 
 		offset_in_page = lba % (int32_t)devices[device_index].sectors_per_page;
-		ppn = GET_MAPPING_INFO(device_index, lpn);
+		ppn = GET_MAPPING_INFO(device_index, nsid, lpn);
         if (ppn == MAPPING_TABLE_INIT_VAL)
         {
             RDBG_FTL(FTL_FAILURE, "No Mapping info\n");
@@ -135,17 +148,17 @@ ftl_ret_val _FTL_READ_SECT(uint8_t device_index, uint64_t sector_nb, unsigned in
 	return ret;
 }
 
-ftl_ret_val FTL_READ_SECT(uint8_t device_index, uint64_t sector_nb, unsigned int length, unsigned char *data)
+ftl_ret_val FTL_READ_SECT(uint8_t device_index, uint32_t nsid, uint64_t sector_nb, unsigned int length, unsigned char *data)
 {
 	pthread_mutex_lock(&g_lock);
-	ftl_ret_val ret = _FTL_READ_SECT(device_index, sector_nb, length, data);
+	ftl_ret_val ret = _FTL_READ_SECT(device_index, nsid, sector_nb, length, data);
 	pthread_mutex_unlock(&g_lock);
 	return ret;
 }
 
-ftl_ret_val _FTL_WRITE(uint8_t device_index, uint64_t sector_nb, unsigned int length, const unsigned char *data)
+ftl_ret_val _FTL_WRITE(uint8_t device_index, uint32_t nsid, uint64_t sector_nb, unsigned int length, const unsigned char *data)
 {
-    return _FTL_WRITE_SECT(device_index, sector_nb, length, data);
+    return _FTL_WRITE_SECT(device_index, nsid, sector_nb, length, data);
 }
 
 // **
@@ -154,15 +167,16 @@ ftl_ret_val _FTL_WRITE(uint8_t device_index, uint64_t sector_nb, unsigned int le
 static ftl_ret_val read_status_enanched = FTL_FAILURE;
 
 // Checks if a writing is program compatible (there is not actuall writing here).
-// NOTE: We assume the parameters are for writing in a single page amount of `length` sectors.
-static void _FTL_WRITE_DRY_SECT(uint8_t device_index, uint64_t lba, unsigned int length, const unsigned char *data) {
+// NOTE: We assume the parameters are for writing in a single page amount of `length` sectors. 
+static void _FTL_WRITE_DRY_SECT(uint8_t device_index, uint32_t nsid, uint64_t lba, unsigned int length, const unsigned char *data) {
 	read_status_enanched = FTL_FAILURE;
 	if (data == NULL) {
 		read_status_enanched = FTL_FAILURE;
 		return;
 	}
 
-	size_t abs_physical_offset =  physical_address_from_logical_address(device_index, lba, NULL);
+	size_t abs_physical_offset =  physical_address_from_logical_address(device_index, nsid, lba, NULL);
+
 	if (abs_physical_offset == FAILURE_VALUE) {
 		read_status_enanched = FTL_FAILURE;
 		return;
@@ -182,13 +196,13 @@ static ftl_ret_val _READ_STATUS_ENHANCED(void) {
 // Writes to the ssd without erasing the current mapped physical page.
 // NOTE: We assume the parameters are for writing in a single page amount of `length` sectors.
 //		 And we assume the writing happens after making sure the writing is program compatible.
-static ftl_ret_val _FTL_WRITE_COMMIT(uint8_t device_index, uint64_t lba, int write_page_nb, unsigned int length, const unsigned char *data) {
+static ftl_ret_val _FTL_WRITE_COMMIT(uint8_t device_index, uint32_t nsid, uint64_t lba, int write_page_nb, unsigned int length, const unsigned char *data) {
 	if (data == NULL) {
 		return FTL_FAILURE;
 	}
 
 	uint64_t ppn = MAPPING_TABLE_INIT_VAL;
-	size_t abs_physical_offset = physical_address_from_logical_address(device_index, lba, &ppn);
+	size_t abs_physical_offset = physical_address_from_logical_address(device_index, nsid, lba, &ppn);
 	if (abs_physical_offset == FAILURE_VALUE || ppn == MAPPING_TABLE_INIT_VAL) {
 		return FTL_FAILURE;
 	}
@@ -203,18 +217,28 @@ static ftl_ret_val _FTL_WRITE_COMMIT(uint8_t device_index, uint64_t lba, int wri
 // * End of helper functions for the use of _FTL_WRITE_SECT
 // **
 
-ftl_ret_val _FTL_WRITE_SECT(uint8_t device_index, uint64_t sector_nb, unsigned int length, const unsigned char *data)
+ftl_ret_val _FTL_WRITE_SECT(uint8_t device_index, uint32_t nsid, uint64_t sector_nb, unsigned int length, const unsigned char *data)
 {
-	if (devices[device_index].storage_strategy != STRATEGY_SECTOR) {
-		DEV_RERR(FTL_FAILURE, device_index, "wrong storage strategy %d\n", devices[device_index].storage_strategy);
+	if (device_index >=  device_count) {
+		RERR(FTL_FAILURE, "Invalid device index: %u\n", device_index);
 	}
 
-	PDBG_FTL("Start: sector_nb %" PRIu64 "length %u\n", sector_nb, length);
+	if (devices[device_index].namespaces[nsid].nsid != nsid ||
+		devices[device_index].namespaces[nsid].type != FTL_NS_SECTOR) {
+		RERR(FTL_FAILURE, "Can't write into invalid namespace, device_index: %u, nsid: %u\n", device_index, nsid);
+	}
+
+	PDBG_FTL("Start: sector_nb %" PRIu64 " length %u\n", sector_nb, length);
 
 	int io_page_nb;
 
 	if (sector_nb + length > devices[device_index].sectors_in_ssd)
 		RERR(FTL_FAILURE, "[FTL_WRITE] Exceed Sector number\n");
+
+	const uint64_t NUM_SECTORS_IN_NS = devices[device_index].namespaces[nsid].ns_page_nb * (uint64_t)devices[device_index].sectors_per_page;
+
+	if (sector_nb + length > NUM_SECTORS_IN_NS)
+		RERR(FTL_FAILURE, "[FTL_READ] Invalid write request, base sector: %lu, length: %u\n", sector_nb, length);
 
 	ssds_manager[device_index].io_alloc_overhead = ALLOC_IO_REQUEST(device_index, sector_nb, length, WRITE, &io_page_nb);
 
@@ -254,9 +278,9 @@ ftl_ret_val _FTL_WRITE_SECT(uint8_t device_index, uint64_t sector_nb, unsigned i
 		offset_in_page = lba % (int32_t)devices[device_index].sectors_per_page;
 
 		// First try writing to the page without erasing it if it is program compatile (there is not need to flip bits from 0 to 1).
-		_FTL_WRITE_DRY_SECT(device_index, lba, write_sects, data);
+		_FTL_WRITE_DRY_SECT(device_index, nsid, lba, write_sects, data);
 		if (_READ_STATUS_ENHANCED() == FTL_SUCCESS) {
-			ret = _FTL_WRITE_COMMIT(device_index, lba, write_page_nb, write_sects, data);
+			ret = _FTL_WRITE_COMMIT(device_index, nsid, lba, write_page_nb, write_sects, data);
 		}
 		else {
 			ret = GET_NEW_PAGE(device_index, VICTIM_OVERALL, devices[device_index].empty_table_entry_nb, &new_ppn);
@@ -281,25 +305,27 @@ ftl_ret_val _FTL_WRITE_SECT(uint8_t device_index, uint64_t sector_nb, unsigned i
 			}
 
 			// logical page number to physical. will need to be changed to account for objectid
-			UPDATE_OLD_PAGE_MAPPING(device_index, lpn);
-			UPDATE_NEW_PAGE_MAPPING(device_index, lpn, new_ppn);
+			UPDATE_OLD_PAGE_MAPPING(device_index, nsid, lpn);
+			UPDATE_NEW_PAGE_MAPPING(device_index, nsid, lpn, new_ppn);
 		}
 
 		//we caused a block write -> update the logical block_write counter + update the physical block write counter
 		wa_counters.logical_block_write_counter++;
 		wa_counters.physical_block_write_counter++;
+
 		//Send a physical write action being done to the statistics gathering
 		if (ret == FTL_SUCCESS)
 		{
-			FTL_STATISTICS_GATHERING(device_index, GET_MAPPING_INFO(device_index, lpn) , PHYSICAL_WRITE);
+			FTL_STATISTICS_GATHERING(device_index, GET_MAPPING_INFO(device_index, nsid, lpn) , PHYSICAL_WRITE);
 		}
+
 		write_page_nb++;
 
 		//Send a logical write action being done to the statistics gathering
 		FTL_STATISTICS_GATHERING(device_index, lpn , LOGICAL_WRITE);
 
 		if (ret == FTL_FAILURE) {
-			PDBG_FTL("Error[FTL_WRITE] %d page write fail \n", GET_MAPPING_INFO(device_index, lpn));
+			PDBG_FTL("Error[FTL_WRITE] %lu page write fail \n", GET_MAPPING_INFO(device_index, nsid, lpn));
 		}
 
 		lba += write_sects;
@@ -314,19 +340,19 @@ ftl_ret_val _FTL_WRITE_SECT(uint8_t device_index, uint64_t sector_nb, unsigned i
 
 #ifdef GC_ON
 	if (device_full) {
-		GC_CHECK(device_index, true, false);
+		GC_CHECK(device_index, nsid, true, false);
 	}
-#endif
+#endif // GC_ON
 
     PDBG_FTL("Complete\n");
 
 	return ret;
 }
 
-ftl_ret_val FTL_WRITE_SECT(uint8_t device_index, uint64_t sector_nb, unsigned int length, const unsigned char *data)
+ftl_ret_val FTL_WRITE_SECT(uint8_t device_index, uint32_t nsid, uint64_t sector_nb, unsigned int length, const unsigned char *data)
 {
 	pthread_mutex_lock(&g_lock);
-	ftl_ret_val ret = _FTL_WRITE_SECT(device_index, sector_nb, length, data);
+	ftl_ret_val ret = _FTL_WRITE_SECT(device_index, nsid, sector_nb, length, data);
 	pthread_mutex_unlock(&g_lock);
 	return ret;
 }
@@ -334,12 +360,13 @@ ftl_ret_val FTL_WRITE_SECT(uint8_t device_index, uint64_t sector_nb, unsigned in
 //Get 2 physical page address, the source page which need to be moved to the destination page
 ftl_ret_val _FTL_COPYBACK(uint8_t device_index, uint64_t source, uint64_t destination, int type)
 {
-	if (devices[device_index].storage_strategy != STRATEGY_SECTOR) {
-		DEV_RERR(FTL_FAILURE, device_index, "wrong storage strategy %d\n", devices[device_index].storage_strategy);
-	}
-
+	uint32_t nsid;
 	uint64_t lpn; //The logical page address, the page that being moved.
 	unsigned int ret = FTL_FAILURE;
+
+	if (device_index >=  device_count) {
+		RERR(FTL_FAILURE, "Invalid device index: %u\n", device_index);
+	}
 
 	//Handle copyback delays
 	ret = SSD_PAGE_COPYBACK(device_index, source, destination, type);
@@ -350,9 +377,8 @@ ftl_ret_val _FTL_COPYBACK(uint8_t device_index, uint64_t source, uint64_t destin
     lpn = GET_INVERSE_MAPPING_INFO(source);
     UPDATE_NEW_PAGE_MAPPING(lpn, destination);*/
 
-
 	if (ret == FTL_FAILURE)
-        RDBG_FTL(FTL_FAILURE, "%u page copyback fail \n", source);
+        RDBG_FTL(FTL_FAILURE, "%lu page copyback fail \n", source);
 
 	// Actual page copy
 	unsigned char buff[GET_PAGE_SIZE(device_index)];
@@ -361,18 +387,23 @@ ftl_ret_val _FTL_COPYBACK(uint8_t device_index, uint64_t source, uint64_t destin
 	if (ssd_read(GET_FILE_NAME(device_index), source * GET_PAGE_SIZE(device_index), GET_PAGE_SIZE(device_index), buff) == SSD_FILE_OPS_SUCCESS) {
 		if (ssd_write(GET_FILE_NAME(device_index), destination * GET_PAGE_SIZE(device_index), GET_PAGE_SIZE(device_index), buff) == SSD_FILE_OPS_ERROR) {
 			// If ssd_read succeeded this fail shouldn't happen !!
-			RDBG_FTL(FTL_FAILURE, "%u page copyback fail \n", source);
+			RDBG_FTL(FTL_FAILURE, "%lu page copyback fail \n", source);
 		}
 	}
 
 	//Handle page map
-	GET_INVERSE_MAPPING_INFO(device_index, source, &lpn);
+	GET_INVERSE_MAPPING_INFO(device_index, source, &nsid, &lpn);
+	
+	if (devices[device_index].namespaces[nsid].nsid != nsid ||
+		devices[device_index].namespaces[nsid].type != FTL_NS_SECTOR) {
+		RERR(FTL_FAILURE, "Can't copy from invalid namespace, device_index: %u, nsid: %u\n", device_index, nsid);
+	}
 
 	if (lpn != MAPPING_TABLE_INIT_VAL)
 	{
 		// The given physical page is being map, the mapping information need to be changed,
-		UPDATE_OLD_PAGE_MAPPING(device_index, lpn); //as far as I can tell when being called under the gc manage all the actions are being done, but what if will be called from another place?
-		UPDATE_NEW_PAGE_MAPPING(device_index, lpn, destination);
+		UPDATE_OLD_PAGE_MAPPING(device_index, nsid, lpn); //as far as I can tell when being called under the gc manage all the actions are being done, but what if will be called from another place?
+		UPDATE_NEW_PAGE_MAPPING(device_index, nsid, lpn, destination);
 	}
 
 	return ret;
@@ -380,9 +411,6 @@ ftl_ret_val _FTL_COPYBACK(uint8_t device_index, uint64_t source, uint64_t destin
 
 ftl_ret_val _FTL_CREATE(uint8_t device_index)
 {
-	if (devices[device_index].storage_strategy != STRATEGY_SECTOR) {
-		DEV_RERR(FTL_FAILURE, device_index, "wrong storage strategy %d\n", devices[device_index].storage_strategy);
-	}
 
     // no "creation" in address-based storage
 	return (ssd_create(GET_FILE_NAME(device_index), (uint64_t)devices[device_index].sectors_per_page * (uint64_t)devices[device_index].page_nb *

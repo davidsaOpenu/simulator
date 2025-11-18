@@ -55,8 +55,7 @@ void nvme_dma_mem_write(target_phys_addr_t addr, uint8_t *buf, int len)
 }
 
 #ifdef CONFIG_VSSIM
-static void nvme_dma_mem_read2(target_phys_addr_t addr, uint8_t *buf, int len,
-        uint8_t *mapping_addr)
+static void nvme_dma_mem_read2(uint32_t nsid, target_phys_addr_t addr, uint8_t *buf, int len, uint8_t *mapping_addr)
 {
     if((len % GET_SECTOR_SIZE()) != 0){
         LOG_ERR("nvme_dma_mem_read2: len (=%d) %% %d == %d (should be 0)",
@@ -68,15 +67,16 @@ static void nvme_dma_mem_read2(target_phys_addr_t addr, uint8_t *buf, int len,
                 buf - mapping_addr, GET_SECTOR_SIZE(),
                 (buf - mapping_addr) % GET_SECTOR_SIZE());
     }
-         LOG_DBG("sector strategy\n");
-    	//sector strategy -> continue normally
-    	_FTL_WRITE_SECT( (buf - mapping_addr) / GET_SECTOR_SIZE(), len / GET_SECTOR_SIZE(), NULL);
+        LOG_DBG("sector strategy\n");
+
+        //sector strategy -> continue normally
+    	_FTL_WRITE_SECT(nsid, (buf - mapping_addr) / GET_SECTOR_SIZE(), len / GET_SECTOR_SIZE(), NULL);
+
     	//read from dma memory (prp) and write to qemu's volatile memory
     	cpu_physical_memory_rw(addr, buf, len, 0);
 }
 
-static void nvme_dma_mem_write2(target_phys_addr_t addr, uint8_t *buf, int len,
-        uint8_t *mapping_addr)
+static void nvme_dma_mem_write2(uint32_t nsid, target_phys_addr_t addr, uint8_t *buf, int len, uint8_t *mapping_addr)
 {
 	//the buf pointer is actually -> buf = mapping_addr + offset so:
 	uint64_t offset = buf - mapping_addr;
@@ -91,17 +91,18 @@ static void nvme_dma_mem_write2(target_phys_addr_t addr, uint8_t *buf, int len,
 				offset, GET_SECTOR_SIZE(),
                 (offset) % GET_SECTOR_SIZE());
     }
-         LOG_DBG("sector strategy\n");
+        LOG_DBG("sector strategy\n");
+
     	//sector strategy -> continue normally
-        _FTL_READ_SECT((buf - mapping_addr) / GET_SECTOR_SIZE(), len / GET_SECTOR_SIZE(), NULL);
-    	//_FTL_READ_SECT(len / GET_SECTOR_SIZE(), (buf - mapping_addr) / GET_SECTOR_SIZE());
-    	//read from qemu's volatile memory and write to dma memory (prp)
+        _FTL_READ_SECT(nsid, (buf - mapping_addr) / GET_SECTOR_SIZE(), len / GET_SECTOR_SIZE(), NULL);
+
+        // read from qemu's volatile memory and write to dma memory (prp)
         cpu_physical_memory_rw(addr, buf, len, 1);
 }
 #endif /* CONFIG_VSSIM */
 
 static uint8_t do_rw_prp(NVMEState *n, uint64_t mem_addr, uint64_t *data_size_p,
-    uint64_t *file_offset_p, uint8_t *mapping_addr, uint8_t rw)
+    uint64_t *file_offset_p, uint8_t *mapping_addr, uint8_t rw, uint32_t nsid)
 {
     uint64_t data_len;
 
@@ -123,7 +124,7 @@ static uint8_t do_rw_prp(NVMEState *n, uint64_t mem_addr, uint64_t *data_size_p,
     case NVME_CMD_READ:
         LOG_DBG("Read cmd called");
 #ifdef CONFIG_VSSIM
-        nvme_dma_mem_write2(mem_addr, (mapping_addr + *file_offset_p), data_len, mapping_addr);
+        nvme_dma_mem_write2(nsid, mem_addr, (mapping_addr + *file_offset_p), data_len, mapping_addr);
 #else
         nvme_dma_mem_write(mem_addr, (mapping_addr + *file_offset_p), data_len);
 #endif
@@ -131,7 +132,7 @@ static uint8_t do_rw_prp(NVMEState *n, uint64_t mem_addr, uint64_t *data_size_p,
     case NVME_CMD_WRITE:
         LOG_DBG("Write cmd called");
 #ifdef CONFIG_VSSIM
-        nvme_dma_mem_read2(mem_addr, (mapping_addr + *file_offset_p), data_len, mapping_addr);
+        nvme_dma_mem_read2(nsid, mem_addr, (mapping_addr + *file_offset_p), data_len, mapping_addr);
 #else
         nvme_dma_mem_read(mem_addr, (mapping_addr + *file_offset_p), data_len);
 #endif
@@ -159,7 +160,7 @@ static uint8_t do_rw_prp_list(NVMEState *n, NVMECmd *command,
     /* Logic to find the number of PRP Entries */
     prp_entries = (uint64_t) ((*data_size_p + PAGE_SIZE - 1) / PAGE_SIZE);
 #ifdef CONFIG_VSSIM
-     nvme_dma_mem_read2(cmd->prp2, (uint8_t *)prp_list,
+     nvme_dma_mem_read2(cmd->nsid, cmd->prp2, (uint8_t *)prp_list,
         min(sizeof(prp_list), prp_entries * sizeof(uint64_t)), mapping_addr);
 
 #else
@@ -174,7 +175,7 @@ static uint8_t do_rw_prp_list(NVMEState *n, NVMECmd *command,
 			prp_entries = (uint64_t) ((*data_size_p + PAGE_SIZE - 1) /
 			PAGE_SIZE);
 #ifdef CONFIG_VSSIM
-			nvme_dma_mem_read2(prp_list[511], (uint8_t *) prp_list,
+			nvme_dma_mem_read2(cmd->nsid, prp_list[511], (uint8_t *) prp_list,
 					min(sizeof(prp_list), prp_entries * sizeof(uint64_t)),
 					mapping_addr);
 
@@ -187,7 +188,7 @@ static uint8_t do_rw_prp_list(NVMEState *n, NVMECmd *command,
 			i = 0;
 		}
 
-        res = do_rw_prp(n, prp_list[i], data_size_p, file_offset_p, mapping_addr, cmd->opcode);
+        res = do_rw_prp(n, prp_list[i], data_size_p, file_offset_p, mapping_addr, cmd->opcode, cmd->nsid);
         LOG_DBG("Data Size remaining for read/write:%ld", *data_size_p);
         if (res == FAIL) {
             break;
@@ -349,16 +350,15 @@ uint8_t nvme_io_command(NVMEState *n, NVMECmd *sqe, NVMECQE *cqe)
 
     /* Writing/Reading PRP1 */
     LOG_DBG("Writing/Reading PRP1");
-    res = do_rw_prp(n, e->prp1, &data_size, &file_offset, mapping_addr,
-        e->opcode);
+    res = do_rw_prp(n, e->prp1, &data_size, &file_offset, mapping_addr, e->opcode, e->nsid);
+
     if (res == FAIL) {
         return FAIL;
     }
     if (data_size > 0) {
         if (data_size <= PAGE_SIZE) {
         	LOG_DBG("Writing/Reading PRP2");
-            res = do_rw_prp(n, e->prp2, &data_size, &file_offset, mapping_addr,
-                e->opcode);
+            res = do_rw_prp(n, e->prp2, &data_size, &file_offset, mapping_addr, e->opcode, e->nsid);
         } else {
         	LOG_DBG("Writing/Reading do_rw_prp_list!");
             res = do_rw_prp_list(n, sqe, &data_size, &file_offset,
