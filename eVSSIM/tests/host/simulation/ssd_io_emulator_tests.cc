@@ -57,7 +57,7 @@ namespace ssd_io_emulator_tests {
     std::vector<SSDConf*> GetTestParams() {
         std::vector<SSDConf*> ssd_configs;
 
-        ssd_configs.push_back(new SSDConf(parameters::Allsizemb[0]));
+        ssd_configs.push_back(new SSDConf(parameters::Allsizemb[0], true));
 
         return ssd_configs;
     }
@@ -400,7 +400,7 @@ namespace ssd_io_emulator_tests {
         SSDConf* ssd_config = base_test_get_ssd_config();
 
         size_t flash_num = ssd_config->get_flash_nb();
-        size_t block_x_flash = ssd_config->get_pages() / ssd_config->get_pages_per_block();
+        size_t block_x_flash = ssd_config->get_pages_ns(DEFAULT_NSID) / ssd_config->get_pages_per_block();
         size_t blocks_per_flash = block_x_flash / flash_num;
 
         int expected_rw = ssd_config->get_pages_per_block() * blocks_per_flash;
@@ -431,24 +431,23 @@ namespace ssd_io_emulator_tests {
 
     /**
      * testing the write amplification calculation by writing over the whole flash twice
-     * - write over flash twice using the FTL layer
-     * - validate statistics
+     * - write over flash twice using the FTL layer.
+     * - validate statistics.
      */
     TEST_P(SSDIoEmulatorUnitTest, WriteAmplificationTest) {
         SSDConf* ssd_config = base_test_get_ssd_config();
-        int expected_write_amplification = 1;
 
-        const size_t page_x_flash = (ssd_config->get_pages());
+        const size_t page_x_flash = (ssd_config->get_pages_ns(DEFAULT_NSID));
 
         // Write all flash.
         for(int x=0; x<2; x++){
             for(size_t p=0; p < page_x_flash; p++){
-                ASSERT_EQ(FTL_SUCCESS, _FTL_WRITE_SECT(g_device_index, p * ssd_config->get_page_size(), 1, NULL));
+                ASSERT_EQ(FTL_SUCCESS, _FTL_WRITE_SECT(g_device_index, DEFAULT_NSID, p * ssd_config->get_page_size(), 1, NULL));
             }
 
             // Since background GC is disabled for this test suite, invoke it
             // here manually to get closer to the theoretical 0.8 utilization.
-            GC_CHECK(g_device_index, false, false);
+            GC_CHECK(g_device_index, DEFAULT_NSID, false, false);
 
             MONITOR_SYNC_DELAY(15000000);
 
@@ -466,6 +465,7 @@ namespace ssd_io_emulator_tests {
 
         // Assert w.a. is greater then 1
         ASSERT_GE(page_x_flash, ssds_manager[g_device_index].ssd.current_stats->garbage_collection_count);
+        int expected_write_amplification = 1;
 
         //write amp = 1 because we work with over-provitioning and write sequentionally, on the second pass
         //we re-allocate the first block, when we get to the second block, there is now a free block that can be used
