@@ -342,6 +342,7 @@ setup_filebeat() {
         # Map ownership into the user namespace so container root can write
         podman unshare chown -R 0:0 "$fb_data_dir" 2>/dev/null || true
     fi
+    chmod 777 "$fb_data_dir" 2>/dev/null || true
 
     # Pull image & remove any existing container
     "$CONTAINER_CMD" pull "$fb_image"

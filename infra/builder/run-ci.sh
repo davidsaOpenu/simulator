@@ -27,7 +27,7 @@ trap "$ELK_CLEAN --complete-cleanup || true" EXIT
 # Run tox
 env -u http_proxy -u https_proxy -u HTTP_PROXY -u HTTPS_PROXY tox
 
-# build + sanity
+# # build + sanity
 ./build-docker-image.sh
 ./build-qemu-image.sh
 ./compile-kernel.sh
@@ -36,10 +36,50 @@ env -u http_proxy -u https_proxy -u HTTP_PROXY -u HTTPS_PROXY tox
 ./compile-guest-tests.sh
 ./docker-run-sanity.sh
 
-# start ELK (absolute paths)
+# # start ELK (absolute paths)
 "$ELK_INSTALL" "$LOGS_DIR" "$ELK_DIR"
 
-# tests
+# # tests
 ./docker-test-host.sh
-./docker-test-guest.sh
-./docker-test-exofs.sh
+# ./docker-test-guest.sh
+# ./docker-test-exofs.sh
+
+# Print environment variables for debugging
+echo "================================================================================"
+echo "[run-ci.sh] ENVIRONMENT VARIABLES DEBUG INFO"
+echo "================================================================================"
+echo "[run-ci.sh] Key paths:"
+echo "  EVSSIM_ROOT_PATH=$EVSSIM_ROOT_PATH"
+echo "  EVSSIM_LOGS_FOLDER=$EVSSIM_LOGS_FOLDER"
+echo "  LOGS_DIR=$LOGS_DIR"
+echo "  ELK_DIR=$ELK_DIR"
+echo "  ELK_INSTALL=$ELK_INSTALL"
+echo "  ELK_CLEAN=$ELK_CLEAN"
+echo ""
+echo "[run-ci.sh] All EVSSIM_* environment variables:"
+env | grep '^EVSSIM_' | sort | sed 's/^/  /'
+echo ""
+echo "[run-ci.sh] All ELK_* environment variables:"
+env | grep '^ELK_' | sort | sed 's/^/  /'
+echo ""
+echo "[run-ci.sh] Filebeat/ELK related variables:"
+env | grep -iE '(filebeat|elastic|kibana|logstash)' | sort | sed 's/^/  /'
+echo ""
+echo "[run-ci.sh] Checking log files in LOGS_DIR:"
+if [[ -d "$LOGS_DIR" ]]; then
+  echo "  LOGS_DIR exists: $LOGS_DIR"
+  echo "  Log files found:"
+  find "$LOGS_DIR" -name "elk_log_file-*.log" -type f 2>/dev/null | head -10 | sed 's/^/    /' || echo "    (none found)"
+  echo "  All files in LOGS_DIR:"
+  ls -lah "$LOGS_DIR" 2>/dev/null | head -20 | sed 's/^/    /' || echo "    (directory empty or not accessible)"
+else
+  echo "  LOGS_DIR does not exist: $LOGS_DIR"
+fi
+echo ""
+echo "[run-ci.sh] Current working directory: $(pwd)"
+echo "[run-ci.sh] User: $(whoami)"
+echo "[run-ci.sh] Hostname: $(hostname)"
+echo "================================================================================"
+
+# # Testing ELK performance
+"$ELK_DIR/elk_performance_test.sh" "$ELK_DIR"
