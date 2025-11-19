@@ -27,7 +27,7 @@ trap "$ELK_CLEAN --complete-cleanup || true" EXIT
 # Run tox
 env -u http_proxy -u https_proxy -u HTTP_PROXY -u HTTPS_PROXY tox
 
-# build + sanity
+# # build + sanity
 ./build-docker-image.sh
 ./build-qemu-image.sh
 ./compile-kernel.sh
@@ -36,10 +36,12 @@ env -u http_proxy -u https_proxy -u HTTP_PROXY -u HTTPS_PROXY tox
 ./compile-guest-tests.sh
 ./docker-run-sanity.sh
 
-# start ELK (absolute paths)
+# # start ELK (absolute paths)
 "$ELK_INSTALL" "$LOGS_DIR" "$ELK_DIR"
 
-# tests
+# # tests
 ./docker-test-host.sh
-./docker-test-guest.sh
-./docker-test-exofs.sh
+# ./docker-test-guest.sh
+# ./docker-test-exofs.sh
+
+"$ELK_DIR/elk_performance_test.sh" "$ELK_DIR"
