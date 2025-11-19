@@ -25,6 +25,7 @@ extern bool g_server_mode;
 #include "rt_analyzer_subscriber.h"
 #include "log_manager_subscriber.h"
 #include "logging_parser.h"
+#include "test_context.h"
 
 #include <pthread.h>
 #include <unistd.h>
@@ -523,7 +524,7 @@ namespace log_mgr_tests {
             .block = 80,
             .page = 123,
             .background = false,
-            .metadata = {start, start+1},
+            .metadata = LOG_META(g_device_index, start, start + 1),
         };
         LOG_PHYSICAL_CELL_READ(_logger, log);
         ASSERT_EQ(PHYSICAL_CELL_READ_LOG_UID, next_log_type(_logger));
@@ -544,7 +545,7 @@ namespace log_mgr_tests {
             .block = 63,
             .page = 50,
             .background = false,
-            .metadata = {start, start+1},
+            .metadata = LOG_META(g_device_index, start, start + 1),
         };
         LOG_PHYSICAL_CELL_PROGRAM(_logger, log);
         ASSERT_EQ(PHYSICAL_CELL_PROGRAM_LOG_UID, next_log_type(_logger));
@@ -564,7 +565,7 @@ namespace log_mgr_tests {
             .channel = 2,
             .block = 260,
             .page = 3,
-            .metadata = {start, start+1}
+            .metadata = LOG_META(g_device_index, start, start + 1)
         };
         LOG_LOGICAL_CELL_PROGRAM(_logger, log);
         ASSERT_EQ(LOGICAL_CELL_PROGRAM_LOG_UID, next_log_type(_logger));
@@ -599,7 +600,7 @@ namespace log_mgr_tests {
             .channel = 10,
             .die = 15,
             .reg = 37,
-            .metadata = {start, start+1}
+            .metadata = LOG_META(g_device_index, start, start + 1)
         };
         LOG_REGISTER_READ(_logger, log);
         ASSERT_EQ(REGISTER_READ_LOG_UID, next_log_type(_logger));
@@ -619,7 +620,7 @@ namespace log_mgr_tests {
             .channel = 87013,
             .die = 225034,
             .reg = 4,
-            .metadata = {start, start+1}
+            .metadata = LOG_META(g_device_index, start, start + 1)
         };
         LOG_REGISTER_WRITE(_logger, log);
         ASSERT_EQ(REGISTER_WRITE_LOG_UID, next_log_type(_logger));
@@ -641,7 +642,7 @@ namespace log_mgr_tests {
             .block = 947,
             .dirty_page_nb = 10,
             .background = false,
-            .metadata = {start, start+1},
+            .metadata = LOG_META(g_device_index, start, start + 1),
         };
         LOG_BLOCK_ERASE(_logger, log);
         ASSERT_EQ(BLOCK_ERASE_LOG_UID, next_log_type(_logger));
@@ -660,7 +661,7 @@ namespace log_mgr_tests {
         TIME_MICROSEC(start);
         ChannelSwitchToReadLog log = {
             .channel = 73,
-            .metadata = {start, start+1}
+            .metadata = LOG_META(g_device_index, start, start + 1)
         };
         LOG_CHANNEL_SWITCH_TO_READ(_logger, log);
         ASSERT_EQ(CHANNEL_SWITCH_TO_READ_LOG_UID, next_log_type(_logger));
@@ -676,7 +677,7 @@ namespace log_mgr_tests {
         TIME_MICROSEC(start);
         ChannelSwitchToWriteLog log = {
             .channel = 3,
-            .metadata = {start, start+1}
+            .metadata = LOG_META(g_device_index, start, start + 1)
         };
         LOG_CHANNEL_SWITCH_TO_WRITE(_logger, log);
         ASSERT_EQ(CHANNEL_SWITCH_TO_WRITE_LOG_UID, next_log_type(_logger));

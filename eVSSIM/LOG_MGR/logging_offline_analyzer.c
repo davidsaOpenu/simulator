@@ -178,6 +178,13 @@ void offline_log_analyzer_loop(OfflineLogAnalyzer* analyzer) {
                     JSON_LOG_SYNC(&res, &json_buf);
                     break;
                 }
+                case SSD_UTILIZATION_LOG_UID:
+                {
+                    SsdUtilizationLog log;
+                    NEXT_SSD_UTILIZATION_LOG(analyzer->logger_pool, &log, OFFLINE_ANALYZER);
+                    JSON_SSD_UTILIZATION(&log, &json_buf);
+                    break;
+                }
                 default:
                     fprintf(stderr, "WARNING: unknown log type id! [%d]\n", log_type);
                     fprintf(stderr, "WARNING: rt_log_analyzer_loop may not be up to date!\n");
@@ -185,7 +192,7 @@ void offline_log_analyzer_loop(OfflineLogAnalyzer* analyzer) {
             }
 
             elk_logger_writer_save_log_to_file((Byte *)json_buf, strlen(json_buf));
-            
+
             free(json_buf);
             json_buf = NULL;
         }
@@ -199,7 +206,7 @@ void offline_log_analyzer_loop(OfflineLogAnalyzer* analyzer) {
     }
 
     analyzer->exit_loop_flag = 0;
-    
+
     free(json_buf);
 }
 
@@ -229,9 +236,9 @@ static int get_log_num(const char *path){
     DIR * d;
     struct dirent *dir;
     int count = 0;
-    
+
     d = opendir(path);
-    
+
     if(d) {
         while((dir = readdir(d))!=NULL){
             if(!strcmp(strrchr(dir->d_name, '\0')-4,".log")){
@@ -239,7 +246,7 @@ static int get_log_num(const char *path){
             }
         }
     }
-    
+
     closedir(d);
 
     return count;
@@ -252,72 +259,72 @@ static int get_log_num(const char *path){
  */
 static void get_log_files(const char *path, char **files){
     DIR * d;
-    struct dirent *dir;    
+    struct dirent *dir;
     d = opendir(path);
 
-    int i=0;       
+    int i=0;
     while((dir = readdir(d))!=NULL){
-        if(!strcmp(strrchr(dir->d_name, '\0')-4,".log")){    
+        if(!strcmp(strrchr(dir->d_name, '\0')-4,".log")){
             files[i] = malloc(strlen(dir->d_name)+1);
             strcpy(files[i], dir->d_name);
             i++;
         }
     }
-    
+
     closedir(d);
 }
 
 /** extracts the latest bit that was sent by filebeat and updates the size
- * @param line the line read from filebeat's log 
- * @param size array of file sizes 
+ * @param line the line read from filebeat's log
+ * @param size array of file sizes
  * @param arrsize the size of the arrays
  * @param files the list of file names
  */
 static void extract_log_size(char* line,int* size,char **files, int arrsize){
     int offset;
     char address[LOG_FILE_NAME_SIZE+strlen(".log")];
-    
+
     struct json_object *parsed;
     struct json_object *jsonv;
-    struct json_object *json_offset; 
-    struct json_object *json_address; 
-    
+    struct json_object *json_offset;
+    struct json_object *json_address;
+
     if(strlen(line)<2){
         return;
     }
-    
+
     if (line[2]=='k'){
         parsed = json_tokener_parse(line);
         json_object_object_get_ex(parsed, "v", &jsonv);
         json_object_object_get_ex(jsonv, "source", &json_address);
         json_object_object_get_ex(jsonv, "offset", &json_offset);
-                
+
         json_object_put(parsed);
         json_object_put(jsonv);
         if(json_address != NULL){
             strcpy(address,json_object_get_string(json_address));
             memmove(address,address+6,strlen(address));
             offset = json_object_get_int(json_offset);
-                
+
             int i = 0;
-                    
+
             int stop = FALSE;
-                    
+
             while((i < arrsize) && stop == FALSE){
                 if(strcmp(files[i],address)==0){
                     size[i]=offset;
                     stop = TRUE;
                 }
                 i++;
-            }            
+            }
         }
     }
 }
 
-    
-    
+
+
 /** checks for each file if it has been fully shipped and deletes it
- * @param size array of file sizes 
+ * @param size array of file sizes
  * @param arrsize the size of the arrays
  * @param files the list of file names
  * @param path the path to the directory that contain all of the files
@@ -326,15 +333,15 @@ static int delete_fully_shipped(int *size, int arrsize, char** files, const char
     struct stat st;
     int i=0;
     int amount = arrsize;
-    
+
     for(i=0;i<arrsize;i++){
         char fulladdress [strlen(path)+strlen(files[i])+7];
-        strcat(strcpy(fulladdress, path),files[i]);    
-        stat(fulladdress, &st); 
+        strcat(strcpy(fulladdress, path),files[i]);
+        stat(fulladdress, &st);
         if(size[i] == st.st_size){
             amount--;
             remove(fulladdress);
-        }    
+        }
     }
     return amount;
 }
@@ -353,10 +360,10 @@ static int delete_shipped(void){
     int canRead = 1;
     int amount = 0;
     int i = 0;
-      
+
     //gets the name and amount of all the log files
     amount = get_log_num(ELK_LOGGER_WRITER_LOGS_PATH);
-       
+
     if(!amount){
         return amount;
     }
@@ -366,14 +373,14 @@ static int delete_shipped(void){
     get_log_files(ELK_LOGGER_WRITER_LOGS_PATH, filelist);
 
     const int arrsize = amount;
-    
+
     int* size = (int *)calloc(arrsize, sizeof(int));
 
     //a txt file with the last read bit of the filebeat log
     fplr = OPEN_FROM_LOGS("lastread.txt", "r");
-    
-    long start = 0;    
-    
+
+    long start = 0;
+
     if(fplr != NULL){
         if(fscanf (fplr, "%ld", &start)==0){
             start = 0;
@@ -382,27 +389,27 @@ static int delete_shipped(void){
             fclose(fplr);
         }
     }
-    
+
     //the filebeat log
     fp = OPEN_FROM_LOGS("log.json", "r");
-    
+
     if (fp == NULL){
         free(size);
         for(i = 0; i<arrsize; i++){
             free(filelist[i]);
-           }    
+           }
         printf("ERROR: fp %s\n", strerror(errno));
         return amount;
     }
-        
+
     //start reading the log from the last bit read
     if(start != 0){
         if(fseek(fp, start, SEEK_SET)==0){
             printf("ERROR: fseek %s\n", strerror(errno));
             canRead = 0;
-        }    
+        }
     }
-    
+
     if(canRead){
         //reads the log file created by filebeat
         while((read = getline(&line, &len, fp)) != -1){
@@ -411,9 +418,9 @@ static int delete_shipped(void){
         fclose(fp);
     }
 
-    
+
     fplr = OPEN_FROM_LOGS("lastread.txt", "w");
-    
+
     if(fplr!=NULL){
         if(stat(ELK_LOGGER_WRITER_LOGS_PATH "log.json", &st)==0){
             fprintf(fplr,"%zd",st.st_size);
@@ -421,19 +428,19 @@ static int delete_shipped(void){
         fclose(fplr);
        }
 
-    //checks for each file if it has been fully shipped 
+    //checks for each file if it has been fully shipped
     amount = delete_fully_shipped(size,arrsize,filelist,ELK_LOGGER_WRITER_LOGS_PATH);
-    
+
     if (line){
         free(line);
     }
-    
+
     for(i = 0; i<arrsize; i++){
         free(filelist[i]);
     }
-        
+
     free(size);
-    
+
     return 1;
 }
 
@@ -443,16 +450,16 @@ static int delete_shipped(void){
 static int elk_logger_writer_open_file_for_write(void) {
 
     if(auto_delete){
-        //checks for files fully shipped by filebeat and deletes them 
+        //checks for files fully shipped by filebeat and deletes them
         int unshipped = delete_shipped();
-        
+
         if (unshipped > MAX_UNSHIPPED_LOGS)
             printf("WARNING: there are %d unshipped logs (might need to increase filebeat workers)\n",unshipped);
     }
 
     char buf[TIME_STAMP_LEN];
     char log_name[TIME_STAMP_LEN+30];
-    
+
     //the name of the log will be elk_log_file-timeStamp
     elk_logger_writer_get_time_string(buf);
     sprintf(log_name, ELK_LOGGER_WRITER_LOGS_PATH "elk_log_file-%s.log", buf);
@@ -478,11 +485,11 @@ void elk_logger_writer_init(void) {
     elk_logger_writer_obj.curr_size = 0;
 
     int retval = system("mkdir -p " ELK_LOGGER_WRITER_LOGS_PATH);
-    
+
     if(!auto_delete){
         retval = system(LOG_FILE_REMOVAL_COMMAND);
     }
-    
+
     retval = elk_logger_writer_open_file_for_write();
 
     if (retval == -1) {
