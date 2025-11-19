@@ -11,22 +11,9 @@
 #include "logging_statistics.h"
 
 extern enum SSDTimeMode{
-    REAL,
+    REAL, // We have removed the use of REAL SSDTimeMode from io_manager
     EMULATED
 }SSDTimeMode;
-
-#define GET_TIME_MICROSEC(t) int64_t t;\
-    switch(SSDTimeMode){\
-        case REAL:\
-           t = get_usec();\
-           break;\
-        case EMULATED:\
-            t = time_delay;\
-            break;\
-        default:\
-            t = 0;\
-            break;\
-    };\
 
 /** @struct ssd_disk
  *  @brief This structure represents statistics related to ssd disk
@@ -63,7 +50,7 @@ typedef struct ssd_manager {
     int64_t* io_overhead;
 
     unsigned int old_channel_nb;
-    int64_t old_channel_time;
+    int64_t last_operation_time_us;
 
     int64_t io_alloc_overhead;
     int64_t io_update_overhead;
@@ -81,19 +68,10 @@ extern int64_t time_delay;
 int64_t get_usec(void);
 
 /* Insert delay on x usec. depending on config, will actually wait realworld time, otherwise do nothing. could have been a macro but his is more readable in code*/
-static inline void wait_usec(int64_t usec){
-    switch(SSDTimeMode){
-        case REAL:
-            {
-                int64_t end = get_usec() + usec;
-                while(end > get_usec());
-            }
-            break;
-        case EMULATED:
-            time_delay += usec;
-            break;
-    }
-};
+void wait_usec(int64_t usec);
+
+/* Wait until a specific target time is reached */
+void wait_until(int64_t target_us);
 
 /* Initialize SSD Module */
 int SSD_IO_INIT(uint8_t device_index);
@@ -143,6 +121,8 @@ void SSD_UPDATE_QEMU_OVERHEAD(uint8_t device_index, int64_t delay);
 /* SSD Module Debugging */
 void SSD_PRINT_STAMP(void);
 
+/* SSD Utilization Functions */
 double SSD_UTIL(uint8_t device_index);
+void SSD_UTIL_LOG(uint8_t device_index, unsigned flash_nb);
 
 #endif
