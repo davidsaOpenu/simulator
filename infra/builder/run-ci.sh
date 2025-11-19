@@ -43,3 +43,6 @@ env -u http_proxy -u https_proxy -u HTTP_PROXY -u HTTPS_PROXY tox
 ./docker-test-host.sh
 ./docker-test-guest.sh
 ./docker-test-exofs.sh
+
+# Testing ELK performance
+"$ELK_DIR/elk_performance_test.sh" "$ELK_DIR"
