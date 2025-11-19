@@ -325,23 +325,22 @@ setup_filebeat() {
     local ro_subopts="ro"
     [[ -n "$SELINUX_LABEL" ]] && ro_subopts="$SELINUX_LABEL,$ro_subopts"
 
-    # - data mount must be writable; add Podman UID shift and SELinux label when needed
+    local host_uid host_gid
+    host_uid="$(id -u)"
+    host_gid="$(id -g)"
+
     local data_subopts=""
     if [[ "$CONTAINER_CMD" == "podman" ]]; then
-        data_subopts="U"
-        [[ -n "$SELINUX_LABEL" ]] && data_subopts="Z,$data_subopts"
+        [[ -n "$SELINUX_LABEL" ]] && data_subopts="Z"
     else
         [[ -n "$SELINUX_LABEL" ]] && data_subopts="Z"
     fi
     local data_opts=""
     [[ -n "$data_subopts" ]] && data_opts=":$data_subopts"
 
-    # Ensure data dir exists and is writable; fix ownership for Podman rootless
-    mkdir -p "$fb_data_dir"
-    if [[ "$CONTAINER_CMD" == "podman" ]] && command -v podman >/dev/null 2>&1; then
-        # Map ownership into the user namespace so container root can write
-        podman unshare chown -R 0:0 "$fb_data_dir" 2>/dev/null || true
-    fi
+    mkdir -p "$fb_data_dir/registry"
+    chown -R "$host_uid:$host_gid" "$fb_data_dir" 2>/dev/null || true
+    chmod -R 777 "$fb_data_dir" 2>/dev/null || true
 
     # Pull image & remove any existing container
     "$CONTAINER_CMD" pull "$fb_image"
@@ -366,9 +365,9 @@ setup_filebeat() {
 
     echo "Starting Filebeat daemon"
     if [[ "$CONTAINER_CMD" == "docker" ]]; then
-        # Docker: include Docker-specific mounts (socket + container logs) if you need autodiscover
         "$CONTAINER_CMD" run -d --name filebeat --restart unless-stopped --network "$network_name" \
             --env-file "$env_file" \
+            --user "$host_uid:$host_gid" \
             -v "$fb_cfg:/usr/share/filebeat/filebeat.yml:$ro_subopts" \
             -v "$cert_ca_dir:/usr/share/filebeat/certs/ca:$ro_subopts" \
             -v "$log_dir:/logs:$ro_subopts" \
@@ -377,14 +376,20 @@ setup_filebeat() {
             -v "$fb_data_dir:/usr/share/filebeat/data${data_opts}" \
             "$fb_image" filebeat -e --strict.perms=false -c /usr/share/filebeat/filebeat.yml
     else
-        # Podman: drop Docker-specific mounts (use host log dir only)
         "$CONTAINER_CMD" run -d --name filebeat --restart unless-stopped --network "$network_name" \
             --env-file "$env_file" \
+            --userns=keep-id \
             -v "$fb_cfg:/usr/share/filebeat/filebeat.yml:$ro_subopts" \
             -v "$cert_ca_dir:/usr/share/filebeat/certs/ca:$ro_subopts" \
             -v "$log_dir:/logs:$ro_subopts" \
             -v "$fb_data_dir:/usr/share/filebeat/data${data_opts}" \
             "$fb_image" filebeat -e --strict.perms=false -c /usr/share/filebeat/filebeat.yml
+    fi
+
+    sleep 2
+    if [[ "$CONTAINER_CMD" == "podman" ]]; then
+        chown -R "$host_uid:$host_gid" "$fb_data_dir" 2>/dev/null || true
+        chmod -R 777 "$fb_data_dir" 2>/dev/null || true
     fi
 
     echo "Filebeat ${FB_IMAGE_TAG} is up"
