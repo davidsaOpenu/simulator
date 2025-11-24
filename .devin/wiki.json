@@ -1,0 +1,305 @@
+{
+  "repo_notes": [
+    {
+      "content": ""
+    }
+  ],
+  "pages": [
+    {
+      "title": "Overview",
+      "purpose": "Introduce eVSSIM, explaining it is a Virtual SSD Simulator integrated with QEMU that provides sophisticated SSD emulation with dual FTL strategies, real-time monitoring, and comprehensive testing infrastructure",
+      "page_notes": [
+        {
+          "content": ""
+        }
+      ]
+    },
+    {
+      "title": "Getting Started",
+      "purpose": "Guide developers through initial setup, from code checkout to running their first tests",
+      "page_notes": [
+        {
+          "content": ""
+        }
+      ]
+    },
+    {
+      "title": "Development Workflow",
+      "purpose": "Explain the Gerrit-based code review process using git-review, including commit message format, depends-on directives, and the review cycle",
+      "parent": "Getting Started",
+      "page_notes": [
+        {
+          "content": ""
+        }
+      ]
+    },
+    {
+      "title": "Building the Project",
+      "purpose": "Detail the Docker-based build system, compilation steps for QEMU, kernel, tools, and how to use the builder.sh framework",
+      "parent": "Getting Started",
+      "page_notes": [
+        {
+          "content": ""
+        }
+      ]
+    },
+    {
+      "title": "Running Tests",
+      "purpose": "Quick guide to running the test suites: host tests, guest tests, and exofs tests",
+      "parent": "Getting Started",
+      "page_notes": [
+        {
+          "content": ""
+        }
+      ]
+    },
+    {
+      "title": "Architecture",
+      "purpose": "High-level architectural overview of eVSSIM's major components and how they interact",
+      "page_notes": [
+        {
+          "content": ""
+        }
+      ]
+    },
+    {
+      "title": "Configuration System",
+      "purpose": "Explain ssd.conf structure, device parameters, template system, and how configuration drives initialization",
+      "parent": "Architecture",
+      "page_notes": [
+        {
+          "content": ""
+        }
+      ]
+    },
+    {
+      "title": "eVSSIM Simulator Core",
+      "purpose": "Overview of the main simulation engine including FTL, hardware emulation, and timing models",
+      "parent": "Architecture",
+      "page_notes": [
+        {
+          "content": ""
+        }
+      ]
+    },
+    {
+      "title": "Flash Translation Layer (FTL)",
+      "purpose": "Detailed explanation of FTL responsibilities, dual-strategy architecture, and common components like mapping and GC",
+      "parent": "Architecture",
+      "page_notes": [
+        {
+          "content": ""
+        }
+      ]
+    },
+    {
+      "title": "Sector-Based Storage Strategy",
+      "purpose": "Deep dive into sector strategy: page-level mapping (LPN→PPN), inverse mapping, read/write/erase operations, and copyback",
+      "parent": "Architecture",
+      "page_notes": [
+        {
+          "content": ""
+        }
+      ]
+    },
+    {
+      "title": "Object-Based Storage Strategy",
+      "purpose": "Deep dive into object strategy: stored_object structures, page_node chains, OSD integration, object CRUD operations",
+      "parent": "Architecture",
+      "page_notes": [
+        {
+          "content": ""
+        }
+      ]
+    },
+    {
+      "title": "Garbage Collection",
+      "purpose": "Explain GC manager, background thread, victim selection algorithm, two-tier copyback strategy, and threshold-based triggering",
+      "parent": "Architecture",
+      "page_notes": [
+        {
+          "content": ""
+        }
+      ]
+    },
+    {
+      "title": "Hardware Emulation Layer",
+      "purpose": "Overview of how eVSSIM emulates physical SSD hardware including ONFI interface and timing-accurate I/O",
+      "parent": "Architecture",
+      "page_notes": [
+        {
+          "content": ""
+        }
+      ]
+    },
+    {
+      "title": "ONFI Interface",
+      "purpose": "Detail ONFI command implementation (READ, PROGRAM, ERASE), parameter page structure, status registers, and device management",
+      "parent": "Architecture",
+      "page_notes": [
+        {
+          "content": ""
+        }
+      ]
+    },
+    {
+      "title": "SSD I/O Manager",
+      "purpose": "Explain timing simulation (REAL vs EMULATED modes), delay calculations (channel/register/cell), and operation recording",
+      "parent": "Architecture",
+      "page_notes": [
+        {
+          "content": ""
+        }
+      ]
+    },
+    {
+      "title": "Storage Stack",
+      "purpose": "Describe the OSD emulator, exofs filesystem, and how they integrate with eVSSIM's object strategy",
+      "parent": "Architecture",
+      "page_notes": [
+        {
+          "content": ""
+        }
+      ]
+    },
+    {
+      "title": "OSD Emulator",
+      "purpose": "Explain osc-osd implementation, iSCSI target configuration (otgtd), and integration with object strategy FTL",
+      "parent": "Architecture",
+      "page_notes": [
+        {
+          "content": ""
+        }
+      ]
+    },
+    {
+      "title": "exofs Filesystem",
+      "purpose": "Describe exofs kernel module, mounting process, magic number validation, and kernel-level tracing capabilities",
+      "parent": "Architecture",
+      "page_notes": [
+        {
+          "content": ""
+        }
+      ]
+    },
+    {
+      "title": "Monitoring and Logging",
+      "purpose": "Overview of eVSSIM's comprehensive logging infrastructure including real-time analysis and multiple output formats",
+      "parent": "Architecture",
+      "page_notes": [
+        {
+          "content": ""
+        }
+      ]
+    },
+    {
+      "title": "Logging Architecture",
+      "purpose": "Explain Logger_Pool, log event types, per-flash logging, and the logging_parser JSON serialization system",
+      "parent": "Architecture",
+      "page_notes": [
+        {
+          "content": ""
+        }
+      ]
+    },
+    {
+      "title": "Real-Time Analysis",
+      "purpose": "Detail RTLogAnalyzer, statistics computation (write amplification, IOPS, utilization), and LogManager aggregation",
+      "parent": "Architecture",
+      "page_notes": [
+        {
+          "content": ""
+        }
+      ]
+    },
+    {
+      "title": "Web-Based Monitoring",
+      "purpose": "Explain LogServer implementation, WebSocket protocol, web dashboard UI, and how to connect and view statistics",
+      "parent": "Architecture",
+      "page_notes": [
+        {
+          "content": ""
+        }
+      ]
+    },
+    {
+      "title": "ELK Stack Integration",
+      "purpose": "Describe Elasticsearch, Kibana, and Filebeat configuration for historical log analysis and visualization",
+      "parent": "Architecture",
+      "page_notes": [
+        {
+          "content": ""
+        }
+      ]
+    },
+    {
+      "title": "Build and Test Infrastructure",
+      "purpose": "Overview of the Docker-based build system, QEMU integration, and comprehensive testing framework",
+      "page_notes": [
+        {
+          "content": ""
+        }
+      ]
+    },
+    {
+      "title": "Build System",
+      "purpose": "Explain builder.sh framework functions, Docker image creation, compilation scripts for kernel/QEMU/tools, and the dist folder",
+      "parent": "Build and Test Infrastructure",
+      "page_notes": [
+        {
+          "content": ""
+        }
+      ]
+    },
+    {
+      "title": "QEMU Integration",
+      "purpose": "Detail QEMU compilation with --enable-vssim, VSSIM block driver, NVMe device creation, guest image preparation, and VM lifecycle management",
+      "parent": "Build and Test Infrastructure",
+      "page_notes": [
+        {
+          "content": ""
+        }
+      ]
+    },
+    {
+      "title": "Testing Framework",
+      "purpose": "Overview of multi-level testing: host tests (C++ unit tests), guest tests (NVMe compliance), and exofs tests (filesystem validation)",
+      "parent": "Build and Test Infrastructure",
+      "page_notes": [
+        {
+          "content": ""
+        }
+      ]
+    },
+    {
+      "title": "Host Tests",
+      "purpose": "Explain Google Test-based unit tests for FTL, ONFI, and I/O manager, valgrind memory checking, and how to run simulation_tests_main and unit_tests_main",
+      "parent": "Build and Test Infrastructure",
+      "page_notes": [
+        {
+          "content": ""
+        }
+      ]
+    },
+    {
+      "title": "Guest Tests",
+      "purpose": "Detail NVMe compliance testing with dnvme kernel module and tnvme test suite running inside QEMU guest",
+      "parent": "Build and Test Infrastructure",
+      "page_notes": [
+        {
+          "content": ""
+        }
+      ]
+    },
+    {
+      "title": "exofs Tracing and Validation",
+      "purpose": "Explain ftrace-based kernel function tracing, test_and_log_all_operations.sh workflow, graph generation, and exofs magic number validation",
+      "parent": "Build and Test Infrastructure",
+      "page_notes": [
+        {
+          "content": ""
+        }
+      ]
+    }
+  ]
+}
