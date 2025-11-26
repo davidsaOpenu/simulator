@@ -1,0 +1,112 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "efbc5828_e545e6ef",
+        "filename": "/COMMIT_MSG",
+        "patchSetId": 5
+      },
+      "lineNbr": 7,
+      "author": {
+        "id": 1007990
+      },
+      "writtenOn": "2025-11-26T08:10:50Z",
+      "side": 1,
+      "message": "let\u0027s add to the commit message points from https://review.gerrithub.io/c/davidsaOpenu/simulator/+/1220226/3//COMMIT_MSG",
+      "revId": "3382bd15371d3892cf509146e5b803272077bcb4",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "e9bee495_495d3bd8",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 5
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 1007990
+      },
+      "writtenOn": "2025-11-26T08:10:50Z",
+      "side": 1,
+      "message": "Overall looks great. We can land the change addressing comments that require 5 mins of work. \n\nhttps://review.gerrithub.io/c/davidsaOpenu/simulator/+/1226884/comment/f5274e11_1cdd4ec4/ can be left as a small separate change.",
+      "revId": "3382bd15371d3892cf509146e5b803272077bcb4",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "76bcebb7_62a57ff0",
+        "filename": "eVSSIM/QEMU/Makefile",
+        "patchSetId": 5
+      },
+      "lineNbr": 189,
+      "author": {
+        "id": 1007990
+      },
+      "writtenOn": "2025-11-26T08:10:50Z",
+      "side": 1,
+      "message": "no need to change anything in eVSSIM/QEMU. We will remove it in separate commit at all",
+      "revId": "3382bd15371d3892cf509146e5b803272077bcb4",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "906304d1_cb1821f4",
+        "filename": "eVSSIM/QEMU/Makefile.objs",
+        "patchSetId": 5
+      },
+      "lineNbr": 308,
+      "author": {
+        "id": 1007990
+      },
+      "writtenOn": "2025-11-26T08:10:50Z",
+      "side": 1,
+      "message": "no need to change anything in eVSSIM/QEMU. We will remove it in separate commit at all",
+      "revId": "3382bd15371d3892cf509146e5b803272077bcb4",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "a51830c5_e6efd4f5",
+        "filename": "eVSSIM/QEMU/configure",
+        "patchSetId": 5
+      },
+      "lineNbr": 3545,
+      "author": {
+        "id": 1007990
+      },
+      "writtenOn": "2025-11-26T08:10:50Z",
+      "side": 1,
+      "message": "no need to change anything in eVSSIM/QEMU. We will remove it in separate commit at all",
+      "range": {
+        "startLine": 3543,
+        "startChar": 1,
+        "endLine": 3545,
+        "endChar": 6
+      },
+      "revId": "3382bd15371d3892cf509146e5b803272077bcb4",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "f5274e11_1cdd4ec4",
+        "filename": "infra/builder/run-ci.sh",
+        "patchSetId": 5
+      },
+      "lineNbr": 43,
+      "author": {
+        "id": 1007990
+      },
+      "writtenOn": "2025-11-26T08:10:50Z",
+      "side": 1,
+      "message": "lets add here a performance test hat connects via api executes query on the first qisk and fails if performance is under the weather. Paragraph 4.3 in https://docs.google.com/document/d/1_ftWAC3eANO4jIuTZXedKFcPphj_JILGO-kNtjFA9og/edit?tab\u003dt.0",
+      "revId": "3382bd15371d3892cf509146e5b803272077bcb4",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
+    }
+  ]
+}
