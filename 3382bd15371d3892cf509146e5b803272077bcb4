@@ -20,6 +20,24 @@
     {
       "unresolved": false,
       "key": {
+        "uuid": "5b38250b_cf42aef1",
+        "filename": "/COMMIT_MSG",
+        "patchSetId": 5
+      },
+      "lineNbr": 7,
+      "author": {
+        "id": 1007990
+      },
+      "writtenOn": "2025-11-28T12:30:21Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "efbc5828_e545e6ef",
+      "revId": "3382bd15371d3892cf509146e5b803272077bcb4",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
+    },
+    {
+      "unresolved": false,
+      "key": {
         "uuid": "e9bee495_495d3bd8",
         "filename": "/PATCHSET_LEVEL",
         "patchSetId": 5
@@ -52,6 +70,24 @@
       "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "d72f9e3f_88c47419",
+        "filename": "eVSSIM/QEMU/Makefile",
+        "patchSetId": 5
+      },
+      "lineNbr": 189,
+      "author": {
+        "id": 1007990
+      },
+      "writtenOn": "2025-11-28T12:30:21Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "76bcebb7_62a57ff0",
+      "revId": "3382bd15371d3892cf509146e5b803272077bcb4",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "906304d1_cb1821f4",
@@ -69,6 +105,24 @@
       "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "81387837_12d3a7b0",
+        "filename": "eVSSIM/QEMU/Makefile.objs",
+        "patchSetId": 5
+      },
+      "lineNbr": 308,
+      "author": {
+        "id": 1007990
+      },
+      "writtenOn": "2025-11-28T12:30:21Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "906304d1_cb1821f4",
+      "revId": "3382bd15371d3892cf509146e5b803272077bcb4",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "a51830c5_e6efd4f5",
@@ -82,6 +136,30 @@
       "writtenOn": "2025-11-26T08:10:50Z",
       "side": 1,
       "message": "no need to change anything in eVSSIM/QEMU. We will remove it in separate commit at all",
+      "range": {
+        "startLine": 3543,
+        "startChar": 1,
+        "endLine": 3545,
+        "endChar": 6
+      },
+      "revId": "3382bd15371d3892cf509146e5b803272077bcb4",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "0f8a446e_d4207651",
+        "filename": "eVSSIM/QEMU/configure",
+        "patchSetId": 5
+      },
+      "lineNbr": 3545,
+      "author": {
+        "id": 1007990
+      },
+      "writtenOn": "2025-11-28T12:30:21Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "a51830c5_e6efd4f5",
       "range": {
         "startLine": 3543,
         "startChar": 1,
