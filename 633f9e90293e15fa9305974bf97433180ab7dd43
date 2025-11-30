@@ -1,0 +1,130 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "20830799_7563c70a",
+        "filename": "/COMMIT_MSG",
+        "patchSetId": 3
+      },
+      "lineNbr": 9,
+      "author": {
+        "id": 1007990
+      },
+      "writtenOn": "2025-11-30T08:23:41Z",
+      "side": 1,
+      "message": "already merged. no need for this change",
+      "range": {
+        "startLine": 9,
+        "startChar": 0,
+        "endLine": 9,
+        "endChar": 69
+      },
+      "revId": "633f9e90293e15fa9305974bf97433180ab7dd43",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "33a6fcf9_25c15a8c",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 3
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 1007990
+      },
+      "writtenOn": "2025-11-30T08:23:41Z",
+      "side": 1,
+      "message": "Thanks for working on this. Comments inline",
+      "revId": "633f9e90293e15fa9305974bf97433180ab7dd43",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "0772a9b1_d42e74be",
+        "filename": "infra/ELK/elk_performance_test.sh",
+        "patchSetId": 3
+      },
+      "lineNbr": 4,
+      "author": {
+        "id": 1007990
+      },
+      "writtenOn": "2025-11-30T08:23:41Z",
+      "side": 1,
+      "message": "lets query in the time window of 3 hours e.g.\n\nFROM_DATE\u003d\"$(date -u -d \u00273 hours ago\u0027 +%Y-%m-%dT%H:%M:%SZ)\"\nTO_DATE\u003d\"$(date -u +%Y-%m-%dT%H:%M:%SZ)\"",
+      "revId": "633f9e90293e15fa9305974bf97433180ab7dd43",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "8a425e8e_e208cd43",
+        "filename": "infra/ELK/elk_performance_test.sh",
+        "patchSetId": 3
+      },
+      "lineNbr": 78,
+      "author": {
+        "id": 1007990
+      },
+      "writtenOn": "2025-11-30T08:23:41Z",
+      "side": 1,
+      "message": "lets print the final query in case one want to copy paste it to run manually",
+      "range": {
+        "startLine": 77,
+        "startChar": 0,
+        "endLine": 78,
+        "endChar": 48
+      },
+      "revId": "633f9e90293e15fa9305974bf97433180ab7dd43",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "28595a81_fdaac8c1",
+        "filename": "infra/ELK/elk_performance_test.sh",
+        "patchSetId": 3
+      },
+      "lineNbr": 99,
+      "author": {
+        "id": 1007990
+      },
+      "writtenOn": "2025-11-30T08:23:41Z",
+      "side": 1,
+      "message": "let\u0027s check performance on the values that we have on real monilor\n\nand lets define \n\nperformance thresholds:\n\n\nMIN_IOPS_READ — minimum read IOPS\n\nMIN_IOPS_WRITE — minimum write IOPS\n\nMAX_WA — maximum write amplification\n\netc \n\nLet\u0027s compares the results against the thresholds.\n\nand fail the test if queried threashholds areless then MIN threshholds  or if write-amplification exceeds the MAX_WA.",
+      "range": {
+        "startLine": 90,
+        "startChar": 0,
+        "endLine": 99,
+        "endChar": 4
+      },
+      "revId": "633f9e90293e15fa9305974bf97433180ab7dd43",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "2bed2bc0_552e2522",
+        "filename": "infra/ELK/elk_performance_test.sh",
+        "patchSetId": 3
+      },
+      "lineNbr": 118,
+      "author": {
+        "id": 1007990
+      },
+      "writtenOn": "2025-11-30T08:23:41Z",
+      "side": 1,
+      "message": "lets add per metric message as well something like:\n\ntest_fail\u003d0\n\n(( $(printf \u0027%.0f\u0027 \"$iops_r\") \u003c MIN_IOPS_READ )) \u0026\u0026 { echo \"FAIL: read IOPS \u003c min\"; test_fail\u003d1; }\n(( $(printf \u0027%.0f\u0027 \"$iops_w\") \u003c MIN_IOPS_WRITE )) \u0026\u0026 { echo \"FAIL: write IOPS \u003c min\"; test_fail\u003d1; }\n(( $(printf \u0027%.0f\u0027 \"$wa\") \u003e MAX_WA )) \u0026\u0026 { echo \"FAIL: write amplification \u003e max\"; test_fail\u003d1; }\n\n\nif (( test_fail \u003d\u003d 1 )); then\necho \"[elk_metrics_test] METRICS TEST FAILED\"\nexit 1\nfi",
+      "range": {
+        "startLine": 113,
+        "startChar": 0,
+        "endLine": 118,
+        "endChar": 44
+      },
+      "revId": "633f9e90293e15fa9305974bf97433180ab7dd43",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
+    }
+  ]
+}
