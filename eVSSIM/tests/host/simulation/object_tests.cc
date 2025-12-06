@@ -18,16 +18,16 @@ extern "C" int g_init_log_server;
 #include <assert.h>
 #include <typeinfo>
 
-
 using namespace std;
 
-
 namespace object_tests {
+
     class ObjectUnitTest : public BaseTest {
         public:
             virtual void SetUp() {
+                g_device_index = OBJECT_DEV;
+
                 BaseTest::SetUp();
-                INIT_OBJ_STRATEGY();
                 INIT_LOG_MANAGER(g_device_index);
 
                 SSDConf* ssd_config = base_test_get_ssd_config();
@@ -39,14 +39,17 @@ namespace object_tests {
 
             virtual void TearDown() {
                 BaseTest::TearDown(false);
-                TERM_OBJ_STRATEGY();
+                TERM_OBJ_STRATEGY(g_device_index);
                 TERM_LOG_MANAGER(g_device_index);
                 TERM_SSD_CONFIG();
+
+                g_device_index = SECTOR_DEV;
             }
 
         protected:
             int object_size_;
             unsigned int objects_in_ssd_;
+
     }; // OccupySpaceStressTest
 
     std::vector<SSDConf*> GetTestParams() {
@@ -56,12 +59,14 @@ namespace object_tests {
         size_t sector_size = 1;
         size_t page_nb = 10;
         size_t block_nb = 128;
+        size_t default_ns_block_nb = (block_nb * DEFAULT_FLASH_NB) / 2;
+        size_t othere_ns_block_nb = (block_nb * DEFAULT_FLASH_NB) / 4;
 
         for (unsigned int i = 0; i < BASE_TEST_ARRAY_SIZE(parameters::Allobjsize); i++) {
                 SSDConf* config = new SSDConf(
-                        page_size, page_nb, sector_size, DEFAULT_FLASH_NB, block_nb, DEFAULT_FLASH_NB);
+                        page_size, page_nb, sector_size, DEFAULT_FLASH_NB, block_nb, DEFAULT_FLASH_NB, default_ns_block_nb, othere_ns_block_nb);
                 config->set_object_size(parameters::Allobjsize[i]);
-                config->set_storage_strategy(STRATEGY_OBJECT);
+
                 ssd_configs.push_back(config);
         }
 
@@ -74,12 +79,13 @@ namespace object_tests {
         printf("SimpleObjectCreate test started\n");
         printf("Page no.:%ld\nPage size:%d\n", devices[g_device_index].pages_in_ssd, GET_PAGE_SIZE(g_device_index));
         printf("Object size: %d bytes\n", object_size_);
+
         obj_id_t object_locator = { .object_id = 0, .partition_id = USEROBJECT_PID_LB };
 
         // Fill the disk with objects
         for (unsigned long p = 0; p < objects_in_ssd_; p++) {
             object_locator.object_id = USEROBJECT_OID_LB + p;
-            bool res = FTL_OBJ_CREATE(g_device_index, object_locator, object_size_);
+            bool res = FTL_OBJ_CREATE(g_device_index, DEFAULT_NSID, object_locator, object_size_);
             ASSERT_TRUE(res);
         }
 
@@ -102,7 +108,7 @@ namespace object_tests {
             objects[p].object_id = USEROBJECT_OID_LB + p;
             objects[p].partition_id = USEROBJECT_PID_LB;
 
-            bool res = FTL_OBJ_CREATE(g_device_index, objects[p], object_size_);
+            bool res = FTL_OBJ_CREATE(g_device_index, DEFAULT_NSID, objects[p], object_size_);
             ASSERT_TRUE(res);
         }
 
@@ -110,7 +116,7 @@ namespace object_tests {
 
         // Write GET_PAGE_SIZE(g_device_index) data to each one
         for (unsigned long p = 1; p < objects_in_ssd_ / 2; p++) {
-            ASSERT_EQ(FTL_SUCCESS, FTL_OBJ_WRITE(g_device_index, objects[p], wrbuf, 0, GET_PAGE_SIZE(g_device_index)));
+            ASSERT_EQ(FTL_SUCCESS, FTL_OBJ_WRITE(g_device_index, DEFAULT_NSID, objects[p], wrbuf, 0, GET_PAGE_SIZE(g_device_index)));
         }
 
         free(wrbuf);
@@ -133,12 +139,12 @@ namespace object_tests {
         for(unsigned long p= 1; p < objects_in_ssd_ / 2; p++) {
             objects[p].object_id = USEROBJECT_OID_LB + p;
             objects[p].partition_id = USEROBJECT_PID_LB;
-            bool res = FTL_OBJ_CREATE(g_device_index, objects[p], object_size_);
+            bool res = FTL_OBJ_CREATE(g_device_index, DEFAULT_NSID, objects[p], object_size_);
             ASSERT_TRUE(res);
 
             memset(wrbuf, 0x0, object_size_);
             sprintf(wrbuf,"%lu", objects[p].object_id);
-            res = FTL_OBJ_WRITE(g_device_index, objects[p], wrbuf, 0, object_size_);
+            res = FTL_OBJ_WRITE(g_device_index, DEFAULT_NSID, objects[p], wrbuf, 0, object_size_);
 
             ASSERT_TRUE(res);
         }
@@ -151,7 +157,7 @@ namespace object_tests {
         for(unsigned long p = 1; p < objects_in_ssd_ / 2; p++) {
             len = GET_PAGE_SIZE(g_device_index) / 2;
             memset(rdbuf, 0x0, GET_PAGE_SIZE(g_device_index) / 2);
-            ASSERT_EQ(FTL_SUCCESS, FTL_OBJ_READ(g_device_index, objects[p], rdbuf, 0, &len));
+            ASSERT_EQ(FTL_SUCCESS, FTL_OBJ_READ(g_device_index, DEFAULT_NSID, objects[p], rdbuf, 0, &len));
             sprintf(wrbuf, "%lu", objects[p].object_id);
             ASSERT_EQ(0, strcmp(rdbuf, wrbuf));
         }
@@ -179,7 +185,7 @@ namespace object_tests {
             objects[p].object_id = USEROBJECT_OID_LB + p;
             objects[p].partition_id = USEROBJECT_PID_LB;
 
-            bool res = FTL_OBJ_CREATE(g_device_index, objects[p], object_size_);
+            bool res = FTL_OBJ_CREATE(g_device_index, DEFAULT_NSID, objects[p], object_size_);
             ASSERT_TRUE(res);
         }
 
@@ -189,12 +195,12 @@ namespace object_tests {
         // Delete all objects
         for (unsigned long p = 1; p < objects_in_ssd_ / 2; p++) {
             // TODO: FTL_OBJ_DELETE wont really free the pages
-            ASSERT_EQ(FTL_SUCCESS, FTL_OBJ_DELETE(g_device_index, objects[p]));
+            ASSERT_EQ(FTL_SUCCESS, FTL_OBJ_DELETE(g_device_index, DEFAULT_NSID, objects[p]));
         }
 
         // And try to fill the disk again with the same number of sized objects
         for(unsigned long p = 1; p < objects_in_ssd_ / 2; p++) {
-            bool res = FTL_OBJ_CREATE(g_device_index, objects[p], object_size_);
+            bool res = FTL_OBJ_CREATE(g_device_index, DEFAULT_NSID, objects[p], object_size_);
             ASSERT_TRUE(res);
         }
 

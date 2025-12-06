@@ -8,7 +8,7 @@
 
 #include "ftl.h"
 
-typedef ftl_ret_val (*gc_collection_algo)(uint8_t, int, bool background);
+typedef ftl_ret_val (*gc_collection_algo)(uint8_t, int, bool);
 typedef ftl_ret_val (*gc_next_page_algo)(uint8_t, int, int, uint64_t*);
 
 typedef struct gc_thread {
