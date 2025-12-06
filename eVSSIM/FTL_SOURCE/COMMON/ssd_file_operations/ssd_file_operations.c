@@ -129,8 +129,6 @@ ssd_file_ops_ret_val ssd_erase(const char *path, size_t offset, size_t length) {
         offset += w;
     }
 
-    
     close(fd);
     return SSD_FILE_OPS_SUCCESS;
 }
-
