@@ -17,7 +17,7 @@ exofs_test() {
     set -e
 
     # When debugging you can find trace logs at OUTPUT_DIR
-    evssim_guest_copy $OUTPUT_DIR $OUTPUT_DIR 
+    evssim_guest_copy $OUTPUT_DIR $OUTPUT_DIR
     # Stop qemu and wait
     evssim_qemu_flush_disk
     evssim_qemu_stop
