@@ -388,7 +388,6 @@ namespace multi_device_tests {
             free(wrbuf);
         };
 
-        // Test: Parallel object create and write on all 3 devices
         {
             std::thread t0(object_create_write_worker, 0);
             std::thread t1(object_create_write_worker, 1);

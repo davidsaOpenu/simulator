@@ -43,7 +43,7 @@ int main(int argc, char **argv) {
         else if (strcmp(argv[i], "--onfi_ops_test") == 0) {
             tests_filter = "*OnfiCommandsTest*";
         }
-        else if (strcmp(argv[i], "--multi-device-tests") == 0) {
+        else if (strcmp(argv[i], "--multi_device_tests") == 0) {
             tests_filter = "*MultiDevice*";
         }
     }
