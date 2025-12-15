@@ -103,9 +103,6 @@ void* log_manager_run(void* args) {
 }
 
 void log_manager_loop(uint8_t device_index, LogManager* manager, int max_loops) {
-    // TODO: For now we don't support multiple disks logging properly
-    device_index = 0;
-
     SSDStatistics old_stats = stats_init();
     int first_loop = 1;
     int loops = 0;
