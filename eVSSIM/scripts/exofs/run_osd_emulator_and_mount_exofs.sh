@@ -9,7 +9,7 @@ if [[ $EUID -ne 0 ]]; then
   exit 1
 fi
 
-NVME_DEV=/dev/nvme0n1
+NVME_DEV=/dev/nvme1n1
 MOUNT_POINT=/mnt/exofs0
 TEST_UTIL_DIR=/home/esd/exofs/tracing_the_kernel/lab
 PID=0x10000
