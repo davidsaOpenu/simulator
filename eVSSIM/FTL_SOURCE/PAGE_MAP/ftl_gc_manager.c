@@ -22,17 +22,19 @@ gc_thread_t *gc_threads;
 
 static void *GC_BACKGROUND_LOOP(void *arg) {
     gc_thread_t *gc_thread = arg;
-    uint8_t device_index = gc_thread->device_index;
+    const uint8_t device_index = gc_thread->device_index;
 
     pthread_mutex_lock(&g_lock);
     while (!gc_thread->gc_stop_flag) {
         gc_thread->gc_loop_count++;
         bool collected;
-        uint64_t total_zero_page_nb;
-        do {
+
+        uint64_t total_zero_page_nb = 0;
+
+		do {
             collected = GC_CHECK(gc_thread->device_index, false, true);
-            total_zero_page_nb = inverse_mappings_manager[device_index].total_zero_page_nb;
-        } while (collected && total_zero_page_nb < devices[device_index].gc_hi_thr_page_nb);
+			total_zero_page_nb = inverse_mappings_manager[device_index].total_zero_page_nb;
+		} while (collected && total_zero_page_nb < devices[device_index].gc_hi_thr_page_nb);
 
         struct timespec ts;
         clock_gettime(CLOCK_REALTIME, &ts);
@@ -57,38 +59,58 @@ static void *GC_BACKGROUND_LOOP(void *arg) {
 }
 
 void INIT_GC_MANAGER(uint8_t device_index) {
-    if (devices[device_index].storage_strategy == STRATEGY_OBJECT) {
-        DEV_PINFO(device_index, "GC of object strategy is not currently supported.\n");
-        return;
-    }
+	uint32_t namespaceIndex;
+	// Checks for sector strategy namespaces
+	for (namespaceIndex = 0; namespaceIndex < MAX_NUMBER_OF_NAMESPACES; namespaceIndex++)
+	{
+		// Check if the namespace is inited.
+		if (devices[device_index].namespaces[namespaceIndex].nsid == namespaceIndex &&
+			devices[device_index].namespaces[namespaceIndex].type == FTL_NS_SECTOR) {
 
-    gc_thread_t *gc_thread = &gc_threads[device_index];
-    gc_thread->device_index = device_index;
-    pthread_cond_init(&gc_thread->gc_signal_cond, NULL);
-    gc_thread->gc_stop_flag = false;
-    gc_thread->gc_loop_count = 0;
+			gc_thread_t *gc_thread = &gc_threads[device_index];
+			gc_thread->device_index = device_index;
+			pthread_cond_init(&gc_thread->gc_signal_cond, NULL);
+			gc_thread->gc_stop_flag = false;
+			gc_thread->gc_loop_count = 0;
 
-    if (0 != pthread_create(&gc_thread->tid, NULL, GC_BACKGROUND_LOOP, gc_thread)) {
-        DEV_RERR(, device_index, "failed to create GC background thread\n");
-    }
+			if (0 != pthread_create(&gc_thread->tid, NULL, GC_BACKGROUND_LOOP, gc_thread)) {
+				DEV_RERR(, device_index, "failed to create GC background thread\n");
+			}
+
+            return;
+        }
+
+		/* Skip un-used namespace or object strategy */
+	}
+
+	DEV_PINFO(device_index, "GC of object strategy is not currently supported or this device as no namespace.\n");
 }
 
 void TERM_GC_MANAGER(uint8_t device_index) {
-    if (devices[device_index].storage_strategy == STRATEGY_OBJECT) {
-        return;
-    }
+	uint32_t namespaceIndex;
+	// Checks for sector strategy namespaces
+	for (namespaceIndex = 0; namespaceIndex < MAX_NUMBER_OF_NAMESPACES; namespaceIndex++)
+	{
+		// Check if the namespace is inited.
+		if (devices[device_index].namespaces[namespaceIndex].nsid == namespaceIndex &&
+			devices[device_index].namespaces[namespaceIndex].type == FTL_NS_SECTOR) {
 
-    gc_thread_t *gc_thread = &gc_threads[device_index];
+			gc_thread_t *gc_thread = &gc_threads[device_index];
 
-    gc_thread->gc_stop_flag = true;
-    pthread_cond_signal(&gc_thread->gc_signal_cond);
-    pthread_mutex_unlock(&g_lock);
-    if (0 != pthread_join(gc_thread->tid, NULL)) {
-        DEV_PERR(device_index, "failed to join GC background thread\n");
-    }
-    pthread_mutex_lock(&g_lock);
+			gc_thread->gc_stop_flag = true;
+			pthread_cond_signal(&gc_thread->gc_signal_cond);
+			pthread_mutex_unlock(&g_lock);
+			if (0 != pthread_join(gc_thread->tid, NULL)) {
+				DEV_PERR(device_index, "failed to join GC background thread\n");
+			}
 
-    pthread_cond_destroy(&gc_thread->gc_signal_cond);
+			pthread_mutex_lock(&g_lock);
+			pthread_cond_destroy(&gc_thread->gc_signal_cond);
+
+			// Ending the term function!
+			return;
+		}
+	}
 }
 
 bool GC_CHECK(uint8_t device_index, bool force, bool background)
@@ -116,8 +138,8 @@ ftl_ret_val GARBAGE_COLLECTION(uint8_t device_index, int l2, bool background)
 
 ftl_ret_val DEFAULT_GC_COLLECTION_ALGO(uint8_t device_index, int l2, bool background)
 {
-	uint64_t i;
 	int ret;
+	uint64_t i;
 	uint64_t lpn;
 	uint64_t old_ppn;
 	uint64_t new_ppn;
@@ -178,31 +200,30 @@ ftl_ret_val DEFAULT_GC_COLLECTION_ALGO(uint8_t device_index, int l2, bool backgr
                 SSD_PAGE_READ(device_index, victim_phy_flash_nb, victim_phy_block_nb, i, i, background ? GC_READ_BACKGROUND : GC_READ);
                 SSD_PAGE_WRITE(device_index, CALC_FLASH(device_index, new_ppn), CALC_BLOCK(device_index, new_ppn), CALC_PAGE(device_index, new_ppn), i, background ? GC_WRITE_BACKGROUND : GC_WRITE);
                 old_ppn = victim_phy_flash_nb * devices[device_index].pages_per_flash + victim_phy_block_nb * devices[device_index].page_nb + i;
-                GET_INVERSE_MAPPING_INFO(device_index, old_ppn, &lpn);
-                UPDATE_NEW_PAGE_MAPPING(device_index, lpn, new_ppn);
+
+				uint32_t page_nsid;
+				GET_INVERSE_MAPPING_INFO(device_index, old_ppn, &page_nsid, &lpn);
+                UPDATE_NEW_PAGE_MAPPING(device_index, page_nsid, lpn, new_ppn);
             }else{
                 // Got new page on-chip, can do copy back
 
-                if (devices[device_index].storage_strategy == STRATEGY_SECTOR)
-                {
-                    ret = _FTL_COPYBACK(device_index, victim_phy_flash_nb * devices[device_index].pages_per_flash + victim_phy_block_nb * devices[device_index].page_nb + i , new_ppn, background ? COPYBACK_BACKGROUND : COPYBACK);
-                }
-                else if (devices[device_index].storage_strategy == STRATEGY_OBJECT)
-                {
-                    ret = _FTL_OBJ_COPYBACK(device_index, victim_phy_flash_nb * devices[device_index].pages_per_flash + victim_phy_block_nb * devices[device_index].page_nb + i , new_ppn);
-                }
-                else
-                {
-                    ret = FTL_FAILURE;
-                }
+				const int32_t source = victim_phy_flash_nb * devices[device_index].pages_per_flash + victim_phy_block_nb * devices[device_index].page_nb + i;
 
-                if(ret == FTL_FAILURE){
+				ret = _FTL_OBJ_COPYBACK(device_index, source, new_ppn);
+
+				if(ret == FTL_FAILURE){
+					ret = _FTL_COPYBACK(device_index, source, new_ppn, (background ? COPYBACK_BACKGROUND : COPYBACK));
+				}
+
+				if(ret == FTL_FAILURE){
                     PDBG_FTL("failed to copyback\n");
                     SSD_PAGE_READ(device_index, victim_phy_flash_nb, victim_phy_block_nb, i, i, background ? GC_READ_BACKGROUND : GC_READ);
                     SSD_PAGE_WRITE(device_index, CALC_FLASH(device_index, new_ppn), CALC_BLOCK(device_index, new_ppn), CALC_PAGE(device_index, new_ppn), i, background ? GC_WRITE_BACKGROUND : GC_WRITE);
                     old_ppn = victim_phy_flash_nb*devices[device_index].pages_per_flash + victim_phy_block_nb* devices[device_index].page_nb + i;
-                    GET_INVERSE_MAPPING_INFO(device_index, old_ppn, &lpn);
-                    UPDATE_NEW_PAGE_MAPPING(device_index, lpn, new_ppn);
+
+					uint32_t page_nsid;
+					GET_INVERSE_MAPPING_INFO(device_index, old_ppn, &page_nsid, &lpn);
+                    UPDATE_NEW_PAGE_MAPPING(device_index, page_nsid, lpn, new_ppn);
                 }
             }
 
