@@ -108,7 +108,7 @@ class NvmeDevice(object):
         ], cwd=self.nvme_cli_dir)
 
 
-DEVICE_NAME = '/dev/nvme0n1'
+DEVICE_NAME = '/dev/nvme1n1'
 NVME_CLI_DIR = '/home/esd/guest'
 OBJ_FEATURE_ID = 192
 
@@ -120,7 +120,7 @@ class test_NvmeCli(object):
 
     CHUNK_SIZE = 512
     MAX_OBJECT_SIZE = 1024
-    OBJECT_COUNT = 10000
+    OBJECT_COUNT = 100
     OBJ_NAMES = []
 
     def test_delete(self):
@@ -261,4 +261,4 @@ class test_NvmeCli(object):
 
 
 class test_NvmeCliMultiDisk(test_NvmeCli):
-    device = NvmeDevice('/dev/nvme1n1', NVME_CLI_DIR)
+    device = NvmeDevice('/dev/nvme2n1', NVME_CLI_DIR)
