@@ -16,6 +16,24 @@
       "message": "This will probably cause issues with guest tests, which provide the storage strategy as a number. See `simulator/infra/builder/docker-test-guest.sh` and `EVSSIM_RUNTIME_STORAGE_STRATEGY`.\n\nPlease look at my MR: https://review.gerrithub.io/c/davidsaOpenu/simulator/+/1223886\nat `infra/builder/docker-test-guest.sh` line 49. During my testing I\u0027ve found that objects_via_ioctl is erroneously configured with sector strategy (1), when in fact it should be object strategy (2). Due to extra checks I\u0027ve added in `eVSSIM/FTL_SOURCE/PAGE_MAP/ftl_obj_strategy.c`, without properly configuring `EVSSIM_RUNTIME_STORAGE_STRATEGY`, this test will fail.",
       "revId": "26bd5670b6b1f1503f0073bf2414301d24bc52e1",
       "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "c9c728e8_381cc8d0",
+        "filename": "infra/builder/docker/ssd.conf.template",
+        "patchSetId": 2
+      },
+      "lineNbr": 20,
+      "author": {
+        "id": 1038797
+      },
+      "writtenOn": "2025-12-15T23:06:52Z",
+      "side": 0,
+      "message": "Done",
+      "parentUuid": "64bd3e41_5187dc22",
+      "revId": "26bd5670b6b1f1503f0073bf2414301d24bc52e1",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
     }
   ]
 }

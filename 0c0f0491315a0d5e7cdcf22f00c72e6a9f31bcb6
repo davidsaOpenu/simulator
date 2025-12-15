@@ -52,6 +52,24 @@
       "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "9258bb61_89b25451",
+        "filename": "eVSSIM/FTL_SOURCE/PAGE_MAP/ftl_gc_manager.c",
+        "patchSetId": 2
+      },
+      "lineNbr": 114,
+      "author": {
+        "id": 1038797
+      },
+      "writtenOn": "2025-12-15T23:06:52Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "c049a356_47e3a63f",
+      "revId": "0c0f0491315a0d5e7cdcf22f00c72e6a9f31bcb6",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "53e96d58_4ca977fa",
@@ -69,6 +87,24 @@
       "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "04f88a7b_36e82c2f",
+        "filename": "eVSSIM/FTL_SOURCE/PAGE_MAP/ftl_sect_strategy.c",
+        "patchSetId": 2
+      },
+      "lineNbr": 303,
+      "author": {
+        "id": 1038797
+      },
+      "writtenOn": "2025-12-15T23:06:52Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "53e96d58_4ca977fa",
+      "revId": "0c0f0491315a0d5e7cdcf22f00c72e6a9f31bcb6",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "85d1e10c_698ecc05",
@@ -82,6 +118,24 @@
       "writtenOn": "2025-10-06T17:26:25Z",
       "side": 1,
       "message": "`eVSSIM/QEMU` is deprecated, please don\u0027t bother changing it. As you can see, `_FTL_WRITE_SECT` and `_FTL_READ_SECT` are missing the first `device_index` parameter that is relatively new. Therefore, it can be concluded that the changes in this file are untested and probably unnecessary.",
+      "revId": "0c0f0491315a0d5e7cdcf22f00c72e6a9f31bcb6",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "3398ae67_5f7516f2",
+        "filename": "eVSSIM/QEMU/hw/nvme_storage.c",
+        "patchSetId": 2
+      },
+      "lineNbr": 58,
+      "author": {
+        "id": 1038797
+      },
+      "writtenOn": "2025-12-15T23:06:52Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "85d1e10c_698ecc05",
       "revId": "0c0f0491315a0d5e7cdcf22f00c72e6a9f31bcb6",
       "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
     }
