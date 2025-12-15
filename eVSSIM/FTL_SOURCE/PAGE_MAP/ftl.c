@@ -39,39 +39,61 @@ static void _verify_onfi_device(uint8_t device_index)
 void FTL_INIT(uint8_t device_index)
 {
 	pthread_mutex_lock(&g_lock);
-	if (g_init_ftl[device_index] == 0) {
-		PINFO("start\n");
 
-		INIT_MAPPING_TABLE(device_index);
+	PINFO("Init device: %d\n", device_index);
 
-		INIT_INVERSE_PAGE_MAPPING(device_index);
-		INIT_INVERSE_BLOCK_MAPPING(device_index);
-		INIT_VALID_ARRAY(device_index);
-		INIT_EMPTY_BLOCK_LIST(device_index);
-		INIT_VICTIM_BLOCK_LIST(device_index);
-
-		INIT_PERF_CHECKER();
-        INIT_GC_MANAGER(device_index);
-
-		// Initialize The Statistics gathering component.
-		FTL_INIT_STATS();
-
-		g_init_ftl[device_index] = 1;
-
-		SSD_IO_INIT(device_index);
-		ONFI_INIT(device_index);
-		_verify_onfi_device(device_index);
-
-		PINFO("complete\n");
+	if (device_index >=  device_count) {
+		pthread_mutex_unlock(&g_lock);
+		RERR(, "Invalid device index\n");
 	}
+
+	if (g_init_ftl[device_index] == 1) {
+		pthread_mutex_unlock(&g_lock);
+		RERR(, "FTL_INIT called in the second time. Therefore, cen't run it\n");
+	}
+
+	INIT_OBJ_STRATEGY(device_index);
+	INIT_MAPPING_TABLE(device_index);
+
+	INIT_INVERSE_PAGE_MAPPING(device_index);
+	INIT_INVERSE_BLOCK_MAPPING(device_index);
+	INIT_VALID_ARRAY(device_index);
+	INIT_EMPTY_BLOCK_LIST(device_index);
+	INIT_VICTIM_BLOCK_LIST(device_index);
+	INIT_INVERSE_PAGE_NAMESPACE_MAPPING(device_index);
+
+	INIT_PERF_CHECKER();
+	INIT_GC_MANAGER(device_index);
+
+	// Initialize The Statistics gathering component.
+	FTL_INIT_STATS();
+
+	g_init_ftl[device_index] = 1;
+
+	SSD_IO_INIT(device_index);
+	ONFI_INIT(device_index);
+	_verify_onfi_device(device_index);
+
+	PINFO("complete\n");
+
 	pthread_mutex_unlock(&g_lock);
 }
 
 void FTL_TERM(uint8_t device_index)
 {
 	pthread_mutex_lock(&g_lock);
-	PINFO("start\n");
 
+	PINFO("Term device: %d\n", device_index);
+
+	if (device_index >=  device_count) {
+		RERR(, "Invalid device index\n");
+	}
+
+	if (g_init_ftl[device_index] != 1) {
+		RERR(, "Can't temo un init device\n");
+	}
+
+	TERM_OBJ_STRATEGY(device_index);
 	TERM_MAPPING_TABLE(device_index);
 
 	TERM_INVERSE_PAGE_MAPPING(device_index);
@@ -79,6 +101,7 @@ void FTL_TERM(uint8_t device_index)
 	TERM_INVERSE_BLOCK_MAPPING(device_index);
 	TERM_EMPTY_BLOCK_LIST(device_index);
 	TERM_VICTIM_BLOCK_LIST(device_index);
+	TERM_INVERSE_PAGE_NAMESPACE_MAPPING(device_index);
 
 	TERM_PERF_CHECKER();
 	TERM_GC_MANAGER(device_index);

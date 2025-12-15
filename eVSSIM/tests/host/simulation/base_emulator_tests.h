@@ -62,6 +62,12 @@ extern "C" int g_init_log_server;
   #define GTEST_TEST_SUITE_OR_CASE_NAME(ti) ((ti)->test_case_name())
 #endif
 
+#define DEFAULT_NSID 0
+#define OTHER_NSID 1
+
+#define SECTOR_DEV 0
+#define OBJECT_DEV 1
+
 /**
  * paramters that the tests run with
  * @param sizemb - disk size parameter
@@ -116,25 +122,28 @@ namespace {
         size_t channel_nb;
         size_t logger_size;
         size_t object_size;
-        size_t pages;
-        int storage_strategy;
+        size_t block_ns_nb[MAX_NUMBER_OF_NAMESPACES] = {0,};
 
         // external blocks (non over-provisioned)
         const static size_t CONST_PAGES_PER_BLOCK = 8;
+
         // 25 % of pages for over-provisioning
         const static size_t CONST_PAGES_PER_BLOCK_OVERPROV = (CONST_PAGES_PER_BLOCK * 25) / 100;
         const static size_t CONST_PAGE_SIZE_IN_BYTES = 4096;
 
         void ssd_conf_calc_based_size_mb(size_t size_mb) {
-            // number_of_pages = disk_size (in MB) * 1048576 / page_size
-            this->pages = size_mb * ((1024 * 1024) / CONST_PAGE_SIZE_IN_BYTES);
-
-            // all_blocks_on_all_flashes = number_of_pages / pages_in_block
-            size_t block_x_flash = this->pages / CONST_PAGES_PER_BLOCK;
+            // all_blocks_on_all_flashes = (disk_size (in MB) * 1048576 / page_size) / pages_in_block
+            size_t block_x_flash = (size_mb * ((1024 * 1024) / CONST_PAGE_SIZE_IN_BYTES)) / CONST_PAGES_PER_BLOCK;
 
             // number_of_flashes = all_blocks_on_all_flashes / number_of_blocks_in_flash
             size_t blocks_per_flash = block_x_flash / DEFAULT_FLASH_NB;
             this->block_nb = blocks_per_flash;
+
+            memset(block_ns_nb, 0, MAX_NUMBER_OF_NAMESPACES);
+
+            // Set the number pf block per namespace.
+            block_ns_nb[DEFAULT_NSID] = (block_x_flash / 2);
+            block_ns_nb[OTHER_NSID] = (block_x_flash / 2);
         }
 
     public:
@@ -146,15 +155,21 @@ namespace {
             this->channel_nb = DEFAULT_FLASH_NB;
             this->sector_size = sector_size;
             this->object_size = 2048; // megabytes
-            this->storage_strategy = STRATEGY_SECTOR;
         }
 
         SSDConf(size_t page_size, size_t page_nb, size_t sector_size,
-                size_t flash_nb, size_t block_nb, size_t channel_nb)
+                size_t flash_nb, size_t block_nb, size_t channel_nb,
+                size_t default_ns_block_nb, size_t othere_ns_block_nb)
                 : page_size(page_size), page_nb(page_nb), sector_size(sector_size),
                   flash_nb(flash_nb), block_nb(block_nb), channel_nb(channel_nb) {
-                    this->pages = page_nb * block_nb * flash_nb;
-                    this->storage_strategy = STRATEGY_SECTOR;
+
+                    this->object_size = 1048; // megabytes
+
+                    memset(block_ns_nb, 0, MAX_NUMBER_OF_NAMESPACES);
+
+                    // Set the number pf block per namespace.
+                    block_ns_nb[DEFAULT_NSID] = default_ns_block_nb;
+                    block_ns_nb[OTHER_NSID] = othere_ns_block_nb;
                 }
 
         size_t get_page_size(void) {
@@ -177,6 +192,14 @@ namespace {
             return this->block_nb;
         }
 
+        size_t get_total_pages_ns(uint32_t nsid) {
+            return this->block_ns_nb[nsid] * this->page_nb;
+        }
+
+        size_t get_pages_ns(uint32_t nsid) {
+            return this->get_total_pages_ns(nsid) * 0.8;
+        }
+
         size_t get_channel_nb(void) {
             return this->channel_nb;
         }
@@ -193,24 +216,12 @@ namespace {
             return CONST_PAGES_PER_BLOCK;
         }
 
-        size_t get_pages(void) {
-            return this->pages;
-        }
-
         void set_logger_size(size_t val) {
             this->logger_size = val;
         }
 
         void set_object_size(size_t val) {
             this->object_size = val;
-        }
-
-        void set_storage_strategy(int strategy) {
-            this->storage_strategy = strategy;
-        }
-
-        int get_storage_strategy() {
-            return this->storage_strategy;
         }
 
         void ssd_conf_serialize(void) {
@@ -223,8 +234,6 @@ namespace {
                 "FLASH_NB " << get_flash_nb() << "\n"
                 "BLOCK_NB " << get_block_nb() << "\n"
                 "PLANES_PER_FLASH 1\n"
-                "NS1 " << (get_block_nb() / 2) << "\n"
-                "NS2 " << (get_block_nb() / 4) << "\n"
                 "REG_WRITE_DELAY 82\n"
                 "CELL_PROGRAM_DELAY 900\n"
                 "REG_READ_DELAY 82\n"
@@ -236,9 +245,14 @@ namespace {
                 "STAT_TYPE 15\n"
                 "STAT_SCOPE 62\n"
                 "STAT_PATH /tmp/stat.csv\n"
-                "STORAGE_STRATEGY " << get_storage_strategy() << "\n"
                 "GC_LOW_THR 20\n"
                 "GC_HI_THR 80\n"
+                "[ns01]\n"
+                "STORAGE_STRATEGY " << FTL_NS_SECTOR << "\n"
+                "NAMESPACE_PAGE_NB " << get_pages_ns(DEFAULT_NSID) << "\n"
+                "[ns02]\n"
+                "STORAGE_STRATEGY " << FTL_NS_SECTOR << "\n"
+                "NAMESPACE_PAGE_NB " << get_pages_ns(OTHER_NSID) << "\n"
                 "[nvme02]\n"
                 "FILE_NAME ./data/ssd2.img\n"
                 "PAGE_SIZE " << get_page_size() << "\n"
@@ -247,8 +261,6 @@ namespace {
                 "FLASH_NB " << get_flash_nb() << "\n"
                 "BLOCK_NB " << get_block_nb() << "\n"
                 "PLANES_PER_FLASH 1\n"
-                "NS1 " << (get_block_nb() / 2) << "\n"
-                "NS2 " << (get_block_nb() / 4) << "\n"
                 "REG_WRITE_DELAY 82\n"
                 "CELL_PROGRAM_DELAY 900\n"
                 "REG_READ_DELAY 82\n"
@@ -260,9 +272,20 @@ namespace {
                 "STAT_TYPE 15\n"
                 "STAT_SCOPE 62\n"
                 "STAT_PATH /tmp/stat2.csv\n"
-                "STORAGE_STRATEGY " << get_storage_strategy() << "\n"
                 "GC_LOW_THR 20\n"
                 "GC_HI_THR 80\n"
+                "[ns01]\n"
+                "STORAGE_STRATEGY " << FTL_NS_OBJECT << "\n"
+                "SIZE " << get_pages_ns(DEFAULT_NSID) * get_page_size() << "\n"
+                "OBJECT_KEY_SIZE " << get_object_size() << "\n"
+                "OBJECT_MAX_VALUE_SIZE 4096\n"
+                "OBJECT_MAX_CAPACITY 4096\n"
+                "[ns02]\n"
+                "STORAGE_STRATEGY " << FTL_NS_OBJECT << "\n"
+                "SIZE " << get_pages_ns(OTHER_NSID) * get_page_size() << "\n"
+                "OBJECT_KEY_SIZE " << get_object_size() << "\n"
+                "OBJECT_MAX_VALUE_SIZE 4096\n"
+                "OBJECT_MAX_CAPACITY 4096\n"
                 "[nvme03]\n"
                 "FILE_NAME ./data/ssd3.img\n"
                 "PAGE_SIZE " << get_page_size() << "\n"
@@ -271,8 +294,6 @@ namespace {
                 "FLASH_NB " << get_flash_nb() << "\n"
                 "BLOCK_NB " << get_block_nb() << "\n"
                 "PLANES_PER_FLASH 1\n"
-                "NS1 " << (get_block_nb() / 2) << "\n"
-                "NS2 " << (get_block_nb() / 4) << "\n"
                 "REG_WRITE_DELAY 82\n"
                 "CELL_PROGRAM_DELAY 900\n"
                 "REG_READ_DELAY 82\n"
@@ -284,9 +305,162 @@ namespace {
                 "STAT_TYPE 15\n"
                 "STAT_SCOPE 62\n"
                 "STAT_PATH /tmp/stat3.csv\n"
-                "STORAGE_STRATEGY " << get_storage_strategy() << "\n"
                 "GC_LOW_THR 20\n"
-                "GC_HI_THR 80\n";
+                "GC_HI_THR 80\n"
+                "[ns01]\n"
+                "STORAGE_STRATEGY " << FTL_NS_SECTOR << "\n"
+                "NAMESPACE_PAGE_NB " << get_pages_ns(DEFAULT_NSID) << "\n"
+                "[ns02]\n"
+                "STORAGE_STRATEGY " << FTL_NS_OBJECT << "\n"
+                "SIZE 4096\n"
+                "OBJECT_KEY_SIZE " << get_object_size() << "\n"
+                "OBJECT_MAX_VALUE_SIZE 4096\n"
+                "OBJECT_MAX_CAPACITY 4096\n"
+                "[nvme04]\n"
+                "FILE_NAME ./data/ssd4.img\n"
+                "PAGE_SIZE " << get_page_size() << "\n"
+                "PAGE_NB " << get_page_nb() << "\n"
+                "SECTOR_SIZE " << get_sector_size() << "\n"
+                "FLASH_NB " << get_flash_nb() << "\n"
+                "BLOCK_NB " << get_block_nb() << "\n"
+                "PLANES_PER_FLASH 1\n"
+                "REG_WRITE_DELAY 82\n"
+                "CELL_PROGRAM_DELAY 900\n"
+                "REG_READ_DELAY 82\n"
+                "CELL_READ_DELAY 50\n"
+                "BLOCK_ERASE_DELAY 2000\n"
+                "CHANNEL_SWITCH_DELAY_R 16\n"
+                "CHANNEL_SWITCH_DELAY_W 33\n"
+                "CHANNEL_NB 2\n"
+                "STAT_TYPE 15\n"
+                "STAT_SCOPE 62\n"
+                "STAT_PATH /tmp/stat4.csv\n"
+                "GC_LOW_THR 20\n"
+                "GC_HI_THR 80\n"
+                "[ns01]\n"
+                "STORAGE_STRATEGY " << FTL_NS_SECTOR << "\n"
+                "NAMESPACE_PAGE_NB " << get_total_pages_ns(DEFAULT_NSID) + get_total_pages_ns(OTHER_NSID) << "\n"
+                "[nvme05]\n"
+                "FILE_NAME ./data/ssd5.img\n"
+                "PAGE_SIZE 256\n"
+                "PAGE_NB 10\n"
+                "SECTOR_SIZE 1\n"
+                "FLASH_NB 4\n"
+                "BLOCK_NB 10\n"
+                "PLANES_PER_FLASH 1\n"
+                "REG_WRITE_DELAY 82\n"
+                "CELL_PROGRAM_DELAY 900\n"
+                "REG_READ_DELAY 82\n"
+                "CELL_READ_DELAY 50\n"
+                "BLOCK_ERASE_DELAY 2000\n"
+                "CHANNEL_SWITCH_DELAY_R 16\n"
+                "CHANNEL_SWITCH_DELAY_W 33\n"
+                "CHANNEL_NB 2\n"
+                "STAT_TYPE 15\n"
+                "STAT_SCOPE 62\n"
+                "STAT_PATH /tmp/stat5.csv\n"
+                "GC_LOW_THR 20\n"
+                "GC_HI_THR 80\n"
+                "[ns01]\n"
+                "STORAGE_STRATEGY " << FTL_NS_SECTOR << "\n"
+                "NAMESPACE_PAGE_NB 100\n"
+                "[ns02]\n"
+                "STORAGE_STRATEGY " << FTL_NS_SECTOR << "\n"
+                "NAMESPACE_PAGE_NB 100\n"
+                "[ns03]\n"
+                "STORAGE_STRATEGY " << FTL_NS_SECTOR << "\n"
+                "NAMESPACE_PAGE_NB 100\n"
+                "[ns04]\n"
+                "STORAGE_STRATEGY " << FTL_NS_SECTOR << "\n"
+                "NAMESPACE_PAGE_NB 100\n"
+                "[nvme06]\n"
+                "FILE_NAME ./data/ssd6.img\n"
+                "PAGE_SIZE 256\n"
+                "PAGE_NB 10\n"
+                "SECTOR_SIZE 1\n"
+                "FLASH_NB 4\n"
+                "BLOCK_NB 10\n"
+                "PLANES_PER_FLASH 1\n"
+                "REG_WRITE_DELAY 82\n"
+                "CELL_PROGRAM_DELAY 900\n"
+                "REG_READ_DELAY 82\n"
+                "CELL_READ_DELAY 50\n"
+                "BLOCK_ERASE_DELAY 2000\n"
+                "CHANNEL_SWITCH_DELAY_R 16\n"
+                "CHANNEL_SWITCH_DELAY_W 33\n"
+                "CHANNEL_NB 2\n"
+                "STAT_TYPE 15\n"
+                "STAT_SCOPE 62\n"
+                "STAT_PATH /tmp/stat6.csv\n"
+                "GC_LOW_THR 20\n"
+                "GC_HI_THR 80\n"
+                "[ns01]\n"
+                "STORAGE_STRATEGY " << FTL_NS_OBJECT << "\n"
+                "SIZE 2560\n"
+                "OBJECT_KEY_SIZE 10\n"
+                "OBJECT_MAX_VALUE_SIZE 4096\n"
+                "OBJECT_MAX_CAPACITY 4096\n"
+                "[ns02]\n"
+                "STORAGE_STRATEGY " << FTL_NS_OBJECT << "\n"
+                "SIZE 2560\n"
+                "OBJECT_KEY_SIZE 10\n"
+                "OBJECT_MAX_VALUE_SIZE 4096\n"
+                "OBJECT_MAX_CAPACITY 4096\n"
+                "[ns03]\n"
+                "STORAGE_STRATEGY " << FTL_NS_OBJECT << "\n"
+                "SIZE 2560\n"
+                "OBJECT_KEY_SIZE 10\n"
+                "OBJECT_MAX_VALUE_SIZE 4096\n"
+                "OBJECT_MAX_CAPACITY 4096\n"
+                "[ns04]\n"
+                "STORAGE_STRATEGY " << FTL_NS_OBJECT << "\n"
+                "SIZE 2560\n"
+                "OBJECT_KEY_SIZE 10\n"
+                "OBJECT_MAX_VALUE_SIZE 4096\n"
+                "OBJECT_MAX_CAPACITY 4096\n"
+                "[nvme07]\n"
+                "FILE_NAME ./data/ssd7.img\n"
+                "PAGE_SIZE 256\n"
+                "PAGE_NB 10\n"
+                "SECTOR_SIZE 1\n"
+                "FLASH_NB 5\n"
+                "BLOCK_NB 10\n"
+                "PLANES_PER_FLASH 1\n"
+                "REG_WRITE_DELAY 82\n"
+                "CELL_PROGRAM_DELAY 900\n"
+                "REG_READ_DELAY 82\n"
+                "CELL_READ_DELAY 50\n"
+                "BLOCK_ERASE_DELAY 2000\n"
+                "CHANNEL_SWITCH_DELAY_R 16\n"
+                "CHANNEL_SWITCH_DELAY_W 33\n"
+                "CHANNEL_NB 2\n"
+                "STAT_TYPE 15\n"
+                "STAT_SCOPE 62\n"
+                "STAT_PATH /tmp/stat7.csv\n"
+                "GC_LOW_THR 20\n"
+                "GC_HI_THR 80\n"
+                "[ns01]\n"
+                "STORAGE_STRATEGY " << FTL_NS_OBJECT << "\n"
+                "SIZE 2560\n"
+                "OBJECT_KEY_SIZE 10\n"
+                "OBJECT_MAX_VALUE_SIZE 4096\n"
+                "OBJECT_MAX_CAPACITY 4096\n"
+                "[ns02]\n"
+                "STORAGE_STRATEGY " << FTL_NS_SECTOR << "\n"
+                "NAMESPACE_PAGE_NB 100\n"
+                "[ns03]\n"
+                "STORAGE_STRATEGY " << FTL_NS_SECTOR << "\n"
+                "NAMESPACE_PAGE_NB 100\n"
+                "[ns04]\n"
+                "STORAGE_STRATEGY " << FTL_NS_OBJECT << "\n"
+                "SIZE 2560\n"
+                "OBJECT_KEY_SIZE 10\n"
+                "OBJECT_MAX_VALUE_SIZE 4096\n"
+                "OBJECT_MAX_CAPACITY 4096\n"
+                "[ns05]\n"
+                "STORAGE_STRATEGY " << FTL_NS_SECTOR << "\n"
+                "NAMESPACE_PAGE_NB 100\n";
+
             ssd_conf.close();
         }
     };
@@ -303,6 +477,9 @@ namespace {
 
         public:
             virtual void SetUp(void) {
+                // Clean the data files before the tests.
+                std::ignore = system((std::string("rm -rf data/") + std::to_string(g_device_index)).c_str());
+
                 // Get SSD config
                 ssd_config = GetParam();
 
@@ -315,14 +492,25 @@ namespace {
                 uuid_generate(u);
                 uuid_unparse_lower(u, run_uuid);
 
+                uint64_t pages_in_ssd = 0;
+
+                // Get the number of pages in the ssd.
+                uint32_t namespaceIndex = 0;
+                for (namespaceIndex = 0; namespaceIndex < MAX_NUMBER_OF_NAMESPACES; namespaceIndex++)
+                {
+                    pages_in_ssd += ssd_config->get_pages_ns(namespaceIndex);
+                }
+
                 // Calculate size of disk
-                uint64_t total_bytes = (uint64_t)ssd_config->get_pages() * (uint64_t)ssd_config->get_page_size();
+                uint64_t total_bytes = (uint64_t)pages_in_ssd * (uint64_t)ssd_config->get_page_size();
                 struct timeval tv;
 
                 // Capture timestamp for test
                 gettimeofday(&tv, nullptr);
                 int64_t t0_us = (int64_t)tv.tv_sec * 1000000LL + (int64_t)tv.tv_usec;
+
                 ssd_config->ssd_conf_serialize();
+
                 INIT_SSD_CONFIG();
 
                 // Populate test execution context
@@ -345,7 +533,9 @@ namespace {
                 {
                     TERM_SSD_CONFIG();
                 }
+
                 std::ignore = system((std::string("rm -rf data/") + std::to_string(g_device_index)).c_str());
+
                 clientSock = 0;
                 g_init_log_server = 0;
                 delete ssd_config;
