@@ -61,6 +61,8 @@ typedef struct inverse_block_mapping_entry
 typedef struct inverse_mapping_manager {
 	uint64_t* inverse_page_mapping_table;
 
+	uint32_t* inverse_page_mapping_namespace_table;
+
 	inverse_block_mapping_entry* inverse_block_mapping_table_start;
 
 	empty_block_root* empty_block_table_start;
@@ -79,12 +81,14 @@ void INIT_INVERSE_BLOCK_MAPPING(uint8_t device_index);
 void INIT_EMPTY_BLOCK_LIST(uint8_t device_index);
 void INIT_VICTIM_BLOCK_LIST(uint8_t device_index);
 void INIT_VALID_ARRAY(uint8_t device_index);
+void INIT_INVERSE_PAGE_NAMESPACE_MAPPING(uint8_t device_index);
 
 void TERM_INVERSE_PAGE_MAPPING(uint8_t device_index);
 void TERM_INVERSE_BLOCK_MAPPING(uint8_t device_index);
 void TERM_EMPTY_BLOCK_LIST(uint8_t device_index);
 void TERM_VICTIM_BLOCK_LIST(uint8_t device_index);
 void TERM_VALID_ARRAY(uint8_t device_index);
+void TERM_INVERSE_PAGE_NAMESPACE_MAPPING(uint8_t device_index);
 
 empty_block_entry* GET_EMPTY_BLOCK(uint8_t device_index, int mode, uint64_t mapping_index);
 ftl_ret_val INSERT_EMPTY_BLOCK(uint8_t device_index, unsigned int phy_flash_nb, uint64_t phy_block_nb);
@@ -95,11 +99,10 @@ int EJECT_VICTIM_BLOCK(uint8_t device_index, victim_block_entry* victim_block);
 
 inverse_block_mapping_entry* GET_INVERSE_BLOCK_MAPPING_ENTRY(uint8_t device_index, unsigned int phy_flash_nb, uint64_t phy_block_nb);
 
-void GET_INVERSE_MAPPING_INFO(uint8_t device_index, uint64_t ppn, uint64_t *o_lpn);
-int UPDATE_INVERSE_PAGE_MAPPING(uint8_t device_index, uint64_t ppn, uint64_t lpn);
-int UPDATE_INVERSE_BLOCK_MAPPING(uint8_t device_index, unsigned int phy_flash_nb,
-    uint64_t phy_block_nb, int type);
-ftl_ret_val UPDATE_INVERSE_BLOCK_VALIDITY(uint8_t device_index, unsigned int phy_flash_nb,
-    uint64_t phy_block_nb, uint64_t phy_page_nb, char valid);
+void GET_INVERSE_MAPPING_INFO(uint8_t device_index, uint64_t ppn, uint32_t *o_nsid, uint64_t *o_lpn);
+int UPDATE_INVERSE_PAGE_MAPPING(uint8_t device_index, uint64_t ppn, uint32_t nsid, uint64_t lpn);
+int UPDATE_INVERSE_BLOCK_MAPPING(uint8_t device_index, unsigned int phy_flash_nb, uint64_t phy_block_nb, int type);
+
+ftl_ret_val UPDATE_INVERSE_BLOCK_VALIDITY(uint8_t device_index, unsigned int phy_flash_nb, uint64_t phy_block_nb, uint64_t phy_page_nb, char valid);
 
 #endif
