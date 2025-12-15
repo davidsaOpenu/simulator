@@ -66,8 +66,8 @@ namespace program_compatible_test
     std::vector<SSDConf *> GetTestParams()
     {
         std::vector<SSDConf *> ssd_configs;
-        ssd_configs.push_back(new SSDConf(pow(2, 12), 10, 1, 8, pow(2, 12), 4));
-        ssd_configs.push_back(new SSDConf(pow(2, 10), 8, 2, 8, pow(2, 12), 4));
+        ssd_configs.push_back(new SSDConf(pow(2, 12), 10, 1, 8, pow(2, 12), 4, pow(2, 12), 0));
+        ssd_configs.push_back(new SSDConf(pow(2, 10), 8, 2, 8, pow(2, 12), 4, pow(2, 12), 0));
         return ssd_configs;
     }
 
@@ -132,12 +132,12 @@ namespace program_compatible_test
         SSDConf *ssd_config = base_test_get_ssd_config();
         onfi_status_reg_t status;
 
-        ASSERT_EQ(ONFI_BLOCK_ERASE(g_device_index, ssd_config->get_pages()), ONFI_FAILURE);
+        ASSERT_EQ(ONFI_BLOCK_ERASE(g_device_index, ssd_config->get_page_nb() * ssd_config->get_flash_nb() * ssd_config->get_block_nb()), ONFI_FAILURE);
         ASSERT_EQ(ONFI_READ_STATUS(g_device_index, &status), ONFI_SUCCESS);
         ASSERT_EQ(status.FAIL, 1);
         ASSERT_EQ(status.FAILC, 0);
 
-        ASSERT_EQ(ONFI_BLOCK_ERASE(g_device_index, ssd_config->get_pages()), ONFI_FAILURE);
+        ASSERT_EQ(ONFI_BLOCK_ERASE(g_device_index, ssd_config->get_page_nb() * ssd_config->get_flash_nb() * ssd_config->get_block_nb()), ONFI_FAILURE);
         ASSERT_EQ(ONFI_READ_STATUS(g_device_index, &status), ONFI_SUCCESS);
         ASSERT_EQ(status.FAIL, 1);
         ASSERT_EQ(status.FAILC, 1);
@@ -183,12 +183,13 @@ namespace program_compatible_test
 
     TEST_P(OnfiCommandsTest, OutOfBoundsRowAddressReadFails)
     {
+        ssd_config_t *config = &devices[g_device_index];
         SSDConf *ssd_config = base_test_get_ssd_config();
 
         unsigned char buffer[ssd_config->get_page_size()];
         size_t nread = 0;
 
-        ASSERT_EQ(ONFI_READ(g_device_index, ssd_config->get_pages(), 0, buffer, ssd_config->get_page_size(), &nread), ONFI_FAILURE);
+        ASSERT_EQ(ONFI_READ(g_device_index, config->pages_in_ssd, 0, buffer, ssd_config->get_page_size(), &nread), ONFI_FAILURE);
     }
 
     TEST_P(OnfiCommandsTest, OutOfBoundsColumnAddressReadFails)
@@ -210,7 +211,7 @@ namespace program_compatible_test
         unsigned char reference_buffer[ssd_config->get_page_size()];
         memset(reference_buffer, 0xFF, ssd_config->get_page_size());
 
-        for (size_t page = 0; page < ssd_config->get_pages(); ++page)
+        for (size_t page = 0; page < ssd_config->get_pages_ns(DEFAULT_NSID); ++page)
         {
             memset(buffer, 0x00, ssd_config->get_page_size());
             ASSERT_EQ(ONFI_READ(g_device_index, page, 0, buffer, ssd_config->get_page_size(), &nread), ONFI_SUCCESS);
@@ -288,7 +289,7 @@ namespace program_compatible_test
         unsigned char buffer[ssd_config->get_page_size()];
         size_t nprogrammed = 0;
 
-        ASSERT_EQ(ONFI_PAGE_PROGRAM(g_device_index, ssd_config->get_pages(), 0, buffer, ssd_config->get_page_size(), &nprogrammed), ONFI_FAILURE);
+        ASSERT_EQ(ONFI_PAGE_PROGRAM(g_device_index, ssd_config->get_page_nb() * ssd_config->get_flash_nb() * ssd_config->get_block_nb(), 0, buffer, ssd_config->get_page_size(), &nprogrammed), ONFI_FAILURE);
     }
 
     TEST_P(OnfiCommandsTest, OutOfBoundsColumnAddressPageProgramFails)
@@ -311,7 +312,7 @@ namespace program_compatible_test
         unsigned char reference_buffer[ssd_config->get_page_size()];
         memset(reference_buffer, 0x00, ssd_config->get_page_size());
 
-        for (size_t page = 0; page < ssd_config->get_pages(); ++page)
+        for (size_t page = 0; page < ssd_config->get_pages_ns(DEFAULT_NSID); ++page)
         {
             memset(buffer, 0x00, ssd_config->get_page_size());
             ASSERT_EQ(ONFI_PAGE_PROGRAM(g_device_index, page, 0, buffer, ssd_config->get_page_size(), &nprogrammed), ONFI_SUCCESS);
@@ -380,7 +381,7 @@ namespace program_compatible_test
     {
         SSDConf *ssd_config = base_test_get_ssd_config();
 
-        ASSERT_EQ(ONFI_BLOCK_ERASE(g_device_index, ssd_config->get_pages()), ONFI_FAILURE);
+        ASSERT_EQ(ONFI_BLOCK_ERASE(g_device_index, ssd_config->get_page_nb() * ssd_config->get_flash_nb() * ssd_config->get_block_nb()), ONFI_FAILURE);
     }
 
     TEST_P(OnfiCommandsTest, BlockEraseAllSuccess)
