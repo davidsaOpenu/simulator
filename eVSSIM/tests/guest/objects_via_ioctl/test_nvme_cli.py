@@ -108,7 +108,7 @@ class NvmeDevice(object):
         ], cwd=self.nvme_cli_dir)
 
 
-DEVICE_NAME = '/dev/nvme0n1'
+DEVICE_NAME = '/dev/nvme1n1'
 NVME_CLI_DIR = '/home/esd/guest'
 OBJ_FEATURE_ID = 192
 
