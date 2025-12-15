@@ -15,7 +15,7 @@ ssd_config_t* devices = NULL;
 uint8_t device_count = 0;
 
 void calculate_derived_values(ssd_config_t *device);
-bool parse_config_line(const char* key, FILE* file, ssd_config_t* device);
+bool parse_config_line(const char* key, FILE* file, ssd_config_t* device, const uint32_t nsid);
 void update_globals(void);
 
 void INIT_SSD_CONFIG(void)
@@ -31,6 +31,7 @@ void INIT_SSD_CONFIG(void)
 
     char key[64];
     uint8_t device_index = 0;
+    uint32_t current_nsid = 0;
 
     uint32_t i = 0;
     ssd_config_t *current_device = NULL;
@@ -81,6 +82,12 @@ void INIT_SSD_CONFIG(void)
             strncpy(current_device->device_name, key + 1, 6);
             current_device->device_name[6] = '\0';
 
+            uint32_t namespaceIndex;
+            for (namespaceIndex = 0; namespaceIndex < MAX_NUMBER_OF_NAMESPACES; namespaceIndex++)
+            {
+                current_device->namespaces[namespaceIndex].nsid = INVALID_NSID;
+            }
+
             continue;
         }
 
@@ -100,17 +107,27 @@ void INIT_SSD_CONFIG(void)
             continue;
         }
 
-        if (sscanf(key, "NS%2u", &i) == 1){
-            if (i > MAX_NUMBER_OF_NAMESPACES || i <= 0)
+        // Match string of format "[nvmeXX]"
+        if (sscanf(key, "[ns%2u]", &current_nsid) == 1) {
+            if (current_nsid > MAX_NUMBER_OF_NAMESPACES || current_nsid <= 0)
                 RERR(, "Invalid namespaces index\n");
 
-            if (fscanf(pfData, "%" SCNu64, &current_device->namespaces_size[i-1]) == EOF){
-                RERR(, "Can't read %s\n", key);
+            // Conveert the nsid into arry form.
+            current_nsid -= 1;
+
+            // Validate the new namespace index.
+            if (current_device->namespaces[current_nsid].nsid != INVALID_NSID) {
+                RERR(, "The nsid %d already in use\n", current_nsid);
             }
+
+            current_device->namespaces[current_nsid].nsid = current_nsid;
+
+            // Increase the counter on new namespace.
+            current_device->current_namespace_nb++;
             continue;
         }
 
-        if (!parse_config_line(key, pfData, current_device)) {
+        if (!parse_config_line(key, pfData, current_device, current_nsid)) {
             RERR(, "Unknown configuration option: %s.\n", key);
         }
     }
@@ -130,9 +147,29 @@ void INIT_SSD_CONFIG(void)
     if (NULL == inverse_mappings_manager)
         RERR(, "inverse_mappings_manager allocation failed!\n");
 
-    mapping_table = (uint64_t**)calloc(sizeof(uint64_t*) * device_count, 1);
+    mapping_table = (uint64_t***)calloc(sizeof(uint64_t**) * device_count, 1);
+
     if (NULL == mapping_table)
         RERR(, "mapping_table allocation failed!\n");
+
+    objects_table = (stored_object***)calloc(sizeof(stored_object**) * device_count, 1);
+    if (NULL == objects_table)
+        RERR(, "objects_table allocation failed!\n");
+
+    objects_mapping = (object_map***)calloc(sizeof(object_map**) * device_count, 1);
+    if (NULL == objects_mapping)
+        RERR(, "objects_mapping allocation failed!\n");
+
+    global_page_table = (page_node**)calloc(sizeof(page_node*) * device_count, 1);
+    if (NULL == global_page_table)
+        RERR(, "global_page_table allocation failed!\n");
+
+    for (i = 0; i < device_count; i++)
+    {
+        mapping_table[i] = (uint64_t**)calloc(sizeof(uint64_t*) * MAX_NUMBER_OF_NAMESPACES, 1);
+        objects_table[i] = (stored_object**)calloc(sizeof(stored_object*) * MAX_NUMBER_OF_NAMESPACES, 1);
+        objects_mapping[i] = (object_map**)calloc(sizeof(object_map*) * MAX_NUMBER_OF_NAMESPACES, 1);
+    }
 
     g_init_ftl = (int*)calloc(sizeof(int) * device_count, 1);
     if (NULL == g_init_ftl)
@@ -157,11 +194,29 @@ void TERM_SSD_CONFIG(void)
 {
     pthread_mutex_lock(&g_lock);
 
+    uint32_t i;
+
     free(inverse_mappings_manager);
     inverse_mappings_manager = NULL;
 
+    for (i = 0; i < device_count; i++)
+    {
+        free(mapping_table[i]);
+        free(objects_table[i]);
+        free(objects_mapping[i]);
+    }
+
     free(mapping_table);
     mapping_table = NULL;
+
+    free(objects_table);
+    objects_table = NULL;
+
+    free(objects_mapping);
+    objects_mapping = NULL;
+
+    free(global_page_table);
+    global_page_table = NULL;
 
     free(g_init_ftl);
     g_init_ftl = NULL;
@@ -183,7 +238,7 @@ void TERM_SSD_CONFIG(void)
     pthread_mutex_unlock(&g_lock);
 }
 
-bool parse_config_line(const char* key, FILE* file, ssd_config_t* device) {
+bool parse_config_line(const char* key, FILE* file, ssd_config_t* device, const uint32_t nsid) {
 
     if (strcmp(key, "FILE_NAME") == 0) {
         return fscanf(file, "%s", device->file_name) == 1;
@@ -242,14 +297,62 @@ bool parse_config_line(const char* key, FILE* file, ssd_config_t* device) {
     if (strcmp(key, "STAT_SCOPE") == 0) {
         return fscanf(file, "%d", &device->stat_scope) == 1;
     }
-    if (strcmp(key, "STORAGE_STRATEGY") == 0) {
-        return fscanf(file, "%d", &device->storage_strategy) == 1;
-    }
     if (strcmp(key, "GC_LOW_THR") == 0) {
         return fscanf(file, "%d", &device->gc_low_thr) == 1;
     }
     if (strcmp(key, "GC_HI_THR") == 0) {
         return fscanf(file, "%d", &device->gc_hi_thr) == 1;
+    }
+    if (strcmp(key, "STORAGE_STRATEGY") == 0) {
+        uint32_t var;
+        const bool ans = (fscanf(file, "%u", &var) == 1);
+
+        if (var != FTL_NS_SECTOR && var != FTL_NS_OBJECT) {
+            RERR(false, "Invalid namespace type\n");
+        }
+
+        device->namespaces[nsid].type = var;
+
+        return ans;
+    }
+    if (strcmp(key, "NAMESPACE_PAGE_NB") == 0) {
+        if (device->namespaces[nsid].type != FTL_NS_SECTOR) {
+            RERR(false, "Config NAMESPACE_PAGE_NB is only for sector strategy\n");
+        }
+
+        return fscanf(file, "%lu", &device->namespaces[nsid].ns_page_nb) == 1;
+    }
+    if (strcmp(key, "SIZE") == 0) {
+        if (device->namespaces[nsid].type != FTL_NS_OBJECT) {
+            RERR(false, "Config SIZE is only for object strategy\n");
+        }
+
+        return fscanf(file, "%lu", &device->namespaces[nsid].size) == 1;
+    }
+    if (strcmp(key, "OBJECT_KEY_SIZE") == 0) {
+        if (device->namespaces[nsid].type != FTL_NS_OBJECT) {
+            RERR(false, "Config OBJECT_KEY_SIZE is only for object strategy\n");
+        }
+
+        uint32_t var;
+        const bool ans = (fscanf(file, "%u", &var) == 1);
+        device->namespaces[nsid].object_key_size = var;
+
+        return ans;
+    }
+    if (strcmp(key, "OBJECT_MAX_VALUE_SIZE") == 0) {
+        if (device->namespaces[nsid].type != FTL_NS_OBJECT) {
+            RERR(false, "Config OBJECT_MAX_VALUE_SIZE is only for object strategy\n");
+        }
+
+        return fscanf(file, "%u", &device->namespaces[nsid].object_max_value_size) == 1;
+    }
+    if (strcmp(key, "OBJECT_MAX_CAPACITY") == 0) {
+        if (device->namespaces[nsid].type != FTL_NS_OBJECT) {
+            RERR(false, "Config OBJECT_MAX_CAPACITY is only for object strategy\n");
+        }
+
+        return fscanf(file, "%u", &device->namespaces[nsid].object_max_capacity) == 1;
     }
 
 #if defined FTL_MAP_CACHE
@@ -330,6 +433,22 @@ void calculate_derived_values(ssd_config_t* device) {
         RERR(, "Wrong CHANNEL_NB %d\n", device->channel_nb);
     if (device->planes_per_flash != 1 && device->planes_per_flash % 2 != 0)
         RERR(, "Wrong PLANES_PER_FLASH %d\n", device->planes_per_flash);
+
+    int namespaceIndex;
+
+    // Calculate namespace page number with object type.
+    for (namespaceIndex = 0; namespaceIndex < MAX_NUMBER_OF_NAMESPACES; namespaceIndex++)
+    {
+        if (device->namespaces[namespaceIndex].nsid == INVALID_NSID){
+            /* Skip un-used namespace */
+            continue;
+        }
+
+        if (device->namespaces[namespaceIndex].type == FTL_NS_OBJECT)
+        {
+            device->namespaces[namespaceIndex].ns_page_nb = (device->namespaces[namespaceIndex].size / device->page_size);
+        }
+    }
 
     // Calculate derived values
     device->sectors_per_page = device->page_size / device->sector_size;
