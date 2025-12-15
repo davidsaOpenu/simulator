@@ -69,14 +69,26 @@ bool is_program_compatible(const char *path, size_t offset, size_t length, const
 }
 
 ssd_file_ops_ret_val ssd_write(const char *path, size_t offset, size_t length, const unsigned char *buff) {
-    if (path == NULL || buff == NULL) return SSD_FILE_OPS_ERROR;
-    size_t capacity = ssd_get_capacity(path);
-    if (capacity == 0) return SSD_FILE_OPS_ERROR;
+    if (path == NULL || buff == NULL) {
+        return SSD_FILE_OPS_ERROR;
+    }
 
-    if (offset + length > capacity) return SSD_FILE_OPS_ERROR;
+    size_t capacity = ssd_get_capacity(path);
+    if (capacity == 0) {
+        printf("The ssd file isn't inited properly\n");
+        return SSD_FILE_OPS_ERROR;
+    }
+
+    if (offset + length > capacity){
+        printf("Try to write out of ssd capacity\n");
+        return SSD_FILE_OPS_ERROR;
+    }
 
     int fd = open(path, O_WRONLY);
-    if (fd < 0) return SSD_FILE_OPS_ERROR;
+    if (fd < 0) {
+        printf("Failed to open ssd file\n");
+        return SSD_FILE_OPS_ERROR;  
+    }
 
     ssize_t written = pwrite(fd, buff, length, offset);
     close(fd);
