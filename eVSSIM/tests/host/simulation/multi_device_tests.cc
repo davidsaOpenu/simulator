@@ -69,7 +69,7 @@ namespace multi_device_tests {
     TEST_P(MultiDeviceWorkloadTest, DeviceIsolation) {
         SSDConf* ssd_config = base_test_get_ssd_config();
         size_t page_size = ssd_config->get_page_size();
-        size_t pages_to_test = std::min(size_t(10), ssd_config->get_pages());
+        size_t pages_to_test = std::min(size_t(10), ssd_config->get_pages_ns(0));
         ASSERT_GE(device_count, 3);
 
         std::vector<size_t> device2_written_pages;
@@ -77,35 +77,35 @@ namespace multi_device_tests {
 
         // Device 0: Sequential writes starting at page 0
         for(size_t p = 0; p < pages_to_test; p++) {
-            ASSERT_EQ(FTL_SUCCESS, FTL_WRITE_SECT(0, p * page_size, 1, NULL))
+            ASSERT_EQ(FTL_SUCCESS, FTL_WRITE_SECT(0, 0, p * page_size, 1, NULL))
                 << "Device 0 sequential write failed at page " << p;
         }
 
         // Device 1: Sequential writes starting at page 0 (different device!)
         for(size_t p = 0; p < pages_to_test; p++) {
-            ASSERT_EQ(FTL_SUCCESS, FTL_WRITE_SECT(1, p * page_size, 1, NULL))
+            ASSERT_EQ(FTL_SUCCESS, FTL_WRITE_SECT(1, 0, p * page_size, 1, NULL))
                 << "Device 1 sequential write failed at page " << p;
         }
 
         // Device 2: Random writes
         for(size_t i = 0; i < pages_to_test; i++) {
-            size_t page = rand() % ssd_config->get_pages();
+            size_t page = rand() % ssd_config->get_pages_ns(0);
             device2_written_pages.push_back(page);
-            ASSERT_EQ(FTL_SUCCESS, FTL_WRITE_SECT(2, page * page_size, 1, NULL))
+            ASSERT_EQ(FTL_SUCCESS, FTL_WRITE_SECT(2, 0, page * page_size, 1, NULL))
                 << "Device 2 random write failed";
         }
 
         // Verify: Devices 0 and 1 can still read their sequential data.
         for(size_t p = 0; p < pages_to_test; p++) {
-            ASSERT_EQ(FTL_SUCCESS, FTL_READ_SECT(0, p * page_size, 1, NULL))
+            ASSERT_EQ(FTL_SUCCESS, FTL_READ_SECT(0, 0, p * page_size, 1, NULL))
                 << "Device 0 read failed after multi-device writes";
-            ASSERT_EQ(FTL_SUCCESS, FTL_READ_SECT(1, p * page_size, 1, NULL))
+            ASSERT_EQ(FTL_SUCCESS, FTL_READ_SECT(1, 0, p * page_size, 1, NULL))
                 << "Device 1 read failed after multi-device writes";
         }
 
         // Verify: Device 2 can read all random pages that were written.
         for (size_t i = 0; i < device2_written_pages.size(); i++) {
-            ASSERT_EQ(FTL_SUCCESS, FTL_READ_SECT(2, device2_written_pages[i] * page_size, 1, NULL))
+            ASSERT_EQ(FTL_SUCCESS, FTL_READ_SECT(2, 0, device2_written_pages[i] * page_size, 1, NULL))
                 << "Device 2 read failed after random writes at page " << device2_written_pages[i];
         }
     }
@@ -114,7 +114,7 @@ namespace multi_device_tests {
         ASSERT_GT(device_count, 0);
 
         uint8_t invalid_device_index = device_count;
-        ASSERT_EQ(FTL_FAILURE, FTL_WRITE_SECT(invalid_device_index, 0, 1, NULL))
+        ASSERT_EQ(FTL_FAILURE, FTL_WRITE_SECT(invalid_device_index, 0, 0, 1, NULL))
             << "Invalid device index should fail cleanly";
     }
 
@@ -125,25 +125,25 @@ namespace multi_device_tests {
     TEST_P(MultiDeviceWorkloadTest, DatabaseAndLogWorkload) {
         SSDConf* ssd_config = base_test_get_ssd_config();
         size_t page_size = ssd_config->get_page_size();
-        size_t operations = std::min(size_t(50), ssd_config->get_pages());
+        size_t operations = std::min(size_t(50), ssd_config->get_pages_ns(0));
 
         // Simulate interleaved database and log operations
         for(size_t i = 0; i < operations; i++) {
             // Database: Random write to device 0
-            size_t db_page = rand() % ssd_config->get_pages();
-            ASSERT_EQ(FTL_SUCCESS, FTL_WRITE_SECT(0, db_page * page_size, 1, NULL))
+            size_t db_page = rand() % ssd_config->get_pages_ns(0);
+            ASSERT_EQ(FTL_SUCCESS, FTL_WRITE_SECT(0, 0, db_page * page_size, 1, NULL))
                 << "Database write failed at iteration " << i;
 
             // Log: Sequential append to device 1
-            if (i < ssd_config->get_pages()) {
-                ASSERT_EQ(FTL_SUCCESS, FTL_WRITE_SECT(1, i * page_size, 1, NULL))
+            if (i < ssd_config->get_pages_ns(0)) {
+                ASSERT_EQ(FTL_SUCCESS, FTL_WRITE_SECT(1, 0, i * page_size, 1, NULL))
                     << "Log append failed at iteration " << i;
             }
 
             // Every 10 operations, do a database read
             if (i % 10 == 0 && i > 0) {
-                size_t read_page = rand() % ssd_config->get_pages();
-                FTL_READ_SECT(0, read_page * page_size, 1, NULL);
+                size_t read_page = rand() % ssd_config->get_pages_ns(0);
+                FTL_READ_SECT(0, 0, read_page * page_size, 1, NULL);
             }
         }
     }
@@ -155,14 +155,14 @@ namespace multi_device_tests {
     TEST_P(MultiDeviceWorkloadTest, ParallelWriteThenReadAcrossDevices) {
         SSDConf* ssd_config = base_test_get_ssd_config();
         size_t page_size = ssd_config->get_page_size();
-        size_t pages_to_test = std::min(size_t(20), ssd_config->get_pages());
+        size_t pages_to_test = std::min(size_t(20), ssd_config->get_pages_ns(0));
         ASSERT_GT(device_count, 0);
 
         std::atomic<int> error_count(0);
 
         auto write_worker = [&](uint8_t device_id) {
             for (size_t p = 0; p < pages_to_test; p++) {
-                if (FTL_WRITE_SECT(device_id, p * page_size, 1, NULL) != FTL_SUCCESS) {
+                if (FTL_WRITE_SECT(device_id, 0, p * page_size, 1, NULL) != FTL_SUCCESS) {
                     error_count++;
                     return;
                 }
@@ -187,7 +187,7 @@ namespace multi_device_tests {
         error_count = 0;
         auto read_worker = [&](uint8_t device_id) {
             for (size_t p = 0; p < pages_to_test; p++) {
-                if (FTL_READ_SECT(device_id, p * page_size, 1, NULL) != FTL_SUCCESS) {
+                if (FTL_READ_SECT(device_id, 0, p * page_size, 1, NULL) != FTL_SUCCESS) {
                     error_count++;
                     return;
                 }
@@ -273,9 +273,8 @@ namespace multi_device_tests {
 
         for (unsigned int i = 0; i < BASE_TEST_ARRAY_SIZE(parameters::Allobjsize); i++) {
             SSDConf* config = new SSDConf(
-                page_size, page_nb, sector_size, DEFAULT_FLASH_NB, block_nb, DEFAULT_FLASH_NB);
+                page_size, page_nb, sector_size, DEFAULT_FLASH_NB, block_nb, DEFAULT_FLASH_NB, 0, 0);
             config->set_object_size(parameters::Allobjsize[i]);
-            config->set_storage_strategy(STRATEGY_OBJECT);
             ssd_configs.push_back(config);
         }
 
@@ -296,7 +295,7 @@ namespace multi_device_tests {
             unsigned int objects_to_create = objects_in_ssd_[device_id] / 2;
             for (unsigned long p = 1; p <= objects_to_create; p++) {
                 obj_id_t object_loc = { .object_id = USEROBJECT_OID_LB + p, .partition_id = USEROBJECT_PID_LB };
-                if (!FTL_OBJ_CREATE(device_id, object_loc, object_size_[device_id])) {
+                if (!FTL_OBJ_CREATE(device_id, 0, object_loc, object_size_[device_id])) {
                     error_count++;
                     return;
                 }
@@ -350,14 +349,14 @@ namespace multi_device_tests {
         snprintf(first_payload, sizeof(first_payload), "first_dev_%u", (unsigned int)first_device);
         snprintf(second_payload, sizeof(second_payload), "second_dev_%u", (unsigned int)second_device);
 
-        ASSERT_TRUE(FTL_OBJ_CREATE(first_device, object_loc, object_size_[first_device]))
+        ASSERT_TRUE(FTL_OBJ_CREATE(first_device, 0, object_loc, object_size_[first_device]))
             << "Failed to create object on first device";
-        ASSERT_TRUE(FTL_OBJ_CREATE(second_device, object_loc, object_size_[second_device]))
+        ASSERT_TRUE(FTL_OBJ_CREATE(second_device, 0, object_loc, object_size_[second_device]))
             << "Failed to create object on second device";
 
-        ASSERT_EQ(FTL_SUCCESS, FTL_OBJ_WRITE(first_device, object_loc, first_payload, 0, payload_length))
+        ASSERT_EQ(FTL_SUCCESS, FTL_OBJ_WRITE(first_device, 0, object_loc, first_payload, 0, payload_length))
             << "Failed to write object on first device";
-        ASSERT_EQ(FTL_SUCCESS, FTL_OBJ_WRITE(second_device, object_loc, second_payload, 0, payload_length))
+        ASSERT_EQ(FTL_SUCCESS, FTL_OBJ_WRITE(second_device, 0, object_loc, second_payload, 0, payload_length))
             << "Failed to write object on second device";
 
         char first_readback[payload_length + 1];
@@ -367,9 +366,9 @@ namespace multi_device_tests {
 
         uint32_t first_len = payload_length;
         uint32_t second_len = payload_length;
-        ASSERT_EQ(FTL_SUCCESS, FTL_OBJ_READ(first_device, object_loc, first_readback, 0, &first_len))
+        ASSERT_EQ(FTL_SUCCESS, FTL_OBJ_READ(first_device, 0, object_loc, first_readback, 0, &first_len))
             << "Failed to read object from first device";
-        ASSERT_EQ(FTL_SUCCESS, FTL_OBJ_READ(second_device, object_loc, second_readback, 0, &second_len))
+        ASSERT_EQ(FTL_SUCCESS, FTL_OBJ_READ(second_device, 0, object_loc, second_readback, 0, &second_len))
             << "Failed to read object from second device";
 
         ASSERT_STREQ(first_payload, first_readback);
@@ -396,13 +395,13 @@ namespace multi_device_tests {
             for (unsigned long p = 1; p <= objects_to_create; p++) {
                 obj_id_t object_loc = { .object_id = USEROBJECT_OID_LB + p, .partition_id = USEROBJECT_PID_LB };
 
-                if (!FTL_OBJ_CREATE(device_id, object_loc, object_size_[device_id])) {
+                if (!FTL_OBJ_CREATE(device_id, 0, object_loc, object_size_[device_id])) {
                     error_count++;
                     free(wrbuf);
                     return;
                 }
 
-                if (FTL_OBJ_WRITE(device_id, object_loc, wrbuf, 0, GET_PAGE_SIZE(device_id)) != FTL_SUCCESS) {
+                if (FTL_OBJ_WRITE(device_id, 0, object_loc, wrbuf, 0, GET_PAGE_SIZE(device_id)) != FTL_SUCCESS) {
                     error_count++;
                     free(wrbuf);
                     return;
@@ -450,7 +449,7 @@ namespace multi_device_tests {
             for (unsigned long p = 1; p <= objects_to_create; p++) {
                 obj_id_t object_loc = { .object_id = USEROBJECT_OID_LB + p, .partition_id = USEROBJECT_PID_LB };
 
-                if (!FTL_OBJ_CREATE(device_id, object_loc, object_size_[device_id])) {
+                if (!FTL_OBJ_CREATE(device_id, 0, object_loc, object_size_[device_id])) {
                     error_count++;
                     free(wrbuf);
                     free(rdbuf);
@@ -460,7 +459,7 @@ namespace multi_device_tests {
                 memset(wrbuf, 0x0, object_size_[device_id]);
                 sprintf(wrbuf, "dev%d_obj%lu", device_id, object_loc.object_id);
 
-                if (FTL_OBJ_WRITE(device_id, object_loc, wrbuf, 0, object_size_[device_id]) != FTL_SUCCESS) {
+                if (FTL_OBJ_WRITE(device_id, 0, object_loc, wrbuf, 0, object_size_[device_id]) != FTL_SUCCESS) {
                     error_count++;
                     free(wrbuf);
                     free(rdbuf);
@@ -475,7 +474,7 @@ namespace multi_device_tests {
 
                 memset(rdbuf, 0x0, GET_PAGE_SIZE(device_id) / 2);
 
-                if (FTL_OBJ_READ(device_id, object_loc, rdbuf, 0, &len) != FTL_SUCCESS) {
+                if (FTL_OBJ_READ(device_id, 0, object_loc, rdbuf, 0, &len) != FTL_SUCCESS) {
                     error_count++;
                     free(wrbuf);
                     free(rdbuf);
@@ -541,7 +540,6 @@ namespace multi_device_tests {
                         continue;
                     }
 
-                    devices[i].storage_strategy = STRATEGY_OBJECT;
                     FTL_INIT(i);
                     object_size_[i] = ssd_config->get_object_size();
                     int object_pages = (int)ceil(1.0 * object_size_[i] / GET_PAGE_SIZE(i));
@@ -593,7 +591,7 @@ namespace multi_device_tests {
 
         // Sector writes on primary device.
         for(size_t p = 0; p < 10; p++) {
-            ASSERT_EQ(FTL_SUCCESS, FTL_WRITE_SECT(sector_device, p * page_size, 1, NULL))
+            ASSERT_EQ(FTL_SUCCESS, FTL_WRITE_SECT(sector_device, 0, p * page_size, 1, NULL))
                 << "Primary device (sector) write failed at page " << p;
         }
 
@@ -605,13 +603,13 @@ namespace multi_device_tests {
 
             for (unsigned long p = 1; p <= 5; p++) {
                 obj_id_t object_loc = { .object_id = USEROBJECT_OID_LB + p, .partition_id = USEROBJECT_PID_LB };
-                ASSERT_TRUE(FTL_OBJ_CREATE(device_id, object_loc, object_size_[device_id]))
+                ASSERT_TRUE(FTL_OBJ_CREATE(device_id, 0, object_loc, object_size_[device_id]))
                     << "Device " << (unsigned int)device_id << " (object) create failed";
             }
         }
 
         // Verify primary sector device can still read.
-        ASSERT_EQ(FTL_SUCCESS, FTL_READ_SECT(sector_device, 0, 1, NULL))
+        ASSERT_EQ(FTL_SUCCESS, FTL_READ_SECT(sector_device, 0, 0, 1, NULL))
             << "Primary device (sector) read failed after mixed operations";
     }
 
@@ -629,9 +627,9 @@ namespace multi_device_tests {
 
         // Primary sector worker.
         auto sector_worker = [&]() {
-            size_t total_pages = (ssd_config->get_pages() * 4) / 5;
+            size_t total_pages = (ssd_config->get_pages_ns(0) * 4) / 5;
             for(size_t p = 0; p < total_pages; p++) {
-                if (FTL_WRITE_SECT(sector_device, p * page_size, 1, NULL) != FTL_SUCCESS) {
+                if (FTL_WRITE_SECT(sector_device, 0, p * page_size, 1, NULL) != FTL_SUCCESS) {
                     error_count++;
                     return;
                 }
@@ -650,7 +648,7 @@ namespace multi_device_tests {
             for (unsigned long p = 1; p <= objects_to_create; p++) {
                 obj_id_t object_loc = { .object_id = USEROBJECT_OID_LB + p, .partition_id = USEROBJECT_PID_LB };
 
-                if (!FTL_OBJ_CREATE(device_id, object_loc, object_size_[device_id])) {
+                if (!FTL_OBJ_CREATE(device_id, 0, object_loc, object_size_[device_id])) {
                     error_count++;
                     free(wrbuf);
                     return;
@@ -659,7 +657,7 @@ namespace multi_device_tests {
                 memset(wrbuf, 0x0, object_size_[device_id]);
                 sprintf(wrbuf, "dev%d_obj%lu", device_id, object_loc.object_id);
 
-                if (FTL_OBJ_WRITE(device_id, object_loc, wrbuf, 0, object_size_[device_id]) != FTL_SUCCESS) {
+                if (FTL_OBJ_WRITE(device_id, 0, object_loc, wrbuf, 0, object_size_[device_id]) != FTL_SUCCESS) {
                     error_count++;
                     free(wrbuf);
                     return;
