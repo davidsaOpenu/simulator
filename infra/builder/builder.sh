@@ -129,44 +129,82 @@ evssim_build_ssd_conf () {
     python -c "import os; import sys; sys.stdout.write(open('$EVSSIM_RUNTIME_SSD_CONF_TEMPLATE', 'rt').read() % os.environ)"
 }
 
-# Calculate ssd disk sizes from ssd configuration (returns array of sizes)
+# Calculate ssd namespace sizes from ssd configuration (returns array of sizes)
 # Parameters - None
-evssim_calculate_ssd_conf_disk_sizes() {
+evssim_calculate_namespace_sizes() {
+    local device_index=${1}
     local code=$(cat <<PYTHON
 # Parse ssd configuration - all devices
 import sys
 
 lines = [line.strip() for line in sys.stdin.readlines()]
-devices = {}
-current_device = None
+notNamespace = "NotANamespace"
+current_namespace = notNamespace
+namespaces = {current_namespace : {}}
+
+isDevFound = False
 
 for line in lines:
     if not line:
         continue
 
     # Check if this is a device header like [nvme01]
-    if line.startswith('[') and line.endswith(']'):
-        current_device = line[1:-1]  # Remove brackets
-        if current_device not in devices:
-            devices[current_device] = {}
+    if line.startswith('[nvme') and line.endswith(']'):
+        if isDevFound:
+            # Ending the loop
+            break
+
+    # Check if this is a device header like [nvme01]
+    if line == '[nvme' + "${device_index}".zfill(2) + ']':
+        isDevFound = True
+
+    # This isn't a relevant line.
+    if not isDevFound:
+        continue
+
+    if line.startswith('[ns') and line.endswith(']'):
+        current_namespace = line[1:-1]  # Remove brackets
+
+        # Init the namespace.
+        namespaces[current_namespace] = {}
         continue
 
     # Parse key-value pairs
     parts = line.split(' ', 1)
     if len(parts) == 2:
         key, value = parts
-        devices[current_device][key] = value
+
+        # Set the namespace parm
+        namespaces[current_namespace][key] = value
 
 # Function to get value from specific device
-def g(device_data, name):
-    return int(device_data.get(name, 0))
+def get_value(data, name):
+    return int(data.get(name, 0))
 
-# Calculate sizes for all devices
-for device_name in sorted(devices.keys()):
-    device_data = devices[device_name]
-    size = g(device_data, "FLASH_NB") * g(device_data, "BLOCK_NB") * g(device_data, "PAGE_NB") * g(device_data, "PAGE_SIZE")
-    size -= g(device_data, "PAGE_NB") * g(device_data, "PAGE_SIZE") # GC reserved pages
-    print(size)
+PAGE_SIZE = get_value(namespaces[notNamespace], "PAGE_SIZE")
+PAGE_NB = get_value(namespaces[notNamespace], "PAGE_NB")
+
+# Calculate sizes for all namespace.
+for current_namespace in sorted(namespaces.keys()):
+    if notNamespace == current_namespace:
+        continue
+
+    if (get_value(namespaces[current_namespace], "STORAGE_STRATEGY") == 1):
+        if (PAGE_NB > get_value(namespaces[current_namespace], "NAMESPACE_PAGE_NB")):
+            # Failed to reserved pages!
+            print(PAGE_SIZE * (get_value(namespaces[current_namespace], "NAMESPACE_PAGE_NB")))
+            continue
+
+        # Return the size of the namespace.
+        # Reserved block for the GC.
+        print(PAGE_SIZE * (get_value(namespaces[current_namespace], "NAMESPACE_PAGE_NB") - PAGE_NB))
+
+    elif (get_value(namespaces[current_namespace], "STORAGE_STRATEGY") == 2):
+        print(get_value(namespaces[current_namespace], "SIZE"))
+
+    else:
+        # This is type error!
+        print("0")
 PYTHON
 )
     echo "$ssd" | python -c "$code"
@@ -180,7 +218,7 @@ import sys
 count = 0
 for line in sys.stdin.readlines():
     line = line.strip()
-    if line.startswith('[') and line.endswith(']'):
+    if line.startswith('[nvme') and line.endswith(']'):
         count += 1
 print(count)
 PYTHON
@@ -241,26 +279,38 @@ evssim_qemu () {
         device_simulator="on";
         echo "Starting simulator mode"
 
+        # Multi-device mode.
+        local serial_number=1
         local device_count=($(evssim_get_device_count))
-        local device_sizes=($(evssim_calculate_ssd_conf_disk_sizes))
 
-        if [ ${#device_sizes[@]} -eq 0 ]; then
+        if [ ${device_count} -eq 0 ]; then
             echo "ERROR: No devices found in SSD configuration"
             exit 1
         fi
 
-        # Multi-device mode with real configuration
-        local serial_number=1
-        local device_index=0
-        for device_size in "${device_sizes[@]}"; do
-            # Create drive argument
-            drive_args="$drive_args -drive format=vssim,size=$device_size,simulator=$device_simulator,if=none,id=memory$serial_number,device_index=$device_index"
+        for ((device_index=1; device_index<=$device_count; device_index++)); do
+            local namespace_sizes=($(evssim_calculate_namespace_sizes ${device_index}))
 
-            # Create NVMe device argument
-            device_args="$device_args -device nvme,drive=memory$serial_number,serial=$serial_number"
+            if [ ${#namespace_sizes[@]} -eq 0 ]; then
+                echo "ERROR: No namespace found in device: ${device_index}"
+                exit 1
+            fi
 
-            ((++device_index))
-            ((++serial_number))
+            local nsid=0
+            for namespace_size in "${namespace_sizes[@]}"; do
+                # Create drive argument
+                drive_args="$drive_args -drive format=vssim,if=none,id=memory$serial_number,size=${namespace_size},simulator=$device_simulator,device_index=$(($device_index-1)),namespace_index=$nsid"
+
+                # Create NVMe device argument
+                device_args="$device_args -device nvme,drive=memory$serial_number,serial=$serial_number"
+
+                ((++nsid))
+                ((++serial_number))
+
+                # Currently the qemu dev support onlt one namespace.
+                # TODO: Add more then one namespace per device!
+                break
+            done
         done
 
         echo "INFO Simulator mode ($device_count devices)"
@@ -297,7 +347,7 @@ evssim_qemu () {
             docker run --rm -i $docker_extra_tty --net=host $EVSSIM_DOCKER_XOPTIONS --privileged --env-file <(evssim_all_env) -v $EVSSIM_ROOT_PATH/$EVSSIM_DATA_FOLDER:$EVSSIM_DOCKER_ROOT_PATH/$EVSSIM_QEMU_FOLDER/hw/data -v $EVSSIM_ROOT_PATH:$EVSSIM_DOCKER_ROOT_PATH $EVSSIM_DOCKER_IMAGE_NAME bash -c "$args"
             ;;
         *)
-            export EVSSIM_DOCKER_UUID=$(docker run --rm -d --net=host $EVSSIM_DOCKER_XOPTIONS --privileged --env-file <(evssim_all_env) -v $EVSSIM_ROOT_PATH/$EVSSIM_DATA_FOLDER:$EVSSIM_DOCKER_ROOT_PATH/$EVSSIM_QEMU_FOLDER/hw/data -v $EVSSIM_ROOT_PATH:$EVSSIM_DOCKER_ROOT_PATH $EVSSIM_DOCKER_IMAGE_NAME bash -c "$args")
+            export EVSSIM_DOCKER_UUID=$(docker run --name EvssimOnQemu --rm -d --net=host $EVSSIM_DOCKER_XOPTIONS --privileged --env-file <(evssim_all_env) -v $EVSSIM_ROOT_PATH/$EVSSIM_DATA_FOLDER:$EVSSIM_DOCKER_ROOT_PATH/$EVSSIM_QEMU_FOLDER/hw/data -v $EVSSIM_ROOT_PATH:$EVSSIM_DOCKER_ROOT_PATH $EVSSIM_DOCKER_IMAGE_NAME bash -c "$args")
             echo INFO Docker started $EVSSIM_DOCKER_UUID
             trap "evssim_qemu_stop" EXIT SIGTERM SIGINT
             sleep 1
@@ -425,4 +475,3 @@ evssim_guest_copy () {
     OUTPUT_FILE_PATH=$2
     scp -r -o ConnectionAttempts=1024 -o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no -o PasswordAuthentication=no -o PubkeyAcceptedKeyTypes=+ssh-rsa -i $EVSSIM_ROOT_PATH/$EVSSIM_BUILDER_FOLDER/docker/id_rsa -P 2222 $EVSSIM_QEMU_UBUNTU_USERNAME@localhost:$DOCKET_FILE_PATH $OUTPUT_FILE_PATH
 }
-
