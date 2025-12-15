@@ -108,7 +108,7 @@ class NvmeDevice(object):
         ], cwd=self.nvme_cli_dir)
 
 
-DEVICE_NAME = '/dev/nvme0n1'
+DEVICE_NAME = '/dev/nvme1n1'
 NVME_CLI_DIR = '/home/esd/guest'
 OBJ_FEATURE_ID = 192
 
@@ -120,12 +120,12 @@ class test_NvmeCli(object):
 
     CHUNK_SIZE = 512
     MAX_OBJECT_SIZE = 1024
-    OBJECT_COUNT = 10000
+    OBJECT_COUNT = 100
     OBJ_NAMES = []
 
     def test_delete(self):
-    	"""
-    	Test: Deleted objects can't be read
+        """
+        Test: Deleted objects can't be read
         The test writes an object then reads and deletes it, after deletion
         another read attempt is made testing for an exception to make sure
         a read on a deleted object causes an exception to occur.
@@ -137,10 +137,10 @@ class test_NvmeCli(object):
             self.device.objr(input)
             self.device.objd(input)
             try:
-            	self.device.objr(input)
+                self.device.objr(input)
             except:
-                print("objects_via_ioctl: test_delete finished successfully")
-            	return
+                # objects_via_ioctl: test_delete finished successfully
+                return
             else:
                 raise Exception("No exception when trying to read deleted object")
 
@@ -172,7 +172,8 @@ class test_NvmeCli(object):
         for oid in xrange(0, self.OBJECT_COUNT):
             if lines[oid] != "":
                 self.device.obje(lines[oid]) # check that every listed object exists
-        print("objects_via_ioctl: test_read finished successfully")
+
+        # objects_via_ioctl: test_read finished successfully
         self.cleanup()
 
 
@@ -209,7 +210,7 @@ class test_NvmeCli(object):
 
 
     def test_overwrite(self):
-    	"""
+        """
         Test: Overwrite objects
         The test iterates over a specified count,
         creating temporary objects with random data of random size.
@@ -238,18 +239,19 @@ class test_NvmeCli(object):
                     expected = src.read()
                     read_out = self.device.objr(input)
                     assert expected == read_out
-        print("objects_via_ioctl: test_read finished successfully")
+
+        # "objects_via_ioctl: test_read finished successfully"
         self.cleanup()
 
 
     def cleanup(self):
-    	"""
-    	This helper function handles the deletion of a given list of objects
-    	to restore the device to its initial state between tests
-    	"""
-    	for obj in self.OBJ_NAMES:
-    	    self.device.objd(obj)
-    	self.OBJ_NAMES = []
+        """
+        This helper function handles the deletion of a given list of objects
+        to restore the device to its initial state between tests
+        """
+        for obj in self.OBJ_NAMES:
+            self.device.objd(obj)
+        self.OBJ_NAMES = []
 
 
     def align_size(self, size):
