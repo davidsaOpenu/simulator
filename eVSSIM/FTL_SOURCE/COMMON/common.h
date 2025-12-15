@@ -29,6 +29,8 @@
 #define MAPPING_TABLE_INIT_VAL UINT64_MAX
 
 #define MAX_NUMBER_OF_NAMESPACES 32
+#define INVALID_NSID UINT32_MAX
+#define MAX_FILENAME_LENGTH 100
 
 // INVALID_DEVICE_INDEX is 0xFF because the type of the device index is uint8_t
 #define INVALID_DEVICE_INDEX 0xFF
@@ -134,9 +136,6 @@
 #define COLLECT_FLASH	8
 #define COLLECT_CHANNEL	16
 #define COLLECT_SSD		32
-
-#define STRATEGY_SECTOR 1
-#define STRATEGY_OBJECT 2
 
 /* VSSIM Function Debug */
 #define MNT_DEBUG			// MONITOR Debugging
