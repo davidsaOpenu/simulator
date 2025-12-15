@@ -80,6 +80,11 @@ typedef struct {
  */
 extern LogServer log_server;
 
+/**
+ * The index of the currently monitored device.
+ * TODO: For now we don't support multiple disks logging properly
+ */
+extern uint8_t curr_dev;
 
 /**
  * Initialize the logging server
