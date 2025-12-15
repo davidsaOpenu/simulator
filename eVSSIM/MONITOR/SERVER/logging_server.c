@@ -39,6 +39,7 @@
 
 LogServer log_server;
 
+uint8_t curr_dev = 0;
 
 /**
  * The session structure, used by each client in the server side
@@ -232,7 +233,9 @@ static const struct lws_http_mount http_mount = {
 /* Wrapper methods */
 
 
-int log_server_init(uint8_t num_devices) {
+int log_server_init(uint8_t device_index) {
+    // TODO: For now we don't support multiple disks logging properly
+    curr_dev = device_index;
 
     // set debug level
     lws_set_log_level(LLL_ERR | LLL_WARN, NULL);
@@ -351,6 +354,9 @@ static void _MONITOR_SYNC_LOG_ID(SSDStatistics *stats, uint64_t log_id, uint64_t
 }
 
 void _MONITOR_SYNC(uint8_t device_index, SSDStatistics *stats, uint64_t max_sleep) {
+    // TODO: For now we don't support multiple disks logging properly
+    device_index = curr_dev;
+
     size_t i;
     uint64_t log_id;
     for(i = 0; i < devices[device_index].flash_nb; i++){

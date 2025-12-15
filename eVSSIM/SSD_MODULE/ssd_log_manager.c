@@ -48,6 +48,8 @@ void reset_analyzers(uint8_t device_index) {
     }
 
     uint32_t i;
+    // TODO: For now we don't support multiple disks logging properly
+    device_index = curr_dev;
     for (i = 0; i < devices[device_index].flash_nb; i++)
         analyzers_storage[device_index][i].rt_log_analyzer->reset_flag = 1;
 }
@@ -56,7 +58,9 @@ void INIT_LOG_MANAGER(uint8_t device_index)
 {
     uint32_t i;
 
-    if (analyzers_storage[device_index] != NULL)
+    // TODO: For now we don't support multiple disks logging properly
+    curr_dev = device_index;
+    if (NULL != analyzers_storage)
     {
         // Already inited for this device
         PDBG("Analyzers already initialized for device %d: %s\n",
@@ -110,9 +114,9 @@ void INIT_LOG_MANAGER(uint8_t device_index)
         PERR("Malloc for log manager run args failed!\n");
     }
     run_args->device_index = device_index;
-    run_args->manager = log_manager[device_index];
+    run_args->manager = log_manager;
 
-    pthread_create(&log_manager_threads[device_index], NULL, log_manager_run, run_args);
+    pthread_create(&log_manager_thread, NULL, log_manager_run, run_args);
     for (i = 0; i < devices[device_index].flash_nb; i++) {
         // Run rt log analyzer
         rt_log_analyzer_run_args_t* log_analyzer_run_args = (rt_log_analyzer_run_args_t*)malloc(sizeof(rt_log_analyzer_run_args_t));
@@ -137,7 +141,9 @@ void TERM_LOG_MANAGER(uint8_t device_index)
 {
     uint32_t i;
 
-    if (analyzers_storage == NULL || analyzers_storage[device_index] == NULL)
+    // TODO: For now we don't support multiple disks logging properly
+    device_index = curr_dev;
+    if (NULL == analyzers_storage)
     {
         // Already termed or never inited for this device
         return;
@@ -189,9 +195,8 @@ void TERM_LOG_MANAGER(uint8_t device_index)
 }
 
 Logger_Pool* GET_LOGGER(uint8_t device_index, unsigned int flash_number) {
-    if (analyzers_storage == NULL || analyzers_storage[device_index] == NULL) {
-        return NULL;
-    }
+    // TODO: For now we don't support multiple disks logging properly
+    device_index = curr_dev;
     if (flash_number < devices[device_index].flash_nb)
         return analyzers_storage[device_index][flash_number].logger;
     return NULL;

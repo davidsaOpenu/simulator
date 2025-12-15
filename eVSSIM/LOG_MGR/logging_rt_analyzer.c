@@ -22,6 +22,7 @@
 
 #include "logging_rt_analyzer.h"
 
+uint8_t cur_dev = 0;
 
 /**
  * Transforms pages in a usec to megabytes in a second
@@ -47,10 +48,9 @@ RTLogAnalyzer* rt_log_analyzer_init(Logger_Pool* logger, unsigned int analyzer_i
 }
 
 void rt_log_stats_init(uint8_t device_index) {
-    if (rt_log_stats == NULL) {
-        RERR(, "rt_log_stats not initialized!\n");
-    }
-    if (NULL != rt_log_stats[device_index])
+    // TODO: For now we don't support multiple disks logging properly
+    cur_dev = device_index;
+    if (NULL != rt_log_stats)
     {
         RERR(, "rt_log_stats[%d] already initialized!\n", device_index);
     }
@@ -90,6 +90,9 @@ void* rt_log_analyzer_run(void* args) {
 }
 
 void rt_log_analyzer_loop(uint8_t device_index, RTLogAnalyzer* analyzer, int max_logs) {
+    // TODO: For now we don't support multiple disks logging properly
+    device_index = cur_dev;
+
     // init the statistics
     SSDStatistics stats = stats_init();
     SSDStatistics old_stats = stats_init();
@@ -362,12 +365,9 @@ void rt_log_analyzer_free(RTLogAnalyzer* analyzer, int free_logger) {
 }
 
 void rt_log_stats_free(uint8_t device_index) {
-    if (rt_log_stats == NULL) {
-        return;
-    }
-
-    if (rt_log_stats[device_index] != NULL) {
-        free(rt_log_stats[device_index]);
-        rt_log_stats[device_index] = NULL;
-    }
+    // TODO: For now we don't support multiple disks logging properly
+    device_index = cur_dev;
+    (void)device_index;
+    free(rt_log_stats);
+    rt_log_stats = NULL;
 }
