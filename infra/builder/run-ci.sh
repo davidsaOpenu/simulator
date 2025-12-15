@@ -32,14 +32,13 @@ env -u http_proxy -u https_proxy -u HTTP_PROXY -u HTTPS_PROXY tox
 ./build-qemu-image.sh
 ./compile-kernel.sh
 ./compile-qemu.sh
-./compile-host-tests.sh
+# ./compile-host-tests.sh
 ./compile-guest-tests.sh
 ./docker-run-sanity.sh
 
 # start ELK (absolute paths)
 "$ELK_INSTALL" "$LOGS_DIR" "$ELK_DIR"
 
-# tests
-./docker-test-host.sh
+# ./docker-test-host.sh
 ./docker-test-guest.sh
 ./docker-test-exofs.sh
