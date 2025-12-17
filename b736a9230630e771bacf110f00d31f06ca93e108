@@ -18,6 +18,23 @@
       "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "13f415f1_dcc24549",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 16
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 1007990
+      },
+      "writtenOn": "2025-12-17T11:11:45Z",
+      "side": 1,
+      "message": "this patch is almost ready. Let\u0027s address unresolved comments as an additional commit, an avenue to earlier rebase for the namespaces patch.",
+      "revId": "b736a9230630e771bacf110f00d31f06ca93e108",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "571be1c6_738f391c",
