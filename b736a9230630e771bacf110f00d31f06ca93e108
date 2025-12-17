@@ -1,6 +1,23 @@
 {
   "comments": [
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "cb7c4818_6c2d72ba",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 16
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 1007990
+      },
+      "writtenOn": "2025-12-17T11:08:33Z",
+      "side": 1,
+      "message": "lets address unresolved issues in an additional commit",
+      "revId": "b736a9230630e771bacf110f00d31f06ca93e108",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "571be1c6_738f391c",
