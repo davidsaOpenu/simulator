@@ -1,0 +1,38 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "3cd1c2b0_668463e0",
+        "filename": "/COMMIT_MSG",
+        "patchSetId": 17
+      },
+      "lineNbr": 22,
+      "author": {
+        "id": 1007990
+      },
+      "writtenOn": "2025-12-31T12:46:38Z",
+      "side": 1,
+      "message": "relats to  https://review.gerrithub.io/c/davidsaOpenu/simulator/+/1223079. Please remove",
+      "revId": "a07ffbeb6609b85e97f66f16ed01ea9380e49762",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "505a63f4_ab02c5e3",
+        "filename": "/COMMIT_MSG",
+        "patchSetId": 17
+      },
+      "lineNbr": 23,
+      "author": {
+        "id": 1007990
+      },
+      "writtenOn": "2025-12-31T12:46:38Z",
+      "side": 1,
+      "message": "please either split this change into smaller changes each one corresponding to one trello card or squash the cards into one.",
+      "revId": "a07ffbeb6609b85e97f66f16ed01ea9380e49762",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
+    }
+  ]
+}
