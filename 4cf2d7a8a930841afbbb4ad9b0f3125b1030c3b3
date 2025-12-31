@@ -1,0 +1,67 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "c6efdaa8_bfce3769",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 2
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 1007990
+      },
+      "writtenOn": "2025-12-31T15:05:41Z",
+      "side": 1,
+      "message": "thanks for working on this change. Several comments inline",
+      "revId": "4cf2d7a8a930841afbbb4ad9b0f3125b1030c3b3",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "e301beeb_71001fc2",
+        "filename": "infra/ELK/elk_performance_test.sh",
+        "patchSetId": 2
+      },
+      "lineNbr": 14,
+      "author": {
+        "id": 1007990
+      },
+      "writtenOn": "2025-12-31T15:05:41Z",
+      "side": 1,
+      "message": "min/max values are too small",
+      "range": {
+        "startLine": 13,
+        "startChar": 0,
+        "endLine": 14,
+        "endChar": 39
+      },
+      "revId": "4cf2d7a8a930841afbbb4ad9b0f3125b1030c3b3",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "4e8622a4_08cfb306",
+        "filename": "infra/ELK/elk_performance_test.sh",
+        "patchSetId": 2
+      },
+      "lineNbr": 480,
+      "author": {
+        "id": 1007990
+      },
+      "writtenOn": "2025-12-31T15:05:41Z",
+      "side": 1,
+      "message": "the output is\n\n19:40:44  [elk_performance_test] end of sample record\n19:40:44  -----------------------------------------------------------------------\n19:40:45  [elk_performance_test] samples\u003d30 P95\u003d9ms limit\u003d500ms\n19:40:47  [elk_performance_test] monitor window: FROM\u003d2025-12-26T14:40:43Z TO\u003d2025-12-26T17:40:45Z (secs\u003d10802) TS_FIELD\u003d@timestamp index\u003d.ds-filebeat-8.14.2-2025.12.26-000001\n19:40:47  [elk_performance_test] write_count\u003d895683 read_count\u003d1224700 logical_write_count\u003d885405\n19:40:47  [elk_performance_test] background_write_count\u003d20 background_read_count\u003d17\n19:40:47  [elk_performance_test] garbage_collection_count\u003d28599 background_garbage_collection_count\u003d27434\n19:40:47  [elk_performance_test] write_amplification\u003d1.011608\n19:40:47  [elk_performance_test] write_speed(Mb/s)\u003d2.717065 read_speed(Mb/s)\u003d3.715143\n19:40:47  [elk_performance_test] utilization\u003d0.000146 (0.0146%) page_size_bytes\u003d4096.000000000000\n19:40:47  [elk_performance_test] avg_read_iops\u003d113.377152 avg_write_iops\u003d82.918256\n19:40:47  [elk_performance_test] OK: read IOPS (113.377152) \u003e\u003d MIN_IOPS_READ (2.0)\n19:40:47  [elk_performance_test] OK: write IOPS (82.918256) \u003e\u003d MIN_IOPS_WRITE (2.0)\n19:40:47  [elk_performance_test] OKcleaer: write amplification (1.011608) \u003c\u003d MAX_WA (1.5)\n19:40:47  [elk_performance_test] PERFORMANCE OK\n\n\nbut  except the last 3 metrics there is no assertion. We need to fail/pass performance test rather then merely print values. Several things are not cleaner.\n\nAnd some metrics are looking strange. E.g.how w the utilization is so small if garbage collector reached the 28599 count. ATM, GC  is invoked when the disk is full so the expectation is that the utilization is near 100 %. \nAnother question how 895683 for write count in the observed time interval corresponds to write IOPS (82.918256)?",
+      "range": {
+        "startLine": 456,
+        "startChar": 1,
+        "endLine": 480,
+        "endChar": 0
+      },
+      "revId": "4cf2d7a8a930841afbbb4ad9b0f3125b1030c3b3",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
+    }
+  ]
+}
