@@ -18,6 +18,24 @@
       "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "d4437dd8_b260f774",
+        "filename": "/COMMIT_MSG",
+        "patchSetId": 17
+      },
+      "lineNbr": 22,
+      "author": {
+        "id": 1038797
+      },
+      "writtenOn": "2026-01-01T20:23:27Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "3cd1c2b0_668463e0",
+      "revId": "a07ffbeb6609b85e97f66f16ed01ea9380e49762",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "505a63f4_ab02c5e3",
@@ -31,6 +49,24 @@
       "writtenOn": "2025-12-31T12:46:38Z",
       "side": 1,
       "message": "please either split this change into smaller changes each one corresponding to one trello card or squash the cards into one.",
+      "revId": "a07ffbeb6609b85e97f66f16ed01ea9380e49762",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "6164ef79_91d86b0b",
+        "filename": "/COMMIT_MSG",
+        "patchSetId": 17
+      },
+      "lineNbr": 23,
+      "author": {
+        "id": 1038797
+      },
+      "writtenOn": "2026-01-01T20:23:27Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "505a63f4_ab02c5e3",
       "revId": "a07ffbeb6609b85e97f66f16ed01ea9380e49762",
       "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
     }
