@@ -69,6 +69,418 @@
       "parentUuid": "505a63f4_ab02c5e3",
       "revId": "a07ffbeb6609b85e97f66f16ed01ea9380e49762",
       "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "04dbdf62_039117cf",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 17
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 1007990
+      },
+      "writtenOn": "2026-01-02T14:23:53Z",
+      "side": 1,
+      "message": "thanks for working on this change\nseveral comments and questions inline",
+      "revId": "a07ffbeb6609b85e97f66f16ed01ea9380e49762",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "cef096fe_baa24db4",
+        "filename": "eVSSIM/CONFIG/ssd.conf",
+        "patchSetId": 17
+      },
+      "lineNbr": 1,
+      "author": {
+        "id": 1007990
+      },
+      "writtenOn": "2026-01-02T14:23:53Z",
+      "side": 1,
+      "message": "please add  a comment \nFisrt disk with 2 namespaces ns01 (sector strategy) and ns02 (object strategy)",
+      "revId": "a07ffbeb6609b85e97f66f16ed01ea9380e49762",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "03155ee7_067c86a9",
+        "filename": "eVSSIM/CONFIG/ssd.conf",
+        "patchSetId": 17
+      },
+      "lineNbr": 29,
+      "author": {
+        "id": 1007990
+      },
+      "writtenOn": "2026-01-02T14:23:53Z",
+      "side": 1,
+      "message": "please add 2 new lines and a comment \nSecond disk with 2 namespaces ns01 (sector strategy) and ns02 (object strategy)",
+      "revId": "a07ffbeb6609b85e97f66f16ed01ea9380e49762",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "50b257a2_46ca235d",
+        "filename": "eVSSIM/CONFIG/ssd.conf",
+        "patchSetId": 17
+      },
+      "lineNbr": 54,
+      "author": {
+        "id": 1007990
+      },
+      "writtenOn": "2026-01-02T14:23:53Z",
+      "side": 1,
+      "message": "please add 2 new lines and a comment \nThird disk with one namespace ns01 (sector strategy)",
+      "revId": "a07ffbeb6609b85e97f66f16ed01ea9380e49762",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "5185d0a9_a73bc73c",
+        "filename": "eVSSIM/CONFIG/ssd.conf",
+        "patchSetId": 17
+      },
+      "lineNbr": 76,
+      "author": {
+        "id": 1007990
+      },
+      "writtenOn": "2026-01-02T14:23:53Z",
+      "side": 1,
+      "message": "AI: ensure that host-level tests are executed across all disks and all namespaces in parallel with more disks and namesapces (create configuration file on fly in tests)\n\nThese tests must cover corner cases, including (but not limited to):\n\nFilling each namespace to its full capacity.\n\nVerifying that appropriate errors occur when attempting to write the first byte beyond the namespace boundary.\n\nWriting and reading random data patterns to verify data integrity.\n\nRepeating these operations multiple times in parallel while overwriting the entire namespace.\n\nThe goal is to validate correctness, robustness, and proper parallel behavior under stress conditions.",
+      "revId": "a07ffbeb6609b85e97f66f16ed01ea9380e49762",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "a0b17910_b5e3be13",
+        "filename": "eVSSIM/CONFIG/vssim_config_manager.h",
+        "patchSetId": 17
+      },
+      "lineNbr": 25,
+      "author": {
+        "id": 1007990
+      },
+      "writtenOn": "2026-01-02T14:23:53Z",
+      "side": 1,
+      "message": "typo",
+      "range": {
+        "startLine": 25,
+        "startChar": 9,
+        "endLine": 25,
+        "endChar": 17
+      },
+      "revId": "a07ffbeb6609b85e97f66f16ed01ea9380e49762",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "fc416b2f_e0c764ae",
+        "filename": "eVSSIM/CONFIG/vssim_config_manager.h",
+        "patchSetId": 17
+      },
+      "lineNbr": 29,
+      "author": {
+        "id": 1007990
+      },
+      "writtenOn": "2026-01-02T14:23:53Z",
+      "side": 1,
+      "message": "please change the names. E.g max_key_length_bytes  instead of kvkml",
+      "range": {
+        "startLine": 27,
+        "startChar": 0,
+        "endLine": 29,
+        "endChar": 42
+      },
+      "revId": "a07ffbeb6609b85e97f66f16ed01ea9380e49762",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "9d456983_d93955ac",
+        "filename": "eVSSIM/FTL_SOURCE/PAGE_MAP/ftl.c",
+        "patchSetId": 17
+      },
+      "lineNbr": 52,
+      "author": {
+        "id": 1007990
+      },
+      "writtenOn": "2026-01-02T14:23:53Z",
+      "side": 1,
+      "message": "not sure if the error message in informative",
+      "range": {
+        "startLine": 52,
+        "startChar": 0,
+        "endLine": 52,
+        "endChar": 42
+      },
+      "revId": "a07ffbeb6609b85e97f66f16ed01ea9380e49762",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "ba098d7d_73a0ee75",
+        "filename": "eVSSIM/FTL_SOURCE/PAGE_MAP/ftl_gc_manager.c",
+        "patchSetId": 17
+      },
+      "lineNbr": 228,
+      "author": {
+        "id": 1007990
+      },
+      "writtenOn": "2026-01-02T14:23:53Z",
+      "side": 1,
+      "message": "hard to compare. Please keep the original indentation.",
+      "range": {
+        "startLine": 22,
+        "startChar": 0,
+        "endLine": 228,
+        "endChar": 13
+      },
+      "revId": "a07ffbeb6609b85e97f66f16ed01ea9380e49762",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "06789e8c_ff414bff",
+        "filename": "eVSSIM/FTL_SOURCE/PAGE_MAP/ftl_inverse_mapping_manager.h",
+        "patchSetId": 17
+      },
+      "lineNbr": 103,
+      "author": {
+        "id": 1007990
+      },
+      "writtenOn": "2026-01-02T14:23:53Z",
+      "side": 1,
+      "message": "nit: is not it better to put nsid as a second paramter just after the device id?",
+      "range": {
+        "startLine": 101,
+        "startChar": 0,
+        "endLine": 103,
+        "endChar": 97
+      },
+      "revId": "a07ffbeb6609b85e97f66f16ed01ea9380e49762",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "35a51d4a_c99675e6",
+        "filename": "eVSSIM/FTL_SOURCE/PAGE_MAP/ftl_obj_strategy.c",
+        "patchSetId": 17
+      },
+      "lineNbr": 364,
+      "author": {
+        "id": 1007990
+      },
+      "writtenOn": "2026-01-02T14:23:53Z",
+      "side": 1,
+      "message": "?",
+      "range": {
+        "startLine": 364,
+        "startChar": 21,
+        "endLine": 364,
+        "endChar": 27
+      },
+      "revId": "a07ffbeb6609b85e97f66f16ed01ea9380e49762",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "afd0fc85_9cac300f",
+        "filename": "eVSSIM/FTL_SOURCE/PAGE_MAP/ftl_sect_strategy.c",
+        "patchSetId": 17
+      },
+      "lineNbr": 242,
+      "author": {
+        "id": 1007990
+      },
+      "writtenOn": "2026-01-02T14:23:53Z",
+      "side": 1,
+      "message": ".",
+      "range": {
+        "startLine": 242,
+        "startChar": 22,
+        "endLine": 242,
+        "endChar": 30
+      },
+      "revId": "a07ffbeb6609b85e97f66f16ed01ea9380e49762",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "4657b39e_b0dd83f3",
+        "filename": "eVSSIM/tests/guest/objects_via_ioctl/test_nvme_cli.py",
+        "patchSetId": 17
+      },
+      "lineNbr": 123,
+      "author": {
+        "id": 1007990
+      },
+      "writtenOn": "2026-01-02T14:23:53Z",
+      "side": 1,
+      "message": "why?",
+      "revId": "a07ffbeb6609b85e97f66f16ed01ea9380e49762",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "31bc5a8d_d350aaa5",
+        "filename": "eVSSIM/tests/guest/objects_via_ioctl/test_nvme_cli.py",
+        "patchSetId": 17
+      },
+      "lineNbr": 142,
+      "author": {
+        "id": 1007990
+      },
+      "writtenOn": "2026-01-02T14:23:53Z",
+      "side": 1,
+      "message": "why?",
+      "revId": "a07ffbeb6609b85e97f66f16ed01ea9380e49762",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "54b3f369_a67bec56",
+        "filename": "eVSSIM/tests/guest/objects_via_ioctl/test_nvme_cli.py",
+        "patchSetId": 17
+      },
+      "lineNbr": 243,
+      "author": {
+        "id": 1007990
+      },
+      "writtenOn": "2026-01-02T14:23:53Z",
+      "side": 1,
+      "message": "why?",
+      "revId": "a07ffbeb6609b85e97f66f16ed01ea9380e49762",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "51c0ef29_336a9274",
+        "filename": "eVSSIM/tests/guest/objects_via_ioctl/test_nvme_cli.py",
+        "patchSetId": 17
+      },
+      "lineNbr": 267,
+      "author": {
+        "id": 1007990
+      },
+      "writtenOn": "2026-01-02T14:23:53Z",
+      "side": 1,
+      "message": "based on https://review.gerrithub.io/c/davidsaOpenu/simulator/+/1226517/17/eVSSIM/CONFIG/ssd.conf \ndisk 3 ns 1 is sector strategy. So\n1) change ns to one with object strategy\n2) ad to the NvmeDevice to an additioal parameter \u0027device_stattegy\u0027. During the NvemeDevice construction detect if the disk has namespce with object strategy or not\n\n    # \n    device \u003d NvmeDevice(\u0027/dev/nvme3n1\u0027, SECTOR_STRATRGY, NVME_CLI_DIR) \n    # make sure device is none\n    assert(defice\n    device \u003d NvmeDevice(\u0027/dev/nvme1n2\u0027, OBJ_STRATRGY, NVME_CLI_DIR) \n    assert(device)",
+      "range": {
+        "startLine": 265,
+        "startChar": 0,
+        "endLine": 267,
+        "endChar": 0
+      },
+      "revId": "a07ffbeb6609b85e97f66f16ed01ea9380e49762",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "6a81064a_cbb34c42",
+        "filename": "eVSSIM/tests/host/simulation/base_emulator_tests.h",
+        "patchSetId": 17
+      },
+      "lineNbr": 157,
+      "author": {
+        "id": 1007990
+      },
+      "writtenOn": "2026-01-02T14:23:53Z",
+      "side": 1,
+      "message": "no apparent reason for only_default_ns. why an additional configuration is required  if we have one with several nsmaspaces and disks ?",
+      "range": {
+        "startLine": 146,
+        "startChar": 0,
+        "endLine": 157,
+        "endChar": 13
+      },
+      "revId": "a07ffbeb6609b85e97f66f16ed01ea9380e49762",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "720ee17a_0b7ffdea",
+        "filename": "eVSSIM/tests/host/simulation/gc_tests.cc",
+        "patchSetId": 17
+      },
+      "lineNbr": 111,
+      "author": {
+        "id": 1007990
+      },
+      "writtenOn": "2026-01-02T14:23:53Z",
+      "side": 1,
+      "message": "why /2?",
+      "range": {
+        "startLine": 111,
+        "startChar": 104,
+        "endLine": 111,
+        "endChar": 107
+      },
+      "revId": "a07ffbeb6609b85e97f66f16ed01ea9380e49762",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "81e9dd21_9a4833f1",
+        "filename": "eVSSIM/tests/host/simulation/log_mgr_tests.cc",
+        "patchSetId": 17
+      },
+      "lineNbr": 102,
+      "author": {
+        "id": 1007990
+      },
+      "writtenOn": "2026-01-02T14:23:53Z",
+      "side": 1,
+      "message": "why / 2 and /4?",
+      "range": {
+        "startLine": 100,
+        "startChar": 0,
+        "endLine": 102,
+        "endChar": 62
+      },
+      "revId": "a07ffbeb6609b85e97f66f16ed01ea9380e49762",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "c8dbdd99_dae716db",
+        "filename": "eVSSIM/tests/host/simulation/object_tests.cc",
+        "patchSetId": 17
+      },
+      "lineNbr": 63,
+      "author": {
+        "id": 1007990
+      },
+      "writtenOn": "2026-01-02T14:23:53Z",
+      "side": 1,
+      "message": "same question: why /2 and /4?",
+      "range": {
+        "startLine": 62,
+        "startChar": 0,
+        "endLine": 63,
+        "endChar": 76
+      },
+      "revId": "a07ffbeb6609b85e97f66f16ed01ea9380e49762",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
     }
   ]
 }
