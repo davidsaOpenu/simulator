@@ -30,12 +30,23 @@ REQUIRE_UTILIZATION="${REQUIRE_UTILIZATION:-1}"
 GC_FOREGROUND_TRIGGER="${GC_FOREGROUND_TRIGGER:-1}"
 MIN_UTIL_AT_FG_GC="${MIN_UTIL_AT_FG_GC:-0.90}"
 
+SECTOR_MIN_WRITE_COUNT="${SECTOR_MIN_WRITE_COUNT:-1000}"
+SECTOR_MIN_READ_COUNT="${SECTOR_MIN_READ_COUNT:-0}"
+SECTOR_MIN_IOPS_WRITE="${SECTOR_MIN_IOPS_WRITE:-25.0}"
+SECTOR_MIN_IOPS_READ="${SECTOR_MIN_IOPS_READ:-0.0}"
+SECTOR_MIN_WRITE_SPEED_MBPS="${SECTOR_MIN_WRITE_SPEED_MBPS:-1.0}"
+SECTOR_MIN_READ_SPEED_MBPS="${SECTOR_MIN_READ_SPEED_MBPS:-0.0}"
+SECTOR_MIN_WA="${SECTOR_MIN_WA:-0.95}"
+SECTOR_MAX_WA="${SECTOR_MAX_WA:-1.5}"
+
 WAIT_SECS="${WAIT_SECS:-60}"
 LOOKBACK_HOURS="${LOOKBACK_HOURS:-3}"
 FILEBEAT_WAIT_SECS="${FILEBEAT_WAIT_SECS:-120}"
 
 START_AT="${START_AT:-}"
 PRINT_QUERY_CMD="${PRINT_QUERY_CMD:-1}"
+
+TEST_NAME_FILTER="${TEST_NAME_FILTER:-MixSequentialAndRandomOnePageAtTimeWrite}"
 
 FROM_DATE="$(date -u -d "${LOOKBACK_HOURS} hours ago" +%Y-%m-%dT%H:%M:%SZ)"
 TO_DATE="$(date -u +%Y-%m-%dT%H:%M:%SZ)"
@@ -56,7 +67,9 @@ echo "[elk_performance_test] thresholds: MIN_IOPS_READ=$MIN_IOPS_READ MIN_IOPS_W
 echo "[elk_performance_test] speed thresholds (Mb/s): MIN_READ_SPEED_MBPS=$MIN_READ_SPEED_MBPS MIN_WRITE_SPEED_MBPS=$MIN_WRITE_SPEED_MBPS"
 echo "[elk_performance_test] minimum activity: MIN_READ_COUNT=$MIN_READ_COUNT MIN_WRITE_COUNT=$MIN_WRITE_COUNT MIN_LOGICAL_WRITE_COUNT=$MIN_LOGICAL_WRITE_COUNT"
 echo "[elk_performance_test] GC: MAX_GC_RATE=$MAX_GC_RATE, FG check: GC_FOREGROUND_TRIGGER=$GC_FOREGROUND_TRIGGER MIN_UTIL_AT_FG_GC=$MIN_UTIL_AT_FG_GC"
+echo "[elk_performance_test] sector test thresholds: SECTOR_MIN_WRITE_COUNT=$SECTOR_MIN_WRITE_COUNT SECTOR_MIN_IOPS_WRITE=$SECTOR_MIN_IOPS_WRITE SECTOR_MIN_WRITE_SPEED_MBPS=$SECTOR_MIN_WRITE_SPEED_MBPS SECTOR_MIN_WA=$SECTOR_MIN_WA SECTOR_MAX_WA=$SECTOR_MAX_WA"
 echo "[elk_performance_test] time window: LOOKBACK_HOURS=$LOOKBACK_HOURS FILEBEAT_WAIT_SECS=$FILEBEAT_WAIT_SECS START_AT=${START_AT:-<unset>}"
+echo "[elk_performance_test] test filter: TEST_NAME_FILTER=${TEST_NAME_FILTER:-<unset>}"
 
 sec_to_ms() {
   local s="$1"
@@ -377,6 +390,21 @@ type_filter() {
 EOF
 }
 
+test_name_filter() {
+  local test_name="$1"
+  cat <<EOF
+{
+  "bool": {
+    "should": [
+      { "prefix": { "test.name": "$test_name" } },
+      { "prefix": { "test.name.keyword": "$test_name" } }
+    ],
+    "minimum_should_match": 1
+  }
+}
+EOF
+}
+
 top_first_body() {
   cat <<EOF
 {
@@ -400,8 +428,15 @@ EOF
 metrics_body="$(cat <<EOF
 {
   "query": {
-    "range": {
-      "$TS_FIELD": { "gte": "$METRICS_TS_FROM", "lte": "$TS_TO" }
+    "bool": {
+      "must": [
+        {
+          "range": {
+            "$TS_FIELD": { "gte": "$METRICS_TS_FROM", "lte": "$TS_TO" }
+          }
+        },
+        $(test_name_filter "$TEST_NAME_FILTER")
+      ]
     }
   },
   "aggs": {
@@ -825,6 +860,99 @@ if (( foreground_gc_count >= GC_FOREGROUND_TRIGGER )); then
   fi
 else
   echo "[elk_performance_test] OK: foreground GC count ($foreground_gc_count) < GC_FOREGROUND_TRIGGER ($GC_FOREGROUND_TRIGGER), skipping FG utilization check"
+fi
+
+echo ""
+echo "[elk_performance_test] === SECTOR TEST CHECKS ($TEST_NAME_FILTER) ==="
+
+sector_write_count="$write_count"
+sector_read_count="$read_count"
+sector_logical_write_count="$logical_write_count"
+sector_write_span_secs="$write_span_secs"
+sector_read_span_secs="$read_span_secs"
+sector_write_iops="$write_iops"
+sector_read_iops="$read_iops"
+sector_write_amplification="$write_amplification"
+sector_write_speed_mbps="$write_speed_mbps"
+sector_read_speed_mbps="$read_speed_mbps"
+
+echo "[elk_performance_test] Sector writes: $sector_write_count span=${sector_write_span_secs}s"
+echo "[elk_performance_test] Sector reads:  $sector_read_count span=${sector_read_span_secs}s"
+echo "[elk_performance_test] Sector logical writes: $sector_logical_write_count"
+echo "[elk_performance_test] Sector write IOPS: $sector_write_iops"
+echo "[elk_performance_test] Sector read IOPS:  $sector_read_iops"
+echo "[elk_performance_test] Sector write speed: $sector_write_speed_mbps Mb/s"
+echo "[elk_performance_test] Sector read speed:  $sector_read_speed_mbps Mb/s"
+echo "[elk_performance_test] Sector write amplification: $sector_write_amplification"
+
+if (( sector_write_count < SECTOR_MIN_WRITE_COUNT )); then
+  echo "[elk_performance_test] FAIL: sector write_count ($sector_write_count) < SECTOR_MIN_WRITE_COUNT ($SECTOR_MIN_WRITE_COUNT)"
+  test_fail=1
+else
+  echo "[elk_performance_test] OK: sector write_count ($sector_write_count) >= SECTOR_MIN_WRITE_COUNT ($SECTOR_MIN_WRITE_COUNT)"
+fi
+
+if (( sector_read_count > 0 )); then
+  if (( sector_read_count < SECTOR_MIN_READ_COUNT )); then
+    echo "[elk_performance_test] FAIL: sector read_count ($sector_read_count) < SECTOR_MIN_READ_COUNT ($SECTOR_MIN_READ_COUNT)"
+    test_fail=1
+  else
+    echo "[elk_performance_test] OK: sector read_count ($sector_read_count) >= SECTOR_MIN_READ_COUNT ($SECTOR_MIN_READ_COUNT)"
+  fi
+fi
+
+if lt "$sector_write_iops" "$SECTOR_MIN_IOPS_WRITE"; then
+  echo "[elk_performance_test] FAIL: sector write IOPS ($sector_write_iops) < SECTOR_MIN_IOPS_WRITE ($SECTOR_MIN_IOPS_WRITE)"
+  test_fail=1
+else
+  echo "[elk_performance_test] OK: sector write IOPS ($sector_write_iops) >= SECTOR_MIN_IOPS_WRITE ($SECTOR_MIN_IOPS_WRITE)"
+fi
+
+if (( sector_read_count > 0 )); then
+  if lt "$sector_read_iops" "$SECTOR_MIN_IOPS_READ"; then
+    echo "[elk_performance_test] FAIL: sector read IOPS ($sector_read_iops) < SECTOR_MIN_IOPS_READ ($SECTOR_MIN_IOPS_READ)"
+    test_fail=1
+  else
+    echo "[elk_performance_test] OK: sector read IOPS ($sector_read_iops) >= SECTOR_MIN_IOPS_READ ($SECTOR_MIN_IOPS_READ)"
+  fi
+fi
+
+if [[ "$sector_write_speed_mbps" != "0" ]] && [[ "$sector_write_speed_mbps" != "-" ]]; then
+  if lt "$sector_write_speed_mbps" "$SECTOR_MIN_WRITE_SPEED_MBPS"; then
+    echo "[elk_performance_test] FAIL: sector write speed ($sector_write_speed_mbps Mb/s) < SECTOR_MIN_WRITE_SPEED_MBPS ($SECTOR_MIN_WRITE_SPEED_MBPS Mb/s)"
+    test_fail=1
+  else
+    echo "[elk_performance_test] OK: sector write speed ($sector_write_speed_mbps Mb/s) >= SECTOR_MIN_WRITE_SPEED_MBPS ($SECTOR_MIN_WRITE_SPEED_MBPS Mb/s)"
+  fi
+else
+  echo "[elk_performance_test] SKIP: sector write speed (not available)"
+fi
+
+if (( sector_read_count > 0 )) && [[ "$sector_read_speed_mbps" != "0" ]] && [[ "$sector_read_speed_mbps" != "-" ]]; then
+  if lt "$sector_read_speed_mbps" "$SECTOR_MIN_READ_SPEED_MBPS"; then
+    echo "[elk_performance_test] FAIL: sector read speed ($sector_read_speed_mbps Mb/s) < SECTOR_MIN_READ_SPEED_MBPS ($SECTOR_MIN_READ_SPEED_MBPS Mb/s)"
+    test_fail=1
+  else
+    echo "[elk_performance_test] OK: sector read speed ($sector_read_speed_mbps Mb/s) >= SECTOR_MIN_READ_SPEED_MBPS ($SECTOR_MIN_READ_SPEED_MBPS Mb/s)"
+  fi
+fi
+
+if (( sector_logical_write_count > 0 )); then
+  if lt "$sector_write_amplification" "$SECTOR_MIN_WA"; then
+    echo "[elk_performance_test] FAIL: sector write amplification ($sector_write_amplification) < SECTOR_MIN_WA ($SECTOR_MIN_WA)"
+    test_fail=1
+  else
+    echo "[elk_performance_test] OK: sector write amplification ($sector_write_amplification) >= SECTOR_MIN_WA ($SECTOR_MIN_WA)"
+  fi
+
+  if gt "$sector_write_amplification" "$SECTOR_MAX_WA"; then
+    echo "[elk_performance_test] FAIL: sector write amplification ($sector_write_amplification) > SECTOR_MAX_WA ($SECTOR_MAX_WA)"
+    test_fail=1
+  else
+    echo "[elk_performance_test] OK: sector write amplification ($sector_write_amplification) <= SECTOR_MAX_WA ($SECTOR_MAX_WA)"
+  fi
+else
+  echo "[elk_performance_test] SKIP: sector write amplification (no logical writes recorded)"
 fi
 
 if (( test_fail == 1 )); then
