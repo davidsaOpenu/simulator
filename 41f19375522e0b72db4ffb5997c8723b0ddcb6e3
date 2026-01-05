@@ -1,0 +1,96 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "9d89651f_d0f764b1",
+        "filename": "infra/ELK/elk_performance_test.sh",
+        "patchSetId": 4
+      },
+      "lineNbr": 14,
+      "author": {
+        "id": 1007990
+      },
+      "writtenOn": "2026-01-05T19:41:51Z",
+      "side": 1,
+      "message": "Was the tight minimum of iops  25 over the last 3 hours? If not, lets use tight values.",
+      "range": {
+        "startLine": 13,
+        "startChar": 0,
+        "endLine": 14,
+        "endChar": 40
+      },
+      "revId": "41f19375522e0b72db4ffb5997c8723b0ddcb6e3",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "82285cb3_37257e9a",
+        "filename": "infra/ELK/elk_performance_test.sh",
+        "patchSetId": 4
+      },
+      "lineNbr": 16,
+      "author": {
+        "id": 1007990
+      },
+      "writtenOn": "2026-01-05T19:41:51Z",
+      "side": 1,
+      "message": "WA less then 1?",
+      "range": {
+        "startLine": 15,
+        "startChar": 0,
+        "endLine": 16,
+        "endChar": 24
+      },
+      "revId": "41f19375522e0b72db4ffb5997c8723b0ddcb6e3",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "5da89a55_e5b53146",
+        "filename": "infra/ELK/elk_performance_test.sh",
+        "patchSetId": 4
+      },
+      "lineNbr": 20,
+      "author": {
+        "id": 1007990
+      },
+      "writtenOn": "2026-01-05T19:41:51Z",
+      "side": 1,
+      "message": "here as well - makes sense to use more tight minimum.",
+      "range": {
+        "startLine": 19,
+        "startChar": 0,
+        "endLine": 20,
+        "endChar": 51
+      },
+      "revId": "41f19375522e0b72db4ffb5997c8723b0ddcb6e3",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "d8866e9c_196cabc3",
+        "filename": "infra/ELK/elk_performance_test.sh",
+        "patchSetId": 4
+      },
+      "lineNbr": 31,
+      "author": {
+        "id": 1007990
+      },
+      "writtenOn": "2026-01-05T19:41:51Z",
+      "side": 1,
+      "message": "those values are tight ones?",
+      "range": {
+        "startLine": 24,
+        "startChar": 0,
+        "endLine": 31,
+        "endChar": 46
+      },
+      "revId": "41f19375522e0b72db4ffb5997c8723b0ddcb6e3",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
+    }
+  ]
+}
