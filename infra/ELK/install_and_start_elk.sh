@@ -146,6 +146,24 @@ detect_container_runtime() {
   echo "Using compose command:  $COMPOSE_CMD"
 }
 
+# Function to activate basic license
+activate_basic_license() {
+  echo "Activating Elasticsearch basic license..."
+
+  local response
+  response=$(curl -k -s -f -u "elastic:$ELASTIC_PASSWORD" \
+       -X POST "https://localhost:9200/_license/start_basic?acknowledge=true" 2>/dev/null)
+
+  if [[ $? -eq 0 ]]; then
+    echo "Basic license activated successfully"
+    echo "License response: $response"
+    return 0
+  else
+    echo "WARN: Failed to activate basic license (may already be basic or trial expired)"
+    return 0  # Non-fatal, continue anyway
+  fi
+}
+
 # Function to setup Elasticsearch built-in user passwords
 setup_elasticsearch_passwords() {
   echo "Setting up Elasticsearch built-in user passwords..."
@@ -480,7 +498,7 @@ if [[ $# -ne 2 ]]; then
     echo "  KIBANA_SYSTEM_PASSWORD=changeme"
     echo "  LOGSTASH_SYSTEM_PASSWORD=changeme"
     echo "  BEATS_SYSTEM_PASSWORD=changeme"
-    echo "  ES_HEAP=512"
+    echo "  ES_HEAP=1024"
     exit 1
 fi
 
@@ -524,7 +542,7 @@ ELASTIC_PASSWORD="${ELASTIC_PASSWORD:-changeme}"
 KIBANA_SYSTEM_PASSWORD="${KIBANA_SYSTEM_PASSWORD:-changeme}"
 LOGSTASH_SYSTEM_PASSWORD="${LOGSTASH_SYSTEM_PASSWORD:-changeme}"
 BEATS_SYSTEM_PASSWORD="${BEATS_SYSTEM_PASSWORD:-changeme}"
-ES_HEAP="${ES_HEAP:-512}"
+ES_HEAP="${ES_HEAP:-1024}"
 
 # ---- Container runtime & compose detection ----
 CONTAINER_CMD=""
@@ -664,9 +682,13 @@ echo "Starting ELK stack..."
 $COMPOSE_CMD up -d
 
 check_elasticsearch_health || { echo "Elasticsearch health check failed, exiting"; exit 1; }
+activate_basic_license
 setup_elasticsearch_passwords || { echo "Password setup failed, exiting"; exit 1; }
 check_logstash_health || { echo "Logstash health check failed, exiting"; exit 1; }
 check_kibana_health || { echo "Kibana health check failed, exiting"; exit 1; }
+
+echo "Waiting 60 seconds for cluster to fully stabilize..."
+sleep 60
 
 # Set up Filebeat
 cd ..

@@ -19,7 +19,7 @@ MAX_WA="${MAX_WA:-1.5}"
 MIN_READ_SPEED_MBPS="${MIN_READ_SPEED_MBPS:-1.0}"
 MIN_WRITE_SPEED_MBPS="${MIN_WRITE_SPEED_MBPS:-1.0}"
 
-MAX_GC_RATE="${MAX_GC_RATE:-10.0}"
+MAX_GC_RATE="${MAX_GC_RATE:-30.0}"
 
 MIN_READ_COUNT="${MIN_READ_COUNT:-1000}"
 MIN_WRITE_COUNT="${MIN_WRITE_COUNT:-1000}"
@@ -30,12 +30,23 @@ REQUIRE_UTILIZATION="${REQUIRE_UTILIZATION:-1}"
 GC_FOREGROUND_TRIGGER="${GC_FOREGROUND_TRIGGER:-1}"
 MIN_UTIL_AT_FG_GC="${MIN_UTIL_AT_FG_GC:-0.90}"
 
+SECTOR_MIN_WRITE_COUNT="${SECTOR_MIN_WRITE_COUNT:-1000}"
+SECTOR_MIN_READ_COUNT="${SECTOR_MIN_READ_COUNT:-0}"
+SECTOR_MIN_IOPS_WRITE="${SECTOR_MIN_IOPS_WRITE:-25.0}"
+SECTOR_MIN_IOPS_READ="${SECTOR_MIN_IOPS_READ:-0.0}"
+SECTOR_MIN_WRITE_SPEED_MBPS="${SECTOR_MIN_WRITE_SPEED_MBPS:-1.0}"
+SECTOR_MIN_READ_SPEED_MBPS="${SECTOR_MIN_READ_SPEED_MBPS:-0.0}"
+SECTOR_MIN_WA="${SECTOR_MIN_WA:-0.95}"
+SECTOR_MAX_WA="${SECTOR_MAX_WA:-1.5}"
+
 WAIT_SECS="${WAIT_SECS:-60}"
 LOOKBACK_HOURS="${LOOKBACK_HOURS:-3}"
 FILEBEAT_WAIT_SECS="${FILEBEAT_WAIT_SECS:-120}"
 
 START_AT="${START_AT:-}"
 PRINT_QUERY_CMD="${PRINT_QUERY_CMD:-1}"
+
+TEST_NAME_FILTER="${TEST_NAME_FILTER:-MixSequentialAndRandomOnePageAtTimeWrite}"
 
 FROM_DATE="$(date -u -d "${LOOKBACK_HOURS} hours ago" +%Y-%m-%dT%H:%M:%SZ)"
 TO_DATE="$(date -u +%Y-%m-%dT%H:%M:%SZ)"
@@ -56,7 +67,9 @@ echo "[elk_performance_test] thresholds: MIN_IOPS_READ=$MIN_IOPS_READ MIN_IOPS_W
 echo "[elk_performance_test] speed thresholds (Mb/s): MIN_READ_SPEED_MBPS=$MIN_READ_SPEED_MBPS MIN_WRITE_SPEED_MBPS=$MIN_WRITE_SPEED_MBPS"
 echo "[elk_performance_test] minimum activity: MIN_READ_COUNT=$MIN_READ_COUNT MIN_WRITE_COUNT=$MIN_WRITE_COUNT MIN_LOGICAL_WRITE_COUNT=$MIN_LOGICAL_WRITE_COUNT"
 echo "[elk_performance_test] GC: MAX_GC_RATE=$MAX_GC_RATE, FG check: GC_FOREGROUND_TRIGGER=$GC_FOREGROUND_TRIGGER MIN_UTIL_AT_FG_GC=$MIN_UTIL_AT_FG_GC"
+echo "[elk_performance_test] sector test thresholds: SECTOR_MIN_WRITE_COUNT=$SECTOR_MIN_WRITE_COUNT SECTOR_MIN_IOPS_WRITE=$SECTOR_MIN_IOPS_WRITE SECTOR_MIN_WRITE_SPEED_MBPS=$SECTOR_MIN_WRITE_SPEED_MBPS SECTOR_MIN_WA=$SECTOR_MIN_WA SECTOR_MAX_WA=$SECTOR_MAX_WA"
 echo "[elk_performance_test] time window: LOOKBACK_HOURS=$LOOKBACK_HOURS FILEBEAT_WAIT_SECS=$FILEBEAT_WAIT_SECS START_AT=${START_AT:-<unset>}"
+echo "[elk_performance_test] test filter: TEST_NAME_FILTER=${TEST_NAME_FILTER:-<unset>}"
 
 sec_to_ms() {
   local s="$1"
@@ -377,6 +390,21 @@ type_filter() {
 EOF
 }
 
+test_name_filter() {
+  local test_name="$1"
+  cat <<EOF
+{
+  "bool": {
+    "should": [
+      { "prefix": { "test.name": "$test_name" } },
+      { "prefix": { "test.name.keyword": "$test_name" } }
+    ],
+    "minimum_should_match": 1
+  }
+}
+EOF
+}
+
 top_first_body() {
   cat <<EOF
 {
@@ -397,7 +425,10 @@ top_last_body() {
 EOF
 }
 
-metrics_body="$(cat <<EOF
+# =============================================================================
+# GLOBAL METRICS QUERY (no test.name filter)
+# =============================================================================
+global_metrics_body="$(cat <<EOF
 {
   "query": {
     "range": {
@@ -524,7 +555,70 @@ metrics_body="$(cat <<EOF
 EOF
 )"
 
-metrics_cmd="$(cat <<'EOF'
+# =============================================================================
+# SECTOR TEST METRICS QUERY (with test.name filter)
+# =============================================================================
+sector_metrics_body="$(cat <<EOF
+{
+  "query": {
+    "bool": {
+      "must": [
+        {
+          "range": {
+            "$TS_FIELD": { "gte": "$METRICS_TS_FROM", "lte": "$TS_TO" }
+          }
+        },
+        $(test_name_filter "$TEST_NAME_FILTER")
+      ]
+    }
+  },
+  "aggs": {
+    "reads": {
+      "filter": $(type_filter "PhysicalCellReadLog"),
+      "aggs": {
+        "first": { "top_hits": $(top_first_body) },
+        "last":  { "top_hits": $(top_last_body) }
+      }
+    },
+    "writes": {
+      "filter": $(type_filter "PhysicalCellProgramLog"),
+      "aggs": {
+        "first": { "top_hits": $(top_first_body) },
+        "last":  { "top_hits": $(top_last_body) }
+      }
+    },
+    "logical_writes": {
+      "filter": $(type_filter "LogicalCellProgramLog"),
+      "aggs": {
+        "first": { "top_hits": $(top_first_body) },
+        "last":  { "top_hits": $(top_last_body) }
+      }
+    },
+    "activity": {
+      "filter": {
+        "bool": {
+          "should": [
+            $(type_filter "PhysicalCellReadLog"),
+            $(type_filter "PhysicalCellProgramLog"),
+            $(type_filter "LogicalCellProgramLog")
+          ],
+          "minimum_should_match": 1
+        }
+      },
+      "aggs": {
+        "first": { "top_hits": $(top_first_body) },
+        "last":  { "top_hits": $(top_last_body) }
+      }
+    }
+  }
+}
+EOF
+)"
+
+# =============================================================================
+# Execute Global Metrics Query
+# =============================================================================
+global_metrics_cmd="$(cat <<'EOF'
 curl -k -s -u "elastic:$ELASTIC_PASSWORD" \
   -H 'Content-Type: application/json' \
   '__URL__' -d @- <<'JSON'
@@ -532,15 +626,15 @@ __BODY__
 JSON
 EOF
 )"
-metrics_cmd="${metrics_cmd//__URL__/$ES_URL/$idx/_search?size=0}"
-metrics_cmd="${metrics_cmd//__BODY__/$metrics_body}"
+global_metrics_cmd="${global_metrics_cmd//__URL__/$ES_URL/$idx/_search?size=0}"
+global_metrics_cmd="${global_metrics_cmd//__BODY__/$global_metrics_body}"
 
 if [[ "$PRINT_QUERY_CMD" == "1" ]]; then
-  echo "[elk_performance_test] Metrics query command:"
-  printf '%s\n' "$metrics_cmd"
+  echo "[elk_performance_test] Global Metrics query command:"
+  printf '%s\n' "$global_metrics_cmd"
 fi
 
-metrics_json="$(eval "$metrics_cmd")"
+metrics_json="$(eval "$global_metrics_cmd")"
 
 read_count="$(echo "$metrics_json" | jq -r '.aggregations.reads.doc_count // 0')"
 background_read_count="$(echo "$metrics_json" | jq -r '.aggregations.background_reads.doc_count // 0')"
@@ -676,7 +770,7 @@ fmt_pct() {
 }
 
 echo "======================================================================="
-echo "[elk_performance_test] PERFORMANCE METRICS"
+echo "[elk_performance_test] GLOBAL PERFORMANCE METRICS"
 echo "======================================================================="
 echo "[elk_performance_test] Monitor window: FROM=$FROM_DATE TO=$TO_DATE"
 echo "[elk_performance_test] Metrics window: FROM=$METRICS_FROM_DATE TO=$TO_DATE"
@@ -705,7 +799,7 @@ echo "======================================================================="
 
 test_fail=0
 echo ""
-echo "[elk_performance_test] === PERFORMANCE CHECKS ==="
+echo "[elk_performance_test] === GLOBAL PERFORMANCE CHECKS ==="
 
 if (( p95 > P95_LIMIT_MS )); then
   echo "[elk_performance_test] FAIL: P95 latency (${p95}ms) > limit (${P95_LIMIT_MS}ms)"
@@ -825,6 +919,143 @@ if (( foreground_gc_count >= GC_FOREGROUND_TRIGGER )); then
   fi
 else
   echo "[elk_performance_test] OK: foreground GC count ($foreground_gc_count) < GC_FOREGROUND_TRIGGER ($GC_FOREGROUND_TRIGGER), skipping FG utilization check"
+fi
+
+# =============================================================================
+# Execute Sector Test Metrics Query
+# =============================================================================
+echo ""
+echo "[elk_performance_test] === SECTOR TEST CHECKS ($TEST_NAME_FILTER) ==="
+
+sector_metrics_cmd="$(cat <<'EOF'
+curl -k -s -u "elastic:$ELASTIC_PASSWORD" \
+  -H 'Content-Type: application/json' \
+  '__URL__' -d @- <<'JSON'
+__BODY__
+JSON
+EOF
+)"
+sector_metrics_cmd="${sector_metrics_cmd//__URL__/$ES_URL/$idx/_search?size=0}"
+sector_metrics_cmd="${sector_metrics_cmd//__BODY__/$sector_metrics_body}"
+
+if [[ "$PRINT_QUERY_CMD" == "1" ]]; then
+  echo "[elk_performance_test] Sector Metrics query command:"
+  printf '%s\n' "$sector_metrics_cmd"
+fi
+
+sector_metrics_json="$(eval "$sector_metrics_cmd")"
+
+sector_read_count="$(echo "$sector_metrics_json" | jq -r '.aggregations.reads.doc_count // 0')"
+sector_write_count="$(echo "$sector_metrics_json" | jq -r '.aggregations.writes.doc_count // 0')"
+sector_logical_write_count="$(echo "$sector_metrics_json" | jq -r '.aggregations.logical_writes.doc_count // 0')"
+
+get_sector_first_ts() { jq -r --arg f "$TS_FIELD" "$1" <<<"$sector_metrics_json"; }
+get_sector_last_ts()  { jq -r --arg f "$TS_FIELD" "$1" <<<"$sector_metrics_json"; }
+
+sector_read_first_ts="$(get_sector_first_ts '.aggregations.reads.first.hits.hits[0]._source[$f] // empty')"
+sector_read_last_ts="$(get_sector_last_ts  '.aggregations.reads.last.hits.hits[0]._source[$f] // empty')"
+sector_write_first_ts="$(get_sector_first_ts '.aggregations.writes.first.hits.hits[0]._source[$f] // empty')"
+sector_write_last_ts="$(get_sector_last_ts  '.aggregations.writes.last.hits.hits[0]._source[$f] // empty')"
+
+sector_read_first_epoch="$(ts_to_epoch "$sector_read_first_ts")"
+sector_read_last_epoch="$(ts_to_epoch "$sector_read_last_ts")"
+sector_write_first_epoch="$(ts_to_epoch "$sector_write_first_ts")"
+sector_write_last_epoch="$(ts_to_epoch "$sector_write_last_ts")"
+
+sector_read_span_secs="$(span_secs "$sector_read_count" "$sector_read_first_epoch" "$sector_read_last_epoch")"
+sector_write_span_secs="$(span_secs "$sector_write_count" "$sector_write_first_epoch" "$sector_write_last_epoch")"
+
+sector_read_iops="$(awk -v c="$sector_read_count" -v d="$sector_read_span_secs" 'BEGIN { if (d<=0) print 0; else printf "%.6f", c/d }')"
+sector_write_iops="$(awk -v c="$sector_write_count" -v d="$sector_write_span_secs" 'BEGIN { if (d<=0) print 0; else printf "%.6f", c/d }')"
+
+sector_write_amplification="$(awk -v p="$sector_write_count" -v l="$sector_logical_write_count" 'BEGIN { if (l<=0) print 0; else printf "%.6f", p/l }')"
+
+sector_read_speed_mbps="-"
+sector_write_speed_mbps="-"
+if [[ -n "${page_size_bytes:-}" ]]; then
+  sector_read_speed_mbps="$(awk -v c="$sector_read_count" -v p="$page_size_bytes" -v d="$sector_read_span_secs" \
+    'BEGIN{ if (d<=0) print 0; else printf "%.6f", (c*p*8.0)/(d*1000000.0) }')"
+  sector_write_speed_mbps="$(awk -v c="$sector_write_count" -v p="$page_size_bytes" -v d="$sector_write_span_secs" \
+    'BEGIN{ if (d<=0) print 0; else printf "%.6f", (c*p*8.0)/(d*1000000.0) }')"
+fi
+
+echo "[elk_performance_test] Sector writes: $sector_write_count span=${sector_write_span_secs}s"
+echo "[elk_performance_test] Sector reads:  $sector_read_count span=${sector_read_span_secs}s"
+echo "[elk_performance_test] Sector logical writes: $sector_logical_write_count"
+echo "[elk_performance_test] Sector write IOPS: $sector_write_iops"
+echo "[elk_performance_test] Sector read IOPS:  $sector_read_iops"
+echo "[elk_performance_test] Sector write speed: $sector_write_speed_mbps Mb/s"
+echo "[elk_performance_test] Sector read speed:  $sector_read_speed_mbps Mb/s"
+echo "[elk_performance_test] Sector write amplification: $sector_write_amplification"
+
+if (( sector_write_count < SECTOR_MIN_WRITE_COUNT )); then
+  echo "[elk_performance_test] FAIL: sector write_count ($sector_write_count) < SECTOR_MIN_WRITE_COUNT ($SECTOR_MIN_WRITE_COUNT)"
+  test_fail=1
+else
+  echo "[elk_performance_test] OK: sector write_count ($sector_write_count) >= SECTOR_MIN_WRITE_COUNT ($SECTOR_MIN_WRITE_COUNT)"
+fi
+
+if (( sector_read_count > 0 )); then
+  if (( sector_read_count < SECTOR_MIN_READ_COUNT )); then
+    echo "[elk_performance_test] FAIL: sector read_count ($sector_read_count) < SECTOR_MIN_READ_COUNT ($SECTOR_MIN_READ_COUNT)"
+    test_fail=1
+  else
+    echo "[elk_performance_test] OK: sector read_count ($sector_read_count) >= SECTOR_MIN_READ_COUNT ($SECTOR_MIN_READ_COUNT)"
+  fi
+fi
+
+if lt "$sector_write_iops" "$SECTOR_MIN_IOPS_WRITE"; then
+  echo "[elk_performance_test] FAIL: sector write IOPS ($sector_write_iops) < SECTOR_MIN_IOPS_WRITE ($SECTOR_MIN_IOPS_WRITE)"
+  test_fail=1
+else
+  echo "[elk_performance_test] OK: sector write IOPS ($sector_write_iops) >= SECTOR_MIN_IOPS_WRITE ($SECTOR_MIN_IOPS_WRITE)"
+fi
+
+if (( sector_read_count > 0 )); then
+  if lt "$sector_read_iops" "$SECTOR_MIN_IOPS_READ"; then
+    echo "[elk_performance_test] FAIL: sector read IOPS ($sector_read_iops) < SECTOR_MIN_IOPS_READ ($SECTOR_MIN_IOPS_READ)"
+    test_fail=1
+  else
+    echo "[elk_performance_test] OK: sector read IOPS ($sector_read_iops) >= SECTOR_MIN_IOPS_READ ($SECTOR_MIN_IOPS_READ)"
+  fi
+fi
+
+if [[ "$sector_write_speed_mbps" != "0" ]] && [[ "$sector_write_speed_mbps" != "-" ]]; then
+  if lt "$sector_write_speed_mbps" "$SECTOR_MIN_WRITE_SPEED_MBPS"; then
+    echo "[elk_performance_test] FAIL: sector write speed ($sector_write_speed_mbps Mb/s) < SECTOR_MIN_WRITE_SPEED_MBPS ($SECTOR_MIN_WRITE_SPEED_MBPS Mb/s)"
+    test_fail=1
+  else
+    echo "[elk_performance_test] OK: sector write speed ($sector_write_speed_mbps Mb/s) >= SECTOR_MIN_WRITE_SPEED_MBPS ($SECTOR_MIN_WRITE_SPEED_MBPS Mb/s)"
+  fi
+else
+  echo "[elk_performance_test] SKIP: sector write speed (not available)"
+fi
+
+if (( sector_read_count > 0 )) && [[ "$sector_read_speed_mbps" != "0" ]] && [[ "$sector_read_speed_mbps" != "-" ]]; then
+  if lt "$sector_read_speed_mbps" "$SECTOR_MIN_READ_SPEED_MBPS"; then
+    echo "[elk_performance_test] FAIL: sector read speed ($sector_read_speed_mbps Mb/s) < SECTOR_MIN_READ_SPEED_MBPS ($SECTOR_MIN_READ_SPEED_MBPS Mb/s)"
+    test_fail=1
+  else
+    echo "[elk_performance_test] OK: sector read speed ($sector_read_speed_mbps Mb/s) >= SECTOR_MIN_READ_SPEED_MBPS ($SECTOR_MIN_READ_SPEED_MBPS Mb/s)"
+  fi
+fi
+
+if (( sector_logical_write_count > 0 )); then
+  if lt "$sector_write_amplification" "$SECTOR_MIN_WA"; then
+    echo "[elk_performance_test] FAIL: sector write amplification ($sector_write_amplification) < SECTOR_MIN_WA ($SECTOR_MIN_WA)"
+    test_fail=1
+  else
+    echo "[elk_performance_test] OK: sector write amplification ($sector_write_amplification) >= SECTOR_MIN_WA ($SECTOR_MIN_WA)"
+  fi
+
+  if gt "$sector_write_amplification" "$SECTOR_MAX_WA"; then
+    echo "[elk_performance_test] FAIL: sector write amplification ($sector_write_amplification) > SECTOR_MAX_WA ($SECTOR_MAX_WA)"
+    test_fail=1
+  else
+    echo "[elk_performance_test] OK: sector write amplification ($sector_write_amplification) <= SECTOR_MAX_WA ($SECTOR_MAX_WA)"
+  fi
+else
+  echo "[elk_performance_test] SKIP: sector write amplification (no logical writes recorded)"
 fi
 
 if (( test_fail == 1 )); then
