@@ -480,7 +480,7 @@ if [[ $# -ne 2 ]]; then
     echo "  KIBANA_SYSTEM_PASSWORD=changeme"
     echo "  LOGSTASH_SYSTEM_PASSWORD=changeme"
     echo "  BEATS_SYSTEM_PASSWORD=changeme"
-    echo "  ES_HEAP=512"
+    echo "  ES_HEAP=1024"
     exit 1
 fi
 
@@ -524,7 +524,7 @@ ELASTIC_PASSWORD="${ELASTIC_PASSWORD:-changeme}"
 KIBANA_SYSTEM_PASSWORD="${KIBANA_SYSTEM_PASSWORD:-changeme}"
 LOGSTASH_SYSTEM_PASSWORD="${LOGSTASH_SYSTEM_PASSWORD:-changeme}"
 BEATS_SYSTEM_PASSWORD="${BEATS_SYSTEM_PASSWORD:-changeme}"
-ES_HEAP="${ES_HEAP:-512}"
+ES_HEAP="${ES_HEAP:-1024}"
 
 # ---- Container runtime & compose detection ----
 CONTAINER_CMD=""
@@ -667,6 +667,9 @@ check_elasticsearch_health || { echo "Elasticsearch health check failed, exiting
 setup_elasticsearch_passwords || { echo "Password setup failed, exiting"; exit 1; }
 check_logstash_health || { echo "Logstash health check failed, exiting"; exit 1; }
 check_kibana_health || { echo "Kibana health check failed, exiting"; exit 1; }
+
+echo "Waiting 60 seconds for cluster to fully stabilize..."
+sleep 60
 
 # Set up Filebeat
 cd ..

@@ -19,6 +19,11 @@ filebeat.config.modules:
 setup.template.settings:
   index.number_of_shards: 1
 
+setup.template.name: "filebeat"
+setup.template.pattern: "filebeat-*"
+
+setup.ilm.enabled: false
+
 setup.kibana:
   host: "kibana:5601"
   # Credentials are required for Filebeat to set up dashboards if Kibana is secured.
@@ -40,6 +45,8 @@ output.elasticsearch:
   hosts: ["https://elasticsearch:9200"]
   username: "elastic"
   password: "${ELASTIC_PASSWORD}"
+
+  index: "filebeat-%{+yyyy.MM.dd}"
 
   worker: 4
   bulk_max_size: 1500
