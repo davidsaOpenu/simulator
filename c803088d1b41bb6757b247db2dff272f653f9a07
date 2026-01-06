@@ -22,6 +22,30 @@
       },
       "revId": "c803088d1b41bb6757b247db2dff272f653f9a07",
       "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "ea90f31d_68907fc2",
+        "filename": "/COMMIT_MSG",
+        "patchSetId": 18
+      },
+      "lineNbr": 24,
+      "author": {
+        "id": 1038797
+      },
+      "writtenOn": "2026-01-06T16:40:15Z",
+      "side": 1,
+      "message": "ההפרדה למשימות מאוד ברורה שם - והתיאור של הקונפיג החדש מאוד ברור כך.\nהפיצול בקוד מאוד מסורבל, ולעשות את זה בתיאבד דורש המון עבודה (במיוחד פיצול שגם עובר את הבדיקות)\nלכן, זה נשער בשתי משימות נפרדות.",
+      "parentUuid": "0bd7fe0d_8c4008fd",
+      "range": {
+        "startLine": 19,
+        "startChar": 0,
+        "endLine": 24,
+        "endChar": 89
+      },
+      "revId": "c803088d1b41bb6757b247db2dff272f653f9a07",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
     }
   ]
 }
