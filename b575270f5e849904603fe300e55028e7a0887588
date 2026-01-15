@@ -1,0 +1,192 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "8d209e58_e3528733",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 24
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 1007990
+      },
+      "writtenOn": "2026-01-15T18:49:41Z",
+      "side": 1,
+      "message": "Thanks for working on those changes. Comments inline",
+      "revId": "b575270f5e849904603fe300e55028e7a0887588",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "4de8666e_6f1e436d",
+        "filename": "eVSSIM/FTL_SOURCE/PAGE_MAP/ftl.c",
+        "patchSetId": 24
+      },
+      "lineNbr": 52,
+      "author": {
+        "id": 1007990
+      },
+      "writtenOn": "2026-01-15T18:49:41Z",
+      "side": 1,
+      "message": "1) plz fix a typo. \n2) the FTL is already initilized and there is no need to reinitilize it. It is just an informative message and RERR should not be used.",
+      "revId": "b575270f5e849904603fe300e55028e7a0887588",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "204567fc_8eb63cab",
+        "filename": "eVSSIM/SSD_MODULE/ssd_log_manager.c",
+        "patchSetId": 24
+      },
+      "lineNbr": 71,
+      "author": {
+        "id": 1007990
+      },
+      "writtenOn": "2026-01-15T18:49:41Z",
+      "side": 1,
+      "message": "let\u0027s set the value just in oneeven thought in  eVSSIM/MONITOR/SERVER/logging_server.c is it also set to 0",
+      "revId": "b575270f5e849904603fe300e55028e7a0887588",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "3f1c2b5e_8f64ed2f",
+        "filename": "eVSSIM/tests/host/simulation/base_emulator_tests.h",
+        "patchSetId": 24
+      },
+      "lineNbr": 67,
+      "author": {
+        "id": 1007990
+      },
+      "writtenOn": "2026-01-15T18:49:41Z",
+      "side": 1,
+      "message": "lets rename DEFAULT_NSID, OTHER_NSID to something better  e.g. ID_NS0, ID_NS1",
+      "range": {
+        "startLine": 65,
+        "startChar": 0,
+        "endLine": 67,
+        "endChar": 0
+      },
+      "revId": "b575270f5e849904603fe300e55028e7a0887588",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "ec2b20e5_73d43701",
+        "filename": "eVSSIM/tests/host/simulation/base_emulator_tests.h",
+        "patchSetId": 24
+      },
+      "lineNbr": 166,
+      "author": {
+        "id": 1007990
+      },
+      "writtenOn": "2026-01-15T18:49:41Z",
+      "side": 1,
+      "message": "why the value is different from ll 157?",
+      "range": {
+        "startLine": 166,
+        "startChar": 40,
+        "endLine": 166,
+        "endChar": 44
+      },
+      "revId": "b575270f5e849904603fe300e55028e7a0887588",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "bec6182a_0e961946",
+        "filename": "eVSSIM/tests/host/simulation/gc_tests.cc",
+        "patchSetId": 24
+      },
+      "lineNbr": 24,
+      "author": {
+        "id": 1007990
+      },
+      "writtenOn": "2026-01-15T18:49:41Z",
+      "side": 1,
+      "message": "why device # 3 is set up while device # 1 is teared down in l45?",
+      "range": {
+        "startLine": 24,
+        "startChar": 16,
+        "endLine": 24,
+        "endChar": 30
+      },
+      "revId": "b575270f5e849904603fe300e55028e7a0887588",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "82ba97b0_d5f22308",
+        "filename": "eVSSIM/tests/host/simulation/sector_tests.cc",
+        "patchSetId": 24
+      },
+      "lineNbr": 184,
+      "author": {
+        "id": 1007990
+      },
+      "writtenOn": "2026-01-15T18:49:41Z",
+      "side": 1,
+      "message": "In eVSSIM/tests/host/simulation/base_emulator_tests.h several disks where defined. Those tests are testing 2 namespaces. what was the rational to define 6 disks and several namespaces if only few are testsed?\nAnd let\u0027s also add  a test for writing and reading random data patterns to verify data integrity.",
+      "revId": "b575270f5e849904603fe300e55028e7a0887588",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "cc43605f_3bb67de5",
+        "filename": "eVSSIM/tests/host/simulation/ssd_io_emulator_tests.cc",
+        "patchSetId": 24
+      },
+      "lineNbr": 44,
+      "author": {
+        "id": 1007990
+      },
+      "writtenOn": "2026-01-15T18:49:41Z",
+      "side": 1,
+      "message": "again set up 3, teared down 1",
+      "revId": "b575270f5e849904603fe300e55028e7a0887588",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "9a9d58cb_2ebe8faa",
+        "filename": "eVSSIM/tests/host/simulation/ssd_program_compatible_test.cc",
+        "patchSetId": 24
+      },
+      "lineNbr": 36,
+      "author": {
+        "id": 1007990
+      },
+      "writtenOn": "2026-01-15T18:49:41Z",
+      "side": 1,
+      "message": "same 3 vs 1",
+      "revId": "b575270f5e849904603fe300e55028e7a0887588",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "6f6b97d9_5a85f121",
+        "filename": "eVSSIM/tests/host/simulation/ssd_write_read_test.cc",
+        "patchSetId": 24
+      },
+      "lineNbr": 43,
+      "author": {
+        "id": 1007990
+      },
+      "writtenOn": "2026-01-15T18:49:41Z",
+      "side": 1,
+      "message": "same 3 vs 1",
+      "revId": "b575270f5e849904603fe300e55028e7a0887588",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
+    }
+  ]
+}

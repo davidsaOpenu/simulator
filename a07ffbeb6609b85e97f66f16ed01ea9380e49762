@@ -709,6 +709,30 @@
       "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "f561cf06_a2536d6e",
+        "filename": "eVSSIM/tests/guest/objects_via_ioctl/test_nvme_cli.py",
+        "patchSetId": 17
+      },
+      "lineNbr": 267,
+      "author": {
+        "id": 1007990
+      },
+      "writtenOn": "2026-01-15T18:49:41Z",
+      "side": 1,
+      "message": "Please take another look. In eVSSIM/CONFIG/ssd.conf, disk 3, namespace 1 is defined as SECTOR_STRATEGY. We cannot merge this change without a simple, foolproof check.\n\nNvmeDevice must not be initialized with OBJ_STRATEGY if eVSSIM/CONFIG/ssd.conf defines that namespace as SECTOR_STRATEGY.\n\nAlso, please ensure that for SECTOR_STRATEGY namespaces, ioctl calls fail when object-related operations are attempted and vice versa. Those tests are also basic ones.",
+      "parentUuid": "7a90e9bd_cd9fec92",
+      "range": {
+        "startLine": 265,
+        "startChar": 0,
+        "endLine": 267,
+        "endChar": 0
+      },
+      "revId": "a07ffbeb6609b85e97f66f16ed01ea9380e49762",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "6a81064a_cbb34c42",
