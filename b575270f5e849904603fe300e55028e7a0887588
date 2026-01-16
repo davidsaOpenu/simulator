@@ -35,6 +35,24 @@
       "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "7ab3eb28_2adf7fe9",
+        "filename": "eVSSIM/FTL_SOURCE/PAGE_MAP/ftl.c",
+        "patchSetId": 24
+      },
+      "lineNbr": 52,
+      "author": {
+        "id": 1038797
+      },
+      "writtenOn": "2026-01-16T11:34:23Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "4de8666e_6f1e436d",
+      "revId": "b575270f5e849904603fe300e55028e7a0887588",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "204567fc_8eb63cab",
@@ -52,6 +70,24 @@
       "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "9609886f_c8bd2078",
+        "filename": "eVSSIM/SSD_MODULE/ssd_log_manager.c",
+        "patchSetId": 24
+      },
+      "lineNbr": 71,
+      "author": {
+        "id": 1038797
+      },
+      "writtenOn": "2026-01-16T11:34:23Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "204567fc_8eb63cab",
+      "revId": "b575270f5e849904603fe300e55028e7a0887588",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "3f1c2b5e_8f64ed2f",
@@ -65,6 +101,30 @@
       "writtenOn": "2026-01-15T18:49:41Z",
       "side": 1,
       "message": "lets rename DEFAULT_NSID, OTHER_NSID to something better  e.g. ID_NS0, ID_NS1",
+      "range": {
+        "startLine": 65,
+        "startChar": 0,
+        "endLine": 67,
+        "endChar": 0
+      },
+      "revId": "b575270f5e849904603fe300e55028e7a0887588",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "e5c0a5d3_4e444b39",
+        "filename": "eVSSIM/tests/host/simulation/base_emulator_tests.h",
+        "patchSetId": 24
+      },
+      "lineNbr": 67,
+      "author": {
+        "id": 1038797
+      },
+      "writtenOn": "2026-01-16T11:34:23Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "3f1c2b5e_8f64ed2f",
       "range": {
         "startLine": 65,
         "startChar": 0,
@@ -98,6 +158,30 @@
       "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "2b6a661d_227b911e",
+        "filename": "eVSSIM/tests/host/simulation/base_emulator_tests.h",
+        "patchSetId": 24
+      },
+      "lineNbr": 166,
+      "author": {
+        "id": 1038797
+      },
+      "writtenOn": "2026-01-16T11:34:23Z",
+      "side": 1,
+      "message": "אני לא בטוח, לא ניראה לי משנה. העדכן אותם להיות אותו מספר",
+      "parentUuid": "ec2b20e5_73d43701",
+      "range": {
+        "startLine": 166,
+        "startChar": 40,
+        "endLine": 166,
+        "endChar": 44
+      },
+      "revId": "b575270f5e849904603fe300e55028e7a0887588",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "bec6182a_0e961946",
@@ -111,6 +195,30 @@
       "writtenOn": "2026-01-15T18:49:41Z",
       "side": 1,
       "message": "why device # 3 is set up while device # 1 is teared down in l45?",
+      "range": {
+        "startLine": 24,
+        "startChar": 16,
+        "endLine": 24,
+        "endChar": 30
+      },
+      "revId": "b575270f5e849904603fe300e55028e7a0887588",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "b511cad4_6239eb11",
+        "filename": "eVSSIM/tests/host/simulation/gc_tests.cc",
+        "patchSetId": 24
+      },
+      "lineNbr": 24,
+      "author": {
+        "id": 1038797
+      },
+      "writtenOn": "2026-01-16T11:34:23Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "bec6182a_0e961946",
       "range": {
         "startLine": 24,
         "startChar": 16,
@@ -138,6 +246,24 @@
       "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "25dd5ae6_6d327bb2",
+        "filename": "eVSSIM/tests/host/simulation/sector_tests.cc",
+        "patchSetId": 24
+      },
+      "lineNbr": 184,
+      "author": {
+        "id": 1038797
+      },
+      "writtenOn": "2026-01-16T11:34:23Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "82ba97b0_d5f22308",
+      "revId": "b575270f5e849904603fe300e55028e7a0887588",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "cc43605f_3bb67de5",
@@ -151,6 +277,24 @@
       "writtenOn": "2026-01-15T18:49:41Z",
       "side": 1,
       "message": "again set up 3, teared down 1",
+      "revId": "b575270f5e849904603fe300e55028e7a0887588",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "e5301f63_d468998f",
+        "filename": "eVSSIM/tests/host/simulation/ssd_io_emulator_tests.cc",
+        "patchSetId": 24
+      },
+      "lineNbr": 44,
+      "author": {
+        "id": 1038797
+      },
+      "writtenOn": "2026-01-16T11:34:23Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "cc43605f_3bb67de5",
       "revId": "b575270f5e849904603fe300e55028e7a0887588",
       "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
     },
@@ -172,6 +316,24 @@
       "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "d8bd5c95_bd178646",
+        "filename": "eVSSIM/tests/host/simulation/ssd_program_compatible_test.cc",
+        "patchSetId": 24
+      },
+      "lineNbr": 36,
+      "author": {
+        "id": 1038797
+      },
+      "writtenOn": "2026-01-16T11:34:23Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "9a9d58cb_2ebe8faa",
+      "revId": "b575270f5e849904603fe300e55028e7a0887588",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "6f6b97d9_5a85f121",
@@ -185,6 +347,24 @@
       "writtenOn": "2026-01-15T18:49:41Z",
       "side": 1,
       "message": "same 3 vs 1",
+      "revId": "b575270f5e849904603fe300e55028e7a0887588",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "50db7551_1fa61d0c",
+        "filename": "eVSSIM/tests/host/simulation/ssd_write_read_test.cc",
+        "patchSetId": 24
+      },
+      "lineNbr": 43,
+      "author": {
+        "id": 1038797
+      },
+      "writtenOn": "2026-01-16T11:34:23Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "6f6b97d9_5a85f121",
       "revId": "b575270f5e849904603fe300e55028e7a0887588",
       "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
     }

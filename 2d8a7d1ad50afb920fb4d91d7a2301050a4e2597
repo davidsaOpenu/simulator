@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "885f5a33_b862a703",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 25
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 1038797
+      },
+      "writtenOn": "2026-01-16T11:34:23Z",
+      "side": 1,
+      "message": "ניראה שיש בעיה בסימולטור - כך שניתן לבדוק רק דיסק אחד בכול פעם.",
+      "revId": "2d8a7d1ad50afb920fb4d91d7a2301050a4e2597",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
+    }
+  ]
+}
