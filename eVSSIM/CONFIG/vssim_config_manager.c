@@ -144,6 +144,10 @@ void INIT_SSD_CONFIG(void)
     if (NULL == gc_threads)
         RERR(, "gc_threads allocation failed!\n");
 
+    perf_checker = (perf_checker_t*)calloc(sizeof(perf_checker_t) * device_count, 1);
+    if (NULL == perf_checker)
+        RERR(, "perf_checker allocation failed!\n");
+
     rt_log_stats = (RTLogStatistics**)calloc(sizeof(RTLogStatistics*) * device_count, 1);
     if (NULL == rt_log_stats)
         RERR(, "rt_log_stats allocation failed!\n");
@@ -191,6 +195,9 @@ void TERM_SSD_CONFIG(void)
 
     free(gc_threads);
     gc_threads = NULL;
+
+    free(perf_checker);
+    perf_checker = NULL;
 
     if (rt_log_stats != NULL) {
         uint8_t i;

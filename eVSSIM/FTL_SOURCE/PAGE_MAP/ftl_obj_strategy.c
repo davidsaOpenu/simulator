@@ -203,7 +203,7 @@ ftl_ret_val _FTL_OBJ_READ(uint8_t device_index, obj_id_t obj_loc, void *data, of
         current_page = current_page->next;
     }
 
-    INCREASE_IO_REQUEST_SEQ_NB();
+    INCREASE_IO_REQUEST_SEQ_NB(device_index);
 
     if (data != NULL) {
         uint64_t outlen = 0;
@@ -349,7 +349,7 @@ ftl_ret_val _FTL_OBJ_WRITE(uint8_t device_index, obj_id_t object_loc, const void
         }
     }
 
-    INCREASE_IO_REQUEST_SEQ_NB();
+    INCREASE_IO_REQUEST_SEQ_NB(device_index);
 
     PDBG_FTL("Complete\n");
 
