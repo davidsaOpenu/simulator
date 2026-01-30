@@ -46,7 +46,7 @@ void reset_analyzers(uint8_t device_index) {
     if (analyzers_storage == NULL || analyzers_storage[device_index] == NULL) {
         return;
     }
-    
+
     uint32_t i;
     for (i = 0; i < devices[device_index].flash_nb; i++)
         analyzers_storage[device_index][i].rt_log_analyzer->reset_flag = 1;
@@ -59,7 +59,8 @@ void INIT_LOG_MANAGER(uint8_t device_index)
     if (analyzers_storage[device_index] != NULL)
     {
         // Already inited for this device
-        return;
+        PERR("Analyzers already initialized for device %d: %s\n",
+                device_index, strerror(errno));
     }
 
     // allocate memory
@@ -86,7 +87,7 @@ void INIT_LOG_MANAGER(uint8_t device_index)
     log_manager[device_index] = log_manager_init();
     if (log_manager[device_index] == NULL)
         PERR("Couldn't create the log manager: %s\n", strerror(errno));
-    
+
     // Initialize log server once for all devices
     if (!log_server_initialized) {
         if (log_server_init(0) == 0) {
@@ -94,7 +95,7 @@ void INIT_LOG_MANAGER(uint8_t device_index)
             pthread_create(&log_server_thread, NULL, log_server_run, NULL);
             log_server_initialized = true;
             PINFO("Log server opened\n");
-            PINFO("Browse to http://127.0.0.1:%d/ to see the current statistics\n", LOG_SERVER_PORT(0));
+            PINFO("Browse to http://127.0.0.1:%d/ to see the current statistics\n", LOG_SERVER_PORT(device_index));
         }
     }
 
@@ -167,7 +168,7 @@ void TERM_LOG_MANAGER(uint8_t device_index)
     // free allocated memory for this device
     free(analyzers_storage[device_index]);
     analyzers_storage[device_index] = NULL;
-    
+
     // Check if all devices are terminated, then stop log server
     bool all_terminated = true;
     for (i = 0; i < device_count; i++) {
@@ -176,7 +177,7 @@ void TERM_LOG_MANAGER(uint8_t device_index)
             break;
         }
     }
-    
+
     if (all_terminated && log_server_initialized) {
         log_server.exit_loop_flag = 1;
         log_server_stop();

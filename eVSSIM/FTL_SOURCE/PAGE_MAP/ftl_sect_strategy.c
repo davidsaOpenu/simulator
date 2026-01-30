@@ -128,7 +128,7 @@ ftl_ret_val _FTL_READ_SECT(uint8_t device_index, uint64_t sector_nb, unsigned in
 		// read log all together, and refer to the physical one as an indication to both.
 	}
 
-	INCREASE_IO_REQUEST_SEQ_NB();
+	INCREASE_IO_REQUEST_SEQ_NB(device_index);
 
 	PDBG_FTL("Complete\n");
 
@@ -310,7 +310,7 @@ ftl_ret_val _FTL_WRITE_SECT(uint8_t device_index, uint64_t sector_nb, unsigned i
 		left_skip = 0;
 	}
 
-	INCREASE_IO_REQUEST_SEQ_NB();
+	INCREASE_IO_REQUEST_SEQ_NB(device_index);
 
 #ifdef GC_ON
 	if (device_full) {

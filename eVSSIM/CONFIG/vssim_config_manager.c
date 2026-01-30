@@ -120,7 +120,7 @@ void INIT_SSD_CONFIG(void)
     mapping_table = (uint64_t**)calloc(sizeof(uint64_t*) * device_count, 1);
     if (NULL == mapping_table)
         RERR(, "mapping_table allocation failed!\n");
-    
+
     obj_manager = (obj_strategy_manager_t*)calloc(sizeof(obj_strategy_manager_t) * device_count, 1);
     if (NULL == obj_manager)
         RERR(, "obj_manager allocation failed!\n");
@@ -143,6 +143,10 @@ void INIT_SSD_CONFIG(void)
     gc_threads = calloc(device_count, sizeof(*gc_threads));
     if (NULL == gc_threads)
         RERR(, "gc_threads allocation failed!\n");
+
+    perf_checker = (perf_checker_t*)calloc(sizeof(perf_checker_t) * device_count, 1);
+    if (NULL == perf_checker)
+        RERR(, "perf_checker allocation failed!\n");
 
     rt_log_stats = (RTLogStatistics**)calloc(sizeof(RTLogStatistics*) * device_count, 1);
     if (NULL == rt_log_stats)
@@ -191,6 +195,9 @@ void TERM_SSD_CONFIG(void)
 
     free(gc_threads);
     gc_threads = NULL;
+
+    free(perf_checker);
+    perf_checker = NULL;
 
     if (rt_log_stats != NULL) {
         uint8_t i;

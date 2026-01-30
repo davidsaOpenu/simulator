@@ -49,11 +49,10 @@ RTLogAnalyzer* rt_log_analyzer_init(Logger_Pool* logger, unsigned int analyzer_i
 void rt_log_stats_init(uint8_t device_index) {
     if (rt_log_stats == NULL) {
         RERR(, "rt_log_stats not initialized!\n");
-        return;
     }
     if (NULL != rt_log_stats[device_index])
     {
-        return;
+        RERR(, "rt_log_stats[%d] already initialized!\n", device_index);
     }
 
     rt_log_stats[device_index] = (RTLogStatistics*) malloc(sizeof(RTLogStatistics) * devices[device_index].flash_nb);
@@ -366,7 +365,7 @@ void rt_log_stats_free(uint8_t device_index) {
     if (rt_log_stats == NULL) {
         return;
     }
-    
+
     if (rt_log_stats[device_index] != NULL) {
         free(rt_log_stats[device_index]);
         rt_log_stats[device_index] = NULL;
