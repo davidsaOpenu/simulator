@@ -24,6 +24,30 @@
       "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "4b1fe312_ae9d4d63",
+        "filename": "/COMMIT_MSG",
+        "patchSetId": 26
+      },
+      "lineNbr": 24,
+      "author": {
+        "id": 1038797
+      },
+      "writtenOn": "2026-02-05T19:37:42Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "97d14e93_e0d259dd",
+      "range": {
+        "startLine": 24,
+        "startChar": 0,
+        "endLine": 24,
+        "endChar": 89
+      },
+      "revId": "39c575b62957f10581f6c097605aa609373b87bf",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "4ece6e17_eea781d9",
@@ -37,6 +61,24 @@
       "writtenOn": "2026-02-05T15:59:28Z",
       "side": 1,
       "message": "based on eVSSIM/CONFIG/ssd.conf\nthis disk and namespace support object-based strategy \u003d\u003e failure is expected.",
+      "revId": "39c575b62957f10581f6c097605aa609373b87bf",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "a2713da0_9b1f1962",
+        "filename": "eVSSIM/tests/guest/objects_via_ioctl/test_nvme_cli.py",
+        "patchSetId": 26
+      },
+      "lineNbr": 266,
+      "author": {
+        "id": 1038797
+      },
+      "writtenOn": "2026-02-05T19:37:42Z",
+      "side": 1,
+      "message": "זה בסדר כי הקונפיג לא נימצא שם, והבדיקה עוברת! זה עובד כמו שזה צריך.",
+      "parentUuid": "4ece6e17_eea781d9",
       "revId": "39c575b62957f10581f6c097605aa609373b87bf",
       "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
     },
@@ -58,6 +100,24 @@
       "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "8d274aae_96c73029",
+        "filename": "eVSSIM/tests/host/simulation/gc_tests.cc",
+        "patchSetId": 26
+      },
+      "lineNbr": 45,
+      "author": {
+        "id": 1038797
+      },
+      "writtenOn": "2026-02-05T19:37:42Z",
+      "side": 1,
+      "message": "זה בסדר, במצב הקיים של הבדיקות כל מקנפגים על איזה דיסק עובדים - אין דרך אחרת להשתמש בכמה דיסקים.",
+      "parentUuid": "d4b87f75_71cadf3d",
+      "revId": "39c575b62957f10581f6c097605aa609373b87bf",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "286135f8_930c4de1",
@@ -71,6 +131,24 @@
       "writtenOn": "2026-02-05T15:25:50Z",
       "side": 1,
       "message": "please fix\nSetUp    g_device_index \u003d OBJECT_DEV;\nTearDown   g_device_index \u003d SECTOR_DEV;",
+      "revId": "39c575b62957f10581f6c097605aa609373b87bf",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "317f0c5c_a3628520",
+        "filename": "eVSSIM/tests/host/simulation/object_tests.cc",
+        "patchSetId": 26
+      },
+      "lineNbr": 28,
+      "author": {
+        "id": 1038797
+      },
+      "writtenOn": "2026-02-05T19:37:42Z",
+      "side": 1,
+      "message": "כמו ההערעה הקודמת",
+      "parentUuid": "286135f8_930c4de1",
       "revId": "39c575b62957f10581f6c097605aa609373b87bf",
       "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
     }
