@@ -229,6 +229,30 @@
       "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "e8c2e49c_3f0a3705",
+        "filename": "eVSSIM/tests/host/simulation/gc_tests.cc",
+        "patchSetId": 24
+      },
+      "lineNbr": 24,
+      "author": {
+        "id": 1007990
+      },
+      "writtenOn": "2026-02-05T15:25:50Z",
+      "side": 1,
+      "message": "still  g_device_index \u003d 3; while in line 45  g_device_index \u003d 0;",
+      "parentUuid": "b511cad4_6239eb11",
+      "range": {
+        "startLine": 24,
+        "startChar": 16,
+        "endLine": 24,
+        "endChar": 30
+      },
+      "revId": "b575270f5e849904603fe300e55028e7a0887588",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "82ba97b0_d5f22308",

@@ -1,0 +1,38 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "d4b87f75_71cadf3d",
+        "filename": "eVSSIM/tests/host/simulation/gc_tests.cc",
+        "patchSetId": 26
+      },
+      "lineNbr": 45,
+      "author": {
+        "id": 1007990
+      },
+      "writtenOn": "2026-02-05T15:25:50Z",
+      "side": 1,
+      "message": "SetUp line 24 g_device_index \u003d 3; while in line 45  g_device_index \u003d 0;",
+      "revId": "39c575b62957f10581f6c097605aa609373b87bf",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "286135f8_930c4de1",
+        "filename": "eVSSIM/tests/host/simulation/object_tests.cc",
+        "patchSetId": 26
+      },
+      "lineNbr": 28,
+      "author": {
+        "id": 1007990
+      },
+      "writtenOn": "2026-02-05T15:25:50Z",
+      "side": 1,
+      "message": "please fix\nSetUp    g_device_index \u003d OBJECT_DEV;\nTearDown   g_device_index \u003d SECTOR_DEV;",
+      "revId": "39c575b62957f10581f6c097605aa609373b87bf",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
+    }
+  ]
+}
