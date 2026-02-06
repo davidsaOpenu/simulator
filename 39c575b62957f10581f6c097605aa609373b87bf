@@ -85,6 +85,24 @@
     {
       "unresolved": true,
       "key": {
+        "uuid": "fc7b1de7_1077f041",
+        "filename": "eVSSIM/tests/guest/objects_via_ioctl/test_nvme_cli.py",
+        "patchSetId": 26
+      },
+      "lineNbr": 266,
+      "author": {
+        "id": 1007990
+      },
+      "writtenOn": "2026-02-06T05:57:34Z",
+      "side": 1,
+      "message": "On the contrary. This inconsistency shows that passing the test hides a problem. It was already mentioned previously that we need to add a test that fails when the object strategy is used on the namespace that, according to the configuration, is based on the sector strategy and vice versa. And, in general, avoid marking unresolved concerns as done when disagreement exists. Saves cycles.",
+      "parentUuid": "a2713da0_9b1f1962",
+      "revId": "39c575b62957f10581f6c097605aa609373b87bf",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
+    },
+    {
+      "unresolved": true,
+      "key": {
         "uuid": "d4b87f75_71cadf3d",
         "filename": "eVSSIM/tests/host/simulation/gc_tests.cc",
         "patchSetId": 26
@@ -120,6 +138,24 @@
     {
       "unresolved": true,
       "key": {
+        "uuid": "62c4c5ca_dd56d65f",
+        "filename": "eVSSIM/tests/host/simulation/gc_tests.cc",
+        "patchSetId": 26
+      },
+      "lineNbr": 45,
+      "author": {
+        "id": 1007990
+      },
+      "writtenOn": "2026-02-06T05:57:34Z",
+      "side": 1,
+      "message": "Again, on the contrary. First, having one number in setup and another one in teardown is tear down is logicaly contraversilal. Second, it might hide potential issues.",
+      "parentUuid": "8d274aae_96c73029",
+      "revId": "39c575b62957f10581f6c097605aa609373b87bf",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
+    },
+    {
+      "unresolved": true,
+      "key": {
         "uuid": "286135f8_930c4de1",
         "filename": "eVSSIM/tests/host/simulation/object_tests.cc",
         "patchSetId": 26
@@ -149,6 +185,24 @@
       "side": 1,
       "message": "כמו ההערעה הקודמת",
       "parentUuid": "286135f8_930c4de1",
+      "revId": "39c575b62957f10581f6c097605aa609373b87bf",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "4a546cdd_e4afd92e",
+        "filename": "eVSSIM/tests/host/simulation/object_tests.cc",
+        "patchSetId": 26
+      },
+      "lineNbr": 28,
+      "author": {
+        "id": 1007990
+      },
+      "writtenOn": "2026-02-06T05:57:34Z",
+      "side": 1,
+      "message": "same  comment as https://review.gerrithub.io/c/davidsaOpenu/simulator/+/1226517/comment/d4b87f75_71cadf3d/",
+      "parentUuid": "317f0c5c_a3628520",
       "revId": "39c575b62957f10581f6c097605aa609373b87bf",
       "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
     }
