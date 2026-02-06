@@ -103,6 +103,24 @@
     {
       "unresolved": true,
       "key": {
+        "uuid": "cdf299eb_f0698b18",
+        "filename": "eVSSIM/tests/guest/objects_via_ioctl/test_nvme_cli.py",
+        "patchSetId": 26
+      },
+      "lineNbr": 266,
+      "author": {
+        "id": 1038797
+      },
+      "writtenOn": "2026-02-06T08:15:07Z",
+      "side": 1,
+      "message": "אתה לא מסתקל על הקובץ הנכון,\nבעליה של הבדיקה מפרסרים את הקובץ\nssd.conf.template\nולא את \nssd.conf\n\nשם הקונפיג ברלוונטי לבדיקה!\n\nאם זה היה המוד הלא נכון, זה באמת לא היה עובד..",
+      "parentUuid": "fc7b1de7_1077f041",
+      "revId": "39c575b62957f10581f6c097605aa609373b87bf",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
+    },
+    {
+      "unresolved": true,
+      "key": {
         "uuid": "d4b87f75_71cadf3d",
         "filename": "eVSSIM/tests/host/simulation/gc_tests.cc",
         "patchSetId": 26
