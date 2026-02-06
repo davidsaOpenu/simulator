@@ -121,6 +121,24 @@
     {
       "unresolved": true,
       "key": {
+        "uuid": "3899b73f_6ae7f1e3",
+        "filename": "eVSSIM/tests/guest/objects_via_ioctl/test_nvme_cli.py",
+        "patchSetId": 26
+      },
+      "lineNbr": 266,
+      "author": {
+        "id": 1007990
+      },
+      "writtenOn": "2026-02-06T13:14:08Z",
+      "side": 1,
+      "message": "Good point. The change you are suggesting adds changes to ssd.conf while de facto guest tests are using ./infra/builder/docker/ssd.conf.template, which is left unchanged. Leads to confusion. Can you remove ./infra/builder/docker/ssd.conf.template or create a soft link to CONFIG/ssd.conf ?",
+      "parentUuid": "cdf299eb_f0698b18",
+      "revId": "39c575b62957f10581f6c097605aa609373b87bf",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
+    },
+    {
+      "unresolved": true,
+      "key": {
         "uuid": "d4b87f75_71cadf3d",
         "filename": "eVSSIM/tests/host/simulation/gc_tests.cc",
         "patchSetId": 26
