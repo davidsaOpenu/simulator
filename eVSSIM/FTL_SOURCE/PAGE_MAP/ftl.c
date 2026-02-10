@@ -49,7 +49,7 @@ void FTL_INIT(uint8_t device_index)
 
 	if (g_init_ftl[device_index] == 1) {
 		pthread_mutex_unlock(&g_lock);
-		RINFO(, "FTL_INIT was invoked again, but it should not be executed more than once.\n");
+		RERR(, "FTL_INIT called in the second time. Therefore, cen't run it\n");
 	}
 
 	INIT_OBJ_STRATEGY(device_index);
