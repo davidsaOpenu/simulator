@@ -402,7 +402,7 @@ namespace ssd_io_emulator_tests {
         SSDConf* ssd_config = base_test_get_ssd_config();
 
         size_t flash_num = ssd_config->get_flash_nb();
-        size_t block_x_flash = ssd_config->get_pages_ns(ID_NS0) / ssd_config->get_pages_per_block();
+        size_t block_x_flash = ssd_config->get_pages_ns(DEFAULT_NSID) / ssd_config->get_pages_per_block();
         size_t blocks_per_flash = block_x_flash / flash_num;
 
         int expected_rw = ssd_config->get_pages_per_block() * blocks_per_flash;
@@ -439,12 +439,12 @@ namespace ssd_io_emulator_tests {
     TEST_P(SSDIoEmulatorUnitTest, WriteAmplificationTest) {
         SSDConf* ssd_config = base_test_get_ssd_config();
 
-        const size_t page_x_flash = (ssd_config->get_pages_ns(ID_NS0) + ssd_config->get_pages_ns(ID_NS1));
+        const size_t page_x_flash = (ssd_config->get_pages_ns(DEFAULT_NSID) + ssd_config->get_pages_ns(OTHER_NSID));
 
         // Write all flash.
         for(int x=0; x<2; x++){
             for(size_t p=0; p < page_x_flash; p++){
-                ASSERT_EQ(FTL_SUCCESS, _FTL_WRITE_SECT(g_device_index, ID_NS0, p * ssd_config->get_page_size(), 1, NULL));
+                ASSERT_EQ(FTL_SUCCESS, _FTL_WRITE_SECT(g_device_index, DEFAULT_NSID, p * ssd_config->get_page_size(), 1, NULL));
             }
 
             // Since background GC is disabled for this test suite, invoke it

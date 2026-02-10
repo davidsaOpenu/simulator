@@ -79,8 +79,8 @@ namespace ssd_io_emulator_tests {
             uint64_t lpn = 0;
             uint64_t ppn;
             ASSERT_EQ(FTL_SUCCESS, GET_NEW_PAGE(g_device_index, VICTIM_OVERALL, config->empty_table_entry_nb, &ppn));
-            ASSERT_EQ(FTL_SUCCESS, UPDATE_NEW_PAGE_MAPPING(g_device_index, ID_NS0, lpn, ppn));
-            ASSERT_EQ(FTL_SUCCESS, UPDATE_OLD_PAGE_MAPPING(g_device_index, ID_NS0, lpn));
+            ASSERT_EQ(FTL_SUCCESS, UPDATE_NEW_PAGE_MAPPING(g_device_index, DEFAULT_NSID, lpn, ppn));
+            ASSERT_EQ(FTL_SUCCESS, UPDATE_OLD_PAGE_MAPPING(g_device_index, DEFAULT_NSID, lpn));
         }
 
         ASSERT_EQ(0, gc_threads[g_device_index].gc_loop_count);
@@ -138,7 +138,7 @@ namespace ssd_io_emulator_tests {
         for (uint64_t i = 0; i < pages_total; i++) {
             uint64_t lpn = i;
             ASSERT_EQ(FTL_SUCCESS, GET_NEW_PAGE(g_device_index, VICTIM_OVERALL, devices[g_device_index].empty_table_entry_nb, &ppn));
-            ASSERT_EQ(FTL_SUCCESS, UPDATE_NEW_PAGE_MAPPING(g_device_index, ID_NS0, lpn, ppn));
+            ASSERT_EQ(FTL_SUCCESS, UPDATE_NEW_PAGE_MAPPING(g_device_index, DEFAULT_NSID, lpn, ppn));
         }
         ASSERT_EQ(FTL_FAILURE, GET_NEW_PAGE(g_device_index, VICTIM_OVERALL, devices[g_device_index].empty_table_entry_nb, &ppn));
 
@@ -158,7 +158,7 @@ namespace ssd_io_emulator_tests {
 
         for (uint64_t i = 0; i < pages_total; i++) {
             uint64_t lpn = i;
-            ASSERT_EQ(FTL_SUCCESS, UPDATE_OLD_PAGE_MAPPING(g_device_index, ID_NS0, lpn));
+            ASSERT_EQ(FTL_SUCCESS, UPDATE_OLD_PAGE_MAPPING(g_device_index, DEFAULT_NSID, lpn));
         }
 
         ASSERT_EQ(1, gc_threads[g_device_index].gc_loop_count);
@@ -180,7 +180,7 @@ namespace ssd_io_emulator_tests {
         for (uint64_t i = 0; i < pages_total; i++) {
             uint64_t lpn = i;
             ASSERT_EQ(FTL_SUCCESS, GET_NEW_PAGE(g_device_index, VICTIM_OVERALL, devices[g_device_index].empty_table_entry_nb, &ppn));
-            ASSERT_EQ(FTL_SUCCESS, UPDATE_NEW_PAGE_MAPPING(g_device_index, ID_NS0, lpn, ppn));
+            ASSERT_EQ(FTL_SUCCESS, UPDATE_NEW_PAGE_MAPPING(g_device_index, DEFAULT_NSID, lpn, ppn));
         }
         ASSERT_EQ(FTL_FAILURE, GET_NEW_PAGE(g_device_index, VICTIM_OVERALL, devices[g_device_index].empty_table_entry_nb, &ppn));
 
@@ -201,7 +201,7 @@ namespace ssd_io_emulator_tests {
             uint64_t lba = sectors[i];
             ASSERT_EQ(config->page_nb, inverse_mappings_manager[g_device_index].total_zero_page_nb);
             pthread_mutex_unlock(&g_lock);
-            ASSERT_EQ(FTL_SUCCESS, FTL_WRITE_SECT(g_device_index, ID_NS0, lba, 1, NULL));
+            ASSERT_EQ(FTL_SUCCESS, FTL_WRITE_SECT(g_device_index, DEFAULT_NSID, lba, 1, NULL));
             pthread_mutex_lock(&g_lock);
             ASSERT_EQ(config->page_nb, inverse_mappings_manager[g_device_index].total_zero_page_nb);
         }
@@ -210,24 +210,24 @@ namespace ssd_io_emulator_tests {
     TEST_P(GCTest, CaseReservedLBAs) {
         ssd_config_t *config = &devices[g_device_index];
 
-        const uint64_t sectors_in_defult_namespace = config->sectors_per_page * (base_test_get_ssd_config()->get_total_pages_ns(ID_NS0) + base_test_get_ssd_config()->get_total_pages_ns(ID_NS1) - config->page_nb);
+        const uint64_t sectors_in_defult_namespace = config->sectors_per_page * (base_test_get_ssd_config()->get_total_pages_ns(DEFAULT_NSID) + base_test_get_ssd_config()->get_total_pages_ns(OTHER_NSID) - config->page_nb);
 
         pthread_mutex_unlock(&g_lock);
         // "Exceed Sector number" error - reserved pages for GC
-        ASSERT_EQ(FTL_FAILURE, FTL_WRITE_SECT(g_device_index, ID_NS0, sectors_in_defult_namespace, 1, NULL));
-        ASSERT_EQ(FTL_SUCCESS, FTL_WRITE_SECT(g_device_index, ID_NS0, sectors_in_defult_namespace - 1, 1, NULL));
+        ASSERT_EQ(FTL_FAILURE, FTL_WRITE_SECT(g_device_index, DEFAULT_NSID, sectors_in_defult_namespace, 1, NULL));
+        ASSERT_EQ(FTL_SUCCESS, FTL_WRITE_SECT(g_device_index, DEFAULT_NSID, sectors_in_defult_namespace - 1, 1, NULL));
         pthread_mutex_lock(&g_lock);
     }
 
     TEST_P(GCTest, CasePerfGCThreadDisable) {
         ssd_config_t *config = &devices[g_device_index];
 
-        const uint64_t max_sector_nb = config->sectors_per_page * base_test_get_ssd_config()->get_pages_ns(ID_NS0);
+        const uint64_t max_sector_nb = config->sectors_per_page * base_test_get_ssd_config()->get_pages_ns(DEFAULT_NSID);
 
         unsigned int seed = 0;
         for (uint64_t i = 0; i < 10 * config->pages_in_ssd; i++) {
             uint64_t sector_nb = rand_r(&seed) % max_sector_nb;
-            ASSERT_EQ(FTL_SUCCESS, _FTL_WRITE_SECT(g_device_index, ID_NS0, sector_nb, 1, NULL));
+            ASSERT_EQ(FTL_SUCCESS, _FTL_WRITE_SECT(g_device_index, DEFAULT_NSID, sector_nb, 1, NULL));
         }
 
         _MONITOR_SYNC(g_device_index, &(log_server.stats), MONITOR_SLEEP_MAX_USEC);
@@ -244,13 +244,13 @@ namespace ssd_io_emulator_tests {
         // If this test fails because write_amplification is too high, try increasing this value:
         const uint64_t background_gc_freq = 20;
 
-        const uint64_t max_sector_nb = config->sectors_per_page * base_test_get_ssd_config()->get_pages_ns(ID_NS0);
+        const uint64_t max_sector_nb = config->sectors_per_page * base_test_get_ssd_config()->get_pages_ns(DEFAULT_NSID);
 
         pthread_mutex_unlock(&g_lock);
         unsigned int seed = 0;
         for (uint64_t i = 0; i < 10 * config->pages_in_ssd; i++) {
             uint64_t sector_nb = rand_r(&seed) % max_sector_nb;
-            ASSERT_EQ(FTL_SUCCESS, FTL_WRITE_SECT(g_device_index, ID_NS0, sector_nb, 1, NULL));
+            ASSERT_EQ(FTL_SUCCESS, FTL_WRITE_SECT(g_device_index, DEFAULT_NSID, sector_nb, 1, NULL));
 
             // Simulate some "idle time" to really emphasize the benefits of background GC.
             if (i % (config->pages_in_ssd / background_gc_freq) == 0) {

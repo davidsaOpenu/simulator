@@ -1,0 +1,331 @@
+[
+{
+  "directory": "/code/simulator/eVSSIM/tests/host/unit",
+  "command": "g++ -Wall -Werror -I/opt/gtest/include -I../../.. -I../../../osc-osd -I../../../osc-osd/osd-target -I../../../QEMU -g -DGTEST -DCOMPLIANCE_TESTS -L/opt/gtest/lib -L../../../osc-osd/osd-util -L../../../osc-osd/osd-target -I/opt/libwebsockets/include -L/opt/libwebsockets/lib -L/usr/lib/x86_64-linux-gnu -Wl,-R/opt/libwebsockets/lib -g -m64 -pipe -O2 -Wall -W -D_REENTRANT -fPIE -DQT_NO_DEBUG -DQT_WIDGETS_LIB -DQT_NETWORK_LIB -DQT_GUI_LIB -DQT_CORE_LIB -I/usr/include/json-c/ -D__STDC_VERSION__=0 -std=c++11 -c unit_tests_main.cc",
+  "file": "/code/simulator/eVSSIM/tests/host/unit/unit_tests_main.cc"
+}
+,
+{
+  "directory": "/code/simulator/eVSSIM/tests/host/unit",
+  "command": "g++ -Wall -Werror -I/opt/gtest/include -I../../.. -I../../../osc-osd -I../../../osc-osd/osd-target -I../../../QEMU -g -DGTEST -DCOMPLIANCE_TESTS -L/opt/gtest/lib -L../../../osc-osd/osd-util -L../../../osc-osd/osd-target -I/opt/libwebsockets/include -L/opt/libwebsockets/lib -L/usr/lib/x86_64-linux-gnu -Wl,-R/opt/libwebsockets/lib -g -m64 -pipe -O2 -Wall -W -D_REENTRANT -fPIE -DQT_NO_DEBUG -DQT_WIDGETS_LIB -DQT_NETWORK_LIB -DQT_GUI_LIB -DQT_CORE_LIB -I/usr/include/json-c/ -D__STDC_VERSION__=0 -std=c++11 -c test_ssd_file_ops.cc",
+  "file": "/code/simulator/eVSSIM/tests/host/unit/test_ssd_file_ops.cc"
+}
+,
+{
+  "directory": "/code/simulator/eVSSIM/tests/host/unit",
+  "command": "g++ -Wall -Werror -I/opt/gtest/include -I../../.. -I../../../osc-osd -I../../../osc-osd/osd-target -I../../../QEMU -g -DGTEST -DCOMPLIANCE_TESTS -L/opt/gtest/lib -L../../../osc-osd/osd-util -L../../../osc-osd/osd-target -I/opt/libwebsockets/include -L/opt/libwebsockets/lib -L/usr/lib/x86_64-linux-gnu -Wl,-R/opt/libwebsockets/lib -g -m64 -pipe -O2 -Wall -W -D_REENTRANT -fPIE -DQT_NO_DEBUG -DQT_WIDGETS_LIB -DQT_NETWORK_LIB -DQT_GUI_LIB -DQT_CORE_LIB -I/usr/include/json-c/ -D__STDC_VERSION__=0 -std=c++11 -c test_onfi_ops.cc",
+  "file": "/code/simulator/eVSSIM/tests/host/unit/test_onfi_ops.cc"
+}
+,
+{
+  "directory": "/code/simulator/eVSSIM/tests/host/unit",
+  "command": "gcc -Wall -Werror -I/opt/gtest/include -I../../.. -I../../../osc-osd -I../../../osc-osd/osd-target -I../../../QEMU -g -DGTEST -DCOMPLIANCE_TESTS -L/opt/gtest/lib -L../../../osc-osd/osd-util -L../../../osc-osd/osd-target -I/opt/libwebsockets/include -L/opt/libwebsockets/lib -L/usr/lib/x86_64-linux-gnu -Wl,-R/opt/libwebsockets/lib -g -m64 -pipe -O2 -Wall -W -D_REENTRANT -fPIE -DQT_NO_DEBUG -DQT_WIDGETS_LIB -DQT_NETWORK_LIB -DQT_GUI_LIB -DQT_CORE_LIB -I/usr/include/json-c/ -D__STDC_VERSION__=0 -c onfi.c",
+  "file": "/code/simulator/eVSSIM/tests/host/unit/onfi.c"
+}
+,
+{
+  "directory": "/code/simulator/eVSSIM/tests/host/unit",
+  "command": "gcc -Wall -Werror -I/opt/gtest/include -I../../.. -I../../../osc-osd -I../../../osc-osd/osd-target -I../../../QEMU -g -DGTEST -DCOMPLIANCE_TESTS -L/opt/gtest/lib -L../../../osc-osd/osd-util -L../../../osc-osd/osd-target -I/opt/libwebsockets/include -L/opt/libwebsockets/lib -L/usr/lib/x86_64-linux-gnu -Wl,-R/opt/libwebsockets/lib -g -m64 -pipe -O2 -Wall -W -D_REENTRANT -fPIE -DQT_NO_DEBUG -DQT_WIDGETS_LIB -DQT_NETWORK_LIB -DQT_GUI_LIB -DQT_CORE_LIB -I/usr/include/json-c/ -D__STDC_VERSION__=0 -c ssd_file_operations.c",
+  "file": "/code/simulator/eVSSIM/tests/host/unit/ssd_file_operations.c"
+}
+,
+{
+  "directory": "/code/simulator/eVSSIM/tests/host/unit",
+  "command": "gcc -Wall -Werror -I/opt/gtest/include -I../../.. -I../../../osc-osd -I../../../osc-osd/osd-target -I../../../QEMU -g -DGTEST -DCOMPLIANCE_TESTS -L/opt/gtest/lib -L../../../osc-osd/osd-util -L../../../osc-osd/osd-target -I/opt/libwebsockets/include -L/opt/libwebsockets/lib -L/usr/lib/x86_64-linux-gnu -Wl,-R/opt/libwebsockets/lib -g -m64 -pipe -O2 -Wall -W -D_REENTRANT -fPIE -DQT_NO_DEBUG -DQT_WIDGETS_LIB -DQT_NETWORK_LIB -DQT_GUI_LIB -DQT_CORE_LIB -I/usr/include/json-c/ -D__STDC_VERSION__=0 -c vssim_config_manager.c",
+  "file": "/code/simulator/eVSSIM/tests/host/unit/vssim_config_manager.c"
+}
+,
+{
+  "directory": "/code/simulator/eVSSIM/tests/host/unit",
+  "command": "gcc -Wall -Werror -I/opt/gtest/include -I../../.. -I../../../osc-osd -I../../../osc-osd/osd-target -I../../../QEMU -g -DGTEST -DCOMPLIANCE_TESTS -L/opt/gtest/lib -L../../../osc-osd/osd-util -L../../../osc-osd/osd-target -I/opt/libwebsockets/include -L/opt/libwebsockets/lib -L/usr/lib/x86_64-linux-gnu -Wl,-R/opt/libwebsockets/lib -g -m64 -pipe -O2 -Wall -W -D_REENTRANT -fPIE -DQT_NO_DEBUG -DQT_WIDGETS_LIB -DQT_NETWORK_LIB -DQT_GUI_LIB -DQT_CORE_LIB -I/usr/include/json-c/ -D__STDC_VERSION__=0 -c ftl.c",
+  "file": "/code/simulator/eVSSIM/tests/host/unit/ftl.c"
+}
+,
+{
+  "directory": "/code/simulator/eVSSIM/tests/host/unit",
+  "command": "gcc -Wall -Werror -I/opt/gtest/include -I../../.. -I../../../osc-osd -I../../../osc-osd/osd-target -I../../../QEMU -g -DGTEST -DCOMPLIANCE_TESTS -L/opt/gtest/lib -L../../../osc-osd/osd-util -L../../../osc-osd/osd-target -I/opt/libwebsockets/include -L/opt/libwebsockets/lib -L/usr/lib/x86_64-linux-gnu -Wl,-R/opt/libwebsockets/lib -g -m64 -pipe -O2 -Wall -W -D_REENTRANT -fPIE -DQT_NO_DEBUG -DQT_WIDGETS_LIB -DQT_NETWORK_LIB -DQT_GUI_LIB -DQT_CORE_LIB -I/usr/include/json-c/ -D__STDC_VERSION__=0 -c ftl_mapping_manager.c",
+  "file": "/code/simulator/eVSSIM/tests/host/unit/ftl_mapping_manager.c"
+}
+,
+{
+  "directory": "/code/simulator/eVSSIM/tests/host/unit",
+  "command": "gcc -Wall -Werror -I/opt/gtest/include -I../../.. -I../../../osc-osd -I../../../osc-osd/osd-target -I../../../QEMU -g -DGTEST -DCOMPLIANCE_TESTS -L/opt/gtest/lib -L../../../osc-osd/osd-util -L../../../osc-osd/osd-target -I/opt/libwebsockets/include -L/opt/libwebsockets/lib -L/usr/lib/x86_64-linux-gnu -Wl,-R/opt/libwebsockets/lib -g -m64 -pipe -O2 -Wall -W -D_REENTRANT -fPIE -DQT_NO_DEBUG -DQT_WIDGETS_LIB -DQT_NETWORK_LIB -DQT_GUI_LIB -DQT_CORE_LIB -I/usr/include/json-c/ -D__STDC_VERSION__=0 -c ftl_inverse_mapping_manager.c",
+  "file": "/code/simulator/eVSSIM/tests/host/unit/ftl_inverse_mapping_manager.c"
+}
+,
+{
+  "directory": "/code/simulator/eVSSIM/tests/host/unit",
+  "command": "gcc -Wall -Werror -I/opt/gtest/include -I../../.. -I../../../osc-osd -I../../../osc-osd/osd-target -I../../../QEMU -g -DGTEST -DCOMPLIANCE_TESTS -L/opt/gtest/lib -L../../../osc-osd/osd-util -L../../../osc-osd/osd-target -I/opt/libwebsockets/include -L/opt/libwebsockets/lib -L/usr/lib/x86_64-linux-gnu -Wl,-R/opt/libwebsockets/lib -g -m64 -pipe -O2 -Wall -W -D_REENTRANT -fPIE -DQT_NO_DEBUG -DQT_WIDGETS_LIB -DQT_NETWORK_LIB -DQT_GUI_LIB -DQT_CORE_LIB -I/usr/include/json-c/ -D__STDC_VERSION__=0 -c ftl_gc_manager.c",
+  "file": "/code/simulator/eVSSIM/tests/host/unit/ftl_gc_manager.c"
+}
+,
+{
+  "directory": "/code/simulator/eVSSIM/tests/host/unit",
+  "command": "gcc -Wall -Werror -I/opt/gtest/include -I../../.. -I../../../osc-osd -I../../../osc-osd/osd-target -I../../../QEMU -g -DGTEST -DCOMPLIANCE_TESTS -L/opt/gtest/lib -L../../../osc-osd/osd-util -L../../../osc-osd/osd-target -I/opt/libwebsockets/include -L/opt/libwebsockets/lib -L/usr/lib/x86_64-linux-gnu -Wl,-R/opt/libwebsockets/lib -g -m64 -pipe -O2 -Wall -W -D_REENTRANT -fPIE -DQT_NO_DEBUG -DQT_WIDGETS_LIB -DQT_NETWORK_LIB -DQT_GUI_LIB -DQT_CORE_LIB -I/usr/include/json-c/ -D__STDC_VERSION__=0 -c ftl_perf_manager.c",
+  "file": "/code/simulator/eVSSIM/tests/host/unit/ftl_perf_manager.c"
+}
+,
+{
+  "directory": "/code/simulator/eVSSIM/tests/host/unit",
+  "command": "gcc -Wall -Werror -I/opt/gtest/include -I../../.. -I../../../osc-osd -I../../../osc-osd/osd-target -I../../../QEMU -g -DGTEST -DCOMPLIANCE_TESTS -L/opt/gtest/lib -L../../../osc-osd/osd-util -L../../../osc-osd/osd-target -I/opt/libwebsockets/include -L/opt/libwebsockets/lib -L/usr/lib/x86_64-linux-gnu -Wl,-R/opt/libwebsockets/lib -g -m64 -pipe -O2 -Wall -W -D_REENTRANT -fPIE -DQT_NO_DEBUG -DQT_WIDGETS_LIB -DQT_NETWORK_LIB -DQT_GUI_LIB -DQT_CORE_LIB -I/usr/include/json-c/ -D__STDC_VERSION__=0 -c ssd_log_manager.c",
+  "file": "/code/simulator/eVSSIM/tests/host/unit/ssd_log_manager.c"
+}
+,
+{
+  "directory": "/code/simulator/eVSSIM/tests/host/unit",
+  "command": "gcc -Wall -Werror -I/opt/gtest/include -I../../.. -I../../../osc-osd -I../../../osc-osd/osd-target -I../../../QEMU -g -DGTEST -DCOMPLIANCE_TESTS -L/opt/gtest/lib -L../../../osc-osd/osd-util -L../../../osc-osd/osd-target -I/opt/libwebsockets/include -L/opt/libwebsockets/lib -L/usr/lib/x86_64-linux-gnu -Wl,-R/opt/libwebsockets/lib -g -m64 -pipe -O2 -Wall -W -D_REENTRANT -fPIE -DQT_NO_DEBUG -DQT_WIDGETS_LIB -DQT_NETWORK_LIB -DQT_GUI_LIB -DQT_CORE_LIB -I/usr/include/json-c/ -D__STDC_VERSION__=0 -c ssd_io_manager.c",
+  "file": "/code/simulator/eVSSIM/tests/host/unit/ssd_io_manager.c"
+}
+,
+{
+  "directory": "/code/simulator/eVSSIM/tests/host/unit",
+  "command": "gcc -Wall -Werror -I/opt/gtest/include -I../../.. -I../../../osc-osd -I../../../osc-osd/osd-target -I../../../QEMU -g -DGTEST -DCOMPLIANCE_TESTS -L/opt/gtest/lib -L../../../osc-osd/osd-util -L../../../osc-osd/osd-target -I/opt/libwebsockets/include -L/opt/libwebsockets/lib -L/usr/lib/x86_64-linux-gnu -Wl,-R/opt/libwebsockets/lib -g -m64 -pipe -O2 -Wall -W -D_REENTRANT -fPIE -DQT_NO_DEBUG -DQT_WIDGETS_LIB -DQT_NETWORK_LIB -DQT_GUI_LIB -DQT_CORE_LIB -I/usr/include/json-c/ -D__STDC_VERSION__=0 -c ftl_sect_strategy.c",
+  "file": "/code/simulator/eVSSIM/tests/host/unit/ftl_sect_strategy.c"
+}
+,
+{
+  "directory": "/code/simulator/eVSSIM/tests/host/unit",
+  "command": "gcc -Wall -Werror -I/opt/gtest/include -I../../.. -I../../../osc-osd -I../../../osc-osd/osd-target -I../../../QEMU -g -DGTEST -DCOMPLIANCE_TESTS -L/opt/gtest/lib -L../../../osc-osd/osd-util -L../../../osc-osd/osd-target -I/opt/libwebsockets/include -L/opt/libwebsockets/lib -L/usr/lib/x86_64-linux-gnu -Wl,-R/opt/libwebsockets/lib -g -m64 -pipe -O2 -Wall -W -D_REENTRANT -fPIE -DQT_NO_DEBUG -DQT_WIDGETS_LIB -DQT_NETWORK_LIB -DQT_GUI_LIB -DQT_CORE_LIB -I/usr/include/json-c/ -D__STDC_VERSION__=0 -c ftl_obj_strategy.c",
+  "file": "/code/simulator/eVSSIM/tests/host/unit/ftl_obj_strategy.c"
+}
+,
+{
+  "directory": "/code/simulator/eVSSIM/tests/host/unit",
+  "command": "gcc -Wall -Werror -I/opt/gtest/include -I../../.. -I../../../osc-osd -I../../../osc-osd/osd-target -I../../../QEMU -g -DGTEST -DCOMPLIANCE_TESTS -L/opt/gtest/lib -L../../../osc-osd/osd-util -L../../../osc-osd/osd-target -I/opt/libwebsockets/include -L/opt/libwebsockets/lib -L/usr/lib/x86_64-linux-gnu -Wl,-R/opt/libwebsockets/lib -g -m64 -pipe -O2 -Wall -W -D_REENTRANT -fPIE -DQT_NO_DEBUG -DQT_WIDGETS_LIB -DQT_NETWORK_LIB -DQT_GUI_LIB -DQT_CORE_LIB -I/usr/include/json-c/ -D__STDC_VERSION__=0 -c logging_backend.c",
+  "file": "/code/simulator/eVSSIM/tests/host/unit/logging_backend.c"
+}
+,
+{
+  "directory": "/code/simulator/eVSSIM/tests/host/unit",
+  "command": "gcc -Wall -Werror -I/opt/gtest/include -I../../.. -I../../../osc-osd -I../../../osc-osd/osd-target -I../../../QEMU -g -DGTEST -DCOMPLIANCE_TESTS -L/opt/gtest/lib -L../../../osc-osd/osd-util -L../../../osc-osd/osd-target -I/opt/libwebsockets/include -L/opt/libwebsockets/lib -L/usr/lib/x86_64-linux-gnu -Wl,-R/opt/libwebsockets/lib -g -m64 -pipe -O2 -Wall -W -D_REENTRANT -fPIE -DQT_NO_DEBUG -DQT_WIDGETS_LIB -DQT_NETWORK_LIB -DQT_GUI_LIB -DQT_CORE_LIB -I/usr/include/json-c/ -D__STDC_VERSION__=0 -c logging_parser.c",
+  "file": "/code/simulator/eVSSIM/tests/host/unit/logging_parser.c"
+}
+,
+{
+  "directory": "/code/simulator/eVSSIM/tests/host/unit",
+  "command": "gcc -Wall -Werror -I/opt/gtest/include -I../../.. -I../../../osc-osd -I../../../osc-osd/osd-target -I../../../QEMU -g -DGTEST -DCOMPLIANCE_TESTS -L/opt/gtest/lib -L../../../osc-osd/osd-util -L../../../osc-osd/osd-target -I/opt/libwebsockets/include -L/opt/libwebsockets/lib -L/usr/lib/x86_64-linux-gnu -Wl,-R/opt/libwebsockets/lib -g -m64 -pipe -O2 -Wall -W -D_REENTRANT -fPIE -DQT_NO_DEBUG -DQT_WIDGETS_LIB -DQT_NETWORK_LIB -DQT_GUI_LIB -DQT_CORE_LIB -I/usr/include/json-c/ -D__STDC_VERSION__=0 -c logging_rt_analyzer.c",
+  "file": "/code/simulator/eVSSIM/tests/host/unit/logging_rt_analyzer.c"
+}
+,
+{
+  "directory": "/code/simulator/eVSSIM/tests/host/unit",
+  "command": "gcc -Wall -Werror -I/opt/gtest/include -I../../.. -I../../../osc-osd -I../../../osc-osd/osd-target -I../../../QEMU -g -DGTEST -DCOMPLIANCE_TESTS -L/opt/gtest/lib -L../../../osc-osd/osd-util -L../../../osc-osd/osd-target -I/opt/libwebsockets/include -L/opt/libwebsockets/lib -L/usr/lib/x86_64-linux-gnu -Wl,-R/opt/libwebsockets/lib -g -m64 -pipe -O2 -Wall -W -D_REENTRANT -fPIE -DQT_NO_DEBUG -DQT_WIDGETS_LIB -DQT_NETWORK_LIB -DQT_GUI_LIB -DQT_CORE_LIB -I/usr/include/json-c/ -D__STDC_VERSION__=0 -c logging_offline_analyzer.c",
+  "file": "/code/simulator/eVSSIM/tests/host/unit/logging_offline_analyzer.c"
+}
+,
+{
+  "directory": "/code/simulator/eVSSIM/tests/host/unit",
+  "command": "gcc -Wall -Werror -I/opt/gtest/include -I../../.. -I../../../osc-osd -I../../../osc-osd/osd-target -I../../../QEMU -g -DGTEST -DCOMPLIANCE_TESTS -L/opt/gtest/lib -L../../../osc-osd/osd-util -L../../../osc-osd/osd-target -I/opt/libwebsockets/include -L/opt/libwebsockets/lib -L/usr/lib/x86_64-linux-gnu -Wl,-R/opt/libwebsockets/lib -g -m64 -pipe -O2 -Wall -W -D_REENTRANT -fPIE -DQT_NO_DEBUG -DQT_WIDGETS_LIB -DQT_NETWORK_LIB -DQT_GUI_LIB -DQT_CORE_LIB -I/usr/include/json-c/ -D__STDC_VERSION__=0 -c logging_manager.c",
+  "file": "/code/simulator/eVSSIM/tests/host/unit/logging_manager.c"
+}
+,
+{
+  "directory": "/code/simulator/eVSSIM/tests/host/unit",
+  "command": "gcc -Wall -Werror -I/opt/gtest/include -I../../.. -I../../../osc-osd -I../../../osc-osd/osd-target -I../../../QEMU -g -DGTEST -DCOMPLIANCE_TESTS -L/opt/gtest/lib -L../../../osc-osd/osd-util -L../../../osc-osd/osd-target -I/opt/libwebsockets/include -L/opt/libwebsockets/lib -L/usr/lib/x86_64-linux-gnu -Wl,-R/opt/libwebsockets/lib -g -m64 -pipe -O2 -Wall -W -D_REENTRANT -fPIE -DQT_NO_DEBUG -DQT_WIDGETS_LIB -DQT_NETWORK_LIB -DQT_GUI_LIB -DQT_CORE_LIB -I/usr/include/json-c/ -D__STDC_VERSION__=0 -c logging_server.c",
+  "file": "/code/simulator/eVSSIM/tests/host/unit/logging_server.c"
+}
+,
+{
+  "directory": "/code/simulator/eVSSIM/tests/host/unit",
+  "command": "gcc -Wall -Werror -I/opt/gtest/include -I../../.. -I../../../osc-osd -I../../../osc-osd/osd-target -I../../../QEMU -g -DGTEST -DCOMPLIANCE_TESTS -L/opt/gtest/lib -L../../../osc-osd/osd-util -L../../../osc-osd/osd-target -I/opt/libwebsockets/include -L/opt/libwebsockets/lib -L/usr/lib/x86_64-linux-gnu -Wl,-R/opt/libwebsockets/lib -g -m64 -pipe -O2 -Wall -W -D_REENTRANT -fPIE -DQT_NO_DEBUG -DQT_WIDGETS_LIB -DQT_NETWORK_LIB -DQT_GUI_LIB -DQT_CORE_LIB -I/usr/include/json-c/ -D__STDC_VERSION__=0 -c logging_statistics.c",
+  "file": "/code/simulator/eVSSIM/tests/host/unit/logging_statistics.c"
+}
+,
+{
+  "directory": "/code/simulator/eVSSIM/tests/host/unit",
+  "command": "gcc -Wall -Werror -I/opt/gtest/include -I../../.. -I../../../osc-osd -I../../../osc-osd/osd-target -I../../../QEMU -g -DGTEST -DCOMPLIANCE_TESTS -L/opt/gtest/lib -L../../../osc-osd/osd-util -L../../../osc-osd/osd-target -I/opt/libwebsockets/include -L/opt/libwebsockets/lib -L/usr/lib/x86_64-linux-gnu -Wl,-R/opt/libwebsockets/lib -g -m64 -pipe -O2 -Wall -W -D_REENTRANT -fPIE -DQT_NO_DEBUG -DQT_WIDGETS_LIB -DQT_NETWORK_LIB -DQT_GUI_LIB -DQT_CORE_LIB -I/usr/include/json-c/ -D__STDC_VERSION__=0 -c test_context.c",
+  "file": "/code/simulator/eVSSIM/tests/host/unit/test_context.c"
+}
+,
+{
+  "directory": "/code/simulator/eVSSIM/tests/host/simulation",
+  "command": "g++ -Wall -Werror -I/opt/gtest/include -I../../.. -I../../../osc-osd -I../../../osc-osd/osd-target -I../../../QEMU -g -DGTEST -DCOMPLIANCE_TESTS -L/opt/gtest/lib -L../../../osc-osd/osd-util -L../../../osc-osd/osd-target -I/opt/libwebsockets/include -L/opt/libwebsockets/lib -L/usr/lib/x86_64-linux-gnu -Wl,-R/opt/libwebsockets/lib -g -m64 -pipe -O2 -Wall -W -D_REENTRANT -fPIE -DQT_NO_DEBUG -DQT_WIDGETS_LIB -DQT_NETWORK_LIB -DQT_GUI_LIB -DQT_CORE_LIB -I/usr/include/json-c/ -D__STDC_VERSION__=0 -std=c++11 -c object_tests.cc",
+  "file": "/code/simulator/eVSSIM/tests/host/simulation/object_tests.cc"
+}
+,
+{
+  "directory": "/code/simulator/eVSSIM/tests/host/simulation",
+  "command": "g++ -Wall -Werror -I/opt/gtest/include -I../../.. -I../../../osc-osd -I../../../osc-osd/osd-target -I../../../QEMU -g -DGTEST -DCOMPLIANCE_TESTS -L/opt/gtest/lib -L../../../osc-osd/osd-util -L../../../osc-osd/osd-target -I/opt/libwebsockets/include -L/opt/libwebsockets/lib -L/usr/lib/x86_64-linux-gnu -Wl,-R/opt/libwebsockets/lib -g -m64 -pipe -O2 -Wall -W -D_REENTRANT -fPIE -DQT_NO_DEBUG -DQT_WIDGETS_LIB -DQT_NETWORK_LIB -DQT_GUI_LIB -DQT_CORE_LIB -I/usr/include/json-c/ -D__STDC_VERSION__=0 -std=c++11 -c sector_tests.cc",
+  "file": "/code/simulator/eVSSIM/tests/host/simulation/sector_tests.cc"
+}
+,
+{
+  "directory": "/code/simulator/eVSSIM/tests/host/simulation",
+  "command": "g++ -Wall -Werror -I/opt/gtest/include -I../../.. -I../../../osc-osd -I../../../osc-osd/osd-target -I../../../QEMU -g -DGTEST -DCOMPLIANCE_TESTS -L/opt/gtest/lib -L../../../osc-osd/osd-util -L../../../osc-osd/osd-target -I/opt/libwebsockets/include -L/opt/libwebsockets/lib -L/usr/lib/x86_64-linux-gnu -Wl,-R/opt/libwebsockets/lib -g -m64 -pipe -O2 -Wall -W -D_REENTRANT -fPIE -DQT_NO_DEBUG -DQT_WIDGETS_LIB -DQT_NETWORK_LIB -DQT_GUI_LIB -DQT_CORE_LIB -I/usr/include/json-c/ -D__STDC_VERSION__=0 -std=c++11 -c log_mgr_tests.cc",
+  "file": "/code/simulator/eVSSIM/tests/host/simulation/log_mgr_tests.cc"
+}
+,
+{
+  "directory": "/code/simulator/eVSSIM/tests/host/simulation",
+  "command": "g++ -Wall -Werror -I/opt/gtest/include -I../../.. -I../../../osc-osd -I../../../osc-osd/osd-target -I../../../QEMU -g -DGTEST -DCOMPLIANCE_TESTS -L/opt/gtest/lib -L../../../osc-osd/osd-util -L../../../osc-osd/osd-target -I/opt/libwebsockets/include -L/opt/libwebsockets/lib -L/usr/lib/x86_64-linux-gnu -Wl,-R/opt/libwebsockets/lib -g -m64 -pipe -O2 -Wall -W -D_REENTRANT -fPIE -DQT_NO_DEBUG -DQT_WIDGETS_LIB -DQT_NETWORK_LIB -DQT_GUI_LIB -DQT_CORE_LIB -I/usr/include/json-c/ -D__STDC_VERSION__=0 -std=c++11 -c ssd_io_emulator_tests.cc",
+  "file": "/code/simulator/eVSSIM/tests/host/simulation/ssd_io_emulator_tests.cc"
+}
+,
+{
+  "directory": "/code/simulator/eVSSIM/tests/host/simulation",
+  "command": "g++ -Wall -Werror -I/opt/gtest/include -I../../.. -I../../../osc-osd -I../../../osc-osd/osd-target -I../../../QEMU -g -DGTEST -DCOMPLIANCE_TESTS -L/opt/gtest/lib -L../../../osc-osd/osd-util -L../../../osc-osd/osd-target -I/opt/libwebsockets/include -L/opt/libwebsockets/lib -L/usr/lib/x86_64-linux-gnu -Wl,-R/opt/libwebsockets/lib -g -m64 -pipe -O2 -Wall -W -D_REENTRANT -fPIE -DQT_NO_DEBUG -DQT_WIDGETS_LIB -DQT_NETWORK_LIB -DQT_GUI_LIB -DQT_CORE_LIB -I/usr/include/json-c/ -D__STDC_VERSION__=0 -std=c++11 -c rt_analyzer_subscriber.cc",
+  "file": "/code/simulator/eVSSIM/tests/host/simulation/rt_analyzer_subscriber.cc"
+}
+,
+{
+  "directory": "/code/simulator/eVSSIM/tests/host/simulation",
+  "command": "g++ -Wall -Werror -I/opt/gtest/include -I../../.. -I../../../osc-osd -I../../../osc-osd/osd-target -I../../../QEMU -g -DGTEST -DCOMPLIANCE_TESTS -L/opt/gtest/lib -L../../../osc-osd/osd-util -L../../../osc-osd/osd-target -I/opt/libwebsockets/include -L/opt/libwebsockets/lib -L/usr/lib/x86_64-linux-gnu -Wl,-R/opt/libwebsockets/lib -g -m64 -pipe -O2 -Wall -W -D_REENTRANT -fPIE -DQT_NO_DEBUG -DQT_WIDGETS_LIB -DQT_NETWORK_LIB -DQT_GUI_LIB -DQT_CORE_LIB -I/usr/include/json-c/ -D__STDC_VERSION__=0 -std=c++11 -c log_manager_subscriber.cc",
+  "file": "/code/simulator/eVSSIM/tests/host/simulation/log_manager_subscriber.cc"
+}
+,
+{
+  "directory": "/code/simulator/eVSSIM/tests/host/simulation",
+  "command": "g++ -Wall -Werror -I/opt/gtest/include -I../../.. -I../../../osc-osd -I../../../osc-osd/osd-target -I../../../QEMU -g -DGTEST -DCOMPLIANCE_TESTS -L/opt/gtest/lib -L../../../osc-osd/osd-util -L../../../osc-osd/osd-target -I/opt/libwebsockets/include -L/opt/libwebsockets/lib -L/usr/lib/x86_64-linux-gnu -Wl,-R/opt/libwebsockets/lib -g -m64 -pipe -O2 -Wall -W -D_REENTRANT -fPIE -DQT_NO_DEBUG -DQT_WIDGETS_LIB -DQT_NETWORK_LIB -DQT_GUI_LIB -DQT_CORE_LIB -I/usr/include/json-c/ -D__STDC_VERSION__=0 -std=c++11 -c simulation_tests_main.cc",
+  "file": "/code/simulator/eVSSIM/tests/host/simulation/simulation_tests_main.cc"
+}
+,
+{
+  "directory": "/code/simulator/eVSSIM/tests/host/simulation",
+  "command": "g++ -Wall -Werror -I/opt/gtest/include -I../../.. -I../../../osc-osd -I../../../osc-osd/osd-target -I../../../QEMU -g -DGTEST -DCOMPLIANCE_TESTS -L/opt/gtest/lib -L../../../osc-osd/osd-util -L../../../osc-osd/osd-target -I/opt/libwebsockets/include -L/opt/libwebsockets/lib -L/usr/lib/x86_64-linux-gnu -Wl,-R/opt/libwebsockets/lib -g -m64 -pipe -O2 -Wall -W -D_REENTRANT -fPIE -DQT_NO_DEBUG -DQT_WIDGETS_LIB -DQT_NETWORK_LIB -DQT_GUI_LIB -DQT_CORE_LIB -I/usr/include/json-c/ -D__STDC_VERSION__=0 -std=c++11 -c offline_logger_tests.cc",
+  "file": "/code/simulator/eVSSIM/tests/host/simulation/offline_logger_tests.cc"
+}
+,
+{
+  "directory": "/code/simulator/eVSSIM/tests/host/simulation",
+  "command": "g++ -Wall -Werror -I/opt/gtest/include -I../../.. -I../../../osc-osd -I../../../osc-osd/osd-target -I../../../QEMU -g -DGTEST -DCOMPLIANCE_TESTS -L/opt/gtest/lib -L../../../osc-osd/osd-util -L../../../osc-osd/osd-target -I/opt/libwebsockets/include -L/opt/libwebsockets/lib -L/usr/lib/x86_64-linux-gnu -Wl,-R/opt/libwebsockets/lib -g -m64 -pipe -O2 -Wall -W -D_REENTRANT -fPIE -DQT_NO_DEBUG -DQT_WIDGETS_LIB -DQT_NETWORK_LIB -DQT_GUI_LIB -DQT_CORE_LIB -I/usr/include/json-c/ -D__STDC_VERSION__=0 -std=c++11 -c ssd_write_read_test.cc",
+  "file": "/code/simulator/eVSSIM/tests/host/simulation/ssd_write_read_test.cc"
+}
+,
+{
+  "directory": "/code/simulator/eVSSIM/tests/host/simulation",
+  "command": "g++ -Wall -Werror -I/opt/gtest/include -I../../.. -I../../../osc-osd -I../../../osc-osd/osd-target -I../../../QEMU -g -DGTEST -DCOMPLIANCE_TESTS -L/opt/gtest/lib -L../../../osc-osd/osd-util -L../../../osc-osd/osd-target -I/opt/libwebsockets/include -L/opt/libwebsockets/lib -L/usr/lib/x86_64-linux-gnu -Wl,-R/opt/libwebsockets/lib -g -m64 -pipe -O2 -Wall -W -D_REENTRANT -fPIE -DQT_NO_DEBUG -DQT_WIDGETS_LIB -DQT_NETWORK_LIB -DQT_GUI_LIB -DQT_CORE_LIB -I/usr/include/json-c/ -D__STDC_VERSION__=0 -std=c++11 -c ssd_program_compatible_test.cc",
+  "file": "/code/simulator/eVSSIM/tests/host/simulation/ssd_program_compatible_test.cc"
+}
+,
+{
+  "directory": "/code/simulator/eVSSIM/tests/host/simulation",
+  "command": "g++ -Wall -Werror -I/opt/gtest/include -I../../.. -I../../../osc-osd -I../../../osc-osd/osd-target -I../../../QEMU -g -DGTEST -DCOMPLIANCE_TESTS -L/opt/gtest/lib -L../../../osc-osd/osd-util -L../../../osc-osd/osd-target -I/opt/libwebsockets/include -L/opt/libwebsockets/lib -L/usr/lib/x86_64-linux-gnu -Wl,-R/opt/libwebsockets/lib -g -m64 -pipe -O2 -Wall -W -D_REENTRANT -fPIE -DQT_NO_DEBUG -DQT_WIDGETS_LIB -DQT_NETWORK_LIB -DQT_GUI_LIB -DQT_CORE_LIB -I/usr/include/json-c/ -D__STDC_VERSION__=0 -std=c++11 -c onfi_ops_test.cc",
+  "file": "/code/simulator/eVSSIM/tests/host/simulation/onfi_ops_test.cc"
+}
+,
+{
+  "directory": "/code/simulator/eVSSIM/tests/host/simulation",
+  "command": "gcc -Wall -Werror -I/opt/gtest/include -I../../.. -I../../../osc-osd -I../../../osc-osd/osd-target -I../../../QEMU -g -DGTEST -DCOMPLIANCE_TESTS -L/opt/gtest/lib -L../../../osc-osd/osd-util -L../../../osc-osd/osd-target -I/opt/libwebsockets/include -L/opt/libwebsockets/lib -L/usr/lib/x86_64-linux-gnu -Wl,-R/opt/libwebsockets/lib -g -m64 -pipe -O2 -Wall -W -D_REENTRANT -fPIE -DQT_NO_DEBUG -DQT_WIDGETS_LIB -DQT_NETWORK_LIB -DQT_GUI_LIB -DQT_CORE_LIB -I/usr/include/json-c/ -D__STDC_VERSION__=0 -c vssim_config_manager.c",
+  "file": "/code/simulator/eVSSIM/tests/host/simulation/vssim_config_manager.c"
+}
+,
+{
+  "directory": "/code/simulator/eVSSIM/tests/host/simulation",
+  "command": "gcc -Wall -Werror -I/opt/gtest/include -I../../.. -I../../../osc-osd -I../../../osc-osd/osd-target -I../../../QEMU -g -DGTEST -DCOMPLIANCE_TESTS -L/opt/gtest/lib -L../../../osc-osd/osd-util -L../../../osc-osd/osd-target -I/opt/libwebsockets/include -L/opt/libwebsockets/lib -L/usr/lib/x86_64-linux-gnu -Wl,-R/opt/libwebsockets/lib -g -m64 -pipe -O2 -Wall -W -D_REENTRANT -fPIE -DQT_NO_DEBUG -DQT_WIDGETS_LIB -DQT_NETWORK_LIB -DQT_GUI_LIB -DQT_CORE_LIB -I/usr/include/json-c/ -D__STDC_VERSION__=0 -c onfi.c",
+  "file": "/code/simulator/eVSSIM/tests/host/simulation/onfi.c"
+}
+,
+{
+  "directory": "/code/simulator/eVSSIM/tests/host/simulation",
+  "command": "g++ -Wall -Werror -I/opt/gtest/include -I../../.. -I../../../osc-osd -I../../../osc-osd/osd-target -I../../../QEMU -g -DGTEST -DCOMPLIANCE_TESTS -L/opt/gtest/lib -L../../../osc-osd/osd-util -L../../../osc-osd/osd-target -I/opt/libwebsockets/include -L/opt/libwebsockets/lib -L/usr/lib/x86_64-linux-gnu -Wl,-R/opt/libwebsockets/lib -g -m64 -pipe -O2 -Wall -W -D_REENTRANT -fPIE -DQT_NO_DEBUG -DQT_WIDGETS_LIB -DQT_NETWORK_LIB -DQT_GUI_LIB -DQT_CORE_LIB -I/usr/include/json-c/ -D__STDC_VERSION__=0 -std=c++11 -c gc_tests.cc",
+  "file": "/code/simulator/eVSSIM/tests/host/simulation/gc_tests.cc"
+}
+,
+{
+  "directory": "/code/simulator/eVSSIM/tests/host/simulation",
+  "command": "gcc -Wall -Werror -I/opt/gtest/include -I../../.. -I../../../osc-osd -I../../../osc-osd/osd-target -I../../../QEMU -g -DGTEST -DCOMPLIANCE_TESTS -L/opt/gtest/lib -L../../../osc-osd/osd-util -L../../../osc-osd/osd-target -I/opt/libwebsockets/include -L/opt/libwebsockets/lib -L/usr/lib/x86_64-linux-gnu -Wl,-R/opt/libwebsockets/lib -g -m64 -pipe -O2 -Wall -W -D_REENTRANT -fPIE -DQT_NO_DEBUG -DQT_WIDGETS_LIB -DQT_NETWORK_LIB -DQT_GUI_LIB -DQT_CORE_LIB -I/usr/include/json-c/ -D__STDC_VERSION__=0 -c ftl.c",
+  "file": "/code/simulator/eVSSIM/tests/host/simulation/ftl.c"
+}
+,
+{
+  "directory": "/code/simulator/eVSSIM/tests/host/simulation",
+  "command": "gcc -Wall -Werror -I/opt/gtest/include -I../../.. -I../../../osc-osd -I../../../osc-osd/osd-target -I../../../QEMU -g -DGTEST -DCOMPLIANCE_TESTS -L/opt/gtest/lib -L../../../osc-osd/osd-util -L../../../osc-osd/osd-target -I/opt/libwebsockets/include -L/opt/libwebsockets/lib -L/usr/lib/x86_64-linux-gnu -Wl,-R/opt/libwebsockets/lib -g -m64 -pipe -O2 -Wall -W -D_REENTRANT -fPIE -DQT_NO_DEBUG -DQT_WIDGETS_LIB -DQT_NETWORK_LIB -DQT_GUI_LIB -DQT_CORE_LIB -I/usr/include/json-c/ -D__STDC_VERSION__=0 -c ftl_mapping_manager.c",
+  "file": "/code/simulator/eVSSIM/tests/host/simulation/ftl_mapping_manager.c"
+}
+,
+{
+  "directory": "/code/simulator/eVSSIM/tests/host/simulation",
+  "command": "gcc -Wall -Werror -I/opt/gtest/include -I../../.. -I../../../osc-osd -I../../../osc-osd/osd-target -I../../../QEMU -g -DGTEST -DCOMPLIANCE_TESTS -L/opt/gtest/lib -L../../../osc-osd/osd-util -L../../../osc-osd/osd-target -I/opt/libwebsockets/include -L/opt/libwebsockets/lib -L/usr/lib/x86_64-linux-gnu -Wl,-R/opt/libwebsockets/lib -g -m64 -pipe -O2 -Wall -W -D_REENTRANT -fPIE -DQT_NO_DEBUG -DQT_WIDGETS_LIB -DQT_NETWORK_LIB -DQT_GUI_LIB -DQT_CORE_LIB -I/usr/include/json-c/ -D__STDC_VERSION__=0 -c ftl_inverse_mapping_manager.c",
+  "file": "/code/simulator/eVSSIM/tests/host/simulation/ftl_inverse_mapping_manager.c"
+}
+,
+{
+  "directory": "/code/simulator/eVSSIM/tests/host/simulation",
+  "command": "gcc -Wall -Werror -I/opt/gtest/include -I../../.. -I../../../osc-osd -I../../../osc-osd/osd-target -I../../../QEMU -g -DGTEST -DCOMPLIANCE_TESTS -L/opt/gtest/lib -L../../../osc-osd/osd-util -L../../../osc-osd/osd-target -I/opt/libwebsockets/include -L/opt/libwebsockets/lib -L/usr/lib/x86_64-linux-gnu -Wl,-R/opt/libwebsockets/lib -g -m64 -pipe -O2 -Wall -W -D_REENTRANT -fPIE -DQT_NO_DEBUG -DQT_WIDGETS_LIB -DQT_NETWORK_LIB -DQT_GUI_LIB -DQT_CORE_LIB -I/usr/include/json-c/ -D__STDC_VERSION__=0 -c ftl_gc_manager.c",
+  "file": "/code/simulator/eVSSIM/tests/host/simulation/ftl_gc_manager.c"
+}
+,
+{
+  "directory": "/code/simulator/eVSSIM/tests/host/simulation",
+  "command": "gcc -Wall -Werror -I/opt/gtest/include -I../../.. -I../../../osc-osd -I../../../osc-osd/osd-target -I../../../QEMU -g -DGTEST -DCOMPLIANCE_TESTS -L/opt/gtest/lib -L../../../osc-osd/osd-util -L../../../osc-osd/osd-target -I/opt/libwebsockets/include -L/opt/libwebsockets/lib -L/usr/lib/x86_64-linux-gnu -Wl,-R/opt/libwebsockets/lib -g -m64 -pipe -O2 -Wall -W -D_REENTRANT -fPIE -DQT_NO_DEBUG -DQT_WIDGETS_LIB -DQT_NETWORK_LIB -DQT_GUI_LIB -DQT_CORE_LIB -I/usr/include/json-c/ -D__STDC_VERSION__=0 -c ftl_perf_manager.c",
+  "file": "/code/simulator/eVSSIM/tests/host/simulation/ftl_perf_manager.c"
+}
+,
+{
+  "directory": "/code/simulator/eVSSIM/tests/host/simulation",
+  "command": "gcc -Wall -Werror -I/opt/gtest/include -I../../.. -I../../../osc-osd -I../../../osc-osd/osd-target -I../../../QEMU -g -DGTEST -DCOMPLIANCE_TESTS -L/opt/gtest/lib -L../../../osc-osd/osd-util -L../../../osc-osd/osd-target -I/opt/libwebsockets/include -L/opt/libwebsockets/lib -L/usr/lib/x86_64-linux-gnu -Wl,-R/opt/libwebsockets/lib -g -m64 -pipe -O2 -Wall -W -D_REENTRANT -fPIE -DQT_NO_DEBUG -DQT_WIDGETS_LIB -DQT_NETWORK_LIB -DQT_GUI_LIB -DQT_CORE_LIB -I/usr/include/json-c/ -D__STDC_VERSION__=0 -c ssd_log_manager.c",
+  "file": "/code/simulator/eVSSIM/tests/host/simulation/ssd_log_manager.c"
+}
+,
+{
+  "directory": "/code/simulator/eVSSIM/tests/host/simulation",
+  "command": "gcc -Wall -Werror -I/opt/gtest/include -I../../.. -I../../../osc-osd -I../../../osc-osd/osd-target -I../../../QEMU -g -DGTEST -DCOMPLIANCE_TESTS -L/opt/gtest/lib -L../../../osc-osd/osd-util -L../../../osc-osd/osd-target -I/opt/libwebsockets/include -L/opt/libwebsockets/lib -L/usr/lib/x86_64-linux-gnu -Wl,-R/opt/libwebsockets/lib -g -m64 -pipe -O2 -Wall -W -D_REENTRANT -fPIE -DQT_NO_DEBUG -DQT_WIDGETS_LIB -DQT_NETWORK_LIB -DQT_GUI_LIB -DQT_CORE_LIB -I/usr/include/json-c/ -D__STDC_VERSION__=0 -c ssd_io_manager.c",
+  "file": "/code/simulator/eVSSIM/tests/host/simulation/ssd_io_manager.c"
+}
+,
+{
+  "directory": "/code/simulator/eVSSIM/tests/host/simulation",
+  "command": "gcc -Wall -Werror -I/opt/gtest/include -I../../.. -I../../../osc-osd -I../../../osc-osd/osd-target -I../../../QEMU -g -DGTEST -DCOMPLIANCE_TESTS -L/opt/gtest/lib -L../../../osc-osd/osd-util -L../../../osc-osd/osd-target -I/opt/libwebsockets/include -L/opt/libwebsockets/lib -L/usr/lib/x86_64-linux-gnu -Wl,-R/opt/libwebsockets/lib -g -m64 -pipe -O2 -Wall -W -D_REENTRANT -fPIE -DQT_NO_DEBUG -DQT_WIDGETS_LIB -DQT_NETWORK_LIB -DQT_GUI_LIB -DQT_CORE_LIB -I/usr/include/json-c/ -D__STDC_VERSION__=0 -c ftl_sect_strategy.c",
+  "file": "/code/simulator/eVSSIM/tests/host/simulation/ftl_sect_strategy.c"
+}
+,
+{
+  "directory": "/code/simulator/eVSSIM/tests/host/simulation",
+  "command": "gcc -Wall -Werror -I/opt/gtest/include -I../../.. -I../../../osc-osd -I../../../osc-osd/osd-target -I../../../QEMU -g -DGTEST -DCOMPLIANCE_TESTS -L/opt/gtest/lib -L../../../osc-osd/osd-util -L../../../osc-osd/osd-target -I/opt/libwebsockets/include -L/opt/libwebsockets/lib -L/usr/lib/x86_64-linux-gnu -Wl,-R/opt/libwebsockets/lib -g -m64 -pipe -O2 -Wall -W -D_REENTRANT -fPIE -DQT_NO_DEBUG -DQT_WIDGETS_LIB -DQT_NETWORK_LIB -DQT_GUI_LIB -DQT_CORE_LIB -I/usr/include/json-c/ -D__STDC_VERSION__=0 -c ftl_obj_strategy.c",
+  "file": "/code/simulator/eVSSIM/tests/host/simulation/ftl_obj_strategy.c"
+}
+,
+{
+  "directory": "/code/simulator/eVSSIM/tests/host/simulation",
+  "command": "gcc -Wall -Werror -I/opt/gtest/include -I../../.. -I../../../osc-osd -I../../../osc-osd/osd-target -I../../../QEMU -g -DGTEST -DCOMPLIANCE_TESTS -L/opt/gtest/lib -L../../../osc-osd/osd-util -L../../../osc-osd/osd-target -I/opt/libwebsockets/include -L/opt/libwebsockets/lib -L/usr/lib/x86_64-linux-gnu -Wl,-R/opt/libwebsockets/lib -g -m64 -pipe -O2 -Wall -W -D_REENTRANT -fPIE -DQT_NO_DEBUG -DQT_WIDGETS_LIB -DQT_NETWORK_LIB -DQT_GUI_LIB -DQT_CORE_LIB -I/usr/include/json-c/ -D__STDC_VERSION__=0 -c logging_backend.c",
+  "file": "/code/simulator/eVSSIM/tests/host/simulation/logging_backend.c"
+}
+,
+{
+  "directory": "/code/simulator/eVSSIM/tests/host/simulation",
+  "command": "gcc -Wall -Werror -I/opt/gtest/include -I../../.. -I../../../osc-osd -I../../../osc-osd/osd-target -I../../../QEMU -g -DGTEST -DCOMPLIANCE_TESTS -L/opt/gtest/lib -L../../../osc-osd/osd-util -L../../../osc-osd/osd-target -I/opt/libwebsockets/include -L/opt/libwebsockets/lib -L/usr/lib/x86_64-linux-gnu -Wl,-R/opt/libwebsockets/lib -g -m64 -pipe -O2 -Wall -W -D_REENTRANT -fPIE -DQT_NO_DEBUG -DQT_WIDGETS_LIB -DQT_NETWORK_LIB -DQT_GUI_LIB -DQT_CORE_LIB -I/usr/include/json-c/ -D__STDC_VERSION__=0 -c logging_parser.c",
+  "file": "/code/simulator/eVSSIM/tests/host/simulation/logging_parser.c"
+}
+,
+{
+  "directory": "/code/simulator/eVSSIM/tests/host/simulation",
+  "command": "gcc -Wall -Werror -I/opt/gtest/include -I../../.. -I../../../osc-osd -I../../../osc-osd/osd-target -I../../../QEMU -g -DGTEST -DCOMPLIANCE_TESTS -L/opt/gtest/lib -L../../../osc-osd/osd-util -L../../../osc-osd/osd-target -I/opt/libwebsockets/include -L/opt/libwebsockets/lib -L/usr/lib/x86_64-linux-gnu -Wl,-R/opt/libwebsockets/lib -g -m64 -pipe -O2 -Wall -W -D_REENTRANT -fPIE -DQT_NO_DEBUG -DQT_WIDGETS_LIB -DQT_NETWORK_LIB -DQT_GUI_LIB -DQT_CORE_LIB -I/usr/include/json-c/ -D__STDC_VERSION__=0 -c logging_rt_analyzer.c",
+  "file": "/code/simulator/eVSSIM/tests/host/simulation/logging_rt_analyzer.c"
+}
+,
+{
+  "directory": "/code/simulator/eVSSIM/tests/host/simulation",
+  "command": "gcc -Wall -Werror -I/opt/gtest/include -I../../.. -I../../../osc-osd -I../../../osc-osd/osd-target -I../../../QEMU -g -DGTEST -DCOMPLIANCE_TESTS -L/opt/gtest/lib -L../../../osc-osd/osd-util -L../../../osc-osd/osd-target -I/opt/libwebsockets/include -L/opt/libwebsockets/lib -L/usr/lib/x86_64-linux-gnu -Wl,-R/opt/libwebsockets/lib -g -m64 -pipe -O2 -Wall -W -D_REENTRANT -fPIE -DQT_NO_DEBUG -DQT_WIDGETS_LIB -DQT_NETWORK_LIB -DQT_GUI_LIB -DQT_CORE_LIB -I/usr/include/json-c/ -D__STDC_VERSION__=0 -c logging_offline_analyzer.c",
+  "file": "/code/simulator/eVSSIM/tests/host/simulation/logging_offline_analyzer.c"
+}
+,
+{
+  "directory": "/code/simulator/eVSSIM/tests/host/simulation",
+  "command": "gcc -Wall -Werror -I/opt/gtest/include -I../../.. -I../../../osc-osd -I../../../osc-osd/osd-target -I../../../QEMU -g -DGTEST -DCOMPLIANCE_TESTS -L/opt/gtest/lib -L../../../osc-osd/osd-util -L../../../osc-osd/osd-target -I/opt/libwebsockets/include -L/opt/libwebsockets/lib -L/usr/lib/x86_64-linux-gnu -Wl,-R/opt/libwebsockets/lib -g -m64 -pipe -O2 -Wall -W -D_REENTRANT -fPIE -DQT_NO_DEBUG -DQT_WIDGETS_LIB -DQT_NETWORK_LIB -DQT_GUI_LIB -DQT_CORE_LIB -I/usr/include/json-c/ -D__STDC_VERSION__=0 -c logging_manager.c",
+  "file": "/code/simulator/eVSSIM/tests/host/simulation/logging_manager.c"
+}
+,
+{
+  "directory": "/code/simulator/eVSSIM/tests/host/simulation",
+  "command": "gcc -Wall -Werror -I/opt/gtest/include -I../../.. -I../../../osc-osd -I../../../osc-osd/osd-target -I../../../QEMU -g -DGTEST -DCOMPLIANCE_TESTS -L/opt/gtest/lib -L../../../osc-osd/osd-util -L../../../osc-osd/osd-target -I/opt/libwebsockets/include -L/opt/libwebsockets/lib -L/usr/lib/x86_64-linux-gnu -Wl,-R/opt/libwebsockets/lib -g -m64 -pipe -O2 -Wall -W -D_REENTRANT -fPIE -DQT_NO_DEBUG -DQT_WIDGETS_LIB -DQT_NETWORK_LIB -DQT_GUI_LIB -DQT_CORE_LIB -I/usr/include/json-c/ -D__STDC_VERSION__=0 -c logging_server.c",
+  "file": "/code/simulator/eVSSIM/tests/host/simulation/logging_server.c"
+}
+,
+{
+  "directory": "/code/simulator/eVSSIM/tests/host/simulation",
+  "command": "gcc -Wall -Werror -I/opt/gtest/include -I../../.. -I../../../osc-osd -I../../../osc-osd/osd-target -I../../../QEMU -g -DGTEST -DCOMPLIANCE_TESTS -L/opt/gtest/lib -L../../../osc-osd/osd-util -L../../../osc-osd/osd-target -I/opt/libwebsockets/include -L/opt/libwebsockets/lib -L/usr/lib/x86_64-linux-gnu -Wl,-R/opt/libwebsockets/lib -g -m64 -pipe -O2 -Wall -W -D_REENTRANT -fPIE -DQT_NO_DEBUG -DQT_WIDGETS_LIB -DQT_NETWORK_LIB -DQT_GUI_LIB -DQT_CORE_LIB -I/usr/include/json-c/ -D__STDC_VERSION__=0 -c logging_statistics.c",
+  "file": "/code/simulator/eVSSIM/tests/host/simulation/logging_statistics.c"
+}
+,
+{
+  "directory": "/code/simulator/eVSSIM/tests/host/simulation",
+  "command": "gcc -Wall -Werror -I/opt/gtest/include -I../../.. -I../../../osc-osd -I../../../osc-osd/osd-target -I../../../QEMU -g -DGTEST -DCOMPLIANCE_TESTS -L/opt/gtest/lib -L../../../osc-osd/osd-util -L../../../osc-osd/osd-target -I/opt/libwebsockets/include -L/opt/libwebsockets/lib -L/usr/lib/x86_64-linux-gnu -Wl,-R/opt/libwebsockets/lib -g -m64 -pipe -O2 -Wall -W -D_REENTRANT -fPIE -DQT_NO_DEBUG -DQT_WIDGETS_LIB -DQT_NETWORK_LIB -DQT_GUI_LIB -DQT_CORE_LIB -I/usr/include/json-c/ -D__STDC_VERSION__=0 -c ssd_file_operations.c",
+  "file": "/code/simulator/eVSSIM/tests/host/simulation/ssd_file_operations.c"
+}
+,
+{
+  "directory": "/code/simulator/eVSSIM/tests/host/simulation",
+  "command": "gcc -Wall -Werror -I/opt/gtest/include -I../../.. -I../../../osc-osd -I../../../osc-osd/osd-target -I../../../QEMU -g -DGTEST -DCOMPLIANCE_TESTS -L/opt/gtest/lib -L../../../osc-osd/osd-util -L../../../osc-osd/osd-target -I/opt/libwebsockets/include -L/opt/libwebsockets/lib -L/usr/lib/x86_64-linux-gnu -Wl,-R/opt/libwebsockets/lib -g -m64 -pipe -O2 -Wall -W -D_REENTRANT -fPIE -DQT_NO_DEBUG -DQT_WIDGETS_LIB -DQT_NETWORK_LIB -DQT_GUI_LIB -DQT_CORE_LIB -I/usr/include/json-c/ -D__STDC_VERSION__=0 -c test_context.c",
+  "file": "/code/simulator/eVSSIM/tests/host/simulation/test_context.c"
+}
+]

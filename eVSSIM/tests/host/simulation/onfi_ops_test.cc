@@ -211,7 +211,7 @@ namespace program_compatible_test
         unsigned char reference_buffer[ssd_config->get_page_size()];
         memset(reference_buffer, 0xFF, ssd_config->get_page_size());
 
-        for (size_t page = 0; page < ssd_config->get_pages_ns(ID_NS0); ++page)
+        for (size_t page = 0; page < ssd_config->get_pages_ns(DEFAULT_NSID); ++page)
         {
             memset(buffer, 0x00, ssd_config->get_page_size());
             ASSERT_EQ(ONFI_READ(g_device_index, page, 0, buffer, ssd_config->get_page_size(), &nread), ONFI_SUCCESS);
@@ -312,7 +312,7 @@ namespace program_compatible_test
         unsigned char reference_buffer[ssd_config->get_page_size()];
         memset(reference_buffer, 0x00, ssd_config->get_page_size());
 
-        for (size_t page = 0; page < ssd_config->get_pages_ns(ID_NS0); ++page)
+        for (size_t page = 0; page < ssd_config->get_pages_ns(DEFAULT_NSID); ++page)
         {
             memset(buffer, 0x00, ssd_config->get_page_size());
             ASSERT_EQ(ONFI_PAGE_PROGRAM(g_device_index, page, 0, buffer, ssd_config->get_page_size(), &nprogrammed), ONFI_SUCCESS);

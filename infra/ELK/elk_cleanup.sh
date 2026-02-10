@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 # ELK Cleanup (Docker + Podman)
-# Usage: ENGINE=podman ./elk_cleanup.sh [--purge-images] [--purge-volumes] [--complete-cleanup] [--help]
+# Usage: ./elk_cleanup.sh [--purge-images] [--purge-volumes] [--complete-cleanup] [--help]
 
 set -euo pipefail
 
@@ -11,10 +11,6 @@ ELK Cleanup
   --purge-volumes     Remove ELK volumes
   --complete-cleanup  Remove containers + volumes + images
   --help              Show this help
-
-Environment Variables:
-  ENGINE              Container engine to use: 'docker' or 'podman' (auto-detected if not set)
-  COMPOSE_PROJECT_NAME  Project name (default: docker-elk)
 EOF
 }
 
@@ -32,16 +28,7 @@ done
 PROJECT="${COMPOSE_PROJECT_NAME:-docker-elk}"
 
 ENGINE="${ENGINE:-}"
-if [[ -n "$ENGINE" ]]; then
-  # Validate user-provided ENGINE
-  if [[ "$ENGINE" != "docker" && "$ENGINE" != "podman" ]]; then
-    echo "ERROR: ENGINE must be 'docker' or 'podman', got: $ENGINE"; exit 1
-  fi
-  if ! command -v "$ENGINE" >/dev/null 2>&1; then
-    echo "ERROR: $ENGINE not found in PATH"; exit 1
-  fi
-else
-  # Auto-detect engine
+if [[ -z "$ENGINE" ]]; then
   for e in docker podman; do
     if command -v "$e" >/dev/null 2>&1; then
       if "$e" ps -a --format '{{.Names}}' 2>/dev/null | grep -Eq "^${PROJECT}[-_]" ; then

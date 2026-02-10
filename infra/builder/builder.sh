@@ -291,34 +291,25 @@ evssim_qemu () {
         for ((device_index=1; device_index<=$device_count; device_index++)); do
             local namespace_sizes=($(evssim_calculate_namespace_sizes ${device_index}))
 
-            if [ ${#namespace_sizes[@]} -eq 0 ]; then
-                echo "ERROR: No namespace found in device: ${device_index}"
-                exit 1
-            fi
-
-            local nsid=0
+            # Calculate total size for all namespaces in this device
+            local total_size=0
             for namespace_size in "${namespace_sizes[@]}"; do
-                # Create drive argument
-                drive_args="$drive_args -drive format=vssim,if=none,id=memory$serial_number,size=${namespace_size},simulator=$device_simulator,device_index=$(($device_index-1)),namespace_index=$nsid"
-
-                # Create NVMe device argument
-                device_args="$device_args -device nvme,drive=memory$serial_number,serial=$serial_number"
-
-                ((++nsid))
-                ((++serial_number))
-
-                # Currently the qemu dev support onlt one namespace.
-                # TODO: Add more then one namespace per device!
-                break
+                total_size=$((total_size + namespace_size))
             done
-        done
 
-        echo "INFO Simulator mode ($device_count devices)"
-        local serial_number=1
-        for device_size in "${device_sizes[@]}"; do
-            echo "     Device $serial_number: $(numfmt --from=iec --to=iec $device_size)"
-            ((serial_number++))
+            # Create ONE drive with total size
+            local device_id="memory$serial_number"
+            drive_args="$drive_args -drive format=vssim,if=none,id=${device_id},size=${total_size},simulator=on,device_index=$(($device_index-1)),namespace_index=0"
+
+            # Create ONE NVMe controller with multiple namespaces
+            local ns_count=${#namespace_sizes[@]}
+            device_args="$device_args -device nvme,drive=${device_id},serial=$serial_number,num_namespaces=$ns_count"
+
+            echo "INFO Device $device_index: $ns_count namespace(s), total size $total_size"
+            ((++serial_number))
         done
+        echo "INFO Simulator mode ($device_count devices)"
+
     else
         # Non-simulator mode - use default size
         drive_args="-drive format=vssim,size=$device_size,simulator=$device_simulator,if=none,id=memory,device_index=0 -drive format=vssim,size=$device_size,simulator=$device_simulator,if=none,id=memory2,device_index=1 -drive format=vssim,size=$device_size,simulator=$device_simulator,if=none,id=memory3,device_index=2"
@@ -467,11 +458,11 @@ evssim_guest () {
     if [ -t 0 ]; then
         ssh_extra_tty=-t
     fi
-    ssh -q $ssh_extra_tty -i $EVSSIM_ROOT_PATH/$EVSSIM_BUILDER_FOLDER/docker/id_rsa -p 2222 -o ConnectionAttempts=1024 -o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no -o PasswordAuthentication=no -o PubkeyAcceptedKeyTypes=+ssh-rsa $EVSSIM_QEMU_UBUNTU_USERNAME@localhost bash -c \"$@\"
+    ssh -q $ssh_extra_tty -i $EVSSIM_ROOT_PATH/$EVSSIM_BUILDER_FOLDER/docker/id_rsa -p $EVSSIM_QEMU_PORT -o ConnectionAttempts=1024 -o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no -o PasswordAuthentication=no -o PubkeyAcceptedKeyTypes=+ssh-rsa $EVSSIM_QEMU_UBUNTU_USERNAME@localhost bash -c \"$@\"
 }
 
 evssim_guest_copy () {
     DOCKET_FILE_PATH=$1
     OUTPUT_FILE_PATH=$2
-    scp -r -o ConnectionAttempts=1024 -o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no -o PasswordAuthentication=no -o PubkeyAcceptedKeyTypes=+ssh-rsa -i $EVSSIM_ROOT_PATH/$EVSSIM_BUILDER_FOLDER/docker/id_rsa -P 2222 $EVSSIM_QEMU_UBUNTU_USERNAME@localhost:$DOCKET_FILE_PATH $OUTPUT_FILE_PATH
+    scp -r -o ConnectionAttempts=1024 -o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no -o PasswordAuthentication=no -o PubkeyAcceptedKeyTypes=+ssh-rsa -i $EVSSIM_ROOT_PATH/$EVSSIM_BUILDER_FOLDER/docker/id_rsa -P $EVSSIM_QEMU_PORT $EVSSIM_QEMU_UBUNTU_USERNAME@localhost:$DOCKET_FILE_PATH $OUTPUT_FILE_PATH
 }

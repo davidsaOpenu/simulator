@@ -62,14 +62,11 @@ extern "C" int g_init_log_server;
   #define GTEST_TEST_SUITE_OR_CASE_NAME(ti) ((ti)->test_case_name())
 #endif
 
-#define ID_NS0 0
-#define ID_NS1 1
-#define ID_NS2 2
-#define ID_NS3 3
+#define DEFAULT_NSID 0
+#define OTHER_NSID 1
 
 #define SECTOR_DEV 0
 #define OBJECT_DEV 1
-#define MULTI_NS_DEV 4
 
 /**
  * paramters that the tests run with
@@ -145,8 +142,8 @@ namespace {
             memset(block_ns_nb, 0, MAX_NUMBER_OF_NAMESPACES);
 
             // Set the number pf block per namespace.
-            block_ns_nb[ID_NS0] = (block_x_flash / 2);
-            block_ns_nb[ID_NS1] = (block_x_flash / 2);
+            block_ns_nb[DEFAULT_NSID] = (block_x_flash / 2);
+            block_ns_nb[OTHER_NSID] = (block_x_flash / 2);
         }
 
     public:
@@ -166,13 +163,13 @@ namespace {
                 : page_size(page_size), page_nb(page_nb), sector_size(sector_size),
                   flash_nb(flash_nb), block_nb(block_nb), channel_nb(channel_nb) {
 
-                    this->object_size = 2048; // megabytes
+                    this->object_size = 1048; // megabytes
 
                     memset(block_ns_nb, 0, MAX_NUMBER_OF_NAMESPACES);
 
                     // Set the number pf block per namespace.
-                    block_ns_nb[ID_NS0] = default_ns_block_nb;
-                    block_ns_nb[ID_NS1] = othere_ns_block_nb;
+                    block_ns_nb[DEFAULT_NSID] = default_ns_block_nb;
+                    block_ns_nb[OTHER_NSID] = othere_ns_block_nb;
                 }
 
         size_t get_page_size(void) {
@@ -201,17 +198,6 @@ namespace {
 
         size_t get_pages_ns(uint32_t nsid) {
             return this->get_total_pages_ns(nsid) * 0.8;
-        }
-
-        size_t get_device_pages_ns() {
-            size_t page_sum = 0;
-
-            for (size_t nsid = 0; nsid < MAX_NUMBER_OF_NAMESPACES; nsid++)
-            {
-                page_sum += get_pages_ns(nsid);
-            }
-
-            return page_sum;
         }
 
         size_t get_channel_nb(void) {
@@ -263,10 +249,10 @@ namespace {
                 "GC_HI_THR 80\n"
                 "[ns01]\n"
                 "STORAGE_STRATEGY " << FTL_NS_SECTOR << "\n"
-                "NAMESPACE_PAGE_NB " << get_pages_ns(ID_NS0) << "\n"
+                "NAMESPACE_PAGE_NB " << get_pages_ns(DEFAULT_NSID) << "\n"
                 "[ns02]\n"
                 "STORAGE_STRATEGY " << FTL_NS_SECTOR << "\n"
-                "NAMESPACE_PAGE_NB " << get_pages_ns(ID_NS1) << "\n"
+                "NAMESPACE_PAGE_NB " << get_pages_ns(OTHER_NSID) << "\n"
                 "[nvme02]\n"
                 "FILE_NAME ./data/ssd2.img\n"
                 "PAGE_SIZE " << get_page_size() << "\n"
@@ -290,13 +276,13 @@ namespace {
                 "GC_HI_THR 80\n"
                 "[ns01]\n"
                 "STORAGE_STRATEGY " << FTL_NS_OBJECT << "\n"
-                "SIZE " << get_pages_ns(ID_NS0) * get_page_size() << "\n"
+                "SIZE " << get_pages_ns(DEFAULT_NSID) * get_page_size() << "\n"
                 "OBJECT_KEY_SIZE " << get_object_size() << "\n"
                 "OBJECT_MAX_VALUE_SIZE 4096\n"
                 "OBJECT_MAX_CAPACITY 4096\n"
                 "[ns02]\n"
                 "STORAGE_STRATEGY " << FTL_NS_OBJECT << "\n"
-                "SIZE " << get_pages_ns(ID_NS1) * get_page_size() << "\n"
+                "SIZE " << get_pages_ns(OTHER_NSID) * get_page_size() << "\n"
                 "OBJECT_KEY_SIZE " << get_object_size() << "\n"
                 "OBJECT_MAX_VALUE_SIZE 4096\n"
                 "OBJECT_MAX_CAPACITY 4096\n"
@@ -323,7 +309,7 @@ namespace {
                 "GC_HI_THR 80\n"
                 "[ns01]\n"
                 "STORAGE_STRATEGY " << FTL_NS_SECTOR << "\n"
-                "NAMESPACE_PAGE_NB " << get_pages_ns(ID_NS0) << "\n"
+                "NAMESPACE_PAGE_NB " << get_pages_ns(DEFAULT_NSID) << "\n"
                 "[ns02]\n"
                 "STORAGE_STRATEGY " << FTL_NS_OBJECT << "\n"
                 "SIZE 4096\n"
@@ -353,7 +339,7 @@ namespace {
                 "GC_HI_THR 80\n"
                 "[ns01]\n"
                 "STORAGE_STRATEGY " << FTL_NS_SECTOR << "\n"
-                "NAMESPACE_PAGE_NB " << get_total_pages_ns(ID_NS0) + get_total_pages_ns(ID_NS1) << "\n"
+                "NAMESPACE_PAGE_NB " << get_total_pages_ns(DEFAULT_NSID) + get_total_pages_ns(OTHER_NSID) << "\n"
                 "[nvme05]\n"
                 "FILE_NAME ./data/ssd5.img\n"
                 "PAGE_SIZE 256\n"
