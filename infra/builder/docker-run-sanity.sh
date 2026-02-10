@@ -7,13 +7,28 @@ evssim_qemu_fresh_image
 # Run qemu
 evssim_qemu_detached
 
+# Wait for NVMe devices to appear in the guest (retry for up to 60s)
+# The guest kernel needs time after SSH becomes available to probe all NVMe controllers
+echo "Waiting for NVMe devices to appear in guest..."
+for attempt in $(seq 1 30); do
+    if evssim_guest ls /dev/nvme0n1 2>/dev/null >/dev/null; then
+        echo "NVMe devices ready after $((attempt * 2))s"
+        break
+    fi
+    sleep 2
+done
 
-# evssim_guest ls -al /dev/nvme0n1 2>/dev/null >/dev/null
-# Before checking if device nvme0n1 exists we should wait
-# Otherwise there are sporadic failures on "Failed to find device" error
-# sleep 10
+# Verify all 6 NVMe controllers are detected
+echo "Verifying all NVMe controllers..."
+for i in $(seq 0 5); do
+    if ! evssim_guest test -e /dev/nvme${i}n1 2>/dev/null; then
+        echo "ERROR: Missing /dev/nvme${i}n1"
+        exit 1
+    fi
+done
+echo "All 6 NVMe controllers detected successfully"
 
-# Run a command inside the container (check if device nvme0n1 exists)
+# Final sanity checks
 if evssim_guest ls -al /dev/nvme0n1 2>/dev/null >/dev/null; then
     echo "eVSSIM Up & Running!"
 else
