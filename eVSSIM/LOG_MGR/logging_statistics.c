@@ -75,6 +75,32 @@ int stats_json(SSDStatistics stats, Byte* buffer, int max_len) {
                 );
 }
 
+int stats_json_multi(SSDStatistics* stats, uint8_t num_devices, Byte* buffer, int max_len) {
+    int offset = 0;
+    int written;
+    uint8_t i;
+
+    written = snprintf((char*) buffer, max_len, "{\"device_count\":%u,\"devices\":[", num_devices);
+    if (written < 0 || written >= max_len) return -1;
+    offset += written;
+
+    for (i = 0; i < num_devices; i++) {
+        if (i > 0) {
+            if (offset >= max_len) return -1;
+            buffer[offset++] = ',';
+        }
+        written = stats_json(stats[i], buffer + offset, max_len - offset);
+        if (written < 0 || written >= max_len - offset) return -1;
+        offset += written;
+    }
+
+    written = snprintf((char*) buffer + offset, max_len - offset, "]}");
+    if (written < 0 || written >= max_len - offset) return -1;
+    offset += written;
+
+    return offset;
+}
+
 
 int stats_equal(SSDStatistics first, SSDStatistics second) {
     return first.write_count == second.write_count &&

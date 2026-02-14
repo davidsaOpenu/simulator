@@ -219,12 +219,12 @@ namespace ssd_io_emulator_tests {
             ASSERT_EQ(FTL_SUCCESS, _FTL_WRITE_SECT(g_device_index, sector_nb, 1, NULL));
         }
 
-        _MONITOR_SYNC(g_device_index, &(log_server.stats), MONITOR_SLEEP_MAX_USEC);
-        printSSDStat(&log_server.stats);
+        _MONITOR_SYNC(g_device_index, &(log_server.stats[g_device_index]), MONITOR_SLEEP_MAX_USEC);
+        printSSDStat(&log_server.stats[g_device_index]);
 
         // This test is deterministic, so I can get pretty close to the value I measured: 2.606562
         // Feel free to update this value if something changes.
-        EXPECT_LT(2.5, log_server.stats.write_amplification);
+        EXPECT_LT(2.5, log_server.stats[g_device_index].write_amplification);
     }
 
     TEST_P(GCTest, CasePerfGCThreadEnable) {
@@ -251,11 +251,11 @@ namespace ssd_io_emulator_tests {
         }
         pthread_mutex_lock(&g_lock);
 
-        _MONITOR_SYNC(g_device_index, &(log_server.stats), MONITOR_SLEEP_MAX_USEC);
-        printSSDStat(&log_server.stats);
+        _MONITOR_SYNC(g_device_index, &(log_server.stats[g_device_index]), MONITOR_SLEEP_MAX_USEC);
+        printSSDStat(&log_server.stats[g_device_index]);
 
         // While this test is not fully deterministic (since it's multithreaded), I've been getting
         // a solid 1.0 write amplification. So this value seems safe enough:
-        EXPECT_GT(1.2, log_server.stats.write_amplification);
+        EXPECT_GT(1.2, log_server.stats[g_device_index].write_amplification);
     }
 }
