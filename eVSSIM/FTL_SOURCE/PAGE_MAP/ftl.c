@@ -48,7 +48,7 @@ void FTL_INIT(uint8_t device_index)
 		INIT_VALID_ARRAY(device_index);
 		INIT_EMPTY_BLOCK_LIST(device_index);
 		INIT_VICTIM_BLOCK_LIST(device_index);
-
+		INIT_OBJ_STRATEGY(device_index);
 		INIT_PERF_CHECKER(device_index);
         INIT_GC_MANAGER(device_index);
 
@@ -78,7 +78,7 @@ void FTL_TERM(uint8_t device_index)
 	TERM_INVERSE_BLOCK_MAPPING(device_index);
 	TERM_EMPTY_BLOCK_LIST(device_index);
 	TERM_VICTIM_BLOCK_LIST(device_index);
-
+	TERM_OBJ_STRATEGY(device_index);
 	TERM_PERF_CHECKER(device_index);
 	TERM_GC_MANAGER(device_index);
 	FTL_TERM_STATS();

@@ -258,7 +258,6 @@ namespace multi_device_tests {
 
                 SSDConf* ssd_config = base_test_get_ssd_config();
 
-                INIT_OBJ_STRATEGY(g_device_index);
                 object_size_[g_device_index] = ssd_config->get_object_size();
                 int object_pages = (int)ceil(1.0 * object_size_[g_device_index] / GET_PAGE_SIZE(g_device_index));
                 objects_in_ssd_[g_device_index] = (unsigned int)((devices[g_device_index].pages_in_ssd - devices[g_device_index].page_nb) / object_pages);
@@ -269,7 +268,6 @@ namespace multi_device_tests {
                 for (uint8_t i = 0; i < 3; i++) {
                     if (i != g_device_index && !device_initialized[i]) {
                         FTL_INIT(i);
-                        INIT_OBJ_STRATEGY(i);
                         object_size_[i] = ssd_config->get_object_size();
                         int obj_pages = (int)ceil(1.0 * object_size_[i] / GET_PAGE_SIZE(i));
                         objects_in_ssd_[i] = (unsigned int)((devices[i].pages_in_ssd - devices[i].page_nb) / obj_pages);
@@ -283,7 +281,6 @@ namespace multi_device_tests {
                 // Clean up secondary devices FIRST (not the primary one)
                 for (uint8_t i = 0; i < 3; i++) {
                     if (i != g_device_index && device_initialized[i]) {
-                        TERM_OBJ_STRATEGY(i);
                         FTL_TERM(i);
                         TERM_LOG_MANAGER(i);
                         std::ignore = system((std::string("rm -rf data/") + std::to_string(i)).c_str());
@@ -291,7 +288,6 @@ namespace multi_device_tests {
                     }
                 }
 
-                TERM_OBJ_STRATEGY(g_device_index);
                 BaseTest::TearDown(false);
                 TERM_LOG_MANAGER(g_device_index);
                 TERM_SSD_CONFIG();
@@ -511,7 +507,6 @@ namespace multi_device_tests {
                 // Device 1: Object strategy
                 devices[1].storage_strategy = STRATEGY_OBJECT;
                 FTL_INIT(1);
-                INIT_OBJ_STRATEGY(1);
                 object_size_[1] = ssd_config->get_object_size();
                 int object_pages = (int)ceil(1.0 * object_size_[1] / GET_PAGE_SIZE(1));
                 objects_in_ssd_[1] = (unsigned int)((devices[1].pages_in_ssd - devices[1].page_nb) / object_pages);
@@ -521,7 +516,6 @@ namespace multi_device_tests {
                 // Device 2: Object strategy
                 devices[2].storage_strategy = STRATEGY_OBJECT;
                 FTL_INIT(2);
-                INIT_OBJ_STRATEGY(2);
                 object_size_[2] = ssd_config->get_object_size();
                 int object_pages_2 = (int)ceil(1.0 * object_size_[2] / GET_PAGE_SIZE(2));
                 objects_in_ssd_[2] = (unsigned int)((devices[2].pages_in_ssd - devices[2].page_nb) / object_pages_2);
@@ -532,7 +526,6 @@ namespace multi_device_tests {
             virtual void TearDown() {
                 // Clean up device 2 (object)
                 if (device_initialized[2]) {
-                    TERM_OBJ_STRATEGY(2);
                     FTL_TERM(2);
                     TERM_LOG_MANAGER(2);
                     std::ignore = system("rm -rf data/2");
@@ -541,7 +534,6 @@ namespace multi_device_tests {
 
                 // Clean up device 1 (object)
                 if (device_initialized[1]) {
-                    TERM_OBJ_STRATEGY(1);
                     FTL_TERM(1);
                     TERM_LOG_MANAGER(1);
                     std::ignore = system("rm -rf data/1");
