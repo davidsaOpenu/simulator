@@ -47,11 +47,11 @@ namespace log_mgr_tests {
                 BaseTest::SetUp();
 
                 if (g_server_mode) {
-                    log_server_init(g_device_index);
+                    log_server_init(device_count);
                     pthread_create(&_server, NULL, log_server_run, NULL);
                     printf("Server opened\n");
                     printf("Browse to http://127.0.0.1:%d/ to see the statistics\n",
-                            LOG_SERVER_PORT(g_device_index));
+                            LOG_SERVER_PORT);
                 }
                 SSDConf* ssd_config = base_test_get_ssd_config();
 
@@ -695,7 +695,7 @@ namespace log_mgr_tests {
         rt_log_stats_init(g_device_index);
         rt_subscriber::subscribe(analyzer);
         if (g_server_mode)
-            rt_log_analyzer_subscribe(analyzer, (MonitorHook) log_server_update, NULL);
+            rt_log_analyzer_subscribe(analyzer, log_server_update, NULL);
         rt_subscriber::write();
         rt_subscriber::read();
         rt_log_analyzer_free(analyzer, 0);
@@ -744,7 +744,7 @@ namespace log_mgr_tests {
         LogManager* manager = log_manager_init();
         manager_subscriber::init(manager);
         if (g_server_mode)
-            log_manager_subscribe(manager, (MonitorHook) log_server_update, NULL);
+            log_manager_subscribe(manager, log_server_update, NULL);
         manager_subscriber::run();
         manager_subscriber::free();
         log_manager_free(manager);
