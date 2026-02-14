@@ -120,6 +120,17 @@ SSDStatistics stats_init(void);
  */
 int stats_json(SSDStatistics stats, Byte* buffer, int max_len);
 
+/**
+ * Write a JSON representation of multiple devices' statistics to the buffer
+ * @param stats array of statistics, one per device
+ * @param num_devices the number of devices
+ * @param buffer the buffer to write the JSON to
+ * @param max_len the maximum length to write
+ * @return -1 if an error occurred, otherwise the number of characters written
+ *         (including the terminating null byte)
+ */
+int stats_json_multi(SSDStatistics* stats, uint8_t num_devices, Byte* buffer, int max_len);
+
 
 /**
  * Return whether the two statistics are equal

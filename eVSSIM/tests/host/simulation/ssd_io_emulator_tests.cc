@@ -200,7 +200,7 @@ namespace ssd_io_emulator_tests {
         // QT monitor
         ASSERT_EQ(ssd_utils, SSD_UTIL(g_device_index));
         // new monitor
-        ASSERT_EQ(ssd_utils, log_server.stats.utilization);
+        ASSERT_EQ(ssd_utils, log_server.stats[g_device_index].utilization);
     }
 
     /**
@@ -224,7 +224,7 @@ namespace ssd_io_emulator_tests {
         // QT monitor
         ASSERT_EQ(ssd_utils, SSD_UTIL(g_device_index));
         // new monitor
-        ASSERT_EQ(ssd_utils, log_server.stats.utilization);
+        ASSERT_EQ(ssd_utils, log_server.stats[g_device_index].utilization);
     }
 
     /**
@@ -249,7 +249,7 @@ namespace ssd_io_emulator_tests {
         // QT monitor
         ASSERT_EQ(0, SSD_UTIL(g_device_index));
         // new monitor
-        ASSERT_EQ(0, log_server.stats.utilization);
+        ASSERT_EQ(0, log_server.stats[g_device_index].utilization);
     }
 
     /**
@@ -285,7 +285,7 @@ namespace ssd_io_emulator_tests {
         // QT monitor
         ASSERT_EQ(ssd_utils, SSD_UTIL(g_device_index));
         // new monitor
-        ASSERT_EQ(ssd_utils, log_server.stats.utilization);
+        ASSERT_EQ(ssd_utils, log_server.stats[g_device_index].utilization);
     }
 
 

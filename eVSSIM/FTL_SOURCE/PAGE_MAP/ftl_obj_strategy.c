@@ -26,16 +26,11 @@ obj_strategy_manager_t *obj_manager = NULL;
 
 void INIT_OBJ_STRATEGY(uint8_t device_index)
 {
-    pthread_mutex_lock(&g_lock);
-
     if (devices[device_index].storage_strategy != STRATEGY_OBJECT) {
-        pthread_mutex_unlock(&g_lock);
         return;
     }
     if (obj_manager[device_index].initialized) {
-        pthread_mutex_unlock(&g_lock);
         TERM_OBJ_STRATEGY(device_index);
-        pthread_mutex_lock(&g_lock);
     }
 
     CURRENT_ID(device_index) = 1;
@@ -49,13 +44,11 @@ void INIT_OBJ_STRATEGY(uint8_t device_index)
     // Create device-specific directory if it doesn't exist
     if (mkdir(root, 0777) != 0 && errno != EEXIST) {
         PDBG_FTL("Failed to create OSD directory %s\n", root);
-        pthread_mutex_unlock(&g_lock);
         return;
     }
 
     if (osd_open(root, OSD_DEVICE(device_index)) != 0) {
         RERR(, "Failed to open OSD for device %d\n", device_index);
-        pthread_mutex_unlock(&g_lock);
         return;
     }
 
@@ -63,7 +56,6 @@ void INIT_OBJ_STRATEGY(uint8_t device_index)
     if (OSD_SENSE(device_index) == NULL) {
         RERR(, "Failed to allocate OSD sense buffer for device %d\n", device_index);
         osd_close(OSD_DEVICE(device_index));
-        pthread_mutex_unlock(&g_lock);
         return;
     }
     memset(OSD_SENSE(device_index), 0x0, OSD_SENSE_BUFFER_SIZE);
@@ -73,12 +65,10 @@ void INIT_OBJ_STRATEGY(uint8_t device_index)
         free(OSD_SENSE(device_index));
         OSD_SENSE(device_index) = NULL;
         osd_close(OSD_DEVICE(device_index));
-        pthread_mutex_unlock(&g_lock);
         return;
     }
 
     obj_manager[device_index].initialized = true;
-    pthread_mutex_unlock(&g_lock);
 }
 
 void free_obj_table(uint8_t device_index)
@@ -119,10 +109,7 @@ void free_page_table(uint8_t device_index)
 
 void TERM_OBJ_STRATEGY(uint8_t device_index)
 {
-    pthread_mutex_lock(&g_lock);
-
     if (obj_manager == NULL || !obj_manager[device_index].initialized) {
-        pthread_mutex_unlock(&g_lock);
         return;
     }
 
@@ -137,7 +124,6 @@ void TERM_OBJ_STRATEGY(uint8_t device_index)
     }
 
     obj_manager[device_index].initialized = false;
-    pthread_mutex_unlock(&g_lock);
 }
 
 ftl_ret_val _FTL_OBJ_READ(uint8_t device_index, obj_id_t obj_loc, void *data, offset_t offset, length_t *p_length)

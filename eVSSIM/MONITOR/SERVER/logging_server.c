@@ -16,6 +16,7 @@
 
 #include <pthread.h>
 #include <string.h>
+#include <stdlib.h>
 
 #include "logging_server.h"
 
@@ -26,7 +27,7 @@
 /**
  * The maximum frame size, in bytes
  */
-#define MAX_FRAME_SIZE 512
+#define MAX_FRAME_SIZE 4096
 /**
  * The directory visible by the HTTP web server, relative to the working directory
  */
@@ -36,8 +37,6 @@
     #define WWW_DIR "./www"
 #endif
 
-bool g_used_upper_port = false;
-
 LogServer log_server;
 
 
@@ -46,9 +45,9 @@ LogServer log_server;
  */
 typedef struct {
     /**
-     * The current statistics being displayed to the client
+     * The number of devices being monitored
      */
-    SSDStatistics stats;
+    uint8_t num_devices;
     /**
      * A buffer used to store the JSON before sending
      */
@@ -96,32 +95,62 @@ static int callback_evssim_monitor(struct lws *wsi, enum lws_callback_reasons re
     switch (reason) {
         case LWS_CALLBACK_ESTABLISHED:
             // on connection, init the per-session data and schedule a write
-            session->stats = stats_init();
+            session->num_devices = log_server.num_devices;
             lws_callback_on_writable(wsi);
             break;
         case LWS_CALLBACK_SERVER_WRITEABLE:
+        {
             // on write schedule, copy the current statistics and send them
             pthread_mutex_lock(&log_server.lock);
-            session->stats = log_server.stats;
+            int json_len = stats_json_multi(log_server.stats, log_server.num_devices,
+                                            &session->buffer[LWS_PRE], MAX_FRAME_SIZE);
             pthread_mutex_unlock(&log_server.lock);
-
-            int json_len = stats_json(session->stats, &session->buffer[LWS_PRE], MAX_FRAME_SIZE);
             if (json_len < 0 || json_len > MAX_FRAME_SIZE)
                 fprintf(stderr, "WARNING: Couldn't write statistics to the client!");
             else
                 lws_write(wsi, &session->buffer[LWS_PRE], json_len, LWS_WRITE_TEXT);
             break;
+        }
         case LWS_CALLBACK_RECEIVE:
+        {
             // on receive, parse the command
-            if (strcasecmp("reset", in_message) == 0) {
+            char cmd[64];
+            int cmd_len = (int)((ssize_t) len);
+            if (cmd_len >= (int)sizeof(cmd)) cmd_len = sizeof(cmd) - 1;
+            memcpy(cmd, in_message, cmd_len);
+            cmd[cmd_len] = '\0';
+
+            if (strcasecmp("reset", cmd) == 0) {
+                // reset all devices
                 if (log_server.reset_hook) {
-                    log_server.reset_hook(log_server.device_index);
-                }
-                else {
+                    uint8_t d;
+                    for (d = 0; d < log_server.num_devices; d++)
+                        log_server.reset_hook(d);
+                } else {
                     fprintf(stderr, "WARNING: Couldn't reset stats, as no reset hook is configured!\n");
                     fprintf(stderr, "WARNING: Reseting local stats instead...\n");
-                    log_server.stats = stats_init();
+                    pthread_mutex_lock(&log_server.lock);
+                    uint8_t d;
+                    for (d = 0; d < log_server.num_devices; d++)
+                        log_server.stats[d] = stats_init();
+                    pthread_mutex_unlock(&log_server.lock);
                     lws_callback_on_writable(wsi);
+                }
+            }
+            else if (strncasecmp("reset ", cmd, 6) == 0) {
+                // reset a specific device
+                int dev = atoi(cmd + 6);
+                if (dev >= 0 && dev < log_server.num_devices) {
+                    if (log_server.reset_hook) {
+                        log_server.reset_hook((uint8_t) dev);
+                    } else {
+                        pthread_mutex_lock(&log_server.lock);
+                        log_server.stats[dev] = stats_init();
+                        pthread_mutex_unlock(&log_server.lock);
+                        lws_callback_on_writable(wsi);
+                    }
+                } else {
+                    fprintf(stderr, "WARNING: Invalid device index in reset command: %d\n", dev);
                 }
             }
             else {
@@ -129,6 +158,7 @@ static int callback_evssim_monitor(struct lws *wsi, enum lws_callback_reasons re
                         (char*) in_message);
             }
             break;
+        }
         default:
             break;
     }
@@ -202,7 +232,7 @@ static const struct lws_http_mount http_mount = {
 /* Wrapper methods */
 
 
-int log_server_init(uint8_t device_index) {
+int log_server_init(uint8_t num_devices) {
 
     // set debug level
     lws_set_log_level(LLL_ERR | LLL_WARN, NULL);
@@ -210,7 +240,7 @@ int log_server_init(uint8_t device_index) {
     // init the creation info
     struct lws_context_creation_info info;
     memset(&info, 0, sizeof(info));
-    info.port = LOG_SERVER_PORT(device_index);
+    info.port = LOG_SERVER_PORT;
     info.protocols = ws_protocols;
     info.extensions = ws_extensions;
     info.mounts = &http_mount;
@@ -221,16 +251,8 @@ int log_server_init(uint8_t device_index) {
     struct lws_context *context = lws_create_context(&info);
     if (context == NULL)
     {
-        // A workaround to allow the tests to run with qemu until the logging server supports multiple disks
-        // This retries to open the server on a port that is not in the range of devices
-        g_used_upper_port = true;
-        info.port = LOG_SERVER_PORT(device_index);
-        context = lws_create_context(&info);
-        if (context == NULL)
-        {
-            PERR("lws create context failed\n");
-            return 1;
-        }
+        PERR("lws create context failed\n");
+        return 1;
     }
 
     // try to create the lock
@@ -239,20 +261,34 @@ int log_server_init(uint8_t device_index) {
         return 1;
     }
 
+    // allocate per-device statistics array
+    SSDStatistics* stats = (SSDStatistics*) calloc(num_devices, sizeof(SSDStatistics));
+    if (stats == NULL) {
+        lws_context_destroy(context);
+        pthread_mutex_destroy(&log_server.lock);
+        return 1;
+    }
+    uint8_t i;
+    for (i = 0; i < num_devices; i++)
+        stats[i] = stats_init();
+
     // fill the members of the server structure
     log_server.context = context;
-    log_server.stats = stats_init();
+    log_server.stats = stats;
+    log_server.num_devices = num_devices;
     log_server.exit_loop_flag = 0;
     log_server.reset_hook = NULL;
-    log_server.device_index = device_index;
 
     return 0;
 }
 
-void log_server_update(SSDStatistics stats) {
-    if (!stats_equal(log_server.stats, stats)) {
+void log_server_update(SSDStatistics stats, void* uid) {
+    uint8_t device_index = (uint8_t)(uintptr_t) uid;
+    if (device_index >= log_server.num_devices)
+        return;
+    if (!stats_equal(log_server.stats[device_index], stats)) {
         pthread_mutex_lock(&log_server.lock);
-        log_server.stats = stats;
+        log_server.stats[device_index] = stats;
         pthread_mutex_unlock(&log_server.lock);
         // schedule a write on all the clients connected to the evssim-monitor protocol
         lws_callback_on_writable_all_protocol(log_server.context, &ws_protocols[1]);
@@ -297,6 +333,9 @@ void log_server_stop(void){
 
 void log_server_free(void) {
     lws_context_destroy(log_server.context);
+    free(log_server.stats);
+    log_server.stats = NULL;
+    log_server.num_devices = 0;
     pthread_mutex_destroy(&log_server.lock);
 }
 
