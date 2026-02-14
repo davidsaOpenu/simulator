@@ -36,8 +36,7 @@ void MONITOR_SYNC(uint8_t device_index, SSDStatistics *stats, uint64_t max_sleep
 /**
  * The port to be used by the server
  */
-#define LOG_SERVER_PORT(device_index) ((g_used_upper_port) ? (2003 + device_count) : (2003 + (device_index)))
-extern bool g_used_upper_port;
+#define LOG_SERVER_PORT 2003
 
 /**
  * A reset hook
@@ -58,9 +57,13 @@ typedef struct {
      */
     pthread_mutex_t lock;
     /**
-     * The current statistics being displayed to the clients of the server
+     * The current statistics per device
      */
-    SSDStatistics stats;
+    SSDStatistics* stats;
+    /**
+     * The number of devices being monitored
+     */
+    uint8_t num_devices;
     /**
      * Whether the server should stop looping ASAP
      */
@@ -69,10 +72,6 @@ typedef struct {
      * The hook to call when a reset request is send by the user
      */
     ResetHook reset_hook;
-    /**
-     * The index of the device being monitored
-     */
-    uint8_t device_index;
 } LogServer;
 
 /**
@@ -83,15 +82,17 @@ extern LogServer log_server;
 
 /**
  * Initialize the logging server
+ * @param num_devices the number of devices to monitor
  * @return 0 if initialization succeeded, nonzero otherwise
  */
-int log_server_init(uint8_t device_index);
+int log_server_init(uint8_t num_devices);
 
 /**
- * Update the statistics sent by the logging server
+ * Update the statistics sent by the logging server for a specific device
  * @param stats the new statistics to use
+ * @param uid pointer to the device index (used as MonitorHook callback)
  */
-void log_server_update(SSDStatistics stats);
+void log_server_update(SSDStatistics stats, void* uid);
 
 /**
  * Update the current reset hook of the logging server

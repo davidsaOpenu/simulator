@@ -90,12 +90,12 @@ void INIT_LOG_MANAGER(uint8_t device_index)
 
     // Initialize log server once for all devices
     if (!log_server_initialized) {
-        if (log_server_init(0) == 0) {
+        if (log_server_init(device_count) == 0) {
             log_server_on_reset(reset_analyzers);
             pthread_create(&log_server_thread, NULL, log_server_run, NULL);
             log_server_initialized = true;
             PINFO("Log server opened\n");
-            PINFO("Browse to http://127.0.0.1:%d/ to see the current statistics\n", LOG_SERVER_PORT(device_index));
+            PINFO("Browse to http://127.0.0.1:%d/ to see the current statistics\n", LOG_SERVER_PORT);
         }
     }
 
@@ -103,7 +103,7 @@ void INIT_LOG_MANAGER(uint8_t device_index)
     for (i = 0; i < devices[device_index].flash_nb; i++) {
         log_manager_add_analyzer(log_manager[device_index], analyzers_storage[device_index][i].rt_log_analyzer);
     }
-    log_manager_subscribe(log_manager[device_index], (MonitorHook) log_server_update, NULL);
+    log_manager_subscribe(log_manager[device_index], log_server_update, (void*)(uintptr_t) device_index);
 
     log_manager_run_args_t* run_args = (log_manager_run_args_t*)malloc(sizeof(log_manager_run_args_t));
     if (run_args == NULL) {
