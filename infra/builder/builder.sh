@@ -281,6 +281,7 @@ evssim_qemu () {
 
         # Multi-device mode.
         local serial_number=1
+        local drive_id=1
         local device_count=($(evssim_get_device_count))
 
         if [ ${device_count} -eq 0 ]; then
@@ -296,29 +297,37 @@ evssim_qemu () {
                 exit 1
             fi
 
+            local num_ns=${#namespace_sizes[@]}
             local nsid=0
-            for namespace_size in "${namespace_sizes[@]}"; do
-                # Create drive argument
-                drive_args="$drive_args -drive format=vssim,if=none,id=memory$serial_number,size=${namespace_size},simulator=$device_simulator,device_index=$(($device_index-1)),namespace_index=$nsid"
+            local first_drive_id=""
+            local extra_drive_props=""
 
-                # Create NVMe device argument
-                device_args="$device_args -device nvme,drive=memory$serial_number,serial=$serial_number"
+            for namespace_size in "${namespace_sizes[@]}"; do
+                # Create drive argument for each namespace
+                drive_args="$drive_args -drive format=vssim,if=none,id=drv_${device_index}_${nsid},size=${namespace_size},simulator=$device_simulator,device_index=$(($device_index-1)),namespace_index=$nsid"
+
+                if [ $nsid -eq 0 ]; then
+                    first_drive_id="drv_${device_index}_${nsid}"
+                else
+                    # Extra drives referenced by drive2/drive3/drive4 properties
+                    extra_drive_props="$extra_drive_props,drive$((nsid+1))=drv_${device_index}_${nsid}"
+                fi
 
                 ((++nsid))
-                ((++serial_number))
-
-                # Currently the qemu dev support onlt one namespace.
-                # TODO: Add more then one namespace per device!
-                break
+                ((++drive_id))
             done
+
+            # Create one NVMe device per controller, referencing all its namespace drives
+            local ns_prop=""
+            if [ $num_ns -gt 1 ]; then
+                ns_prop=",num_namespaces=$num_ns"
+            fi
+            device_args="$device_args -device nvme,drive=$first_drive_id,serial=$serial_number${ns_prop}${extra_drive_props}"
+            ((++serial_number))
         done
 
         echo "INFO Simulator mode ($device_count devices)"
-        local serial_number=1
-        for device_size in "${device_sizes[@]}"; do
-            echo "     Device $serial_number: $(numfmt --from=iec --to=iec $device_size)"
-            ((serial_number++))
-        done
+
     else
         # Non-simulator mode - use default size
         drive_args="-drive format=vssim,size=$device_size,simulator=$device_simulator,if=none,id=memory,device_index=0 -drive format=vssim,size=$device_size,simulator=$device_simulator,if=none,id=memory2,device_index=1 -drive format=vssim,size=$device_size,simulator=$device_simulator,if=none,id=memory3,device_index=2"
