@@ -41,7 +41,10 @@ env -u http_proxy -u https_proxy -u HTTP_PROXY -u HTTPS_PROXY tox
 
 # Running Docker Tests
 ./docker-test-host.sh
+
+# Run ELK performance test immediately after host tests so it measures
+# only the known host-test workload, before guest/exofs tests add noise.
+"$ELK_DIR/elk_performance_test.sh" "$ELK_DIR"
+
 ./docker-test-guest.sh
 ./docker-test-exofs.sh
-
-"$ELK_DIR/elk_performance_test.sh" "$ELK_DIR"
