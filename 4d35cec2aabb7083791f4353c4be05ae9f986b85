@@ -278,6 +278,30 @@
     {
       "unresolved": true,
       "key": {
+        "uuid": "c2969dc8_118fd92c",
+        "filename": "infra/ELK/elk_performance_test.sh",
+        "patchSetId": 36
+      },
+      "lineNbr": 26,
+      "author": {
+        "id": 1038931
+      },
+      "writtenOn": "2026-02-20T14:16:15Z",
+      "side": 1,
+      "message": "The host tests (parameterized over 1/2/4/8 MB SSDs) now produce exactly half the writes they used to. For example,             \n  MixSequentialAndRandomOnePageAtTimeWrite does 4 × get_pages_ns(NS0) writes — totalling 7,680 logical writes across all 4       \n  parameterizations, down from 15,360 pre-namespace. The entire sector_tests.cc suite dropped from ~34K to ~17K. These global    \n  thresholds aggregate all host tests in the ELK time window; 100K is set conservatively to remain reachable by the combined test\n   suite while accounting for the halved per-test counts.",
+      "parentUuid": "63fbb80d_ae2a0bb8",
+      "range": {
+        "startLine": 24,
+        "startChar": 0,
+        "endLine": 26,
+        "endChar": 60
+      },
+      "revId": "4d35cec2aabb7083791f4353c4be05ae9f986b85",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
+    },
+    {
+      "unresolved": true,
+      "key": {
         "uuid": "73f5e956_7f8b2204",
         "filename": "infra/ELK/elk_performance_test.sh",
         "patchSetId": 36
@@ -289,6 +313,30 @@
       "writtenOn": "2026-02-20T07:50:17Z",
       "side": 1,
       "message": "particularly significant - justification required",
+      "range": {
+        "startLine": 31,
+        "startChar": 40,
+        "endLine": 31,
+        "endChar": 44
+      },
+      "revId": "4d35cec2aabb7083791f4353c4be05ae9f986b85",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "36a6a26b_7262fee5",
+        "filename": "infra/ELK/elk_performance_test.sh",
+        "patchSetId": 36
+      },
+      "lineNbr": 31,
+      "author": {
+        "id": 1038931
+      },
+      "writtenOn": "2026-02-20T14:16:15Z",
+      "side": 1,
+      "message": "Foreground GC triggers via GC_CHECK(device_index, true, false) with force\u003dtrue when GET_NEW_PAGE(VICTIM_OVERALL) fails — i.e., \n  the device\u0027s regular free page pool is exhausted. Previously, tests wrote to the entire SSD, so peak utilization at foreground \n  GC was near 90%+. Now tests only write to NS0 (50% of blocks), so peak SSD-wide utilization from NS0 alone caps at ~50%. The   \n  0.05 threshold was lowered to avoid false failures from this reduced peak utilization.",
+      "parentUuid": "73f5e956_7f8b2204",
       "range": {
         "startLine": 31,
         "startChar": 40,
