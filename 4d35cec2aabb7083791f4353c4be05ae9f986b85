@@ -1,0 +1,319 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "c676ce66_eccff6f4",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 36
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 1007990
+      },
+      "writtenOn": "2026-02-20T07:50:17Z",
+      "side": 1,
+      "message": "1. Replace device_map.py\u0027s static DEVICE_MAP dict with a live parser that reads ssd.conf at test startup and produces the expected device topology dynamically. Every test then operates on whatever the config actually declares — no manual sync required.\n\n2. Your change is based on  https://review.gerrithub.io/c/davidsaOpenu/simulator/+/1226517, which is not ready to be merged yet (there are strange issues with test running length and comments that were not addressed). Since Alon is not responding, the suggestion is to alter your QEMU change to handle object writes and sector writes at the QEMU level without calling the eVSSIM API, decoupling your change from Alon\u0027s.",
+      "revId": "4d35cec2aabb7083791f4353c4be05ae9f986b85",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "8c1b724a_168e8577",
+        "filename": "eVSSIM/tests/guest/device_map.py",
+        "patchSetId": 36
+      },
+      "lineNbr": 8,
+      "author": {
+        "id": 1007990
+      },
+      "writtenOn": "2026-02-20T07:50:17Z",
+      "side": 1,
+      "message": "builder? NVMe controller?",
+      "range": {
+        "startLine": 6,
+        "startChar": 0,
+        "endLine": 8,
+        "endChar": 59
+      },
+      "revId": "4d35cec2aabb7083791f4353c4be05ae9f986b85",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "b2b13e2d_bf4f2e36",
+        "filename": "eVSSIM/tests/guest/device_map.py",
+        "patchSetId": 36
+      },
+      "lineNbr": 23,
+      "author": {
+        "id": 1007990
+      },
+      "writtenOn": "2026-02-20T07:50:17Z",
+      "side": 1,
+      "message": "Critical: \ndevice_map.py does not actually read ssd.conf — this is the core DoD gap\nThe DoD states: \"lists all namespaces... that are defined by ssd.conf.\" The namespace discovery test (test_namespace_discovery.py) claims to verify against ssd.conf, but device_map.py is a hand-written static snapshot of expected topology. It does not parse ssd.conf or ssd.conf.template at all. If someone changes the configuration file, the tests will silently validate against the old, stale map. The commit message itself says \"Added tests to list all namespaces and verify they match the definitions in ssd.conf.template\" — but the code does not do this.\n\n\nRecommendation: device_map.py should parse the actual ssd.conf (or ssd.conf.template) at runtime using the same Python parsing logic already present in builder.sh",
+      "revId": "4d35cec2aabb7083791f4353c4be05ae9f986b85",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "e6eb6063_8c62dd29",
+        "filename": "eVSSIM/tests/guest/namespace_tests/test_namespace_discovery.py",
+        "patchSetId": 36
+      },
+      "lineNbr": 115,
+      "author": {
+        "id": 1007990
+      },
+      "writtenOn": "2026-02-20T07:50:17Z",
+      "side": 1,
+      "message": "skipTest raises an exception that exits the entire test immediately at the first missing device. All subsequent devices in the list are silently skipped with no record. If 6 out of 7 sector devices are missing, the test skips rather than fails.\nRecommendation: Collect failures and use self.fail() after the loop, or assert each device exists before checking its mode.",
+      "range": {
+        "startLine": 113,
+        "startChar": 0,
+        "endLine": 115,
+        "endChar": 51
+      },
+      "revId": "4d35cec2aabb7083791f4353c4be05ae9f986b85",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "cd67ea73_dad8f239",
+        "filename": "eVSSIM/tests/guest/namespace_tests/test_namespace_discovery.py",
+        "patchSetId": 36
+      },
+      "lineNbr": 152,
+      "author": {
+        "id": 1007990
+      },
+      "writtenOn": "2026-02-20T07:50:17Z",
+      "side": 1,
+      "message": "1. s/controller/disk\n2. Be generic. Get disk number as a parameter.",
+      "range": {
+        "startLine": 152,
+        "startChar": 8,
+        "endLine": 152,
+        "endChar": 43
+      },
+      "revId": "4d35cec2aabb7083791f4353c4be05ae9f986b85",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "56e310e2_ddce3bd6",
+        "filename": "eVSSIM/tests/guest/object_rw/test_object_strategy.py",
+        "patchSetId": 36
+      },
+      "lineNbr": 4,
+      "author": {
+        "id": 1007990
+      },
+      "writtenOn": "2026-02-20T07:50:17Z",
+      "side": 1,
+      "message": "not relevant",
+      "range": {
+        "startLine": 4,
+        "startChar": 0,
+        "endLine": 4,
+        "endChar": 21
+      },
+      "revId": "4d35cec2aabb7083791f4353c4be05ae9f986b85",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "c9eb8060_dfbf5ae7",
+        "filename": "eVSSIM/tests/guest/object_rw/test_object_strategy.py",
+        "patchSetId": 36
+      },
+      "lineNbr": 27,
+      "author": {
+        "id": 1007990
+      },
+      "writtenOn": "2026-02-20T07:50:17Z",
+      "side": 1,
+      "message": "Avoid hard-coded disk/namespace indexes. Be generic and relay on ssd.conf",
+      "range": {
+        "startLine": 27,
+        "startChar": 62,
+        "endLine": 27,
+        "endChar": 76
+      },
+      "revId": "4d35cec2aabb7083791f4353c4be05ae9f986b85",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "5384aa6b_bd4838bd",
+        "filename": "eVSSIM/tests/guest/object_rw/test_object_strategy.py",
+        "patchSetId": 36
+      },
+      "lineNbr": 38,
+      "author": {
+        "id": 1007990
+      },
+      "writtenOn": "2026-02-20T07:50:17Z",
+      "side": 1,
+      "message": "not relevant",
+      "range": {
+        "startLine": 38,
+        "startChar": 0,
+        "endLine": 38,
+        "endChar": 72
+      },
+      "revId": "4d35cec2aabb7083791f4353c4be05ae9f986b85",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "1d83b8f3_11679800",
+        "filename": "eVSSIM/tests/guest/object_rw/test_object_strategy.py",
+        "patchSetId": 36
+      },
+      "lineNbr": 172,
+      "author": {
+        "id": 1007990
+      },
+      "writtenOn": "2026-02-20T07:50:17Z",
+      "side": 1,
+      "message": "The DoD does not mention that overwrite is expected to be broken.  The test is supposed to detect a specific error code when a 1-byte overwrite occurs and should pass only if that error code is correctly detected.",
+      "revId": "4d35cec2aabb7083791f4353c4be05ae9f986b85",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "4f611dc3_903cf196",
+        "filename": "eVSSIM/tests/guest/object_rw/test_object_strategy.py",
+        "patchSetId": 36
+      },
+      "lineNbr": 204,
+      "author": {
+        "id": 1007990
+      },
+      "writtenOn": "2026-02-20T07:50:17Z",
+      "side": 1,
+      "message": "High: The test verifies deletion by catching CalledProcessError on a second objr call. But the existing exists() helper (which wraps obje) is available and semantically clearer. The test also leaves no cleanup in tearDown — if write succeeds but delete fails, the object leaks into subsequent tests because TestObjectDelete has no tearDown at all.\nRecommendation: Add a tearDown that attempts cleanup, and use self.assertFalse(self.device.exists(obj_path)) as the primary verification.",
+      "range": {
+        "startLine": 204,
+        "startChar": 8,
+        "endLine": 204,
+        "endChar": 29
+      },
+      "revId": "4d35cec2aabb7083791f4353c4be05ae9f986b85",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "d59af2db_596c100d",
+        "filename": "eVSSIM/tests/guest/object_rw/test_object_strategy.py",
+        "patchSetId": 36
+      },
+      "lineNbr": 276,
+      "author": {
+        "id": 1007990
+      },
+      "writtenOn": "2026-02-20T07:50:17Z",
+      "side": 1,
+      "message": "Critical: The variable overflow_failed is set but never asserted. If the overflow write succeeds (a real bug in the FTL), the test prints a warning and passes anyway. The DoD explicitly requires: \"add one byte beyond... overflow must fail.\"",
+      "range": {
+        "startLine": 276,
+        "startChar": 16,
+        "endLine": 276,
+        "endChar": 61
+      },
+      "revId": "4d35cec2aabb7083791f4353c4be05ae9f986b85",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "67500405_54de705a",
+        "filename": "eVSSIM/tests/guest/sector_rw/test_sector_strategy.py",
+        "patchSetId": 36
+      },
+      "lineNbr": 69,
+      "author": {
+        "id": 1007990
+      },
+      "writtenOn": "2026-02-20T07:50:17Z",
+      "side": 1,
+      "message": "High: TestSectorReadWrite, TestSectorDelete, and TestSectorCapacity all independently call mkfs.ext2 and mount in their setUpClass. Since nosetests runs these sequentially, the device is reformatted three times unnecessarily. More importantly, if TestSectorReadWrite leaves the device mounted and TestSectorDelete.setUpClass runs, ensure_unmounted should handle it — but the 0.5 second sleep in ensure_unmounted is a fragile race condition on slower systems.\nRecommendation: Use a module-level setUpModule/tearDownModule for the format+mount lifecycle, shared across all three classes.",
+      "revId": "4d35cec2aabb7083791f4353c4be05ae9f986b85",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "63fbb80d_ae2a0bb8",
+        "filename": "infra/ELK/elk_performance_test.sh",
+        "patchSetId": 36
+      },
+      "lineNbr": 26,
+      "author": {
+        "id": 1007990
+      },
+      "writtenOn": "2026-02-20T07:50:17Z",
+      "side": 1,
+      "message": "justification?",
+      "range": {
+        "startLine": 24,
+        "startChar": 0,
+        "endLine": 26,
+        "endChar": 60
+      },
+      "revId": "4d35cec2aabb7083791f4353c4be05ae9f986b85",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "73f5e956_7f8b2204",
+        "filename": "infra/ELK/elk_performance_test.sh",
+        "patchSetId": 36
+      },
+      "lineNbr": 31,
+      "author": {
+        "id": 1007990
+      },
+      "writtenOn": "2026-02-20T07:50:17Z",
+      "side": 1,
+      "message": "particularly significant - justification required",
+      "range": {
+        "startLine": 31,
+        "startChar": 40,
+        "endLine": 31,
+        "endChar": 44
+      },
+      "revId": "4d35cec2aabb7083791f4353c4be05ae9f986b85",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "401d2933_4483bb64",
+        "filename": "infra/builder/docker-test-guest.sh",
+        "patchSetId": 36
+      },
+      "lineNbr": 45,
+      "author": {
+        "id": 1007990
+      },
+      "writtenOn": "2026-02-20T07:50:17Z",
+      "side": 1,
+      "message": "Critical: nvme_compliance_tests are about to pass",
+      "revId": "4d35cec2aabb7083791f4353c4be05ae9f986b85",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
+    }
+  ]
+}
