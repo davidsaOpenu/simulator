@@ -31,6 +31,7 @@ void INIT_SSD_CONFIG(void)
 
     char key[64];
     uint8_t device_index = 0;
+    int current_ns_index = -1; /* 0-based index of the [nsXX] section being parsed; -1 = none */
 
     uint32_t i = 0;
     ssd_config_t *current_device = NULL;
@@ -57,8 +58,9 @@ void INIT_SSD_CONFIG(void)
                 RERR(, "Invalid device number, not sequential. It should be %u not %u\n", (device_index + 2), disk_num);
             }
 
-            // Set the current dev index.
+            // Set the current dev index and reset namespace tracking.
             device_index = disk_num - 1;
+            current_ns_index = -1;
 
             // Create data directory for the device
             char* dirname = GET_DATA_FILENAME(device_index, "");
@@ -107,6 +109,35 @@ void INIT_SSD_CONFIG(void)
             if (fscanf(pfData, "%" SCNu64, &current_device->namespaces_size[i-1]) == EOF){
                 RERR(, "Can't read %s\n", key);
             }
+            continue;
+        }
+
+        /* Record current namespace index for DRIVE_ID parsing below */
+        uint32_t ns_num = 0;
+        if (sscanf(key, "[ns%2u]", &ns_num) == 1) {
+            current_ns_index = (int)ns_num - 1; /* convert to 0-based */
+            continue;
+        }
+
+        if (strcmp(key, "DRIVE_ID") == 0) {
+            if (current_ns_index < 0 || current_ns_index >= MAX_NUMBER_OF_NAMESPACES)
+                RERR(, "DRIVE_ID found outside of a valid [nsXX] section\n");
+            if (fscanf(pfData, "%63s",
+                       current_device->ns_drive_id[current_ns_index]) != 1)
+                RERR(, "Can't read DRIVE_ID\n");
+            continue;
+        }
+
+        if (strcmp(key, "STORAGE_STRATEGY") == 0) {
+            int strat = 0;
+            if (fscanf(pfData, "%d", &strat) != 1)
+                RERR(, "Can't read STORAGE_STRATEGY\n");
+            if (current_ns_index >= 0 && current_ns_index < MAX_NUMBER_OF_NAMESPACES)
+                current_device->ns_storage_strategy[current_ns_index] = strat;
+            /* Always keep device-level field in sync (FTL reads it directly).
+             * For multi-namespace devices the last [nsXX] section wins,
+             * which matches the previous behaviour before per-ns tracking. */
+            current_device->storage_strategy = strat;
             continue;
         }
 
@@ -242,14 +273,23 @@ bool parse_config_line(const char* key, FILE* file, ssd_config_t* device) {
     if (strcmp(key, "STAT_SCOPE") == 0) {
         return fscanf(file, "%d", &device->stat_scope) == 1;
     }
-    if (strcmp(key, "STORAGE_STRATEGY") == 0) {
-        return fscanf(file, "%d", &device->storage_strategy) == 1;
-    }
     if (strcmp(key, "GC_LOW_THR") == 0) {
         return fscanf(file, "%d", &device->gc_low_thr) == 1;
     }
     if (strcmp(key, "GC_HI_THR") == 0) {
         return fscanf(file, "%d", &device->gc_hi_thr) == 1;
+    }
+
+    /* Namespace-level keys -- config is consumed here but handled at the QEMU level */
+    if (strcmp(key, "NAMESPACE_PAGE_NB") == 0 ||
+        strcmp(key, "SIZE") == 0 ||
+        strcmp(key, "OBJECT_KEY_SIZE") == 0 ||
+        strcmp(key, "OBJECT_MAX_VALUE_SIZE") == 0 ||
+        strcmp(key, "OBJECT_MAX_CAPACITY") == 0) {
+        uint64_t v = 0;
+        if (fscanf(file, "%" SCNu64, &v) != 1)
+            PERR("Failed to consume namespace key: %s\n", key);
+        return true;
     }
 
 #if defined FTL_MAP_CACHE
@@ -361,6 +401,22 @@ void calculate_derived_values(ssd_config_t* device) {
     device->gc_hi_thr_page_nb = device->page_nb * (100 - device->gc_hi_thr) * device->block_mapping_entry_nb / 100;
     device->gc_low_thr_interval_sec = 10;
     device->gc_hi_thr_interval_sec = 1;
+}
+
+char* GET_NS_DRIVE_ID(uint8_t device_index, uint8_t ns_index) {
+    if (devices == NULL || ns_index >= MAX_NUMBER_OF_NAMESPACES) {
+        return NULL;
+    }
+    return devices[device_index].ns_drive_id[ns_index];
+}
+
+int GET_NS_STORAGE_STRATEGY(uint8_t device_index, uint8_t ns_index) {
+    int strat;
+    if (devices == NULL || ns_index >= MAX_NUMBER_OF_NAMESPACES) {
+        return 1; /* default to sector */
+    }
+    strat = devices[device_index].ns_storage_strategy[ns_index];
+    return (strat == 2) ? 2 : 1; /* default to sector if unset (0) */
 }
 
 char* GET_DATA_FILENAME(uint8_t device_index, const char* filename) {
