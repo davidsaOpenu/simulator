@@ -110,6 +110,14 @@ void INIT_SSD_CONFIG(void)
             continue;
         }
 
+        if (strcmp(key, "STORAGE_STRATEGY") == 0) {
+            int strat = 0;
+            if (fscanf(pfData, "%d", &strat) != 1)
+                RERR(, "Can't read STORAGE_STRATEGY\n");
+            current_device->storage_strategy = strat;
+            continue;
+        }
+
         if (!parse_config_line(key, pfData, current_device)) {
             RERR(, "Unknown configuration option: %s.\n", key);
         }
@@ -241,9 +249,6 @@ bool parse_config_line(const char* key, FILE* file, ssd_config_t* device) {
     }
     if (strcmp(key, "STAT_SCOPE") == 0) {
         return fscanf(file, "%d", &device->stat_scope) == 1;
-    }
-    if (strcmp(key, "STORAGE_STRATEGY") == 0) {
-        return fscanf(file, "%d", &device->storage_strategy) == 1;
     }
     if (strcmp(key, "GC_LOW_THR") == 0) {
         return fscanf(file, "%d", &device->gc_low_thr) == 1;
