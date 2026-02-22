@@ -37,9 +37,9 @@ class TestNVMeCompliance:
         for suiteNum in range(0, 24):
             if suiteNum not in skipEntireSuites:
                 cmd = "./tnvme --test=%d --skiptest=skipTests > test%d.txt 2>&1" % (suiteNum, suiteNum)
-                print cmd
+                print(cmd)
                 assert 0 == os.system(cmd)
-    
+
 
     @new_qemu_only
     def test_NVMeCompliance_new(self):
@@ -52,34 +52,34 @@ class TestNVMeCompliance:
         with open("skipTests", "w+") as f:
             for test in skip_single_tests:
                 f.write("%s\n" % test)
-        
+
         skip_suits = {}
         if DEBUG:
             self.with_kernel_log(skip_suits)
         else:
             self.no_kernel_log(skip_suits)
-                
+
     def with_kernel_log(self, skip_suits):
         for suiteNum in range(1, 28):
             if suiteNum not in skip_suits:
-                cmd = "./tnvme --rev=1.2 --test=%d --skiptest=skipTests > ./Logs/test%d.txt 2>&1" % (suiteNum, suiteNum)
+                cmd = "./tnvme --rev=1.2 --device /dev/nvme0 --test=%d --skiptest=skipTests > ./Logs/test%d.txt 2>&1" % (suiteNum, suiteNum)
                 dump_kernel = "./Logs/kdump%d.txt" % (suiteNum)
-                print cmd
+                print(cmd)
                 dump_file = open(dump_kernel, 'w')
                 proc = subprocess.Popen(["./log_kernel.sh"], stdout = dump_file)
-                print "START", int(time.time())
+                print("START", int(time.time()))
                 res = os.system(cmd)
-                print "STOP", int(time.time())
+                print("STOP", int(time.time()))
                 time.sleep(2)
                 proc.kill()
                 assert 0 == res, "Failed running suit %s" % suiteNum
-                
+
     def no_kernel_log(self, skip_suits):
         for suiteNum in range(1, 28):
             if suiteNum not in skip_suits:
-                cmd = "./tnvme --rev=1.2 --test=%d --skiptest=skipTests > ./Logs/test%d.txt 2>&1" % (suiteNum, suiteNum)
-                print cmd
-                print "START", int(time.time())
+                cmd = "./tnvme --rev=1.2 --device /dev/nvme0 --test=%d --skiptest=skipTests > ./Logs/test%d.txt 2>&1" % (suiteNum, suiteNum)
+                print(cmd)
+                print("START", int(time.time()))
                 res = os.system(cmd)
-                print "STOP", int(time.time())
+                print("STOP", int(time.time()))
                 assert 0 == res, "Failed running suit %s" % suiteNum
