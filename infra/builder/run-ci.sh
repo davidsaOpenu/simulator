@@ -39,9 +39,14 @@ env -u http_proxy -u https_proxy -u HTTP_PROXY -u HTTPS_PROXY tox
 # start ELK (absolute paths)
 "$ELK_INSTALL" "$LOGS_DIR" "$ELK_DIR"
 
-# Running Docker Tests
-./docker-test-host.sh
+# Run dedicated traffic workload for ELK measurement.
+# Record start timestamp so the ELK test queries only this run's time window.
+ELK_TRAFFIC_START="$(date -u +%Y-%m-%dT%H:%M:%SZ)"
+./docker-run-elk-traffic.sh
+
+# Run ELK performance test constrained to the traffic window above.
+START_AT="$ELK_TRAFFIC_START" "$ELK_DIR/elk_performance_test.sh" "$ELK_DIR"
+
+# Running remaining Docker tests
 ./docker-test-guest.sh
 ./docker-test-exofs.sh
-
-"$ELK_DIR/elk_performance_test.sh" "$ELK_DIR"
