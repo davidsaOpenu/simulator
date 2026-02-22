@@ -16,6 +16,7 @@ uint8_t device_count = 0;
 
 void calculate_derived_values(ssd_config_t *device);
 bool parse_config_line(const char* key, FILE* file, ssd_config_t* device);
+bool parse_ns_config_line(const char* key, FILE* file, ssd_config_t* device, int ns_idx);
 void update_globals(void);
 
 void INIT_SSD_CONFIG(void)
@@ -31,6 +32,7 @@ void INIT_SSD_CONFIG(void)
 
     char key[64];
     uint8_t device_index = 0;
+    int current_ns_index = -1;
 
     uint32_t i = 0;
     ssd_config_t *current_device = NULL;
@@ -59,6 +61,7 @@ void INIT_SSD_CONFIG(void)
 
             // Set the current dev index.
             device_index = disk_num - 1;
+            current_ns_index = -1;
 
             // Create data directory for the device
             char* dirname = GET_DATA_FILENAME(device_index, "");
@@ -84,8 +87,25 @@ void INIT_SSD_CONFIG(void)
             continue;
         }
 
+        {
+            uint32_t ns_num = 0;
+            if (sscanf(key, "[ns%2u]", &ns_num) == 1) {
+                if (ns_num == 0 || ns_num > MAX_NUMBER_OF_NAMESPACES)
+                    RERR(, "Invalid namespace number %u\n", ns_num);
+                current_ns_index = (int)(ns_num - 1);
+                continue;
+            }
+        }
+
         if (current_device == NULL) {
             RERR(, "Configuration parameter found before device header: %s\n", key);
+        }
+
+        if (current_ns_index >= 0) {
+            if (!parse_ns_config_line(key, pfData, current_device, current_ns_index)) {
+                RERR(, "Unknown namespace configuration option: %s\n", key);
+            }
+            continue;
         }
 
         if (strcmp(key, "STAT_PATH") == 0){
@@ -274,6 +294,24 @@ bool parse_config_line(const char* key, FILE* file, ssd_config_t* device) {
     return false; // Unknown key
 }
 
+bool parse_ns_config_line(const char* key, FILE* file, ssd_config_t* device, int ns_idx) {
+    if (strcmp(key, "STORAGE_STRATEGY") == 0) {
+        if (fscanf(file, "%d", &device->ns_storage_strategy[ns_idx]) != 1) return false;
+        device->storage_strategy = device->ns_storage_strategy[ns_idx];
+        return true;
+    }
+    if (strcmp(key, "NAMESPACE_PAGE_NB") == 0)
+        return fscanf(file, "%" SCNu64, &device->ns_namespace_page_nb[ns_idx])      == 1;
+    if (strcmp(key, "SIZE") == 0)
+        return fscanf(file, "%" SCNu64, &device->namespaces_size[ns_idx])           == 1;
+    if (strcmp(key, "OBJECT_KEY_SIZE") == 0)
+        return fscanf(file, "%" SCNu64, &device->ns_object_key_size[ns_idx])        == 1;
+    if (strcmp(key, "OBJECT_MAX_VALUE_SIZE") == 0)
+        return fscanf(file, "%" SCNu64, &device->ns_object_max_value_size[ns_idx])  == 1;
+    if (strcmp(key, "OBJECT_MAX_CAPACITY") == 0)
+        return fscanf(file, "%" SCNu64, &device->ns_object_max_capacity[ns_idx])    == 1;
+    return false; // Unknown namespace key
+}
 
 char* GET_FILE_NAME(uint8_t device_index){
 	return devices[device_index].file_name;
