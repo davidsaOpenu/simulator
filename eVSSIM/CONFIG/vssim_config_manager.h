@@ -9,7 +9,8 @@
 #include "common.h"
 #include <limits.h>
 
-#define MAX_DEVICE_NAME_LEN 8
+#define MAX_DEVICE_NAME_LEN   8
+#define MAX_NS_DRIVE_ID_LEN  64
 
 typedef struct ssd_config {
 	char device_name[MAX_DEVICE_NAME_LEN];
@@ -80,6 +81,16 @@ typedef struct ssd_config {
 	char osd_path[PATH_MAX];
 
 	int storage_strategy; // 1 = sector-based, 2 = object-based
+
+	/* Per-namespace QEMU block-backend drive ID (empty string = none).
+	 * ns_drive_id[0] is the primary drive (n->conf.blk in QEMU); entries
+	 * for ns_index >= 1 are looked up by nvme_realize via GET_NS_DRIVE_ID. */
+	char ns_drive_id[MAX_NUMBER_OF_NAMESPACES][MAX_NS_DRIVE_ID_LEN];
+
+	/* Per-namespace storage strategy: 1 = sector, 2 = object.
+	 * Populated from STORAGE_STRATEGY inside [nsXX] sections in ssd.conf.
+	 * 0 means "not set" — GET_NS_STORAGE_STRATEGY() defaults to sector. */
+	int ns_storage_strategy[MAX_NUMBER_OF_NAMESPACES];
 } ssd_config_t;
 
 /* NVMe devices manager */
@@ -99,5 +110,7 @@ uint32_t GET_FLASH_NB(uint8_t device_index);
 uint64_t GET_TOTAL_NUMBER_OF_PAGES(uint8_t device_index);
 ssd_config_t* GET_DEVICES(void);
 char* GET_DATA_FILENAME(uint8_t device_index, const char* filename);
+char* GET_NS_DRIVE_ID(uint8_t device_index, uint8_t ns_index);
+int   GET_NS_STORAGE_STRATEGY(uint8_t device_index, uint8_t ns_index);
 
 #endif
