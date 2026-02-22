@@ -24,7 +24,7 @@ void INIT_MAPPING_TABLE(uint8_t device_index)
 
 	FILE *fp = fopen(data_filename, "r");
 	free(data_filename);
-	if (fp != NULL)
+	if (READ_MAPPING_INFO_FROM_FILES && fp != NULL)
 	{
 		if (fread(mapping_table[device_index], sizeof(uint64_t), (uint64_t)devices[device_index].page_mapping_entry_nb, fp) <= 0)
 			PERR("fread\n");
@@ -33,6 +33,8 @@ void INIT_MAPPING_TABLE(uint8_t device_index)
 	else
 	{
 		uint64_t i;
+		if (fp != NULL)
+			fclose(fp);
 		for (i = 0; i < devices[device_index].page_mapping_entry_nb; i++)
 		{
 			mapping_table[device_index][i] = MAPPING_TABLE_INIT_VAL;

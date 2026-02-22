@@ -378,6 +378,11 @@ ftl_ret_val _FTL_COPYBACK(uint8_t device_index, uint64_t source, uint64_t destin
 	return ret;
 }
 
+ftl_ret_val FTL_CREATE(uint8_t device_index)
+{
+    return _FTL_CREATE(device_index);
+}
+
 ftl_ret_val _FTL_CREATE(uint8_t device_index)
 {
 	if (devices[device_index].storage_strategy != STRATEGY_SECTOR) {

@@ -9,7 +9,7 @@
 #include "common.h"
 #include <limits.h>
 
-#define MAX_DEVICE_NAME_LEN 8
+#define MAX_DEVICE_NAME_LEN   8
 
 typedef struct ssd_config {
 	char device_name[MAX_DEVICE_NAME_LEN];

@@ -20,6 +20,7 @@ extern int* g_init_ftl;
 extern pthread_mutex_t g_lock;
 
 void FTL_INIT(uint8_t device_index);
+ftl_ret_val FTL_CREATE(uint8_t device_index);
 void FTL_TERM(uint8_t device_index);
 
 //TODO: get rid of this (we have no init anymore)
