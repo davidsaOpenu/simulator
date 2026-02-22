@@ -62,7 +62,7 @@ class TestNVMeCompliance:
     def with_kernel_log(self, skip_suits):
         for suiteNum in range(1, 28):
             if suiteNum not in skip_suits:
-                cmd = "./tnvme --rev=1.2 --test=%d --skiptest=skipTests > ./Logs/test%d.txt 2>&1" % (suiteNum, suiteNum)
+                cmd = "./tnvme --rev=1.2 --device /dev/nvme0 --test=%d --skiptest=skipTests > ./Logs/test%d.txt 2>&1" % (suiteNum, suiteNum)
                 dump_kernel = "./Logs/kdump%d.txt" % (suiteNum)
                 print cmd
                 dump_file = open(dump_kernel, 'w')
@@ -77,7 +77,7 @@ class TestNVMeCompliance:
     def no_kernel_log(self, skip_suits):
         for suiteNum in range(1, 28):
             if suiteNum not in skip_suits:
-                cmd = "./tnvme --rev=1.2 --test=%d --skiptest=skipTests > ./Logs/test%d.txt 2>&1" % (suiteNum, suiteNum)
+                cmd = "./tnvme --rev=1.2 --device /dev/nvme0 --test=%d --skiptest=skipTests > ./Logs/test%d.txt 2>&1" % (suiteNum, suiteNum)
                 print cmd
                 print "START", int(time.time())
                 res = os.system(cmd)
