@@ -5,8 +5,9 @@ exofs_test() {
     # Make a fresh copy
     evssim_qemu_fresh_image
 
-    # Run qemu with test specific configuration
-    EVSSIM_RUNTIME_STORAGE_STRATEGY=2 EVSSIM_QEMU_SIMULATOR_ENABLED=yes evssim_qemu_detached
+    # Run qemu with test specific configuration (single object-strategy device for exofs)
+    EVSSIM_RUNTIME_SSD_CONF_TEMPLATE="$EVSSIM_ROOT_PATH/$EVSSIM_BUILDER_FOLDER/docker/ssd.conf-exofs.template" \
+        EVSSIM_RUNTIME_STORAGE_STRATEGY=2 EVSSIM_QEMU_SIMULATOR_ENABLED=yes evssim_qemu_detached
 
     # Run tests inside the guest
     echo "INFO Running exofs test"
@@ -17,7 +18,7 @@ exofs_test() {
     set -e
 
     # When debugging you can find trace logs at OUTPUT_DIR
-    evssim_guest_copy $OUTPUT_DIR $OUTPUT_DIR 
+    evssim_guest_copy $OUTPUT_DIR $OUTPUT_DIR
     # Stop qemu and wait
     evssim_qemu_flush_disk
     evssim_qemu_stop
