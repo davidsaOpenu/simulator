@@ -110,6 +110,12 @@ void INIT_SSD_CONFIG(void)
             continue;
         }
 
+        /* Skip [nsXX] section headers — namespace config is handled at the QEMU level */
+        uint32_t ns_num = 0;
+        if (sscanf(key, "[ns%2u]", &ns_num) == 1) {
+            continue;
+        }
+
         if (!parse_config_line(key, pfData, current_device)) {
             RERR(, "Unknown configuration option: %s.\n", key);
         }
@@ -250,6 +256,18 @@ bool parse_config_line(const char* key, FILE* file, ssd_config_t* device) {
     }
     if (strcmp(key, "GC_HI_THR") == 0) {
         return fscanf(file, "%d", &device->gc_hi_thr) == 1;
+    }
+
+    /* Namespace-level keys — config is consumed here but handled at the QEMU level */
+    if (strcmp(key, "NAMESPACE_PAGE_NB") == 0 ||
+        strcmp(key, "SIZE") == 0 ||
+        strcmp(key, "OBJECT_KEY_SIZE") == 0 ||
+        strcmp(key, "OBJECT_MAX_VALUE_SIZE") == 0 ||
+        strcmp(key, "OBJECT_MAX_CAPACITY") == 0) {
+        uint64_t v = 0;
+        if (fscanf(file, "%" SCNu64, &v) != 1)
+            PERR("Failed to consume namespace key: %s\n", key);
+        return true;
     }
 
 #if defined FTL_MAP_CACHE
