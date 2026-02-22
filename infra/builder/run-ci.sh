@@ -36,12 +36,15 @@ env -u http_proxy -u https_proxy -u HTTP_PROXY -u HTTPS_PROXY tox
 ./compile-guest-tests.sh
 ./docker-run-sanity.sh
 
-# start ELK (absolute paths)
-"$ELK_INSTALL" "$LOGS_DIR" "$ELK_DIR"
-
-# Running Docker Tests
+# Run existing Docker tests
 ./docker-test-host.sh
 ./docker-test-guest.sh
 ./docker-test-exofs.sh
 
-"$ELK_DIR/elk_performance_test.sh" "$ELK_DIR"
+"$ELK_INSTALL" "$LOGS_DIR" "$ELK_DIR"
+ELK_TRAFFIC_START="$(date -u +%Y-%m-%dT%H:%M:%SZ)"
+./docker-run-elk-traffic.sh
+START_AT="$ELK_TRAFFIC_START" "$ELK_DIR/elk_performance_test.sh" "$ELK_DIR"
+
+# Run namespace tests last
+./docker-test-namespaces-detached-eVSSIM.sh
