@@ -80,6 +80,13 @@ typedef struct ssd_config {
 	char osd_path[PATH_MAX];
 
 	int storage_strategy; // 1 = sector-based, 2 = object-based
+
+	/* Per-namespace configuration */
+	int      ns_storage_strategy[MAX_NUMBER_OF_NAMESPACES];
+	uint64_t ns_namespace_page_nb[MAX_NUMBER_OF_NAMESPACES];
+	uint64_t ns_object_key_size[MAX_NUMBER_OF_NAMESPACES];
+	uint64_t ns_object_max_value_size[MAX_NUMBER_OF_NAMESPACES];
+	uint64_t ns_object_max_capacity[MAX_NUMBER_OF_NAMESPACES];
 } ssd_config_t;
 
 /* NVMe devices manager */
