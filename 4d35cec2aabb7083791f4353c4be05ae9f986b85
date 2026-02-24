@@ -18,6 +18,24 @@
       "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "71488571_99749552",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 36
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 1038931
+      },
+      "writtenOn": "2026-02-24T21:49:20Z",
+      "side": 1,
+      "message": "1. Dynamic Topology: device_map.py no longer uses a static map. It now features a live parser that reads ssd.conf at runtime, ensuring all tests automatically sync with the actual configuration.\n\n2. Decoupling from Alon\u0027s FTL: I have completely decoupled this patch from Alon\u0027s stalled commit. The QEMU NVMe controller now handles object I/O entirely at the QEMU level using an internal per-namespace GHashTable. It supports full 128-bit keys and enforces capacity limits, completely bypassing the eVSSIM FTL Object API. All tests pass independently",
+      "parentUuid": "c676ce66_eccff6f4",
+      "revId": "4d35cec2aabb7083791f4353c4be05ae9f986b85",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "8c1b724a_168e8577",
@@ -31,6 +49,54 @@
       "writtenOn": "2026-02-20T07:50:17Z",
       "side": 1,
       "message": "builder? NVMe controller?",
+      "range": {
+        "startLine": 6,
+        "startChar": 0,
+        "endLine": 8,
+        "endChar": 59
+      },
+      "revId": "4d35cec2aabb7083791f4353c4be05ae9f986b85",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "fbd79a19_f0a45fdc",
+        "filename": "eVSSIM/tests/guest/device_map.py",
+        "patchSetId": 36
+      },
+      "lineNbr": 8,
+      "author": {
+        "id": 1038931
+      },
+      "writtenOn": "2026-02-24T21:49:20Z",
+      "side": 1,
+      "message": "Fixed. I\u0027ve updated the documentation to clarify that the runtime environment (QEMU) instantiates the virtual NVMe controllers based on the configuration file, rather than the builder script.",
+      "parentUuid": "8c1b724a_168e8577",
+      "range": {
+        "startLine": 6,
+        "startChar": 0,
+        "endLine": 8,
+        "endChar": 59
+      },
+      "revId": "4d35cec2aabb7083791f4353c4be05ae9f986b85",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "ccc860ee_7d0ea4af",
+        "filename": "eVSSIM/tests/guest/device_map.py",
+        "patchSetId": 36
+      },
+      "lineNbr": 8,
+      "author": {
+        "id": 1038931
+      },
+      "writtenOn": "2026-02-24T21:49:20Z",
+      "side": 1,
+      "message": "Terminology is cleaned up — the module now consistently uses \"NVMe\n  controller\" throughout, with the docstring explaining the\n  one-controller-per-[nvmeNN]-section mapping.",
+      "parentUuid": "8c1b724a_168e8577",
       "range": {
         "startLine": 6,
         "startChar": 0,
@@ -60,6 +126,42 @@
     {
       "unresolved": true,
       "key": {
+        "uuid": "039e90bc_b9d63aac",
+        "filename": "eVSSIM/tests/guest/device_map.py",
+        "patchSetId": 36
+      },
+      "lineNbr": 23,
+      "author": {
+        "id": 1038931
+      },
+      "writtenOn": "2026-02-24T21:49:20Z",
+      "side": 1,
+      "message": "Fixed. The DEVICE_MAP is no longer a static snapshot. I implemented a dynamic parser (_parse_ssd_conf) that reads and parses the actual ssd.conf at runtime. This ensures that the namespace discovery and strategy tests always validate against the current configuration, fulfilling the DoD requirement",
+      "parentUuid": "b2b13e2d_bf4f2e36",
+      "revId": "4d35cec2aabb7083791f4353c4be05ae9f986b85",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "3963ce49_7977d31a",
+        "filename": "eVSSIM/tests/guest/device_map.py",
+        "patchSetId": 36
+      },
+      "lineNbr": 23,
+      "author": {
+        "id": 1038931
+      },
+      "writtenOn": "2026-02-24T21:49:20Z",
+      "side": 1,
+      "message": "The static hand-written map is gone. device_map.py now calls\n  _parse_ssd_conf() at import time, which walks the actual ssd.conf line by\n  line, matching [nvmeNN] and [nsNN] section headers and extracting\n  STORAGE_STRATEGY / OBJECT_MAX_CAPACITY / NAMESPACE_PAGE_NB. DEVICE_MAP,\n  EXPECTED_DEVICE_COUNT, EXPECTED_CONTROLLER_COUNT, etc. are all derived from\n  that parse — so any change to ssd.conf is automatically reflected in the\n  tests. An SSD_CONF_PATH env override is also supported for non-standard paths.",
+      "parentUuid": "b2b13e2d_bf4f2e36",
+      "revId": "4d35cec2aabb7083791f4353c4be05ae9f986b85",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
+    },
+    {
+      "unresolved": true,
+      "key": {
         "uuid": "e6eb6063_8c62dd29",
         "filename": "eVSSIM/tests/guest/namespace_tests/test_namespace_discovery.py",
         "patchSetId": 36
@@ -71,6 +173,30 @@
       "writtenOn": "2026-02-20T07:50:17Z",
       "side": 1,
       "message": "skipTest raises an exception that exits the entire test immediately at the first missing device. All subsequent devices in the list are silently skipped with no record. If 6 out of 7 sector devices are missing, the test skips rather than fails.\nRecommendation: Collect failures and use self.fail() after the loop, or assert each device exists before checking its mode.",
+      "range": {
+        "startLine": 113,
+        "startChar": 0,
+        "endLine": 115,
+        "endChar": 51
+      },
+      "revId": "4d35cec2aabb7083791f4353c4be05ae9f986b85",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "16a25070_e8ffba67",
+        "filename": "eVSSIM/tests/guest/namespace_tests/test_namespace_discovery.py",
+        "patchSetId": 36
+      },
+      "lineNbr": 115,
+      "author": {
+        "id": 1038931
+      },
+      "writtenOn": "2026-02-24T21:49:20Z",
+      "side": 1,
+      "message": "Fixed. Removed self.skipTest() and implemented failure collection inside the loop. The test now evaluates all devices and uses self.fail() at the end to report all missing or non-block devices at once, exactly as recommended",
+      "parentUuid": "e6eb6063_8c62dd29",
       "range": {
         "startLine": 113,
         "startChar": 0,
@@ -106,6 +232,30 @@
     {
       "unresolved": true,
       "key": {
+        "uuid": "8af4f069_6ec977a4",
+        "filename": "eVSSIM/tests/guest/namespace_tests/test_namespace_discovery.py",
+        "patchSetId": 36
+      },
+      "lineNbr": 152,
+      "author": {
+        "id": 1038931
+      },
+      "writtenOn": "2026-02-24T21:49:20Z",
+      "side": 1,
+      "message": "Fixed. Renamed \u0027controller\u0027 to \u0027disk\u0027 throughout the test. I also refactored the logic into a generic helper method (_check_disk_namespace_count) that takes the disk number as a parameter, and updated the main test loop to dynamically verify all disks defined in DEVICE_MAP without using hardcoded values.",
+      "parentUuid": "cd67ea73_dad8f239",
+      "range": {
+        "startLine": 152,
+        "startChar": 8,
+        "endLine": 152,
+        "endChar": 43
+      },
+      "revId": "4d35cec2aabb7083791f4353c4be05ae9f986b85",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
+    },
+    {
+      "unresolved": true,
+      "key": {
         "uuid": "56e310e2_ddce3bd6",
         "filename": "eVSSIM/tests/guest/object_rw/test_object_strategy.py",
         "patchSetId": 36
@@ -129,6 +279,30 @@
     {
       "unresolved": true,
       "key": {
+        "uuid": "5be0bc48_75dd5084",
+        "filename": "eVSSIM/tests/guest/object_rw/test_object_strategy.py",
+        "patchSetId": 36
+      },
+      "lineNbr": 4,
+      "author": {
+        "id": 1038931
+      },
+      "writtenOn": "2026-02-24T21:49:20Z",
+      "side": 1,
+      "message": "Fixed. Removed the irrelevant \u0027Python 2.7 compatible\u0027",
+      "parentUuid": "56e310e2_ddce3bd6",
+      "range": {
+        "startLine": 4,
+        "startChar": 0,
+        "endLine": 4,
+        "endChar": 21
+      },
+      "revId": "4d35cec2aabb7083791f4353c4be05ae9f986b85",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
+    },
+    {
+      "unresolved": true,
+      "key": {
         "uuid": "c9eb8060_dfbf5ae7",
         "filename": "eVSSIM/tests/guest/object_rw/test_object_strategy.py",
         "patchSetId": 36
@@ -140,6 +314,30 @@
       "writtenOn": "2026-02-20T07:50:17Z",
       "side": 1,
       "message": "Avoid hard-coded disk/namespace indexes. Be generic and relay on ssd.conf",
+      "range": {
+        "startLine": 27,
+        "startChar": 62,
+        "endLine": 27,
+        "endChar": 76
+      },
+      "revId": "4d35cec2aabb7083791f4353c4be05ae9f986b85",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "cb213a34_d3bb7473",
+        "filename": "eVSSIM/tests/guest/object_rw/test_object_strategy.py",
+        "patchSetId": 36
+      },
+      "lineNbr": 27,
+      "author": {
+        "id": 1038931
+      },
+      "writtenOn": "2026-02-24T21:49:20Z",
+      "side": 1,
+      "message": "Fixed. Removed the hard-coded fallback value (/dev/nvme5n1) from the code itself and generalized the usage example. The script now relies entirely on dynamic detection via get_first_object_device().",
+      "parentUuid": "c9eb8060_dfbf5ae7",
       "range": {
         "startLine": 27,
         "startChar": 62,
@@ -192,6 +390,24 @@
     {
       "unresolved": true,
       "key": {
+        "uuid": "2c3c22ec_cb307674",
+        "filename": "eVSSIM/tests/guest/object_rw/test_object_strategy.py",
+        "patchSetId": 36
+      },
+      "lineNbr": 172,
+      "author": {
+        "id": 1038931
+      },
+      "writtenOn": "2026-02-24T21:49:20Z",
+      "side": 1,
+      "message": "Fixed. With the recent QEMU decoupling, the Mock GHashTable correctly supports key overwrites (updates) and returns NVME_SUCCESS, bypassing the capacity guard for existing keys. I removed the @expectedFailure decorator and updated the test logic and docstring to assert that the overwrite succeeds and the new content is accurately read back, rather than expecting an error.",
+      "parentUuid": "1d83b8f3_11679800",
+      "revId": "4d35cec2aabb7083791f4353c4be05ae9f986b85",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
+    },
+    {
+      "unresolved": true,
+      "key": {
         "uuid": "4f611dc3_903cf196",
         "filename": "eVSSIM/tests/guest/object_rw/test_object_strategy.py",
         "patchSetId": 36
@@ -203,6 +419,30 @@
       "writtenOn": "2026-02-20T07:50:17Z",
       "side": 1,
       "message": "High: The test verifies deletion by catching CalledProcessError on a second objr call. But the existing exists() helper (which wraps obje) is available and semantically clearer. The test also leaves no cleanup in tearDown — if write succeeds but delete fails, the object leaks into subsequent tests because TestObjectDelete has no tearDown at all.\nRecommendation: Add a tearDown that attempts cleanup, and use self.assertFalse(self.device.exists(obj_path)) as the primary verification.",
+      "range": {
+        "startLine": 204,
+        "startChar": 8,
+        "endLine": 204,
+        "endChar": 29
+      },
+      "revId": "4d35cec2aabb7083791f4353c4be05ae9f986b85",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "77c5ca20_b9040aca",
+        "filename": "eVSSIM/tests/guest/object_rw/test_object_strategy.py",
+        "patchSetId": 36
+      },
+      "lineNbr": 204,
+      "author": {
+        "id": 1038931
+      },
+      "writtenOn": "2026-02-24T21:49:20Z",
+      "side": 1,
+      "message": "Fixed. Added proper setUp and tearDown methods to TestObjectDelete to ensure objects are cleaned up even if a test fails mid-way. The test assertions now properly use the semantically clearer self.device.exists(obj_path) method for verification",
+      "parentUuid": "4f611dc3_903cf196",
       "range": {
         "startLine": 204,
         "startChar": 8,
@@ -238,6 +478,30 @@
     {
       "unresolved": true,
       "key": {
+        "uuid": "9e065cb7_cb77b1fa",
+        "filename": "eVSSIM/tests/guest/object_rw/test_object_strategy.py",
+        "patchSetId": 36
+      },
+      "lineNbr": 276,
+      "author": {
+        "id": 1038931
+      },
+      "writtenOn": "2026-02-24T21:49:20Z",
+      "side": 1,
+      "message": "Fixed. Added the missing self.assertTrue(overflow_failed, ...) assertion. The test will now properly fail if an object write is unexpectedly accepted after the maximum namespace capacity is reached",
+      "parentUuid": "d59af2db_596c100d",
+      "range": {
+        "startLine": 276,
+        "startChar": 16,
+        "endLine": 276,
+        "endChar": 61
+      },
+      "revId": "4d35cec2aabb7083791f4353c4be05ae9f986b85",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
+    },
+    {
+      "unresolved": true,
+      "key": {
         "uuid": "67500405_54de705a",
         "filename": "eVSSIM/tests/guest/sector_rw/test_sector_strategy.py",
         "patchSetId": 36
@@ -249,6 +513,24 @@
       "writtenOn": "2026-02-20T07:50:17Z",
       "side": 1,
       "message": "High: TestSectorReadWrite, TestSectorDelete, and TestSectorCapacity all independently call mkfs.ext2 and mount in their setUpClass. Since nosetests runs these sequentially, the device is reformatted three times unnecessarily. More importantly, if TestSectorReadWrite leaves the device mounted and TestSectorDelete.setUpClass runs, ensure_unmounted should handle it — but the 0.5 second sleep in ensure_unmounted is a fragile race condition on slower systems.\nRecommendation: Use a module-level setUpModule/tearDownModule for the format+mount lifecycle, shared across all three classes.",
+      "revId": "4d35cec2aabb7083791f4353c4be05ae9f986b85",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "feafc11f_3f971b75",
+        "filename": "eVSSIM/tests/guest/sector_rw/test_sector_strategy.py",
+        "patchSetId": 36
+      },
+      "lineNbr": 69,
+      "author": {
+        "id": 1038931
+      },
+      "writtenOn": "2026-02-24T21:49:20Z",
+      "side": 1,
+      "message": "Fixed. I removed the time.sleep(0.5) to eliminate the race condition and replaced it with a deterministic sync before unmounting. Additionally, I moved the mkfs.ext2 and mount calls to setUpModule() and tearDownModule() so the device is formatted and mounted only once for the entire test suite. Test isolation is now handled purely by clearing files (_clean_mount()) before each test.",
+      "parentUuid": "67500405_54de705a",
       "revId": "4d35cec2aabb7083791f4353c4be05ae9f986b85",
       "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
     },
@@ -360,6 +642,24 @@
       "writtenOn": "2026-02-20T07:50:17Z",
       "side": 1,
       "message": "Critical: nvme_compliance_tests are about to pass",
+      "revId": "4d35cec2aabb7083791f4353c4be05ae9f986b85",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "8aa69522_43f1edc3",
+        "filename": "infra/builder/docker-test-guest.sh",
+        "patchSetId": 36
+      },
+      "lineNbr": 45,
+      "author": {
+        "id": 1038931
+      },
+      "writtenOn": "2026-02-24T21:49:20Z",
+      "side": 1,
+      "message": "Fixed. Uncommented the nvme_compliance_tests line so they are now fully enabled and running as part of the CI pipeline.",
+      "parentUuid": "401d2933_4483bb64",
       "revId": "4d35cec2aabb7083791f4353c4be05ae9f986b85",
       "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
     }
