@@ -77,7 +77,7 @@ void INIT_LOG_MANAGER(uint8_t device_index)
         analyzers_storage[device_index][i].rt_log_analyzer = rt_log_analyzer_init(analyzers_storage[device_index][i].logger, i);
         if (analyzers_storage[device_index][i].rt_log_analyzer == NULL)
             PERR("Couldn't create the real time analyzer: %s\n", strerror(errno));
-        analyzers_storage[device_index][i].offline_log_analyzer = offline_log_analyzer_init(analyzers_storage[device_index][i].logger);
+        analyzers_storage[device_index][i].offline_log_analyzer = offline_log_analyzer_init(analyzers_storage[device_index][i].logger, device_index);
         if (analyzers_storage[device_index][i].offline_log_analyzer == NULL)
             PERR("Couldn't create the offline log analyzer: %s\n", strerror(errno));
     }

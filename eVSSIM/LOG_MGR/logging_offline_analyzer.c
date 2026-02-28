@@ -38,13 +38,15 @@ elk_logger_writer elk_logger_writer_obj;
 int lines_read_in_json = 0;
 int auto_delete = TRUE;
 static int elk_logger_writer_initialized = FALSE;
+static int elk_logger_writer_ref_count = 0;
 
-OfflineLogAnalyzer* offline_log_analyzer_init(Logger_Pool* logger_pool) {
+OfflineLogAnalyzer* offline_log_analyzer_init(Logger_Pool* logger_pool, uint8_t device_index) {
     OfflineLogAnalyzer* analyzer = (OfflineLogAnalyzer*) malloc(sizeof(OfflineLogAnalyzer));
     if (analyzer == NULL)
         return NULL;
 
     analyzer->logger_pool = logger_pool;
+    analyzer->device_index = device_index;
     analyzer->exit_loop_flag = 0;
 
     return analyzer;
@@ -192,10 +194,15 @@ void offline_log_analyzer_loop(OfflineLogAnalyzer* analyzer) {
                     break;
             }
 
-            elk_logger_writer_save_log_to_file((Byte *)json_buf, strlen(json_buf));
-
+            // Inject device_index into the JSON log entry
+            char* enriched_buf = json_inject_device_index(json_buf, analyzer->device_index);
             free(json_buf);
             json_buf = NULL;
+
+            if (enriched_buf != NULL) {
+                elk_logger_writer_save_log_to_file((Byte *)enriched_buf, strlen(enriched_buf));
+                free(enriched_buf);
+            }
         }
 
         logger_reduce_size(analyzer->logger_pool);
@@ -482,11 +489,13 @@ static void elk_logger_writer_close_file(void) {
 }
 
 void elk_logger_writer_init(void) {
-    // Only initialize once across all devices
+    // Only initialize once across all devices; ref-count additional callers
     if (elk_logger_writer_initialized) {
+        elk_logger_writer_ref_count++;
         return;
     }
 
+    pthread_mutex_init(&elk_logger_writer_obj.lock, NULL);
     elk_logger_writer_obj.log_file_size = 10 *1024 * 1024; // 10 MB
     elk_logger_writer_obj.curr_size = 0;
 
@@ -499,11 +508,12 @@ void elk_logger_writer_init(void) {
     retval = elk_logger_writer_open_file_for_write();
 
     if (retval == -1) {
-        elk_logger_writer_free();
+        pthread_mutex_destroy(&elk_logger_writer_obj.lock);
         return;
     }
 
     elk_logger_writer_initialized = TRUE;
+    elk_logger_writer_ref_count = 1;
 }
 
 /**
@@ -513,7 +523,12 @@ void elk_logger_writer_free(void) {
     if (!elk_logger_writer_initialized) {
         return;
     }
+    elk_logger_writer_ref_count--;
+    if (elk_logger_writer_ref_count > 0) {
+        return;
+    }
     elk_logger_writer_close_file();
+    pthread_mutex_destroy(&elk_logger_writer_obj.lock);
     elk_logger_writer_initialized = FALSE;
 }
 
