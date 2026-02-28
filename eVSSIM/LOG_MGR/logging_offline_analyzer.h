@@ -54,6 +54,10 @@ typedef struct {
      */
     Logger_Pool* logger_pool;
     /**
+     * The device index this analyzer belongs to
+     */
+    uint8_t device_index;
+    /**
      * Whether the analyzer should stop looping ASAP
      */
     unsigned int exit_loop_flag : 1;
@@ -62,9 +66,10 @@ typedef struct {
 /**
  * Create a new offline log analyzer
  * @param logger_pool the logger pool to analyze
+ * @param device_index the index of the device this analyzer belongs to
  * @return the newly created real time log analyzer
  */
-OfflineLogAnalyzer* offline_log_analyzer_init(Logger_Pool* logger_pool);
+OfflineLogAnalyzer* offline_log_analyzer_init(Logger_Pool* logger_pool, uint8_t device_index);
 
 /**
  * run the log analyzer

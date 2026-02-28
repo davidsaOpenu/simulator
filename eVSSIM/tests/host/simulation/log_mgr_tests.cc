@@ -28,6 +28,7 @@ extern bool g_server_mode;
 #include "test_context.h"
 
 #include <pthread.h>
+#include <string>
 #include <unistd.h>
 
 //during the tests most logger_read calls read 1 byte
@@ -749,5 +750,29 @@ namespace log_mgr_tests {
         manager_subscriber::free();
         log_manager_free(manager);
         elk_logger_writer_free();
+    }
+    TEST_P(LogMgrUnitTest, JsonInjectDeviceIndexAddsField) {
+        const char* original_json = "{\"type\":\"PhysicalCellReadLog\",\"channel\":3}\n";
+        char* enriched_json = json_inject_device_index(original_json, 2);
+
+        ASSERT_NE(nullptr, enriched_json);
+
+        struct json_object* parsed = json_tokener_parse(enriched_json);
+        ASSERT_NE(nullptr, parsed);
+
+        struct json_object* type_obj = NULL;
+        ASSERT_TRUE(json_object_object_get_ex(parsed, "type", &type_obj));
+        ASSERT_STREQ("PhysicalCellReadLog", json_object_get_string(type_obj));
+
+        struct json_object* device_index_obj = NULL;
+        ASSERT_TRUE(json_object_object_get_ex(parsed, "device_index", &device_index_obj));
+        ASSERT_EQ(2, json_object_get_int(device_index_obj));
+
+        const std::string enriched_str(enriched_json);
+        ASSERT_FALSE(enriched_str.empty());
+        ASSERT_EQ('\n', enriched_str.back());
+
+        json_object_put(parsed);
+        free(enriched_json);
     }
 } //namespace
