@@ -520,3 +520,27 @@ _LOGS_DEFINITIONS(_LOGS_WRITER_DEFINITION_APPLIER)
         logger_busy_read(logger, (Byte *)buf, sizeof(structure), analyzer);                              \
     }
 _LOGS_DEFINITIONS(_LOGS_READER_DEFINITION_APPLIER)
+
+char* json_inject_device_index(const char* json_str, uint8_t device_index) {
+    if (json_str == NULL)
+        return NULL;
+
+    struct json_object *jobj = json_tokener_parse(json_str);
+    if (jobj == NULL)
+        return NULL;
+
+    json_object_object_add(jobj, "device_index", json_object_new_int(device_index));
+
+    const char *new_str = json_object_to_json_string_ext(jobj, JSON_C_TO_STRING_SPACED);
+    size_t len = strlen(new_str);
+    char* result = (char*)malloc(len + 2);
+    if (result == NULL) {
+        json_object_put(jobj);
+        return NULL;
+    }
+
+    strcpy(result, new_str);
+    strcat(result, "\n");
+    json_object_put(jobj);
+    return result;
+}
