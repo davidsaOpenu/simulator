@@ -1,3 +1,0 @@
-gcc: gcc-4.6
-xen: "--enable-xen"
-extraCflags: "-Wno-error=cpp"

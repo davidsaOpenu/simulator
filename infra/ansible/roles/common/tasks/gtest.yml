@@ -1,8 +1,0 @@
-- name: check whether gtest was built
-  stat: "path=/opt/gtest/lib/libgtest.a"
-  register: libgtest_file
-
-- fail:
-    msg: "gtest 1.7.0 is required."
-  when: libgtest_file.stat.exists == false
-
