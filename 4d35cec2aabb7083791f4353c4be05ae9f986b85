@@ -584,6 +584,30 @@
     {
       "unresolved": true,
       "key": {
+        "uuid": "f99ba075_fc0bb7ee",
+        "filename": "infra/ELK/elk_performance_test.sh",
+        "patchSetId": 36
+      },
+      "lineNbr": 26,
+      "author": {
+        "id": 1007990
+      },
+      "writtenOn": "2026-03-23T07:34:10Z",
+      "side": 1,
+      "message": "No changes needed here. Your pull request is not supposed to modify the simulator code or alter any existing tests. It should only add guest tests that are executed via run-ci.sh to validate the QEMU change that introduces namespace support.\n\nTo clarify: ATM, namespace support is only relevant in QEMU, not in the simulator. Therefore, no changes to the simulator code are required, and there is no need to run host tests for the namespace-related changes.",
+      "parentUuid": "c2969dc8_118fd92c",
+      "range": {
+        "startLine": 24,
+        "startChar": 0,
+        "endLine": 26,
+        "endChar": 60
+      },
+      "revId": "4d35cec2aabb7083791f4353c4be05ae9f986b85",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
+    },
+    {
+      "unresolved": true,
+      "key": {
         "uuid": "73f5e956_7f8b2204",
         "filename": "infra/ELK/elk_performance_test.sh",
         "patchSetId": 36
@@ -619,6 +643,30 @@
       "side": 1,
       "message": "Foreground GC triggers via GC_CHECK(device_index, true, false) with force\u003dtrue when GET_NEW_PAGE(VICTIM_OVERALL) fails — i.e., \n  the device\u0027s regular free page pool is exhausted. Previously, tests wrote to the entire SSD, so peak utilization at foreground \n  GC was near 90%+. Now tests only write to NS0 (50% of blocks), so peak SSD-wide utilization from NS0 alone caps at ~50%. The   \n  0.05 threshold was lowered to avoid false failures from this reduced peak utilization.",
       "parentUuid": "73f5e956_7f8b2204",
+      "range": {
+        "startLine": 31,
+        "startChar": 40,
+        "endLine": 31,
+        "endChar": 44
+      },
+      "revId": "4d35cec2aabb7083791f4353c4be05ae9f986b85",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "c106ab98_64327d5b",
+        "filename": "infra/ELK/elk_performance_test.sh",
+        "patchSetId": 36
+      },
+      "lineNbr": 31,
+      "author": {
+        "id": 1007990
+      },
+      "writtenOn": "2026-03-23T07:34:10Z",
+      "side": 1,
+      "message": "same comment here: https://review.gerrithub.io/c/davidsaOpenu/simulator/+/1230991/comment/63fbb80d_ae2a0bb8/",
+      "parentUuid": "36a6a26b_7262fee5",
       "range": {
         "startLine": 31,
         "startChar": 40,

@@ -1,0 +1,480 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "b3c8a393_ac0c7127",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 54
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 1007990
+      },
+      "writtenOn": "2026-03-23T07:34:10Z",
+      "side": 1,
+      "message": "In general, ~80% of the changes here are irrelevant. We need a very lean change.\n\nGuest tests should simply parse the ssd.conf configuration and validate basic functionality:\n\nFor all sector-based namespaces:\nMount the namespace\nPerform basic file operations: create, read, write/update, delete (a single file is sufficient)\nFor all object-based namespaces:\nPerform object operations: create, read, write/update, delete (a single object is sufficient)\nValidate that object operations fail on sector-based namespaces\n\nPlease keep the implementation minimal and focused on this scope.",
+      "revId": "158d3f81923d98c7e1d3e55361fb62c5b568536a",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "7840af45_c2d64a21",
+        "filename": "eVSSIM/CONFIG/vssim_config_manager.c",
+        "patchSetId": 54
+      },
+      "lineNbr": 129,
+      "author": {
+        "id": 1007990
+      },
+      "writtenOn": "2026-03-23T07:34:10Z",
+      "side": 1,
+      "message": "Please remove. [nvmeXY] is a drive id. Keep it simple principle.",
+      "range": {
+        "startLine": 115,
+        "startChar": 0,
+        "endLine": 129,
+        "endChar": 9
+      },
+      "revId": "158d3f81923d98c7e1d3e55361fb62c5b568536a",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "760fe466_f5bc27c7",
+        "filename": "eVSSIM/CONFIG/vssim_config_manager.c",
+        "patchSetId": 54
+      },
+      "lineNbr": 129,
+      "author": {
+        "id": 1007990
+      },
+      "writtenOn": "2026-03-23T07:34:10Z",
+      "side": 1,
+      "message": "revert",
+      "range": {
+        "startLine": 115,
+        "startChar": 0,
+        "endLine": 129,
+        "endChar": 9
+      },
+      "revId": "158d3f81923d98c7e1d3e55361fb62c5b568536a",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "f64248c6_9442db48",
+        "filename": "eVSSIM/CONFIG/vssim_config_manager.c",
+        "patchSetId": 54
+      },
+      "lineNbr": 140,
+      "author": {
+        "id": 1007990
+      },
+      "writtenOn": "2026-03-23T07:34:10Z",
+      "side": 1,
+      "message": "wins? why lines 130-143 are required for?",
+      "range": {
+        "startLine": 135,
+        "startChar": 0,
+        "endLine": 140,
+        "endChar": 53
+      },
+      "revId": "158d3f81923d98c7e1d3e55361fb62c5b568536a",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "a8753fae_d02cb8a1",
+        "filename": "eVSSIM/CONFIG/vssim_config_manager.c",
+        "patchSetId": 54
+      },
+      "lineNbr": 293,
+      "author": {
+        "id": 1007990
+      },
+      "writtenOn": "2026-03-23T07:34:10Z",
+      "side": 1,
+      "message": "revert",
+      "range": {
+        "startLine": 283,
+        "startChar": 0,
+        "endLine": 293,
+        "endChar": 5
+      },
+      "revId": "158d3f81923d98c7e1d3e55361fb62c5b568536a",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "59509d6e_0dbdd517",
+        "filename": "eVSSIM/CONFIG/vssim_config_manager.c",
+        "patchSetId": 54
+      },
+      "lineNbr": 421,
+      "author": {
+        "id": 1007990
+      },
+      "writtenOn": "2026-03-23T07:34:10Z",
+      "side": 1,
+      "message": "revert",
+      "range": {
+        "startLine": 405,
+        "startChar": 0,
+        "endLine": 421,
+        "endChar": 0
+      },
+      "revId": "158d3f81923d98c7e1d3e55361fb62c5b568536a",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "a16354c0_6964f1d4",
+        "filename": "eVSSIM/CONFIG/vssim_config_manager.h",
+        "patchSetId": 54
+      },
+      "lineNbr": 93,
+      "author": {
+        "id": 1007990
+      },
+      "writtenOn": "2026-03-23T07:34:10Z",
+      "side": 1,
+      "message": "The flow should be simple: ci-run.sh runs the docker-test-namespace*.sh script, which starts QEMU in eVSSIM (FTL) detached mode. After that, you only need to run the Python tests that validate the namespaces added in QEMU.\n\nPlease revert all other changes in the eVSSIM code — they are not relevant ATM.",
+      "range": {
+        "startLine": 84,
+        "startChar": 0,
+        "endLine": 93,
+        "endChar": 51
+      },
+      "revId": "158d3f81923d98c7e1d3e55361fb62c5b568536a",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "2cc42569_a7be78ff",
+        "filename": "eVSSIM/FTL_SOURCE/PAGE_MAP/ftl.h",
+        "patchSetId": 54
+      },
+      "lineNbr": 23,
+      "author": {
+        "id": 1007990
+      },
+      "writtenOn": "2026-03-23T07:34:10Z",
+      "side": 1,
+      "message": "revert and so on for other changes that are not related to the flow in ci-run.sh that runs the docker-test-namespace*.sh script, which starts QEMU in eVSSIM (FTL) detached mode. You only need to run the Python tests that validate the namespaces added in QEMU.",
+      "range": {
+        "startLine": 23,
+        "startChar": 0,
+        "endLine": 23,
+        "endChar": 45
+      },
+      "revId": "158d3f81923d98c7e1d3e55361fb62c5b568536a",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "6766aaa0_89d45a71",
+        "filename": "eVSSIM/FTL_SOURCE/PAGE_MAP/ftl.h",
+        "patchSetId": 54
+      },
+      "lineNbr": 23,
+      "author": {
+        "id": 1007990
+      },
+      "writtenOn": "2026-03-23T07:34:10Z",
+      "side": 1,
+      "message": "why FTL_CREATE is",
+      "range": {
+        "startLine": 22,
+        "startChar": 0,
+        "endLine": 23,
+        "endChar": 45
+      },
+      "revId": "158d3f81923d98c7e1d3e55361fb62c5b568536a",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "ed7c9785_c66fad36",
+        "filename": "eVSSIM/FTL_SOURCE/PAGE_MAP/ftl_sect_strategy.c",
+        "patchSetId": 54
+      },
+      "lineNbr": 384,
+      "author": {
+        "id": 1007990
+      },
+      "writtenOn": "2026-03-23T07:34:10Z",
+      "side": 1,
+      "message": "No changes needed here.",
+      "range": {
+        "startLine": 380,
+        "startChar": 0,
+        "endLine": 384,
+        "endChar": 1
+      },
+      "revId": "158d3f81923d98c7e1d3e55361fb62c5b568536a",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "aad48125_8ff228f7",
+        "filename": "eVSSIM/tests/guest/objects_via_ioctl/test_nvme_cli.py",
+        "patchSetId": 54
+      },
+      "lineNbr": 127,
+      "author": {
+        "id": 1007990
+      },
+      "writtenOn": "2026-03-23T07:34:10Z",
+      "side": 1,
+      "message": "please revert all changes in this file. They are not relevant to your change",
+      "revId": "158d3f81923d98c7e1d3e55361fb62c5b568536a",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "fffe19fd_5b491116",
+        "filename": "eVSSIM/tests/guest/run_dod_tests.sh",
+        "patchSetId": 54
+      },
+      "lineNbr": 6,
+      "author": {
+        "id": 1007990
+      },
+      "writtenOn": "2026-03-23T07:34:10Z",
+      "side": 1,
+      "message": "this script not called from anywhere.\nplease remove",
+      "range": {
+        "startLine": 6,
+        "startChar": 2,
+        "endLine": 6,
+        "endChar": 7
+      },
+      "revId": "158d3f81923d98c7e1d3e55361fb62c5b568536a",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "6734148d_d77d4567",
+        "filename": "infra/builder/docker/ssd.conf-exofs.template",
+        "patchSetId": 54
+      },
+      "lineNbr": 1,
+      "author": {
+        "id": 1007990
+      },
+      "writtenOn": "2026-03-23T07:34:10Z",
+      "side": 1,
+      "message": "Here’s a cleaner and more professional version:\n\n**Critical:**\n\n1. Please do not add an additional configuration file.\n2. As mentioned in one of the previous comments, the duplication between `ssd.conf` and `ssd.conf.template` must be eliminated. Specifically, remove `ssd.conf` from the repository and generate it from `ssd.conf.template` on demand when needed.",
+      "range": {
+        "startLine": 1,
+        "startChar": 0,
+        "endLine": 1,
+        "endChar": 8
+      },
+      "revId": "158d3f81923d98c7e1d3e55361fb62c5b568536a",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "182205ee_c679a52c",
+        "filename": "infra/builder/docker/ssd.conf.template",
+        "patchSetId": 54
+      },
+      "lineNbr": 1,
+      "author": {
+        "id": 1007990
+      },
+      "writtenOn": "2026-03-23T07:34:10Z",
+      "side": 1,
+      "message": "please add \n# nvme01: 1 namespace → [ns01: Strategy 1 (block)] before",
+      "revId": "158d3f81923d98c7e1d3e55361fb62c5b568536a",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "2f59b401_3f22cb3a",
+        "filename": "infra/builder/docker/ssd.conf.template",
+        "patchSetId": 54
+      },
+      "lineNbr": 22,
+      "author": {
+        "id": 1007990
+      },
+      "writtenOn": "2026-03-23T07:34:10Z",
+      "side": 1,
+      "message": "please start from the next line",
+      "revId": "158d3f81923d98c7e1d3e55361fb62c5b568536a",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "8fb4e866_631c622c",
+        "filename": "infra/builder/docker/ssd.conf.template",
+        "patchSetId": 54
+      },
+      "lineNbr": 23,
+      "author": {
+        "id": 1007990
+      },
+      "writtenOn": "2026-03-23T07:34:10Z",
+      "side": 1,
+      "message": "Please use `STORAGE_STRATEGY %(EVSSIM_RUNTIME_STORAGE_STRATEGY)s`, and start QEMU in `infra/builder/docker-test-namespaces-detached-eVSSIM.sh` as done in `infra/builder/docker-test-exofs.sh` (line 9).",
+      "range": {
+        "startLine": 23,
+        "startChar": 0,
+        "endLine": 23,
+        "endChar": 18
+      },
+      "revId": "158d3f81923d98c7e1d3e55361fb62c5b568536a",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "7cc29c95_b42c4601",
+        "filename": "infra/builder/docker/ssd.conf.template",
+        "patchSetId": 54
+      },
+      "lineNbr": 25,
+      "author": {
+        "id": 1007990
+      },
+      "writtenOn": "2026-03-23T07:34:10Z",
+      "side": 1,
+      "message": "please add \n\n# nvme02: 1 namespace → [ns01: Strategy 1 (block)] before",
+      "revId": "158d3f81923d98c7e1d3e55361fb62c5b568536a",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "4a4da83c_49db7b72",
+        "filename": "infra/builder/docker/ssd.conf.template",
+        "patchSetId": 54
+      },
+      "lineNbr": 47,
+      "author": {
+        "id": 1007990
+      },
+      "writtenOn": "2026-03-23T07:34:10Z",
+      "side": 1,
+      "message": "same here",
+      "range": {
+        "startLine": 47,
+        "startChar": 0,
+        "endLine": 47,
+        "endChar": 16
+      },
+      "revId": "158d3f81923d98c7e1d3e55361fb62c5b568536a",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "a3bf9e79_379a78aa",
+        "filename": "infra/builder/docker/ssd.conf.template",
+        "patchSetId": 54
+      },
+      "lineNbr": 71,
+      "author": {
+        "id": 1007990
+      },
+      "writtenOn": "2026-03-23T07:34:10Z",
+      "side": 1,
+      "message": "same here",
+      "range": {
+        "startLine": 71,
+        "startChar": 0,
+        "endLine": 71,
+        "endChar": 16
+      },
+      "revId": "158d3f81923d98c7e1d3e55361fb62c5b568536a",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "fe2f0b49_bb19d6b6",
+        "filename": "infra/builder/docker/ssd.conf.template",
+        "patchSetId": 54
+      },
+      "lineNbr": 109,
+      "author": {
+        "id": 1007990
+      },
+      "writtenOn": "2026-03-23T07:34:10Z",
+      "side": 1,
+      "message": "Why DRIVE_ID required? We already have it in the form of [nvmeXY].\nLook below as well.",
+      "range": {
+        "startLine": 109,
+        "startChar": 0,
+        "endLine": 109,
+        "endChar": 16
+      },
+      "revId": "158d3f81923d98c7e1d3e55361fb62c5b568536a",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "485cac0c_e861dbdb",
+        "filename": "infra/builder/docker/ssd.conf.template",
+        "patchSetId": 54
+      },
+      "lineNbr": 194,
+      "author": {
+        "id": 1007990
+      },
+      "writtenOn": "2026-03-23T07:34:10Z",
+      "side": 1,
+      "message": "Also use STORAGE_STRATEGY %(EVSSIM_RUNTIME_STORAGE_STRATEGY)s for the namespace strategies of the added disks.",
+      "range": {
+        "startLine": 72,
+        "startChar": 1,
+        "endLine": 194,
+        "endChar": 24
+      },
+      "revId": "158d3f81923d98c7e1d3e55361fb62c5b568536a",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "9983b04d_dd5cd151",
+        "filename": "infra/builder/run-ci.sh",
+        "patchSetId": 54
+      },
+      "lineNbr": 53,
+      "author": {
+        "id": 1007990
+      },
+      "writtenOn": "2026-03-23T07:34:10Z",
+      "side": 1,
+      "message": "nit: rename docker-test-namespaces-test-detached-eVSSIM.sh to docker-test-namespaces-detached-eVSSIM.sh",
+      "range": {
+        "startLine": 53,
+        "startChar": 2,
+        "endLine": 53,
+        "endChar": 48
+      },
+      "revId": "158d3f81923d98c7e1d3e55361fb62c5b568536a",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
+    }
+  ]
+}

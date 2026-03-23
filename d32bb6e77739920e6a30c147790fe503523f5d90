@@ -1,0 +1,50 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "6da24886_c5944478",
+        "filename": "eVSSIM/tests/guest/sector_rw/test_sector_strategy.py",
+        "patchSetId": 43
+      },
+      "lineNbr": 310,
+      "author": {
+        "id": 1007990
+      },
+      "writtenOn": "2026-03-23T07:34:10Z",
+      "side": 1,
+      "message": "\"overflow must fail\" is still not enforced for the sector strategy.",
+      "range": {
+        "startLine": 298,
+        "startChar": 0,
+        "endLine": 310,
+        "endChar": 56
+      },
+      "revId": "d32bb6e77739920e6a30c147790fe503523f5d90",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "abffdfe4_b10c73cf",
+        "filename": "infra/builder/builder.sh",
+        "patchSetId": 43
+      },
+      "lineNbr": 207,
+      "author": {
+        "id": 1007990
+      },
+      "writtenOn": "2026-03-23T07:34:10Z",
+      "side": 1,
+      "message": "exit(1)",
+      "range": {
+        "startLine": 207,
+        "startChar": 0,
+        "endLine": 207,
+        "endChar": 18
+      },
+      "revId": "d32bb6e77739920e6a30c147790fe503523f5d90",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
+    }
+  ]
+}

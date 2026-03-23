@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "d9ca08da_7f23fd39",
+        "filename": "infra/builder/run-ci.sh",
+        "patchSetId": 54
+      },
+      "lineNbr": 43,
+      "author": {
+        "id": 1007990
+      },
+      "writtenOn": "2026-03-23T07:34:10Z",
+      "side": 0,
+      "message": "why ./docker-test-host.sh was removed? Your pull request is detached fom Alon\u0027s change \u003d\u003e is not supposed to alter any existing tests. Just run ./docker-test-namespaces-detached-eVSSIM.sh after \n\"$ELK_DIR/elk_performance_test.sh\" \"$ELK_DIR\"",
+      "range": {
+        "startLine": 43,
+        "startChar": 0,
+        "endLine": 43,
+        "endChar": 21
+      },
+      "revId": "ffba7ec8e0d220f3622d4accfbb26af70625bc32",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
+    }
+  ]
+}
