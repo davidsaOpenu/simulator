@@ -162,6 +162,24 @@
     {
       "unresolved": true,
       "key": {
+        "uuid": "c1aebc37_c96a1f6d",
+        "filename": "eVSSIM/tests/guest/device_map.py",
+        "patchSetId": 36
+      },
+      "lineNbr": 23,
+      "author": {
+        "id": 1038931
+      },
+      "writtenOn": "2026-04-06T17:29:14Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "3963ce49_7977d31a",
+      "revId": "4d35cec2aabb7083791f4353c4be05ae9f986b85",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
+    },
+    {
+      "unresolved": true,
+      "key": {
         "uuid": "e6eb6063_8c62dd29",
         "filename": "eVSSIM/tests/guest/namespace_tests/test_namespace_discovery.py",
         "patchSetId": 36
@@ -361,6 +379,30 @@
       "writtenOn": "2026-02-20T07:50:17Z",
       "side": 1,
       "message": "not relevant",
+      "range": {
+        "startLine": 38,
+        "startChar": 0,
+        "endLine": 38,
+        "endChar": 72
+      },
+      "revId": "4d35cec2aabb7083791f4353c4be05ae9f986b85",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "d53c9069_ecca82c7",
+        "filename": "eVSSIM/tests/guest/object_rw/test_object_strategy.py",
+        "patchSetId": 36
+      },
+      "lineNbr": 38,
+      "author": {
+        "id": 1038931
+      },
+      "writtenOn": "2026-04-06T17:29:14Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "5384aa6b_bd4838bd",
       "range": {
         "startLine": 38,
         "startChar": 0,
@@ -608,6 +650,30 @@
     {
       "unresolved": true,
       "key": {
+        "uuid": "0386f5d8_a8e7cef7",
+        "filename": "infra/ELK/elk_performance_test.sh",
+        "patchSetId": 36
+      },
+      "lineNbr": 26,
+      "author": {
+        "id": 1038931
+      },
+      "writtenOn": "2026-04-06T17:29:14Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "f99ba075_fc0bb7ee",
+      "range": {
+        "startLine": 24,
+        "startChar": 0,
+        "endLine": 26,
+        "endChar": 60
+      },
+      "revId": "4d35cec2aabb7083791f4353c4be05ae9f986b85",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
+    },
+    {
+      "unresolved": true,
+      "key": {
         "uuid": "73f5e956_7f8b2204",
         "filename": "infra/ELK/elk_performance_test.sh",
         "patchSetId": 36
@@ -667,6 +733,30 @@
       "side": 1,
       "message": "same comment here: https://review.gerrithub.io/c/davidsaOpenu/simulator/+/1230991/comment/63fbb80d_ae2a0bb8/",
       "parentUuid": "36a6a26b_7262fee5",
+      "range": {
+        "startLine": 31,
+        "startChar": 40,
+        "endLine": 31,
+        "endChar": 44
+      },
+      "revId": "4d35cec2aabb7083791f4353c4be05ae9f986b85",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "a1aed043_dc5cd716",
+        "filename": "infra/ELK/elk_performance_test.sh",
+        "patchSetId": 36
+      },
+      "lineNbr": 31,
+      "author": {
+        "id": 1038931
+      },
+      "writtenOn": "2026-04-06T17:29:14Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "c106ab98_64327d5b",
       "range": {
         "startLine": 31,
         "startChar": 40,
