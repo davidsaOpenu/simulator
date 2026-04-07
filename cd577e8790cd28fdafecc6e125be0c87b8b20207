@@ -1,0 +1,366 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "305548bf_035d4bb0",
+        "filename": "eVSSIM/CONFIG/vssim_config_manager.c",
+        "patchSetId": 10
+      },
+      "lineNbr": 10,
+      "author": {
+        "id": 1007990
+      },
+      "writtenOn": "2026-04-07T15:44:02Z",
+      "side": 1,
+      "message": "is this one necessary?",
+      "range": {
+        "startLine": 10,
+        "startChar": 0,
+        "endLine": 10,
+        "endChar": 18
+      },
+      "revId": "cd577e8790cd28fdafecc6e125be0c87b8b20207",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "d3ab2ab5_72807714",
+        "filename": "eVSSIM/CONFIG/vssim_config_manager.c",
+        "patchSetId": 10
+      },
+      "lineNbr": 11,
+      "author": {
+        "id": 1007990
+      },
+      "writtenOn": "2026-04-07T15:44:02Z",
+      "side": 1,
+      "message": "nit: included twice",
+      "range": {
+        "startLine": 11,
+        "startChar": 0,
+        "endLine": 11,
+        "endChar": 19
+      },
+      "revId": "cd577e8790cd28fdafecc6e125be0c87b8b20207",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "33524b1a_49156ed2",
+        "filename": "eVSSIM/CONFIG/vssim_config_manager.c",
+        "patchSetId": 10
+      },
+      "lineNbr": 201,
+      "author": {
+        "id": 1007990
+      },
+      "writtenOn": "2026-04-07T15:44:02Z",
+      "side": 1,
+      "message": "1. eVSSIM/FTL_SOURCE/PAGE_MAP/ftl_obj_strategy.c has\n+    char root[PATH_MAX];\n+    snprintf(root, sizeof(root), \"/tmp/osd/%d/\", device_index);\n\nCan you please define the path in one place (common.h?)\n\n2. Use rmdir rather then system\n3. Check the return value after all the callls to \"free\"",
+      "range": {
+        "startLine": 198,
+        "startChar": 0,
+        "endLine": 201,
+        "endChar": 5
+      },
+      "revId": "cd577e8790cd28fdafecc6e125be0c87b8b20207",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "4d67b515_4767b6f8",
+        "filename": "eVSSIM/FTL_SOURCE/PAGE_MAP/ftl_obj_strategy.c",
+        "patchSetId": 10
+      },
+      "lineNbr": 34,
+      "author": {
+        "id": 1007990
+      },
+      "writtenOn": "2026-04-07T15:44:02Z",
+      "side": 1,
+      "message": "why? \neither issue a warning  and continue (PWARN)\nor \nreturn an error and exit (RERR)",
+      "range": {
+        "startLine": 32,
+        "startChar": 0,
+        "endLine": 34,
+        "endChar": 5
+      },
+      "revId": "cd577e8790cd28fdafecc6e125be0c87b8b20207",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "1ec7862e_e12a0326",
+        "filename": "eVSSIM/FTL_SOURCE/PAGE_MAP/ftl_obj_strategy.c",
+        "patchSetId": 10
+      },
+      "lineNbr": 36,
+      "author": {
+        "id": 1007990
+      },
+      "writtenOn": "2026-04-07T15:44:02Z",
+      "side": 1,
+      "message": "every disk has the same ID?",
+      "range": {
+        "startLine": 36,
+        "startChar": 31,
+        "endLine": 36,
+        "endChar": 33
+      },
+      "revId": "cd577e8790cd28fdafecc6e125be0c87b8b20207",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "eb0b6290_7c003efd",
+        "filename": "eVSSIM/LOG_MGR/logging_offline_analyzer.c",
+        "patchSetId": 10
+      },
+      "lineNbr": 485,
+      "author": {
+        "id": 1007990
+      },
+      "writtenOn": "2026-04-07T15:44:02Z",
+      "side": 1,
+      "message": "With multiple devices potentially initializing the log manager concurrently, this is a TOCTOU race.",
+      "range": {
+        "startLine": 485,
+        "startChar": 8,
+        "endLine": 485,
+        "endChar": 37
+      },
+      "revId": "cd577e8790cd28fdafecc6e125be0c87b8b20207",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "1d333fbf_919a789d",
+        "filename": "eVSSIM/LOG_MGR/logging_rt_analyzer.c",
+        "patchSetId": 10
+      },
+      "lineNbr": 317,
+      "author": {
+        "id": 1007990
+      },
+      "writtenOn": "2026-04-07T15:44:02Z",
+      "side": 1,
+      "message": "nit: typo",
+      "range": {
+        "startLine": 317,
+        "startChar": 20,
+        "endLine": 317,
+        "endChar": 28
+      },
+      "revId": "cd577e8790cd28fdafecc6e125be0c87b8b20207",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "4a388257_7fe5b1c9",
+        "filename": "eVSSIM/SSD_MODULE/ssd_log_manager.c",
+        "patchSetId": 10
+      },
+      "lineNbr": 35,
+      "author": {
+        "id": 1007990
+      },
+      "writtenOn": "2026-04-07T15:44:02Z",
+      "side": 1,
+      "message": "s/log_manager_thread/log_manager_threads - this is a collection of threads (one per device) rather than a single thread pointer.",
+      "range": {
+        "startLine": 35,
+        "startChar": 11,
+        "endLine": 35,
+        "endChar": 29
+      },
+      "revId": "cd577e8790cd28fdafecc6e125be0c87b8b20207",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "3e4fc9bf_0a042b06",
+        "filename": "eVSSIM/SSD_MODULE/ssd_log_manager.c",
+        "patchSetId": 10
+      },
+      "lineNbr": 62,
+      "author": {
+        "id": 1007990
+      },
+      "writtenOn": "2026-04-07T15:44:02Z",
+      "side": 1,
+      "message": "is this an error? Looks more like PWARN or PINFO",
+      "range": {
+        "startLine": 62,
+        "startChar": 8,
+        "endLine": 62,
+        "endChar": 12
+      },
+      "revId": "cd577e8790cd28fdafecc6e125be0c87b8b20207",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "03218f02_3b63c2a1",
+        "filename": "eVSSIM/SSD_MODULE/ssd_log_manager.h",
+        "patchSetId": 10
+      },
+      "lineNbr": 46,
+      "author": {
+        "id": 1007990
+      },
+      "writtenOn": "2026-04-07T15:44:02Z",
+      "side": 1,
+      "message": "log_manager_thread is used only",
+      "range": {
+        "startLine": 46,
+        "startChar": 0,
+        "endLine": 46,
+        "endChar": 37
+      },
+      "revId": "cd577e8790cd28fdafecc6e125be0c87b8b20207",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "fef9d911_caf47468",
+        "filename": "eVSSIM/tests/host/simulation/multi_device_tests.cc",
+        "patchSetId": 10
+      },
+      "lineNbr": 17,
+      "author": {
+        "id": 1007990
+      },
+      "writtenOn": "2026-04-07T15:44:02Z",
+      "side": 1,
+      "message": "let\u0027s add several additional tests\n\nDevice index boundary - Call FTL_WRITE_SECT with device_index \u003e\u003d device_count and verify it fails gracefully rather than corrupting memory.\n\nObject isolation across devices - Create object with same object_id on devices 1 and 2, write different data to each, read back and verify they are independent. Currently no test writes the same object ID to two devices.\n\nDevice 2 read verification in Device Isolation -  currenly device 2 is written but never read-verified in the isolation test.\n\nConcurrent reads across devices - All parallel tests only cover writes. A parallel read test after a known write would verify read-path isolation.",
+      "revId": "cd577e8790cd28fdafecc6e125be0c87b8b20207",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "b1bcddfa_1c72a731",
+        "filename": "eVSSIM/tests/host/simulation/multi_device_tests.cc",
+        "patchSetId": 10
+      },
+      "lineNbr": 24,
+      "author": {
+        "id": 1007990
+      },
+      "writtenOn": "2026-04-07T15:44:02Z",
+      "side": 1,
+      "message": "Let’s encapsulate the information about whether the device is initialized or not inside the device.",
+      "range": {
+        "startLine": 24,
+        "startChar": 0,
+        "endLine": 24,
+        "endChar": 63
+      },
+      "revId": "cd577e8790cd28fdafecc6e125be0c87b8b20207",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "4211586f_4d65d4a3",
+        "filename": "eVSSIM/tests/host/simulation/multi_device_tests.cc",
+        "patchSetId": 10
+      },
+      "lineNbr": 33,
+      "author": {
+        "id": 1007990
+      },
+      "writtenOn": "2026-04-07T15:44:02Z",
+      "side": 1,
+      "message": "all devices are initialized in this loop",
+      "range": {
+        "startLine": 33,
+        "startChar": 40,
+        "endLine": 33,
+        "endChar": 42
+      },
+      "revId": "cd577e8790cd28fdafecc6e125be0c87b8b20207",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "8334a6f9_099fd430",
+        "filename": "eVSSIM/tests/host/simulation/multi_device_tests.cc",
+        "patchSetId": 10
+      },
+      "lineNbr": 37,
+      "author": {
+        "id": 1007990
+      },
+      "writtenOn": "2026-04-07T15:44:02Z",
+      "side": 1,
+      "message": "ll 30 as well? Let\u0027s keep just the call in the loop",
+      "range": {
+        "startLine": 37,
+        "startChar": 24,
+        "endLine": 37,
+        "endChar": 40
+      },
+      "revId": "cd577e8790cd28fdafecc6e125be0c87b8b20207",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "b7c23082_47cb4566",
+        "filename": "eVSSIM/tests/host/simulation/multi_device_tests.cc",
+        "patchSetId": 10
+      },
+      "lineNbr": 45,
+      "author": {
+        "id": 1007990
+      },
+      "writtenOn": "2026-04-07T15:44:02Z",
+      "side": 1,
+      "message": "Instead of using the magic number 3 to reflect the number of devices, let’s use ssd.conf (parse it to determine the number of devices).",
+      "range": {
+        "startLine": 45,
+        "startChar": 40,
+        "endLine": 45,
+        "endChar": 42
+      },
+      "revId": "cd577e8790cd28fdafecc6e125be0c87b8b20207",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "f7967fda_1b206a90",
+        "filename": "eVSSIM/tests/host/simulation/multi_device_tests.cc",
+        "patchSetId": 10
+      },
+      "lineNbr": 142,
+      "author": {
+        "id": 1007990
+      },
+      "writtenOn": "2026-04-07T15:44:02Z",
+      "side": 1,
+      "message": "ftl_ret_val FTL_WRITE_SECT(uint8_t device_index, uint64_t sector_nb, unsigned int length, const unsigned char *data)\n{\n\tpthread_mutex_lock(\u0026g_lock);\n\tftl_ret_val ret \u003d _FTL_WRITE_SECT(device_index, sector_nb, length, data);\n\tpthread_mutex_unlock(\u0026g_lock);\n\treturn ret;\n}\n\n\n\nFTL_WRITE_SECT/FTL_OBJ_WRITE calls internally acquire g_lock. As a result, the \"parallel\" tests are effectively sequential \u003d\u003e g_lock has to be fine-grained per device.",
+      "range": {
+        "startLine": 142,
+        "startChar": 36,
+        "endLine": 142,
+        "endChar": 55
+      },
+      "revId": "cd577e8790cd28fdafecc6e125be0c87b8b20207",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
+    }
+  ]
+}
