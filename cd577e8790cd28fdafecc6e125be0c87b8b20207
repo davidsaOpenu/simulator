@@ -71,6 +71,30 @@
       "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "b2d91e02_6488309e",
+        "filename": "eVSSIM/CONFIG/vssim_config_manager.c",
+        "patchSetId": 10
+      },
+      "lineNbr": 11,
+      "author": {
+        "id": 1038739
+      },
+      "writtenOn": "2026-04-13T19:54:07Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "d3ab2ab5_72807714",
+      "range": {
+        "startLine": 11,
+        "startChar": 0,
+        "endLine": 11,
+        "endChar": 19
+      },
+      "revId": "cd577e8790cd28fdafecc6e125be0c87b8b20207",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "33524b1a_49156ed2",
@@ -131,6 +155,30 @@
       "writtenOn": "2026-04-07T15:44:02Z",
       "side": 1,
       "message": "why? \neither issue a warning  and continue (PWARN)\nor \nreturn an error and exit (RERR)",
+      "range": {
+        "startLine": 32,
+        "startChar": 0,
+        "endLine": 34,
+        "endChar": 5
+      },
+      "revId": "cd577e8790cd28fdafecc6e125be0c87b8b20207",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "7223c9eb_2a850702",
+        "filename": "eVSSIM/FTL_SOURCE/PAGE_MAP/ftl_obj_strategy.c",
+        "patchSetId": 10
+      },
+      "lineNbr": 34,
+      "author": {
+        "id": 1038739
+      },
+      "writtenOn": "2026-04-13T19:54:07Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "4d67b515_4767b6f8",
       "range": {
         "startLine": 32,
         "startChar": 0,
@@ -258,6 +306,30 @@
       "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "78157e24_ab8666c0",
+        "filename": "eVSSIM/LOG_MGR/logging_rt_analyzer.c",
+        "patchSetId": 10
+      },
+      "lineNbr": 317,
+      "author": {
+        "id": 1038739
+      },
+      "writtenOn": "2026-04-13T19:54:07Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "1d333fbf_919a789d",
+      "range": {
+        "startLine": 317,
+        "startChar": 20,
+        "endLine": 317,
+        "endChar": 28
+      },
+      "revId": "cd577e8790cd28fdafecc6e125be0c87b8b20207",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "4a388257_7fe5b1c9",
@@ -281,6 +353,30 @@
       "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "d6c0fec7_4abe2fed",
+        "filename": "eVSSIM/SSD_MODULE/ssd_log_manager.c",
+        "patchSetId": 10
+      },
+      "lineNbr": 35,
+      "author": {
+        "id": 1038739
+      },
+      "writtenOn": "2026-04-13T19:54:07Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "4a388257_7fe5b1c9",
+      "range": {
+        "startLine": 35,
+        "startChar": 11,
+        "endLine": 35,
+        "endChar": 29
+      },
+      "revId": "cd577e8790cd28fdafecc6e125be0c87b8b20207",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "3e4fc9bf_0a042b06",
@@ -294,6 +390,30 @@
       "writtenOn": "2026-04-07T15:44:02Z",
       "side": 1,
       "message": "is this an error? Looks more like PWARN or PINFO",
+      "range": {
+        "startLine": 62,
+        "startChar": 8,
+        "endLine": 62,
+        "endChar": 12
+      },
+      "revId": "cd577e8790cd28fdafecc6e125be0c87b8b20207",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "8529a27a_2ac0778d",
+        "filename": "eVSSIM/SSD_MODULE/ssd_log_manager.c",
+        "patchSetId": 10
+      },
+      "lineNbr": 62,
+      "author": {
+        "id": 1038739
+      },
+      "writtenOn": "2026-04-13T19:54:07Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "3e4fc9bf_0a042b06",
       "range": {
         "startLine": 62,
         "startChar": 8,
@@ -368,6 +488,24 @@
       "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "9c768c8a_5034d7c6",
+        "filename": "eVSSIM/tests/host/simulation/multi_device_tests.cc",
+        "patchSetId": 10
+      },
+      "lineNbr": 17,
+      "author": {
+        "id": 1038739
+      },
+      "writtenOn": "2026-04-13T19:54:07Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "fef9d911_caf47468",
+      "revId": "cd577e8790cd28fdafecc6e125be0c87b8b20207",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "b1bcddfa_1c72a731",
@@ -381,6 +519,30 @@
       "writtenOn": "2026-04-07T15:44:02Z",
       "side": 1,
       "message": "Let’s encapsulate the information about whether the device is initialized or not inside the device.",
+      "range": {
+        "startLine": 24,
+        "startChar": 0,
+        "endLine": 24,
+        "endChar": 63
+      },
+      "revId": "cd577e8790cd28fdafecc6e125be0c87b8b20207",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "abe61a20_3a1db487",
+        "filename": "eVSSIM/tests/host/simulation/multi_device_tests.cc",
+        "patchSetId": 10
+      },
+      "lineNbr": 24,
+      "author": {
+        "id": 1038739
+      },
+      "writtenOn": "2026-04-13T19:54:07Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "b1bcddfa_1c72a731",
       "range": {
         "startLine": 24,
         "startChar": 0,
@@ -484,6 +646,30 @@
       "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "5e2424be_10d70ae7",
+        "filename": "eVSSIM/tests/host/simulation/multi_device_tests.cc",
+        "patchSetId": 10
+      },
+      "lineNbr": 45,
+      "author": {
+        "id": 1038739
+      },
+      "writtenOn": "2026-04-13T19:54:07Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "b7c23082_47cb4566",
+      "range": {
+        "startLine": 45,
+        "startChar": 40,
+        "endLine": 45,
+        "endChar": 42
+      },
+      "revId": "cd577e8790cd28fdafecc6e125be0c87b8b20207",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "f7967fda_1b206a90",
@@ -497,6 +683,30 @@
       "writtenOn": "2026-04-07T15:44:02Z",
       "side": 1,
       "message": "ftl_ret_val FTL_WRITE_SECT(uint8_t device_index, uint64_t sector_nb, unsigned int length, const unsigned char *data)\n{\n\tpthread_mutex_lock(\u0026g_lock);\n\tftl_ret_val ret \u003d _FTL_WRITE_SECT(device_index, sector_nb, length, data);\n\tpthread_mutex_unlock(\u0026g_lock);\n\treturn ret;\n}\n\n\n\nFTL_WRITE_SECT/FTL_OBJ_WRITE calls internally acquire g_lock. As a result, the \"parallel\" tests are effectively sequential \u003d\u003e g_lock has to be fine-grained per device.",
+      "range": {
+        "startLine": 142,
+        "startChar": 36,
+        "endLine": 142,
+        "endChar": 55
+      },
+      "revId": "cd577e8790cd28fdafecc6e125be0c87b8b20207",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "59197864_0a2a2589",
+        "filename": "eVSSIM/tests/host/simulation/multi_device_tests.cc",
+        "patchSetId": 10
+      },
+      "lineNbr": 142,
+      "author": {
+        "id": 1038739
+      },
+      "writtenOn": "2026-04-13T19:54:07Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "f7967fda_1b206a90",
       "range": {
         "startLine": 142,
         "startChar": 36,
