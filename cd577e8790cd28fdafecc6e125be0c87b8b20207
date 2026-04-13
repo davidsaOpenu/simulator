@@ -26,6 +26,30 @@
     {
       "unresolved": true,
       "key": {
+        "uuid": "78e7bd8b_2196a2d3",
+        "filename": "eVSSIM/CONFIG/vssim_config_manager.c",
+        "patchSetId": 10
+      },
+      "lineNbr": 10,
+      "author": {
+        "id": 1038739
+      },
+      "writtenOn": "2026-04-13T19:51:27Z",
+      "side": 1,
+      "message": "`if (mkdir(\"/tmp/osd\", 0777) !\u003d 0 \u0026\u0026 errno !\u003d EEXIST)`\n\nI used it in line 144, to not print an error if the folder already exists",
+      "parentUuid": "305548bf_035d4bb0",
+      "range": {
+        "startLine": 10,
+        "startChar": 0,
+        "endLine": 10,
+        "endChar": 18
+      },
+      "revId": "cd577e8790cd28fdafecc6e125be0c87b8b20207",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
+    },
+    {
+      "unresolved": true,
+      "key": {
         "uuid": "d3ab2ab5_72807714",
         "filename": "eVSSIM/CONFIG/vssim_config_manager.c",
         "patchSetId": 10
@@ -60,6 +84,30 @@
       "writtenOn": "2026-04-07T15:44:02Z",
       "side": 1,
       "message": "1. eVSSIM/FTL_SOURCE/PAGE_MAP/ftl_obj_strategy.c has\n+    char root[PATH_MAX];\n+    snprintf(root, sizeof(root), \"/tmp/osd/%d/\", device_index);\n\nCan you please define the path in one place (common.h?)\n\n2. Use rmdir rather then system\n3. Check the return value after all the callls to \"free\"",
+      "range": {
+        "startLine": 198,
+        "startChar": 0,
+        "endLine": 201,
+        "endChar": 5
+      },
+      "revId": "cd577e8790cd28fdafecc6e125be0c87b8b20207",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "18f7e681_98d75c6e",
+        "filename": "eVSSIM/CONFIG/vssim_config_manager.c",
+        "patchSetId": 10
+      },
+      "lineNbr": 201,
+      "author": {
+        "id": 1038739
+      },
+      "writtenOn": "2026-04-13T19:51:27Z",
+      "side": 1,
+      "message": "I don\u0027t understand what you meant at 3) \"Check the return value after all the calls to \"free\"\".\n\nfree doesn\u0027t have a return value, am I wrong?",
+      "parentUuid": "33524b1a_49156ed2",
       "range": {
         "startLine": 198,
         "startChar": 0,
@@ -118,6 +166,30 @@
     {
       "unresolved": true,
       "key": {
+        "uuid": "03ace538_82c23002",
+        "filename": "eVSSIM/FTL_SOURCE/PAGE_MAP/ftl_obj_strategy.c",
+        "patchSetId": 10
+      },
+      "lineNbr": 36,
+      "author": {
+        "id": 1038739
+      },
+      "writtenOn": "2026-04-13T19:51:27Z",
+      "side": 1,
+      "message": "Each device has its own current_id field in obj_manager[device_index], so IDs are namespaced per device and do not collide across disks. current_id is initialized to 1 for every device, so the starting value is the same on all disks.\n\nShould I change the behavior?",
+      "parentUuid": "1ec7862e_e12a0326",
+      "range": {
+        "startLine": 36,
+        "startChar": 31,
+        "endLine": 36,
+        "endChar": 33
+      },
+      "revId": "cd577e8790cd28fdafecc6e125be0c87b8b20207",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
+    },
+    {
+      "unresolved": true,
+      "key": {
         "uuid": "eb0b6290_7c003efd",
         "filename": "eVSSIM/LOG_MGR/logging_offline_analyzer.c",
         "patchSetId": 10
@@ -129,6 +201,30 @@
       "writtenOn": "2026-04-07T15:44:02Z",
       "side": 1,
       "message": "With multiple devices potentially initializing the log manager concurrently, this is a TOCTOU race.",
+      "range": {
+        "startLine": 485,
+        "startChar": 8,
+        "endLine": 485,
+        "endChar": 37
+      },
+      "revId": "cd577e8790cd28fdafecc6e125be0c87b8b20207",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "aa84d8fa_749aa3be",
+        "filename": "eVSSIM/LOG_MGR/logging_offline_analyzer.c",
+        "patchSetId": 10
+      },
+      "lineNbr": 485,
+      "author": {
+        "id": 1038739
+      },
+      "writtenOn": "2026-04-13T19:51:27Z",
+      "side": 1,
+      "message": "I fixed it in https://review.gerrithub.io/c/davidsaOpenu/simulator/+/1232420.\nShould I move the fix to this commit?",
+      "parentUuid": "eb0b6290_7c003efd",
       "range": {
         "startLine": 485,
         "startChar": 8,
@@ -233,6 +329,30 @@
     {
       "unresolved": true,
       "key": {
+        "uuid": "a480c542_e687a654",
+        "filename": "eVSSIM/SSD_MODULE/ssd_log_manager.h",
+        "patchSetId": 10
+      },
+      "lineNbr": 46,
+      "author": {
+        "id": 1038739
+      },
+      "writtenOn": "2026-04-13T19:51:27Z",
+      "side": 1,
+      "message": "Yeah, it\u0027s only used in ssd_log_manager.\nBut I thought it\u0027s better to initialize and terminate it from vssim_config_manager, should I change it?",
+      "parentUuid": "03218f02_3b63c2a1",
+      "range": {
+        "startLine": 46,
+        "startChar": 0,
+        "endLine": 46,
+        "endChar": 37
+      },
+      "revId": "cd577e8790cd28fdafecc6e125be0c87b8b20207",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
+    },
+    {
+      "unresolved": true,
+      "key": {
         "uuid": "fef9d911_caf47468",
         "filename": "eVSSIM/tests/host/simulation/multi_device_tests.cc",
         "patchSetId": 10
@@ -284,6 +404,30 @@
       "writtenOn": "2026-04-07T15:44:02Z",
       "side": 1,
       "message": "all devices are initialized in this loop",
+      "range": {
+        "startLine": 33,
+        "startChar": 40,
+        "endLine": 33,
+        "endChar": 42
+      },
+      "revId": "cd577e8790cd28fdafecc6e125be0c87b8b20207",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "a5f5a5d2_ddbc2155",
+        "filename": "eVSSIM/tests/host/simulation/multi_device_tests.cc",
+        "patchSetId": 10
+      },
+      "lineNbr": 33,
+      "author": {
+        "id": 1038739
+      },
+      "writtenOn": "2026-04-13T19:51:27Z",
+      "side": 1,
+      "message": "SetUp() initializes the config and calls FTL_INIT(g_device_index).\nThe other devices are not getting FTL_INIT(), that\u0027s why I added the loop that initializes all the other devices.",
+      "parentUuid": "4211586f_4d65d4a3",
       "range": {
         "startLine": 33,
         "startChar": 40,
