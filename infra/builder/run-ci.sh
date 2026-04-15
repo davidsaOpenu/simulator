@@ -5,6 +5,9 @@ trap 'ec=$?; echo "[run-ci.sh] FAILED with exit $ec on: $BASH_COMMAND" >&2' ERR
 # always run from the builder dir so env.sh works
 cd "$(dirname "${BASH_SOURCE[0]}")"
 
+# Check all required tools are installed
+./check_tools.sh
+
 # the only script we source on purpose
 source ./env.sh
 export EVSSIM_RUNTIME_ALWAYS_RESET=yes
