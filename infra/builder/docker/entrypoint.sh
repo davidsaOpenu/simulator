@@ -20,7 +20,8 @@ if [ -z $VIRTUALIZATION ]; then
 fi
 
 if ! virt-host-validate >/dev/null; then
-    echo "ERROR Virtualization test failed. Verify docker has permissions"; exit 1
+    echo "ERROR Virtualization test failed. Run virt-host-validate \
+          from the CLI and fix any reported issues."; exit 1
 fi
 
 # Install the effective external user as a real user
