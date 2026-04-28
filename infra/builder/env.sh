@@ -5,6 +5,44 @@ if [ ! -f env.sh ]; then
     return 1
 fi
 
+
+# ============================================================
+# Load configuration from JSON
+# ============================================================
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+
+# Load config from JSON using jq
+load_config() {
+    local config_id=$1
+    local config_file="${SCRIPT_DIR}/configs.json"
+
+    if ! command -v jq &> /dev/null; then
+        echo "WARN: jq not found. Skipping JSON config loading."
+        echo "      Install with: apt install jq"
+        return 1
+    fi
+
+    local cfg=".configs[] | select(.id == $config_id)"
+
+    if [[ ! -f "$config_file" ]]; then
+        echo "ERROR: Config ID $config_id not found in $config_file"
+        return 1
+    fi
+    export EVSSIM_KERNEL_VERSION=$(jq -r "$cfg | .kernel" "$config_file")
+    export EVSSIM_QEMU_VERSION=$(jq -r "$cfg | .qemu" "$config_file")
+    export EVSSIM_GUEST_VM_FLAVOR=$(jq -r "$cfg | .guestVM" "$config_file")
+    export EVSSIM_CONTAINER_IMG=$(jq -r "$cfg | .containerImg" "$config_file")
+
+    echo "EVSSIM_KERNEL_VERSION=$EVSSIM_KERNEL_VERSION"
+    echo "EVSSIM_QEMU_VERSION=$EVSSIM_QEMU_VERSION"
+    echo "EVSSIM_GUEST_VM_FLAVOR=$EVSSIM_GUEST_VM_FLAVOR"
+    echo "EVSSIM_CONTAINER_IMG=$EVSSIM_CONTAINER_IMG"
+}
+
+# Load default config (config 2)
+load_config 2
+
+
 export EVSSIM_ENVIRONMENT=yes
 
 export EVSSIM_ROOT_PATH=$(readlink -f $(pwd)/../../..)
