@@ -1,0 +1,39 @@
+{
+  "configs": [
+    {
+      "id": 1,
+      "kernel": "7.0.1",
+      "qemu": "11.0",
+      "guestVM": "Ubuntu26.04",
+      "containerImg": "Ubuntu26.04"
+    },
+    {
+      "id": 2,
+      "kernel": "5.0.0",
+      "qemu": "2.12.5",
+      "guestVM": "Ubuntu14.04",
+      "containerImg": "Ubuntu14.04"
+    },
+    {
+      "id": 3,
+      "kernel": "7.0.0",
+      "qemu": "2.12.5",
+      "guestVM": "Ubuntu14.04",
+      "containerImg": "Ubuntu14.04"
+    },
+    {
+      "id": 4,
+      "kernel": "5.0.0",
+      "qemu": "11.0",
+      "guestVM": "Ubuntu14.04",
+      "containerImg": "Ubuntu14.04"
+    },
+    {
+      "id": 5,
+      "kernel": "5.0.0",
+      "qemu": "2.12.5",
+      "guestVM": "Ubuntu26.04",
+      "containerImg": "Ubuntu26.04"
+    }
+  ]
+}
