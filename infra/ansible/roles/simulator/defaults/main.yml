@@ -1,5 +1,0 @@
-git_in_ansible: false
-dest: "{{ ansible_env.HOME }}/simulator"
-ref: refs/heads/master
-qemu_pid_file: "{{ dest }}/simulator_qemu.pid"
-cleanup_only: false

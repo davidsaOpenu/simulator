@@ -1,7 +1,0 @@
-- name: check whether bear was built
-  stat: "path=/usr/bin/bear"
-  register: bear_file
-
-- fail:
-    msg: "Bear binary is required, and should be under /usr/bin/bear."
-  when: bear_file.stat.exists == false

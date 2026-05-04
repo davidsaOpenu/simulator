@@ -1,9 +1,0 @@
-# Verify status of KVM and VT
-- include: kvm-vt.yml
-  become: yes
-# Verify gtest exists
-- include: gtest.yml
-# Verify bear exists
-- include: bear.yml
-# Verify libwebsockets exist
-- include: libwebsockets.yml

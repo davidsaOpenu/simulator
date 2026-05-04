@@ -19,30 +19,7 @@ DEBUG = False
 
 
 class TestNVMeCompliance:
-    @old_qemu_only
-    def test_NVMeCompliance_old(self):
-        os.system("rmmod nvme")
-        os.system("insmod " + NVME_COMPLIANCE_TEST_DIR + "/dnvme/dnvme.ko")
-
-        os.chdir(NVME_COMPLIANCE_TEST_DIR + "tnvme")
-        assert 0 == os.system("mkdir -p ./Logs")
-
-        skipSingleTests = ['5:5.10.0', '16:1.0.0', '17:1.0.0']
-        f= open("skipTests","w+")
-        for test in skipSingleTests:
-            f.write("%s\n" % test)
-        f.close()
-
-        skipEntireSuites = []
-        for suiteNum in range(0, 24):
-            if suiteNum not in skipEntireSuites:
-                cmd = "./tnvme --test=%d --skiptest=skipTests > test%d.txt 2>&1" % (suiteNum, suiteNum)
-                print cmd
-                assert 0 == os.system(cmd)
-    
-
-    @new_qemu_only
-    def test_NVMeCompliance_new(self):
+    def test_NVMeCompliance(self):
         if 0 != subprocess.call("lsmod | grep dnvme",
                                 shell=True, stdout=None, stderr=subprocess.STDOUT):
             os.system("rmmod nvme")

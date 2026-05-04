@@ -1,7 +1,0 @@
-- name: check whether libwebsockets was built
-  stat: "path=/opt/libwebsockets/lib/libwebsockets.a"
-  register: libwebsockets_file
-
-- fail:
-    msg: "libwebsockets are required, and should be under /opt/libwebsockets/."
-  when: libwebsockets_file.stat.exists == false
