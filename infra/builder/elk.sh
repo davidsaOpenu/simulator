@@ -56,7 +56,7 @@ popd
 
 evssim_elk_run_elasticsearch() {
     export ELASTICSEARCH_DOCKER_UUID=$(\
-            docker run --rm --publish 9200 \
+            docker run  --userns=keep-id --rm --publish 9200 \
             --env discovery.type=single-node --env xpack.security.enabled=false \
             --detach $ELK_ELASTICSEARCH_IMAGE\
     )
@@ -65,7 +65,7 @@ evssim_elk_run_elasticsearch() {
 
 evssim_elk_run_kibana() {
     export KIBANA_DOCKER_UUID=$(\
-            docker run --rm --publish 5601 \
+            docker run  --userns=keep-id --rm --publish 5601 \
             --env ELASTICSEARCH_HOSTS="http://host.docker.internal:$ELK_ELASTICSEARCH_EXTERNAL_PORT" \
             --add-host=host.docker.internal:host-gateway \
             --detach $ELK_KIBANA_IMAGE\
@@ -81,9 +81,9 @@ evssim_elk_run_filebeat() {
     if [ -e "${EVSSIM_ROOT_PATH}/${EVSSIM_LOGS_FOLDER}/meta.json" ]; then rm "${EVSSIM_ROOT_PATH}/${EVSSIM_LOGS_FOLDER}/meta.json"; fi
     touch "${EVSSIM_ROOT_PATH}/${EVSSIM_LOGS_FOLDER}/meta.json"
     echo "{\"version\":\"1\"}" >> "${EVSSIM_ROOT_PATH}/${EVSSIM_LOGS_FOLDER}/meta.json"
-    
+
     export FILEBEAT_DOCKER_UUID=$(\
-            docker run --rm --env ELK_ELASTICSEARCH_EXTERNAL_PORT \
+            docker run  --userns=keep-id --rm --env ELK_ELASTICSEARCH_EXTERNAL_PORT \
             --env ELK_ELASTICSEARCH_HOSTNAME=host.docker.internal \
             --volume="${EVSSIM_ROOT_PATH}/${EVSSIM_LOGS_FOLDER}:/logs/" \
             --volume="${ELK_FILEBEAT_CONF_PATH}:/usr/share/filebeat/filebeat.yml:ro" \

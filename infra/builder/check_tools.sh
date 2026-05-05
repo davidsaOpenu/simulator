@@ -1,20 +1,29 @@
-check_tools() {
-    local tools=("docker" "docker-compose" "ansible" "tox")
+#!/bin/bash
 
-    echo "Checking required tools..."
+check_tool() {
+    local tool="$1"
+    local alt="$2"
+    local found
 
-    for tool in "${tools[@]}"; do
-        if command -v "$tool" &>/dev/null; then
-            local version
-            version=$("$tool" --version 2>&1 | head -n1)
-            echo "Success. $tool — $version"
-        else
-            echo "Failed. Please install $tool — NOT installed"
-            exit 1
-        fi
-    done
+    if command -v "$tool" &>/dev/null; then
+        found="$tool"
+    elif [ -n "$alt" ] && command -v "$alt" &>/dev/null; then
+        found="$alt"
+    else
+        local msg="$tool"
+        [ -n "$alt" ] && msg="$tool or $alt"
+        echo "Failed. Please install $msg — NOT installed"
+        exit 1
+    fi
 
+    local version
+    version=$("$found" --version 2>&1 | head -n1)
+    echo "Success. $found — $version"
 }
 
-check_tools
-
+check_tools() {
+    check_tool "ansible"
+    check_tool "tox"
+    check_tool "docker" "podman"
+    check_tool "docker-compose" "podman-compose"
+}

@@ -81,46 +81,12 @@ evssim_run_at_folder () {
 evssim_run_at_path () {
     local path=$1
     local args="${@:2}"
-    docker run --rm -i $docker_extra_tty $EVSSIM_DOCKER_XOPTIONS $EVSSIM_DOCKER_PORTS_OPTION --privileged --env-file <(evssim_all_env) -v $EVSSIM_ROOT_PATH:$EVSSIM_DOCKER_ROOT_PATH $EVSSIM_DOCKER_IMAGE_NAME bash -c "cd $path; $args"
+    docker run   --userns=keep-id --device /dev/kvm --rm -i $docker_extra_tty $EVSSIM_DOCKER_XOPTIONS $EVSSIM_DOCKER_PORTS_OPTION --env-file <(evssim_all_env) -v $EVSSIM_ROOT_PATH:$EVSSIM_DOCKER_ROOT_PATH:z $EVSSIM_DOCKER_IMAGE_NAME bash -c "cd $path; $args"
 }
 
 # Run
 evssim_run () {
     evssim_run_at_path $EVSSIM_DOCKER_ROOT_PATH "$@"
-}
-
-# Run new instance of docker and chroot into the disk image
-# Parameters - Command to run
-evssim_run_chrooted () {
-    local mount_point=/mnt/guest
-
-    # Verify the disk exists
-    if [ ! -f $IMAGE_PATH ]; then
-        echo "ERROR Missing qemu image file. Run 'build-qemu-image.sh'"
-        exit 1
-    fi
-
-    # Run inside th chroot
-    local mount_point=/mnt/guest
-    local image_path=$EVSSIM_DOCKER_ROOT_PATH/$EVSSIM_DIST_FOLDER/$EVSSIM_QEMU_IMAGE
-    EVSSIM_RUN_SUDO=y evssim_run "mkdir -p $mount_point && mount -o loop $image_path $mount_point && chroot $mount_point $@"
-}
-
-# Run new instance of the docker and mount offline the disk image
-# Parameters - Command to run
-evssim_run_mounted () {
-    local mount_point=/mnt/guest
-
-    # Verify the disk exists
-    if [ ! -f $IMAGE_PATH ]; then
-        echo "ERROR Missing qemu image file. Run 'build-qemu-image.sh'"
-        exit 1
-    fi
-
-    # Execute while mounted
-    local mount_point=/mnt/guest
-    local image_path=$EVSSIM_DOCKER_ROOT_PATH/$EVSSIM_DIST_FOLDER/$EVSSIM_QEMU_IMAGE
-    evssim_run "sudo mkdir -p $mount_point && sudo mount -o loop $image_path $mount_point && cd $mount_point/$EVSSIM_GUEST_ROOT_PATH && bash -c \"$@\""
 }
 
 # Build SSD configuration from environment
@@ -294,10 +260,10 @@ evssim_qemu () {
 
     case "$attached" in
         attached)
-            docker run --rm -i $docker_extra_tty --net=host $EVSSIM_DOCKER_XOPTIONS --privileged --env-file <(evssim_all_env) -v $EVSSIM_ROOT_PATH/$EVSSIM_DATA_FOLDER:$EVSSIM_DOCKER_ROOT_PATH/$EVSSIM_QEMU_FOLDER/hw/data -v $EVSSIM_ROOT_PATH:$EVSSIM_DOCKER_ROOT_PATH $EVSSIM_DOCKER_IMAGE_NAME bash -c "$args"
+            docker run  --userns=keep-id --device /dev/kvm --rm -i $docker_extra_tty --net=host $EVSSIM_DOCKER_XOPTIONS --env-file <(evssim_all_env) -v $EVSSIM_ROOT_PATH/$EVSSIM_DATA_FOLDER:$EVSSIM_DOCKER_ROOT_PATH/$EVSSIM_QEMU_FOLDER/hw/data:z -v $EVSSIM_ROOT_PATH:$EVSSIM_DOCKER_ROOT_PATH $EVSSIM_DOCKER_IMAGE_NAME:z bash -c "$args"
             ;;
         *)
-            export EVSSIM_DOCKER_UUID=$(docker run --rm -d --net=host $EVSSIM_DOCKER_XOPTIONS --privileged --env-file <(evssim_all_env) -v $EVSSIM_ROOT_PATH/$EVSSIM_DATA_FOLDER:$EVSSIM_DOCKER_ROOT_PATH/$EVSSIM_QEMU_FOLDER/hw/data -v $EVSSIM_ROOT_PATH:$EVSSIM_DOCKER_ROOT_PATH $EVSSIM_DOCKER_IMAGE_NAME bash -c "$args")
+            export EVSSIM_DOCKER_UUID=$(docker run --rm -d --net=host $EVSSIM_DOCKER_XOPTIONS --env-file <(evssim_all_env) -v $EVSSIM_ROOT_PATH/$EVSSIM_DATA_FOLDER:$EVSSIM_DOCKER_ROOT_PATH/$EVSSIM_QEMU_FOLDER/hw/data:z -v $EVSSIM_ROOT_PATH:$EVSSIM_DOCKER_ROOT_PATH $EVSSIM_DOCKER_IMAGE_NAME:z bash -c "$args")
             echo INFO Docker started $EVSSIM_DOCKER_UUID
             trap "evssim_qemu_stop" EXIT SIGTERM SIGINT
             sleep 1
@@ -324,7 +290,7 @@ timeout 10 tail --pid \$(cat /tmp/qemu.pid) -f /dev/null
 DOCKER
 )
             set +e
-            docker exec --privileged $EVSSIM_DOCKER_UUID /bin/bash -c "$code"
+            docker exec $EVSSIM_DOCKER_UUID /bin/bash -c "$code"
             sleep 1
             set -e
 
@@ -373,7 +339,8 @@ evssim_qemu_fresh_image () {
     local IMAGE_PATH_TEMPLATE=$EVSSIM_ROOT_PATH/$EVSSIM_DIST_FOLDER/$EVSSIM_QEMU_IMAGE".template"
 
     if [ ! -f $IMAGE_PATH ]; then
-        echo "ERORR QEMU Image is missing. Please run ./build-qemu-image.sh first."
+
+        echo "ERORR QEMU Image is missing: $IMAGE_PATH. Please run ./build-qemu-image.sh first."
         exit 1;
     fi
 
@@ -397,14 +364,14 @@ evssim_copy_tools () {
 
     # copy the OSD emulator (osc-osd)
     evssim_run_mounted "cp -Rt . $EVSSIM_DOCKER_ROOT_PATH/$EVSSIM_DIST_FOLDER/osc-osd"
-    evssim_run_mounted "sudo cp $EVSSIM_DOCKER_ROOT_PATH/$EVSSIM_DIST_FOLDER/libosd.so $EVSSIM_GUEST_MOUNT_POINT/lib/"
+    evssim_run_mounted "cp $EVSSIM_DOCKER_ROOT_PATH/$EVSSIM_DIST_FOLDER/libosd.so $EVSSIM_GUEST_MOUNT_POINT/lib/"
     # copy the mkfs.exofs utility
-    evssim_run_mounted "sudo cp $EVSSIM_DOCKER_ROOT_PATH/$EVSSIM_DIST_FOLDER/mkfs.exofs \
+    evssim_run_mounted "cp $EVSSIM_DOCKER_ROOT_PATH/$EVSSIM_DIST_FOLDER/mkfs.exofs \
         $EVSSIM_GUEST_MOUNT_POINT/bin/"
     # copy the script to setup the environment and mount exofs
     evssim_run_mounted "cp -r $EVSSIM_DOCKER_ROOT_PATH/$EVSSIM_DIST_FOLDER/exofs ."
 
-    evssim_run_mounted sudo rsync -qrptgo $EVSSIM_DOCKER_ROOT_PATH/$EVSSIM_DIST_FOLDER/kernel/lib/ $EVSSIM_GUEST_MOUNT_POINT/lib/
+    evssim_run_mounted rsync -qrptgo $EVSSIM_DOCKER_ROOT_PATH/$EVSSIM_DIST_FOLDER/kernel/lib/ $EVSSIM_GUEST_MOUNT_POINT/lib/
 }
 
 # Execute guest command inside running QEMU virtual machine.
@@ -425,4 +392,3 @@ evssim_guest_copy () {
     OUTPUT_FILE_PATH=$2
     scp -r -o ConnectionAttempts=1024 -o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no -o PasswordAuthentication=no -o PubkeyAcceptedKeyTypes=+ssh-rsa -i $EVSSIM_ROOT_PATH/$EVSSIM_BUILDER_FOLDER/docker/id_rsa -P 2222 $EVSSIM_QEMU_UBUNTU_USERNAME@localhost:$DOCKET_FILE_PATH $OUTPUT_FILE_PATH
 }
-

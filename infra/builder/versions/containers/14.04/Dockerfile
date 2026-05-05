@@ -12,24 +12,17 @@ RUN apt-get update && DEBIAN_FRONTEND=noninteractive apt-get -y install \
   g++ \
   unzip \
   libsqlite3-dev \
-  libxen-dev \
   zlib1g-dev \
-  libsdl-image1.2-dev \
-  libgnutls-dev \
-  libvncserver-dev \
   libpci-dev \
   libaio-dev \
   libssl-dev \
   sshpass \
-  libvirt-bin \
   python-pip \
   python-setuptools \
-  libxml++2.6-dev \
   libboost-all-dev \
   eatmydata \
   strace \
   lsof \
-  eclipse-cdt \
   libjson-c-dev \
   flex \
   bison \
@@ -60,6 +53,20 @@ RUN export GIT_SSL_NO_VERIFY=1 && git clone --branch v4.1-stable https://github.
 
 RUN apt-get update && DEBIAN_FRONTEND=noninteractive apt-get install -y \
     libpixman-1-dev
+
+RUN apt-get install -y genisoimage
+
+RUN apt-get update && \
+    apt-get install -y python-yaml && \
+    curl -o /usr/local/bin/cloud-localds https://git.launchpad.net/cloud-utils/plain/bin/cloud-localds && \
+    chmod +x /usr/local/bin/cloud-localds
+
+RUN apt-get install -y pkg-config
+
+
+RUN apt-get install -y   libglib2.0-dev \
+  libpcre3-dev # for QEMU compilation
+RUN apt-get install -y libxml++2.6-dev
 
 # Remove kernel scripts
 RUN rm -rf /etc/kernel/postinst.d/*

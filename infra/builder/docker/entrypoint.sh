@@ -10,38 +10,44 @@ for folder in ${mandatory_folders[@]}; do
     fi
 done
 
-# Create runtime configuration and verify virutalization
+# Verify virutalization support
 egrep -c vmx /proc/cpuinfo >/dev/null && export VIRTUALIZATION=intel
 egrep -c svm /proc/cpuinfo >/dev/null && export VIRTUALIZATION=amd
 
 # Check virtualization
 if [ -z $VIRTUALIZATION ]; then
-    echo "ERROR Virtualization not found"; exit 1
+    echo "ERROR: vmx (Intel) or svm (AMD) not found.
+    Check BIOS settings."
+    exit 1
 fi
 
-if ! virt-host-validate >/dev/null; then
-    echo "ERROR Virtualization test failed. Run virt-host-validate \
-          from the CLI and fix any reported issues."; exit 1
-fi
+lsmod | grep -q kvm_intel || lsmod | grep -q kvm_amd || [ -c /dev/kvm ] || {
+  echo "ERROR: KVM module was not loaded."
+  echo "Try loading them: sudo modprobe kvm_intel or sudo modprobe kvm_amd"
+  exit 1
+}
 
-# Install the effective external user as a real user
-addgroup --gid $EVSSIM_EXTERNAL_GID external >/dev/null
-adduser --disabled-password --gecos "" --uid $EVSSIM_EXTERNAL_UID --gid $EVSSIM_EXTERNAL_GID external >/dev/null
-adduser external sudo >/dev/null
-echo "external ALL=(ALL) NOPASSWD: ALL" >> /etc/sudoers
+[ -r /dev/kvm ] && [ -w /dev/kvm ] || {
+  echo "ERROR: No read/write permissions on /dev/kvm."
+  echo "Add user to kvm group: sudo usermod -aG kvm \$USER"
+  exit 1
+}
 
-# Map X authentication if any available
-if [ -f /tmp/.Xauthority ]; then
-    ln -s /tmp/.Xauthority /home/external/.Xauthority
-    chown external:external /home/external/.Xauthority
-fi
+# # Install the effective external user as a real user
+# addgroup --gid $EVSSIM_EXTERNAL_GID external >/dev/null
+# adduser --disabled-password --gecos "" --uid $EVSSIM_EXTERNAL_UID --gid $EVSSIM_EXTERNAL_GID external >/dev/null
+# adduser external sudo >/dev/null
+# echo "external ALL=(ALL) NOPASSWD: ALL" >> /etc/sudoers
 
-# Give permissions to the kvm
-chmod 777 /dev/kvm
+# # Map X authentication if any available
+# if [ -f /tmp/.Xauthority ]; then
+#     ln -s /tmp/.Xauthority /home/external/.Xauthority
+#     chown external:external /home/external/.Xauthority
+# fi
 
-# Execute intended binary
-if [ ! -z $EVSSIM_RUN_SUDO ]; then
+# # Execute intended binary
+# if [ ! -z $EVSSIM_RUN_SUDO ]; then
     exec "$@"
-else
-    exec sudo -H -E -u external "$@"
-fi
+# else
+#     exec sudo -H -E -u external "$@"
+# fi

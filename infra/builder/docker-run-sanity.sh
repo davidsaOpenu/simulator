@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/bin/bash -x
 source ./builder.sh
 
 # Make a fresh copy

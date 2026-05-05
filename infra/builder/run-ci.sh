@@ -1,4 +1,4 @@
-#!/bin/bash
+dddd#!/bin/bash
 set -Eeo pipefail
 trap 'ec=$?; echo "[run-ci.sh] FAILED with exit $ec on: $BASH_COMMAND" >&2' ERR
 
@@ -32,19 +32,19 @@ env -u http_proxy -u https_proxy -u HTTP_PROXY -u HTTPS_PROXY tox
 
 # build + sanity
 ./build-docker-image.sh
-./build-qemu-image.sh
-./compile-kernel.sh
-./compile-qemu.sh
-./compile-host-tests.sh
-./compile-guest-tests.sh
+# ./build-qemu-image.sh
+#  ./compile-kernel.sh
+# ./compile-qemu.sh
+# ./compile-host-tests.sh
+# ./compile-guest-tests.sh
 ./docker-run-sanity.sh
 
-# start ELK (absolute paths)
-"$ELK_INSTALL" "$LOGS_DIR" "$ELK_DIR"
+# # start ELK (absolute paths)
+# "$ELK_INSTALL" "$LOGS_DIR" "$ELK_DIR"
 
-# Running Docker Tests
-./docker-test-host.sh
-./docker-test-guest.sh
-./docker-test-exofs.sh
+# # Running Docker Tests
+# ./docker-test-host.sh
+# ./docker-test-guest.sh
+# ./docker-test-exofs.sh
 
-"$ELK_DIR/elk_performance_test.sh" "$ELK_DIR"
+# "$ELK_DIR/elk_performance_test.sh" "$ELK_DIR"

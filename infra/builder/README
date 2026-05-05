@@ -63,7 +63,7 @@ guest (Including nvme cli, nvme compliance) and available in /home/esd/guest.
 
 ## Advanced Running
 * gdb:
-  
+
     While qemu is running, its easy to attach with gdb to qemu by attaching to the docker
     ```bash
     $ ./docker-enter.sh
@@ -71,7 +71,7 @@ guest (Including nvme cli, nvme compliance) and available in /home/esd/guest.
     ```
 
 * Tracing:
-  
+
     QEMU has an extensive tracing facilities. The following environment
     variables gives a quick access to enabeling them.
     ```
@@ -91,23 +91,23 @@ guest (Including nvme cli, nvme compliance) and available in /home/esd/guest.
     ```
 
 * Simulator Toggle:
-  
+
   Simulator could be toggled on and off (Without recompilation) using the following environment: (Default is yes)
     `EVSSIM_QEMU_SIMULATOR_ENABLED=yes/no`
 
 * Disk size:
-  
+
   When simulator is turned OFF the nvme disk size is taken from EVSSIM_QEMU_DEFAULT_DISK_SIZE and defaulted to 1M.
 
   When simulator is turned ON the nvme disk size is CALCULATED from the ssd configuration.
 
 * Reset Simulator:
-  
+
   By default, every run of qemu will clear any simulator runtime files (Such as FTL mapping).
   The variable EVSSIM_RUNTIME_ALWAYS_RESET=yes/no controls that behaviour.
 
 * Strategy:
-  
+
   Strategy is configures using EVSSIM_RUNTIME_STORAGE_STRATEGY
   Available values are:
     1. Sector
@@ -186,13 +186,6 @@ The following are the most important functionality of the builder
 Will execute the command under a new docker environment.
 ```bash
 $ evssim_run bash
-```
-
-#### Executing in Docker under Chroot to QEMU Image
-Will execute the command under a new docker environment inside chroot
-of the qemu image.
-```bash
-$ evssim_run_chrooted bash
 ```
 
 #### Use a clean QEMU image
