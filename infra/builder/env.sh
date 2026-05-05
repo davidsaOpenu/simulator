@@ -6,42 +6,31 @@ if [ ! -f env.sh ]; then
 fi
 
 
-# ============================================================
-# Load configuration from JSON
-# ============================================================
-SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+######################################################################################################
+#                  eVSSIM version confuguration variables
+######################################################################################################
+export EVSSIM_VERSIONS_CONFIGURATION="versions"
+# Export:
+#   EVSSIM_KERNEL_BRANCH
+#   EVSSIM_KERNEL_COMPILE_CONTAINER
+#   EVSSIM_QEMU_BRANCH
+#   EVSSIM_QEMU_COMPILE_CONTAINER
+#   EVSSIM_NVME_CLI_BRANCH
+#   EVSSIM_NVME_CLI_COMPILE_CONTAINER
+#   EVSSIM_HOST_TESTS_COMPILE_CONTAINER
+#   EVSSIM_HOST_TESTS_RUN_CONTAINER
+#   EVSSIM_GUEST_TESTS_COMPILE_CONTAINER
+#   EVSSIM_GUEST_TESTS_GUEST_VM_IMAGE
+source load_config.sh
 
-# Load config from JSON using jq
-load_config() {
-    local config_id=$1
-    local config_file="${SCRIPT_DIR}/configs.json"
-
-    if ! command -v jq &> /dev/null; then
-        echo "WARN: jq not found. Skipping JSON config loading."
-        echo "      Install with: apt install jq"
-        return 1
-    fi
-
-    local cfg=".configs[] | select(.id == $config_id)"
-
-    if [[ ! -f "$config_file" ]]; then
-        echo "ERROR: Config ID $config_id not found in $config_file"
-        return 1
-    fi
-    export EVSSIM_KERNEL_VERSION=$(jq -r "$cfg | .kernel" "$config_file")
-    export EVSSIM_QEMU_VERSION=$(jq -r "$cfg | .qemu" "$config_file")
-    export EVSSIM_GUEST_VM_FLAVOR=$(jq -r "$cfg | .guestVM" "$config_file")
-    export EVSSIM_CONTAINER_IMG=$(jq -r "$cfg | .containerImg" "$config_file")
-
-    echo "EVSSIM_KERNEL_VERSION=$EVSSIM_KERNEL_VERSION"
-    echo "EVSSIM_QEMU_VERSION=$EVSSIM_QEMU_VERSION"
-    echo "EVSSIM_GUEST_VM_FLAVOR=$EVSSIM_GUEST_VM_FLAVOR"
-    echo "EVSSIM_CONTAINER_IMG=$EVSSIM_CONTAINER_IMG"
-}
-
-# Load default config (config 2)
-load_config 2
-
+# extract version number after ":". E.g 14.04 from ununtu:14.04.
+FOLDER_NAME="${EVSSIM_HOST_TESTS_COMPILE_CONTAINER##*:}"
+# TODO: will be replaced by EVSSIM_COMPILE_KERNEL_DOCKERFILE, EVSSIM_COMPILE_QEMU_DOCKERFILE
+#       EVSSIM_HOST_TESTS_COMPILE_DOCKERFILE, EVSSIM_GUEST_TESTS_COMPILE_DOCKERFILE
+export EVSSIM_COMPILE_DOCKERFILE="$EVSSIM_VERSIONS_CONFIGURATION/containers/$FOLDER_NAME/Dockerfile"
+########################################################################################################
+#                  end of eVSSIM version confuguration variables
+########################################################################################################
 
 export EVSSIM_ENVIRONMENT=yes
 

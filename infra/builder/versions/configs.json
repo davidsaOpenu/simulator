@@ -1,0 +1,123 @@
+{
+  "images": {
+    "ubuntu26.04": "https://cloud-images.ubuntu.com/resolute/current/resolute-server-cloudimg-amd64.img",
+    "ubuntu14.04": "https://cloud-images.ubuntu.com/trusty/current/trusty-server-cloudimg-amd64-disk1.img"
+  },
+  "configs": [
+    {
+      "id": 1,
+      "kernel": {
+        "branch": "7.0.1",
+        "compileContainer": "ubuntu:26.04"
+      },
+      "qemu": {
+        "branch": "11.0",
+        "compileContainer": "ubuntu:26.04"
+      },
+      "nvme-cli": {
+        "branch": "3.0-a.5",
+        "compileContainer": "ubuntu:26.04"
+      },
+      "hostTests": {
+        "compileContainer": "ubuntu:26.04",
+        "runContainer": "ubuntu:26.04"
+      },
+      "guestTests": {
+        "guestVMImage": "$images.ubuntu26.04",
+        "compileContainer": "ubuntu:26.04"
+      }
+    },
+    {
+      "id": 2,
+      "kernel": {
+        "branch": "master",
+        "compileContainer": "ubuntu:14.04"
+      },
+      "qemu": {
+        "branch": "master",
+        "compileContainer": "ubuntu:14.04"
+      },
+      "nvme-cli": {
+        "branch": "master",
+        "compileContainer": "ubuntu:14.04"
+      },
+      "hostTests": {
+        "compileContainer": "ubuntu:14.04",
+        "runContainer": "ubuntu:14.04"
+      },
+      "guestTests": {
+        "guestVMImage": "$images.ubuntu14.04",
+        "compileContainer": "ubuntu:14.04"
+      }
+    },
+    {
+      "id": 3,
+      "kernel": {
+        "branch": "7.0.2",
+        "compileContainer": "ubuntu:26.04"
+      },
+      "qemu": {
+        "branch": "master",
+        "compileContainer": "ubuntu:14.04"
+      },
+      "nvme-cli": {
+        "branch": "master",
+        "compileContainer": "ubuntu:14.04"
+      },
+      "hostTests": {
+        "compileContainer": "ubuntu:14.04",
+        "runContainer": "ubuntu:14.04"
+      },
+      "guestTests": {
+        "guestVMImage": "$images.ubuntu14.04",
+        "compileContainer": "ubuntu:14.04"
+      }
+    },
+    {
+      "id": 4,
+      "kernel": {
+        "branch": "master",
+        "compileContainer": "ubuntu:14.04"
+      },
+      "qemu": {
+        "branch": "11.0",
+        "compileContainer": "ubuntu:26.04"
+      },
+      "nvme-cli": {
+        "branch": "master",
+        "compileContainer": "ubuntu:14.04"
+      },
+      "hostTests": {
+        "compileContainer": "ubuntu:14.04",
+        "runContainer": "ubuntu:14.04"
+      },
+      "guestTests": {
+        "guestVMImage": "$images.ubuntu14.04",
+        "compileContainer": "ubuntu:14.04"
+      }
+    },
+    {
+      "id": 5,
+      "kernel": {
+        "branch": "master",
+        "compileContainer": "ubuntu:14.04"
+      },
+      "qemu": {
+        "branch": "master",
+        "compileContainer": "ubuntu:14.04"
+      },
+      "nvme-cli": {
+        "branch": "3.0-a.5",
+        "compileContainer": "ubuntu:26.04"
+      },
+      "hostTests": {
+        "compileContainer": "ubuntu:26.04",
+        "runContainer": "ubuntu:26.04"
+      },
+      "guestTests": {
+        "guestVMImage": "$images.ubuntu26.04",
+        "compileContainer": "ubuntu:26.04"
+      }
+    }
+  ]
+}
