@@ -37,7 +37,8 @@ debootstrap --unpack-tarball=$DEBOOTSTRAP_CACHE --include $DEBOOTSTRAP_ADDITIONA
 #debootstrap --include $DEBOOTSTRAP_ADDITIONAL_PACKAGES $EVSSIM_QEMU_UBUNTU_SYSTEM $MOUNT_POINT $DEBOOTSTRAP_MIRROR
 
 # Load the content of the public key
-PUBLIC_KEY=$(cat /scripts/id_rsa.pub)
+PUBLIC_KEY_RSA=$(cat /scripts/id_rsa.pub)
+PUBLIC_KEY_ED25519=$(cat /scripts/id_ed25519.pub)
 
 # Mount facilities
 mount --bind /proc $MOUNT_POINT/proc
@@ -73,10 +74,12 @@ echo "LANGUAGE=en_US.UTF-8" >> /etc/environment
 
 # Add ssh keys
 mkdir -p /root/.ssh
-echo "$PUBLIC_KEY" > /root/.ssh/authorized_keys
+echo "$PUBLIC_KEY_RSA" > /root/.ssh/authorized_keys
+echo "$PUBLIC_KEY_ED25519" >> /root/.ssh/authorized_keys
 
 mkdir -p /home/$EVSSIM_QEMU_UBUNTU_USERNAME/.ssh
-echo "$PUBLIC_KEY" > /home/$EVSSIM_QEMU_UBUNTU_USERNAME/.ssh/authorized_keys
+echo "$PUBLIC_KEY_RSA" > /home/$EVSSIM_QEMU_UBUNTU_USERNAME/.ssh/authorized_keys
+echo "$PUBLIC_KEY_ED25519" >> /home/$EVSSIM_QEMU_UBUNTU_USERNAME/.ssh/authorized_keys
 chown -R $EVSSIM_QEMU_UBUNTU_USERNAME:$EVSSIM_QEMU_UBUNTU_USERNAME /home/$EVSSIM_QEMU_UBUNTU_USERNAME/.ssh
 
 # Configure apt sources
