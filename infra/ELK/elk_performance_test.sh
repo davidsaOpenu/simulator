@@ -1058,6 +1058,194 @@ else
   echo "[elk_performance_test] SKIP: sector write amplification (no logical writes recorded)"
 fi
 
+# =============================================================================
+# PER-DISK PERFORMANCE TEST (disks 1 and 2)
+# =============================================================================
+# eVSSIM starts with 3 NVMe disks (device_index 0,1,2). The original test
+# (above) is implicitly disk-0 only — see TODO in MONITOR/SERVER/logging_server.c
+# log_server_init() which currently hard-codes device_index = 0. Until that
+# plumbing is fixed, events for disks 1 and 2 will not appear in ELK and this
+# block will SKIP gracefully (SKIP_IF_NO_DATA=1, default). Once device_index
+# is wired through to the JSON payload, the same code path begins asserting
+# real thresholds — set SKIP_IF_NO_DATA=0 in CI to make the absence of data
+# itself a failure.
+#
+# Per-disk thresholds default to the global thresholds but can be overridden
+# with DISK<N>_<NAME> env vars (e.g. DISK1_MIN_IOPS_WRITE=10).
+
+SKIP_IF_NO_DATA="${SKIP_IF_NO_DATA:-1}"
+DISK_INDICES="${DISK_INDICES:-1 2}"
+
+# Builds an ES filter clause matching a specific device_index.
+# Tries both `device_index` (numeric) and `device_index.keyword` (text mapping)
+# so the test starts working as soon as the field appears in any form.
+disk_filter() {
+  local idx="$1"
+  cat <<EOF
+{
+  "bool": {
+    "should": [
+      { "term": { "device_index": $idx } },
+      { "term": { "device_index.keyword": "$idx" } }
+    ],
+    "minimum_should_match": 1
+  }
+}
+EOF
+}
+
+# Same shape as sector_metrics_body but filtered by device_index instead of test.name.
+disk_metrics_body() {
+  local idx="$1"
+  cat <<EOF
+{
+  "query": {
+    "bool": {
+      "must": [
+        { "range": { "$TS_FIELD": { "gte": "$METRICS_TS_FROM", "lte": "$TS_TO" } } },
+        $(disk_filter "$idx")
+      ]
+    }
+  },
+  "aggs": {
+    "reads": {
+      "filter": $(type_filter "PhysicalCellReadLog"),
+      "aggs": {
+        "first": { "top_hits": $(top_first_body) },
+        "last":  { "top_hits": $(top_last_body) }
+      }
+    },
+    "writes": {
+      "filter": $(type_filter "PhysicalCellProgramLog"),
+      "aggs": {
+        "first": { "top_hits": $(top_first_body) },
+        "last":  { "top_hits": $(top_last_body) }
+      }
+    },
+    "logical_writes": {
+      "filter": $(type_filter "LogicalCellProgramLog"),
+      "aggs": {
+        "first": { "top_hits": $(top_first_body) },
+        "last":  { "top_hits": $(top_last_body) }
+      }
+    }
+  }
+}
+EOF
+}
+
+for disk_idx in $DISK_INDICES; do
+  echo ""
+  echo "[elk_performance_test] === PER-DISK PERFORMANCE CHECKS (device_index=$disk_idx) ==="
+
+  # Per-disk threshold overrides; fall back to global defaults.
+  DISK_MIN_WRITE_COUNT_VAR="DISK${disk_idx}_MIN_WRITE_COUNT"
+  DISK_MIN_READ_COUNT_VAR="DISK${disk_idx}_MIN_READ_COUNT"
+  DISK_MIN_IOPS_WRITE_VAR="DISK${disk_idx}_MIN_IOPS_WRITE"
+  DISK_MIN_IOPS_READ_VAR="DISK${disk_idx}_MIN_IOPS_READ"
+  DISK_MIN_WA_VAR="DISK${disk_idx}_MIN_WA"
+  DISK_MAX_WA_VAR="DISK${disk_idx}_MAX_WA"
+  disk_min_write_count="${!DISK_MIN_WRITE_COUNT_VAR:-$MIN_WRITE_COUNT}"
+  disk_min_read_count="${!DISK_MIN_READ_COUNT_VAR:-$MIN_READ_COUNT}"
+  disk_min_iops_write="${!DISK_MIN_IOPS_WRITE_VAR:-$MIN_IOPS_WRITE}"
+  disk_min_iops_read="${!DISK_MIN_IOPS_READ_VAR:-$MIN_IOPS_READ}"
+  disk_min_wa="${!DISK_MIN_WA_VAR:-$MIN_WA}"
+  disk_max_wa="${!DISK_MAX_WA_VAR:-$MAX_WA}"
+
+  disk_body="$(disk_metrics_body "$disk_idx")"
+  disk_cmd="curl -k -s -u elastic:\$ELASTIC_PASSWORD '$ES_URL/$idx/_search?size=0' -H 'Content-Type: application/json' -d '$disk_body'"
+
+  if (( PRINT_QUERY_CMD == 1 )); then
+    printf '%s\n' "$disk_cmd"
+  fi
+  disk_json="$(eval "$disk_cmd")"
+
+  disk_read_count="$(echo "$disk_json" | jq -r '.aggregations.reads.doc_count // 0')"
+  disk_write_count="$(echo "$disk_json" | jq -r '.aggregations.writes.doc_count // 0')"
+  disk_logical_write_count="$(echo "$disk_json" | jq -r '.aggregations.logical_writes.doc_count // 0')"
+
+  total_hits=$(( disk_read_count + disk_write_count + disk_logical_write_count ))
+
+  if (( total_hits == 0 )); then
+    if [[ "$SKIP_IF_NO_DATA" == "1" ]]; then
+      echo "[elk_performance_test] SKIP: disk $disk_idx has 0 events in window — likely device_index plumbing not yet in payload (see logging_manager.c TODO). SKIP_IF_NO_DATA=1 → pass."
+      continue
+    else
+      echo "[elk_performance_test] FAIL: disk $disk_idx has 0 events and SKIP_IF_NO_DATA=0"
+      test_fail=1
+      continue
+    fi
+  fi
+
+  echo "[elk_performance_test] disk $disk_idx: reads=$disk_read_count writes=$disk_write_count logical_writes=$disk_logical_write_count"
+
+  # Write amplification (same definition as elsewhere)
+  if (( disk_logical_write_count > 0 )); then
+    disk_wa="$(awk -v w="$disk_write_count" -v l="$disk_logical_write_count" \
+               'BEGIN { if (l == 0) print "0"; else printf "%.3f\n", w/l }')"
+  else
+    disk_wa="-"
+  fi
+
+  # Span/IOPS: reuse helpers from above
+  disk_write_first_ts="$(jq -r --arg f "$TS_FIELD" '.aggregations.writes.first.hits.hits[0]._source[$f] // empty' <<<"$disk_json")"
+  disk_write_last_ts="$( jq -r --arg f "$TS_FIELD" '.aggregations.writes.last.hits.hits[0]._source[$f] // empty'  <<<"$disk_json")"
+  disk_read_first_ts="$( jq -r --arg f "$TS_FIELD" '.aggregations.reads.first.hits.hits[0]._source[$f] // empty'  <<<"$disk_json")"
+  disk_read_last_ts="$(  jq -r --arg f "$TS_FIELD" '.aggregations.reads.last.hits.hits[0]._source[$f] // empty'   <<<"$disk_json")"
+
+  disk_write_span="$(span_secs "$disk_write_first_ts" "$disk_write_last_ts")"
+  disk_read_span="$( span_secs "$disk_read_first_ts"  "$disk_read_last_ts")"
+  disk_write_iops="$(awk -v c="$disk_write_count" -v s="$disk_write_span" 'BEGIN { if (s+0<=0) print "0"; else printf "%.2f\n", c/s }')"
+  disk_read_iops="$( awk -v c="$disk_read_count"  -v s="$disk_read_span"  'BEGIN { if (s+0<=0) print "0"; else printf "%.2f\n", c/s }')"
+
+  echo "[elk_performance_test] disk $disk_idx: write IOPS=$disk_write_iops read IOPS=$disk_read_iops WA=$disk_wa"
+
+  # Threshold checks (same shape as global block, scoped to per-disk)
+  if (( disk_write_count < disk_min_write_count )); then
+    echo "[elk_performance_test] FAIL: disk $disk_idx write_count ($disk_write_count) < ${DISK_MIN_WRITE_COUNT_VAR}/MIN_WRITE_COUNT ($disk_min_write_count)"
+    test_fail=1
+  else
+    echo "[elk_performance_test] OK: disk $disk_idx write_count >= $disk_min_write_count"
+  fi
+
+  if (( disk_read_count > 0 )); then
+    if (( disk_read_count < disk_min_read_count )); then
+      echo "[elk_performance_test] FAIL: disk $disk_idx read_count ($disk_read_count) < ($disk_min_read_count)"
+      test_fail=1
+    else
+      echo "[elk_performance_test] OK: disk $disk_idx read_count >= $disk_min_read_count"
+    fi
+  fi
+
+  if lt "$disk_write_iops" "$disk_min_iops_write"; then
+    echo "[elk_performance_test] FAIL: disk $disk_idx write IOPS ($disk_write_iops) < $disk_min_iops_write"
+    test_fail=1
+  else
+    echo "[elk_performance_test] OK: disk $disk_idx write IOPS ($disk_write_iops) >= $disk_min_iops_write"
+  fi
+
+  if (( disk_read_count > 0 )); then
+    if lt "$disk_read_iops" "$disk_min_iops_read"; then
+      echo "[elk_performance_test] FAIL: disk $disk_idx read IOPS ($disk_read_iops) < $disk_min_iops_read"
+      test_fail=1
+    else
+      echo "[elk_performance_test] OK: disk $disk_idx read IOPS ($disk_read_iops) >= $disk_min_iops_read"
+    fi
+  fi
+
+  if [[ "$disk_wa" != "-" ]] && (( disk_logical_write_count > 0 )); then
+    if lt "$disk_wa" "$disk_min_wa"; then
+      echo "[elk_performance_test] FAIL: disk $disk_idx WA ($disk_wa) < $disk_min_wa"
+      test_fail=1
+    elif gt "$disk_wa" "$disk_max_wa"; then
+      echo "[elk_performance_test] FAIL: disk $disk_idx WA ($disk_wa) > $disk_max_wa"
+      test_fail=1
+    else
+      echo "[elk_performance_test] OK: disk $disk_idx WA ($disk_wa) within [$disk_min_wa, $disk_max_wa]"
+    fi
+  fi
+done
+
 if (( test_fail == 1 )); then
   echo "[elk_performance_test] METRICS TEST FAILED"
   exit 1
