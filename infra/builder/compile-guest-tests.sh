@@ -1,6 +1,9 @@
 #!/bin/bash
 source ./builder.sh
 
+version=${EVSSIM_GUEST_TESTS_COMPILE_CONTAINER#ubuntu:}
+export EVSSIM_DOCKER_IMAGE_NAME="$EVSSIM_DOCKER_IMAGE_NAME:$version"
+
 # Build nvme
 evssim_run_at_folder $EVSSIM_NVME_CLI_FOLDER "make clean && make && cp nvme $EVSSIM_DOCKER_ROOT_PATH/$EVSSIM_DIST_FOLDER/nvme"
 
