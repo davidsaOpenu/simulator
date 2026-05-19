@@ -1,11 +1,14 @@
 #!/bin/bash
 source ./builder.sh
 
+evssim_validate_arguments "$0" "$#"
+version="$1"
+
 # Make a fresh copy
-evssim_qemu_fresh_image
+evssim_qemu_fresh_image "$version"
 
 # Run qemu
-evssim_qemu_detached
+evssim_qemu_detached "$version"
 
 # Check SSH keys:
 try_ssh_key () {
