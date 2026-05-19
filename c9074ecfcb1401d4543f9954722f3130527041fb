@@ -269,6 +269,24 @@
     {
       "unresolved": true,
       "key": {
+        "uuid": "826a0f66_6cc3aa2d",
+        "filename": "infra/builder/env.sh",
+        "patchSetId": 1
+      },
+      "lineNbr": 13,
+      "author": {
+        "id": 1039461
+      },
+      "writtenOn": "2026-05-19T18:50:14Z",
+      "side": 1,
+      "message": "I will clarify what I mean. With my suggestion you will be able to set the EVSSIM_VERSION_CONFIGURATION_ID as an environement variable in your shell with \"export VAR\u003d3\" before \"source env.sh\" and then env.sh will supply the default value only if it was not already set in the environment by the caller. This way you will be able to set you config ID in your workspace without modifying any file.",
+      "parentUuid": "dbd59f85_9f9a2a8c",
+      "revId": "c9074ecfcb1401d4543f9954722f3130527041fb",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
+    },
+    {
+      "unresolved": true,
+      "key": {
         "uuid": "487fa145_11a54542",
         "filename": "infra/builder/load_config.sh",
         "patchSetId": 1
