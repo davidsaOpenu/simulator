@@ -18,6 +18,15 @@ ELK_DIR="$EVSSIM_ROOT_PATH/simulator/infra/ELK"
 ELK_INSTALL="$ELK_DIR/install_and_start_elk.sh"
 ELK_CLEAN="$ELK_DIR/elk_cleanup.sh"
 
+VERSION_QEMU_IMAGE="${EVSSIM_GUEST_TESTS_GUEST_VM_IMAGE#ubuntu:}"
+VERSION_COMPILE_KERNEL="${EVSSIM_KERNEL_COMPILE_CONTAINER#ubuntu:}"
+VERSION_COMPILE_QEMU="${EVSSIM_QEMU_COMPILE_CONTAINER#ubuntu:}"
+VERSION_COMPILE_HTESTS="${EVSSIM_HOST_TESTS_COMPILE_CONTAINER#ubuntu:}"
+VERSION_COMPILE_GTESTS="${EVSSIM_GUEST_TESTS_COMPILE_CONTAINER#ubuntu:}"
+VERSION_HOST_TESTS="${EVSSIM_HOST_TESTS_RUN_CONTAINER#ubuntu:}"
+VERSION_GUEST_TESTS="${EVSSIM_QEMU_COMPILE_CONTAINER#ubuntu:}"
+VERSION_EXOFS_TEST="${EVSSIM_QEMU_COMPILE_CONTAINER#ubuntu:}"
+
 # sanity checks
 [[ -x "$ELK_INSTALL" ]] || { echo "Missing: $ELK_INSTALL"; exit 1; }
 [[ -x "$ELK_CLEAN"   ]] || { echo "Missing: $ELK_CLEAN";   exit 1; }
@@ -32,17 +41,19 @@ env -u http_proxy -u https_proxy -u HTTP_PROXY -u HTTPS_PROXY tox
 
 # build + sanity
 ./build-docker-image.sh
-./build-qemu-image.sh
-./compile-kernel.sh
-./compile-qemu.sh
-./compile-host-tests.sh
-./compile-guest-tests.sh
-./docker-run-sanity.sh
+./build-qemu-image.sh $VERSION_QEMU_IMAGE $VERSION_QEMU_IMAGE
+./compile-kernel.sh $VERSION_COMPILE_KERNEL
+./compile-qemu.sh $VERSION_COMPILE_QEMU
+./compile-host-tests.sh $VERSION_COMPILE_HTESTS
+./compile-guest-tests.sh $VERSION_COMPILE_GTESTS
+for folder in $EVSSIM_ROOT_PATH/$EVSSIM_CONTAINER_VERSIONS_FOLDER/*; do
+    ./docker-run-sanity.sh "$(basename "$folder")"
+done
 
 # start ELK (absolute paths)
 "$ELK_INSTALL" "$LOGS_DIR" "$ELK_DIR"
 
 # Running Docker Tests
-./docker-test-host.sh
-./docker-test-guest.sh
-./docker-test-exofs.sh
+./docker-test-host.sh $VERSION_HOST_TESTS
+./docker-test-guest.sh $VERSION_GUEST_TESTS
+./docker-test-exofs.sh $VERSION_EXOFS_TEST

@@ -42,12 +42,13 @@ RUN apt-get update && DEBIAN_FRONTEND=noninteractive apt-get -y install \
   bear \
   qemu \
   qemu-kvm \
+  linux-image-generic \
+  libguestfs-tools \
   valgrind \
   curl \
   bc
 
-# Install debootstrap
-RUN DEBIAN_FRONTEND=noninteractive apt-get -y install debootstrap
+RUN update-guestfs-appliance
 
 # Install Gtest
 ENV GTEST_HOME /opt
@@ -67,6 +68,7 @@ RUN rm -rf /etc/kernel/postinst.d/*
 # Copy our folder into the scripts folder
 ADD docker /scripts
 ADD env.sh /scripts
+ADD versions/image-maker /scripts/image-maker
 RUN chmod -R 777 /scripts
 
 # Install python libraries
