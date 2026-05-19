@@ -10,6 +10,7 @@ fi
 #                  eVSSIM version confuguration variables
 ######################################################################################################
 export EVSSIM_VERSIONS_CONFIGURATION="versions"
+export EVSSIM_VERSIONS_CONFIGURATION_ID=2
 # Export:
 #   EVSSIM_KERNEL_BRANCH
 #   EVSSIM_KERNEL_COMPILE_CONTAINER
@@ -20,6 +21,7 @@ export EVSSIM_VERSIONS_CONFIGURATION="versions"
 #   EVSSIM_HOST_TESTS_COMPILE_CONTAINER
 #   EVSSIM_HOST_TESTS_RUN_CONTAINER
 #   EVSSIM_GUEST_TESTS_COMPILE_CONTAINER
+#   EVSSIM_GUEST_TESTS_GUEST_HOST_CONTAINER
 #   EVSSIM_GUEST_TESTS_GUEST_VM_IMAGE
 source load_config.sh
 
@@ -43,6 +45,7 @@ export EVSSIM_ENV_HASH=$(md5sum $EVSSIM_ENV_PATH | cut -d " " -f 1)
 export EVSSIM_SIMULATOR_FOLDER=simulator
 export EVSSIM_ELK_FOLDER=simulator/infra/elk
 export EVSSIM_BUILDER_FOLDER=simulator/infra/builder
+export EVSSIM_CONTAINERS_FOLDER=$EVSSIM_BUILDER_FOLDER/versions/containers
 export EVSSIM_KERNEL_DIST=5.0.0+
 export EVSSIM_KERNEL_FOLDER=kernel
 export EVSSIM_NVME_CLI_FOLDER=nvme-cli

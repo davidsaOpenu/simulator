@@ -1,6 +1,9 @@
 #!/bin/bash
 source ./builder.sh
 
+version=${EVSSIM_GUEST_TESTS_HOST_CONTAINER#ubuntu:}
+export EVSSIM_DOCKER_IMAGE_NAME="$EVSSIM_DOCKER_IMAGE_NAME:$version"
+
 exofs_test() {
     # Make a fresh copy
     evssim_qemu_fresh_image
@@ -17,7 +20,7 @@ exofs_test() {
     set -e
 
     # When debugging you can find trace logs at OUTPUT_DIR
-    evssim_guest_copy $OUTPUT_DIR $OUTPUT_DIR 
+    evssim_guest_copy $OUTPUT_DIR $OUTPUT_DIR
     # Stop qemu and wait
     evssim_qemu_flush_disk
     evssim_qemu_stop

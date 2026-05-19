@@ -1,6 +1,9 @@
 #!/bin/bash
 source ./builder.sh
 
+version=${EVSSIM_QEMU_COMPILE_CONTAINER#ubuntu:}
+export EVSSIM_DOCKER_IMAGE_NAME="$EVSSIM_DOCKER_IMAGE_NAME:$version"
+
 # Configure qemu
 evssim_run_at_folder $EVSSIM_QEMU_FOLDER ./configure \
     --enable-trace-backends=log \

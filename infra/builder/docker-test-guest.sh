@@ -1,6 +1,9 @@
 #!/bin/bash
 source ./builder.sh
 
+version=${EVSSIM_GUEST_TESTS_HOST_CONTAINER#ubuntu:}
+export EVSSIM_DOCKER_IMAGE_NAME="$EVSSIM_DOCKER_IMAGE_NAME:$version"
+
 guest_test() {
     local output=$1
     local strategy=$2

@@ -84,7 +84,7 @@ load_config() {
     load_config_section "QEMU" "$cfg_query | .qemu" "$config_file" "branch" "compileContainer" || return 1
     load_config_section "NVME_CLI" "$cfg_query | .[\"nvme-cli\"]" "$config_file" "branch" "compileContainer" || return 1
     load_config_section "HOST_TESTS" "$cfg_query | .hostTests" "$config_file" "compileContainer" "runContainer" || return 1
-    load_config_section "GUEST_TESTS" "$cfg_query | .guestTests" "$config_file" "compileContainer" || return 1
+    load_config_section "GUEST_TESTS" "$cfg_query | .guestTests" "$config_file" "hostContainer" "compileContainer" || return 1
 
     # Load and resolve guest VM image reference dynamically
     local guest_vm_ref=$(jq -r "$cfg_query | .guestTests.guestVMImage" "$config_file" 2>/dev/null)
@@ -117,6 +117,7 @@ load_config() {
     echo ""
     echo "Guest Tests:"
     echo "  Compile Container: $EVSSIM_GUEST_TESTS_COMPILE_CONTAINER"
+    echo "  Host Container: $EVSSIM_GUEST_TESTS_HOST_CONTAINER"
     echo "  VM Image: $EVSSIM_GUEST_TESTS_GUEST_VM_IMAGE"
     echo "=========================================="
 
@@ -124,7 +125,7 @@ load_config() {
 }
 
 # Load default config (config 2)
-if ! load_config 2; then
+if ! load_config "$EVSSIM_VERSIONS_CONFIGURATION_ID"; then
     echo "ERROR: Failed to load configuration"
     exit 1
 fi
