@@ -285,6 +285,24 @@
       "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "5c95840d_6a0c6804",
+        "filename": "infra/builder/env.sh",
+        "patchSetId": 1
+      },
+      "lineNbr": 13,
+      "author": {
+        "id": 1039371
+      },
+      "writtenOn": "2026-05-19T18:58:11Z",
+      "side": 1,
+      "message": "I see what you mean, in that case no, that just means you will have to do `EVSSIM_VERSION_CONFIGURATION_ID\u003d\u003cyour-id\u003e` **every** time you open the project and before doing `source env.sh`, instead of setting it **once** in the script. I will just be annoying and easy to forget, better to set once and be done. Sorry, wont-fix.\n\nBut appreciate the suggestion!",
+      "parentUuid": "826a0f66_6cc3aa2d",
+      "revId": "c9074ecfcb1401d4543f9954722f3130527041fb",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "487fa145_11a54542",
