@@ -1,4 +1,4 @@
-FROM ubuntu:26.04
+FROM ubuntu:14.04
 
 # Install base packages
 RUN apt-get update && DEBIAN_FRONTEND=noninteractive apt-get -y install \
@@ -7,7 +7,7 @@ RUN apt-get update && DEBIAN_FRONTEND=noninteractive apt-get -y install \
   vim \
   wget \
   build-essential \
-  gcc \
+  gcc-4.6 \
   cmake \
   g++ \
   unzip \
@@ -15,24 +15,21 @@ RUN apt-get update && DEBIAN_FRONTEND=noninteractive apt-get -y install \
   libxen-dev \
   zlib1g-dev \
   libsdl-image1.2-dev \
-  libgnutls28-dev \
+  libgnutls-dev \
   libvncserver-dev \
   libpci-dev \
   libaio-dev \
   libssl-dev \
   sshpass \
-  libvirt-daemon-system \
-  libvirt-clients \
-  python3 \
-  python3-pip \
-  python3-setuptools \
-  python-is-python3 \
+  libvirt-bin \
+  python-pip \
+  python-setuptools \
   libxml++2.6-dev \
   libboost-all-dev \
   eatmydata \
   strace \
   lsof \
-#  eclipse-cdt \ should find an alternative
+  eclipse-cdt \
   libjson-c-dev \
   flex \
   bison \
@@ -43,33 +40,26 @@ RUN apt-get update && DEBIAN_FRONTEND=noninteractive apt-get -y install \
 # Install build packages
 RUN apt-get update && DEBIAN_FRONTEND=noninteractive apt-get -y install \
   bear \
-  qemu-system-x86 \
-  qemu-utils \
-  qemu-block-extra \
-  ovmf \
-  cpu-checker \
-  bridge-utils \
+  qemu \
+  qemu-kvm \
+  linux-image-generic \
+  libguestfs-tools \
   valgrind \
   curl \
   bc
 
-
-# Install debootstrap
-RUN DEBIAN_FRONTEND=noninteractive apt-get -y install debootstrap
+RUN update-guestfs-appliance
 
 # Install Gtest
-ENV GTEST_HOME=/opt
+ENV GTEST_HOME /opt
 RUN wget -qO- https://github.com/google/googletest/archive/release-1.7.0.tar.gz |tar xz -C $GTEST_HOME/ && mv $GTEST_HOME/googletest-release-1.7.0 $GTEST_HOME/gtest
-RUN mkdir -p $GTEST_HOME/gtest/lib && \
-    cd $GTEST_HOME/gtest/lib && \
-    cmake -DCMAKE_POLICY_VERSION_MINIMUM=3.5 .. && \
-    make
+RUN mkdir -p $GTEST_HOME/gtest/lib && cd $GTEST_HOME/gtest/lib && cmake .. && make
 
 # Install websockets
-RUN apt-get update && DEBIAN_FRONTEND=noninteractive apt-get -y install \
-    libwebsockets-dev
+RUN export GIT_SSL_NO_VERIFY=1 && git clone --branch v4.1-stable https://github.com/warmcat/libwebsockets.git /opt/libwebsockets && \
+    cd /opt/libwebsockets && cmake . && make && make install && ldconfig
 
-RUN apt-get update && DEBIAN_FRONTEND=noninteractive apt-get -y install \
+RUN apt-get update && DEBIAN_FRONTEND=noninteractive apt-get install -y \
     libpixman-1-dev
 
 # Remove kernel scripts
@@ -78,14 +68,11 @@ RUN rm -rf /etc/kernel/postinst.d/*
 # Copy our folder into the scripts folder
 ADD docker /scripts
 ADD env.sh /scripts
+ADD versions/image-maker /scripts/image-maker
 RUN chmod -R 777 /scripts
 
 # Install python libraries
-RUN pip install --break-system-packages -r /scripts/requirements.txt
-
-RUN apt-get -y install \
-  sudo \
-  ninja-build
+RUN pip install -r /scripts/requirements.txt
 
 VOLUME /code
 WORKDIR /code
