@@ -251,6 +251,24 @@
     {
       "unresolved": true,
       "key": {
+        "uuid": "dbd59f85_9f9a2a8c",
+        "filename": "infra/builder/env.sh",
+        "patchSetId": 1
+      },
+      "lineNbr": 13,
+      "author": {
+        "id": 1039371
+      },
+      "writtenOn": "2026-05-19T18:45:27Z",
+      "side": 1,
+      "message": "Without this change you still have to edit a file, you just need to edit `load_config.sh` which is less straightforward and undocumented. Editing `env.sh` is where you would expect to find the ID, because that\u0027s also where you would change any other environment thing.\n\nTo change it from the command line would require a script (e.g. `docker-config-set-id.sh \u003cconfig-id\u003e`) which would edit the `env.sh` file - Which isn\u0027t hard to write, but it\u0027s not that much easier than going into `env.sh` and changing a value, especially if it will be documented; or a script which exports the ID into bash which would just make you `source` two scripts now every time you work instead of one, which also isn\u0027t a good solution.\n\nThe `VAR\u003d${VAR:-default}` still isn\u0027t related here as this is the first time the value is being set, clarification needed.",
+      "parentUuid": "012c1e95_0cd8afce",
+      "revId": "c9074ecfcb1401d4543f9954722f3130527041fb",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
+    },
+    {
+      "unresolved": true,
+      "key": {
         "uuid": "487fa145_11a54542",
         "filename": "infra/builder/load_config.sh",
         "patchSetId": 1
