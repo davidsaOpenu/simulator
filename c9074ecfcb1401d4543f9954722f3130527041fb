@@ -54,6 +54,24 @@
       "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "f3765b4f_ae44e3b3",
+        "filename": "infra/builder/build-docker-image.sh",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 1039461
+      },
+      "writtenOn": "2026-05-19T18:27:04Z",
+      "side": 1,
+      "message": "Acknowledged",
+      "parentUuid": "bd55a191_d2e732f7",
+      "revId": "c9074ecfcb1401d4543f9954722f3130527041fb",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "55f36fda_8e9772f7",
@@ -85,6 +103,24 @@
       "side": 1,
       "message": "This comment made me think that builder.sh might already do that, went to check, and it already does `set -e` but not `set -o pipefail`, So I will add that to builder.",
       "parentUuid": "55f36fda_8e9772f7",
+      "revId": "c9074ecfcb1401d4543f9954722f3130527041fb",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "1a3b83d8_925a54c3",
+        "filename": "infra/builder/build-docker-image.sh",
+        "patchSetId": 1
+      },
+      "lineNbr": 4,
+      "author": {
+        "id": 1039461
+      },
+      "writtenOn": "2026-05-19T18:27:04Z",
+      "side": 1,
+      "message": "Acknowledged",
+      "parentUuid": "4bad8b57_128e23b4",
       "revId": "c9074ecfcb1401d4543f9954722f3130527041fb",
       "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
     },
@@ -124,6 +160,24 @@
       "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "52951f05_6cf52e1a",
+        "filename": "infra/builder/compile-host-tests.sh",
+        "patchSetId": 1
+      },
+      "lineNbr": 5,
+      "author": {
+        "id": 1039461
+      },
+      "writtenOn": "2026-05-19T18:27:04Z",
+      "side": 1,
+      "message": "Acknowledged",
+      "parentUuid": "7121bcc3_dfe118b6",
+      "revId": "c9074ecfcb1401d4543f9954722f3130527041fb",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "f2b60b2a_eb44faa2",
@@ -155,6 +209,24 @@
       "side": 1,
       "message": "It already is a default value there is no value before this, ${VAR:-default_value} is for when you want to use VAR but it might be uninitialized (or empty). In this case we are initializing the variable.\nWe are setting the value, not getting it, the feature you mentioned is for getting a value, not setting it.",
       "parentUuid": "f2b60b2a_eb44faa2",
+      "revId": "c9074ecfcb1401d4543f9954722f3130527041fb",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "012c1e95_0cd8afce",
+        "filename": "infra/builder/env.sh",
+        "patchSetId": 1
+      },
+      "lineNbr": 13,
+      "author": {
+        "id": 1039461
+      },
+      "writtenOn": "2026-05-19T18:27:04Z",
+      "side": 1,
+      "message": "The purpose of this suggestion is to allow for us to set the configuration ID from the command line instead of having to edit the file.",
+      "parentUuid": "7b7e1f14_1ca9df2c",
       "revId": "c9074ecfcb1401d4543f9954722f3130527041fb",
       "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
     },
@@ -229,6 +301,42 @@
       "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "685aa31f_96a95429",
+        "filename": "infra/builder/load_config.sh",
+        "patchSetId": 1
+      },
+      "lineNbr": 120,
+      "author": {
+        "id": 1039461
+      },
+      "writtenOn": "2026-05-19T18:27:04Z",
+      "side": 1,
+      "message": "Acknowledged",
+      "parentUuid": "6666a83b_e0d11c40",
+      "revId": "c9074ecfcb1401d4543f9954722f3130527041fb",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "62330c84_439651a3",
+        "filename": "infra/builder/load_config.sh",
+        "patchSetId": 1
+      },
+      "lineNbr": 120,
+      "author": {
+        "id": 1039461
+      },
+      "writtenOn": "2026-05-19T18:27:04Z",
+      "side": 1,
+      "message": "Acknowledged",
+      "parentUuid": "e71f6fef_2b0de51e",
+      "revId": "c9074ecfcb1401d4543f9954722f3130527041fb",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "ec9d6660_e642d317",
@@ -260,6 +368,24 @@
       "side": 1,
       "message": "In the future yes, but the maman card mentions doing it with literal values so this is what it is in the meantime.\n(For Clarification: This is to not affect the maman mainly)",
       "parentUuid": "ec9d6660_e642d317",
+      "revId": "c9074ecfcb1401d4543f9954722f3130527041fb",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "23d18f0f_137f49f6",
+        "filename": "infra/builder/run-ci.sh",
+        "patchSetId": 1
+      },
+      "lineNbr": 40,
+      "author": {
+        "id": 1039461
+      },
+      "writtenOn": "2026-05-19T18:27:04Z",
+      "side": 1,
+      "message": "Acknowledged",
+      "parentUuid": "42e7cc1e_7d45c549",
       "revId": "c9074ecfcb1401d4543f9954722f3130527041fb",
       "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
     },
