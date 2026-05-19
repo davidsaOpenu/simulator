@@ -1,17 +1,20 @@
 #!/bin/bash
 source ./builder.sh
 
+evssim_validate_version_arguments "$0" "${1:-}" "$#"
+version="$1"
+
 # Make a fresh copy
-evssim_qemu_fresh_image
+evssim_qemu_fresh_image "$version"
 
 # Run qemu
-evssim_qemu_detached
+evssim_qemu_detached "$version"
 
 # Check SSH keys:
 try_ssh_key () {
 	local key="$1"
 	# true always returns 0
-	ssh -q -i "$key" -p 2222 -o ConnectionAttempts=1024 -o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no -o PasswordAuthentication=no -o PubkeyAcceptedKeyTypes=+ssh-rsa,ssh-ed25519 $EVSSIM_QEMU_UBUNTU_USERNAME@localhost true
+	ssh -q -i "$key" -p $EVSSIM_QEMU_SSH_PORT -o ConnectionAttempts=1024 -o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no -o PasswordAuthentication=no -o PubkeyAcceptedKeyTypes=+ssh-rsa,ssh-ed25519 $EVSSIM_QEMU_UBUNTU_USERNAME@localhost true
 }
 
 ssh_key_works=false

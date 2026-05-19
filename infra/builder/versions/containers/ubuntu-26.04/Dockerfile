@@ -2,6 +2,9 @@ FROM ubuntu:26.04
 
 # Install base packages
 RUN apt-get update && DEBIAN_FRONTEND=noninteractive apt-get -y install \
+  sudo \
+  initramfs-tools \
+  rsync \
   software-properties-common \
   git \
   vim \
@@ -12,6 +15,7 @@ RUN apt-get update && DEBIAN_FRONTEND=noninteractive apt-get -y install \
   g++ \
   unzip \
   libsqlite3-dev \
+  libncurses-dev \
   libxen-dev \
   zlib1g-dev \
   libsdl-image1.2-dev \
@@ -26,19 +30,32 @@ RUN apt-get update && DEBIAN_FRONTEND=noninteractive apt-get -y install \
   python3 \
   python3-pip \
   python3-setuptools \
+  python3-requests \
   python-is-python3 \
   libxml++2.6-dev \
   libboost-all-dev \
   eatmydata \
   strace \
   lsof \
-#  eclipse-cdt \ should find an alternative
   libjson-c-dev \
   flex \
   bison \
   gdbserver \
   libelf-dev \
-  uuid-dev
+  uuid-dev \
+  meson \
+  ninja-build
+
+# Replace uutils with the more stable gnu utils
+# CI fails with the new uutils, at the very least sudo's -E (preserve environment)
+# flag which is crucial for many different scripts (allows the usage of the
+# EVSSIM_ environment variables from within sudo'd commands) self reports as
+# not being supported by uutils
+RUN apt update && DEBIAN_FRONTEND=noninteractive apt -y --allow-remove-essential install \
+  coreutils-from-gnu \
+  coreutils-from-uutils- \
+  rust-coreutils- \
+  sudo-rs-
 
 # Install build packages
 RUN apt-get update && DEBIAN_FRONTEND=noninteractive apt-get -y install \
@@ -49,13 +66,17 @@ RUN apt-get update && DEBIAN_FRONTEND=noninteractive apt-get -y install \
   ovmf \
   cpu-checker \
   bridge-utils \
+  linux-image-virtual \
+  libguestfs-tools \
   valgrind \
   curl \
   bc
 
-
-# Install debootstrap
-RUN DEBIAN_FRONTEND=noninteractive apt-get -y install debootstrap
+# Add coreutils-from-gnu to the list of pachages supermin copies into the
+# mini "virtual machine" it runs for the guestfs tools.
+# Without this, supermin's virtual machine runs without coreutils and hence
+# can't do anything.
+RUN echo 'coreutils-from-gnu' >> /usr/lib/x86_64-linux-gnu/guestfs/supermin.d/packages
 
 # Install Gtest
 ENV GTEST_HOME=/opt
@@ -66,8 +87,8 @@ RUN mkdir -p $GTEST_HOME/gtest/lib && \
     make
 
 # Install websockets
-RUN apt-get update && DEBIAN_FRONTEND=noninteractive apt-get -y install \
-    libwebsockets-dev
+RUN export GIT_SSL_NO_VERIFY=1 && git clone --branch v4.5-stable https://github.com/warmcat/libwebsockets.git /opt/libwebsockets && \
+    cd /opt/libwebsockets && cmake -DCMAKE_C_FLAGS="-Wno-error=discarded-qualifiers" . && make && make install && ldconfig
 
 RUN apt-get update && DEBIAN_FRONTEND=noninteractive apt-get -y install \
     libpixman-1-dev
@@ -75,17 +96,14 @@ RUN apt-get update && DEBIAN_FRONTEND=noninteractive apt-get -y install \
 # Remove kernel scripts
 RUN rm -rf /etc/kernel/postinst.d/*
 
+# Delete default ubuntu user
+RUN userdel --remove ubuntu
+
 # Copy our folder into the scripts folder
 ADD docker /scripts
 ADD env.sh /scripts
+ADD versions/image-maker /scripts/image-maker
 RUN chmod -R 777 /scripts
-
-# Install python libraries
-RUN pip install --break-system-packages -r /scripts/requirements.txt
-
-RUN apt-get -y install \
-  sudo \
-  ninja-build
 
 VOLUME /code
 WORKDIR /code
