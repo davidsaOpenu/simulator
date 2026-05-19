@@ -15,11 +15,11 @@ egrep -c vmx /proc/cpuinfo >/dev/null && export VIRTUALIZATION=intel
 egrep -c svm /proc/cpuinfo >/dev/null && export VIRTUALIZATION=amd
 
 # Check virtualization
-if [ -z $VIRTUALIZATION ]; then
+if [ -z ${VIRTUALIZATION:-} ]; then
     echo "ERROR Virtualization not found"; exit 1
 fi
 
-if ! virt-host-validate >/dev/null; then
+if ! virt-host-validate qemu >/dev/null; then
     echo "ERROR Virtualization test failed. Run virt-host-validate \
           from the CLI and fix any reported issues."; exit 1
 fi
@@ -40,7 +40,7 @@ fi
 chmod 777 /dev/kvm
 
 # Execute intended binary
-if [ ! -z $EVSSIM_RUN_SUDO ]; then
+if [ ! -z ${EVSSIM_RUN_SUDO:-} ]; then
     exec "$@"
 else
     exec sudo -H -E -u external "$@"
