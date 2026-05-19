@@ -20,6 +20,24 @@
     {
       "unresolved": true,
       "key": {
+        "uuid": "e71db9d0_56d1f6f3",
+        "filename": "infra/builder/build-docker-image.sh",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 1039371
+      },
+      "writtenOn": "2026-05-19T18:07:25Z",
+      "side": 1,
+      "message": "Possible, considered it, don\u0027t see a good \"enough\" reason for it, but possible",
+      "parentUuid": "40a0f657_69f6a14b",
+      "revId": "c9074ecfcb1401d4543f9954722f3130527041fb",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
+    },
+    {
+      "unresolved": true,
+      "key": {
         "uuid": "55f36fda_8e9772f7",
         "filename": "infra/builder/build-docker-image.sh",
         "patchSetId": 1
@@ -31,6 +49,24 @@
       "writtenOn": "2026-05-19T17:38:38Z",
       "side": 1,
       "message": "Nice! maybe put this in builder.sh to apply for all build scripts. Also set the pipefail option in case of failures in bash pipelines.",
+      "revId": "c9074ecfcb1401d4543f9954722f3130527041fb",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "4bad8b57_128e23b4",
+        "filename": "infra/builder/build-docker-image.sh",
+        "patchSetId": 1
+      },
+      "lineNbr": 4,
+      "author": {
+        "id": 1039371
+      },
+      "writtenOn": "2026-05-19T18:07:25Z",
+      "side": 1,
+      "message": "This comment made me think that builder.sh might already do that, went to check, and it already does `set -e` but not `set -o pipefail`, So I will add that to builder.",
+      "parentUuid": "55f36fda_8e9772f7",
       "revId": "c9074ecfcb1401d4543f9954722f3130527041fb",
       "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
     },
@@ -54,6 +90,24 @@
     {
       "unresolved": true,
       "key": {
+        "uuid": "7121bcc3_dfe118b6",
+        "filename": "infra/builder/compile-host-tests.sh",
+        "patchSetId": 1
+      },
+      "lineNbr": 5,
+      "author": {
+        "id": 1039371
+      },
+      "writtenOn": "2026-05-19T18:07:25Z",
+      "side": 1,
+      "message": "David explicitly asked in the Maman cards not to touch builder.sh script yet, that\u0027s why I\u0027m doing it like this, I don\u0027t see it as a red flag though, it\u0027s defenitely a hack though. The `export` doesn\u0027t persist once the script exits so it\u0027s a very short-lived change.",
+      "parentUuid": "048e9315_adf8b1c2",
+      "revId": "c9074ecfcb1401d4543f9954722f3130527041fb",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
+    },
+    {
+      "unresolved": true,
+      "key": {
         "uuid": "f2b60b2a_eb44faa2",
         "filename": "infra/builder/env.sh",
         "patchSetId": 1
@@ -65,6 +119,24 @@
       "writtenOn": "2026-05-19T17:38:38Z",
       "side": 1,
       "message": "I really like this change! you can make this truly a default value by using the base feature:\nVAR\u003d\"${VAR:-default_value}\"",
+      "revId": "c9074ecfcb1401d4543f9954722f3130527041fb",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "7b7e1f14_1ca9df2c",
+        "filename": "infra/builder/env.sh",
+        "patchSetId": 1
+      },
+      "lineNbr": 13,
+      "author": {
+        "id": 1039371
+      },
+      "writtenOn": "2026-05-19T18:07:25Z",
+      "side": 1,
+      "message": "It already is a default value there is no value before this, ${VAR:-default_value} is for when you want to use VAR but it might be uninitialized (or empty). In this case we are initializing the variable.\nWe are setting the value, not getting it, the feature you mentioned is for getting a value, not setting it.",
+      "parentUuid": "f2b60b2a_eb44faa2",
       "revId": "c9074ecfcb1401d4543f9954722f3130527041fb",
       "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
     },
@@ -105,6 +177,42 @@
     {
       "unresolved": true,
       "key": {
+        "uuid": "e71f6fef_2b0de51e",
+        "filename": "infra/builder/load_config.sh",
+        "patchSetId": 1
+      },
+      "lineNbr": 120,
+      "author": {
+        "id": 1039371
+      },
+      "writtenOn": "2026-05-19T18:07:25Z",
+      "side": 1,
+      "message": "You\u0027re correct, in env.sh it\u0027s commented as `EVSSIM_GUEST_TESTS_GUEST_HOST_CONTAINER` and here it\u0027s `EVSSIM_GUEST_TESTS_HOST_CONTAINER`, will fix.",
+      "parentUuid": "033c15c5_ace8d9c2",
+      "revId": "c9074ecfcb1401d4543f9954722f3130527041fb",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "6666a83b_e0d11c40",
+        "filename": "infra/builder/load_config.sh",
+        "patchSetId": 1
+      },
+      "lineNbr": 120,
+      "author": {
+        "id": 1039371
+      },
+      "writtenOn": "2026-05-19T18:07:25Z",
+      "side": 1,
+      "message": "I understand, but terminology changes is out of the scope of my commit. wont-fix",
+      "parentUuid": "487fa145_11a54542",
+      "revId": "c9074ecfcb1401d4543f9954722f3130527041fb",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
+    },
+    {
+      "unresolved": true,
+      "key": {
         "uuid": "ec9d6660_e642d317",
         "filename": "infra/builder/run-ci.sh",
         "patchSetId": 1
@@ -116,6 +224,24 @@
       "writtenOn": "2026-05-19T17:38:38Z",
       "side": 1,
       "message": "Should\u0027t the version be detemined from the config.json file?",
+      "revId": "c9074ecfcb1401d4543f9954722f3130527041fb",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "42e7cc1e_7d45c549",
+        "filename": "infra/builder/run-ci.sh",
+        "patchSetId": 1
+      },
+      "lineNbr": 40,
+      "author": {
+        "id": 1039371
+      },
+      "writtenOn": "2026-05-19T18:07:25Z",
+      "side": 1,
+      "message": "In the future yes, but the maman card mentions doing it with literal values so this is what it is in the meantime.\n(For Clarification: This is to not affect the maman mainly)",
+      "parentUuid": "ec9d6660_e642d317",
       "revId": "c9074ecfcb1401d4543f9954722f3130527041fb",
       "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
     },
