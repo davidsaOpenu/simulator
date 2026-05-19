@@ -1,12 +1,15 @@
 #!/bin/bash
 source ./builder.sh
 
+evssim_validate_arguments "$0" "$#"
+version="$1"
+
 exofs_test() {
     # Make a fresh copy
-    evssim_qemu_fresh_image
+    evssim_qemu_fresh_image "$version"
 
     # Run qemu with test specific configuration
-    EVSSIM_RUNTIME_STORAGE_STRATEGY=2 EVSSIM_QEMU_SIMULATOR_ENABLED=yes evssim_qemu_detached
+    EVSSIM_RUNTIME_STORAGE_STRATEGY=2 EVSSIM_QEMU_SIMULATOR_ENABLED=yes evssim_qemu_detached "$version"
 
     # Run tests inside the guest
     echo "INFO Running exofs test"
@@ -17,7 +20,7 @@ exofs_test() {
     set -e
 
     # When debugging you can find trace logs at OUTPUT_DIR
-    evssim_guest_copy $OUTPUT_DIR $OUTPUT_DIR 
+    evssim_copy_from_guest $OUTPUT_DIR $OUTPUT_DIR
     # Stop qemu and wait
     evssim_qemu_flush_disk
     evssim_qemu_stop

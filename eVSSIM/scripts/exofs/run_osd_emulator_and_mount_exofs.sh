@@ -17,9 +17,7 @@ PID=0x10000
 cd guest
 ./nvme set-feature $NVME_DEV -f 0xc0 --value=1
 
-# Install dependencies then creating client
-echo "> Installing dependencies..."
-sudo apt install -y open-iscsi open-iscsi-utils make gcc strace fio bc
+# Creating client
 pushd /home/esd/exofs/tracing_the_kernel/lab && make && popd
 
 echo "> Setup OSD emulation..."
