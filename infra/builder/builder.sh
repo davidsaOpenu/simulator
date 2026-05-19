@@ -1,5 +1,6 @@
 #!/bin/bash
-set -e
+
+set -eu -o pipefail
 
 declare -x EVSSIM_DOCKER_UUID
 
@@ -425,4 +426,3 @@ evssim_guest_copy () {
     OUTPUT_FILE_PATH=$2
     scp -r -o ConnectionAttempts=1024 -o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no -o PasswordAuthentication=no -o PubkeyAcceptedKeyTypes=+ssh-rsa -i $EVSSIM_ROOT_PATH/$EVSSIM_BUILDER_FOLDER/docker/id_rsa -P 2222 $EVSSIM_QEMU_UBUNTU_USERNAME@localhost:$DOCKET_FILE_PATH $OUTPUT_FILE_PATH
 }
-
