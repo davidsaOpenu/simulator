@@ -38,6 +38,24 @@
     {
       "unresolved": true,
       "key": {
+        "uuid": "bd55a191_d2e732f7",
+        "filename": "infra/builder/build-docker-image.sh",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 1039371
+      },
+      "writtenOn": "2026-05-19T18:13:11Z",
+      "side": 1,
+      "message": "Edit: Checked now - Multiple files touch or mention `build-docker-image.sh`, for the sake of keeping this commit relatively small and self-relevant: wont-fix.",
+      "parentUuid": "e71db9d0_56d1f6f3",
+      "revId": "c9074ecfcb1401d4543f9954722f3130527041fb",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
+    },
+    {
+      "unresolved": true,
+      "key": {
         "uuid": "55f36fda_8e9772f7",
         "filename": "infra/builder/build-docker-image.sh",
         "patchSetId": 1
