@@ -1,6 +1,9 @@
 #!/bin/bash
 source ./builder.sh
 
+version=${EVSSIM_GUEST_TESTS_HOST_CONTAINER#ubuntu:}
+export EVSSIM_DOCKER_IMAGE_NAME="$EVSSIM_DOCKER_IMAGE_NAME:$version"
+
 guest_test() {
     local output=$1
     local strategy=$2
@@ -40,6 +43,7 @@ guest_test() {
 
 # Configure directory base
 test_directory_base="$EVSSIM_DOCKER_ROOT_PATH/$EVSSIM_LOGS_FOLDER/tests/$(date +'%Y-%m-%d-%H-%M-%S')"
+test_index=0
 
 # Run disk tests
 guest_test "$test_directory_base" 1 yes nvme_compliance_tests
