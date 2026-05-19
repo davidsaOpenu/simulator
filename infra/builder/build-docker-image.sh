@@ -3,25 +3,10 @@ set -e
 
 source ./builder.sh
 
-# Require explicit version when calling the script
-UBUNTU_VERSION="$1"
-case "$UBUNTU_VERSION" in
-	14.04|26.04)
-		;;
-	*)
-	echo "ERROR unsupported qemu compile version: $UBUNTU_VERSION"
-	echo "Usage: $0 [14.04|26.04]"
-	exit 1
-	;;
-esac
+# Build the image
 
-DOCKERFILE="$EVSSIM_BUILDER_FOLDER/versions/containers/$UBUNTU_VERSION/Dockerfile"
-docker build \
-	-t "$EVSSIM_DOCKER_IMAGE_NAME:$UBUNTU_VERSION" \
-	-f "$DOCKERFILE" \
-	"$EVSSIM_BUILDER_FOLDER"
-
-# Set latest tag to use 14.04 til we migrate to 26.04 fully
-if [ "$UBUNTU_VERSION" = "14.04" ]; then
-    docker tag "$EVSSIM_DOCKER_IMAGE_NAME:14.04" "$EVSSIM_DOCKER_IMAGE_NAME"
-fi
+cd $EVSSIM_BUILDER_FOLDER
+for folder in $EVSSIM_ROOT_PATH/$EVSSIM_CONTAINER_VERSIONS_FOLDER/*; do
+	version=$(basename "$folder")
+	docker build -t "$EVSSIM_DOCKER_IMAGE_NAME:$version" -f "$folder/Dockerfile" .
+done

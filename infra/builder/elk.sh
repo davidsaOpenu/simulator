@@ -6,7 +6,7 @@ declare -x KIBANA_DOCKER_UUID
 declare -x FILEBEAT_DOCKER_UUID
 
 # Verify environment is loaded
-if [ -z $EVSSIM_ENVIRONMENT ]; then
+if [ -z ${EVSSIM_ENVIRONMENT:-} ]; then
     echo "ERROR Builder not running in evssim environment. Please execute 'source ./env.sh' first"
     exit 1
 fi
@@ -18,8 +18,8 @@ if [ "$UID" -eq "0" ]; then
 fi
 
 # Warn if environment changed
-if [ -z $EVSSIM_ENV_PATH ]; then
-    echo "ERORR Missing environment file path"
+if [ -z ${EVSSIM_ENV_PATH:-} ]; then
+    echo "ERROR Missing environment file path"
     exit 1
 elif [[ $(md5sum $EVSSIM_ENV_PATH | cut -d " " -f 1) != $EVSSIM_ENV_HASH ]]; then
     echo "WARNING Environment file hash changed. Please reload using 'source ./env.sh'"
@@ -27,12 +27,12 @@ fi
 
 # Check for docker support
 if ! which docker >/dev/null; then
-    echo "ERORR Missing docker configuration"
+    echo "ERROR Missing docker configuration"
     exit 1
 fi
 
 if ! docker ps 2>/dev/null >/dev/null; then
-    echo "ERORR Docker has no permissions. Consider adding user to docker group. Logout and login afterwards."
+    echo "ERROR Docker has no permissions. Consider adding user to docker group. Logout and login afterwards."
     echo "      $ sudo groupadd docker"
     echo "      $ sudo usermod -aG docker $USER"
     exit 1
@@ -81,7 +81,7 @@ evssim_elk_run_filebeat() {
     if [ -e "${EVSSIM_ROOT_PATH}/${EVSSIM_LOGS_FOLDER}/meta.json" ]; then rm "${EVSSIM_ROOT_PATH}/${EVSSIM_LOGS_FOLDER}/meta.json"; fi
     touch "${EVSSIM_ROOT_PATH}/${EVSSIM_LOGS_FOLDER}/meta.json"
     echo "{\"version\":\"1\"}" >> "${EVSSIM_ROOT_PATH}/${EVSSIM_LOGS_FOLDER}/meta.json"
-    
+
     export FILEBEAT_DOCKER_UUID=$(\
             docker run --rm --env ELK_ELASTICSEARCH_EXTERNAL_PORT \
             --env ELK_ELASTICSEARCH_HOSTNAME=host.docker.internal \

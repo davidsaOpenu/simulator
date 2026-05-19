@@ -1,6 +1,11 @@
 #!/bin/bash
 source ./builder.sh
 
+evssim_validate_version_arguments "$0" "${1:-}" "$#"
+version="$1"
+
+internal_image_path="$EVSSIM_DOCKER_ROOT_PATH/$EVSSIM_DIST_FOLDER/$EVSSIM_QEMU_IMAGE"
+
 guest_test() {
     local output=$1
     local strategy=$2
@@ -10,10 +15,10 @@ guest_test() {
     test_index=$(($test_index+1))
 
     # Make a fresh copy
-    evssim_qemu_fresh_image
+    evssim_qemu_fresh_image "$version"
 
     # Run qemu with test specific configuration
-    EVSSIM_RUNTIME_STORAGE_STRATEGY=$strategy EVSSIM_QEMU_SIMULATOR_ENABLED=$simulator evssim_qemu_detached
+    EVSSIM_RUNTIME_STORAGE_STRATEGY=$strategy EVSSIM_QEMU_SIMULATOR_ENABLED=$simulator evssim_qemu_detached "$version"
 
     # Run tests inside the guest
     echo "INFO Running test id=$test_index strategy=$strategy simulator=$simulator test=$test_name"
@@ -28,7 +33,10 @@ guest_test() {
 
     # Create test directory and gather results
     test_directory=$test_directory_base/run-$test_index-strategy-$strategy-test-$test_name
-    evssim_run_mounted "mkdir -p $test_directory && rsync -qrt --ignore-missing-args ./guest/Logs $test_directory/"
+    evssim_run "$version" "mkdir -p /tmp/guest-logs \
+        && sudo virt-copy-out -a $internal_image_path -i $EVSSIM_GUEST_HOME_PATH/guest/Logs /tmp/guest-logs \
+	&& mkdir -p $test_directory_base \
+	&& mv /tmp/guest-logs/Logs $test_directory"
 
     # Fail if tests fails
     if [ $test_rc -ne 0 ]; then
@@ -40,6 +48,7 @@ guest_test() {
 
 # Configure directory base
 test_directory_base="$EVSSIM_DOCKER_ROOT_PATH/$EVSSIM_LOGS_FOLDER/tests/$(date +'%Y-%m-%d-%H-%M-%S')"
+test_index=0
 
 # Run disk tests
 guest_test "$test_directory_base" 1 yes nvme_compliance_tests

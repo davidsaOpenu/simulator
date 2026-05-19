@@ -31,20 +31,19 @@ trap "$ELK_CLEAN --complete-cleanup || true" EXIT
 env -u http_proxy -u https_proxy -u HTTP_PROXY -u HTTPS_PROXY tox
 
 # build + sanity
-./build-docker-image.sh 26.04
-./build-docker-image.sh 14.04
-./build-qemu-image.sh
-./compile-kernel.sh
-./compile-qemu.sh 26.04
-./compile-qemu.sh 14.04 # make sure this is second to simplify docker-run-sanity.sh on the correct qemu branch (as it is expecting 14.04 structure atm)
-./compile-host-tests.sh
-./compile-guest-tests.sh
-./docker-run-sanity.sh
+./build-docker-image.sh
+./build-qemu-image.sh $EVSSIM_GUEST_TESTS_GUEST_VM_IMAGE $EVSSIM_GUEST_TESTS_GUEST_VM_BUILD_CONTAINER
+./compile-kernel.sh $EVSSIM_KERNEL_COMPILE_CONTAINER
+./compile-qemu.sh ubuntu-26.04
+./compile-qemu.sh ubuntu-14.04 # make sure this is second to simplify docker-run-sanity.sh on the correct qemu branch (as it is expecting 14.04 structure atm)
+./compile-host-tests.sh $EVSSIM_HOST_TESTS_COMPILE_CONTAINER
+./compile-guest-tests.sh $EVSSIM_GUEST_TESTS_COMPILE_CONTAINER
+./docker-run-sanity.sh $EVSSIM_QEMU_COMPILE_CONTAINER
 
 # start ELK (absolute paths)
 "$ELK_INSTALL" "$LOGS_DIR" "$ELK_DIR"
 
 # Running Docker Tests
-./docker-test-host.sh
-./docker-test-guest.sh
-./docker-test-exofs.sh
+./docker-test-host.sh $EVSSIM_HOST_TESTS_RUN_CONTAINER
+./docker-test-guest.sh $EVSSIM_QEMU_COMPILE_CONTAINER
+./docker-test-exofs.sh $EVSSIM_QEMU_COMPILE_CONTAINER
