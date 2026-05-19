@@ -16,6 +16,23 @@
       "message": "@yuriKhordal@proton.me thanks for working on this change. You can rerun CI by commenting \"recheck\"",
       "revId": "a14f8ed3b558b4b1dfca0fa11c003ff4b65f1945",
       "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "0aecc969_9d1c21fa",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 3
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 1039371
+      },
+      "writtenOn": "2026-05-19T20:06:29Z",
+      "side": 1,
+      "message": "recheck",
+      "revId": "a14f8ed3b558b4b1dfca0fa11c003ff4b65f1945",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
     }
   ]
 }
