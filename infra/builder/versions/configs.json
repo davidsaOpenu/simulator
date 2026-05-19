@@ -1,8 +1,4 @@
 {
-  "images": {
-    "ubuntu26.04": "https://cloud-images.ubuntu.com/resolute/current/resolute-server-cloudimg-amd64.img",
-    "ubuntu14.04": "https://cloud-images.ubuntu.com/trusty/current/trusty-server-cloudimg-amd64-disk1.img"
-  },
   "configs": [
     {
       "id": 1,
@@ -23,7 +19,7 @@
         "runContainer": "ubuntu:26.04"
       },
       "guestTests": {
-        "guestVMImage": "$images.ubuntu26.04",
+        "guestVmImage": "ubuntu:26.04",
         "compileContainer": "ubuntu:26.04"
       }
     },
@@ -46,7 +42,7 @@
         "runContainer": "ubuntu:14.04"
       },
       "guestTests": {
-        "guestVMImage": "$images.ubuntu14.04",
+        "guestVmImage": "ubuntu:14.04",
         "compileContainer": "ubuntu:14.04"
       }
     },
@@ -69,7 +65,7 @@
         "runContainer": "ubuntu:14.04"
       },
       "guestTests": {
-        "guestVMImage": "$images.ubuntu14.04",
+        "guestVmImage": "ubuntu:14.04",
         "compileContainer": "ubuntu:14.04"
       }
     },
@@ -92,7 +88,7 @@
         "runContainer": "ubuntu:14.04"
       },
       "guestTests": {
-        "guestVMImage": "$images.ubuntu14.04",
+        "guestVmImage": "ubuntu:14.04",
         "compileContainer": "ubuntu:14.04"
       }
     },
@@ -115,7 +111,7 @@
         "runContainer": "ubuntu:26.04"
       },
       "guestTests": {
-        "guestVMImage": "$images.ubuntu26.04",
+        "guestVmImage": "ubuntu:26.04",
         "compileContainer": "ubuntu:26.04"
       }
     }

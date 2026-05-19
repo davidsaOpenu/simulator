@@ -41,19 +41,6 @@ load_config_section() {
     return 0
 }
 
-# Resolve image references in a string
-resolve_image_references() {
-    local text=$1
-    local config_file=$2
-
-    # Iterate through all images in config and replace references
-    while IFS='=' read -r key value; do
-        text="${text//\$images.$key/$value}"
-    done < <(jq -r '.images | to_entries[] | "\(.key)=\(.value)"' "$config_file" 2>/dev/null)
-
-    echo "$text"
-}
-
 # Load config from JSON using jq
 load_config() {
     local config_id=$1
@@ -73,26 +60,12 @@ load_config() {
     # Define the base jq query for the selected config
     local cfg_query=".configs[] | select(.id == $config_id)"
 
-    # Load all image URLs
-    while IFS='=' read -r key value; do
-        local var_name="EVSSIM_IMAGE_${key//./_}"
-        #eval "export $var_name='$value'"
-    done < <(jq -r '.images | to_entries[] | "\(.key)=\(.value)"' "$config_file" 2>/dev/null)
-
     # Load component configurations using the loop function
     load_config_section "KERNEL" "$cfg_query | .kernel" "$config_file" "branch" "compileContainer" || return 1
     load_config_section "QEMU" "$cfg_query | .qemu" "$config_file" "branch" "compileContainer" || return 1
     load_config_section "NVME_CLI" "$cfg_query | .[\"nvme-cli\"]" "$config_file" "branch" "compileContainer" || return 1
     load_config_section "HOST_TESTS" "$cfg_query | .hostTests" "$config_file" "compileContainer" "runContainer" || return 1
-    load_config_section "GUEST_TESTS" "$cfg_query | .guestTests" "$config_file" "compileContainer" || return 1
-
-    # Load and resolve guest VM image reference dynamically
-    local guest_vm_ref=$(jq -r "$cfg_query | .guestTests.guestVMImage" "$config_file" 2>/dev/null)
-    if [[ -z "$guest_vm_ref" || "$guest_vm_ref" == "null" ]]; then
-        echo "ERROR: Failed to load guest VM image reference"
-        return 1
-    fi
-    export EVSSIM_GUEST_TESTS_GUEST_VM_IMAGE=$(resolve_image_references "$guest_vm_ref" "$config_file")
+    load_config_section "GUEST_TESTS" "$cfg_query | .guestTests" "$config_file" "guestVmImage" "compileContainer" || return 1
 
     # Print configuration summary
     echo "=========================================="
@@ -124,7 +97,7 @@ load_config() {
 }
 
 # Load default config (config 2)
-if ! load_config 2; then
+if ! load_config "$EVSSIM_VERSIONS_CONFIGURATION_ID"; then
     echo "ERROR: Failed to load configuration"
     exit 1
 fi
