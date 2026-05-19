@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "7f283882_c40ca23c",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 3
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 1007990
+      },
+      "writtenOn": "2026-05-19T11:09:32Z",
+      "side": 1,
+      "message": "@yuriKhordal@proton.me thanks for working on this change. You can rerun CI by commenting \"recheck\"",
+      "revId": "a14f8ed3b558b4b1dfca0fa11c003ff4b65f1945",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
+    }
+  ]
+}
