@@ -125,6 +125,24 @@
       "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "332540d0_40048a06",
+        "filename": "infra/builder/build-docker-image.sh",
+        "patchSetId": 1
+      },
+      "lineNbr": 4,
+      "author": {
+        "id": 1039461
+      },
+      "writtenOn": "2026-05-19T18:40:42Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "1a3b83d8_925a54c3",
+      "revId": "c9074ecfcb1401d4543f9954722f3130527041fb",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "048e9315_adf8b1c2",
@@ -337,6 +355,24 @@
       "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "c2b82b66_2b6ef393",
+        "filename": "infra/builder/load_config.sh",
+        "patchSetId": 1
+      },
+      "lineNbr": 120,
+      "author": {
+        "id": 1039461
+      },
+      "writtenOn": "2026-05-19T18:40:42Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "62330c84_439651a3",
+      "revId": "c9074ecfcb1401d4543f9954722f3130527041fb",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "ec9d6660_e642d317",
@@ -403,6 +439,24 @@
       "writtenOn": "2026-05-19T17:38:38Z",
       "side": 1,
       "message": "Same here. For now the tests for configuration IDs other then 2 should fail however the ci script should be consistent with the configuration.",
+      "revId": "c9074ecfcb1401d4543f9954722f3130527041fb",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "c808a786_92cd3ab7",
+        "filename": "infra/builder/run-ci.sh",
+        "patchSetId": 1
+      },
+      "lineNbr": 46,
+      "author": {
+        "id": 1039461
+      },
+      "writtenOn": "2026-05-19T18:40:42Z",
+      "side": 1,
+      "message": "Acknowledged",
+      "parentUuid": "777776de_51175f71",
       "revId": "c9074ecfcb1401d4543f9954722f3130527041fb",
       "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
     }
