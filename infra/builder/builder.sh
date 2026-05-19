@@ -1,10 +1,11 @@
 #!/bin/bash
-set -e
+
+set -eu -o pipefail
 
 declare -x EVSSIM_DOCKER_UUID
 
 # Verify environment is loaded
-if [ -z $EVSSIM_ENVIRONMENT ]; then
+if [ -z ${EVSSIM_ENVIRONMENT:-} ]; then
     echo "ERROR Builder not running in evssim environment. Please execute 'source ./env.sh' first"
     exit 1
 fi
@@ -22,7 +23,7 @@ if [[ $(df --output=fstype "$EVSSIM_ROOT_PATH/$EVSSIM_DIST_FOLDER" 2>/dev/null |
 fi
 
 # Warn if environment changed
-if [ -z $EVSSIM_ENV_PATH ]; then
+if [ -z ${EVSSIM_ENV_PATH:-} ]; then
     echo "ERORR Missing environment file path"
     exit 1
 elif [[ $(md5sum $EVSSIM_ENV_PATH | cut -d " " -f 1) != $EVSSIM_ENV_HASH ]]; then
@@ -92,6 +93,8 @@ evssim_run () {
 # Run new instance of docker and chroot into the disk image
 # Parameters - Command to run
 evssim_run_chrooted () {
+    local IMAGE_PATH=$EVSSIM_ROOT_PATH/$EVSSIM_DIST_FOLDER/$EVSSIM_QEMU_IMAGE
+    local IMAGE_PATH_TEMPLATE=$EVSSIM_ROOT_PATH/$EVSSIM_DIST_FOLDER/$EVSSIM_QEMU_IMAGE".template"
     local mount_point=/mnt/guest
 
     # Verify the disk exists
@@ -109,6 +112,8 @@ evssim_run_chrooted () {
 # Run new instance of the docker and mount offline the disk image
 # Parameters - Command to run
 evssim_run_mounted () {
+    local IMAGE_PATH=$EVSSIM_ROOT_PATH/$EVSSIM_DIST_FOLDER/$EVSSIM_QEMU_IMAGE
+    local IMAGE_PATH_TEMPLATE=$EVSSIM_ROOT_PATH/$EVSSIM_DIST_FOLDER/$EVSSIM_QEMU_IMAGE".template"
     local mount_point=/mnt/guest
 
     # Verify the disk exists
@@ -315,7 +320,7 @@ evssim_qemu_flush_disk () {
 # Will first soft kill the qemu and if fails, will force kill it.
 # Parameters - None
 evssim_qemu_stop () {
-    if [ ! -z $EVSSIM_DOCKER_UUID ]; then
+    if [ ! -z ${EVSSIM_DOCKER_UUID:-} ]; then
         if docker ps -q --no-trunc | grep $EVSSIM_DOCKER_UUID > /dev/null; then
             # Kill qemu safely
             local code=$(cat <<DOCKER
@@ -425,4 +430,3 @@ evssim_guest_copy () {
     OUTPUT_FILE_PATH=$2
     scp -r -o ConnectionAttempts=1024 -o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no -o PasswordAuthentication=no -o PubkeyAcceptedKeyTypes=+ssh-rsa -i $EVSSIM_ROOT_PATH/$EVSSIM_BUILDER_FOLDER/docker/id_rsa -P 2222 $EVSSIM_QEMU_UBUNTU_USERNAME@localhost:$DOCKET_FILE_PATH $OUTPUT_FILE_PATH
 }
-

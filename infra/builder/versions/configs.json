@@ -24,6 +24,7 @@
       },
       "guestTests": {
         "guestVMImage": "$images.ubuntu26.04",
+	"hostContainer": "ubuntu:26.04",
         "compileContainer": "ubuntu:26.04"
       }
     },
@@ -47,6 +48,7 @@
       },
       "guestTests": {
         "guestVMImage": "$images.ubuntu14.04",
+	"hostContainer": "ubuntu:14.04",
         "compileContainer": "ubuntu:14.04"
       }
     },
@@ -70,6 +72,7 @@
       },
       "guestTests": {
         "guestVMImage": "$images.ubuntu14.04",
+	"hostContainer": "ubuntu:14.04",
         "compileContainer": "ubuntu:14.04"
       }
     },
@@ -93,6 +96,7 @@
       },
       "guestTests": {
         "guestVMImage": "$images.ubuntu14.04",
+	"hostContainer": "ubuntu:14.04",
         "compileContainer": "ubuntu:14.04"
       }
     },
@@ -116,6 +120,7 @@
       },
       "guestTests": {
         "guestVMImage": "$images.ubuntu26.04",
+	"hostContainer": "ubuntu:26.04",
         "compileContainer": "ubuntu:26.04"
       }
     }
