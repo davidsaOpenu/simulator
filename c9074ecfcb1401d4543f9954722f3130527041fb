@@ -1,0 +1,140 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "40a0f657_69f6a14b",
+        "filename": "infra/builder/build-docker-image.sh",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 1039461
+      },
+      "writtenOn": "2026-05-19T17:38:38Z",
+      "side": 1,
+      "message": "Rename this file build-docker-images.sh",
+      "revId": "c9074ecfcb1401d4543f9954722f3130527041fb",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "55f36fda_8e9772f7",
+        "filename": "infra/builder/build-docker-image.sh",
+        "patchSetId": 1
+      },
+      "lineNbr": 4,
+      "author": {
+        "id": 1039461
+      },
+      "writtenOn": "2026-05-19T17:38:38Z",
+      "side": 1,
+      "message": "Nice! maybe put this in builder.sh to apply for all build scripts. Also set the pipefail option in case of failures in bash pipelines.",
+      "revId": "c9074ecfcb1401d4543f9954722f3130527041fb",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "048e9315_adf8b1c2",
+        "filename": "infra/builder/compile-host-tests.sh",
+        "patchSetId": 1
+      },
+      "lineNbr": 5,
+      "author": {
+        "id": 1039461
+      },
+      "writtenOn": "2026-05-19T17:38:38Z",
+      "side": 1,
+      "message": "I feel like doing this before every call to evssim_run_at_path is a red flag. I think the evssim_run_X function should take the docker image (or tag) as a parameter.",
+      "revId": "c9074ecfcb1401d4543f9954722f3130527041fb",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "f2b60b2a_eb44faa2",
+        "filename": "infra/builder/env.sh",
+        "patchSetId": 1
+      },
+      "lineNbr": 13,
+      "author": {
+        "id": 1039461
+      },
+      "writtenOn": "2026-05-19T17:38:38Z",
+      "side": 1,
+      "message": "I really like this change! you can make this truly a default value by using the base feature:\nVAR\u003d\"${VAR:-default_value}\"",
+      "revId": "c9074ecfcb1401d4543f9954722f3130527041fb",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "487fa145_11a54542",
+        "filename": "infra/builder/load_config.sh",
+        "patchSetId": 1
+      },
+      "lineNbr": 120,
+      "author": {
+        "id": 1039461
+      },
+      "writtenOn": "2026-05-19T17:38:38Z",
+      "side": 1,
+      "message": "I know you did not start this issue however there is a terminology confusion with docker in our project. A container is a running instance of an image. All these should be renamed X_CONTAINER -\u003e X_IMAGE.",
+      "revId": "c9074ecfcb1401d4543f9954722f3130527041fb",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "033c15c5_ace8d9c2",
+        "filename": "infra/builder/load_config.sh",
+        "patchSetId": 1
+      },
+      "lineNbr": 120,
+      "author": {
+        "id": 1039461
+      },
+      "writtenOn": "2026-05-19T17:38:38Z",
+      "side": 1,
+      "message": "I think the ENV variable names are inconsitent with the comment in env.sh",
+      "revId": "c9074ecfcb1401d4543f9954722f3130527041fb",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "ec9d6660_e642d317",
+        "filename": "infra/builder/run-ci.sh",
+        "patchSetId": 1
+      },
+      "lineNbr": 40,
+      "author": {
+        "id": 1039461
+      },
+      "writtenOn": "2026-05-19T17:38:38Z",
+      "side": 1,
+      "message": "Should\u0027t the version be detemined from the config.json file?",
+      "revId": "c9074ecfcb1401d4543f9954722f3130527041fb",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "777776de_51175f71",
+        "filename": "infra/builder/run-ci.sh",
+        "patchSetId": 1
+      },
+      "lineNbr": 46,
+      "author": {
+        "id": 1039461
+      },
+      "writtenOn": "2026-05-19T17:38:38Z",
+      "side": 1,
+      "message": "Same here. For now the tests for configuration IDs other then 2 should fail however the ci script should be consistent with the configuration.",
+      "revId": "c9074ecfcb1401d4543f9954722f3130527041fb",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
+    }
+  ]
+}
