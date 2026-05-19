@@ -1,10 +1,11 @@
 #!/bin/bash
-set -e
+
+set -eu -o pipefail
 
 declare -x EVSSIM_DOCKER_UUID
 
 # Verify environment is loaded
-if [ -z $EVSSIM_ENVIRONMENT ]; then
+if [ -z ${EVSSIM_ENVIRONMENT:-} ]; then
     echo "ERROR Builder not running in evssim environment. Please execute 'source ./env.sh' first"
     exit 1
 fi
@@ -22,8 +23,8 @@ if [[ $(df --output=fstype "$EVSSIM_ROOT_PATH/$EVSSIM_DIST_FOLDER" 2>/dev/null |
 fi
 
 # Warn if environment changed
-if [ -z $EVSSIM_ENV_PATH ]; then
-    echo "ERORR Missing environment file path"
+if [ -z ${EVSSIM_ENV_PATH:-} ]; then
+    echo "ERROR Missing environment file path"
     exit 1
 elif [[ $(md5sum $EVSSIM_ENV_PATH | cut -d " " -f 1) != $EVSSIM_ENV_HASH ]]; then
     echo "WARNING Environment file hash changed. Please reload using 'source ./env.sh'"
@@ -31,12 +32,12 @@ fi
 
 # Check for docker support
 if ! which docker >/dev/null; then
-    echo "ERORR Missing docker configuration"
+    echo "ERROR Missing docker configuration"
     exit 1
 fi
 
 if ! docker ps 2>/dev/null >/dev/null; then
-    echo "ERORR Docker has no permissions. Consider adding user to docker group. Logout and login afterwards."
+    echo "ERROR Docker has no permissions. Consider adding user to docker group. Logout and login afterwards."
     echo "      $ sudo groupadd docker"
     echo "      $ sudo usermod -aG docker $USER"
     exit 1
@@ -67,6 +68,11 @@ for folder in $EVSSIM_DATA_LINKED_FOLDER; do
     fi
 done
 
+# Values used in multiple functions:
+IMAGE_PATH=$EVSSIM_ROOT_PATH/$EVSSIM_DIST_FOLDER/$EVSSIM_QEMU_IMAGE
+IMAGE_PATH_TEMPLATE=$EVSSIM_ROOT_PATH/$EVSSIM_DIST_FOLDER/$EVSSIM_QEMU_IMAGE".template"
+MOUNT_POINT=/mnt/guest
+
 # Run new instance of docker in a specific root folder
 # Parameters
 #  - folder - Folder name under the project root
@@ -93,8 +99,6 @@ evssim_run () {
 # Run new instance of docker and chroot into the disk image
 # Parameters - Command to run
 evssim_run_chrooted () {
-    local mount_point=/mnt/guest
-
     # Verify the disk exists
     if [ ! -f $IMAGE_PATH ]; then
         echo "ERROR Missing qemu image file. Run 'build-qemu-image.sh'"
@@ -102,16 +106,13 @@ evssim_run_chrooted () {
     fi
 
     # Run inside th chroot
-    local mount_point=/mnt/guest
     local image_path=$EVSSIM_DOCKER_ROOT_PATH/$EVSSIM_DIST_FOLDER/$EVSSIM_QEMU_IMAGE
-    EVSSIM_RUN_SUDO=y evssim_run "mkdir -p $mount_point && mount -o loop $image_path $mount_point && chroot $mount_point $@"
+    EVSSIM_RUN_SUDO=y evssim_run "mkdir -p $MOUNT_POINT && mount -o loop $image_path $MOUNT_POINT && chroot $MOUNT_POINT $@"
 }
 
 # Run new instance of the docker and mount offline the disk image
 # Parameters - Command to run
 evssim_run_mounted () {
-    local mount_point=/mnt/guest
-
     # Verify the disk exists
     if [ ! -f $IMAGE_PATH ]; then
         echo "ERROR Missing qemu image file. Run 'build-qemu-image.sh'"
@@ -119,9 +120,8 @@ evssim_run_mounted () {
     fi
 
     # Execute while mounted
-    local mount_point=/mnt/guest
     local image_path=$EVSSIM_DOCKER_ROOT_PATH/$EVSSIM_DIST_FOLDER/$EVSSIM_QEMU_IMAGE
-    evssim_run "sudo mkdir -p $mount_point && sudo mount -o loop $image_path $mount_point && cd $mount_point/$EVSSIM_GUEST_ROOT_PATH && bash -c \"$@\""
+    evssim_run "sudo mkdir -p $MOUNT_POINT && sudo mount -o loop $image_path $MOUNT_POINT && cd $MOUNT_POINT/$EVSSIM_GUEST_ROOT_PATH && bash -c \"$@\""
 }
 
 # Build SSD configuration from environment
@@ -316,7 +316,7 @@ evssim_qemu_flush_disk () {
 # Will first soft kill the qemu and if fails, will force kill it.
 # Parameters - None
 evssim_qemu_stop () {
-    if [ ! -z $EVSSIM_DOCKER_UUID ]; then
+    if [ ! -z ${EVSSIM_DOCKER_UUID:-} ]; then
         if docker ps -q --no-trunc | grep $EVSSIM_DOCKER_UUID > /dev/null; then
             # Kill qemu safely
             local code=$(cat <<DOCKER
@@ -370,11 +370,8 @@ evssim_qemu_detached () {
 # Use fresh image of qemu
 # Parameters - None
 evssim_qemu_fresh_image () {
-    local IMAGE_PATH=$EVSSIM_ROOT_PATH/$EVSSIM_DIST_FOLDER/$EVSSIM_QEMU_IMAGE
-    local IMAGE_PATH_TEMPLATE=$EVSSIM_ROOT_PATH/$EVSSIM_DIST_FOLDER/$EVSSIM_QEMU_IMAGE".template"
-
     if [ ! -f $IMAGE_PATH ]; then
-        echo "ERORR QEMU Image is missing. Please run ./build-qemu-image.sh first."
+        echo "ERROR QEMU Image is missing. Please run ./build-qemu-image.sh first."
         exit 1;
     fi
 
