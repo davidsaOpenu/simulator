@@ -12,7 +12,8 @@
       },
       "qemu": {
         "branch": "11.0",
-        "compileContainer": "ubuntu:26.04"
+        "compileContainer": "ubuntu:26.04",
+	"buildContainer": "ubuntu:26.04"
       },
       "nvme-cli": {
         "branch": "3.0-a.5",

@@ -124,7 +124,7 @@ load_config() {
 }
 
 # Load default config (config 2)
-if ! load_config 2; then
+if ! load_config 5; then
     echo "ERROR: Failed to load configuration"
     exit 1
 fi

@@ -42,7 +42,7 @@ namespace program_compatible_test
         virtual void TearDown()
         {
             pthread_mutex_unlock(&g_lock);
-            BaseTest::TearDown(false);
+            BaseTest::BaseTearDown(false);
             TERM_LOG_MANAGER(g_device_index);
             remove(GET_FILE_NAME(g_device_index));
             TERM_SSD_CONFIG();

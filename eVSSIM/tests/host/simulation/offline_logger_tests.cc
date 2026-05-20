@@ -24,6 +24,7 @@
 #include <fstream>
 #include <json.h>
 #include <unordered_map>
+#include<cmath>
 
 // For logger_writer
 extern elk_logger_writer elk_logger_writer_obj;
@@ -55,7 +56,7 @@ void flipAuto();
 
             virtual void TearDown(){
                 pthread_mutex_unlock(&g_lock);
-                BaseTest::TearDown(false);
+                BaseTest::BaseTearDown(false);
                 TERM_LOG_MANAGER(g_device_index);
                 TERM_SSD_CONFIG();
             }
