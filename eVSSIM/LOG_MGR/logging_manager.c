@@ -108,11 +108,12 @@ void* log_manager_run(void* args) {
 
 void log_manager_loop(uint8_t device_index, LogManager* manager, int max_loops) {
     SSDStatistics old_stats = stats_init();
+    static SSDStatistics stats;
     int first_loop = 1;
     int loops = 0;
     while (max_loops < 0 || loops < max_loops) {
         // init the current statistics
-        SSDStatistics stats = stats_init();
+        stats = stats_init(); /* Made this static to try and avoid a dangling pointer warning */
         ssds_manager[device_index].ssd.current_stats = &stats;
 
         unsigned int analyzer_id;

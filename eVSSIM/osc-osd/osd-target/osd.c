@@ -225,7 +225,7 @@ static int empty_dir(const char *dirname)
 	while ((ent = readdir(dir)) != NULL) {
 		if (!strcmp(ent->d_name, ".") || !strcmp(ent->d_name, ".."))
 			continue;
-		sprintf(path, "%s/%s", dirname, ent->d_name);
+		snprintf(path, MAXNAMELEN, "%.127s/%.127s", dirname, ent->d_name); /* use snprintf instead of sprintf and limit the two strings*/
 		if (ent->d_type == DT_DIR) {
 			ret = empty_dir(path);
 		} else {

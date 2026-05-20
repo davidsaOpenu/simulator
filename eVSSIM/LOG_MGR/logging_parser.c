@@ -48,7 +48,7 @@ char *timestamp_to_str(int64_t cur_ts, char *buf)
 {
     struct tm ts;
     time_t cur_ts_secs = (time_t)(cur_ts / 1000000);
-    int64_t cur_ts_usecs = cur_ts % 1000000;
+    uint64_t cur_ts_usecs = cur_ts % 1000000; /* Changed to unsigned integer */
     char temp_buf[TIME_STAMP_LEN];
 
     if (localtime_r(&cur_ts_secs, &ts) == NULL)
@@ -64,7 +64,7 @@ char *timestamp_to_str(int64_t cur_ts, char *buf)
         return buf;
     }
 
-    snprintf(buf, TIME_STAMP_LEN, "%s.%06" PRId64, temp_buf, cur_ts_usecs);
+    snprintf(buf, TIME_STAMP_LEN, "%.72s.%06" PRId64, temp_buf, cur_ts_usecs % 1000000); /* Limit cur_ts_usecs to avoid warning */
 
     return buf;
 }
