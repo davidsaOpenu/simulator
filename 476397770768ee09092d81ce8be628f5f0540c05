@@ -16,6 +16,23 @@
       "message": "Looks great",
       "revId": "476397770768ee09092d81ce8be628f5f0540c05",
       "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "226835d5_569374ec",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 5
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 1039510
+      },
+      "writtenOn": "2026-05-20T17:30:44Z",
+      "side": 1,
+      "message": "Great change, very useful. Looks very modular and modifiable. Works well as I already used it in a patch",
+      "revId": "476397770768ee09092d81ce8be628f5f0540c05",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
     }
   ]
 }
