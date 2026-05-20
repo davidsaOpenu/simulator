@@ -123,8 +123,8 @@ load_config() {
     return 0
 }
 
-# Load default config (config 2)
-if ! load_config 2; then
+# Load default config (config 5)
+if ! load_config 5; then
     echo "ERROR: Failed to load configuration"
     exit 1
 fi
