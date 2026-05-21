@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "9a8c9f87_16cf3eaf",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 2
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 1007990
+      },
+      "writtenOn": "2026-05-21T16:11:00Z",
+      "side": 1,
+      "message": "Referring to \"Assignment (maman) / Story Submissions \u0026 CI\". https://davidsaopenu.github.io/teaching/. \n+\nThe change requires rebasing",
+      "revId": "5abfc3f0b621ef78b2db63d63a55664da80031ae",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
+    }
+  ]
+}
