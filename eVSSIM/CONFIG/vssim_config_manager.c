@@ -332,6 +332,9 @@ bool parse_config_line(const char* key, FILE* file, ssd_config_t* device) {
     if (strcmp(key, "GC_HI_THR") == 0) {
         return fscanf(file, "%d", &device->gc_hi_thr) == 1;
     }
+    if (strcmp(key, "ONFI_MANAGER_THREADS") == 0) {
+        return fscanf(file, "%d", &device->onfi_manager_threads) == 1;
+    }
 
 #if defined FTL_MAP_CACHE
     if (strcmp(key, "CACHE_IDX_SIZE") == 0) {
@@ -442,6 +445,11 @@ void calculate_derived_values(ssd_config_t* device) {
     device->gc_hi_thr_page_nb = device->page_nb * (100 - device->gc_hi_thr) * device->block_mapping_entry_nb / 100;
     device->gc_low_thr_interval_sec = 10;
     device->gc_hi_thr_interval_sec = 1;
+
+    // if ONFI manager threads didn't set, change it to 1
+    if (device->onfi_manager_threads == 0) {
+        device->onfi_manager_threads = 1;
+    }
 }
 
 char* GET_DATA_FILENAME(uint8_t device_index, const char* filename) {
