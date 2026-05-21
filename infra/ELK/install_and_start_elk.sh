@@ -389,6 +389,7 @@ setup_filebeat() {
             -v "$fb_cfg:/usr/share/filebeat/filebeat.yml:$ro_subopts" \
             -v "$cert_ca_dir:/usr/share/filebeat/certs/ca:$ro_subopts" \
             -v "$log_dir:/logs:$ro_subopts" \
+            -v "$log_dir:/usr/share/filebeat/data/registry/filebeat${data_opts}" \
             -v "/var/lib/docker/containers:/var/lib/docker/containers:ro" \
             -v "/var/run/docker.sock:/var/run/docker.sock:ro" \
             -v "$fb_data_dir:/usr/share/filebeat/data${data_opts}" \
