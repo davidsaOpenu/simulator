@@ -299,8 +299,6 @@ static void extract_log_size(char* line,int* size,char **files, int arrsize){
         json_object_object_get_ex(jsonv, "source", &json_address);
         json_object_object_get_ex(jsonv, "offset", &json_offset);
 
-        json_object_put(parsed);
-        json_object_put(jsonv);
         if(json_address != NULL){
             strcpy(address,json_object_get_string(json_address));
             memmove(address,address+6,strlen(address));
@@ -318,6 +316,7 @@ static void extract_log_size(char* line,int* size,char **files, int arrsize){
                 i++;
             }
         }
+        json_object_put(parsed);
     }
 }
 
@@ -404,7 +403,7 @@ static int delete_shipped(void){
 
     //start reading the log from the last bit read
     if(start != 0){
-        if(fseek(fp, start, SEEK_SET)==0){
+        if(fseek(fp, start, SEEK_SET)!=0){
             printf("ERROR: fseek %s\n", strerror(errno));
             canRead = 0;
         }
