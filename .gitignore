@@ -2,6 +2,7 @@
 *.d
 *.a
 *.bin
+.vscode/
 
 # vssim data files
 *.dat
@@ -140,11 +141,21 @@ eVSSIM/tests/host/*/logging_server.c
 eVSSIM/tests/host/*/logging_server.h
 eVSSIM/tests/host/*/www
 
+eVSSIM/tests/host/compile_commands.json
+eVSSIM/tests/host/simulation/test_context.c
+eVSSIM/tests/host/simulation/test_context.h
+eVSSIM/tests/host/unit/test_context.c
+eVSSIM/tests/host/unit/test_context.h
+eVSSIM/tests/host/vgcore.40
+
 # osd-osd files
 eVSSIM/osc-osd/osd-util/.depend
 eVSSIM/osc-osd/osd-target/.depend
 eVSSIM/osc-osd/osd-target/tests
 eVSSIM/osc-osd/osd-target/osd-schema.c
+eVSSIM/osc-osd/tgt/usr/otgtd
+eVSSIM/osc-osd/tgt/usr/tgtadm
+eVSSIM/osc-osd/tgt/usr/tgtimg
 
 # infra/ansible files
 *.retry
@@ -153,3 +164,4 @@ eVSSIM/osc-osd/osd-target/osd-schema.c
 infra/builder/env_dump
 infra/ELK/docker-elk
 infra/ELK/filebeat-data
+
