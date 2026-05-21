@@ -126,7 +126,7 @@ evssim_run_mounted () {
 # Build SSD configuration from environment
 # Parameters - None
 evssim_build_ssd_conf () {
-    python -c "import os; import sys; sys.stdout.write(open('$EVSSIM_RUNTIME_SSD_CONF_TEMPLATE', 'rt').read() % os.environ)"
+    python3 -c "import os; import sys; sys.stdout.write(open('$EVSSIM_RUNTIME_SSD_CONF_TEMPLATE', 'rt').read() % os.environ)"
 }
 
 # Calculate ssd disk sizes from ssd configuration (returns array of sizes)
@@ -169,7 +169,7 @@ for device_name in sorted(devices.keys()):
     print(size)
 PYTHON
 )
-    echo "$ssd" | python -c "$code"
+    echo "$ssd" | python3 -c "$code"
 }
 
 # Get device count from ssd configuration
@@ -185,7 +185,7 @@ for line in sys.stdin.readlines():
 print(count)
 PYTHON
 )
-    echo "$ssd" | python -c "$code"
+    echo "$ssd" | python3 -c "$code"
 }
 
 # Return VSSIM related environment variables
