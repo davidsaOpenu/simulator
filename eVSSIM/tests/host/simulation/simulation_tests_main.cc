@@ -46,6 +46,17 @@ int main(int argc, char **argv) {
         else if (strcmp(argv[i], "--multi_device_tests") == 0) {
             tests_filter = "*MultiDevice*";
         }
+        else if (strcmp(argv[i], "--conf-tests") == 0) {
+            tests_filter = "*SSDConfigTest*";
+        }
+        else if (strcmp(argv[i], "--device-index") == 0) {
+            // By default use 0 if flag not passed
+            if (i + 1 < argc)
+            {
+                g_device_index = static_cast<uint8_t>(stoi(argv[i + 1]));
+                ++i;
+            }
+        }
     }
 
     testing::GTEST_FLAG(filter) = tests_filter;
