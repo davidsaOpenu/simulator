@@ -126,7 +126,7 @@ evssim_run_mounted () {
 # Build SSD configuration from environment
 # Parameters - None
 evssim_build_ssd_conf () {
-    python -c "import os; import sys; sys.stdout.write(open('$EVSSIM_RUNTIME_SSD_CONF_TEMPLATE', 'rt').read() % os.environ)"
+    python3 -c "import os; import sys; sys.stdout.write(open('$EVSSIM_RUNTIME_SSD_CONF_TEMPLATE', 'rt').read() % os.environ)"
 }
 
 # Calculate ssd disk sizes from ssd configuration (returns array of sizes)
@@ -169,7 +169,7 @@ for device_name in sorted(devices.keys()):
     print(size)
 PYTHON
 )
-    echo "$ssd" | python -c "$code"
+    echo "$ssd" | python3 -c "$code"
 }
 
 # Get device count from ssd configuration
@@ -185,7 +185,7 @@ for line in sys.stdin.readlines():
 print(count)
 PYTHON
 )
-    echo "$ssd" | python -c "$code"
+    echo "$ssd" | python3 -c "$code"
 }
 
 # Return VSSIM related environment variables
@@ -425,4 +425,3 @@ evssim_guest_copy () {
     OUTPUT_FILE_PATH=$2
     scp -r -o ConnectionAttempts=1024 -o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no -o PasswordAuthentication=no -o PubkeyAcceptedKeyTypes=+ssh-rsa -i $EVSSIM_ROOT_PATH/$EVSSIM_BUILDER_FOLDER/docker/id_rsa -P 2222 $EVSSIM_QEMU_UBUNTU_USERNAME@localhost:$DOCKET_FILE_PATH $OUTPUT_FILE_PATH
 }
-
