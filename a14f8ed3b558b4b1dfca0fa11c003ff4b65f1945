@@ -50,6 +50,52 @@
       "message": "Pretty good change",
       "revId": "a14f8ed3b558b4b1dfca0fa11c003ff4b65f1945",
       "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "eba677e1_4efdca92",
+        "filename": "infra/builder/builder.sh",
+        "patchSetId": 3
+      },
+      "lineNbr": 427,
+      "author": {
+        "id": 1007990
+      },
+      "writtenOn": "2026-05-21T15:58:22Z",
+      "side": 1,
+      "message": "The key path $EVSSIM_ROOT_PATH/$EVSSIM_BUILDER_FOLDER/docker/ is repeated multiple times across different functions and scripts.\nSuggestion: Define a EVSSIM_SSH_KEYS_PATH variable at the top of the scripts and reuse it to avoid duplication and improve maintainability.",
+      "range": {
+        "startLine": 420,
+        "startChar": 6,
+        "endLine": 427,
+        "endChar": 275
+      },
+      "revId": "a14f8ed3b558b4b1dfca0fa11c003ff4b65f1945",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "aaef96dd_3195b84a",
+        "filename": "infra/builder/builder.sh",
+        "patchSetId": 3
+      },
+      "lineNbr": 427,
+      "author": {
+        "id": 1007990
+      },
+      "writtenOn": "2026-05-21T15:58:22Z",
+      "side": 1,
+      "message": "Suggestion: Update to -o PubkeyAcceptedKeyTypes\u003d+ssh-rsa,ssh-ed25519 to be explicit about supported algorithms.",
+      "range": {
+        "startLine": 421,
+        "startChar": 273,
+        "endLine": 427,
+        "endChar": 153
+      },
+      "revId": "a14f8ed3b558b4b1dfca0fa11c003ff4b65f1945",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
     }
   ]
 }
