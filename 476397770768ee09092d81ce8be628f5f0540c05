@@ -1,6 +1,23 @@
 {
   "comments": [
     {
+      "unresolved": true,
+      "key": {
+        "uuid": "dcad2a31_b1f80b33",
+        "filename": "/COMMIT_MSG",
+        "patchSetId": 5
+      },
+      "lineNbr": 99,
+      "author": {
+        "id": 1007990
+      },
+      "writtenOn": "2026-05-21T16:07:08Z",
+      "side": 1,
+      "message": "Suggestion: Add a link to the Trello card",
+      "revId": "476397770768ee09092d81ce8be628f5f0540c05",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
+    },
+    {
       "unresolved": false,
       "key": {
         "uuid": "be4059ea_0da04543",
@@ -31,6 +48,52 @@
       "writtenOn": "2026-05-20T17:30:44Z",
       "side": 1,
       "message": "Great change, very useful. Looks very modular and modifiable. Works well as I already used it in a patch",
+      "revId": "476397770768ee09092d81ce8be628f5f0540c05",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "71d1e352_a5e9d726",
+        "filename": "infra/builder/builder.sh",
+        "patchSetId": 5
+      },
+      "lineNbr": 35,
+      "author": {
+        "id": 1007990
+      },
+      "writtenOn": "2026-05-21T16:07:08Z",
+      "side": 1,
+      "message": "\"ERORR\" should be \"ERROR\"",
+      "range": {
+        "startLine": 27,
+        "startChar": 0,
+        "endLine": 35,
+        "endChar": 45
+      },
+      "revId": "476397770768ee09092d81ce8be628f5f0540c05",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "b0f907b9_d04541f5",
+        "filename": "infra/builder/docker-enter.sh",
+        "patchSetId": 5
+      },
+      "lineNbr": 15,
+      "author": {
+        "id": 1007990
+      },
+      "writtenOn": "2026-05-21T16:07:08Z",
+      "side": 1,
+      "message": "Variable Safety Checks\nSugeestion: if [ ! -z ${DOCKER_ID:-} ]; then",
+      "range": {
+        "startLine": 15,
+        "startChar": 0,
+        "endLine": 15,
+        "endChar": 28
+      },
       "revId": "476397770768ee09092d81ce8be628f5f0540c05",
       "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
     }
