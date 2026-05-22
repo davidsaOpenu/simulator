@@ -19,7 +19,7 @@ if [ -z $VIRTUALIZATION ]; then
     echo "ERROR Virtualization not found"; exit 1
 fi
 
-if ! virt-host-validate >/dev/null; then
+if ! virt-host-validate qemu >/dev/null; then
     echo "ERROR Virtualization test failed. Run virt-host-validate \
           from the CLI and fix any reported issues."; exit 1
 fi
