@@ -46,9 +46,8 @@ env -u http_proxy -u https_proxy -u HTTP_PROXY -u HTTPS_PROXY tox
 ./compile-qemu.sh $VERSION_COMPILE_QEMU
 ./compile-host-tests.sh $VERSION_COMPILE_HTESTS
 ./compile-guest-tests.sh $VERSION_COMPILE_GTESTS
-for folder in $EVSSIM_ROOT_PATH/$EVSSIM_CONTAINER_VERSIONS_FOLDER/*; do
-    ./docker-run-sanity.sh "$(basename "$folder")"
-done
+
+./docker-run-sanity.sh $VERSION_GUEST_TESTS
 
 # start ELK (absolute paths)
 "$ELK_INSTALL" "$LOGS_DIR" "$ELK_DIR"
