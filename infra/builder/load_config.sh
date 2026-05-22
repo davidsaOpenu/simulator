@@ -80,7 +80,7 @@ load_config() {
     done < <(jq -r '.images | to_entries[] | "\(.key)=\(.value)"' "$config_file" 2>/dev/null)
 
     # Load component configurations using the loop function
-    load_config_section "KERNEL" "$cfg_query | .kernel" "$config_file" "branch" "compileContainer" || return 1
+    load_config_section "KERNEL" "$cfg_query | .kernel" "$config_file" "branch" "compileContainer" "version" || return 1
     load_config_section "QEMU" "$cfg_query | .qemu" "$config_file" "branch" "compileContainer" || return 1
     load_config_section "NVME_CLI" "$cfg_query | .[\"nvme-cli\"]" "$config_file" "branch" "compileContainer" || return 1
     load_config_section "HOST_TESTS" "$cfg_query | .hostTests" "$config_file" "compileContainer" "runContainer" || return 1
@@ -102,6 +102,7 @@ load_config() {
     echo "Kernel:"
     echo "  Branch: $EVSSIM_KERNEL_BRANCH"
     echo "  Compile Container: $EVSSIM_KERNEL_COMPILE_CONTAINER"
+    echo "  Version: $EVSSIM_KERNEL_VERSION"
     echo ""
     echo "QEMU:"
     echo "  Branch: $EVSSIM_QEMU_BRANCH"
