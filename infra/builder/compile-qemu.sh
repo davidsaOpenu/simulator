@@ -1,6 +1,11 @@
 #!/bin/bash
 source ./builder.sh
 
+# open-osd already provides most user-mode linux/scsi headers under include/open-osd.
+# Keep only the missing linux/kernel.h shim in open-osd-compat.
+open_osd_compat_include="-I$EVSSIM_DOCKER_ROOT_PATH/$EVSSIM_BUILDER_FOLDER/docker/open-osd-compat"
+open_osd_build_includes="$open_osd_compat_include -I../include -I../include/open-osd -I../lib -I./ -I../drivers/scsi/osd -I../fs/exofs"
+
 # Configure qemu
 evssim_run_at_folder $EVSSIM_QEMU_FOLDER ./configure \
     --enable-trace-backends=log \
@@ -25,7 +30,7 @@ evssim_run_at_folder "$EVSSIM_SIMULATOR_FOLDER/" "git submodule update --init --
     git submodule foreach --recursive 'git reset --hard && git clean -fdx'"
 
 evssim_run_at_folder "open-osd" "make KSRC=/code/kernel ARCH=x86_64 clean && \
-    make KSRC=$EVSSIM_DOCKER_ROOT_PATH/$EVSSIM_KERNEL_FOLDER -j\`nproc\` && \
+    make KSRC=$EVSSIM_DOCKER_ROOT_PATH/$EVSSIM_KERNEL_FOLDER -j\`nproc\` INCLUDES='$open_osd_build_includes' && \
     cp usr/mkfs.exofs $EVSSIM_DOCKER_ROOT_PATH/$EVSSIM_DIST_FOLDER/mkfs.exofs && \
     cp lib/libosd.so $EVSSIM_DOCKER_ROOT_PATH/$EVSSIM_DIST_FOLDER/libosd.so"
 

@@ -14,14 +14,13 @@ done
 egrep -c vmx /proc/cpuinfo >/dev/null && export VIRTUALIZATION=intel
 egrep -c svm /proc/cpuinfo >/dev/null && export VIRTUALIZATION=amd
 
-# Check virtualization
-if [ -z $VIRTUALIZATION ]; then
-    echo "ERROR Virtualization not found"; exit 1
-fi
-
-if ! virt-host-validate >/dev/null; then
-    echo "ERROR Virtualization test failed. Run virt-host-validate \
-          from the CLI and fix any reported issues."; exit 1
+# Build and image-creation commands do not require KVM. Let QEMU fall back to TCG when unavailable.
+if [ -z "$VIRTUALIZATION" ] || [ ! -e /dev/kvm ]; then
+    echo "WARNING KVM is unavailable in the build container; QEMU commands must use TCG fallback."
+elif ! virt-host-validate >/dev/null; then
+    echo "WARNING KVM validation failed in the build container; QEMU commands must use TCG fallback."
+else
+    chmod 777 /dev/kvm
 fi
 
 # Install the effective external user as a real user
@@ -35,9 +34,6 @@ if [ -f /tmp/.Xauthority ]; then
     ln -s /tmp/.Xauthority /home/external/.Xauthority
     chown external:external /home/external/.Xauthority
 fi
-
-# Give permissions to the kvm
-chmod 777 /dev/kvm
 
 # Execute intended binary
 if [ ! -z $EVSSIM_RUN_SUDO ]; then

@@ -18,7 +18,11 @@ mount -o loop,nodelalloc $IMAGE_PATH $MOUNT_POINT
 # Make debootstrap/dpkg work without fsync (Feature of eatmydata)
 ln -s /usr/bin/eatmydata /usr/local/bin/debootstrap
 ln -s /usr/bin/eatmydata /usr/local/bin/dpkg
-ln -s /usr/bin/eatmydata /usr/local/bin/wget
+cat << 'EOF' > /usr/local/bin/wget
+#!/bin/sh
+exec /usr/bin/eatmydata /usr/bin/wget -4 "$@"
+EOF
+chmod +x /usr/local/bin/wget
 
 # Debootstrap and cache all packages
 if [ ! -f $DEBOOTSTRAP_CACHE ]; then
@@ -83,7 +87,8 @@ echo "$PUBLIC_KEY_ED25519" >> /home/$EVSSIM_QEMU_UBUNTU_USERNAME/.ssh/authorized
 chown -R $EVSSIM_QEMU_UBUNTU_USERNAME:$EVSSIM_QEMU_UBUNTU_USERNAME /home/$EVSSIM_QEMU_UBUNTU_USERNAME/.ssh
 
 # Configure apt sources
-echo "deb http://archive.ubuntu.com/ubuntu $EVSSIM_QEMU_UBUNTU_SYSTEM main universe" > /etc/apt/sources.list
+printf 'Acquire::ForceIPv4 "true";\n' > /etc/apt/apt.conf.d/99force-ipv4
+echo "deb $DEBOOTSTRAP_MIRROR $EVSSIM_QEMU_UBUNTU_SYSTEM main universe" > /etc/apt/sources.list
 apt update
 
 # Additional packages

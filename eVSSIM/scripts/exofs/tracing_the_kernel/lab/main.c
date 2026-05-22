@@ -31,7 +31,7 @@ FILE *tracing_on_file = NULL;
 
 const char *file_path = "/mnt/exofs0/my_file";
 const char *dir_path = "/mnt/exofs0";
-const char *mount_source = "/dev/osd0";
+const char *mount_source = "/dev/nvme0n1";
 const char *mount_target = "/mnt/exofs0";
 const char *filesystem_type = "exofs";
 unsigned long mount_flags = 0;
@@ -218,25 +218,25 @@ void perform_umount() {
 void perform_ls() {
     DIR *dir;
     struct dirent *entry;
-    
+
     start_tracing();
-    
+
     dir = opendir(dir_path);
     if (dir == NULL) {
         perror("Failed to open directory");
         stop_tracing();
         return;
     }
-    
+
     printf("Directory listing for %s:\n", dir_path);
     while ((entry = readdir(dir)) != NULL) {
         printf("  %s (type: %d)\n", entry->d_name, entry->d_type);
     }
-    
+
     if (closedir(dir) == -1) {
         perror("Failed to close directory");
     }
-    
+
     stop_tracing();
 }
 
