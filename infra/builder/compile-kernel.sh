@@ -11,8 +11,28 @@ mkdir -p $EVSSIM_DIST_FOLDER/kernel
 install_path=$EVSSIM_DOCKER_ROOT_PATH/$EVSSIM_DIST_FOLDER/kernel/
 initrd_path=$EVSSIM_DOCKER_ROOT_PATH/$EVSSIM_DIST_FOLDER/kernel/initrd.img-$EVSSIM_KERNEL_DIST
 
-evssim_run_at_folder "$version" $EVSSIM_KERNEL_FOLDER "make $EVSSIM_KCONFIG -j\`nproc\`"
-evssim_run_at_folder "$version" $EVSSIM_KERNEL_FOLDER "make $EVSSIM_KCONFIG modules -j\`nproc\`"
-evssim_run_at_folder "$version" $EVSSIM_KERNEL_FOLDER "make $EVSSIM_KCONFIG INSTALL_PATH=$install_path INSTALL_MOD_PATH=$install_path modules_install install"
-EVSSIM_RUN_SUDO=y evssim_run_at_folder "$version" $EVSSIM_KERNEL_FOLDER "make modules_install install && mkinitramfs -o $initrd_path $EVSSIM_KERNEL_DIST"
+CURRENT_KERNEL_HASH=$(evssim_run_at_folder "$version" $EVSSIM_KERNEL_FOLDER "git rev-parse HEAD")
+# On the jenkins pipeline there are only remote branches and no local ones
+TARGET_KERNEL_HASH=$(evssim_run_at_folder "$version" $EVSSIM_KERNEL_FOLDER "git rev-parse --verify --quiet $EVSSIM_KERNEL_BRANCH || git rev-parse --verify --quiet origin/$EVSSIM_KERNEL_BRANCH")
+
+if [[ "$CURRENT_KERNEL_HASH" != "$TARGET_KERNEL_HASH" ]]; then
+	evssim_run_at_folder "$version" $EVSSIM_KERNEL_FOLDER "git checkout -f $EVSSIM_KERNEL_BRANCH"
+	evssim_run_at_folder "$version" $EVSSIM_KERNEL_FOLDER "git clean -fdx"
+else
+    echo "Already on '$EVSSIM_KERNEL_BRANCH', skipping clean."
+fi
+
+KERNEL_VERSIONS_FOLDER="$EVSSIM_KERNEL_VERSIONS_FOLDER/$EVSSIM_KERNEL_BRANCH"
+KERNEL_VERSION_CONFIG_FILE="$KERNEL_VERSIONS_FOLDER/.config"
+DOCKER_KERNEL_VERSION_CONFIG_FILE="$EVSSIM_DOCKER_ROOT_PATH/$KERNEL_VERSION_CONFIG_FILE"
+
+if ! evssim_run_at_folder "$version" $EVSSIM_KERNEL_FOLDER "diff -q $DOCKER_KERNEL_VERSION_CONFIG_FILE .config" >/dev/null; then
+	echo "Config files differ, copying to kernel folder"
+	evssim_run_at_folder "$version" $EVSSIM_KERNEL_FOLDER "cp $DOCKER_KERNEL_VERSION_CONFIG_FILE ."
+fi
+
+EVSSIM_KERNEL_MAKE="make $EVSSIM_KERNEL_MAKE_ARGS KERNELRELEASE=$EVSSIM_KERNEL_DIST -j\`nproc\` "
+evssim_run_at_folder "$version" $EVSSIM_KERNEL_FOLDER "$EVSSIM_KERNEL_MAKE all"
+evssim_run_at_folder "$version" $EVSSIM_KERNEL_FOLDER "$EVSSIM_KERNEL_MAKE INSTALL_PATH=$install_path INSTALL_MOD_PATH=$install_path modules_install install"
+EVSSIM_RUN_SUDO=y evssim_run_at_folder "$version" $EVSSIM_KERNEL_FOLDER "$EVSSIM_KERNEL_MAKE modules_install install && mkinitramfs -o $initrd_path $EVSSIM_KERNEL_DIST"
 EVSSIM_RUN_SUDO=y evssim_run_at_folder "$version" $EVSSIM_KERNEL_FOLDER chown -R external:external $initrd_path
