@@ -28,7 +28,10 @@ MIN_LOGICAL_WRITE_COUNT="${MIN_LOGICAL_WRITE_COUNT:-600000}"
 REQUIRE_UTILIZATION="${REQUIRE_UTILIZATION:-1}"
 
 GC_FOREGROUND_TRIGGER="${GC_FOREGROUND_TRIGGER:-1}"
-MIN_UTIL_AT_FG_GC="${MIN_UTIL_AT_FG_GC:-0.90}"
+# With two sector namespaces each capped at 40 % of physical pages, the highest
+# achievable SSD utilisation is 80 %.  Foreground GC at that saturation level
+# is correct behaviour, so the threshold is set to match the namespace limit.
+MIN_UTIL_AT_FG_GC="${MIN_UTIL_AT_FG_GC:-0.80}"
 
 SECTOR_MIN_WRITE_COUNT="${SECTOR_MIN_WRITE_COUNT:-100}"
 SECTOR_MIN_READ_COUNT="${SECTOR_MIN_READ_COUNT:-0}"

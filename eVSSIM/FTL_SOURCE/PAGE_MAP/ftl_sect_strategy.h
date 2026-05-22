@@ -19,4 +19,4 @@ ftl_ret_val _FTL_COPYBACK(uint8_t device_index, uint64_t source, uint64_t destin
 ftl_ret_val _FTL_CREATE(uint8_t device_index);
 ftl_ret_val _FTL_DELETE(void);
 
-#endif
+#endif // _FTL_SECT_H_
