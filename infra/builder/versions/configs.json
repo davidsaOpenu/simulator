@@ -3,7 +3,7 @@
     {
       "id": 1,
       "kernel": {
-        "branch": "7.0.1",
+        "branch": "7.0.2",
         "compileContainer": "ubuntu:26.04"
       },
       "qemu": {
