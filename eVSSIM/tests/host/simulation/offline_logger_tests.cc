@@ -82,7 +82,7 @@ void flipAuto();
 
         for(unsigned int i = POW_START; i <= MAX_POW;i++){
             size_t block_nb = pow(2,i);
-            ssd_configs.push_back(new SSDConf(PAGE_SIZE, PAGE_NB, SECTOR_SIZE, DEFAULT_FLASH_NB, block_nb, DEFAULT_FLASH_NB));
+            ssd_configs.push_back(new SSDConf(PAGE_SIZE, PAGE_NB, SECTOR_SIZE, DEFAULT_FLASH_NB, block_nb, DEFAULT_FLASH_NB, block_nb * DEFAULT_FLASH_NB, 0));
         }
 
         return ssd_configs;
