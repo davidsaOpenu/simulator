@@ -1,0 +1,3 @@
+#!/bin/bash
+
+EVSSIM_MAKE_ARGS="CONFIG_BLK_DEV_NVME=m"
