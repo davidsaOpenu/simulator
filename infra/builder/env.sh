@@ -46,8 +46,8 @@ export EVSSIM_SIMULATOR_FOLDER=simulator
 export EVSSIM_ELK_FOLDER=simulator/infra/elk
 export EVSSIM_BUILDER_FOLDER=simulator/infra/builder
 export EVSSIM_CONTAINERS_FOLDER=$EVSSIM_BUILDER_FOLDER/versions/containers
-export EVSSIM_KERNEL_DIST=5.0.0+
 export EVSSIM_KERNEL_FOLDER=kernel
+export EVSSIM_KERNEL_DIST=$(git -C $EVSSIM_ROOT_PATH/$EVSSIM_KERNEL_FOLDER show $EVSSIM_KERNEL_BRANCH:Makefile | awk '/^VERSION/ {v=$3} /^PATCHLEVEL/ {p=$3} /^SUBLEVEL/ {s=$3} END {printf "%s.%s.%s+\n", v, p, s}')
 export EVSSIM_NVME_CLI_FOLDER=nvme-cli
 export EVSSIM_NVME_COMPLIANCE_FOLDER=nvmeCompl
 export EVSSIM_DATA_FOLDER=data
