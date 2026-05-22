@@ -343,7 +343,11 @@ ftl_ret_val _FTL_WRITE_SECT(uint8_t device_index, uint32_t nsid, uint64_t sector
 
 #ifdef GC_ON
 	if (device_full) {
-		GC_CHECK(device_index, true, false);
+		// The write already completed using the GC-reserved page; trigger GC to replenish
+		// the reserve.  This is housekeeping (not blocking the current write), so run it as
+		// a background operation so that the FG-GC invariant (only fire at ≥90% utilisation)
+		// is preserved in the ELK metrics.
+		GC_CHECK(device_index, true, true);
 	}
 #endif // GC_ON
 
