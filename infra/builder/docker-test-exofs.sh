@@ -11,13 +11,21 @@ exofs_test() {
     # Run tests inside the guest
     echo "INFO Running exofs test"
     OUTPUT_DIR="/tmp/output"
+    local benchmark_toggle=${EVSSIM_RUN_FS_BENCHMARKS:-yes}
+    local benchmark_cmd=""
+    local yabs_dir=${YABS_DIR:-/home/esd/yet-another-bench-script}
     set +e
-    evssim_guest "sudo OUTPUT_DIR=$OUTPUT_DIR ./exofs/run_osd_emulator_and_mount_exofs.sh"
+    evssim_guest "sudo env OUTPUT_DIR=$OUTPUT_DIR ./exofs/run_osd_emulator_and_mount_exofs.sh"
     test_rc=$?
+    if [ $test_rc -eq 0 ]; then
+        printf -v benchmark_cmd 'cd ./guest && sudo env OUTPUT_DIR=%q EVSSIM_RUN_FS_BENCHMARKS=%q YABS_DIR=%q nosetests -v run_fs_benchmarks' "$OUTPUT_DIR" "$benchmark_toggle" "$yabs_dir"
+        evssim_guest "$benchmark_cmd"
+        test_rc=$?
+    fi
     set -e
 
     # When debugging you can find trace logs at OUTPUT_DIR
-    evssim_guest_copy $OUTPUT_DIR $OUTPUT_DIR 
+    evssim_guest_copy $OUTPUT_DIR $OUTPUT_DIR
     # Stop qemu and wait
     evssim_qemu_flush_disk
     evssim_qemu_stop

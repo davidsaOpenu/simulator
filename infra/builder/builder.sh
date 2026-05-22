@@ -42,6 +42,87 @@ if ! docker ps 2>/dev/null >/dev/null; then
     exit 1
 fi
 
+# Networking mode for helper containers:
+#   auto   - use host networking on WSL hosts, otherwise docker's default bridge
+#   host   - always use host networking
+#   bridge - always use docker's default bridge networking
+evssim_use_host_network() {
+    local network_mode=${EVSSIM_DOCKER_NETWORK_MODE:-host}
+
+    case "$network_mode" in
+        host)
+            return 0
+            ;;
+        auto)
+            if [[ -n "${WSL_INTEROP:-}" ]] || grep -qi microsoft /proc/version 2>/dev/null; then
+                return 0
+            fi
+            return 1
+            ;;
+        bridge|default)
+            return 1
+            ;;
+        *)
+            echo "ERROR Unknown EVSSIM_DOCKER_NETWORK_MODE=$network_mode. Use auto, host, or bridge."
+            exit 1
+            ;;
+    esac
+}
+
+evssim_docker_network_args() {
+    if evssim_use_host_network; then
+        echo "--network host"
+    fi
+}
+
+evssim_qemu_network_args() {
+    local network_args
+
+    network_args="$(evssim_docker_network_args)"
+    if [[ -n "$network_args" ]]; then
+        echo "$network_args"
+    else
+        echo "$EVSSIM_DOCKER_PORTS_OPTION"
+    fi
+}
+
+evssim_guest_ssh_args() {
+    local connection_attempts=$1
+    local connect_timeout=$2
+    local tty_mode=$3
+
+    EVSSIM_GUEST_SSH_ARGS=(-q)
+
+    case "$tty_mode" in
+        auto)
+            if [ -t 0 ]; then
+                EVSSIM_GUEST_SSH_ARGS+=(-t)
+            fi
+            ;;
+        no-tty)
+            EVSSIM_GUEST_SSH_ARGS+=(-T)
+            ;;
+    esac
+
+    EVSSIM_GUEST_SSH_ARGS+=(
+        -i "$EVSSIM_SSH_KEYS_PATH/id_ed25519"
+        -i "$EVSSIM_SSH_KEYS_PATH/id_rsa"
+        -p "$EVSSIM_QEMU_PORT"
+    )
+    if [[ -n "$connect_timeout" ]]; then
+        EVSSIM_GUEST_SSH_ARGS+=(-o "ConnectTimeout=$connect_timeout")
+    fi
+    if [[ -n "$connection_attempts" ]]; then
+        EVSSIM_GUEST_SSH_ARGS+=(-o "ConnectionAttempts=$connection_attempts")
+    fi
+    EVSSIM_GUEST_SSH_ARGS+=(
+        -o UserKnownHostsFile=/dev/null
+        -o StrictHostKeyChecking=no
+        -o PasswordAuthentication=no
+        -o PubkeyAcceptedKeyTypes=+ssh-rsa,ssh-ed25519
+    )
+}
+
 # Configure docker use of tty if one is available
 docker_extra_tty=""
 if [ -t 0 ]; then
@@ -82,7 +163,10 @@ evssim_run_at_folder () {
 evssim_run_at_path () {
     local path=$1
     local args="${@:2}"
-    docker run --rm -i $docker_extra_tty $EVSSIM_DOCKER_XOPTIONS $EVSSIM_DOCKER_PORTS_OPTION --privileged --env-file <(evssim_all_env) -v $EVSSIM_ROOT_PATH:$EVSSIM_DOCKER_ROOT_PATH $EVSSIM_DOCKER_IMAGE_NAME bash -c "cd $path; $args"
+    local docker_network_args=()
+
+    read -r -a docker_network_args <<< "$(evssim_docker_network_args)"
+    docker run --rm -i $docker_extra_tty $EVSSIM_DOCKER_XOPTIONS "${docker_network_args[@]}" --privileged --env-file <(evssim_all_env) -v $EVSSIM_ROOT_PATH:$EVSSIM_DOCKER_ROOT_PATH $EVSSIM_DOCKER_IMAGE_NAME bash -c "cd $path; $args"
 }
 
 # Run
@@ -277,8 +361,17 @@ evssim_qemu () {
         echo "INFO Non-simulator mode, Default size: $(numfmt --from=iec --to=iec $device_size)"
     fi
 
+    local qemu_accel=${EVSSIM_QEMU_ACCELERATION:-kvm}
+    if [[ -z ${EVSSIM_QEMU_ACCELERATION:-} && ! -e /dev/kvm ]]; then
+        qemu_accel=tcg
+        echo "WARNING /dev/kvm is unavailable on the host, falling back to TCG"
+    fi
+
     # Build the complete args
-    local args="cd $EVSSIM_DOCKER_ROOT_PATH/$EVSSIM_QEMU_FOLDER/hw && $timeout ../x86_64-softmmu/qemu-system-x86_64 -rtc base=localtime,clock=host -pidfile /tmp/qemu.pid $trace_config -m 4096 -smp 4 -drive format=raw,file=$image $drive_args $device_args -device e1000,netdev=net0 -netdev user,id=net0,hostfwd=tcp::$EVSSIM_QEMU_PORT-:22 -vnc :$EVSSIM_QEMU_VNC -machine accel=kvm -kernel $kernel -initrd $initrd -L /usr/share/seabios -L ../pc-bios/optionrom -append '$append'";
+    local args="cd $EVSSIM_DOCKER_ROOT_PATH/$EVSSIM_QEMU_FOLDER/hw && $timeout ../x86_64-softmmu/qemu-system-x86_64 -rtc base=localtime,clock=host -pidfile /tmp/qemu.pid $trace_config -m 4096 -smp 4 -drive format=raw,file=$image $drive_args $device_args -device e1000,netdev=net0 -netdev user,id=net0,hostfwd=tcp::$EVSSIM_QEMU_PORT-:22 -vnc :$EVSSIM_QEMU_VNC -machine accel=$qemu_accel -kernel $kernel -initrd $initrd -L /usr/share/seabios -L ../pc-bios/optionrom -append '$append'";
+    local qemu_network_args=()
+
+    read -r -a qemu_network_args <<< "$(evssim_qemu_network_args)"
 
     # Stop any previous runs
     evssim_qemu_stop
@@ -295,13 +388,16 @@ evssim_qemu () {
 
     case "$attached" in
         attached)
-            docker run --rm -i $docker_extra_tty --net=host $EVSSIM_DOCKER_XOPTIONS --privileged --env-file <(evssim_all_env) -v $EVSSIM_ROOT_PATH/$EVSSIM_DATA_FOLDER:$EVSSIM_DOCKER_ROOT_PATH/$EVSSIM_QEMU_FOLDER/hw/data -v $EVSSIM_ROOT_PATH:$EVSSIM_DOCKER_ROOT_PATH $EVSSIM_DOCKER_IMAGE_NAME bash -c "$args"
+            docker run --rm -i $docker_extra_tty "${qemu_network_args[@]}" $EVSSIM_DOCKER_XOPTIONS --privileged --env-file <(evssim_all_env) -v $EVSSIM_ROOT_PATH/$EVSSIM_DATA_FOLDER:$EVSSIM_DOCKER_ROOT_PATH/$EVSSIM_QEMU_FOLDER/hw/data -v $EVSSIM_ROOT_PATH:$EVSSIM_DOCKER_ROOT_PATH $EVSSIM_DOCKER_IMAGE_NAME bash -c "$args"
             ;;
         *)
-            export EVSSIM_DOCKER_UUID=$(docker run --rm -d --net=host $EVSSIM_DOCKER_XOPTIONS --privileged --env-file <(evssim_all_env) -v $EVSSIM_ROOT_PATH/$EVSSIM_DATA_FOLDER:$EVSSIM_DOCKER_ROOT_PATH/$EVSSIM_QEMU_FOLDER/hw/data -v $EVSSIM_ROOT_PATH:$EVSSIM_DOCKER_ROOT_PATH $EVSSIM_DOCKER_IMAGE_NAME bash -c "$args")
+            export EVSSIM_DOCKER_UUID=$(docker run --rm -d "${qemu_network_args[@]}" $EVSSIM_DOCKER_XOPTIONS --privileged --env-file <(evssim_all_env) -v $EVSSIM_ROOT_PATH/$EVSSIM_DATA_FOLDER:$EVSSIM_DOCKER_ROOT_PATH/$EVSSIM_QEMU_FOLDER/hw/data -v $EVSSIM_ROOT_PATH:$EVSSIM_DOCKER_ROOT_PATH $EVSSIM_DOCKER_IMAGE_NAME bash -c "$args")
             echo INFO Docker started $EVSSIM_DOCKER_UUID
             trap "evssim_qemu_stop" EXIT SIGTERM SIGINT
-            sleep 1
+            if ! evssim_wait_for_guest; then
+                evssim_qemu_stop
+                exit 1
+            fi
             ;;
     esac
 }
@@ -309,7 +405,25 @@ evssim_qemu () {
 # Flush the disk from inside the qemu running virtual machine
 # Parameters - None
 evssim_qemu_flush_disk () {
-    evssim_guest sync
+    local flush_timeout=${EVSSIM_GUEST_FLUSH_TIMEOUT:-30}
+
+    set +e
+    evssim_guest_ssh_args 1 5 no-tty
+    timeout ${flush_timeout}s \
+        ssh "${EVSSIM_GUEST_SSH_ARGS[@]}" \
+            -o ServerAliveInterval=5 \
+            -o ServerAliveCountMax=1 \
+            "$EVSSIM_QEMU_UBUNTU_USERNAME@localhost" sync
+    local flush_rc=$?
+    set -e
+
+    if [ $flush_rc -eq 124 ]; then
+        echo "WARNING Guest disk flush timed out after ${flush_timeout}s; continuing with QEMU shutdown"
+    elif [ $flush_rc -ne 0 ]; then
+        echo "WARNING Guest disk flush failed with exit code ${flush_rc}; continuing with QEMU shutdown"
+    fi
+
+    return 0
 }
 
 # Stop detached qemu run
@@ -395,6 +509,7 @@ evssim_copy_tools () {
         $EVSSIM_DOCKER_ROOT_PATH/$EVSSIM_DIST_FOLDER/tnvme \
         $EVSSIM_DOCKER_ROOT_PATH/$EVSSIM_DIST_FOLDER/dnvme.ko \
         $EVSSIM_DOCKER_ROOT_PATH/$EVSSIM_SIMULATOR_FOLDER/eVSSIM/tests/guest/*"
+    evssim_run_mounted "cp -Rt . $EVSSIM_DOCKER_ROOT_PATH/$EVSSIM_DIST_FOLDER/yet-another-bench-script"
 
     # copy the OSD emulator (osc-osd)
     evssim_run_mounted "cp -Rt . $EVSSIM_DOCKER_ROOT_PATH/$EVSSIM_DIST_FOLDER/osc-osd"
@@ -408,21 +523,54 @@ evssim_copy_tools () {
     evssim_run_mounted sudo rsync -qrptgo $EVSSIM_DOCKER_ROOT_PATH/$EVSSIM_DIST_FOLDER/kernel/lib/ $EVSSIM_GUEST_MOUNT_POINT/lib/
 }
 
+evssim_wait_for_guest () {
+    local timeout_seconds=${EVSSIM_GUEST_BOOT_TIMEOUT:-300}
+    local start_time=$(date +%s)
+
+    while true; do
+        evssim_guest_ssh_args 1 2 no-tty
+        if ssh "${EVSSIM_GUEST_SSH_ARGS[@]}" \
+            "$EVSSIM_QEMU_UBUNTU_USERNAME@localhost" true >/dev/null 2>&1; then
+            return 0
+        fi
+
+        if [ $(($(date +%s) - start_time)) -ge $timeout_seconds ]; then
+            echo "ERROR Guest SSH did not become ready within ${timeout_seconds}s"
+            return 1
+        fi
+
+        sleep 1
+    done
+}
+
 # Execute guest command inside running QEMU virtual machine.
 # Uses ssh and the integrated public key to execute the command.
 # Parameters - Command to execute
 # Example
 #   evssim_guest ls -al
 evssim_guest () {
-    ssh_extra_tty=""
-    if [ -t 0 ]; then
-        ssh_extra_tty=-t
-    fi
-    ssh -q $ssh_extra_tty -i "$EVSSIM_SSH_KEYS_PATH/id_ed25519" -i "$EVSSIM_SSH_KEYS_PATH/id_rsa" -p 2222 -o ConnectionAttempts=1024 -o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no -o PasswordAuthentication=no -o PubkeyAcceptedKeyTypes=+ssh-rsa,ssh-ed25519 $EVSSIM_QEMU_UBUNTU_USERNAME@localhost bash -c \"$@\"
+    local remote_command="$*"
+    local remote_shell_command
+
+    evssim_guest_ssh_args 1024 "" auto
+    printf -v remote_shell_command 'bash -c %q' "$remote_command"
+    ssh "${EVSSIM_GUEST_SSH_ARGS[@]}" \
+        "$EVSSIM_QEMU_UBUNTU_USERNAME@localhost" "$remote_shell_command"
 }
 
 evssim_guest_copy () {
-    DOCKET_FILE_PATH=$1
-    OUTPUT_FILE_PATH=$2
-    scp -r -o ConnectionAttempts=1024 -o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no -o PasswordAuthentication=no -o PubkeyAcceptedKeyTypes=+ssh-rsa,ssh-ed25519 -i "$EVSSIM_SSH_KEYS_PATH/id_ed25519" -i "$EVSSIM_SSH_KEYS_PATH/id_rsa" -P 2222 $EVSSIM_QEMU_UBUNTU_USERNAME@localhost:$DOCKET_FILE_PATH $OUTPUT_FILE_PATH
+    local docker_file_path=$1
+    local output_file_path=$2
+
+    scp -r \
+        -o ConnectionAttempts=1024 \
+        -o UserKnownHostsFile=/dev/null \
+        -o StrictHostKeyChecking=no \
+        -o PasswordAuthentication=no \
+        -o PubkeyAcceptedKeyTypes=+ssh-rsa,ssh-ed25519 \
+        -i "$EVSSIM_SSH_KEYS_PATH/id_ed25519" \
+        -i "$EVSSIM_SSH_KEYS_PATH/id_rsa" \
+        -P "$EVSSIM_QEMU_PORT" \
+        "$EVSSIM_QEMU_UBUNTU_USERNAME@localhost:$docker_file_path" \
+        "$output_file_path"
 }
