@@ -3,7 +3,7 @@ set -e
 
 IMAGE_PATH=$EVSSIM_DOCKER_ROOT_PATH/$EVSSIM_DIST_FOLDER/$EVSSIM_QEMU_IMAGE
 DEBOOTSTRAP_CACHE=$EVSSIM_DOCKER_ROOT_PATH/$EVSSIM_DIST_FOLDER/debootstrap.tgz
-DEBOOTSTRAP_MIRROR=http://archive.ubuntu.com/ubuntu/
+DEBOOTSTRAP_MIRROR=http://us.archive.ubuntu.com/ubuntu/
 DEBOOTSTRAP_ADDITIONAL_PACKAGES=ssh
 MOUNT_POINT=/mnt/guest
 
@@ -18,7 +18,11 @@ mount -o loop,nodelalloc $IMAGE_PATH $MOUNT_POINT
 # Make debootstrap/dpkg work without fsync (Feature of eatmydata)
 ln -s /usr/bin/eatmydata /usr/local/bin/debootstrap
 ln -s /usr/bin/eatmydata /usr/local/bin/dpkg
-ln -s /usr/bin/eatmydata /usr/local/bin/wget
+cat << 'EOF' > /usr/local/bin/wget
+#!/bin/sh
+exec /usr/bin/eatmydata /usr/bin/wget -4 "$@"
+EOF
+chmod +x /usr/local/bin/wget
 
 # Debootstrap and cache all packages
 if [ ! -f $DEBOOTSTRAP_CACHE ]; then
@@ -80,7 +84,8 @@ echo "$PUBLIC_KEY" > /home/$EVSSIM_QEMU_UBUNTU_USERNAME/.ssh/authorized_keys
 chown -R $EVSSIM_QEMU_UBUNTU_USERNAME:$EVSSIM_QEMU_UBUNTU_USERNAME /home/$EVSSIM_QEMU_UBUNTU_USERNAME/.ssh
 
 # Configure apt sources
-echo "deb http://archive.ubuntu.com/ubuntu $EVSSIM_QEMU_UBUNTU_SYSTEM main universe" > /etc/apt/sources.list
+printf 'Acquire::ForceIPv4 "true";\n' > /etc/apt/apt.conf.d/99force-ipv4
+echo "deb $DEBOOTSTRAP_MIRROR $EVSSIM_QEMU_UBUNTU_SYSTEM main universe" > /etc/apt/sources.list
 apt update
 
 # Additional packages

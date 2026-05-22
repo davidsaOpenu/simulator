@@ -2,6 +2,10 @@
 source ./builder.sh
 
 exofs_test() {
+    benchmark_enabled() {
+        [[ ! "${EVSSIM_RUN_FS_BENCHMARKS:-yes}" =~ ^(0|[Nn][Oo]?|[Ff][Aa][Ll][Ss][Ee])$ ]]
+    }
+
     # Make a fresh copy
     evssim_qemu_fresh_image
 
@@ -11,9 +15,16 @@ exofs_test() {
     # Run tests inside the guest
     echo "INFO Running exofs test"
     OUTPUT_DIR="/tmp/output"
+    local benchmark_cmd=""
+    local yabs_dir=${YABS_DIR:-/home/esd/yet-another-bench-script}
     set +e
     evssim_guest "sudo OUTPUT_DIR=$OUTPUT_DIR ./exofs/run_osd_emulator_and_mount_exofs.sh"
     test_rc=$?
+    if [ $test_rc -eq 0 ] && benchmark_enabled; then
+        printf -v benchmark_cmd 'cd ./guest && sudo OUTPUT_DIR=%q EVSSIM_RUN_FS_BENCHMARKS=yes YABS_DIR=%q nosetests -v run_fs_benchmarks' "$OUTPUT_DIR" "$yabs_dir"
+        evssim_guest "$benchmark_cmd"
+        test_rc=$?
+    fi
     set -e
 
     # When debugging you can find trace logs at OUTPUT_DIR

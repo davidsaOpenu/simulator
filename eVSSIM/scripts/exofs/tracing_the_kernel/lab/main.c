@@ -31,7 +31,7 @@ FILE *tracing_on_file = NULL;
 
 const char *file_path = "/mnt/exofs0/my_file";
 const char *dir_path = "/mnt/exofs0";
-const char *mount_source = "/dev/osd0";
+const char *mount_source = "/dev/nvme0n1";
 const char *mount_target = "/mnt/exofs0";
 const char *filesystem_type = "exofs";
 unsigned long mount_flags = 0;
