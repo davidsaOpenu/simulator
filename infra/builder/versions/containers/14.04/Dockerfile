@@ -1,5 +1,14 @@
 FROM ubuntu:14.04
 
+# 14.04 is EOL, so disable ESM and use the archived package mirrors.
+# Trusty needs the non-Cloudflare mirror in this Docker network and the stale ESM list removed.
+RUN rm -f /etc/apt/sources.list.d/ubuntu-esm-infra-trusty.list && \
+    sed -i \
+      -e 's|http://archive.ubuntu.com/ubuntu/|http://us.archive.ubuntu.com/ubuntu/|g' \
+      -e 's|http://security.ubuntu.com/ubuntu/|http://us.archive.ubuntu.com/ubuntu/|g' \
+      /etc/apt/sources.list && \
+    printf 'Acquire::ForceIPv4 "true";\n' > /etc/apt/apt.conf.d/99force-ipv4
+
 # Install base packages
 RUN apt-get update && DEBIAN_FRONTEND=noninteractive apt-get -y install \
   software-properties-common \
