@@ -343,11 +343,11 @@ ftl_ret_val _FTL_WRITE_SECT(uint8_t device_index, uint32_t nsid, uint64_t sector
 
 #ifdef GC_ON
 	if (device_full) {
-		// The write already completed using the GC-reserved page; trigger GC to replenish
-		// the reserve.  This is housekeeping (not blocking the current write), so run it as
-		// a background operation so that the FG-GC invariant (only fire at ≥90% utilisation)
-		// is preserved in the ELK metrics.
-		GC_CHECK(device_index, true, true);
+		// The write consumed a page from the GC-reserve pool, so the pool must be
+		// replenished immediately.  At this point the SSD is at its maximum utilisation
+		// (namespace pages fill ~80 % of physical capacity), so foreground GC here is
+		// the expected, correct behaviour — not a sign of under-provisioning.
+		GC_CHECK(device_index, true, false);
 	}
 #endif // GC_ON
 
