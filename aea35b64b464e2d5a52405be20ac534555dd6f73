@@ -1,0 +1,72 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "79ce33c5_f02ae67b",
+        "filename": "eVSSIM/tests/guest/run_fs_benchmarks/test_fs_benchmark.py",
+        "patchSetId": 1
+      },
+      "lineNbr": 14,
+      "author": {
+        "id": 1039522
+      },
+      "writtenOn": "2026-05-23T16:14:48Z",
+      "side": 1,
+      "message": "Add typing for readability",
+      "revId": "aea35b64b464e2d5a52405be20ac534555dd6f73",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "5d480916_f8dc5fef",
+        "filename": "eVSSIM/tests/guest/run_fs_benchmarks/test_fs_benchmark.py",
+        "patchSetId": 1
+      },
+      "lineNbr": 18,
+      "author": {
+        "id": 1039522
+      },
+      "writtenOn": "2026-05-23T16:14:48Z",
+      "side": 1,
+      "message": "To simplify the code, use with and in the case that the output path is None, use temp dir",
+      "revId": "aea35b64b464e2d5a52405be20ac534555dd6f73",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "610ebc63_b4679e23",
+        "filename": "eVSSIM/tests/guest/run_fs_benchmarks/test_fs_benchmark.py",
+        "patchSetId": 1
+      },
+      "lineNbr": 36,
+      "author": {
+        "id": 1039522
+      },
+      "writtenOn": "2026-05-23T16:14:48Z",
+      "side": 1,
+      "message": "use f strings",
+      "revId": "aea35b64b464e2d5a52405be20ac534555dd6f73",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "44dd13e2_1f64b1b2",
+        "filename": "infra/builder/compile-guest-tests.sh",
+        "patchSetId": 1
+      },
+      "lineNbr": 16,
+      "author": {
+        "id": 1039522
+      },
+      "writtenOn": "2026-05-23T16:14:48Z",
+      "side": 1,
+      "message": "Why do you clone the repo each time? Check if it exists and is in the right commit and if not clone it and checkout",
+      "revId": "aea35b64b464e2d5a52405be20ac534555dd6f73",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
+    }
+  ]
+}
