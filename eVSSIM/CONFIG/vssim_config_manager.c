@@ -251,6 +251,9 @@ bool parse_config_line(const char* key, FILE* file, ssd_config_t* device) {
     if (strcmp(key, "GC_HI_THR") == 0) {
         return fscanf(file, "%d", &device->gc_hi_thr) == 1;
     }
+    if (strcmp(key, "MAP_MANAGER_THREADS") == 0) {
+        return fscanf(file, "%" SCNu32, &device->map_manager_threads) == 1;
+    }
 
 #if defined FTL_MAP_CACHE
     if (strcmp(key, "CACHE_IDX_SIZE") == 0) {

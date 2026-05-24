@@ -43,6 +43,9 @@ int main(int argc, char **argv) {
         else if (strcmp(argv[i], "--onfi_ops_test") == 0) {
             tests_filter = "*OnfiCommandsTest*";
         }
+        else if (strcmp(argv[i], "--ssd-conf-tests") == 0) {
+            tests_filter = "*SSDConfigTest*"; 
+        }
         else if (strcmp(argv[i], "--device-index") == 0) {
             // By default use 0 if flag not passed
             if (i + 1 < argc)

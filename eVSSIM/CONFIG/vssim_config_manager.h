@@ -80,6 +80,9 @@ typedef struct ssd_config {
 	char osd_path[PATH_MAX];
 
 	int storage_strategy; // 1 = sector-based, 2 = object-based
+
+	// Mapping Manager
+	uint32_t map_manager_threads;
 } ssd_config_t;
 
 /* NVMe devices manager */
