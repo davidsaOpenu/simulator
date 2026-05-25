@@ -28,6 +28,7 @@ extern bool g_server_mode;
 #include "test_context.h"
 
 #include <pthread.h>
+#include <string>
 #include <unistd.h>
 
 //during the tests most logger_read calls read 1 byte
@@ -47,11 +48,11 @@ namespace log_mgr_tests {
                 BaseTest::SetUp();
 
                 if (g_server_mode) {
-                    log_server_init(g_device_index);
+                    log_server_init(device_count);
                     pthread_create(&_server, NULL, log_server_run, NULL);
                     printf("Server opened\n");
                     printf("Browse to http://127.0.0.1:%d/ to see the statistics\n",
-                            LOG_SERVER_PORT(g_device_index));
+                            LOG_SERVER_PORT);
                 }
                 SSDConf* ssd_config = base_test_get_ssd_config();
 
@@ -695,7 +696,7 @@ namespace log_mgr_tests {
         rt_log_stats_init(g_device_index);
         rt_subscriber::subscribe(analyzer);
         if (g_server_mode)
-            rt_log_analyzer_subscribe(analyzer, (MonitorHook) log_server_update, NULL);
+            rt_log_analyzer_subscribe(analyzer, log_server_update, NULL);
         rt_subscriber::write();
         rt_subscriber::read();
         rt_log_analyzer_free(analyzer, 0);
@@ -744,10 +745,34 @@ namespace log_mgr_tests {
         LogManager* manager = log_manager_init();
         manager_subscriber::init(manager);
         if (g_server_mode)
-            log_manager_subscribe(manager, (MonitorHook) log_server_update, NULL);
+            log_manager_subscribe(manager, log_server_update, NULL);
         manager_subscriber::run();
         manager_subscriber::free();
         log_manager_free(manager);
         elk_logger_writer_free();
+    }
+    TEST_P(LogMgrUnitTest, JsonInjectDeviceIndexAddsField) {
+        const char* original_json = "{\"type\":\"PhysicalCellReadLog\",\"channel\":3}\n";
+        char* enriched_json = json_inject_device_index(original_json, 2);
+
+        ASSERT_NE(nullptr, enriched_json);
+
+        struct json_object* parsed = json_tokener_parse(enriched_json);
+        ASSERT_NE(nullptr, parsed);
+
+        struct json_object* type_obj = NULL;
+        ASSERT_TRUE(json_object_object_get_ex(parsed, "type", &type_obj));
+        ASSERT_STREQ("PhysicalCellReadLog", json_object_get_string(type_obj));
+
+        struct json_object* device_index_obj = NULL;
+        ASSERT_TRUE(json_object_object_get_ex(parsed, "device_index", &device_index_obj));
+        ASSERT_EQ(2, json_object_get_int(device_index_obj));
+
+        const std::string enriched_str(enriched_json);
+        ASSERT_FALSE(enriched_str.empty());
+        ASSERT_EQ('\n', enriched_str.back());
+
+        json_object_put(parsed);
+        free(enriched_json);
     }
 } //namespace

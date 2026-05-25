@@ -7,8 +7,11 @@
 #include <string.h>
 #include <inttypes.h>
 #include <sys/stat.h>
-#include <string.h>
+#include <unistd.h>
+#include <errno.h>
 #include <ctype.h>
+
+#include "logging_rt_analyzer.h"
 
 /* Devices Configuration */
 ssd_config_t* devices = NULL;
@@ -20,8 +23,6 @@ void update_globals(void);
 
 void INIT_SSD_CONFIG(void)
 {
-    pthread_mutex_lock(&g_lock);
-
     FILE *pfData = fopen("./data/ssd.conf", "r");
 
     if (pfData == NULL){
@@ -126,6 +127,22 @@ void INIT_SSD_CONFIG(void)
         calculate_derived_values(&devices[i]);
     }
 
+    g_device_locks = (pthread_mutex_t*)calloc(sizeof(pthread_mutex_t) * device_count, 1);
+    if (NULL == g_device_locks)
+        RERR(, "g_device_locks allocation failed!\n");
+
+    for (i = 0; i < device_count; i++) {
+        if (pthread_mutex_init(&g_device_locks[i], NULL) != 0) {
+            uint32_t j;
+            for (j = 0; j < i; j++) {
+                pthread_mutex_destroy(&g_device_locks[j]);
+            }
+            free(g_device_locks);
+            g_device_locks = NULL;
+            RERR(, "g_device_locks mutex init failed!\n");
+        }
+    }
+
     inverse_mappings_manager = (inverse_mapping_manager_t*)calloc(sizeof(inverse_mapping_manager_t) * device_count, 1);
     if (NULL == inverse_mappings_manager)
         RERR(, "inverse_mappings_manager allocation failed!\n");
@@ -133,6 +150,13 @@ void INIT_SSD_CONFIG(void)
     mapping_table = (uint64_t**)calloc(sizeof(uint64_t*) * device_count, 1);
     if (NULL == mapping_table)
         RERR(, "mapping_table allocation failed!\n");
+
+    obj_manager = (obj_strategy_manager_t*)calloc(sizeof(obj_strategy_manager_t) * device_count, 1);
+    if (NULL == obj_manager)
+        RERR(, "obj_manager allocation failed!\n");
+
+    if (mkdir(OSD_PATH, 0777) != 0 && errno != EEXIST)
+        RERR(, "Failed to create " OSD_PATH " directory\n");
 
     g_init_ftl = (int*)calloc(sizeof(int) * device_count, 1);
     if (NULL == g_init_ftl)
@@ -150,18 +174,52 @@ void INIT_SSD_CONFIG(void)
     if (NULL == gc_threads)
         RERR(, "gc_threads allocation failed!\n");
 
-    pthread_mutex_unlock(&g_lock);
+    perf_checker = (perf_checker_t*)calloc(sizeof(perf_checker_t) * device_count, 1);
+    if (NULL == perf_checker)
+        RERR(, "perf_checker allocation failed!\n");
+
+    rt_log_stats = (RTLogStatistics**)calloc(sizeof(RTLogStatistics*) * device_count, 1);
+    if (NULL == rt_log_stats)
+        RERR(, "rt_log_stats allocation failed!\n");
+
+    analyzers_storage = (LoggerAnalyzerStorage**)calloc(sizeof(LoggerAnalyzerStorage*) * device_count, 1);
+    if (NULL == analyzers_storage)
+        RERR(, "analyzers_storage allocation failed!\n");
+
+    log_manager = (LogManager**)calloc(sizeof(LogManager*) * device_count, 1);
+    if (NULL == log_manager)
+        RERR(, "log_manager allocation failed!\n");
+
+    log_manager_threads = (pthread_t*)calloc(sizeof(pthread_t) * device_count, 1);
+    if (NULL == log_manager_threads)
+        RERR(, "log_manager_threads allocation failed!\n");
+
 }
 
 void TERM_SSD_CONFIG(void)
 {
-    pthread_mutex_lock(&g_lock);
+    if (g_device_locks != NULL) {
+        uint8_t lock_index;
+        for (lock_index = 0; lock_index < device_count; lock_index++) {
+            pthread_mutex_destroy(&g_device_locks[lock_index]);
+        }
+
+        free(g_device_locks);
+        g_device_locks = NULL;
+    }
 
     free(inverse_mappings_manager);
     inverse_mappings_manager = NULL;
 
     free(mapping_table);
     mapping_table = NULL;
+
+    free(obj_manager);
+    obj_manager = NULL;
+
+    if (rmdir(OSD_PATH) != 0 && errno != ENOENT) {
+        RERR(, "Failed to remove " OSD_PATH " directory\n");
+    }
 
     free(g_init_ftl);
     g_init_ftl = NULL;
@@ -175,12 +233,35 @@ void TERM_SSD_CONFIG(void)
     free(gc_threads);
     gc_threads = NULL;
 
+    free(perf_checker);
+    perf_checker = NULL;
+
+    if (rt_log_stats != NULL) {
+        uint8_t i;
+        for (i = 0; i < device_count; i++) {
+            if (rt_log_stats[i] != NULL) {
+                free(rt_log_stats[i]);
+                rt_log_stats[i] = NULL;
+            }
+        }
+        free(rt_log_stats);
+        rt_log_stats = NULL;
+    }
+
+    free(analyzers_storage);
+    analyzers_storage = NULL;
+
+    free(log_manager);
+    log_manager = NULL;
+
+    free(log_manager_threads);
+    log_manager_threads = NULL;
+
     free(devices);
     devices = NULL;
 
     device_count = 0;
 
-    pthread_mutex_unlock(&g_lock);
 }
 
 bool parse_config_line(const char* key, FILE* file, ssd_config_t* device) {

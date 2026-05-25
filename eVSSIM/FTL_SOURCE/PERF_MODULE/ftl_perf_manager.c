@@ -5,85 +5,70 @@
 
 #include "common.h"
 
-/* Average IO Time */
-double avg_write_delay;
-double total_write_count;
-double total_write_delay;
+perf_checker_t *perf_checker = NULL;
 
-double avg_read_delay;
-double total_read_count;
-double total_read_delay;
+#define PC(d) (perf_checker[d])
 
-double avg_gc_write_delay;
-double total_gc_write_count;
-double total_gc_write_delay;
+void INIT_PERF_CHECKER(uint8_t device_index){
 
-double avg_gc_read_delay;
-double total_gc_read_count;
-double total_gc_read_delay;
-
-/* IO Latency */
-unsigned int io_request_nb;
-unsigned int io_request_seq_nb;
-
-struct io_request* io_request_start;
-struct io_request* io_request_end;
-
-/* Calculate IO Latency */
-double read_latency_count;
-double write_latency_count;
-
-double avg_read_latency;
-double avg_write_latency;
-
-/* SSD Util */
-double ssd_util;
-uint64_t written_page_nb;
-
-void INIT_PERF_CHECKER(void){
-
-	/* Average IO Time */
-	avg_write_delay = 0;
-	total_write_count = 0;
-	total_write_delay = 0;
-
-	avg_read_delay = 0;
-	total_read_count = 0;
-	total_read_delay = 0;
-
-	avg_gc_write_delay = 0;
-	total_gc_write_count = 0;
-	total_gc_write_delay = 0;
-
-	avg_gc_read_delay = 0;
-	total_gc_read_count = 0;
-	total_gc_read_delay = 0;
-
-	/* IO Latency */
-	io_request_nb = 0;
-	io_request_seq_nb = 0;
-
-	io_request_start = NULL;
-	io_request_end = NULL;
-
-	read_latency_count = 0;
-	write_latency_count = 0;
-
-	avg_read_latency = 0;
-	avg_write_latency = 0;
-
-	ssd_util = 0;
-	written_page_nb = 0;
-}
-
-void TERM_PERF_CHECKER(void){
-
-	while (io_request_nb) {
-		FREE_IO_REQUEST(io_request_start);
+	if (perf_checker == NULL) {
+		RERR(, "perf_checker not allocated\n");
 	}
 
-	printf("Average Read Latency	%.3lf us\n", avg_read_latency);
-	printf("Average Write Latency	%.3lf us\n", avg_write_latency);
+	if (PC(device_index).initialized) {
+		return;
+	}
+
+	/* Average IO Time */
+	PC(device_index).avg_write_delay = 0;
+	PC(device_index).total_write_count = 0;
+	PC(device_index).total_write_delay = 0;
+
+	PC(device_index).avg_read_delay = 0;
+	PC(device_index).total_read_count = 0;
+	PC(device_index).total_read_delay = 0;
+
+	PC(device_index).avg_gc_write_delay = 0;
+	PC(device_index).total_gc_write_count = 0;
+	PC(device_index).total_gc_write_delay = 0;
+
+	PC(device_index).avg_gc_read_delay = 0;
+	PC(device_index).total_gc_read_count = 0;
+	PC(device_index).total_gc_read_delay = 0;
+
+	/* IO Latency */
+	PC(device_index).io_request_nb = 0;
+	PC(device_index).io_request_seq_nb = 0;
+
+	PC(device_index).io_request_start = NULL;
+	PC(device_index).io_request_end = NULL;
+
+	PC(device_index).read_latency_count = 0;
+	PC(device_index).write_latency_count = 0;
+
+	PC(device_index).avg_read_latency = 0;
+	PC(device_index).avg_write_latency = 0;
+
+	PC(device_index).ssd_util = 0;
+	PC(device_index).written_page_nb = 0;
+
+	PC(device_index).initialized = true;
+}
+
+void TERM_PERF_CHECKER(uint8_t device_index){
+
+	if (perf_checker == NULL || !PC(device_index).initialized) {
+		return;
+	}
+
+	while (PC(device_index).io_request_nb) {
+		FREE_IO_REQUEST(device_index, PC(device_index).io_request_start);
+	}
+
+	printf("Device %u - Average Read Latency	%.3lf us\n", device_index, PC(device_index).avg_read_latency);
+	printf("Device %u - Average Write Latency	%.3lf us\n", device_index, PC(device_index).avg_write_latency);
+
+	PC(device_index).initialized = false;
 }
 
 void SEND_TO_PERF_CHECKER(uint8_t device_index, int op_type, int64_t op_delay, int type){
@@ -92,24 +77,24 @@ void SEND_TO_PERF_CHECKER(uint8_t device_index, int op_type, int64_t op_delay, i
 	if(type == CH_OP){
 		switch(op_type){
 			case READ:
-				total_read_delay += delay;
-				total_read_count++;
-				avg_read_delay = total_read_delay / total_read_count;
+				PC(device_index).total_read_delay += delay;
+				PC(device_index).total_read_count++;
+				PC(device_index).avg_read_delay = PC(device_index).total_read_delay / PC(device_index).total_read_count;
 				break;
 
 			case WRITE:
-				total_write_delay += delay;
+				PC(device_index).total_write_delay += delay;
 				break;
 
 			case ERASE:
 				break;
 
 			case GC_READ:
-				total_gc_read_delay += delay;
+				PC(device_index).total_gc_read_delay += delay;
 				break;
 
 			case GC_WRITE:
-				total_gc_write_delay += delay;
+				PC(device_index).total_gc_write_delay += delay;
 				break;
 			case COPYBACK:
 				break;
@@ -120,35 +105,35 @@ void SEND_TO_PERF_CHECKER(uint8_t device_index, int op_type, int64_t op_delay, i
 	else if(type == REG_OP){
 		switch (op_type){
 			case READ:
-				total_read_delay += delay;
+				PC(device_index).total_read_delay += delay;
 				break;
 
 			case WRITE:
-				total_write_delay += delay;
-				total_write_count++;
-				avg_write_delay = total_write_delay / total_write_count;
+				PC(device_index).total_write_delay += delay;
+				PC(device_index).total_write_count++;
+				PC(device_index).avg_write_delay = PC(device_index).total_write_delay / PC(device_index).total_write_count;
 
 				/* Calc SSD Util */
-				written_page_nb++;
+				PC(device_index).written_page_nb++;
 				break;
 
 			case ERASE:
-				written_page_nb -= devices[device_index].page_nb;
+				PC(device_index).written_page_nb -= devices[device_index].page_nb;
 				break;
 
 			case GC_READ:
-				total_gc_read_delay += delay;
-				total_gc_read_count++;
-				avg_gc_read_delay = total_gc_read_delay / total_gc_read_count;
+				PC(device_index).total_gc_read_delay += delay;
+				PC(device_index).total_gc_read_count++;
+				PC(device_index).avg_gc_read_delay = PC(device_index).total_gc_read_delay / PC(device_index).total_gc_read_count;
 				break;
 
 			case GC_WRITE:
-				total_gc_write_delay += delay;
-				total_gc_write_count++;
-				avg_gc_write_delay = total_gc_write_delay / total_gc_write_count;
+				PC(device_index).total_gc_write_delay += delay;
+				PC(device_index).total_gc_write_count++;
+				PC(device_index).avg_gc_write_delay = PC(device_index).total_gc_write_delay / PC(device_index).total_gc_write_count;
 
 				/* Calc SSD Util */
-				written_page_nb++;
+				PC(device_index).written_page_nb++;
 				break;
 			case COPYBACK:
 				break;
@@ -156,18 +141,18 @@ void SEND_TO_PERF_CHECKER(uint8_t device_index, int op_type, int64_t op_delay, i
 				break;
 		}
 
-		ssd_util = (double)((double)written_page_nb / devices[device_index].pages_in_ssd)*100;
+		PC(device_index).ssd_util = (double)((double)PC(device_index).written_page_nb / devices[device_index].pages_in_ssd)*100;
 	}
 	else if(type == LATENCY_OP){
 		switch (op_type){
 			case READ:
-				avg_read_latency = (avg_read_latency * read_latency_count + delay)/(read_latency_count + 1);
+				PC(device_index).avg_read_latency = (PC(device_index).avg_read_latency * PC(device_index).read_latency_count + delay)/(PC(device_index).read_latency_count + 1);
 
-				read_latency_count++;
+				PC(device_index).read_latency_count++;
 				break;
 			case WRITE:
-				avg_write_latency = (avg_write_latency * write_latency_count + delay)/(write_latency_count + 1);
-				write_latency_count++;
+				PC(device_index).avg_write_latency = (PC(device_index).avg_write_latency * PC(device_index).write_latency_count + delay)/(PC(device_index).write_latency_count + 1);
+				PC(device_index).write_latency_count++;
 				break;
 			default:
 				break;
@@ -224,7 +209,7 @@ int64_t ALLOC_IO_REQUEST(uint8_t device_index, uint32_t sector_nb, unsigned int 
 	memset(start_time_arr, 0, io_page_nb);
 	memset(end_time_arr, 0, io_page_nb);
 
-	curr_io_request->request_nb = io_request_seq_nb;
+	curr_io_request->request_nb = PC(device_index).io_request_seq_nb;
 
 	curr_io_request->request_type = io_type;
 	curr_io_request->request_size = io_page_nb;
@@ -234,44 +219,44 @@ int64_t ALLOC_IO_REQUEST(uint8_t device_index, uint32_t sector_nb, unsigned int 
 	curr_io_request->end_time = end_time_arr;
 	curr_io_request->next = NULL;
 
-	if(io_request_start == NULL && io_request_nb == 0){
-		io_request_start = curr_io_request;
-		io_request_end = curr_io_request;
+	if(PC(device_index).io_request_start == NULL && PC(device_index).io_request_nb == 0){
+		PC(device_index).io_request_start = curr_io_request;
+		PC(device_index).io_request_end = curr_io_request;
 	}
 	else{
-		io_request_end->next = curr_io_request;
-		io_request_end = curr_io_request;
+		PC(device_index).io_request_end->next = curr_io_request;
+		PC(device_index).io_request_end = curr_io_request;
 	}
-	io_request_nb++;
+	PC(device_index).io_request_nb++;
 
 	int64_t end = get_usec();
 
 	return (end - start);
 }
 
-void FREE_DUMMY_IO_REQUEST(void)
+void FREE_DUMMY_IO_REQUEST(uint8_t device_index)
 {
 	uint32_t i;
 	int success = 0;
-	io_request* prev_request = io_request_start;
+	io_request* prev_request = PC(device_index).io_request_start;
 
-	io_request* request = LOOKUP_IO_REQUEST(io_request_seq_nb);
+	io_request* request = LOOKUP_IO_REQUEST(device_index, PC(device_index).io_request_seq_nb);
 
 
-	if(io_request_nb == 1){
-		io_request_start = NULL;
-		io_request_end = NULL;
+	if(PC(device_index).io_request_nb == 1){
+		PC(device_index).io_request_start = NULL;
+		PC(device_index).io_request_end = NULL;
 		success = 1;
 	}
 	else if(prev_request == request){
-		io_request_start = request->next;
+		PC(device_index).io_request_start = request->next;
 		success = 1;
 	}
 	else{
-		for(i=0;i<(io_request_nb-1);i++){
-			if(prev_request->next == request && request == io_request_end){
+		for(i=0;i<(PC(device_index).io_request_nb-1);i++){
+			if(prev_request->next == request && request == PC(device_index).io_request_end){
 				prev_request->next = NULL;
-				io_request_end = prev_request;
+				PC(device_index).io_request_end = prev_request;
 				success = 1;
 				break;
 			}
@@ -293,29 +278,29 @@ void FREE_DUMMY_IO_REQUEST(void)
 	free(request->end_time);
 	free(request);
 
-	io_request_nb--;
+	PC(device_index).io_request_nb--;
 }
 
-void FREE_IO_REQUEST(io_request* request)
+void FREE_IO_REQUEST(uint8_t device_index, io_request* request)
 {
 	uint32_t i;
 	int success = 0;
-	io_request* prev_request = io_request_start;
+	io_request* prev_request = PC(device_index).io_request_start;
 
-	if(io_request_nb == 1){
-		io_request_start = NULL;
-		io_request_end = NULL;
+	if(PC(device_index).io_request_nb == 1){
+		PC(device_index).io_request_start = NULL;
+		PC(device_index).io_request_end = NULL;
 		success = 1;
 	}
 	else if(prev_request == request){
-		io_request_start = request->next;
+		PC(device_index).io_request_start = request->next;
 		success = 1;
 	}
 	else{
-		for(i=0;i<(io_request_nb-1);i++){
-			if(prev_request->next == request && request == io_request_end){
+		for(i=0;i<(PC(device_index).io_request_nb-1);i++){
+			if(prev_request->next == request && request == PC(device_index).io_request_end){
 				prev_request->next = NULL;
-				io_request_end = prev_request;
+				PC(device_index).io_request_end = prev_request;
 				success = 1;
 				break;
 			}
@@ -337,7 +322,7 @@ void FREE_IO_REQUEST(io_request* request)
 	free(request->end_time);
 	free(request);
 
-	io_request_nb--;
+	PC(device_index).io_request_nb--;
 }
 
 int64_t UPDATE_IO_REQUEST(uint8_t device_index, uint32_t request_nb, int offset, int64_t time, int type)
@@ -351,7 +336,7 @@ int64_t UPDATE_IO_REQUEST(uint8_t device_index, uint32_t request_nb, int offset,
 		return 0;
 	}
 
-	io_request* curr_request = LOOKUP_IO_REQUEST(request_nb);
+	io_request* curr_request = LOOKUP_IO_REQUEST(device_index, request_nb);
 	if (curr_request == NULL)
 		RDBG_FTL(0, "No such io request, nb %d\n", request_nb);
 
@@ -370,32 +355,32 @@ int64_t UPDATE_IO_REQUEST(uint8_t device_index, uint32_t request_nb, int offset,
 
 		SEND_TO_PERF_CHECKER(device_index, io_type, latency, LATENCY_OP);
 
-		FREE_IO_REQUEST(curr_request);
+		FREE_IO_REQUEST(device_index, curr_request);
 	}
 	int64_t end = get_usec();
 
 	return (end - start);
 }
 
-void INCREASE_IO_REQUEST_SEQ_NB(void)
+void INCREASE_IO_REQUEST_SEQ_NB(uint8_t device_index)
 {
-	if (io_request_seq_nb == UINT32_MAX) {
-		io_request_seq_nb = 0;
+	if (PC(device_index).io_request_seq_nb == UINT32_MAX) {
+		PC(device_index).io_request_seq_nb = 0;
 	}
 	else{
-		io_request_seq_nb++;
+		PC(device_index).io_request_seq_nb++;
 	}
 }
 
-io_request* LOOKUP_IO_REQUEST(uint32_t request_nb)
+io_request* LOOKUP_IO_REQUEST(uint8_t device_index, uint32_t request_nb)
 {
 	uint32_t i;
 	uint32_t total_request=0;
 	io_request* curr_request = NULL;
 
-	if(io_request_start != NULL){
-		curr_request = io_request_start;
-		total_request = io_request_nb;
+	if(PC(device_index).io_request_start != NULL){
+		curr_request = PC(device_index).io_request_start;
+		total_request = PC(device_index).io_request_nb;
 	}
 	else
 		RDBG_FTL(NULL, "There is no request\n");

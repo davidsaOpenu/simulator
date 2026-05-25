@@ -33,6 +33,8 @@
 // INVALID_DEVICE_INDEX is 0xFF because the type of the device index is uint8_t
 #define INVALID_DEVICE_INDEX 0xFF
 
+#define OSD_PATH "/tmp/osd/"
+
 #include "vssim_config_manager.h"
 #include "ftl.h"
 #include "ftl_inverse_mapping_manager.h"

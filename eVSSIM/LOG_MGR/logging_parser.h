@@ -531,4 +531,14 @@ _LOGS_DEFINITIONS(_LOGS_READER_DECLARATION_APPLIER)
  */
 _LOGS_DEFINITIONS(_LOGS_JSON_DECLARATION_APPLIER)
 
+/**
+ * Inject a "device_index" field into an existing JSON log string.
+ * Parses the JSON, adds/overwrites the field, re-serializes, and returns
+ * a newly allocated string (caller must free).
+ * @param json_str the original JSON string (may include trailing newline)
+ * @param device_index the device index to inject
+ * @return a new JSON string with device_index added (with trailing newline), or NULL on error
+ */
+char* json_inject_device_index(const char* json_str, uint8_t device_index);
+
 #endif

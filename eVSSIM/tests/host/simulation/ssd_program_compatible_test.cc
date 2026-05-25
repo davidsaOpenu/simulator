@@ -17,7 +17,6 @@
 #include <cmath>
 #include "base_emulator_tests.h"
 
-extern RTLogStatistics *rt_log_stats;
 extern LogServer log_server;
 
 // for performance.
@@ -35,13 +34,13 @@ namespace program_compatible_test
         {
             BaseTest::SetUp();
             INIT_LOG_MANAGER(g_device_index);
-            pthread_mutex_lock(&g_lock); // prevent the GC thread from running
+            LOCK_DEVICE(g_device_index); // prevent the GC thread from running
             ASSERT_EQ(_FTL_CREATE(g_device_index), FTL_SUCCESS);
         }
 
         virtual void TearDown()
         {
-            pthread_mutex_unlock(&g_lock);
+            UNLOCK_DEVICE(g_device_index);
             BaseTest::TearDown(false);
             TERM_LOG_MANAGER(g_device_index);
             remove(GET_FILE_NAME(g_device_index));
@@ -74,8 +73,8 @@ namespace program_compatible_test
         ASSERT_EQ(memcmp(data, read_data, sizeof(data)), 0);
 
         expected_stats.occupied_pages++;
-        _MONITOR_SYNC(g_device_index, &(log_server.stats), MONITOR_SLEEP_MAX_USEC);
-        ASSERT_EQ(expected_stats.occupied_pages, log_server.stats.occupied_pages);
+        _MONITOR_SYNC(g_device_index, &(log_server.stats[g_device_index]), MONITOR_SLEEP_MAX_USEC);
+        ASSERT_EQ(expected_stats.occupied_pages, log_server.stats[g_device_index].occupied_pages);
 
 
         memset(data, 0x00, sizeof(data));
@@ -84,9 +83,9 @@ namespace program_compatible_test
         ASSERT_EQ(_FTL_READ(g_device_index, 0, sizeof(read_data) / ssd_config->get_sector_size(), read_data), FTL_SUCCESS);
         ASSERT_EQ(memcmp(data, read_data, sizeof(data)), 0);
 
-        _MONITOR_SYNC(g_device_index, &(log_server.stats), MONITOR_SLEEP_MAX_USEC);
-        ASSERT_EQ(expected_stats.occupied_pages, log_server.stats.occupied_pages);
-        ASSERT_EQ(expected_stats.block_erase_count, log_server.stats.block_erase_count);
+        _MONITOR_SYNC(g_device_index, &(log_server.stats[g_device_index]), MONITOR_SLEEP_MAX_USEC);
+        ASSERT_EQ(expected_stats.occupied_pages, log_server.stats[g_device_index].occupied_pages);
+        ASSERT_EQ(expected_stats.block_erase_count, log_server.stats[g_device_index].block_erase_count);
 
         memset(data, 0x0F, sizeof(data));
         ASSERT_EQ(_FTL_WRITE(g_device_index, 0, sizeof(data) / ssd_config->get_sector_size(), data), FTL_SUCCESS);
@@ -95,8 +94,8 @@ namespace program_compatible_test
         ASSERT_EQ(_FTL_READ(g_device_index, 0, sizeof(read_data) / ssd_config->get_sector_size(), read_data), FTL_SUCCESS);
         ASSERT_EQ(memcmp(data, read_data, sizeof(data)), 0);
 
-        _MONITOR_SYNC(g_device_index, &(log_server.stats), MONITOR_SLEEP_MAX_USEC);
-        ASSERT_EQ(expected_stats.occupied_pages, log_server.stats.occupied_pages);
+        _MONITOR_SYNC(g_device_index, &(log_server.stats[g_device_index]), MONITOR_SLEEP_MAX_USEC);
+        ASSERT_EQ(expected_stats.occupied_pages, log_server.stats[g_device_index].occupied_pages);
 
     }
 
@@ -115,8 +114,8 @@ namespace program_compatible_test
         ASSERT_EQ(memcmp(data, read_data, sizeof(data)), 0);
 
         expected_stats.occupied_pages+=2;
-        _MONITOR_SYNC(g_device_index, &(log_server.stats), MONITOR_SLEEP_MAX_USEC);
-        ASSERT_EQ(expected_stats.occupied_pages, log_server.stats.occupied_pages);
+        _MONITOR_SYNC(g_device_index, &(log_server.stats[g_device_index]), MONITOR_SLEEP_MAX_USEC);
+        ASSERT_EQ(expected_stats.occupied_pages, log_server.stats[g_device_index].occupied_pages);
 
 
         memset(data, 0x00, sizeof(data));
@@ -125,9 +124,9 @@ namespace program_compatible_test
         ASSERT_EQ(_FTL_READ(g_device_index, 0, sizeof(read_data) / ssd_config->get_sector_size(), read_data), FTL_SUCCESS);
         ASSERT_EQ(memcmp(data, read_data, sizeof(data)), 0);
 
-        _MONITOR_SYNC(g_device_index, &(log_server.stats), MONITOR_SLEEP_MAX_USEC);
-        ASSERT_EQ(expected_stats.occupied_pages, log_server.stats.occupied_pages);
-        ASSERT_EQ(expected_stats.block_erase_count, log_server.stats.block_erase_count);
+        _MONITOR_SYNC(g_device_index, &(log_server.stats[g_device_index]), MONITOR_SLEEP_MAX_USEC);
+        ASSERT_EQ(expected_stats.occupied_pages, log_server.stats[g_device_index].occupied_pages);
+        ASSERT_EQ(expected_stats.block_erase_count, log_server.stats[g_device_index].block_erase_count);
 
         memset(data, 0x0F, sizeof(data));
         ASSERT_EQ(_FTL_WRITE(g_device_index, 0, sizeof(data) / ssd_config->get_sector_size(), data), FTL_SUCCESS);
@@ -136,8 +135,8 @@ namespace program_compatible_test
         ASSERT_EQ(_FTL_READ(g_device_index, 0, sizeof(read_data) / ssd_config->get_sector_size(), read_data), FTL_SUCCESS);
         ASSERT_EQ(memcmp(data, read_data, sizeof(data)), 0);
 
-        _MONITOR_SYNC(g_device_index, &(log_server.stats), MONITOR_SLEEP_MAX_USEC);
-        ASSERT_EQ(expected_stats.occupied_pages, log_server.stats.occupied_pages);
+        _MONITOR_SYNC(g_device_index, &(log_server.stats[g_device_index]), MONITOR_SLEEP_MAX_USEC);
+        ASSERT_EQ(expected_stats.occupied_pages, log_server.stats[g_device_index].occupied_pages);
 
     }
 
@@ -173,8 +172,8 @@ namespace program_compatible_test
         }
 
         expected_stats.occupied_pages++;
-        _MONITOR_SYNC(g_device_index, &(log_server.stats), MONITOR_SLEEP_MAX_USEC);
-        ASSERT_EQ(expected_stats.occupied_pages, log_server.stats.occupied_pages);
+        _MONITOR_SYNC(g_device_index, &(log_server.stats[g_device_index]), MONITOR_SLEEP_MAX_USEC);
+        ASSERT_EQ(expected_stats.occupied_pages, log_server.stats[g_device_index].occupied_pages);
 
     }
 
@@ -200,8 +199,8 @@ namespace program_compatible_test
         ASSERT_EQ(memcmp(data, read_data, sizeof(data)), 0);
 
         expected_stats.occupied_pages = page_span;
-        _MONITOR_SYNC(g_device_index, &(log_server.stats), MONITOR_SLEEP_MAX_USEC);
-        ASSERT_EQ(expected_stats.occupied_pages, log_server.stats.occupied_pages);
+        _MONITOR_SYNC(g_device_index, &(log_server.stats[g_device_index]), MONITOR_SLEEP_MAX_USEC);
+        ASSERT_EQ(expected_stats.occupied_pages, log_server.stats[g_device_index].occupied_pages);
 
         // Write program compatible data
         memset(data, 0x0C, sizeof(data));
@@ -210,8 +209,8 @@ namespace program_compatible_test
         ASSERT_EQ(_FTL_READ(g_device_index, offset / ssd_config->get_sector_size(), sizeof(read_data) / ssd_config->get_sector_size(), read_data), FTL_SUCCESS);
         ASSERT_EQ(memcmp(data, read_data, sizeof(data)), 0);
 
-        _MONITOR_SYNC(g_device_index, &(log_server.stats), MONITOR_SLEEP_MAX_USEC);
-        ASSERT_EQ(expected_stats.occupied_pages, log_server.stats.occupied_pages);
+        _MONITOR_SYNC(g_device_index, &(log_server.stats[g_device_index]), MONITOR_SLEEP_MAX_USEC);
+        ASSERT_EQ(expected_stats.occupied_pages, log_server.stats[g_device_index].occupied_pages);
 
         // Write partial compatible data - first and last pages should be compatible, while rest aren't
         // first page (partial page write)
@@ -226,8 +225,8 @@ namespace program_compatible_test
         ASSERT_EQ(memcmp(data, read_data, sizeof(data)), 0);
 
         expected_stats.occupied_pages += page_span - 2;
-        _MONITOR_SYNC(g_device_index, &(log_server.stats), MONITOR_SLEEP_MAX_USEC);
-        ASSERT_EQ(expected_stats.occupied_pages, log_server.stats.occupied_pages);
+        _MONITOR_SYNC(g_device_index, &(log_server.stats[g_device_index]), MONITOR_SLEEP_MAX_USEC);
+        ASSERT_EQ(expected_stats.occupied_pages, log_server.stats[g_device_index].occupied_pages);
     }
 
     /**
@@ -267,15 +266,15 @@ namespace program_compatible_test
             {
                 action_count = 0;
                 GC_CHECK(g_device_index, false, false);
-                _MONITOR_SYNC(g_device_index, &(log_server.stats), MONITOR_SLEEP_MAX_USEC);
+                _MONITOR_SYNC(g_device_index, &(log_server.stats[g_device_index]), MONITOR_SLEEP_MAX_USEC);
 
-                ASSERT_EQ(expected_stats.write_count, log_server.stats.write_count);
-                ASSERT_EQ(expected_stats.read_count, log_server.stats.read_count);
-                ASSERT_EQ(expected_stats.logical_write_count, log_server.stats.logical_write_count);
-                ASSERT_EQ(expected_stats.garbage_collection_count, log_server.stats.garbage_collection_count);
-                ASSERT_EQ(expected_stats.write_amplification, log_server.stats.write_amplification);
-                ASSERT_EQ(expected_stats.occupied_pages, log_server.stats.occupied_pages);
-                ASSERT_EQ(expected_stats.block_erase_count, log_server.stats.block_erase_count);
+                ASSERT_EQ(expected_stats.write_count, log_server.stats[g_device_index].write_count);
+                ASSERT_EQ(expected_stats.read_count, log_server.stats[g_device_index].read_count);
+                ASSERT_EQ(expected_stats.logical_write_count, log_server.stats[g_device_index].logical_write_count);
+                ASSERT_EQ(expected_stats.garbage_collection_count, log_server.stats[g_device_index].garbage_collection_count);
+                ASSERT_EQ(expected_stats.write_amplification, log_server.stats[g_device_index].write_amplification);
+                ASSERT_EQ(expected_stats.occupied_pages, log_server.stats[g_device_index].occupied_pages);
+                ASSERT_EQ(expected_stats.block_erase_count, log_server.stats[g_device_index].block_erase_count);
             }
         }
 
@@ -300,26 +299,26 @@ namespace program_compatible_test
             {
                 action_count = 0;
                 GC_CHECK(g_device_index, false, false);
-                _MONITOR_SYNC(g_device_index, &(log_server.stats), MONITOR_SLEEP_MAX_USEC);
+                _MONITOR_SYNC(g_device_index, &(log_server.stats[g_device_index]), MONITOR_SLEEP_MAX_USEC);
 
-                ASSERT_EQ(expected_stats.write_count, log_server.stats.write_count);
-                ASSERT_EQ(expected_stats.read_count, log_server.stats.read_count);
-                ASSERT_EQ(expected_stats.logical_write_count, log_server.stats.logical_write_count);
-                ASSERT_EQ(expected_stats.garbage_collection_count, log_server.stats.garbage_collection_count);
-                ASSERT_EQ(expected_stats.write_amplification, log_server.stats.write_amplification);
-                ASSERT_EQ(expected_stats.occupied_pages, log_server.stats.occupied_pages);
-                ASSERT_EQ(expected_stats.block_erase_count, log_server.stats.block_erase_count);
+                ASSERT_EQ(expected_stats.write_count, log_server.stats[g_device_index].write_count);
+                ASSERT_EQ(expected_stats.read_count, log_server.stats[g_device_index].read_count);
+                ASSERT_EQ(expected_stats.logical_write_count, log_server.stats[g_device_index].logical_write_count);
+                ASSERT_EQ(expected_stats.garbage_collection_count, log_server.stats[g_device_index].garbage_collection_count);
+                ASSERT_EQ(expected_stats.write_amplification, log_server.stats[g_device_index].write_amplification);
+                ASSERT_EQ(expected_stats.occupied_pages, log_server.stats[g_device_index].occupied_pages);
+                ASSERT_EQ(expected_stats.block_erase_count, log_server.stats[g_device_index].block_erase_count);
             }
         }
 
         GC_CHECK(g_device_index, false, false);
-        _MONITOR_SYNC(g_device_index, &(log_server.stats), MONITOR_SLEEP_MAX_USEC);
+        _MONITOR_SYNC(g_device_index, &(log_server.stats[g_device_index]), MONITOR_SLEEP_MAX_USEC);
 
         // checks that log_server.stats (the stats on the monitor) are accurate
-        ASSERT_EQ(ssd_config->get_pages(), log_server.stats.read_count);
-        ASSERT_EQ(2 * ssd_config->get_pages(), log_server.stats.write_count); // We write twice to every page but as program compatible (only 1 -> 0)
-        ASSERT_EQ(1, log_server.stats.write_amplification);
-        ASSERT_EQ(0, log_server.stats.garbage_collection_count); // Because the write we do is program compatible GC shouldn't be called
+        ASSERT_EQ(ssd_config->get_pages(), log_server.stats[g_device_index].read_count);
+        ASSERT_EQ(2 * ssd_config->get_pages(), log_server.stats[g_device_index].write_count); // We write twice to every page but as program compatible (only 1 -> 0)
+        ASSERT_EQ(1, log_server.stats[g_device_index].write_amplification);
+        ASSERT_EQ(0, log_server.stats[g_device_index].garbage_collection_count); // Because the write we do is program compatible GC shouldn't be called
     }
 
     /**
@@ -355,15 +354,15 @@ namespace program_compatible_test
             {
                 action_count = 0;
                 GC_CHECK(g_device_index, false, false);
-                _MONITOR_SYNC(g_device_index, &(log_server.stats), MONITOR_SLEEP_MAX_USEC);
+                _MONITOR_SYNC(g_device_index, &(log_server.stats[g_device_index]), MONITOR_SLEEP_MAX_USEC);
 
-                ASSERT_EQ(expected_stats.write_count, log_server.stats.write_count);
-                ASSERT_EQ(expected_stats.read_count, log_server.stats.read_count);
-                ASSERT_EQ(expected_stats.logical_write_count, log_server.stats.logical_write_count);
-                ASSERT_EQ(expected_stats.garbage_collection_count, log_server.stats.garbage_collection_count);
-                ASSERT_EQ(expected_stats.write_amplification, log_server.stats.write_amplification);
-                ASSERT_EQ(expected_stats.occupied_pages, log_server.stats.occupied_pages);
-                ASSERT_EQ(expected_stats.block_erase_count, log_server.stats.block_erase_count);
+                ASSERT_EQ(expected_stats.write_count, log_server.stats[g_device_index].write_count);
+                ASSERT_EQ(expected_stats.read_count, log_server.stats[g_device_index].read_count);
+                ASSERT_EQ(expected_stats.logical_write_count, log_server.stats[g_device_index].logical_write_count);
+                ASSERT_EQ(expected_stats.garbage_collection_count, log_server.stats[g_device_index].garbage_collection_count);
+                ASSERT_EQ(expected_stats.write_amplification, log_server.stats[g_device_index].write_amplification);
+                ASSERT_EQ(expected_stats.occupied_pages, log_server.stats[g_device_index].occupied_pages);
+                ASSERT_EQ(expected_stats.block_erase_count, log_server.stats[g_device_index].block_erase_count);
             }
         }
 
@@ -387,26 +386,26 @@ namespace program_compatible_test
             {
                 action_count = 0;
                 GC_CHECK(g_device_index, false, false);
-                _MONITOR_SYNC(g_device_index, &(log_server.stats), MONITOR_SLEEP_MAX_USEC);
+                _MONITOR_SYNC(g_device_index, &(log_server.stats[g_device_index]), MONITOR_SLEEP_MAX_USEC);
 
-                ASSERT_LE(expected_stats.write_count, log_server.stats.write_count);
+                ASSERT_LE(expected_stats.write_count, log_server.stats[g_device_index].write_count);
 
                 // The read should be the number of not asked writes (because read happens for copying)
-                expected_stats.read_count = log_server.stats.write_count - expected_stats.write_count;
-                ASSERT_EQ(expected_stats.read_count, log_server.stats.read_count);
-                ASSERT_EQ(expected_stats.logical_write_count, log_server.stats.logical_write_count);
-                ASSERT_LT(0, log_server.stats.garbage_collection_count);
+                expected_stats.read_count = log_server.stats[g_device_index].write_count - expected_stats.write_count;
+                ASSERT_EQ(expected_stats.read_count, log_server.stats[g_device_index].read_count);
+                ASSERT_EQ(expected_stats.logical_write_count, log_server.stats[g_device_index].logical_write_count);
+                ASSERT_LT(0, log_server.stats[g_device_index].garbage_collection_count);
 
                 // TODO liel - check and understand
-                // ASSERT_EQ(expected_stats.occupied_pages, log_server.stats.occupied_pages);
-                ASSERT_EQ(log_server.stats.garbage_collection_count, log_server.stats.block_erase_count);
+                // ASSERT_EQ(expected_stats.occupied_pages, log_server.stats[g_device_index].occupied_pages);
+                ASSERT_EQ(log_server.stats[g_device_index].garbage_collection_count, log_server.stats[g_device_index].block_erase_count);
             }
         }
 
 
         // The read should be the number of not asked writes (because read happens for copying)
-        _MONITOR_SYNC(g_device_index, &(log_server.stats), MONITOR_SLEEP_MAX_USEC);
-        expected_stats.read_count = log_server.stats.write_count - expected_stats.write_count;
+        _MONITOR_SYNC(g_device_index, &(log_server.stats[g_device_index]), MONITOR_SLEEP_MAX_USEC);
+        expected_stats.read_count = log_server.stats[g_device_index].write_count - expected_stats.write_count;
 
         // reads the whole ssd
         for (unsigned int p = 0; p < ssd_config->get_pages(); p++)
@@ -428,20 +427,20 @@ namespace program_compatible_test
             {
                 action_count = 0;
                 GC_CHECK(g_device_index, false, false);
-                _MONITOR_SYNC(g_device_index, &(log_server.stats), MONITOR_SLEEP_MAX_USEC);
+                _MONITOR_SYNC(g_device_index, &(log_server.stats[g_device_index]), MONITOR_SLEEP_MAX_USEC);
 
-                ASSERT_LE(expected_stats.write_count, log_server.stats.write_count);
-                ASSERT_LE(expected_stats.read_count, log_server.stats.read_count);
-                ASSERT_EQ(expected_stats.logical_write_count, log_server.stats.logical_write_count);
-                ASSERT_EQ(log_server.stats.garbage_collection_count, log_server.stats.block_erase_count);
+                ASSERT_LE(expected_stats.write_count, log_server.stats[g_device_index].write_count);
+                ASSERT_LE(expected_stats.read_count, log_server.stats[g_device_index].read_count);
+                ASSERT_EQ(expected_stats.logical_write_count, log_server.stats[g_device_index].logical_write_count);
+                ASSERT_EQ(log_server.stats[g_device_index].garbage_collection_count, log_server.stats[g_device_index].block_erase_count);
             }
         }
 
         GC_CHECK(g_device_index, false, false);
-        _MONITOR_SYNC(g_device_index, &(log_server.stats), MONITOR_SLEEP_MAX_USEC);
+        _MONITOR_SYNC(g_device_index, &(log_server.stats[g_device_index]), MONITOR_SLEEP_MAX_USEC);
 
         // checks that log_server.stats (the stats on the monitor) are accurate
-        ASSERT_LT(2 * ssd_config->get_pages(), log_server.stats.write_count); // We write twice to every page but not as program compatible.
-        ASSERT_LT(0, log_server.stats.garbage_collection_count); // Because the write we do is NOT program compatible GC should be called
+        ASSERT_LT(2 * ssd_config->get_pages(), log_server.stats[g_device_index].write_count); // We write twice to every page but not as program compatible.
+        ASSERT_LT(0, log_server.stats[g_device_index].garbage_collection_count); // Because the write we do is NOT program compatible GC should be called
     }
 } // namespace

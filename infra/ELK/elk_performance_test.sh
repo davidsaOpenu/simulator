@@ -48,6 +48,8 @@ PRINT_QUERY_CMD="${PRINT_QUERY_CMD:-1}"
 
 TEST_NAME_FILTER="${TEST_NAME_FILTER:-MixSequentialAndRandomOnePageAtTimeWrite}"
 
+DEVICE_INDEX="${DEVICE_INDEX:-}"
+
 FROM_DATE="$(date -u -d "${LOOKBACK_HOURS} hours ago" +%Y-%m-%dT%H:%M:%SZ)"
 TO_DATE="$(date -u +%Y-%m-%dT%H:%M:%SZ)"
 
@@ -405,6 +407,12 @@ test_name_filter() {
 EOF
 }
 
+device_filter_clause=""
+if [[ -n "${DEVICE_INDEX:-}" ]]; then
+  device_filter_clause=',{ "term": { "device_index": '"$DEVICE_INDEX"' } }'
+  echo "[elk_performance_test] Filtering by device_index=$DEVICE_INDEX"
+fi
+
 top_first_body() {
   cat <<EOF
 {
@@ -431,8 +439,11 @@ EOF
 global_metrics_body="$(cat <<EOF
 {
   "query": {
-    "range": {
-      "$TS_FIELD": { "gte": "$METRICS_TS_FROM", "lte": "$TS_TO" }
+    "bool": {
+      "filter": [
+        { "range": { "$TS_FIELD": { "gte": "$METRICS_TS_FROM", "lte": "$TS_TO" } } }
+        $device_filter_clause
+      ]
     }
   },
   "aggs": {
@@ -569,6 +580,7 @@ sector_metrics_body="$(cat <<EOF
           }
         },
         $(test_name_filter "$TEST_NAME_FILTER")
+        $device_filter_clause
       ]
     }
   },
@@ -775,6 +787,11 @@ echo "======================================================================="
 echo "[elk_performance_test] Monitor window: FROM=$FROM_DATE TO=$TO_DATE"
 echo "[elk_performance_test] Metrics window: FROM=$METRICS_FROM_DATE TO=$TO_DATE"
 echo "[elk_performance_test] Monitor duration: ${INTERVAL_SECS}s TS_FIELD=$TS_FIELD index=$idx"
+if [[ -n "${DEVICE_INDEX:-}" ]]; then
+  echo "[elk_performance_test] Device filter: device_index=$DEVICE_INDEX"
+else
+  echo "[elk_performance_test] Device filter: all devices (no DEVICE_INDEX set)"
+fi
 echo "[elk_performance_test] Activity duration: ${activity_span_secs}s"
 echo ""
 echo "[elk_performance_test] Physical writes: $write_count (background: $background_write_count) span=${write_span_secs}s"
