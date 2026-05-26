@@ -108,11 +108,13 @@ void TERM_OBJ_STRATEGY(uint8_t device_index)
     }
 }
 
-ftl_ret_val _FTL_OBJ_READ(uint8_t device_index, uint32_t nsid, obj_id_t obj_loc, void *data, offset_t offset, length_t *p_length)
+ftl_ret_val _FTL_OBJ_READ(uint8_t device_index, obj_id_t obj_loc, void *data, offset_t offset, length_t *p_length)
 {
+    const uint32_t nsid = 0;
+
 	if (devices[device_index].namespaces[nsid].nsid != nsid ||
 		devices[device_index].namespaces[nsid].type != FTL_NS_OBJECT) {
-		RERR(FTL_FAILURE, "Can't read from invalid namespace, device_index: %u, nsid: %u\n", device_index, nsid);
+		RERR(FTL_FAILURE, "Object namespace not configured, device_index: %u\n", device_index);
 	}
 
     page_node *current_page = NULL;
@@ -121,7 +123,7 @@ ftl_ret_val _FTL_OBJ_READ(uint8_t device_index, uint32_t nsid, obj_id_t obj_loc,
 
     int osd_ret;
 
-    stored_object *object = lookup_object(device_index, nsid, obj_loc.object_id);
+    stored_object *object = lookup_object(device_index, obj_loc.object_id);
 
     // The object isn't found.
     if (object == NULL)
@@ -204,19 +206,21 @@ ftl_ret_val _FTL_OBJ_READ(uint8_t device_index, uint32_t nsid, obj_id_t obj_loc,
     return FTL_SUCCESS;
 }
 
-ftl_ret_val FTL_OBJ_READ(uint8_t device_index, uint32_t nsid, obj_id_t obj_loc, void *data, offset_t offset, length_t *p_length)
+ftl_ret_val FTL_OBJ_READ(uint8_t device_index, obj_id_t obj_loc, void *data, offset_t offset, length_t *p_length)
 {
 	pthread_mutex_lock(&g_lock);
-	ftl_ret_val ret = _FTL_OBJ_READ(device_index, nsid, obj_loc, data, offset, p_length);
+	ftl_ret_val ret = _FTL_OBJ_READ(device_index, obj_loc, data, offset, p_length);
 	pthread_mutex_unlock(&g_lock);
 	return ret;
 }
 
-ftl_ret_val _FTL_OBJ_WRITE(uint8_t device_index, uint32_t nsid, obj_id_t object_loc, const void *data, offset_t offset, length_t length)
+ftl_ret_val _FTL_OBJ_WRITE(uint8_t device_index, obj_id_t object_loc, const void *data, offset_t offset, length_t length)
 {
+    const uint32_t nsid = 0;
+
 	if (devices[device_index].namespaces[nsid].nsid != nsid ||
 		devices[device_index].namespaces[nsid].type != FTL_NS_OBJECT) {
-		RERR(FTL_FAILURE, "Can't write from invalid namespace, device_index: %u, nsid: %u\n", device_index, nsid);
+		RERR(FTL_FAILURE, "Object namespace not configured, device_index: %u\n", device_index);
 	}
 
     page_node *current_page = NULL;
@@ -227,7 +231,7 @@ ftl_ret_val _FTL_OBJ_WRITE(uint8_t device_index, uint32_t nsid, obj_id_t object_
 
     int osd_ret;
 
-    stored_object *object = lookup_object(device_index, nsid, object_loc.object_id);
+    stored_object *object = lookup_object(device_index, object_loc.object_id);
 
     // The object isn't found.
     if (object == NULL)
@@ -237,7 +241,7 @@ ftl_ret_val _FTL_OBJ_WRITE(uint8_t device_index, uint32_t nsid, obj_id_t object_
     ssds_manager[device_index].io_alloc_overhead = ALLOC_IO_REQUEST(device_index, offset, length, WRITE, &io_page_nb);
 
     // If the offset is past the current size of the stored_object we need to append new pages until we can start writing.
-    if (!expend_object(device_index, nsid, object, offset)){
+    if (!expend_object(device_index, object, offset)){
         return FTL_FAILURE;
     }
 
@@ -261,7 +265,7 @@ ftl_ret_val _FTL_OBJ_WRITE(uint8_t device_index, uint32_t nsid, obj_id_t object_
         // writing at the end of the object and need to allocate more space for it.
         if (current_page == NULL)
         {
-            current_page = add_page(device_index, nsid, object, page_id);
+            current_page = add_page(device_index, object, page_id);
 
             if (current_page == NULL)
                 RERR(FTL_FAILURE, "Failed to add page into object");
@@ -323,10 +327,10 @@ ftl_ret_val _FTL_OBJ_WRITE(uint8_t device_index, uint32_t nsid, obj_id_t object_
     return FTL_SUCCESS;
 }
 
-ftl_ret_val FTL_OBJ_WRITE(uint8_t device_index, uint32_t nsid, obj_id_t object_loc, const void *data, offset_t offset, length_t length)
+ftl_ret_val FTL_OBJ_WRITE(uint8_t device_index, obj_id_t object_loc, const void *data, offset_t offset, length_t length)
 {
 	pthread_mutex_lock(&g_lock);
-	ftl_ret_val ret = _FTL_OBJ_WRITE(device_index, nsid, object_loc, data, offset, length);
+	ftl_ret_val ret = _FTL_OBJ_WRITE(device_index, object_loc, data, offset, length);
 	pthread_mutex_unlock(&g_lock);
 	return ret;
 }
@@ -357,16 +361,18 @@ ftl_ret_val _FTL_OBJ_COPYBACK(uint8_t device_index, int32_t source, int32_t dest
     return FTL_SUCCESS;
 }
 
-bool _FTL_OBJ_CREATE(uint8_t device_index, uint32_t nsid, obj_id_t obj_loc, size_t size)
+bool _FTL_OBJ_CREATE(uint8_t device_index, obj_id_t obj_loc, size_t size)
 {
+    const uint32_t nsid = 0;
+
 	if (devices[device_index].namespaces[nsid].nsid != nsid ||
 		devices[device_index].namespaces[nsid].type != FTL_NS_OBJECT) {
-		RERR(false, "Can't create object in invalid namespace, device_index: %u, nsid: %u\n", device_index, nsid);
+		RERR(false, "Object namespace not configured, device_index: %u\n", device_index);
 	}
 
     int osd_ret;
 
-    if (create_object(device_index, nsid, obj_loc.object_id, size) == NULL)
+    if (create_object(device_index, obj_loc.object_id, size) == NULL)
     {
         return false;
     }
@@ -374,7 +380,7 @@ bool _FTL_OBJ_CREATE(uint8_t device_index, uint32_t nsid, obj_id_t obj_loc, size
     osd_ret = osd_create(&osd, obj_loc.partition_id, obj_loc.object_id, 1, 0, osd_sense);
 
     if (osd_ret < 0) {
-        if (_FTL_OBJ_DELETE(device_index, nsid, obj_loc) != FTL_SUCCESS) {
+        if (_FTL_OBJ_DELETE(device_index, obj_loc) != FTL_SUCCESS) {
             PDBG_FTL("Warning! couldn't delete object.\n");
         }
 
@@ -385,31 +391,33 @@ bool _FTL_OBJ_CREATE(uint8_t device_index, uint32_t nsid, obj_id_t obj_loc, size
     return true;
 }
 
-bool FTL_OBJ_CREATE(uint8_t device_index, uint32_t nsid, obj_id_t obj_loc, size_t size)
+bool FTL_OBJ_CREATE(uint8_t device_index, obj_id_t obj_loc, size_t size)
 {
 	pthread_mutex_lock(&g_lock);
-	bool ret = _FTL_OBJ_CREATE(device_index, nsid, obj_loc, size);
+	bool ret = _FTL_OBJ_CREATE(device_index, obj_loc, size);
 	pthread_mutex_unlock(&g_lock);
 	return ret;
 }
 
-ftl_ret_val _FTL_OBJ_DELETE(uint8_t device_index, uint32_t nsid, obj_id_t obj_loc)
+ftl_ret_val _FTL_OBJ_DELETE(uint8_t device_index, obj_id_t obj_loc)
 {
+    const uint32_t nsid = 0;
+
 	if (devices[device_index].namespaces[nsid].nsid != nsid ||
 		devices[device_index].namespaces[nsid].type != FTL_NS_OBJECT) {
-		RERR(FTL_FAILURE, "Can't delete from invalid namespace, device_index: %u, nsid: %u\n", device_index, nsid);
+		RERR(FTL_FAILURE, "Object namespace not configured, device_index: %u\n", device_index);
 	}
 
     int osd_ret;
     ftl_ret_val ret = FTL_FAILURE;
 
-    stored_object *object = lookup_object(device_index, nsid, obj_loc.object_id);
-    object_map *obj_map = lookup_object_mapping(device_index, nsid, obj_loc.object_id);
+    stored_object *object = lookup_object(device_index, obj_loc.object_id);
+    object_map *obj_map = lookup_object_mapping(device_index, obj_loc.object_id);
 
     if (object == NULL || obj_map == NULL)
         return FTL_FAILURE;
 
-    ret = remove_object(device_index, nsid, object, obj_map);
+    ret = remove_object(device_index, object, obj_map);
 
     osd_ret = osd_remove(&osd, obj_loc.partition_id, obj_loc.object_id, 0, osd_sense);
 
@@ -421,10 +429,10 @@ ftl_ret_val _FTL_OBJ_DELETE(uint8_t device_index, uint32_t nsid, obj_id_t obj_lo
     return ret;
 }
 
-ftl_ret_val FTL_OBJ_DELETE(uint8_t device_index, uint32_t nsid, obj_id_t obj_loc)
+ftl_ret_val FTL_OBJ_DELETE(uint8_t device_index, obj_id_t obj_loc)
 {
 	pthread_mutex_lock(&g_lock);
-	ftl_ret_val ret = _FTL_OBJ_DELETE(device_index, nsid, obj_loc);
+	ftl_ret_val ret = _FTL_OBJ_DELETE(device_index, obj_loc);
 	pthread_mutex_unlock(&g_lock);
 	return ret;
 }
@@ -462,34 +470,36 @@ ftl_ret_val FTL_OBJ_LIST(uint8_t device_index, void *data, size_t *size, uint64_
 	return ret;
 }
 
-stored_object *lookup_object(uint8_t device_index, uint32_t nsid, object_id_t object_id)
+stored_object *lookup_object(uint8_t device_index, object_id_t object_id)
 {
     stored_object *object = NULL;
 
     // try to find it in our hashtable. NULL will be returned if key not found
-    HASH_FIND_INT(objects_table[device_index][nsid], &object_id, object);
+    HASH_FIND_INT(objects_table[device_index][0], &object_id, object);
 
     return object;
 }
 
-object_map *lookup_object_mapping(uint8_t device_index, uint32_t nsid, object_id_t object_id)
+object_map *lookup_object_mapping(uint8_t device_index, object_id_t object_id)
 {
     object_map *obj_map = NULL;
 
     // try to find it in our hashtable. NULL will be returned if key not found
-    HASH_FIND_INT(objects_mapping[device_index][nsid], &object_id, obj_map);
+    HASH_FIND_INT(objects_mapping[device_index][0], &object_id, obj_map);
 
     return obj_map;
 }
 
-stored_object *create_object(uint8_t device_index, uint32_t nsid, object_id_t obj_id, size_t size)
+stored_object *create_object(uint8_t device_index, object_id_t obj_id, size_t size)
 {
+    const uint32_t nsid = 0;
+
 	if (devices[device_index].namespaces[nsid].nsid != nsid ||
 		devices[device_index].namespaces[nsid].type != FTL_NS_OBJECT) {
-		RERR(NULL, "Failed to create at invalid namespace, device_index: %u, nsid: %u\n", device_index, nsid);
+		RERR(NULL, "Object namespace not configured, device_index: %u\n", device_index);
 	}
 
-    if (lookup_object_mapping(device_index, nsid, obj_id) != NULL)
+    if (lookup_object_mapping(device_index, obj_id) != NULL)
     {
         RINFO(NULL, "Object %lu already exists, cannot create it!\n", obj_id);
     }
@@ -500,7 +510,7 @@ stored_object *create_object(uint8_t device_index, uint32_t nsid, object_id_t ob
 
     new_obj_id->id = obj_id;
     new_obj_id->exists = true;
-    HASH_ADD_INT(objects_mapping[device_index][nsid], id, new_obj_id);
+    HASH_ADD_INT(objects_mapping[device_index][0], id, new_obj_id);
 
     // Initialize to stored_object struct.
     obj->id = obj_id;
@@ -508,24 +518,19 @@ stored_object *create_object(uint8_t device_index, uint32_t nsid, object_id_t ob
     obj->pages = NULL;
 
     // add the new object to the objects' hashtable.
-    HASH_ADD_INT(objects_table[device_index][nsid], id, obj);
+    HASH_ADD_INT(objects_table[device_index][0], id, obj);
 
-    if (!expend_object(device_index, nsid, obj, size)){
+    if (!expend_object(device_index, obj, size)){
         // Failed to init the object size.
-        remove_object(device_index, nsid, obj, new_obj_id);
+        remove_object(device_index, obj, new_obj_id);
         return NULL;
     }
 
     return obj;
 }
 
-bool expend_object(uint8_t device_index, uint32_t nsid, stored_object *object, size_t size)
+bool expend_object(uint8_t device_index, stored_object *object, size_t size)
 {
-	if (devices[device_index].namespaces[nsid].nsid != nsid ||
-		devices[device_index].namespaces[nsid].type != FTL_NS_OBJECT) {
-		RERR(false, "Can't expend object at invalid namespace, device_index: %u, nsid: %u\n", device_index, nsid);
-	}
-
     uint64_t page_id;
 
     // If the new size is past the current size of the object, expend it.
@@ -536,7 +541,7 @@ bool expend_object(uint8_t device_index, uint32_t nsid, stored_object *object, s
             RERR(false, "[FTL_WRITE] Failed to get new page.\n");
         }
 
-        if (add_page(device_index, nsid, object, page_id) == NULL) {
+        if (add_page(device_index, object, page_id) == NULL) {
             return false;
         }
 
@@ -547,7 +552,7 @@ bool expend_object(uint8_t device_index, uint32_t nsid, stored_object *object, s
     return true;
 }
 
-int remove_object(uint8_t device_index, uint32_t nsid, stored_object *object, object_map *obj_map)
+int remove_object(uint8_t device_index, stored_object *object, object_map *obj_map)
 {
     page_node *current_page = NULL;
 
@@ -555,7 +560,7 @@ int remove_object(uint8_t device_index, uint32_t nsid, stored_object *object, ob
     // if we do perform HASH_DEL on an object that is not in the hashtable, the whole hashtable will be deleted.
     if ((obj_map != NULL) && (obj_map->hh.tbl != NULL))
     {
-        HASH_DEL(objects_mapping[device_index][nsid], obj_map);
+        HASH_DEL(objects_mapping[device_index][0], obj_map);
         free(obj_map);
     }
 
@@ -563,7 +568,7 @@ int remove_object(uint8_t device_index, uint32_t nsid, stored_object *object, ob
         return FTL_SUCCESS;
 
     if (object->hh.tbl != NULL)
-        HASH_DEL(objects_table[device_index][nsid], object);
+        HASH_DEL(objects_table[device_index][0], object);
 
     current_page = object->pages;
     while (current_page != NULL)
@@ -587,21 +592,21 @@ int remove_object(uint8_t device_index, uint32_t nsid, stored_object *object, ob
     return FTL_SUCCESS;
 }
 
-page_node *allocate_new_page(uint8_t device_index, uint32_t nsid, object_id_t object_id, uint32_t page_id)
+page_node *allocate_new_page(uint8_t device_index, object_id_t object_id, uint32_t page_id)
 {
     page_node *new_page = malloc(sizeof(struct page_node));
 
     new_page->page_id = page_id;
     new_page->object_id = object_id;
     new_page->next = NULL;
-    new_page->nsid = nsid;
+    new_page->nsid = 0;
 
     HASH_ADD_INT(global_page_table[device_index], page_id, new_page);
 
     return new_page;
 }
 
-page_node *add_page(uint8_t device_index, uint32_t nsid, stored_object *object, uint32_t page_id)
+page_node *add_page(uint8_t device_index, stored_object *object, uint32_t page_id)
 {
     page_node *page = NULL;
 
@@ -613,7 +618,7 @@ page_node *add_page(uint8_t device_index, uint32_t nsid, stored_object *object, 
     // If this is the first page.
     if (object->pages == NULL)
     {
-        object->pages = allocate_new_page(device_index, nsid, object->id, page_id);
+        object->pages = allocate_new_page(device_index, object->id, page_id);
         object->size = GET_PAGE_SIZE(device_index);
 
         return object->pages;
@@ -628,7 +633,7 @@ page_node *add_page(uint8_t device_index, uint32_t nsid, stored_object *object, 
         }
     }
 
-    page->next = allocate_new_page(device_index, nsid, object->id, page_id);
+    page->next = allocate_new_page(device_index, object->id, page_id);
 
     // Increasing the object size by a page.
     object->size += GET_PAGE_SIZE(device_index);
