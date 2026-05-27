@@ -20,6 +20,24 @@
     {
       "unresolved": false,
       "key": {
+        "uuid": "ab03bd59_8f9a54ab",
+        "filename": "/COMMIT_MSG",
+        "patchSetId": 5
+      },
+      "lineNbr": 99,
+      "author": {
+        "id": 1039371
+      },
+      "writtenOn": "2026-05-27T22:24:34Z",
+      "side": 1,
+      "message": "There was no Trello card for it (hence no link)\nCreated a card: https://trello.com/c/s5HtiLy4",
+      "parentUuid": "dcad2a31_b1f80b33",
+      "revId": "476397770768ee09092d81ce8be628f5f0540c05",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
+    },
+    {
+      "unresolved": false,
+      "key": {
         "uuid": "be4059ea_0da04543",
         "filename": "/PATCHSET_LEVEL",
         "patchSetId": 5
@@ -52,6 +70,23 @@
       "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "b6cc9e1f_75744e1e",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 5
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 1039371
+      },
+      "writtenOn": "2026-05-27T22:24:34Z",
+      "side": 1,
+      "message": "@davidsaOpenu ACK, will send for re-review when `run-ci.sh` passes successfully on my machine.",
+      "revId": "476397770768ee09092d81ce8be628f5f0540c05",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "71d1e352_a5e9d726",
@@ -75,6 +110,30 @@
       "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "556bc0a1_cbda2a33",
+        "filename": "infra/builder/builder.sh",
+        "patchSetId": 5
+      },
+      "lineNbr": 35,
+      "author": {
+        "id": 1039371
+      },
+      "writtenOn": "2026-05-27T22:24:34Z",
+      "side": 1,
+      "message": "ACK, grepped where else this misspell appeared and fixed there too.",
+      "parentUuid": "71d1e352_a5e9d726",
+      "range": {
+        "startLine": 27,
+        "startChar": 0,
+        "endLine": 35,
+        "endChar": 45
+      },
+      "revId": "476397770768ee09092d81ce8be628f5f0540c05",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "b0f907b9_d04541f5",
@@ -88,6 +147,30 @@
       "writtenOn": "2026-05-21T16:07:08Z",
       "side": 1,
       "message": "Variable Safety Checks\nSugeestion: if [ ! -z ${DOCKER_ID:-} ]; then",
+      "range": {
+        "startLine": 15,
+        "startChar": 0,
+        "endLine": 15,
+        "endChar": 28
+      },
+      "revId": "476397770768ee09092d81ce8be628f5f0540c05",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "04bde48b_01334555",
+        "filename": "infra/builder/docker-enter.sh",
+        "patchSetId": 5
+      },
+      "lineNbr": 15,
+      "author": {
+        "id": 1039371
+      },
+      "writtenOn": "2026-05-27T22:24:34Z",
+      "side": 1,
+      "message": "Acknowledged",
+      "parentUuid": "b0f907b9_d04541f5",
       "range": {
         "startLine": 15,
         "startChar": 0,
