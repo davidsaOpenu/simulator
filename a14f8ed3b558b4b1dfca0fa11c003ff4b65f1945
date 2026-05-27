@@ -52,6 +52,23 @@
       "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "fc4b1815_b51668e8",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 3
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 1039371
+      },
+      "writtenOn": "2026-05-27T11:48:24Z",
+      "side": 1,
+      "message": "ACK",
+      "revId": "a14f8ed3b558b4b1dfca0fa11c003ff4b65f1945",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "eba677e1_4efdca92",
@@ -93,6 +110,54 @@
         "startChar": 273,
         "endLine": 427,
         "endChar": 153
+      },
+      "revId": "a14f8ed3b558b4b1dfca0fa11c003ff4b65f1945",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "ea2fe15b_0d22bda2",
+        "filename": "infra/builder/builder.sh",
+        "patchSetId": 3
+      },
+      "lineNbr": 427,
+      "author": {
+        "id": 1039371
+      },
+      "writtenOn": "2026-05-27T11:48:24Z",
+      "side": 1,
+      "message": "ACK",
+      "parentUuid": "aaef96dd_3195b84a",
+      "range": {
+        "startLine": 421,
+        "startChar": 273,
+        "endLine": 427,
+        "endChar": 153
+      },
+      "revId": "a14f8ed3b558b4b1dfca0fa11c003ff4b65f1945",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "38c34557_0a7dc54b",
+        "filename": "infra/builder/builder.sh",
+        "patchSetId": 3
+      },
+      "lineNbr": 427,
+      "author": {
+        "id": 1039371
+      },
+      "writtenOn": "2026-05-27T11:48:24Z",
+      "side": 1,
+      "message": "Personally, I don\u0027t necessarily like this being a variable, feels too specific. But I see no harm in adding it. ACK",
+      "parentUuid": "eba677e1_4efdca92",
+      "range": {
+        "startLine": 420,
+        "startChar": 6,
+        "endLine": 427,
+        "endChar": 275
       },
       "revId": "a14f8ed3b558b4b1dfca0fa11c003ff4b65f1945",
       "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
