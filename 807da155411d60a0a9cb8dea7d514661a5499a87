@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "f07d12f0_9d2a9b72",
+        "filename": "eVSSIM/tests/host/simulation/ssd_conf_tests.cc",
+        "patchSetId": 8
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 1039489
+      },
+      "writtenOn": "2026-05-29T15:03:32Z",
+      "side": 0,
+      "message": "No test for the default/\u003c\u003d0 path. New ssd_conf_tests.cc only checks round-trip of an explicit value (7). The new defaulting logic is untested.\n\nAdd a case: omit ONFI_MANAGER_THREADS (or set 0/-1) → assert parsed value \u003d\u003d 1.",
+      "revId": "807da155411d60a0a9cb8dea7d514661a5499a87",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
+    }
+  ]
+}
