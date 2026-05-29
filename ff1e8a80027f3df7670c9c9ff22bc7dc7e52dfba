@@ -71,6 +71,24 @@
     {
       "unresolved": false,
       "key": {
+        "uuid": "cc5294e4_8ee4582e",
+        "filename": "infra/ELK/elk_performance_test.sh",
+        "patchSetId": 1
+      },
+      "lineNbr": 31,
+      "author": {
+        "id": 1039371
+      },
+      "writtenOn": "2026-05-29T15:06:22Z",
+      "side": 1,
+      "message": "Marked as resolved.",
+      "parentUuid": "8241f35c_d885fe3e",
+      "revId": "ff1e8a80027f3df7670c9c9ff22bc7dc7e52dfba",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
+    },
+    {
+      "unresolved": false,
+      "key": {
         "uuid": "ccdfd234_fbbb47d7",
         "filename": "infra/ELK/elk_performance_test.sh",
         "patchSetId": 1
@@ -193,6 +211,24 @@
     {
       "unresolved": false,
       "key": {
+        "uuid": "e7a926e6_868bee4e",
+        "filename": "infra/ELK/elk_performance_test.sh",
+        "patchSetId": 1
+      },
+      "lineNbr": 1077,
+      "author": {
+        "id": 1039371
+      },
+      "writtenOn": "2026-05-29T15:06:22Z",
+      "side": 1,
+      "message": "Marked as resolved.",
+      "parentUuid": "801b3ebb_3ca89a9c",
+      "revId": "ff1e8a80027f3df7670c9c9ff22bc7dc7e52dfba",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
+    },
+    {
+      "unresolved": false,
+      "key": {
         "uuid": "8f86bfaf_c09101bd",
         "filename": "infra/ELK/elk_performance_test.sh",
         "patchSetId": 1
@@ -280,6 +316,30 @@
       "side": 1,
       "message": "Marked as unresolved.",
       "parentUuid": "1c37cc6b_0abb0623",
+      "revId": "ff1e8a80027f3df7670c9c9ff22bc7dc7e52dfba",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "2454aa4a_8f0521fd",
+        "filename": "infra/ELK/elk_performance_test.sh",
+        "patchSetId": 1
+      },
+      "lineNbr": 1137,
+      "author": {
+        "id": 1039371
+      },
+      "writtenOn": "2026-05-29T15:06:22Z",
+      "side": 1,
+      "message": "Marked as resolved.",
+      "parentUuid": "07d6aae8_37cdabd8",
+      "range": {
+        "startLine": 1137,
+        "startChar": 16,
+        "endLine": 1137,
+        "endChar": 29
+      },
       "revId": "ff1e8a80027f3df7670c9c9ff22bc7dc7e52dfba",
       "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
     },
@@ -472,6 +532,30 @@
       "writtenOn": "2026-05-29T12:11:59Z",
       "side": 1,
       "message": "SUGGESTION: Consider moving the test inside the for loop into a function that takes an index as a parameter, and then run the loop as:\n```\nfor disk_idx in $DISK_INDICES; do\n\tyour_function_name $disk_idx\ndone\n```\nAnd make the variables inside it local to not pollute the global variable space.",
+      "range": {
+        "startLine": 1137,
+        "startChar": 0,
+        "endLine": 1247,
+        "endChar": 4
+      },
+      "revId": "ff1e8a80027f3df7670c9c9ff22bc7dc7e52dfba",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "ceb17f18_a6c0e2c4",
+        "filename": "infra/ELK/elk_performance_test.sh",
+        "patchSetId": 1
+      },
+      "lineNbr": 1247,
+      "author": {
+        "id": 1039371
+      },
+      "writtenOn": "2026-05-29T15:06:22Z",
+      "side": 1,
+      "message": "Marked as resolved.",
+      "parentUuid": "a7e7642a_68052ab8",
       "range": {
         "startLine": 1137,
         "startChar": 0,
