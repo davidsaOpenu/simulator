@@ -20,13 +20,15 @@ namespace sector_tests {
     };
 
     std::vector<SSDConf*> GetTestParams() {
-        std::vector<SSDConf*> ssd_configs;
+        return BuildOwnedSSDConfParams([] {
+            std::vector<std::unique_ptr<SSDConf>> ssd_configs;
 
-        for (unsigned int i = 0; i < BASE_TEST_ARRAY_SIZE(parameters::Allsizemb); i++) {
-            ssd_configs.push_back(new SSDConf(parameters::Allsizemb[i]));
-        }
+            for (unsigned int i = 0; i < BASE_TEST_ARRAY_SIZE(parameters::Allsizemb); i++) {
+                ssd_configs.emplace_back(new SSDConf(parameters::Allsizemb[i]));
+            }
 
-        return ssd_configs;
+            return ssd_configs;
+        });
     }
 
     INSTANTIATE_TEST_CASE_P(DiskSize, SectorUnitTest, ::testing::ValuesIn(GetTestParams()));

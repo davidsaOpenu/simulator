@@ -37,8 +37,10 @@ extern "C" int g_init_log_server;
 #include <fstream>
 #include <cstdio>
 #include <cstdlib>
+#include <memory>
 #include <string>
 #include <time.h>
+#include <vector>
 
 #define BASE_TEST_ARRAY_SIZE(array) (sizeof(array) / sizeof(array[0]))
 
@@ -292,6 +294,19 @@ namespace {
         }
     };
 
+    template <typename BuildConfigs>
+    std::vector<SSDConf*> BuildOwnedSSDConfParams(BuildConfigs build_configs) {
+        static std::vector<std::unique_ptr<SSDConf>> owned_configs = build_configs();
+        std::vector<SSDConf*> params;
+
+        params.reserve(owned_configs.size());
+        for (size_t i = 0; i < owned_configs.size(); ++i) {
+            params.push_back(owned_configs[i].get());
+        }
+
+        return params;
+    }
+
     /* override due to valgrind error and gtest using this operator<< */
     ostream& operator<<(ostream& os, const SSDConf& value) {
         (void) value;
@@ -349,7 +364,7 @@ namespace {
                 std::ignore = system((std::string("rm -rf data/") + std::to_string(g_device_index)).c_str());
                 clientSock = 0;
                 g_init_log_server = 0;
-                delete ssd_config;
+                ssd_config = nullptr;
             }
 
             SSDConf* base_test_get_ssd_config(void) {
