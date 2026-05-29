@@ -254,13 +254,16 @@ void offline_log_analyzer_free(OfflineLogAnalyzer* analyzer) {
 
 static void elk_logger_writer_get_time_string(char *buf)
 {
-    time_t timer;
-    struct tm* tm_info;
+    time_t timer = time(NULL);
+    struct tm tm_info;
 
-    timer = time(NULL);
-    tm_info = localtime(&timer);
+    if (localtime_r(&timer, &tm_info) == NULL) {
+        snprintf(buf, TIME_STAMP_LEN, "INVALID_TIMESTAMP");
+        return;
+    }
 
-    strftime(buf, TIME_STAMP_LEN, LOG_NAME_PATTERN, tm_info);
+    if (strftime(buf, TIME_STAMP_LEN, LOG_NAME_PATTERN, &tm_info) == 0)
+        snprintf(buf, TIME_STAMP_LEN, "FORMAT_ERROR");
 }
 
 /**
@@ -500,7 +503,7 @@ static int elk_logger_writer_open_file_for_write(void) {
             __atomic_fetch_add(&file_seq, 1, __ATOMIC_RELAXED));
     elk_logger_writer_obj.log_file = open(log_name, O_WRONLY | O_CREAT | O_APPEND, 0644);
 
-    if (0 >= elk_logger_writer_obj.log_file) {
+    if (elk_logger_writer_obj.log_file < 0) {
         return -1;
     }
 
@@ -511,8 +514,10 @@ static int elk_logger_writer_open_file_for_write(void) {
  * closes the log file in use
  */
 static void elk_logger_writer_close_file(void) {
-    if (elk_logger_writer_obj.log_file > 0)
+    if (elk_logger_writer_obj.log_file >= 0) {
         close(elk_logger_writer_obj.log_file);
+        elk_logger_writer_obj.log_file = -1;
+    }
 }
 
 void elk_logger_writer_init(void) {
@@ -523,6 +528,7 @@ void elk_logger_writer_init(void) {
     }
 
     pthread_mutex_init(&elk_logger_writer_obj.lock, NULL);
+    elk_logger_writer_obj.log_file = -1;
     elk_logger_writer_obj.log_file_size = 10 *1024 * 1024; // 10 MB
     elk_logger_writer_obj.curr_size = 0;
 
