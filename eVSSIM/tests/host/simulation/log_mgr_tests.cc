@@ -91,28 +91,29 @@ namespace log_mgr_tests {
      * @return the different buffer sizes for the logger
      */
     std::vector<SSDConf*> GetTestParams() {
-        std::vector<SSDConf*> ssd_configs;
+        return BuildOwnedSSDConfParams([] {
+            std::vector<std::unique_ptr<SSDConf>> ssd_configs;
 
-        size_t page_size = 1048576;
-        size_t sector_size = 1048576;
-        size_t flash_nb = DEFAULT_FLASH_NB;
-        size_t block_nb = 8;
-        size_t page_nb = 2;
-        size_t channel_nb = 4;
+            size_t page_size = 1048576;
+            size_t sector_size = 1048576;
+            size_t flash_nb = DEFAULT_FLASH_NB;
+            size_t block_nb = 8;
+            size_t page_nb = 2;
+            size_t channel_nb = 4;
 
-        std::vector<size_t> log_sizes;
-        log_sizes.push_back(1);
-        log_sizes.push_back(2);
-        log_sizes.push_back(3);
-        log_sizes.push_back(10);
+            std::vector<size_t> log_sizes;
+            log_sizes.push_back(1);
+            log_sizes.push_back(2);
+            log_sizes.push_back(3);
+            log_sizes.push_back(10);
 
-        for (unsigned int i = 0; i < log_sizes.size(); i++) {
-            SSDConf* config = new SSDConf(page_size, page_nb, sector_size, flash_nb, block_nb, channel_nb);
-            config->set_logger_size(log_sizes[i]);
-            ssd_configs.push_back(config);
-        }
+            for (unsigned int i = 0; i < log_sizes.size(); i++) {
+                ssd_configs.emplace_back(new SSDConf(page_size, page_nb, sector_size, flash_nb, block_nb, channel_nb));
+                ssd_configs.back()->set_logger_size(log_sizes[i]);
+            }
 
-        return ssd_configs;
+            return ssd_configs;
+        });
     }
 
     INSTANTIATE_TEST_CASE_P(LoggerSize, LogMgrUnitTest, ::testing::ValuesIn(GetTestParams()));

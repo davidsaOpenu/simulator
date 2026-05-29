@@ -65,10 +65,14 @@ namespace program_compatible_test
 
     std::vector<SSDConf *> GetTestParams()
     {
-        std::vector<SSDConf *> ssd_configs;
-        ssd_configs.push_back(new SSDConf(pow(2, 12), 10, 1, 8, pow(2, 12), 4));
-        ssd_configs.push_back(new SSDConf(pow(2, 10), 8, 2, 8, pow(2, 12), 4));
-        return ssd_configs;
+        return BuildOwnedSSDConfParams([] {
+            std::vector<std::unique_ptr<SSDConf>> ssd_configs;
+
+            ssd_configs.emplace_back(new SSDConf(pow(2, 12), 10, 1, 8, pow(2, 12), 4));
+            ssd_configs.emplace_back(new SSDConf(pow(2, 10), 8, 2, 8, pow(2, 12), 4));
+
+            return ssd_configs;
+        });
     }
 
     INSTANTIATE_TEST_CASE_P(DiskSize, OnfiCommandsTest, ::testing::ValuesIn(GetTestParams()));

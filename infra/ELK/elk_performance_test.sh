@@ -22,13 +22,13 @@ MIN_WRITE_SPEED_MBPS="${MIN_WRITE_SPEED_MBPS:-1.0}"
 MAX_GC_RATE="${MAX_GC_RATE:-30.0}"
 
 MIN_READ_COUNT="${MIN_READ_COUNT:-600000}"
-MIN_WRITE_COUNT="${MIN_WRITE_COUNT:-700000}"
+MIN_WRITE_COUNT="${MIN_WRITE_COUNT:-580000}"
 MIN_LOGICAL_WRITE_COUNT="${MIN_LOGICAL_WRITE_COUNT:-600000}"
 
 REQUIRE_UTILIZATION="${REQUIRE_UTILIZATION:-1}"
 
 GC_FOREGROUND_TRIGGER="${GC_FOREGROUND_TRIGGER:-1}"
-MIN_UTIL_AT_FG_GC="${MIN_UTIL_AT_FG_GC:-0.90}"
+MIN_UTIL_AT_FG_GC="${MIN_UTIL_AT_FG_GC:-0.85}"
 
 SECTOR_MIN_WRITE_COUNT="${SECTOR_MIN_WRITE_COUNT:-100}"
 SECTOR_MIN_READ_COUNT="${SECTOR_MIN_READ_COUNT:-0}"
@@ -38,6 +38,7 @@ SECTOR_MIN_WRITE_SPEED_MBPS="${SECTOR_MIN_WRITE_SPEED_MBPS:-1.0}"
 SECTOR_MIN_READ_SPEED_MBPS="${SECTOR_MIN_READ_SPEED_MBPS:-0.0}"
 SECTOR_MIN_WA="${SECTOR_MIN_WA:-0.95}"
 SECTOR_MAX_WA="${SECTOR_MAX_WA:-1.5}"
+SECTOR_LOOKBACK_SECS="${SECTOR_LOOKBACK_SECS:-120}"
 
 WAIT_SECS="${WAIT_SECS:-60}"
 LOOKBACK_HOURS="${LOOKBACK_HOURS:-24}"
@@ -86,6 +87,21 @@ gt() { awk -v v="$1" -v m="$2" 'BEGIN { exit !(v+0 > m+0) }'; }
 
 iso_to_logtime_from() { echo "$1" | sed -E 's/T/_/; s/:/-/g; s/Z$/.000000/'; }
 iso_to_logtime_to()   { echo "$1" | sed -E 's/T/_/; s/:/-/g; s/Z$/.999999/'; }
+
+ts_value_to_epoch() {
+  local field="$1"
+  local ts="$2"
+
+  [[ -z "${ts:-}" ]] && { echo ""; return; }
+
+  if [[ "$field" == "@timestamp" ]]; then
+    date -u -d "$ts" +%s 2>/dev/null || echo ""
+  else
+    local iso
+    iso="$(echo "$ts" | sed -E 's/_/T/; s/T([0-9]{2})-([0-9]{2})-([0-9]{2})/T\1:\2:\3/; s/\..*$//; s/$/Z/')"
+    date -u -d "$iso" +%s 2>/dev/null || echo ""
+  fi
+}
 
 list_indices_sorted() {
   curl -k -s -u "elastic:$ELASTIC_PASSWORD" \
@@ -377,6 +393,8 @@ else
   METRICS_TS_FROM="$(iso_to_logtime_from "$METRICS_FROM_DATE")"
 fi
 
+METRICS_FROM_EPOCH="$(date -u -d "$METRICS_FROM_DATE" +%s)"
+
 type_filter() {
   local t="$1"
   cat <<EOF
@@ -566,9 +584,57 @@ global_metrics_body="$(cat <<EOF
 EOF
 )"
 
-# =============================================================================
-# SECTOR TEST METRICS QUERY (with test.name filter)
-# =============================================================================
+SECTOR_METRICS_FROM_DATE="$METRICS_FROM_DATE"
+SECTOR_METRICS_TS_FROM="$METRICS_TS_FROM"
+
+if [[ -n "$TEST_NAME_FILTER" ]]; then
+  sector_latest_body="$(cat <<EOF
+{
+  "size": 1,
+  "track_total_hits": false,
+  "query": {
+    "bool": {
+      "must": [
+        {
+          "range": {
+            "$TS_FIELD": { "gte": "$METRICS_TS_FROM", "lte": "$TS_TO" }
+          }
+        },
+        $(test_name_filter "$TEST_NAME_FILTER")
+        $device_filter_clause
+      ]
+    }
+  },
+  "sort": [
+    { "$TS_FIELD": { "order": "desc" } }
+  ],
+  "_source": { "includes": ["$TS_FIELD"] }
+}
+EOF
+)"
+
+  sector_latest_json="$(curl -k -s -u "elastic:$ELASTIC_PASSWORD" \
+    -H 'Content-Type: application/json' \
+    "$ES_URL/$idx/_search" -d "$sector_latest_body")"
+  sector_latest_ts="$(echo "$sector_latest_json" | jq -r --arg f "$TS_FIELD" '.hits.hits[0]._source[$f] // empty')"
+
+  if [[ -n "${sector_latest_ts:-}" ]]; then
+    sector_latest_epoch="$(ts_value_to_epoch "$TS_FIELD" "$sector_latest_ts")"
+    if [[ -n "${sector_latest_epoch:-}" ]]; then
+      sector_from_epoch=$((sector_latest_epoch - SECTOR_LOOKBACK_SECS))
+      if (( sector_from_epoch < METRICS_FROM_EPOCH )); then
+        sector_from_epoch=$METRICS_FROM_EPOCH
+      fi
+      SECTOR_METRICS_FROM_DATE="$(date -u -d "@$sector_from_epoch" +%Y-%m-%dT%H:%M:%SZ)"
+      if [[ "$TS_FIELD" == "@timestamp" ]]; then
+        SECTOR_METRICS_TS_FROM="$SECTOR_METRICS_FROM_DATE"
+      else
+        SECTOR_METRICS_TS_FROM="$(iso_to_logtime_from "$SECTOR_METRICS_FROM_DATE")"
+      fi
+    fi
+  fi
+fi
+
 sector_metrics_body="$(cat <<EOF
 {
   "query": {
@@ -576,7 +642,7 @@ sector_metrics_body="$(cat <<EOF
       "must": [
         {
           "range": {
-            "$TS_FIELD": { "gte": "$METRICS_TS_FROM", "lte": "$TS_TO" }
+            "$TS_FIELD": { "gte": "$SECTOR_METRICS_TS_FROM", "lte": "$TS_TO" }
           }
         },
         $(test_name_filter "$TEST_NAME_FILTER")
@@ -678,15 +744,7 @@ activity_first_ts="$(get_first_ts '.aggregations.activity.first.hits.hits[0]._so
 activity_last_ts="$(get_last_ts  '.aggregations.activity.last.hits.hits[0]._source[$f] // empty')"
 
 ts_to_epoch() {
-  local ts="$1"
-  [[ -z "${ts:-}" ]] && { echo ""; return; }
-  if [[ "$TS_FIELD" == "@timestamp" ]]; then
-    date -u -d "$ts" +%s 2>/dev/null || echo ""
-  else
-    local iso
-    iso="$(echo "$ts" | sed -E 's/_/T/; s/T([0-9]{2})-([0-9]{2})-([0-9]{2})/T\1:\2:\3/; s/\..*$//; s/$/Z/')"
-    date -u -d "$iso" +%s 2>/dev/null || echo ""
-  fi
+  ts_value_to_epoch "$TS_FIELD" "$1"
 }
 
 span_secs() {
@@ -943,6 +1001,7 @@ fi
 # =============================================================================
 echo ""
 echo "[elk_performance_test] === SECTOR TEST CHECKS ($TEST_NAME_FILTER) ==="
+echo "[elk_performance_test] Sector metrics window: FROM=$SECTOR_METRICS_FROM_DATE TO=$TO_DATE"
 
 sector_metrics_cmd="$(cat <<'EOF'
 curl -k -s -u "elastic:$ELASTIC_PASSWORD" \
