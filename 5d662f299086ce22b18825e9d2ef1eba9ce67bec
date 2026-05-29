@@ -1,0 +1,325 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "185daa4c_19aaf84b",
+        "filename": "eVSSIM/CONFIG/vssim_config_manager.c",
+        "patchSetId": 2
+      },
+      "lineNbr": 452,
+      "author": {
+        "id": 1039387
+      },
+      "writtenOn": "2026-05-29T12:18:15Z",
+      "side": 1,
+      "message": "rename here to calloc",
+      "range": {
+        "startLine": 452,
+        "startChar": 19,
+        "endLine": 452,
+        "endChar": 25
+      },
+      "revId": "5d662f299086ce22b18825e9d2ef1eba9ce67bec",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "7105c11f_3df4b33a",
+        "filename": "eVSSIM/FTL_SOURCE/PAGE_MAP/ftl_gc_manager.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 12,
+      "author": {
+        "id": 1039387
+      },
+      "writtenOn": "2026-05-29T12:18:15Z",
+      "side": 1,
+      "message": "no need for the comment",
+      "range": {
+        "startLine": 12,
+        "startChar": 0,
+        "endLine": 12,
+        "endChar": 124
+      },
+      "revId": "5d662f299086ce22b18825e9d2ef1eba9ce67bec",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "063f0aca_c36489fd",
+        "filename": "eVSSIM/LOG_MGR/logging_manager.c",
+        "patchSetId": 2
+      },
+      "lineNbr": 116,
+      "author": {
+        "id": 1039387
+      },
+      "writtenOn": "2026-05-29T12:18:15Z",
+      "side": 1,
+      "message": "this being static can cause a race condition (as it is one single one for all of the threads), I would consider using a struct per device to make sure that doesn\u0027t happen",
+      "range": {
+        "startLine": 116,
+        "startChar": 0,
+        "endLine": 116,
+        "endChar": 96
+      },
+      "revId": "5d662f299086ce22b18825e9d2ef1eba9ce67bec",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "e08344bf_42475eb5",
+        "filename": "eVSSIM/LOG_MGR/logging_parser.c",
+        "patchSetId": 2
+      },
+      "lineNbr": 51,
+      "author": {
+        "id": 1039387
+      },
+      "writtenOn": "2026-05-29T12:18:15Z",
+      "side": 1,
+      "message": "no need for this comment",
+      "range": {
+        "startLine": 51,
+        "startChar": 0,
+        "endLine": 51,
+        "endChar": 79
+      },
+      "revId": "5d662f299086ce22b18825e9d2ef1eba9ce67bec",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "e578ac60_22e797fc",
+        "filename": "eVSSIM/LOG_MGR/logging_parser.c",
+        "patchSetId": 2
+      },
+      "lineNbr": 67,
+      "author": {
+        "id": 1039387
+      },
+      "writtenOn": "2026-05-29T12:18:15Z",
+      "side": 1,
+      "message": "PRId64 is signed, can we change it to unsigned? (to conform with line 51)",
+      "range": {
+        "startLine": 67,
+        "startChar": 0,
+        "endLine": 67,
+        "endChar": 130
+      },
+      "revId": "5d662f299086ce22b18825e9d2ef1eba9ce67bec",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "d440dd70_e3211ac6",
+        "filename": "eVSSIM/osc-osd/osd-target/osd.c",
+        "patchSetId": 2
+      },
+      "lineNbr": 228,
+      "author": {
+        "id": 1039387
+      },
+      "writtenOn": "2026-05-29T12:18:15Z",
+      "side": 1,
+      "message": "no need for the comment",
+      "revId": "5d662f299086ce22b18825e9d2ef1eba9ce67bec",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "25b091c1_d19e7fee",
+        "filename": "eVSSIM/osc-osd/osd-target/osd.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 114,
+      "author": {
+        "id": 1039387
+      },
+      "writtenOn": "2026-05-29T12:18:15Z",
+      "side": 1,
+      "message": "remove the magic here please",
+      "range": {
+        "startLine": 114,
+        "startChar": 0,
+        "endLine": 114,
+        "endChar": 96
+      },
+      "revId": "5d662f299086ce22b18825e9d2ef1eba9ce67bec",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "d03f6d1d_92d7cf79",
+        "filename": "infra/builder/build-docker-image.sh",
+        "patchSetId": 2
+      },
+      "lineNbr": 15,
+      "author": {
+        "id": 1039387
+      },
+      "writtenOn": "2026-05-29T12:18:15Z",
+      "side": 1,
+      "message": "remove the unnecessary comments (or add a description on why you need these and how to use)",
+      "range": {
+        "startLine": 15,
+        "startChar": 0,
+        "endLine": 15,
+        "endChar": 109
+      },
+      "revId": "5d662f299086ce22b18825e9d2ef1eba9ce67bec",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "c2c13199_665d13be",
+        "filename": "infra/builder/compile-guest-tests.sh",
+        "patchSetId": 2
+      },
+      "lineNbr": 29,
+      "author": {
+        "id": 1039387
+      },
+      "writtenOn": "2026-05-29T12:18:15Z",
+      "side": 1,
+      "message": "IMO - we should move it to the baseclass and not duplicate it",
+      "range": {
+        "startLine": 29,
+        "startChar": 0,
+        "endLine": 29,
+        "endChar": 23
+      },
+      "revId": "5d662f299086ce22b18825e9d2ef1eba9ce67bec",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "0fd088a5_e16281b6",
+        "filename": "infra/builder/compile-host-tests.sh",
+        "patchSetId": 2
+      },
+      "lineNbr": 27,
+      "author": {
+        "id": 1039387
+      },
+      "writtenOn": "2026-05-29T12:18:15Z",
+      "side": 1,
+      "message": "IMO - we should move it to the baseclass and not duplicate it",
+      "range": {
+        "startLine": 27,
+        "startChar": 0,
+        "endLine": 27,
+        "endChar": 23
+      },
+      "revId": "5d662f299086ce22b18825e9d2ef1eba9ce67bec",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "41ec9bb1_33309568",
+        "filename": "infra/builder/docker-run-sanity.sh",
+        "patchSetId": 2
+      },
+      "lineNbr": 40,
+      "author": {
+        "id": 1039387
+      },
+      "writtenOn": "2026-05-29T12:18:15Z",
+      "side": 1,
+      "message": "remove this line",
+      "revId": "5d662f299086ce22b18825e9d2ef1eba9ce67bec",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "fa8be7b3_965b3f6d",
+        "filename": "infra/builder/load_config.sh",
+        "patchSetId": 2
+      },
+      "lineNbr": 126,
+      "author": {
+        "id": 1039387
+      },
+      "writtenOn": "2026-05-29T12:18:15Z",
+      "side": 1,
+      "message": "change the comment here to 5",
+      "range": {
+        "startLine": 126,
+        "startChar": 29,
+        "endLine": 126,
+        "endChar": 30
+      },
+      "revId": "5d662f299086ce22b18825e9d2ef1eba9ce67bec",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "e3af94ac_90dd901e",
+        "filename": "infra/builder/versions/configs.json",
+        "patchSetId": 2
+      },
+      "lineNbr": 16,
+      "author": {
+        "id": 1039387
+      },
+      "writtenOn": "2026-05-29T12:18:15Z",
+      "side": 1,
+      "message": "based on Claude this is tabs and the rest of the file is spaces",
+      "revId": "5d662f299086ce22b18825e9d2ef1eba9ce67bec",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "399091c3_e9ba8896",
+        "filename": "infra/builder/versions/configs.json",
+        "patchSetId": 2
+      },
+      "lineNbr": 16,
+      "author": {
+        "id": 1039387
+      },
+      "writtenOn": "2026-05-29T12:18:15Z",
+      "side": 1,
+      "message": "based on Claude this is tabs and the rest of the file is spaces",
+      "revId": "5d662f299086ce22b18825e9d2ef1eba9ce67bec",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "67f3f5d7_a517dae1",
+        "filename": "infra/builder/versions/containers/14.04/logging_server.c",
+        "patchSetId": 2
+      },
+      "lineNbr": 17,
+      "author": {
+        "id": 1039387
+      },
+      "writtenOn": "2026-05-29T12:18:15Z",
+      "side": 1,
+      "message": "do we need this file? meaning if we created the 26.04 file is this also required?",
+      "range": {
+        "startLine": 17,
+        "startChar": 10,
+        "endLine": 17,
+        "endChar": 17
+      },
+      "revId": "5d662f299086ce22b18825e9d2ef1eba9ce67bec",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
+    }
+  ]
+}
