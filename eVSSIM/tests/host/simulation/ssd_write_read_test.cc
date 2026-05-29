@@ -53,14 +53,16 @@ namespace write_read_test
 
     std::vector<SSDConf *> GetTestParams()
     {
-        std::vector<SSDConf *> ssd_configs;
+        return BuildOwnedSSDConfParams([] {
+            std::vector<std::unique_ptr<SSDConf>> ssd_configs;
 
-        for (unsigned int i = 1; i <= MAX_POW; i++)
-        {
-            ssd_configs.push_back(new SSDConf(pow(2, i)));
-        }
+            for (unsigned int i = 1; i <= MAX_POW; i++)
+            {
+                ssd_configs.emplace_back(new SSDConf(pow(2, i)));
+            }
 
-        return ssd_configs;
+            return ssd_configs;
+        });
     }
 
     /**

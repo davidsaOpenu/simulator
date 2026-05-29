@@ -22,6 +22,16 @@
 
 #include "logging_backend.h"
 
+static time_t logger_now_seconds(void) {
+    struct timespec ts;
+
+    if (clock_gettime(CLOCK_MONOTONIC, &ts) == 0) {
+        return ts.tv_sec;
+    }
+
+    return time(NULL);
+}
+
 /**
  * Return the number of empty bytes in the log
  * @param {Log*} log to check
@@ -53,7 +63,7 @@
     node->prev = dummy->prev; \
     node->next->prev = node; \
     node->prev->next = node; \
-    node->last_used_timestamp = time(NULL); \
+    node->last_used_timestamp = logger_now_seconds(); \
     node->clean = true; \
     RESET_DONE(node); \
     SET_TAILS(node, buf); \
@@ -89,7 +99,7 @@ do { \
  */
 #define UPDATE_NODE(node, is_clean, size) { \
     node->head += size; \
-    node->last_used_timestamp = time(NULL); \
+    node->last_used_timestamp = logger_now_seconds(); \
     node->clean = is_clean; \
 }
 
@@ -360,12 +370,13 @@ void logger_reduce_size(Logger_Pool* logger_pool) {
         // make sure that the analayzers are done with this log
         // and that it wasn't used for at least LOG_MAX_UNUSED_TIME_SECONDS
         bool done = true;
+        time_t now = logger_now_seconds();
         size_t i;
         for(i=0; i<analyzers_num; i++){
             done = done && log->analyzer_done[i];
         }
         if(!(log->clean) && done &&
-                ((time(NULL) - log->last_used_timestamp) > LOG_MAX_UNUSED_TIME_SECONDS))
+                ((now - log->last_used_timestamp) > LOG_MAX_UNUSED_TIME_SECONDS))
         {
             DISCONNECT_NODE(log);
             free(log->buffer);

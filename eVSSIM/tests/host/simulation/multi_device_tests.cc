@@ -53,10 +53,13 @@ namespace multi_device_tests {
     };
 
     std::vector<SSDConf*> GetTestParams() {
-        std::vector<SSDConf*> ssd_configs;
+        return BuildOwnedSSDConfParams([] {
+            std::vector<std::unique_ptr<SSDConf>> ssd_configs;
 
-        ssd_configs.push_back(new SSDConf(1));
-        return ssd_configs;
+            ssd_configs.emplace_back(new SSDConf(1));
+
+            return ssd_configs;
+        });
     }
 
     INSTANTIATE_TEST_CASE_P(Workloads, MultiDeviceWorkloadTest,
@@ -264,22 +267,23 @@ namespace multi_device_tests {
     };
 
     std::vector<SSDConf*> GetObjectTestParams() {
-        std::vector<SSDConf*> ssd_configs;
+        return BuildOwnedSSDConfParams([] {
+            std::vector<std::unique_ptr<SSDConf>> ssd_configs;
 
-        size_t page_size = 4096;
-        size_t sector_size = 1;
-        size_t page_nb = 10;
-        size_t block_nb = 128;
+            size_t page_size = 4096;
+            size_t sector_size = 1;
+            size_t page_nb = 10;
+            size_t block_nb = 128;
 
-        for (unsigned int i = 0; i < BASE_TEST_ARRAY_SIZE(parameters::Allobjsize); i++) {
-            SSDConf* config = new SSDConf(
-                page_size, page_nb, sector_size, DEFAULT_FLASH_NB, block_nb, DEFAULT_FLASH_NB);
-            config->set_object_size(parameters::Allobjsize[i]);
-            config->set_storage_strategy(STRATEGY_OBJECT);
-            ssd_configs.push_back(config);
-        }
+            for (unsigned int i = 0; i < BASE_TEST_ARRAY_SIZE(parameters::Allobjsize); i++) {
+                ssd_configs.emplace_back(
+                    new SSDConf(page_size, page_nb, sector_size, DEFAULT_FLASH_NB, block_nb, DEFAULT_FLASH_NB));
+                ssd_configs.back()->set_object_size(parameters::Allobjsize[i]);
+                ssd_configs.back()->set_storage_strategy(STRATEGY_OBJECT);
+            }
 
-        return ssd_configs;
+            return ssd_configs;
+        });
     }
 
     INSTANTIATE_TEST_CASE_P(ObjectWorkloads, MultiDeviceObjectTest,
@@ -570,10 +574,13 @@ namespace multi_device_tests {
     };
 
     std::vector<SSDConf*> GetMixedTestParams() {
-        std::vector<SSDConf*> ssd_configs;
+        return BuildOwnedSSDConfParams([] {
+            std::vector<std::unique_ptr<SSDConf>> ssd_configs;
 
-        ssd_configs.push_back(new SSDConf(1));
-        return ssd_configs;
+            ssd_configs.emplace_back(new SSDConf(1));
+
+            return ssd_configs;
+        });
     }
 
     INSTANTIATE_TEST_CASE_P(MixedWorkloads, MultiDeviceMixedTest,

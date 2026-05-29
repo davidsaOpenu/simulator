@@ -45,11 +45,13 @@ namespace ssd_io_emulator_tests {
     };
 
     std::vector<SSDConf*> GetTestParams() {
-        std::vector<SSDConf*> ssd_configs;
+        return BuildOwnedSSDConfParams([] {
+            std::vector<std::unique_ptr<SSDConf>> ssd_configs;
 
-        ssd_configs.push_back(new SSDConf(parameters::sizemb::mb1));
+            ssd_configs.emplace_back(new SSDConf(parameters::sizemb::mb1));
 
-        return ssd_configs;
+            return ssd_configs;
+        });
     }
 
     INSTANTIATE_TEST_CASE_P(DiskSize, GCTest, ::testing::ValuesIn(GetTestParams()));

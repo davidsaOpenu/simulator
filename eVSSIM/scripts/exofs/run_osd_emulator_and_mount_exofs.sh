@@ -19,7 +19,7 @@ cd guest
 
 # Install dependencies then creating client
 echo "> Installing dependencies..."
-sudo apt install -y open-iscsi open-iscsi-utils make gcc strace fio bc
+sudo env DEBIAN_FRONTEND=noninteractive apt-get -o Dpkg::Use-Pty=0 install -y open-iscsi open-iscsi-utils make gcc strace fio bc
 pushd /home/esd/exofs/tracing_the_kernel/lab && make && popd
 
 echo "> Setup OSD emulation..."
