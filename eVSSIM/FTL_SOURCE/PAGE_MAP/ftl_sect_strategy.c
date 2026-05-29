@@ -149,6 +149,17 @@ ftl_ret_val FTL_READ_SECT(uint8_t device_index, uint64_t sector_nb, unsigned int
 	if (!is_valid_device_index(device_index)) {
 		return _FTL_READ_SECT(device_index, sector_nb, length, data);
 	}
+	if (data == NULL) {
+		/* Statistics-only path: don't block if the GC thread holds the mutex.
+		 * Callers (e.g. QEMU coroutines) must not stall the event loop waiting
+		 * for GC to finish; skipping the stat update is acceptable here. */
+		pthread_mutex_t *lock = GET_LOCK_FOR_DEVICE(device_index);
+		if (pthread_mutex_trylock(lock) != 0)
+			return FTL_SUCCESS;
+		ftl_ret_val ret = _FTL_READ_SECT(device_index, sector_nb, length, data);
+		pthread_mutex_unlock(lock);
+		return ret;
+	}
 	LOCK_DEVICE(device_index);
 	ftl_ret_val ret = _FTL_READ_SECT(device_index, sector_nb, length, data);
 	UNLOCK_DEVICE(device_index);
