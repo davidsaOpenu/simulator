@@ -11,7 +11,7 @@ evssim_qemu_detached
 # evssim_guest ls -al /dev/nvme0n1 2>/dev/null >/dev/null
 # Before checking if device nvme0n1 exists we should wait
 # Otherwise there are sporadic failures on "Failed to find device" error
-# sleep 10
+sleep 10
 
 # Run a command inside the container (check if device nvme0n1 exists)
 if evssim_guest ls -al /dev/nvme0n1 2>/dev/null >/dev/null; then
