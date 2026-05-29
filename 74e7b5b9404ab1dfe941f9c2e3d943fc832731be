@@ -1,0 +1,89 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "89814467_0cc3d885",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 7
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 1039461
+      },
+      "writtenOn": "2026-05-29T07:56:55Z",
+      "side": 1,
+      "message": "This change looks great! I found some minor DRY violation.",
+      "revId": "74e7b5b9404ab1dfe941f9c2e3d943fc832731be",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "b47d7ced_39774eab",
+        "filename": "infra/builder/build-qemu-image.sh",
+        "patchSetId": 7
+      },
+      "lineNbr": 7,
+      "author": {
+        "id": 1039461
+      },
+      "writtenOn": "2026-05-29T07:56:55Z",
+      "side": 1,
+      "message": "DRY: There is code duplication of stripping the ubuntu prefix across multiple build scripts. Please add a function in builder.sh that accepts the VAR as a paramater and returns the stripped tag.",
+      "revId": "74e7b5b9404ab1dfe941f9c2e3d943fc832731be",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "d750c07c_6847d742",
+        "filename": "infra/builder/builder.sh",
+        "patchSetId": 7
+      },
+      "lineNbr": 96,
+      "author": {
+        "id": 1039461
+      },
+      "writtenOn": "2026-05-29T07:56:55Z",
+      "side": 1,
+      "message": "DRY: There is code duplication with the evssim_run_mounted, evssim_qemu_fresh_image functions.",
+      "revId": "74e7b5b9404ab1dfe941f9c2e3d943fc832731be",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "0d1b7cca_7592a099",
+        "filename": "infra/builder/docker-copy-into-guest.sh",
+        "patchSetId": 7
+      },
+      "lineNbr": 4,
+      "author": {
+        "id": 1039461
+      },
+      "writtenOn": "2026-05-29T07:56:55Z",
+      "side": 1,
+      "message": "DRY: add a parse_version function in builder.sh that accepts all the args \"$@\" as a parameter and returns the version. Use it across all scripts that accept one version paramter.",
+      "revId": "74e7b5b9404ab1dfe941f9c2e3d943fc832731be",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "265f3ef9_0be90717",
+        "filename": "infra/builder/docker-test-guest.sh",
+        "patchSetId": 7
+      },
+      "lineNbr": 46,
+      "author": {
+        "id": 1039461
+      },
+      "writtenOn": "2026-05-29T07:56:55Z",
+      "side": 1,
+      "message": "is this unused?",
+      "revId": "74e7b5b9404ab1dfe941f9c2e3d943fc832731be",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
+    }
+  ]
+}
