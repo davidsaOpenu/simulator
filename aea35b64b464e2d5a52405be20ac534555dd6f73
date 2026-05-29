@@ -122,6 +122,23 @@
     {
       "unresolved": true,
       "key": {
+        "uuid": "d28e3241_ce121b70",
+        "filename": "infra/builder/builder.sh",
+        "patchSetId": 1
+      },
+      "lineNbr": 327,
+      "author": {
+        "id": 1039411
+      },
+      "writtenOn": "2026-05-29T14:41:11Z",
+      "side": 1,
+      "message": "Since qemu_accel is already initialized above, maybe use it here instead of checking EVSSIM_QEMU_ACCELERATION again. This would avoid duplicating the accelerator selection logic.",
+      "revId": "aea35b64b464e2d5a52405be20ac534555dd6f73",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
+    },
+    {
+      "unresolved": true,
+      "key": {
         "uuid": "52fdec24_920ad775",
         "filename": "infra/builder/builder.sh",
         "patchSetId": 1
