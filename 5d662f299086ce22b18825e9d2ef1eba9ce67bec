@@ -1,6 +1,23 @@
 {
   "comments": [
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "9b62de4d_17c8ed88",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 2
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 1039371
+      },
+      "writtenOn": "2026-05-29T18:13:07Z",
+      "side": 1,
+      "message": "@erezs302@gmail.com Thank you SO much for such a detailed CR\nIt is very appreciated!",
+      "revId": "5d662f299086ce22b18825e9d2ef1eba9ce67bec",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "185daa4c_19aaf84b",
@@ -14,6 +31,30 @@
       "writtenOn": "2026-05-29T12:18:15Z",
       "side": 1,
       "message": "rename here to calloc",
+      "range": {
+        "startLine": 452,
+        "startChar": 19,
+        "endLine": 452,
+        "endChar": 25
+      },
+      "revId": "5d662f299086ce22b18825e9d2ef1eba9ce67bec",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "2f496cb1_fa4fc088",
+        "filename": "eVSSIM/CONFIG/vssim_config_manager.c",
+        "patchSetId": 2
+      },
+      "lineNbr": 452,
+      "author": {
+        "id": 1039371
+      },
+      "writtenOn": "2026-05-29T18:13:07Z",
+      "side": 1,
+      "message": "Thank you!\nAlso made the error slightly more readable than a generic \"Malloc/Calloc failed\".",
+      "parentUuid": "185daa4c_19aaf84b",
       "range": {
         "startLine": 452,
         "startChar": 19,
@@ -47,6 +88,30 @@
       "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "b8d118f3_8ecdd285",
+        "filename": "eVSSIM/FTL_SOURCE/PAGE_MAP/ftl_gc_manager.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 12,
+      "author": {
+        "id": 1039371
+      },
+      "writtenOn": "2026-05-29T18:13:07Z",
+      "side": 1,
+      "message": "You\u0027re right, It\u0027s a leftover artifact from the changes we sent eachother working on the commit, (Same for the other \"No need for this comment\"s). Thanks",
+      "parentUuid": "7105c11f_3df4b33a",
+      "range": {
+        "startLine": 12,
+        "startChar": 0,
+        "endLine": 12,
+        "endChar": 124
+      },
+      "revId": "5d662f299086ce22b18825e9d2ef1eba9ce67bec",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "063f0aca_c36489fd",
@@ -60,6 +125,30 @@
       "writtenOn": "2026-05-29T12:18:15Z",
       "side": 1,
       "message": "this being static can cause a race condition (as it is one single one for all of the threads), I would consider using a struct per device to make sure that doesn\u0027t happen",
+      "range": {
+        "startLine": 116,
+        "startChar": 0,
+        "endLine": 116,
+        "endChar": 96
+      },
+      "revId": "5d662f299086ce22b18825e9d2ef1eba9ce67bec",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "dc4ca487_d93c46cb",
+        "filename": "eVSSIM/LOG_MGR/logging_manager.c",
+        "patchSetId": 2
+      },
+      "lineNbr": 116,
+      "author": {
+        "id": 1039371
+      },
+      "writtenOn": "2026-05-29T18:13:07Z",
+      "side": 1,
+      "message": "Had to take a deep dive, but changed SSDStatistics to be dynamically allocated once at the start, and just re-initialized at every iteration.",
+      "parentUuid": "063f0aca_c36489fd",
       "range": {
         "startLine": 116,
         "startChar": 0,
@@ -93,6 +182,30 @@
       "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "f1892158_424403f2",
+        "filename": "eVSSIM/LOG_MGR/logging_parser.c",
+        "patchSetId": 2
+      },
+      "lineNbr": 51,
+      "author": {
+        "id": 1039371
+      },
+      "writtenOn": "2026-05-29T18:13:07Z",
+      "side": 1,
+      "message": "Marked as resolved.",
+      "parentUuid": "e08344bf_42475eb5",
+      "range": {
+        "startLine": 51,
+        "startChar": 0,
+        "endLine": 51,
+        "endChar": 79
+      },
+      "revId": "5d662f299086ce22b18825e9d2ef1eba9ce67bec",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "e578ac60_22e797fc",
@@ -106,6 +219,30 @@
       "writtenOn": "2026-05-29T12:18:15Z",
       "side": 1,
       "message": "PRId64 is signed, can we change it to unsigned? (to conform with line 51)",
+      "range": {
+        "startLine": 67,
+        "startChar": 0,
+        "endLine": 67,
+        "endChar": 130
+      },
+      "revId": "5d662f299086ce22b18825e9d2ef1eba9ce67bec",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "3715071e_06ed7f30",
+        "filename": "eVSSIM/LOG_MGR/logging_parser.c",
+        "patchSetId": 2
+      },
+      "lineNbr": 67,
+      "author": {
+        "id": 1039371
+      },
+      "writtenOn": "2026-05-29T18:13:07Z",
+      "side": 1,
+      "message": "Good catch, haven\u0027t noticed, thanks!",
+      "parentUuid": "e578ac60_22e797fc",
       "range": {
         "startLine": 67,
         "startChar": 0,
@@ -133,6 +270,24 @@
       "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "fa10903d_b87ac31b",
+        "filename": "eVSSIM/osc-osd/osd-target/osd.c",
+        "patchSetId": 2
+      },
+      "lineNbr": 228,
+      "author": {
+        "id": 1039371
+      },
+      "writtenOn": "2026-05-29T18:13:07Z",
+      "side": 1,
+      "message": "Removed.",
+      "parentUuid": "d440dd70_e3211ac6",
+      "revId": "5d662f299086ce22b18825e9d2ef1eba9ce67bec",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "25b091c1_d19e7fee",
@@ -146,6 +301,30 @@
       "writtenOn": "2026-05-29T12:18:15Z",
       "side": 1,
       "message": "remove the magic here please",
+      "range": {
+        "startLine": 114,
+        "startChar": 0,
+        "endLine": 114,
+        "endChar": 96
+      },
+      "revId": "5d662f299086ce22b18825e9d2ef1eba9ce67bec",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "58162bb2_293046ec",
+        "filename": "eVSSIM/osc-osd/osd-target/osd.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 114,
+      "author": {
+        "id": 1039371
+      },
+      "writtenOn": "2026-05-29T18:13:07Z",
+      "side": 1,
+      "message": "Replaced with `OSD_KEY_SEED_SIZE`.",
+      "parentUuid": "25b091c1_d19e7fee",
       "range": {
         "startLine": 114,
         "startChar": 0,
@@ -179,6 +358,30 @@
       "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "6a19fb9c_ca7d2cab",
+        "filename": "infra/builder/build-docker-image.sh",
+        "patchSetId": 2
+      },
+      "lineNbr": 15,
+      "author": {
+        "id": 1039371
+      },
+      "writtenOn": "2026-05-29T18:13:07Z",
+      "side": 1,
+      "message": "Removed.",
+      "parentUuid": "d03f6d1d_92d7cf79",
+      "range": {
+        "startLine": 15,
+        "startChar": 0,
+        "endLine": 15,
+        "endChar": 109
+      },
+      "revId": "5d662f299086ce22b18825e9d2ef1eba9ce67bec",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "c2c13199_665d13be",
@@ -192,6 +395,30 @@
       "writtenOn": "2026-05-29T12:18:15Z",
       "side": 1,
       "message": "IMO - we should move it to the baseclass and not duplicate it",
+      "range": {
+        "startLine": 29,
+        "startChar": 0,
+        "endLine": 29,
+        "endChar": 23
+      },
+      "revId": "5d662f299086ce22b18825e9d2ef1eba9ce67bec",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "929894d9_1bd9beb2",
+        "filename": "infra/builder/compile-guest-tests.sh",
+        "patchSetId": 2
+      },
+      "lineNbr": 29,
+      "author": {
+        "id": 1039371
+      },
+      "writtenOn": "2026-05-29T18:13:07Z",
+      "side": 1,
+      "message": "I\u0027m not sure what you mean by \u0027baseclass\u0027, but David also gave a suggestion to avoid doing this with Makefile magic.\nI couldn\u0027t figure out a sane way to do it, so this is for all intents and purposes, a skill issue (on my part).\nSo, unfortunately, NACK.\n\nConsidering it is temporary and only needed until the QEMU team also moves to 26.04, and can be removed afterwards (as they will have the reverse problem), I didn\u0027t break my head against the wall on that one.",
+      "parentUuid": "c2c13199_665d13be",
       "range": {
         "startLine": 29,
         "startChar": 0,
@@ -225,6 +452,30 @@
       "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "6c96d02b_576a6158",
+        "filename": "infra/builder/compile-host-tests.sh",
+        "patchSetId": 2
+      },
+      "lineNbr": 27,
+      "author": {
+        "id": 1039371
+      },
+      "writtenOn": "2026-05-29T18:13:07Z",
+      "side": 1,
+      "message": "I\u0027m not sure what you mean by \u0027baseclass\u0027, but David also gave a suggestion to avoid doing this with Makefile magic.\nI couldn\u0027t figure out a sane way to do it, so this is for all intents and purposes, a skill issue (on my part).\nSo, unfortunately, NACK.\n\nConsidering it is temporary and only needed until the QEMU team also moves to 26.04, and can be removed afterwards (as they will have the reverse problem), I didn\u0027t break my head against the wall on that one.",
+      "parentUuid": "0fd088a5_e16281b6",
+      "range": {
+        "startLine": 27,
+        "startChar": 0,
+        "endLine": 27,
+        "endChar": 23
+      },
+      "revId": "5d662f299086ce22b18825e9d2ef1eba9ce67bec",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "41ec9bb1_33309568",
@@ -244,6 +495,24 @@
     {
       "unresolved": true,
       "key": {
+        "uuid": "69294dae_327cdc70",
+        "filename": "infra/builder/docker-run-sanity.sh",
+        "patchSetId": 2
+      },
+      "lineNbr": 40,
+      "author": {
+        "id": 1039371
+      },
+      "writtenOn": "2026-05-29T18:13:07Z",
+      "side": 1,
+      "message": "Why??\nI\u0027m pretty sure `tox` added it.\nIt just adds and/or changes whitespace around the project for no apparent reason.\n\nUpdate: It doesn\u0027t even exist on my machine??? So uhhh, NACK, I guess. Nothing I can do against `tox`.\nWhitespace in git can be weird sometimes, not always consistent in the amount of whitespace at the ends of lines and ends of files.",
+      "parentUuid": "41ec9bb1_33309568",
+      "revId": "5d662f299086ce22b18825e9d2ef1eba9ce67bec",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
+    },
+    {
+      "unresolved": true,
+      "key": {
         "uuid": "fa8be7b3_965b3f6d",
         "filename": "infra/builder/load_config.sh",
         "patchSetId": 2
@@ -255,6 +524,30 @@
       "writtenOn": "2026-05-29T12:18:15Z",
       "side": 1,
       "message": "change the comment here to 5",
+      "range": {
+        "startLine": 126,
+        "startChar": 29,
+        "endLine": 126,
+        "endChar": 30
+      },
+      "revId": "5d662f299086ce22b18825e9d2ef1eba9ce67bec",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "b32adb78_2fca1980",
+        "filename": "infra/builder/load_config.sh",
+        "patchSetId": 2
+      },
+      "lineNbr": 126,
+      "author": {
+        "id": 1039371
+      },
+      "writtenOn": "2026-05-29T18:13:07Z",
+      "side": 1,
+      "message": "Thanks!",
+      "parentUuid": "fa8be7b3_965b3f6d",
       "range": {
         "startLine": 126,
         "startChar": 29,
@@ -299,6 +592,42 @@
       "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "ee5f4024_e2b5e5e7",
+        "filename": "infra/builder/versions/configs.json",
+        "patchSetId": 2
+      },
+      "lineNbr": 16,
+      "author": {
+        "id": 1039371
+      },
+      "writtenOn": "2026-05-29T18:13:07Z",
+      "side": 1,
+      "message": "You are correct, wow, thank you!",
+      "parentUuid": "e3af94ac_90dd901e",
+      "revId": "5d662f299086ce22b18825e9d2ef1eba9ce67bec",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "d942d50e_8b0e3166",
+        "filename": "infra/builder/versions/configs.json",
+        "patchSetId": 2
+      },
+      "lineNbr": 16,
+      "author": {
+        "id": 1039371
+      },
+      "writtenOn": "2026-05-29T18:13:07Z",
+      "side": 1,
+      "message": "You are correct, wow, thank you!\n\nUpdate: This line shouldn\u0027t have even been here??\nI must\u0027ve accidentally pasted it from a different commit, it\u0027s not used anywhere either, so it will be removed.",
+      "parentUuid": "399091c3_e9ba8896",
+      "revId": "5d662f299086ce22b18825e9d2ef1eba9ce67bec",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "67f3f5d7_a517dae1",
@@ -312,6 +641,30 @@
       "writtenOn": "2026-05-29T12:18:15Z",
       "side": 1,
       "message": "do we need this file? meaning if we created the 26.04 file is this also required?",
+      "range": {
+        "startLine": 17,
+        "startChar": 10,
+        "endLine": 17,
+        "endChar": 17
+      },
+      "revId": "5d662f299086ce22b18825e9d2ef1eba9ce67bec",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "3e680b69_83bfdf87",
+        "filename": "infra/builder/versions/containers/14.04/logging_server.c",
+        "patchSetId": 2
+      },
+      "lineNbr": 17,
+      "author": {
+        "id": 1039371
+      },
+      "writtenOn": "2026-05-29T18:13:07Z",
+      "side": 1,
+      "message": "If you mean `pthread.h`, I assume so, I haven\u0027t written this code, and I don\u0027t know how it works, so I assume whoever wrote it put the include here because it\u0027s probably being used somewhere.\n\nIf you mean `logging_server.c` (and only accidentally commented on line 17)\nAs mentioned in the commit message, this file is both used by QEMU while being compiled under 14.04 and by tests that are being compiled under 26.04. QEMU expects it to compile on 14.04 with the old libwebsockets v4.1, while tests expect it to compile on 26.04 with the new libwebsockets v4.5, hence the need for two versions, one for each ubuntu version.\nYou can notice the file here is just a copy of the `logging_server.c` in the codebase, and the file under `versions/containers/26.04` is slightly modified from that because of an API change in a struct.",
+      "parentUuid": "67f3f5d7_a517dae1",
       "range": {
         "startLine": 17,
         "startChar": 10,
