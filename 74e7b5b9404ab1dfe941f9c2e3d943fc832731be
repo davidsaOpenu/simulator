@@ -35,6 +35,24 @@
       "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "e314e90a_8314fe69",
+        "filename": "infra/builder/build-qemu-image.sh",
+        "patchSetId": 7
+      },
+      "lineNbr": 7,
+      "author": {
+        "id": 1039371
+      },
+      "writtenOn": "2026-05-29T09:31:44Z",
+      "side": 1,
+      "message": "Point appreciated, but I will not add needless complexity for the sake of \"for the sake\". Replacing a simple line with a function and a more complex line is bad imo.\nNACK\n\nThank you though.",
+      "parentUuid": "b47d7ced_39774eab",
+      "revId": "74e7b5b9404ab1dfe941f9c2e3d943fc832731be",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "d750c07c_6847d742",
@@ -48,6 +66,24 @@
       "writtenOn": "2026-05-29T07:56:55Z",
       "side": 1,
       "message": "DRY: There is code duplication with the evssim_run_mounted, evssim_qemu_fresh_image functions.",
+      "revId": "74e7b5b9404ab1dfe941f9c2e3d943fc832731be",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "9e7235b7_e1e978b2",
+        "filename": "infra/builder/builder.sh",
+        "patchSetId": 7
+      },
+      "lineNbr": 96,
+      "author": {
+        "id": 1039371
+      },
+      "writtenOn": "2026-05-29T09:31:44Z",
+      "side": 1,
+      "message": "This is out of the scope of this change (This has nothing to do with multi-containers), and I don\u0027t like lumping unrelated changes into a commit (makes things messy and unclear which commits change what), but considering each change requires a 6h Jenkins run, it\u0027s not exactly realistic to do single commit unrelated singular changes, so ACK\n\n(Plus, this is not even my code?... It\u0027s code that already was here, this isn\u0027t anything I\u0027ve added)",
+      "parentUuid": "d750c07c_6847d742",
       "revId": "74e7b5b9404ab1dfe941f9c2e3d943fc832731be",
       "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
     },
@@ -69,6 +105,24 @@
       "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "ada236be_8efe87d7",
+        "filename": "infra/builder/docker-copy-into-guest.sh",
+        "patchSetId": 7
+      },
+      "lineNbr": 4,
+      "author": {
+        "id": 1039371
+      },
+      "writtenOn": "2026-05-29T09:31:44Z",
+      "side": 1,
+      "message": "NACK\nDavid asked not to touch `builder.sh` yet in the Maman cards. I have done some minimal cosmetic changes to it, but I specifically avoid making functional changes or additions to `builder.sh` for that reason.\n\nOtherwise this is a good suggestion.",
+      "parentUuid": "0d1b7cca_7592a099",
+      "revId": "74e7b5b9404ab1dfe941f9c2e3d943fc832731be",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "265f3ef9_0be90717",
@@ -82,6 +136,24 @@
       "writtenOn": "2026-05-29T07:56:55Z",
       "side": 1,
       "message": "is this unused?",
+      "revId": "74e7b5b9404ab1dfe941f9c2e3d943fc832731be",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "68c6cfe1_020a1bcc",
+        "filename": "infra/builder/docker-test-guest.sh",
+        "patchSetId": 7
+      },
+      "lineNbr": 46,
+      "author": {
+        "id": 1039371
+      },
+      "writtenOn": "2026-05-29T09:31:44Z",
+      "side": 1,
+      "message": "No, test_index is used and self-incremented inside of `guest_test()` functions without being defined. An explicit definition (`test_index\u003d0`) has been added due to the addition of `-u` to `set -eu -o pipefail` addition to `builder.sh`.",
+      "parentUuid": "265f3ef9_0be90717",
       "revId": "74e7b5b9404ab1dfe941f9c2e3d943fc832731be",
       "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
     }
