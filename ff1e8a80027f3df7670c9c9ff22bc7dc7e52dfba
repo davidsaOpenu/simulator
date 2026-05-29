@@ -71,6 +71,24 @@
     {
       "unresolved": true,
       "key": {
+        "uuid": "a1ee4c55_a0c0f265",
+        "filename": "infra/ELK/elk_performance_test.sh",
+        "patchSetId": 1
+      },
+      "lineNbr": 1065,
+      "author": {
+        "id": 1039542
+      },
+      "writtenOn": "2026-05-29T12:25:42Z",
+      "side": 1,
+      "message": "Marked as unresolved.",
+      "parentUuid": "ccdfd234_fbbb47d7",
+      "revId": "ff1e8a80027f3df7670c9c9ff22bc7dc7e52dfba",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
+    },
+    {
+      "unresolved": true,
+      "key": {
         "uuid": "801b3ebb_3ca89a9c",
         "filename": "infra/ELK/elk_performance_test.sh",
         "patchSetId": 1
@@ -120,6 +138,24 @@
       "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
     },
     {
+      "unresolved": true,
+      "key": {
+        "uuid": "2f27b502_78e64f00",
+        "filename": "infra/ELK/elk_performance_test.sh",
+        "patchSetId": 1
+      },
+      "lineNbr": 1077,
+      "author": {
+        "id": 1039542
+      },
+      "writtenOn": "2026-05-29T12:25:42Z",
+      "side": 1,
+      "message": "Marked as unresolved.",
+      "parentUuid": "9768b260_0e3f5c69",
+      "revId": "ff1e8a80027f3df7670c9c9ff22bc7dc7e52dfba",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
+    },
+    {
       "unresolved": false,
       "key": {
         "uuid": "8f86bfaf_c09101bd",
@@ -133,6 +169,24 @@
       "writtenOn": "2026-05-29T12:15:22Z",
       "side": 1,
       "message": "This query is filtered only by device_index; the global sector_metrics_body is also scoped by test_name_filter. Events from other tests in the same window will be counted here.",
+      "revId": "ff1e8a80027f3df7670c9c9ff22bc7dc7e52dfba",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "9c4db273_9793c83b",
+        "filename": "infra/ELK/elk_performance_test.sh",
+        "patchSetId": 1
+      },
+      "lineNbr": 1106,
+      "author": {
+        "id": 1039542
+      },
+      "writtenOn": "2026-05-29T12:25:42Z",
+      "side": 1,
+      "message": "Marked as unresolved.",
+      "parentUuid": "8f86bfaf_c09101bd",
       "revId": "ff1e8a80027f3df7670c9c9ff22bc7dc7e52dfba",
       "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
     },
@@ -177,6 +231,24 @@
       "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
     },
     {
+      "unresolved": true,
+      "key": {
+        "uuid": "f18a4bc3_036657b5",
+        "filename": "infra/ELK/elk_performance_test.sh",
+        "patchSetId": 1
+      },
+      "lineNbr": 1137,
+      "author": {
+        "id": 1039542
+      },
+      "writtenOn": "2026-05-29T12:25:42Z",
+      "side": 1,
+      "message": "Marked as unresolved.",
+      "parentUuid": "1c37cc6b_0abb0623",
+      "revId": "ff1e8a80027f3df7670c9c9ff22bc7dc7e52dfba",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
+    },
+    {
       "unresolved": false,
       "key": {
         "uuid": "9f821d39_fb607008",
@@ -190,6 +262,24 @@
       "writtenOn": "2026-05-29T12:15:22Z",
       "side": 1,
       "message": "Six near-identical defaulting pairs for the per-disk threshold variables (lines 1142-1153).",
+      "revId": "ff1e8a80027f3df7670c9c9ff22bc7dc7e52dfba",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "c2d8e46b_1f152622",
+        "filename": "infra/ELK/elk_performance_test.sh",
+        "patchSetId": 1
+      },
+      "lineNbr": 1148,
+      "author": {
+        "id": 1039542
+      },
+      "writtenOn": "2026-05-29T12:25:42Z",
+      "side": 1,
+      "message": "Marked as unresolved.",
+      "parentUuid": "9f821d39_fb607008",
       "revId": "ff1e8a80027f3df7670c9c9ff22bc7dc7e52dfba",
       "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
     },
@@ -211,6 +301,24 @@
       "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
     },
     {
+      "unresolved": true,
+      "key": {
+        "uuid": "0e7b3fd0_4ea0cf1f",
+        "filename": "infra/ELK/elk_performance_test.sh",
+        "patchSetId": 1
+      },
+      "lineNbr": 1161,
+      "author": {
+        "id": 1039542
+      },
+      "writtenOn": "2026-05-29T12:25:42Z",
+      "side": 1,
+      "message": "Marked as unresolved.",
+      "parentUuid": "c85aeb66_dbb1b974",
+      "revId": "ff1e8a80027f3df7670c9c9ff22bc7dc7e52dfba",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
+    },
+    {
       "unresolved": false,
       "key": {
         "uuid": "07bd29dc_4a01b35a",
@@ -224,6 +332,24 @@
       "writtenOn": "2026-05-29T12:15:22Z",
       "side": 1,
       "message": "Boolean test uses [[ \"$SKIP_IF_NO_DATA\" \u003d\u003d \"1\" ]]; surrounding code uses arithmetic form (e.g. line 1158 (( PRINT_QUERY_CMD \u003d\u003d 1 ))).",
+      "revId": "ff1e8a80027f3df7670c9c9ff22bc7dc7e52dfba",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "ec968a8f_2e78fddf",
+        "filename": "infra/ELK/elk_performance_test.sh",
+        "patchSetId": 1
+      },
+      "lineNbr": 1170,
+      "author": {
+        "id": 1039542
+      },
+      "writtenOn": "2026-05-29T12:25:42Z",
+      "side": 1,
+      "message": "Marked as unresolved.",
+      "parentUuid": "07bd29dc_4a01b35a",
       "revId": "ff1e8a80027f3df7670c9c9ff22bc7dc7e52dfba",
       "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
     },
@@ -245,6 +371,24 @@
       "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
     },
     {
+      "unresolved": true,
+      "key": {
+        "uuid": "c656b31e_fe3d111d",
+        "filename": "infra/ELK/elk_performance_test.sh",
+        "patchSetId": 1
+      },
+      "lineNbr": 1175,
+      "author": {
+        "id": 1039542
+      },
+      "writtenOn": "2026-05-29T12:25:42Z",
+      "side": 1,
+      "message": "Marked as unresolved.",
+      "parentUuid": "28ddd9ed_8de33d4f",
+      "revId": "ff1e8a80027f3df7670c9c9ff22bc7dc7e52dfba",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
+    },
+    {
       "unresolved": false,
       "key": {
         "uuid": "8d2b086b_516b63b8",
@@ -258,6 +402,24 @@
       "writtenOn": "2026-05-29T12:15:22Z",
       "side": 1,
       "message": "Read-count and read-IOPS checks are gated on disk_read_count \u003e 0, so a window with zero reads passes silently regardless of disk_min_read_count.",
+      "revId": "ff1e8a80027f3df7670c9c9ff22bc7dc7e52dfba",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "3c47fcf1_0e5177ac",
+        "filename": "infra/ELK/elk_performance_test.sh",
+        "patchSetId": 1
+      },
+      "lineNbr": 1211,
+      "author": {
+        "id": 1039542
+      },
+      "writtenOn": "2026-05-29T12:25:42Z",
+      "side": 1,
+      "message": "Marked as unresolved.",
+      "parentUuid": "8d2b086b_516b63b8",
       "revId": "ff1e8a80027f3df7670c9c9ff22bc7dc7e52dfba",
       "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
     },
