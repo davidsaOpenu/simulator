@@ -1,6 +1,23 @@
 {
   "comments": [
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "53005217_a28d7939",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 1039489
+      },
+      "writtenOn": "2026-05-29T12:41:59Z",
+      "side": 1,
+      "message": "Nice work 😀",
+      "revId": "aea35b64b464e2d5a52405be20ac534555dd6f73",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "79ce33c5_f02ae67b",
@@ -54,6 +71,23 @@
     {
       "unresolved": true,
       "key": {
+        "uuid": "5f9f9ecc_af8084d4",
+        "filename": "infra/builder/builder.sh",
+        "patchSetId": 1
+      },
+      "lineNbr": 49,
+      "author": {
+        "id": 1039489
+      },
+      "writtenOn": "2026-05-29T12:41:59Z",
+      "side": 1,
+      "message": "Currently QEMU containers always run --net\u003dhost. After this change `evssim_qemu_network_args` returns host networking only when `evssim_use_host_network` is true. on a normal Ubuntu CI host it falls through to $EVSSIM_DOCKER_PORTS_OPTION (bridge)",
+      "revId": "aea35b64b464e2d5a52405be20ac534555dd6f73",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
+    },
+    {
+      "unresolved": true,
+      "key": {
         "uuid": "44dd13e2_1f64b1b2",
         "filename": "infra/builder/compile-guest-tests.sh",
         "patchSetId": 1
@@ -65,6 +99,58 @@
       "writtenOn": "2026-05-23T16:14:48Z",
       "side": 1,
       "message": "Why do you clone the repo each time? Check if it exists and is in the right commit and if not clone it and checkout",
+      "revId": "aea35b64b464e2d5a52405be20ac534555dd6f73",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "c416359a_41b14b18",
+        "filename": "infra/builder/compile-guest-tests.sh",
+        "patchSetId": 1
+      },
+      "lineNbr": 16,
+      "author": {
+        "id": 1039489
+      },
+      "writtenOn": "2026-05-29T12:41:59Z",
+      "side": 1,
+      "message": "\u003e Why do you clone the repo each time? Check if it exists and is in the right commit and if not clone it and checkout\nAgreed, vendor YABS into dist/ or cache it, rather than fetching live.",
+      "parentUuid": "44dd13e2_1f64b1b2",
+      "revId": "aea35b64b464e2d5a52405be20ac534555dd6f73",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "2cc9ef8a_a3cf133b",
+        "filename": "infra/builder/docker-test-exofs.sh",
+        "patchSetId": 1
+      },
+      "lineNbr": 8,
+      "author": {
+        "id": 1039489
+      },
+      "writtenOn": "2026-05-29T12:41:59Z",
+      "side": 1,
+      "message": "This logic exists in the benchmark_enabled() python test. Two sources of truth might cause a drift over time, let\u0027s let the Python test own the skip decision exclusively",
+      "revId": "aea35b64b464e2d5a52405be20ac534555dd6f73",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "4328cf09_3efca4c5",
+        "filename": "infra/builder/docker/image-maker.sh",
+        "patchSetId": 1
+      },
+      "lineNbr": 6,
+      "author": {
+        "id": 1039489
+      },
+      "writtenOn": "2026-05-29T12:41:59Z",
+      "side": 1,
+      "message": "Porque the us mirror specifically? archive.ubuntu.com should work better performance-wise for us Israelites",
       "revId": "aea35b64b464e2d5a52405be20ac534555dd6f73",
       "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
     }
