@@ -16,6 +16,120 @@
       "message": "Referring to \"Assignment (maman) / Story Submissions \u0026 CI\". https://davidsaopenu.github.io/teaching/.",
       "revId": "ff1e8a80027f3df7670c9c9ff22bc7dc7e52dfba",
       "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "5d0db33b_38ce3425",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 1039371
+      },
+      "writtenOn": "2026-05-29T12:11:59Z",
+      "side": 1,
+      "message": "Only minor suggestions and questions, otherwise looks good,\nMore reviews needed because I lack a better understandling of these ELK tests.",
+      "revId": "ff1e8a80027f3df7670c9c9ff22bc7dc7e52dfba",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "8241f35c_d885fe3e",
+        "filename": "infra/ELK/elk_performance_test.sh",
+        "patchSetId": 1
+      },
+      "lineNbr": 31,
+      "author": {
+        "id": 1039371
+      },
+      "writtenOn": "2026-05-29T12:11:59Z",
+      "side": 1,
+      "message": "Not part of your code, but the metrics tests sometimes fail in `run-ci.sh` due to \"slightly lower than 90% GC utilization\", consider changing the value from 0.90 -\u003e 0.85 or even 0.90 -\u003e 0.80",
+      "revId": "ff1e8a80027f3df7670c9c9ff22bc7dc7e52dfba",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "801b3ebb_3ca89a9c",
+        "filename": "infra/ELK/elk_performance_test.sh",
+        "patchSetId": 1
+      },
+      "lineNbr": 1077,
+      "author": {
+        "id": 1039371
+      },
+      "writtenOn": "2026-05-29T12:11:59Z",
+      "side": 1,
+      "message": "Consider renaming the variable to something like `\u003cTest Name Here\u003e_DISK_INDICIES`. Just `DISK_INDICIES` can create confusion with a more general \"Indicies of all disks\" instead of \"Indicies for the disks to test in this specific test\"",
+      "revId": "ff1e8a80027f3df7670c9c9ff22bc7dc7e52dfba",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "8c273ab9_ab264ab9",
+        "filename": "infra/ELK/elk_performance_test.sh",
+        "patchSetId": 1
+      },
+      "lineNbr": 1077,
+      "author": {
+        "id": 1039371
+      },
+      "writtenOn": "2026-05-29T12:11:59Z",
+      "side": 1,
+      "message": "I know the Maman said to add tests for disks #2 and #3, but if it\u0027s a new test, maybe it should be run on all three disks? I.e. `DISK_INDICES\u003d\"${DISK_INDICES:-0 1 2}\"`?",
+      "revId": "ff1e8a80027f3df7670c9c9ff22bc7dc7e52dfba",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "07d6aae8_37cdabd8",
+        "filename": "infra/ELK/elk_performance_test.sh",
+        "patchSetId": 1
+      },
+      "lineNbr": 1137,
+      "author": {
+        "id": 1039371
+      },
+      "writtenOn": "2026-05-29T12:11:59Z",
+      "side": 1,
+      "message": "As you did with other variables, it\u0027s better to quote the variable: `\"$DISK_INDICES\"` instead of `$DISK_INDICES`.",
+      "range": {
+        "startLine": 1137,
+        "startChar": 16,
+        "endLine": 1137,
+        "endChar": 29
+      },
+      "revId": "ff1e8a80027f3df7670c9c9ff22bc7dc7e52dfba",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "a7e7642a_68052ab8",
+        "filename": "infra/ELK/elk_performance_test.sh",
+        "patchSetId": 1
+      },
+      "lineNbr": 1247,
+      "author": {
+        "id": 1039371
+      },
+      "writtenOn": "2026-05-29T12:11:59Z",
+      "side": 1,
+      "message": "SUGGESTION: Consider moving the test inside the for loop into a function that takes an index as a parameter, and then run the loop as:\n```\nfor disk_idx in $DISK_INDICES; do\n\tyour_function_name $disk_idx\ndone\n```\nAnd make the variables inside it local to not pollute the global variable space.",
+      "range": {
+        "startLine": 1137,
+        "startChar": 0,
+        "endLine": 1247,
+        "endChar": 4
+      },
+      "revId": "ff1e8a80027f3df7670c9c9ff22bc7dc7e52dfba",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
     }
   ]
 }
