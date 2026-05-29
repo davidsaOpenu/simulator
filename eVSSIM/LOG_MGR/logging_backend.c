@@ -66,7 +66,7 @@ do { \
     for(i = 0; i<analyzers_num;i++){ \
         node->tails[i] =buf; \
     } \
-} while(0) 
+} while(0)
 
 #define RESET_DONE(node) \
 do { \
@@ -74,7 +74,7 @@ do { \
     for(i = 0; i<analyzers_num;i++){ \
         node->analyzer_done[i] =false; \
     } \
-} while(0) 
+} while(0)
 
 /**
  * Disconnect node from the linked list
@@ -261,7 +261,7 @@ int logger_read(Logger_Pool* logger_pool, Byte* buffer, int length, AnalyzerType
 
                 memcpy((void*) buffer, (void*) log->tails[analyzer], number_of_bytes_to_read);
                 log->tails[analyzer] += number_of_bytes_to_read;
-                
+
                 // we read all the needed bytes
                 number_of_bytes_to_read = 0;
             }
@@ -275,10 +275,10 @@ int logger_read(Logger_Pool* logger_pool, Byte* buffer, int length, AnalyzerType
                     pthread_mutex_unlock(&logger_pool->lock);
                     return (length-number_of_bytes_to_read);
                 }
-                
+
                 memcpy((void*) buffer, (void*) log->tails[analyzer], number_bytes_to_read_in_log);
                 log->tails[analyzer] += number_bytes_to_read_in_log;
-                    
+
                 buffer += number_bytes_to_read_in_log;
                 number_of_bytes_to_read -= number_bytes_to_read_in_log;
             }
