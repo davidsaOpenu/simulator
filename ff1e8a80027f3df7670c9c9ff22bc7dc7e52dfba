@@ -175,6 +175,24 @@
     {
       "unresolved": false,
       "key": {
+        "uuid": "51f2b925_82c5b0ef",
+        "filename": "infra/ELK/elk_performance_test.sh",
+        "patchSetId": 1
+      },
+      "lineNbr": 1077,
+      "author": {
+        "id": 1039489
+      },
+      "writtenOn": "2026-05-29T14:18:33Z",
+      "side": 1,
+      "message": "Currently the log documents in ES don\u0027t have a disk identifier (they all come from a single disk) so while you are totally correct this would be a much better test suite sadly the infra just doesn\u0027t support this use case yet (I\u0027m guessing I\u0027ll fix this as part of Maman 12 somehow)",
+      "parentUuid": "8c273ab9_ab264ab9",
+      "revId": "ff1e8a80027f3df7670c9c9ff22bc7dc7e52dfba",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
+    },
+    {
+      "unresolved": false,
+      "key": {
         "uuid": "8f86bfaf_c09101bd",
         "filename": "infra/ELK/elk_performance_test.sh",
         "patchSetId": 1
