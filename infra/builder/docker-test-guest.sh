@@ -15,6 +15,9 @@ guest_test() {
     # Run qemu with test specific configuration
     EVSSIM_RUNTIME_STORAGE_STRATEGY=$strategy EVSSIM_QEMU_SIMULATOR_ENABLED=$simulator evssim_qemu_detached
 
+    # Wait for the VM to boot before running tests
+    evssim_wait_for_guest
+
     # Run tests inside the guest
     echo "INFO Running test id=$test_index strategy=$strategy simulator=$simulator test=$test_name"
     set +e
