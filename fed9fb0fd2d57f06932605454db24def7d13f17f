@@ -18,6 +18,40 @@
       "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "54e19bbd_79354ce9",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 8
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 1039517
+      },
+      "writtenOn": "2026-05-29T16:59:33Z",
+      "side": 1,
+      "message": "Good code and a nice change.\nI agree with Michael\u0027s comment.\nI have commented regarding a possibility for a dangling pointer usage, which is something that doesn\u0027t have anything to do with this change.",
+      "revId": "fed9fb0fd2d57f06932605454db24def7d13f17f",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "29459f1e_bf8fadba",
+        "filename": "eVSSIM/LOG_MGR/logging_offline_analyzer.c",
+        "patchSetId": 8
+      },
+      "lineNbr": 414,
+      "author": {
+        "id": 1039517
+      },
+      "writtenOn": "2026-05-29T16:59:33Z",
+      "side": 1,
+      "message": "good catch!",
+      "revId": "fed9fb0fd2d57f06932605454db24def7d13f17f",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "74fedeef_2f892762",
@@ -31,6 +65,23 @@
       "writtenOn": "2026-05-29T15:03:32Z",
       "side": 1,
       "message": "stoi(argv[i+1]) throws on non-numeric input → uncaught crash",
+      "revId": "fed9fb0fd2d57f06932605454db24def7d13f17f",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "10e87264_e77d7bb4",
+        "filename": "eVSSIM/tests/host/simulation/ssd_conf_tests.cc",
+        "patchSetId": 8
+      },
+      "lineNbr": 27,
+      "author": {
+        "id": 1039517
+      },
+      "writtenOn": "2026-05-29T16:59:33Z",
+      "side": 1,
+      "message": "We might have a dangling pointer with how BaseTest is using GetParam() at SetUp, creating an issue when each TEST_P is deleting ssd_config at teardown, but subsequent TEST_P is using the same pointer.\nI will test it on my machine in a bit, and resolve it with another comment if it is okay.",
       "revId": "fed9fb0fd2d57f06932605454db24def7d13f17f",
       "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
     }
