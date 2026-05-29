@@ -1,6 +1,40 @@
 {
   "comments": [
     {
+      "unresolved": true,
+      "key": {
+        "uuid": "dcb49625_97955df6",
+        "filename": "/COMMIT_MSG",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 1039371
+      },
+      "writtenOn": "2026-05-29T13:38:09Z",
+      "side": 1,
+      "message": "`run-ci.sh` - Fails on `tox` step, whitespace errors.",
+      "revId": "aea35b64b464e2d5a52405be20ac534555dd6f73",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "90b9dd25_edffc782",
+        "filename": "/COMMIT_MSG",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 1039371
+      },
+      "writtenOn": "2026-05-29T13:38:09Z",
+      "side": 1,
+      "message": "Consider adding a body to the commit message for clarity, explaining what the commit changes and why.",
+      "revId": "aea35b64b464e2d5a52405be20ac534555dd6f73",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
+    },
+    {
       "unresolved": false,
       "key": {
         "uuid": "53005217_a28d7939",
@@ -88,6 +122,98 @@
     {
       "unresolved": true,
       "key": {
+        "uuid": "52fdec24_920ad775",
+        "filename": "infra/builder/builder.sh",
+        "patchSetId": 1
+      },
+      "lineNbr": 371,
+      "author": {
+        "id": 1039371
+      },
+      "writtenOn": "2026-05-29T13:38:09Z",
+      "side": 1,
+      "message": "Quote the value: `$EVSSIM_ROOT_PATH/$EVSSIM_BUILDER_FOLDER/docker/id_rsa` -\u003e `\"$EVSSIM_ROOT_PATH/$EVSSIM_BUILDER_FOLDER/docker/id_rsa\"`, path could have spaces.",
+      "range": {
+        "startLine": 371,
+        "startChar": 18,
+        "endLine": 371,
+        "endChar": 72
+      },
+      "revId": "aea35b64b464e2d5a52405be20ac534555dd6f73",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "efa17096_da05b253",
+        "filename": "infra/builder/builder.sh",
+        "patchSetId": 1
+      },
+      "lineNbr": 375,
+      "author": {
+        "id": 1039371
+      },
+      "writtenOn": "2026-05-29T13:38:09Z",
+      "side": 1,
+      "message": "Quote the value: `$ssh_key` -\u003e `\"$ssh_key\"`. If the path has any spaces in it, this will fail.",
+      "range": {
+        "startLine": 375,
+        "startChar": 8,
+        "endLine": 375,
+        "endChar": 50
+      },
+      "revId": "aea35b64b464e2d5a52405be20ac534555dd6f73",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "fef293f0_67748601",
+        "filename": "infra/builder/builder.sh",
+        "patchSetId": 1
+      },
+      "lineNbr": 384,
+      "author": {
+        "id": 1039371
+      },
+      "writtenOn": "2026-05-29T13:38:09Z",
+      "side": 1,
+      "message": "Why? This is already what `evssim_guest` does.",
+      "range": {
+        "startLine": 375,
+        "startChar": 0,
+        "endLine": 384,
+        "endChar": 55
+      },
+      "revId": "aea35b64b464e2d5a52405be20ac534555dd6f73",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "813da1b0_c6d52be2",
+        "filename": "infra/builder/builder.sh",
+        "patchSetId": 1
+      },
+      "lineNbr": 507,
+      "author": {
+        "id": 1039371
+      },
+      "writtenOn": "2026-05-29T13:38:09Z",
+      "side": 1,
+      "message": "DRY: Same as above, why not use `evssim_guest true`?",
+      "range": {
+        "startLine": 500,
+        "startChar": 11,
+        "endLine": 507,
+        "endChar": 55
+      },
+      "revId": "aea35b64b464e2d5a52405be20ac534555dd6f73",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
+    },
+    {
+      "unresolved": true,
+      "key": {
         "uuid": "44dd13e2_1f64b1b2",
         "filename": "infra/builder/compile-guest-tests.sh",
         "patchSetId": 1
@@ -117,6 +243,29 @@
       "side": 1,
       "message": "\u003e Why do you clone the repo each time? Check if it exists and is in the right commit and if not clone it and checkout\nAgreed, vendor YABS into dist/ or cache it, rather than fetching live.",
       "parentUuid": "44dd13e2_1f64b1b2",
+      "revId": "aea35b64b464e2d5a52405be20ac534555dd6f73",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "4274017f_ac177523",
+        "filename": "infra/builder/compile-guest-tests.sh",
+        "patchSetId": 1
+      },
+      "lineNbr": 16,
+      "author": {
+        "id": 1039371
+      },
+      "writtenOn": "2026-05-29T13:38:09Z",
+      "side": 1,
+      "message": "SUGGESTION: Consider putting this in `image-maker.sh`, there\u0027s no need to reinstall YABS every time a test is run. Install once when building the guest image.",
+      "range": {
+        "startLine": 11,
+        "startChar": 0,
+        "endLine": 16,
+        "endChar": 371
+      },
       "revId": "aea35b64b464e2d5a52405be20ac534555dd6f73",
       "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
     },
