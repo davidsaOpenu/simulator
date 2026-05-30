@@ -1,0 +1,55 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "411fe141_6f3aae51",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 7
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 1039387
+      },
+      "writtenOn": "2026-05-30T15:10:13Z",
+      "side": 1,
+      "message": "looks good! left a small comment",
+      "revId": "ccb25f7c4b89ddf46054ee58c6e5d03497e7ebb4",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "f5e04a00_ab2ae0c5",
+        "filename": "infra/builder/versions/kernel/5.0.0/build_env.sh",
+        "patchSetId": 7
+      },
+      "lineNbr": 4,
+      "author": {
+        "id": 1039387
+      },
+      "writtenOn": "2026-05-30T15:10:13Z",
+      "side": 1,
+      "message": "can you remove this line?",
+      "revId": "ccb25f7c4b89ddf46054ee58c6e5d03497e7ebb4",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "79244030_866a7570",
+        "filename": "infra/builder/versions/kernel/7.0.2/build_env.sh",
+        "patchSetId": 7
+      },
+      "lineNbr": 4,
+      "author": {
+        "id": 1039387
+      },
+      "writtenOn": "2026-05-30T15:10:13Z",
+      "side": 1,
+      "message": "can you remove this line?",
+      "revId": "ccb25f7c4b89ddf46054ee58c6e5d03497e7ebb4",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
+    }
+  ]
+}
