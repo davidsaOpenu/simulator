@@ -34,6 +34,24 @@
       "parentUuid": "f07d12f0_9d2a9b72",
       "revId": "807da155411d60a0a9cb8dea7d514661a5499a87",
       "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "fb180ca9_225a06c7",
+        "filename": "eVSSIM/tests/host/simulation/ssd_conf_tests.cc",
+        "patchSetId": 8
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 1039486
+      },
+      "writtenOn": "2026-05-30T07:32:01Z",
+      "side": 0,
+      "message": "Done",
+      "parentUuid": "d0e546a7_3351ef7a",
+      "revId": "807da155411d60a0a9cb8dea7d514661a5499a87",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
     }
   ]
 }

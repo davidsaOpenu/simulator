@@ -69,6 +69,24 @@
       "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "c621dab6_ca65cd5b",
+        "filename": "eVSSIM/tests/host/simulation/simulation_tests_main.cc",
+        "patchSetId": 8
+      },
+      "lineNbr": 56,
+      "author": {
+        "id": 1039486
+      },
+      "writtenOn": "2026-05-30T07:32:01Z",
+      "side": 1,
+      "message": "this is not my change...\ni deleted it",
+      "parentUuid": "74fedeef_2f892762",
+      "revId": "fed9fb0fd2d57f06932605454db24def7d13f17f",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "10e87264_e77d7bb4",
