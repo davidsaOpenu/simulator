@@ -14,6 +14,7 @@ mkfs.ext4 -F $IMAGE_PATH
 # Mount the image on-disk. Disable delayed allocation for the initial installation
 mkdir -p $MOUNT_POINT
 mount -o loop,nodelalloc $IMAGE_PATH $MOUNT_POINT
+rm -rf "$MOUNT_POINT/lost+found"
 
 # Make debootstrap/dpkg work without fsync (Feature of eatmydata)
 ln -s /usr/bin/eatmydata /usr/local/bin/debootstrap
@@ -84,8 +85,8 @@ echo "deb http://archive.ubuntu.com/ubuntu $EVSSIM_QEMU_UBUNTU_SYSTEM main unive
 apt update
 
 # Additional packages
-apt -y install libxml++2.6-2 libboost-filesystem1.54.0
-apt -y install python python-nose
+apt -y install libxml++2.6-2v5 libboost-filesystem1.90.0
+apt -y install python3 python3-nose
 
 # Services which should run immediately
 # RUNLEVEL=1 apt -y install ntp ntpdate

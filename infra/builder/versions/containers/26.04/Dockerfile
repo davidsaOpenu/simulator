@@ -45,7 +45,15 @@ RUN apt update && DEBIAN_FRONTEND=noninteractive apt -y install \
   bison \
   gdbserver \
   libelf-dev \
-  uuid-dev
+  uuid-dev \
+  meson
+
+# Replace uutils with the more stable gnu utils
+RUN apt update && DEBIAN_FRONTEND=noninteractive apt -y --allow-remove-essential install \
+  coreutils-from-gnu \
+  coreutils-from-uutils- \
+  rust-coreutils- \
+  sudo-rs-
 
 # Install build packages
 RUN apt update && DEBIAN_FRONTEND=noninteractive apt -y install \
