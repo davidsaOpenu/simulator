@@ -14,7 +14,7 @@ ifndef TEST_TARGET
 $(error TEST_TARGET is not defined)
 endif
 
-VSSIM_OBJ := vssim_config_manager.o \
+VSSIM_OBJ += vssim_config_manager.o \
 			ftl.o ftl_mapping_manager.o ftl_inverse_mapping_manager.o \
 			ftl_gc_manager.o \
 			ssd_log_manager.o ssd_io_manager.o \
@@ -23,13 +23,13 @@ VSSIM_OBJ := vssim_config_manager.o \
 			logging_manager.o logging_server.o logging_statistics.o \
 			ssd_file_operations.o onfi.o test_context.o
 
-CFLAGS := -I/opt/gtest/include -I$(VSSIM_HOME) -I$(VSSIM_HOME)/osc-osd -I$(VSSIM_HOME)/osc-osd/osd-target -I$(VSSIM_HOME)/QEMU \
+CFLAGS += -isystem /opt/gtest/include -I$(VSSIM_HOME) -I$(VSSIM_HOME)/osc-osd -I$(VSSIM_HOME)/osc-osd/osd-target -I$(VSSIM_HOME)/QEMU \
 	-g -DGTEST -DCOMPLIANCE_TESTS -L/opt/gtest/lib -L$(VSSIM_HOME)/osc-osd/osd-util -L$(VSSIM_HOME)/osc-osd/osd-target \
-	-I/opt/libwebsockets/include -L/opt/libwebsockets/lib -L/usr/lib/x86_64-linux-gnu -Wl,-R/opt/libwebsockets/lib -g -m64 -pipe -O2 -Wall -W \
+	-isystem /opt/libwebsockets/include -L/opt/libwebsockets/lib -L/usr/lib/x86_64-linux-gnu -Wl,-R/opt/libwebsockets/lib -g -m64 -pipe -O2 -Wall -W \
 	-D_REENTRANT -fPIE -DQT_NO_DEBUG -DQT_WIDGETS_LIB -DQT_NETWORK_LIB -DQT_GUI_LIB -DQT_CORE_LIB \
-	-I/usr/include/json-c/ -D__STDC_VERSION__=0
+	-I/usr/include/json-c/
 
-COMMON_FLAGS := -lpthread -lgtest -lgtest_main -losdutil -losdtgt -lsqlite3 -lwebsockets -ljson-c -luuid
+COMMON_FLAGS += -lpthread -lgtest -lgtest_main -losdutil -losdtgt -lsqlite3 -lwebsockets -ljson-c -luuid
 
 W_ALL_ERR := -Wall -Werror
 
