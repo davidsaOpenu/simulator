@@ -1,8 +1,10 @@
 #!/bin/bash
-set -e
+set -eu -o pipefail
 
 IMAGE_PATH="$EVSSIM_DOCKER_ROOT_PATH/$EVSSIM_DIST_FOLDER/$EVSSIM_QEMU_IMAGE"
-TMP_IMAGE_PATH=/tmp/ubuntu-server-cloud.img
+IMAGE_NAME=trusty-server-cloudimg-amd64-disk1.img
+IMAGE_BUILD=current
+TMP_IMAGE_PATH=$(mktemp -d /tmp/ubuntu-cloud.img-XXXXX)
 
 # Load the content of the public key
 PUBLIC_KEY_RSA=$(cat /scripts/id_rsa.pub)
@@ -10,16 +12,26 @@ PUBLIC_KEY_ED25519=$(cat /scripts/id_ed25519.pub)
 
 # Download official ubuntu server image and resize it
 echo Downloading Guest VM image...
-wget --no-verbose -O "$TMP_IMAGE_PATH" "https://cloud-images.ubuntu.com/trusty/current/trusty-server-cloudimg-amd64-disk1.img"
+cd "$TMP_IMAGE_PATH"
+wget --no-verbose "https://cloud-images.ubuntu.com/trusty/$IMAGE_BUILD/$IMAGE_NAME"
+
+echo Verifying image checksum...
+wget --no-verbose "https://cloud-images.ubuntu.com/trusty/$IMAGE_BUILD/SHA256SUMS"
+wget --no-verbose "https://cloud-images.ubuntu.com/trusty/$IMAGE_BUILD/SHA256SUMS.gpg"
+gpg --keyid-format long --keyserver hkp://keyserver.ubuntu.com --recv-keys D2EB44626FDDC30B513D5BB71A5D6C4C7DB87C81
+gpg --keyid-format long --verify SHA256SUMS.gpg SHA256SUMS
+ # Delete all checksums except for the downloaded image checksum
+grep "$IMAGE_NAME" SHA256SUMS > sums && mv sums SHA256SUMS
+sha256sum -c SHA256SUMS
 
 echo Resizing Guest VM image...
-IMG_ROOT_PART=$(virt-filesystems -la "$TMP_IMAGE_PATH" | awk '$4=="cloudimg-rootfs" {print $1}')
+IMG_ROOT_PART=$(virt-filesystems -la "$TMP_IMAGE_PATH/$IMAGE_NAME" | awk '$4=="cloudimg-rootfs" {print $1}')
 qemu-img create -f qcow2 "$IMAGE_PATH" "$EVSSIM_QEMU_IMAGE_SIZE"
-virt-resize --expand "$IMG_ROOT_PART" "$TMP_IMAGE_PATH" "$IMAGE_PATH"
+virt-resize --expand "$IMG_ROOT_PART" "$TMP_IMAGE_PATH/$IMAGE_NAME" "$IMAGE_PATH"
 IMG_ROOT_PART=$(virt-filesystems -la "$IMAGE_PATH" | awk '$4=="cloudimg-rootfs" {print $1}')
 virt-df --human-readable -a "$IMAGE_PATH"
 virt-filesystems --all --long --human-readable -a "$IMAGE_PATH"
-rm -f "$TMP_IMAGE_PATH"
+rm -rf "$TMP_IMAGE_PATH"
 
 guestfish --network -a "$IMAGE_PATH" -i << EOF
 # Create user and change passwords
