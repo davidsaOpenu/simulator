@@ -6,7 +6,8 @@ version="$1"
 
 exofs_test() {
     # Make a fresh copy
-    evssim_qemu_fresh_image "$version"
+    # ubuntu-14.04 won't work - libguestfs too old for new images.
+    evssim_qemu_fresh_image ubuntu-26.04
 
     # Run qemu with test specific configuration
     EVSSIM_RUNTIME_STORAGE_STRATEGY=2 EVSSIM_QEMU_SIMULATOR_ENABLED=yes evssim_qemu_detached "$version"
