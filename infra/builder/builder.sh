@@ -453,14 +453,17 @@ evssim_qemu_fresh_image () {
 #   evssim_copy_tools
 evssim_copy_tools () {
     local host_version="$1"
-    evssim_run "$host_version" "sudo guestfish -a '$INTERNAL_IMAGE_PATH' -i << EOF
-    command \"mkdir -p '$EVSSIM_GUEST_HOME_PATH/guest'\"
-    copy-in '$EVSSIM_DOCKER_ROOT_PATH/$EVSSIM_DIST_FOLDER/nvme' '$EVSSIM_DOCKER_ROOT_PATH/$EVSSIM_DIST_FOLDER/tnvme' '$EVSSIM_DOCKER_ROOT_PATH/$EVSSIM_DIST_FOLDER/dnvme.ko' '$EVSSIM_GUEST_HOME_PATH/guest/'
-    copy-in '$EVSSIM_DOCKER_ROOT_PATH/$EVSSIM_SIMULATOR_FOLDER/eVSSIM/tests/guest/' '$EVSSIM_DOCKER_ROOT_PATH/$EVSSIM_DIST_FOLDER/osc-osd' '$EVSSIM_DOCKER_ROOT_PATH/$EVSSIM_DIST_FOLDER/exofs' '$EVSSIM_GUEST_HOME_PATH'
-    copy-in '$EVSSIM_DOCKER_ROOT_PATH/$EVSSIM_DIST_FOLDER/libosd.so' '/lib'
-    copy-in '$EVSSIM_DOCKER_ROOT_PATH/$EVSSIM_DIST_FOLDER/mkfs.exofs' '/bin'
-    copy-in '$EVSSIM_DOCKER_ROOT_PATH/$EVSSIM_DIST_FOLDER/kernel/lib/' '/'
-EOF"
+    mkdir -p "$EVSSIM_ROOT_PATH/$EVSSIM_TOOLS_FOLDER/$EVSSIM_GUEST_HOME_PATH/guest/"
+    cp -r "$EVSSIM_ROOT_PATH/$EVSSIM_SIMULATOR_FOLDER/eVSSIM/tests/guest" "$EVSSIM_ROOT_PATH/$EVSSIM_TOOLS_FOLDER/$EVSSIM_GUEST_HOME_PATH/"
+    evssim_run "$host_version" "\
+        tar --owner root --group root -czf /tmp/tools.tgz -C '$EVSSIM_DOCKER_ROOT_PATH/$EVSSIM_TOOLS_FOLDER' . && \
+        sudo guestfish -a '$INTERNAL_IMAGE_PATH' -i \
+            upload /tmp/tools.tgz /tmp/tools.tgz : \
+            command \"tar xzf /tmp/tools.tgz --keep-directory-symlink -C /\" : \
+            command \"rm /tmp/tools.tgz\" : \
+            command \"chown -R '$EVSSIM_QEMU_UBUNTU_USERNAME:$EVSSIM_QEMU_UBUNTU_USERNAME' '$EVSSIM_GUEST_HOME_PATH'\" : \
+            command \"ldconfig\" && \
+        rm /tmp/tools.tgz"
 }
 
 # Wait for the QEMU VM to become reachable via SSH.

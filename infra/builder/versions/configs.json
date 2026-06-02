@@ -99,8 +99,8 @@
     {
       "id": 5,
       "kernel": {
-        "branch": "master",
-        "compileContainer": "ubuntu-14.04"
+        "branch": "7.0.2",
+        "compileContainer": "ubuntu-26.04"
       },
       "qemu": {
         "branch": "master",
