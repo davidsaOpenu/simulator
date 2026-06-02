@@ -32,6 +32,7 @@ RUN apt-get update && DEBIAN_FRONTEND=noninteractive apt-get -y install \
   python3-pip \
   python3-setuptools \
   python3-requests \
+  python3-nose \
   python-is-python3 \
   libxml++2.6-dev \
   libboost-all-dev \
@@ -82,10 +83,7 @@ RUN echo 'coreutils-from-gnu' >> /usr/lib/x86_64-linux-gnu/guestfs/supermin.d/pa
 # Install Gtest
 ENV GTEST_HOME=/opt
 RUN wget -qO- https://github.com/google/googletest/archive/release-1.7.0.tar.gz |tar xz -C $GTEST_HOME/ && mv $GTEST_HOME/googletest-release-1.7.0 $GTEST_HOME/gtest
-RUN mkdir -p $GTEST_HOME/gtest/lib && \
-    cd $GTEST_HOME/gtest/lib && \
-    cmake -DCMAKE_POLICY_VERSION_MINIMUM=3.5 .. && \
-    make
+RUN mkdir -p $GTEST_HOME/gtest/lib && cd $GTEST_HOME/gtest/lib && cmake -DCMAKE_POLICY_VERSION_MINIMUM=3.5 .. && make
 
 # Install websockets
 RUN export GIT_SSL_NO_VERIFY=1 && git clone --branch v4.5-stable https://github.com/warmcat/libwebsockets.git /opt/libwebsockets && \
