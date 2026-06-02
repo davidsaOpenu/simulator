@@ -407,15 +407,24 @@ def measure_case(es, version, name):
     return es.metrics()
 
 
+DECIMALS_TO_ROUND_UNTIL = 6
+
+
+def round_decimals(x):
+    """We must stay fully compatible with 14.04, whose json-c logs doubles with only 6 decimals
+    (26.04 logs full precision), so values are compared rounded to that precision."""
+    return round(x, DECIMALS_TO_ROUND_UNTIL)
+
+
 def check_bounds(name, metrics, case_bounds):
     """Every metric must have a bound and be inside it; a missing one fails."""
     failures = []
     for metric in METRIC_NAMES:
-        value = getattr(metrics, metric)
+        value = round_decimals(getattr(metrics, metric))
         b = case_bounds.get(metric)
         if b is None:
             failures.append("%s.%s=%r has no bound" % (name, metric, value))
-        elif not b["min"] <= value <= b["max"]:
+        elif not round_decimals(b["min"]) <= value <= round_decimals(b["max"]):
             failures.append("%s.%s=%r not in [%r, %r]" % (name, metric, value, b["min"], b["max"]))
     return failures
 
