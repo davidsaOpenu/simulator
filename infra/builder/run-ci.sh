@@ -2,6 +2,10 @@
 set -Eeo pipefail
 trap 'ec=$?; echo "[run-ci.sh] FAILED with exit $ec on: $BASH_COMMAND" >&2' ERR
 
+# Intentionally fail early for Jenkins
+echo Work in Progress. Exitting.
+exit 1
+
 # always run from the builder dir so env.sh works
 cd "$(dirname "${BASH_SOURCE[0]}")"
 
@@ -18,13 +22,6 @@ ELK_DIR="$EVSSIM_ROOT_PATH/simulator/infra/ELK"
 ELK_INSTALL="$ELK_DIR/install_and_start_elk.sh"
 ELK_CLEAN="$ELK_DIR/elk_cleanup.sh"
 
-# Temporary override until guest-tests commit
-if [ "$EVSSIM_VERSIONS_CONFIGURATION_ID" == 5 ]; then
-    EVSSIM_GUEST_TESTS_GUEST_VM_IMAGE=ubuntu-14.04
-    EVSSIM_GUEST_TESTS_GUEST_VM_BUILD_CONTAINER=ubuntu-14.04
-    EVSSIM_GUEST_TESTS_COMPILE_CONTAINER=ubuntu-14.04
-fi
-
 # sanity checks
 [[ -x "$ELK_INSTALL" ]] || { echo "Missing: $ELK_INSTALL"; exit 1; }
 [[ -x "$ELK_CLEAN"   ]] || { echo "Missing: $ELK_CLEAN";   exit 1; }
@@ -36,6 +33,10 @@ trap "$ELK_CLEAN --complete-cleanup || true" EXIT
 
 # Run tox
 env -u http_proxy -u https_proxy -u HTTP_PROXY -u HTTPS_PROXY tox
+
+# Switch nvme-cli to 3.0-a.5 branch
+git -C "$EVSSIM_ROOT_PATH/$EVSSIM_NVME_CLI_FOLDER" checkout "$EVSSIM_NVME_CLI_BRANCH" || \
+	git -C "$EVSSIM_ROOT_PATH/$EVSSIM_NVME_CLI_FOLDER" checkout --track "origin/$EVSSIM_NVME_CLI_BRANCH"
 
 # build + sanity
 ./build-docker-image.sh
