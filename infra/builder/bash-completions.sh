@@ -23,6 +23,16 @@ _evssim_docker_enter_complete() {
     fi
 }
 
+_evssim_compile_nvme_cli_complete() {
+    if [ "$COMP_CWORD" == 1 ]; then
+        local word="${COMP_WORDS[1]}"
+        local versions=(./versions/nvme-cli/*.sh)
+        versions=("${versions[@]##*/}")
+        versions=("${versions[@]%.sh}")
+        COMPREPLY=($(compgen -W "${versions[*]}" -- "$word"))
+    fi
+}
+
 _evssim_scripts_complete() {
     if [ "$COMP_CWORD" == 1 ]; then
         local word="${COMP_WORDS[1]}"
@@ -31,7 +41,7 @@ _evssim_scripts_complete() {
     fi
 }
 
-commands="compile-guest-tests.sh compile-host-tests.sh compile-kernel.sh compile-qemu.sh \
+commands="compile-guest-tests.sh  compile-host-tests.sh  compile-kernel.sh  compile-osd-exofs.sh  compile-qemu.sh \
     docker-copy-into-guest.sh docker-enter.sh \
     docker-run-bash.sh docker-run-qemu.sh docker-run-qemu-enter-guest.sh docker-run-sanity.sh \
     docker-test-exofs.sh docker-test-guest.sh docker-test-host.sh docker-test-host-elk.sh"
@@ -40,4 +50,5 @@ for command in $commands; do
 done
 
 complete -F _evssim_build_qemu_image_complete ./build-qemu-image.sh
+complete -F _evssim_compile_nvme_cli_complete ./compile-nvme-cli.sh
 complete -F _evssim_docker_enter_complete ./docker-enter.sh
