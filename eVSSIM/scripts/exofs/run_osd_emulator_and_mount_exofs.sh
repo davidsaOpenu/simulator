@@ -15,7 +15,7 @@ TEST_UTIL_DIR=/home/esd/exofs/tracing_the_kernel/lab
 PID=0x10000
 
 cd guest
-./nvme set-feature $NVME_DEV -f 0xc0 --value=1
+nvme set-feature $NVME_DEV -f 0xc0 --value=1
 
 # Creating client
 pushd /home/esd/exofs/tracing_the_kernel/lab && make && popd
