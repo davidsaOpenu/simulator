@@ -41,7 +41,7 @@ namespace program_compatible_test
         virtual void TearDown()
         {
             UNLOCK_DEVICE(g_device_index);
-            BaseTest::TearDown(false);
+            BaseTest::BaseTearDown(false);
             TERM_LOG_MANAGER(g_device_index);
             TERM_SSD_CONFIG();
         }
@@ -280,7 +280,7 @@ namespace program_compatible_test
         SSDConf *ssd_config = base_test_get_ssd_config();
 
         size_t nprogrammed = 0;
-        unsigned char buffer[ssd_config->get_page_size()];
+        unsigned char buffer[ssd_config->get_page_size()] = {};
         ASSERT_EQ(ONFI_PAGE_PROGRAM(INVALID_DEVICE_INDEX, 0, 0, buffer, ssd_config->get_page_size(), &nprogrammed), nullptr);
     }
 
@@ -296,7 +296,7 @@ namespace program_compatible_test
     {
         SSDConf *ssd_config = base_test_get_ssd_config();
 
-        unsigned char buffer[ssd_config->get_page_size()];
+        unsigned char buffer[ssd_config->get_page_size()] = {};
 
         AssertCommandFails(ONFI_PAGE_PROGRAM(g_device_index, 0, 0, buffer, ssd_config->get_page_size(), NULL));
     }
@@ -305,7 +305,7 @@ namespace program_compatible_test
     {
         SSDConf *ssd_config = base_test_get_ssd_config();
 
-        unsigned char buffer[ssd_config->get_page_size()];
+        unsigned char buffer[ssd_config->get_page_size()] = {};
         size_t nprogrammed = 0;
 
         AssertCommandFails(ONFI_PAGE_PROGRAM(g_device_index, ssd_config->get_pages(), 0, buffer, ssd_config->get_page_size(), &nprogrammed));
@@ -315,7 +315,7 @@ namespace program_compatible_test
     {
         SSDConf *ssd_config = base_test_get_ssd_config();
 
-        unsigned char buffer[ssd_config->get_page_size()];
+        unsigned char buffer[ssd_config->get_page_size()] = {};
         size_t nprogrammed = 0;
 
         AssertCommandFails(ONFI_PAGE_PROGRAM(g_device_index, 0, ssd_config->get_page_size(), buffer, 1, &nprogrammed));

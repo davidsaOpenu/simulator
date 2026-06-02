@@ -18,6 +18,13 @@ ELK_DIR="$EVSSIM_ROOT_PATH/simulator/infra/ELK"
 ELK_INSTALL="$ELK_DIR/install_and_start_elk.sh"
 ELK_CLEAN="$ELK_DIR/elk_cleanup.sh"
 
+# Temporary override until guest-tests commit
+if [ "$EVSSIM_VERSIONS_CONFIGURATION_ID" == 5 ]; then
+    EVSSIM_GUEST_TESTS_GUEST_VM_IMAGE=ubuntu-14.04
+    EVSSIM_GUEST_TESTS_GUEST_VM_BUILD_CONTAINER=ubuntu-14.04
+    EVSSIM_GUEST_TESTS_COMPILE_CONTAINER=ubuntu-14.04
+fi
+
 # sanity checks
 [[ -x "$ELK_INSTALL" ]] || { echo "Missing: $ELK_INSTALL"; exit 1; }
 [[ -x "$ELK_CLEAN"   ]] || { echo "Missing: $ELK_CLEAN";   exit 1; }

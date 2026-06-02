@@ -24,6 +24,7 @@ RUN apt-get update && DEBIAN_FRONTEND=noninteractive apt-get -y install \
   libpci-dev \
   libaio-dev \
   libssl-dev \
+  libpixman-1-dev \
   sshpass \
   libvirt-daemon-system \
   libvirt-clients \
@@ -89,9 +90,6 @@ RUN mkdir -p $GTEST_HOME/gtest/lib && \
 # Install websockets
 RUN export GIT_SSL_NO_VERIFY=1 && git clone --branch v4.5-stable https://github.com/warmcat/libwebsockets.git /opt/libwebsockets && \
     cd /opt/libwebsockets && cmake -DCMAKE_C_FLAGS="-Wno-error=discarded-qualifiers" . && make && make install && ldconfig
-
-RUN apt-get update && DEBIAN_FRONTEND=noninteractive apt-get -y install \
-    libpixman-1-dev
 
 # Remove kernel scripts
 RUN rm -rf /etc/kernel/postinst.d/*

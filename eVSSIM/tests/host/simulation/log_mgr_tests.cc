@@ -61,7 +61,7 @@ namespace log_mgr_tests {
 
             virtual void TearDown() {
                 logger_free(_logger);
-                BaseTest::TearDown(false);
+                BaseTest::BaseTearDown(false);
                 if (g_monitor_mode) {
                     printf("Waiting for monitor to close...\n");
                     pthread_join(_monitor, NULL);

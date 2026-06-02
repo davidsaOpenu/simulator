@@ -46,7 +46,7 @@ namespace multi_device_tests {
                     }
                 }
 
-                BaseTest::TearDown(false);
+                BaseTest::BaseTearDown(false);
                 TERM_LOG_MANAGER(g_device_index);
                 TERM_SSD_CONFIG();
             }
@@ -257,7 +257,7 @@ namespace multi_device_tests {
                     }
                 }
 
-                BaseTest::TearDown(false);
+                BaseTest::BaseTearDown(false);
                 TERM_LOG_MANAGER(g_device_index);
                 TERM_SSD_CONFIG();
             }
@@ -563,7 +563,7 @@ namespace multi_device_tests {
                 }
 
                 // Clean up primary device (sector)
-                BaseTest::TearDown(false);
+                BaseTest::BaseTearDown(false);
                 TERM_LOG_MANAGER(g_device_index);
                 TERM_SSD_CONFIG();
             }
