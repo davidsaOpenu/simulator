@@ -1,6 +1,8 @@
 #!/bin/bash
 set -Eeo pipefail
 trap 'ec=$?; echo "[run-ci.sh] FAILED with exit $ec on: $BASH_COMMAND" >&2' ERR
+# Intentionally fail early for Jenkins
+exit 1
 
 # always run from the builder dir so env.sh works
 cd "$(dirname "${BASH_SOURCE[0]}")"
@@ -40,13 +42,17 @@ trap "$ELK_CLEAN --complete-cleanup || true" EXIT
 # Run tox
 env -u http_proxy -u https_proxy -u HTTP_PROXY -u HTTPS_PROXY tox
 
+# Switch nvme-cli to 3.0-a.5 branch
+git -C "$EVSSIM_ROOT_PATH/$EVSSIM_NVME_CLI_FOLDER" checkout "$EVSSIM_NVME_CLI_BRANCH" || \
+	git -C "$EVSSIM_ROOT_PATH/$EVSSIM_NVME_CLI_FOLDER" checkout --track "origin/$EVSSIM_NVME_CLI_BRANCH"
+
 # build + sanity
 ./build-docker-image.sh
 ./build-qemu-image.sh $VERSION_QEMU_IMAGE_GUEST $VERSION_QEMU_IMAGE_HOST
 ./compile-kernel.sh $VERSION_COMPILE_KERNEL
 ./compile-qemu.sh $VERSION_COMPILE_QEMU
 ./compile-host-tests.sh $VERSION_COMPILE_HTESTS
-./compile-guest-tests.sh 14.04
+./compile-guest-tests.sh $VERSION_COMPILE_GTESTS
 ./docker-run-sanity.sh 14.04
 
 # start ELK (absolute paths)

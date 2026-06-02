@@ -45,7 +45,15 @@ RUN apt update && DEBIAN_FRONTEND=noninteractive apt -y install \
   bison \
   gdbserver \
   libelf-dev \
-  uuid-dev
+  uuid-dev \
+  meson
+
+# Replace uutils with the more stable gnu utils
+RUN apt update && DEBIAN_FRONTEND=noninteractive apt -y --allow-remove-essential install \
+  coreutils-from-gnu \
+  coreutils-from-uutils- \
+  rust-coreutils- \
+  sudo-rs-
 
 # Install build packages
 RUN apt update && DEBIAN_FRONTEND=noninteractive apt -y install \
@@ -56,6 +64,12 @@ RUN apt update && DEBIAN_FRONTEND=noninteractive apt -y install \
   valgrind \
   curl \
   bc
+
+RUN echo 'coreutils-from-gnu' >> /usr/lib/x86_64-linux-gnu/guestfs/supermin.d/packages
+
+# TODO:
+# Try using libwebsockets-dev and libgtest-dev packages instead of
+# Cloning and compiling from source.
 
 # Install Gtest
 ENV GTEST_HOME=/opt
