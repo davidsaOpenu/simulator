@@ -10,7 +10,7 @@ fi
 #                  eVSSIM version confuguration variables
 ######################################################################################################
 export EVSSIM_VERSIONS_CONFIGURATION="versions"
-export EVSSIM_VERSIONS_CONFIGURATION_ID=2
+export EVSSIM_VERSIONS_CONFIGURATION_ID=5
 # Export:
 #   EVSSIM_KERNEL_BRANCH
 #   EVSSIM_KERNEL_COMPILE_CONTAINER

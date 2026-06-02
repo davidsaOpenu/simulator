@@ -4,6 +4,8 @@ source ./builder.sh
 evssim_validate_version_arguments "$0" "${1:-}" "$#"
 version="$1"
 
+evssim_run_at_folder "$version" "$EVSSIM_SIMULATOR_FOLDER/eVSSIM/osc-osd" "make MK_PATH=. ARCH=x86_64 clean"
+
 # Configure qemu
 evssim_run_at_folder "$version" $EVSSIM_QEMU_FOLDER ./configure \
     --enable-trace-backends=log \
@@ -16,7 +18,7 @@ evssim_run_at_folder "$version" $EVSSIM_QEMU_FOLDER ./configure \
 
 # Make
 evssim_run_at_folder "$version" $EVSSIM_QEMU_FOLDER make clean
-evssim_run_at_folder "$version" $EVSSIM_QEMU_FOLDER bear -- make -j8
+evssim_run_at_folder "$version" $EVSSIM_QEMU_FOLDER bear -- make -j$(nproc)
 
 # Build osc-osd
 evssim_run_at_folder "$version" "$EVSSIM_SIMULATOR_FOLDER/eVSSIM/osc-osd" "make MK_PATH=. ARCH=x86_64 clean && \

@@ -40,7 +40,7 @@ int osd_end_txn(struct osd_device *osd);
  *   sense response data, if any
  */
 int osd_append(struct osd_device *osd, uint64_t pid, uint64_t oid,
-	       uint64_t len, const uint8_t *data,  
+	       uint64_t len, const uint8_t *data,
 	       uint32_t cdb_cont_len, uint8_t *sense, uint8_t ddt);
 int osd_clear(struct osd_device *osd, uint64_t pid, uint64_t oid,
 	      uint64_t len, uint64_t offset ,uint32_t cdb_cont_len, uint8_t *sense);
@@ -59,10 +59,10 @@ int osd_create_collection(struct osd_device *osd, uint64_t pid,
 			  uint64_t requested_cid, uint32_t cdb_cont_len, uint8_t *sense);
 int osd_create_partition(struct osd_device *osd, uint64_t requested_pid, uint32_t cdb_cont_len,
                          uint8_t *sense);
-int osd_create_user_tracking_collection(struct osd_device *osd, uint64_t pid, 
+int osd_create_user_tracking_collection(struct osd_device *osd, uint64_t pid,
 					uint64_t requested_cid,	uint64_t source_cid,
 					uint32_t cdb_cont_len, uint8_t *sense);
-int osd_flush(struct osd_device *osd, uint64_t pid, uint64_t oid, uint64_t len,  
+int osd_flush(struct osd_device *osd, uint64_t pid, uint64_t oid, uint64_t len,
 	      uint64_t offset, int flush_scope, uint32_t cdb_cont_len, uint8_t *sense);
 int osd_flush_collection(struct osd_device *osd, uint64_t pid, uint64_t cid,
                          int flush_scope, uint32_t cdb_cont_len, uint8_t *sense);
@@ -98,7 +98,7 @@ int osd_read(struct osd_device *osd, uint64_t pid, uint64_t uid, uint64_t len,
 	     uint64_t offset, const uint8_t *indata, uint8_t *outdata, uint64_t *outlen,
 	     const struct sg_list *sglist, uint8_t *sense, uint8_t ddt);
 int osd_read_map(struct osd_device *osd, uint64_t pid, uint64_t oid, uint64_t alloc_len,
-		 uint64_t offset, uint16_t map_type, uint8_t *outdata, uint64_t *used_outlen, 
+		 uint64_t offset, uint16_t map_type, uint8_t *outdata, uint64_t *used_outlen,
 		 uint32_t cdb_cont_len, uint8_t *sense);
 int osd_remove(struct osd_device *osd, uint64_t pid, uint64_t oid,
                uint32_t cdb_cont_len, uint8_t *sense);
@@ -111,8 +111,7 @@ int osd_set_attributes(struct osd_device *osd, uint64_t pid, uint64_t oid,
                        uint32_t page, uint32_t number, const void *val,
 		       uint16_t len, uint8_t cmd_type, uint32_t cdb_cont_len, uint8_t *sense);
 int osd_set_key(struct osd_device *osd, int key_to_set, uint64_t pid,
-		uint64_t key, uint8_t seed[OSD_CRYPTO_KEYID_SIZE],
-		uint8_t *sense);
+		uint64_t key, uint8_t seed[OSD_KEY_SEED_SIZE], uint8_t *sense);
 int osd_set_master_key(struct osd_device *osd, int dh_step, uint64_t key,
                        uint32_t param_len, uint32_t alloc_len,
 		       uint8_t *outdata, uint64_t *outlen, uint32_t cdb_cont_len, uint8_t *sense);
@@ -120,8 +119,8 @@ int osd_set_member_attributes(struct osd_device *osd, uint64_t pid,
 			      uint64_t cid, struct setattr_list *set_attr,
 			      uint32_t cdb_cont_len, uint8_t *sense);
 
-int osd_write(struct osd_device *osd, uint64_t pid, uint64_t oid, 
-	      uint64_t len, uint64_t offset, const uint8_t *data, 
+int osd_write(struct osd_device *osd, uint64_t pid, uint64_t oid,
+	      uint64_t len, uint64_t offset, const uint8_t *data,
 	      const struct sg_list *sglist, uint8_t *sense, uint8_t ddt);
 
 int osd_cas(struct osd_device *osd, uint64_t pid, uint64_t oid, uint64_t cmp,
