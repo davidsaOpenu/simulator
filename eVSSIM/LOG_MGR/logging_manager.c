@@ -107,13 +107,18 @@ void* log_manager_run(void* args) {
 }
 
 void log_manager_loop(uint8_t device_index, LogManager* manager, int max_loops) {
+    SSDStatistics *stats = (SSDStatistics*)malloc(sizeof(SSDStatistics));
+    if (NULL == stats) {
+        PERR("Failed to allocate SSDStatistics for device %"PRIu8".\n", device_index);
+        return;
+    }
     SSDStatistics old_stats = stats_init();
     int first_loop = 1;
     int loops = 0;
     while (max_loops < 0 || loops < max_loops) {
         // init the current statistics
-        SSDStatistics stats = stats_init();
-        ssds_manager[device_index].ssd.current_stats = &stats;
+        *stats = stats_init();
+        ssds_manager[device_index].ssd.current_stats = stats;
 
         unsigned int analyzer_id;
         // update the statistics according to the different analyzers
@@ -123,61 +128,61 @@ void log_manager_loop(uint8_t device_index, LogManager* manager, int max_loops) 
             AnalyzerHandler* handler = &(manager->handlers[analyzer_id]);
             SSDStatistics current_stats = handler->slots[handler->current_slot];
 
-            stats.write_count += current_stats.write_count;
-            stats.read_count += current_stats.read_count;
-            stats.garbage_collection_count += current_stats.garbage_collection_count;
-            stats.occupied_pages += current_stats.occupied_pages;
+            stats->write_count += current_stats.write_count;
+            stats->read_count += current_stats.read_count;
+            stats->garbage_collection_count += current_stats.garbage_collection_count;
+            stats->occupied_pages += current_stats.occupied_pages;
 
-            stats.logical_write_count += current_stats.logical_write_count;
-            stats.write_elapsed_time += current_stats.write_elapsed_time;
-            stats.read_elapsed_time += current_stats.read_elapsed_time;
+            stats->logical_write_count += current_stats.logical_write_count;
+            stats->write_elapsed_time += current_stats.write_elapsed_time;
+            stats->read_elapsed_time += current_stats.read_elapsed_time;
 
-            stats.block_erase_count += current_stats.block_erase_count;
-            stats.channel_switch_to_read += current_stats.channel_switch_to_read;
-            stats.channel_switch_to_write += current_stats.channel_switch_to_write;
+            stats->block_erase_count += current_stats.block_erase_count;
+            stats->channel_switch_to_read += current_stats.channel_switch_to_read;
+            stats->channel_switch_to_write += current_stats.channel_switch_to_write;
 
-            stats.background_write_count += current_stats.background_write_count;
-            stats.background_read_count += current_stats.background_read_count;
-            stats.background_garbage_collection_count += current_stats.background_garbage_collection_count;
-            stats.background_block_erase_count += current_stats.background_block_erase_count;
+            stats->background_write_count += current_stats.background_write_count;
+            stats->background_read_count += current_stats.background_read_count;
+            stats->background_garbage_collection_count += current_stats.background_garbage_collection_count;
+            stats->background_block_erase_count += current_stats.background_block_erase_count;
 
             if(current_stats.log_id != 0){
-                stats.log_id = current_stats.log_id;
+                stats->log_id = current_stats.log_id;
                 current_stats.log_id = 0;
             }
         }
-        stats.utilization = (double)stats.occupied_pages / devices[device_index].pages_in_ssd;
+        stats->utilization = (double)stats->occupied_pages / devices[device_index].pages_in_ssd;
 
-        if (stats.logical_write_count == 0)
-            stats.write_amplification = 0.0;
+        if (stats->logical_write_count == 0)
+            stats->write_amplification = 0.0;
         else
-            stats.write_amplification = ((double) stats.write_count) / stats.logical_write_count;
+            stats->write_amplification = ((double) stats->write_count) / stats->logical_write_count;
 
-        if (stats.write_elapsed_time == 0)
-            stats.write_speed = 0.0;
+        if (stats->write_elapsed_time == 0)
+            stats->write_speed = 0.0;
         else
-            stats.write_speed = PAGES_PER_USEC_TO_MEGABYTES_PER_SECOND(
+            stats->write_speed = PAGES_PER_USEC_TO_MEGABYTES_PER_SECOND(
                 device_index,
-                ((double) stats.logical_write_count) / stats.write_elapsed_time
+                ((double) stats->logical_write_count) / stats->write_elapsed_time
             );
 
-        if (stats.read_elapsed_time == 0)
-            stats.read_speed = 0.0;
+        if (stats->read_elapsed_time == 0)
+            stats->read_speed = 0.0;
         else
-            stats.read_speed = PAGES_PER_USEC_TO_MEGABYTES_PER_SECOND(
+            stats->read_speed = PAGES_PER_USEC_TO_MEGABYTES_PER_SECOND(
                 device_index,
-                ((double) stats.read_count) / stats.read_elapsed_time
+                ((double) stats->read_count) / stats->read_elapsed_time
             );
 
         #ifdef MONITOR_DEBUG
-        validateSSDStat(&stats);
+        validateSSDStat(stats);
         #endif
 
         unsigned int subscriber_id;
         // call present hooks if the statistics changed
-        if (first_loop || !stats_equal(old_stats, stats))
+        if (first_loop || !stats_equal(old_stats, *stats))
             for (subscriber_id = 0; subscriber_id < manager->subscribers_count; subscriber_id++){
-                manager->hooks[subscriber_id](stats, manager->hooks_ids[subscriber_id]);
+                manager->hooks[subscriber_id](*stats, manager->hooks_ids[subscriber_id]);
             }
 
 
@@ -186,7 +191,7 @@ void log_manager_loop(uint8_t device_index, LogManager* manager, int max_loops) 
             loops++;
 
         first_loop = 0;
-        old_stats = stats;
+        old_stats = *stats;
 
         // exit if needed
         if (manager->exit_loop_flag) {
@@ -198,6 +203,8 @@ void log_manager_loop(uint8_t device_index, LogManager* manager, int max_loops) 
         if (usleep(MANGER_LOOP_SLEEP))
             break;          // if an error occurred (probably a signal interrupt) just exit
     }
+    free(stats);
+    ssds_manager[device_index].ssd.current_stats = NULL;
 }
 
 
