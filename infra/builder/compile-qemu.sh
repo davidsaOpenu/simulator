@@ -6,6 +6,8 @@ source ./builder.sh
 evssim_validate_version_arguments "$0" "${1:-}" "$#"
 version="$1"
 
+evssim_run_at_folder "$version" "$EVSSIM_SIMULATOR_FOLDER/eVSSIM/osc-osd" "make MK_PATH=. ARCH=x86_64 clean"
+
 # Setup git branch, and cleanup artifacts on host
 git -C "$EVSSIM_ROOT_PATH/$EVSSIM_QEMU_FOLDER" fetch --all --prune
 case "$version" in

@@ -8,12 +8,12 @@
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation, version 2 of the License.
- * 
+ *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
@@ -138,23 +138,23 @@ static int set_one_attr_value(struct command *cmd, uint64_t pid, uint64_t oid,
 	uint64_t i = 0;
 	uint32_t page = get_ntohl(&cmd->cdb[52]);
 	uint32_t number = get_ntohl(&cdb[56]);
-	uint16_t len = get_ntohs(&cdb[60]); 
+	uint16_t len = get_ntohs(&cdb[60]);
 	void *value = &cmd->cdb[62];
 
 	/* nothing to set. osd2r03 Sec 5.2.4.2 */
 	if (page == 0)
-	        return 0; 
+	        return 0;
 
 	/* terminate command with check command status, set sense to illegal
 	   reguest osd2r03 Sec 5.2.4.2 */
 	if (len > 18)
 	        goto out_invalid_param;
-	
+
 	/* terminate command with check command status, set sense to illegal
 	   request osd2r03 Sec 5.2.4.2 */
 	if (page == 0xFFFFFFFF || number == 0xFFFFFFFF)
 	        goto out_invalid_param;
-        
+
 	err = osd_begin_txn(cmd->osd);
 	assert(err == 0);
 
@@ -572,7 +572,7 @@ out_cdb_err:
 
 static int cdb_copy_user_objects(struct command *cmd)
 {
-        int ret = 0;							
+        int ret = 0;
 	uint8_t dupl_method = cmd->cdb[14];
 	uint64_t destination_pid = get_ntohll(&cmd->cdb[16]);
 	uint64_t requested_oid = get_ntohll(&cmd->cdb[24]);
@@ -888,18 +888,18 @@ static int cdb_read_map(struct command *cmd, uint32_t cdb_cont_len)
 	uint64_t alloc_len = get_ntohll(&cmd->cdb[32]);
 	uint64_t offset = get_ntohll(&cmd->cdb[40]);
 	uint16_t map_type = get_ntohs(&cmd->cdb[48]);
-     
+
 	ret = set_attributes(cmd, pid, oid, 1, cdb_cont_len);
 	if (ret)
 	        return ret;
 	ret = get_attributes(cmd, pid, oid, 1, cdb_cont_len);
 	if (ret)
 	        return ret;
-	
-	return osd_read_map(cmd->osd, pid, oid, alloc_len, offset, map_type, 
+
+	return osd_read_map(cmd->osd, pid, oid, alloc_len, offset, map_type,
 			    cmd->outdata, &cmd->used_outlen, cdb_cont_len,  cmd->sense);
 }
-	
+
 /*
  *  actions for various (pid, list_attr) combinations:
  *
@@ -1520,7 +1520,7 @@ static void exec_service_action(struct command *cmd)
 	uint64_t pid = get_ntohll(&cdb[16]);
 	uint64_t oid = get_ntohll(&cdb[24]);
 	int ret;
-	
+
 //	osd_debug("%s: start 0x%04x", __func__, cmd->action);
 
 	if (cdb_cont_len != 0) {
@@ -1529,7 +1529,7 @@ static void exec_service_action(struct command *cmd)
 		if (ret != OSD_OK)
 			goto out_exec;
 	}
-	
+
 	switch (cmd->action) {
 	case OSD_APPEND: {
 		uint8_t ddt;
@@ -1557,13 +1557,13 @@ static void exec_service_action(struct command *cmd)
 		ret = std_get_set_attr(cmd, pid, oid, cdb_cont_len);
 		break;
 	}
-	
+
 	case OSD_CLEAR: {
 	  	uint64_t pid = get_ntohll(&cdb[16]);
 		uint64_t oid = get_ntohll(&cdb[24]);
 		uint64_t len = get_ntohll(&cdb[32]);
 		uint64_t offset = get_ntohll(&cdb[40]);
-	
+
 		ret = check_no_continuations(cmd, cdb_cont_len, pid, oid);
 		if (ret)
 			break;
@@ -1660,8 +1660,8 @@ static void exec_service_action(struct command *cmd)
                 uint64_t pid = get_ntohll(&cdb[16]);
 		uint64_t requested_cid = get_ntohll(&cdb[24]);
 		uint64_t source_cid = get_ntohll(&cdb[40]);
-		
-		ret = osd_create_user_tracking_collection(osd, pid, requested_cid, 
+
+		ret = osd_create_user_tracking_collection(osd, pid, requested_cid,
 							  cdb_cont_len, source_cid, sense);
 		break;
 	}
@@ -1800,9 +1800,9 @@ static void exec_service_action(struct command *cmd)
 			break;
 
 		ret = osd_punch(osd, pid, oid, len, offset, cdb_cont_len, sense);
-		if (ret) 
+		if (ret)
 		        break;
-		
+
 		ret = std_get_set_attr(cmd, pid, oid, cdb_cont_len);
 		break;
 
@@ -1824,7 +1824,7 @@ static void exec_service_action(struct command *cmd)
 					     get_ntohll(&cdb[24]));
 		if (ret)
 			break;
-	        ret = cdb_read_map(cmd, cdb_cont_len);	       
+	        ret = cdb_read_map(cmd, cdb_cont_len);
 	        break;
 	}
 	case OSD_READ_MAPS_AND_COMPARE: {
@@ -1907,8 +1907,8 @@ static void exec_service_action(struct command *cmd)
 		int key_to_set = cdb[11] & 0x3;
 		uint64_t pid = get_ntohll(&cdb[16]);
 		uint64_t key = get_ntohll(&cdb[24]);
-		uint8_t seed[20];
-		memcpy(seed, &cdb[32], 20);
+		uint8_t seed[OSD_KEY_SEED_SIZE];
+		memcpy(seed, &cdb[32], OSD_KEY_SEED_SIZE);
 		ret = osd_set_key(osd, key_to_set, pid, key, seed, sense);
 		break;
 	}
@@ -2187,4 +2187,3 @@ out:
 		return SAM_STAT_CHECK_CONDITION;
 	}
 }
-
