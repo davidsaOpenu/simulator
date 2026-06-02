@@ -35,14 +35,14 @@ env -u http_proxy -u https_proxy -u HTTP_PROXY -u HTTPS_PROXY tox
 ./build-qemu-image.sh
 ./compile-kernel.sh
 ./compile-qemu.sh
-./compile-host-tests.sh
-./compile-guest-tests.sh
-./docker-run-sanity.sh
+./compile-host-tests.sh 26.04
+./compile-guest-tests.sh 14.04
+./docker-run-sanity.sh 14.04
 
 # start ELK (absolute paths)
 "$ELK_INSTALL" "$LOGS_DIR" "$ELK_DIR"
 
 # Running Docker Tests
 ./docker-test-host.sh
-./docker-test-guest.sh
-./docker-test-exofs.sh
+./docker-test-guest.sh 14.04
+./docker-test-exofs.sh 14.04

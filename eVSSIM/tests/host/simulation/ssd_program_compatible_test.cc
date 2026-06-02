@@ -41,7 +41,7 @@ namespace program_compatible_test
         virtual void TearDown()
         {
             UNLOCK_DEVICE(g_device_index);
-            BaseTest::TearDown(false);
+            BaseTest::BaseTearDown(false);
             TERM_LOG_MANAGER(g_device_index);
             remove(GET_FILE_NAME(g_device_index));
             TERM_SSD_CONFIG();
