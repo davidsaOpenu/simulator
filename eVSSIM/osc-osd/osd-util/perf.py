@@ -25,6 +25,7 @@ import sys
 import pwd
 import csv
 import socket
+import subprocess
 
 # defaults
 options = {
@@ -113,26 +114,22 @@ numdir = 1
 numconfig = 1
 
 def usage():
-    print >>sys.stderr, "Usage:", sys.argv[0], "[Options] start <numion>"
-    print >>sys.stderr, "      ", sys.argv[0], "[Options] restart [<numion>]"
-    print >>sys.stderr, "      ", sys.argv[0], "stop"
-    print >>sys.stderr, "      ", sys.argv[0], "status"
-    print >>sys.stderr, "  -p {protocol tcp|ib|portals}, default", \
-    		        options["protocol"]
-    print >>sys.stderr, "  -o {osdtype none|datafile|metafile|mdfile},", \
-    			"default", options["osdtype"]
-    print >>sys.stderr, "  -d {dirtype pvfs|attr4|attr1|obj},", \
-    			"default", options["dirtype"]
-    print >>sys.stderr, "  -s {storage disk|tmpfs}, default", options["storage"]
-    print >>sys.stderr, "  -m <nummeta>, default 1"
-    print >>sys.stderr, "  -mio : metadata servers on IO servers (-o none", \
-    			"only), not default"
-    print >>sys.stderr, "  -2 : two config files (ancient PVFS), not default"
-    print >>sys.stderr, "  -remote-mount <metanodes file> <ionodes file>"
-    print >>sys.stderr, "  -meta-mirror <ionodes file>"
-    print >>sys.stderr, "  -data-cache"
-    print >>sys.stderr, "  -poi : for PVFS_OSD_INTEGRATED, connect to OSDs"
-    print >>sys.stderr, "  -rdma : connect to OSDs using iSER"
+    print("Usage:", sys.argv[0], "[Options] start <numion>", file=sys.stderr)
+    print("      ", sys.argv[0], "[Options] restart [<numion>]", file=sys.stderr)
+    print("      ", sys.argv[0], "stop", file=sys.stderr)
+    print("      ", sys.argv[0], "status", file=sys.stderr)
+    print("  -p {protocol tcp|ib|portals}, default", options["protocol"], file=sys.stderr)
+    print("  -o {osdtype none|datafile|metafile|mdfile},", "default", options["osdtype"], file=sys.stderr)
+    print("  -d {dirtype pvfs|attr4|attr1|obj},", "default", options["dirtype"], file=sys.stderr)
+    print("  -s {storage disk|tmpfs}, default", options["storage"], file=sys.stderr)
+    print("  -m <nummeta>, default 1", file=sys.stderr)
+    print("  -mio : metadata servers on IO servers (-o none", "only), not default", file=sys.stderr)
+    print("  -2 : two config files (ancient PVFS), not default", file=sys.stderr)
+    print("  -remote-mount <metanodes file> <ionodes file>", file=sys.stderr)
+    print("  -meta-mirror <ionodes file>", file=sys.stderr)
+    print("  -data-cache", file=sys.stderr)
+    print("  -poi : for PVFS_OSD_INTEGRATED, connect to OSDs", file=sys.stderr)
+    print("  -rdma : connect to OSDs using iSER", file=sys.stderr)
     sys.exit(1)
 
 # filenames
@@ -156,10 +153,10 @@ mirror_ionodes = ""
 def allbut(nodes, numservers):
     # keep 1 extra as a compute node
     if numservers > len(nodes):
-	print >>sys.stderr, "Too many server nodes for PBS request."
+	print("Too many server nodes for PBS request.", file=sys.stderr)
 	sys.exit(1)
     if numservers == len(nodes):
-	print >>sys.stderr, "Warning: no nodes left to be clients."
+	print("Warning: no nodes left to be clients.", file=sys.stderr)
 
     # these are the compnodes, high nodes will be pvfs or osd servers
     return nodes[0:-numservers]
@@ -198,7 +195,7 @@ def handle_alloc():
 
     # if directories are being handled by OSDs, put the root handle there
     if len(metanodes) == 0:
-	print >>sys.stderr, "No metanodes to alloc."
+	print("No metanodes to alloc.", file=sys.stderr)
 	sys.exit(1)
 
     if options["mirror"] == "meta-mirror" or \
@@ -251,7 +248,7 @@ def buildfiles():
 
     # list of all nodes from PBS
     nodes = []
-    fd = os.popen("uniq $PBS_NODEFILE")
+    fd = subprocess.Popen("uniq $PBS_NODEFILE", stdout=subprocess.PIPE).stdout
     while True:
 	line = fd.readline()
 	if line == "":
@@ -261,10 +258,10 @@ def buildfiles():
 
     if options["meta_on_io"] == "yes":
 	if options["osdtype"] != "none":
-	    print >>sys.stderr, "Option -mio only works in case \"-o none\"."
+	    print("Option -mio only works in case \"-o none\".", file=sys.stderr)
 	    sys.exit(1)
 	if options["mirror"] != "":
-	    print >>sys.stderr, "Option -mio is not for use with \"-mirror\"."
+	    print("Option -mio is not for use with \"-mirror\".", file=sys.stderr)
 	    sys.exit(1)
 
     # figure out how many nodes are needed for servers, rest will be clients
@@ -281,7 +278,7 @@ def buildfiles():
 	    else:
 		numdir = nummeta
 		if nummeta > numion:
-		    print >>sys.stderr, "Not enough ion for requested meta."
+		    print("Not enough ion for requested meta.", file=sys.stderr)
 		    sys.exit(1)
 		compnodes = allbut(nodes, numion)
 		osdnodes = []
@@ -310,7 +307,7 @@ def buildfiles():
 	    ionodes = osdnodes
 	    metanodes = pvfsnodes
 	else:
-	    print >>sys.stderr, "Unknown osdtype", options["osdtype"]
+	    print("Unknown osdtype", options["osdtype"], file=sys.stderr)
 	    sys.exit(1)
     elif options["dirtype"] == "attr4" \
       or options["dirtype"] == "attr1" \
@@ -325,7 +322,7 @@ def buildfiles():
 		metanodes = osdnodes + pvfsnodes[0:nummeta]
 	    else:
 		if nummeta > numion:
-		    print >>sys.stderr, "Not enough ion for requested meta."
+		    print("Not enough ion for requested meta.", file=sys.stderr)
 		    sys.exit(1)
 		compnodes = allbut(nodes, numion + numdir)
 		osdnodes = nodes[len(compnodes):len(compnodes)+numdir]
@@ -355,10 +352,10 @@ def buildfiles():
 	    ionodes = osdnodes
 	    metanodes = osdnodes
 	else:
-	    print >>sys.stderr, "Unknown osdtype", options["osdtype"]
+	    print("Unknown osdtype", options["osdtype"], file=sys.stderr)
 	    sys.exit(1)
     else:
-	print >>sys.stderr, "Unknown dirtype", options["dirtype"]
+	print("Unknown dirtype", options["dirtype"], file=sys.stderr)
 	sys.exit(1)
 
     # Override the above, possibly, using given list(s) of ionodes, metanodes.
@@ -401,7 +398,7 @@ def buildfiles():
     # store the options for status reporting later
     fd = open(foptions, "w")
     writer = csv.writer(fd, dialect='excel-tab')
-    map(writer.writerow, options.items())
+    list(map(writer.writerow, options.items()))
     fd.close()
 
     # store all node lists in files
@@ -411,72 +408,72 @@ def buildfiles():
 	      [metanodes, fmetanodes]]:
 	fd = open(a[1], "w")
 	for i in a[0]:
-	    print >>fd, i
+	    print(i, file=fd)
 	fd.close()
 
 
     # write fs.conf
     fd = open(fsconf, "w")
-    print >>fd, "<Defaults>"
-    print >>fd, "    UnexpectedRequests 50"
-    print >>fd, "    EventLogging none"
-    print >>fd, "    LogStamp usec"
-    print >>fd, "    BMIModules bmi_" + options["protocol"]
-    print >>fd, "    FlowModules flowproto_multiqueue"
-    print >>fd, "    PerfUpdateInterval 1000"
-    print >>fd, "    ServerJobBMITimeoutSecs 30"
-    print >>fd, "    ServerJobFlowTimeoutSecs 30"
-    print >>fd, "    ClientJobBMITimeoutSecs 300"
-    print >>fd, "    ClientJobFlowTimeoutSecs 300"
-    print >>fd, "    ClientRetryLimit 5"
-    print >>fd, "    ClientRetryDelayMilliSecs 2000"
+    print("<Defaults>", file=fd)
+    print("    UnexpectedRequests 50", file=fd)
+    print("    EventLogging none", file=fd)
+    print("    LogStamp usec", file=fd)
+    print("    BMIModules bmi_" + options["protocol"], file=fd)
+    print("    FlowModules flowproto_multiqueue", file=fd)
+    print("    PerfUpdateInterval 1000", file=fd)
+    print("    ServerJobBMITimeoutSecs 30", file=fd)
+    print("    ServerJobFlowTimeoutSecs 30", file=fd)
+    print("    ClientJobBMITimeoutSecs 300", file=fd)
+    print("    ClientJobFlowTimeoutSecs 300", file=fd)
+    print("    ClientRetryLimit 5", file=fd)
+    print("    ClientRetryDelayMilliSecs 2000", file=fd)
     if options["osdtype"] != "none":
-	print >>fd, "    OSDType " + options["osdtype"]
+	print("    OSDType " + options["osdtype"], file=fd)
     if options["dirtype"] != "pvfs":
-	print >>fd, "    OSDDirType " + options["dirtype"]
+	print("    OSDDirType " + options["dirtype"], file=fd)
     if options["one_config_file"] == "yes":
-	print >>fd, "    StorageSpace", testdir + "/storage"
-	print >>fd, "    LogFile", testdir + "/pvfs2.log"
-    print >>fd, "</Defaults>"
+	print("    StorageSpace", testdir + "/storage", file=fd)
+	print("    LogFile", testdir + "/pvfs2.log", file=fd)
+    print("</Defaults>", file=fd)
 
-    print >>fd
-    print >>fd, "<Aliases>"
+    print(file=fd)
+    print("<Aliases>", file=fd)
     for n in osdnodes:
-	print >>fd, "    Alias", n, "osd://" + n
+	print("    Alias", n, "osd://" + n, file=fd)
     for n in pvfsnodes:
-	print >>fd, "    Alias", n, options["protocol"] + "://" + n + ":" + \
-	            str(port)
-    print >>fd, "</Aliases>"
+	print("    Alias", n, options["protocol"] + "://" + n + ":" + \
+	            str(port), file=fd)
+    print("</Aliases>", file=fd)
 
     global pid
     pid = 424242
-    print >>fd
-    print >>fd, "<Filesystem>"
-    print >>fd, "    Name pvfs2-fs"
-    print >>fd, "    ID", pid
+    print(file=fd)
+    print("<Filesystem>", file=fd)
+    print("    Name pvfs2-fs", file=fd)
+    print("    ID", pid, file=fd)
     if options["mirror"] != "":
-        print >>fd, "    IsMirror", 1
+        print("    IsMirror", 1, file=fd)
 
-    print >>fd, "    <DataHandleRanges>"
+    print("    <DataHandleRanges>", file=fd)
     for n in ionodes:
-	print >>fd, "        Range", n, "%d-%d" % \
-		    (datahandles[n][0], datahandles[n][1])
-    print >>fd, "    </DataHandleRanges>"
-    print >>fd, "    <MetaHandleRanges>"
+	print("        Range", n, "%d-%d" % \
+		    (datahandles[n][0], datahandles[n][1]), file=fd)
+    print("    </DataHandleRanges>", file=fd)
+    print("    <MetaHandleRanges>", file=fd)
     for n in metanodes:
-	print >>fd, "        Range", n, "%d-%d" % \
-		    (metahandles[n][0], metahandles[n][1])
-    print >>fd, "    </MetaHandleRanges>"
+	print("        Range", n, "%d-%d" % \
+		    (metahandles[n][0], metahandles[n][1]), file=fd)
+    print("    </MetaHandleRanges>", file=fd)
 
-    print >>fd, "    RootHandle %d" % roothandle
-    print >>fd, "    <StorageHints>"
-    print >>fd, "        TroveSyncMeta no"
-    print >>fd, "        TroveSyncData no"
-    print >>fd, "        ImmediateCompletion yes"
-    print >>fd, "        CoalescingHighWatermark infinity"
-    print >>fd, "        CoalescingLowWatermark 1"
-    print >>fd, "        TroveMethod dbpf"
-    print >>fd, "    </StorageHints>"
+    print("    RootHandle %d" % roothandle, file=fd)
+    print("    <StorageHints>", file=fd)
+    print("        TroveSyncMeta no", file=fd)
+    print("        TroveSyncData no", file=fd)
+    print("        ImmediateCompletion yes", file=fd)
+    print("        CoalescingHighWatermark infinity", file=fd)
+    print("        CoalescingLowWatermark 1", file=fd)
+    print("        TroveMethod dbpf", file=fd)
+    print("    </StorageHints>", file=fd)
     # default is simple_stripe if nothing set
 #    # basic
 #    print >>fd, "    <Distribution>"
@@ -492,17 +489,17 @@ def buildfiles():
 #    print >>fd, "        Param group_strip_factor"
 #    print >>fd, "        Value 256"
 #    print >>fd, "    </Distribution>"
-    print >>fd, "    FlowBufferSizeBytes 16777216"
-    print >>fd, "</Filesystem>"
+    print("    FlowBufferSizeBytes 16777216", file=fd)
+    print("</Filesystem>", file=fd)
     fd.close()
 
     # generate server.conf-* for pvfs server nodes
     if options["one_config_file"] == "no":
 	for n in pvfsnodes:
 	    fd = open(serverconf + "-" + n, "w")
-	    print >>fd, "StorageSpace", testdir + "/storage"
-	    print >>fd, "HostID \"%s://%s:%d\"" % (options["protocol"], n, port)
-	    print >>fd, "LogFile", testdir + "/pvfs2.log"
+	    print("StorageSpace", testdir + "/storage", file=fd)
+	    print("HostID \"%s://%s:%d\"" % (options["protocol"], n, port), file=fd)
+	    print("LogFile", testdir + "/pvfs2.log", file=fd)
 	    fd.close()
 
     # generate pvfs2tab, pick any pvfs node as config server
@@ -531,14 +528,14 @@ def readfiles():
     global options
     options = {}
     if not os.access(foptions, os.F_OK):
-	print >>sys.stderr, "File", foptions, "does not exist."
-	print >>sys.stderr, "Perhaps you did not do \"perf start\"."
+	print("File", foptions, "does not exist.", file=sys.stderr)
+	print("Perhaps you did not do \"perf start\".", file=sys.stderr)
 	sys.exit(1)
     fd = open(foptions)
     reader = csv.reader(fd, dialect='excel-tab')
     while True:
 	try:
-	    row = reader.next()
+	    row = next(reader)
 	except StopIteration:
 	    break
 	options[row[0]] = row[1]
@@ -560,9 +557,13 @@ def readfiles():
 
 
 def allify(n):
-    (fdto, fdfrom) = os.popen2(allify_code)
+    (fdto, fdfrom) = subprocess.Popen(
+        allify_code,
+        stdin=subprocess.PIPE,
+        stdout=subprocess.PIPE
+    )
     for i in n:
-	print >>fdto, i
+        print(i, file=fdto)
     fdto.close()
     s = fdfrom.read()
     fdfrom.close()
@@ -662,11 +663,11 @@ def start():
     # this script runs must be one of the compnodes so it can talk to
     # all the OSDs with iscsi.  (Or could rsh to one.)
     for n in osdnodes:
-	if datahandles.has_key(n):
+	if n in datahandles:
 	    d = datahandles[n][0]
 	else:
 	    d = 0
-	if metahandles.has_key(n):
+	if n in metahandles:
 	    m = metahandles[n][0]
 	else:
 	    m = 0
@@ -677,44 +678,44 @@ def start():
 	#print pvfs_init + " " + n + " " + str(d) + " " + str(m) + s
 	ret = os.system(pvfs_init + " " + n + " " + str(d) + " " + str(m) + s)
 	if ret:
-	    print >>sys.stderr, pvfs_init + " failed"
+	    print(pvfs_init + " failed", file=sys.stderr)
 
     # just format and create the partition on these
     if options["pvfs_osd_integrated"] == "yes":
 	for n in mypvfsnodes:
 	    ret = os.system(pvfs_osd_integrated_init + " " + n + " " + str(pid))
 	    if ret:
-		print >>sys.stderr, pvfs_osd_integrated_init + " failed"
+		print(pvfs_osd_integrated_init + " failed", file=sys.stderr)
 
 def status():
-    print "Protocol:               ", options["protocol"]
-    print "OSDType:                ", options["osdtype"]
-    print "OSDDirType:             ", options["dirtype"]
-    print "Storage:                ", options["storage"]
-    print "Meta-on-io:             ", options["meta_on_io"]
-    print "One config file:        ", options["one_config_file"]
-    print "Mirror:                 ", options["mirror"]
+    print("Protocol:               ", options["protocol"])
+    print("OSDType:                ", options["osdtype"])
+    print("OSDDirType:             ", options["dirtype"])
+    print("Storage:                ", options["storage"])
+    print("Meta-on-io:             ", options["meta_on_io"])
+    print("One config file:        ", options["one_config_file"])
+    print("Mirror:                 ", options["mirror"])
 
-    n = filter(lambda x: x in metanodes, osdnodes)
+    n = [x for x in osdnodes if x in metanodes]
     if len(n) > 0:
-	print "Metadata servers (osd): ", " ".join(n)
+	print("Metadata servers (osd): ", " ".join(n))
 
-    n = filter(lambda x: x in metanodes, pvfsnodes)
+    n = [x for x in pvfsnodes if x in metanodes]
     if len(n) > 0:
-	print "Metadata servers (pvfs):", " ".join(n)
+	print("Metadata servers (pvfs):", " ".join(n))
 
-    n = filter(lambda x: x in ionodes, osdnodes)
+    n = [x for x in osdnodes if x in ionodes]
     if len(n) > 0:
-	print "IO servers (osd):       ", " ".join(n)
+	print("IO servers (osd):       ", " ".join(n))
 
-    n = filter(lambda x: x in ionodes, pvfsnodes)
+    n = [x for x in pvfsnodes if x in ionodes]
     if len(n) > 0:
-	print "IO servers (pvfs):      ", " ".join(n)
+	print("IO servers (pvfs):      ", " ".join(n))
 
     if True:
-	print "Clients:                ", " ".join(compnodes)
+	print("Clients:                ", " ".join(compnodes))
 
-    print "export PVFS2TAB_FILE=" + tabfile
+    print("export PVFS2TAB_FILE=" + tabfile)
 
 
 def stop():
@@ -753,8 +754,8 @@ def stop():
     	      fsconf, foptions]:
 	try:
 	    os.unlink(f)
-	except OSError,e:
-	    if e[0] == errno.ENOENT and f == fsconf and \
+	except OSError as e:
+	    if e.errno == errno.ENOENT and f == fsconf and \
 	       numion + nummeta == len(nodes):
 		# no compute nodes, data side of mirror case
 		pass
@@ -862,4 +863,3 @@ elif sys.argv[i] == "status":
     status()
 else:
     usage()
-

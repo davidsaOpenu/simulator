@@ -22,7 +22,7 @@ if "__main__" == __name__:
             raise RuntimeError("Failed to request file on initial request, expecting text/html received %s" % content_type)
 
         # Find confirm cookie
-        cookie = next((value for key, value in session.cookies.items() if key.startswith(GOOGLE_COOKIE_PREFIX)), None)
+        cookie = next((value for key, value in list(session.cookies.items()) if key.startswith(GOOGLE_COOKIE_PREFIX)), None)
         if not cookie:
             raise RuntimeError("Failed to find download cookie")
 
@@ -35,7 +35,7 @@ if "__main__" == __name__:
             raise RuntimeError("Failed to request file on second request, status code = %s" % download_request.status_code)
 
         # Stream into a file
-        print "Downloading image to %s" % sys.argv[1]
+        print("Downloading image to %s" % sys.argv[1])
         with open(sys.argv[1], "wb") as output:
             for chunk in download_request.iter_content(1024 * 1024):
                 output.write(chunk)

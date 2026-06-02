@@ -32,7 +32,7 @@ class NvmeDevice(object):
         self.device = device
         self.nvme_cli_dir = nvme_cli_dir
         subprocess.check_call([
-            './nvme', 'set-feature', self.device,
+            './nvme-cli/nvme', 'set-feature', self.device,
              "-f" , str(OBJ_FEATURE_ID), "--value=1"
         ], cwd=self.nvme_cli_dir)
         cols = open("cols", "w")
@@ -41,7 +41,7 @@ class NvmeDevice(object):
 
     def __del__(self):
         subprocess.check_call([
-            './nvme', 'set-feature', self.device,
+            './nvme-cli/nvme', 'set-feature', self.device,
              "-f" ,str(OBJ_FEATURE_ID), "--value=0",
         ], cwd=self.nvme_cli_dir)
 
@@ -54,7 +54,7 @@ class NvmeDevice(object):
         :param obj_id: String containing object id of the written object.
         """
         subprocess.check_call([
-            './nvme', 'objw', self.device,
+            './nvme-cli/nvme', 'objw', self.device,
              obj_id, "-offset", str(offset),
         ], cwd=self.nvme_cli_dir)
 
@@ -67,7 +67,7 @@ class NvmeDevice(object):
         """
         with open(obj_id, "rb") as dest:
             subprocess.check_call([
-                './nvme', 'objr', self.device,
+                './nvme-cli/nvme', 'objr', self.device,
                 obj_id,
             ], cwd=self.nvme_cli_dir)
             return dest.read()
@@ -79,7 +79,7 @@ class NvmeDevice(object):
         """
         with tempfile.NamedTemporaryFile(mode='rb') as dest:
             subprocess.check_call([
-            './nvme', 'objl', self.device,
+            './nvme-cli/nvme', 'objl', self.device,
         ], cwd=self.nvme_cli_dir, stdout=dest)
             dest.seek(0)
             return dest.read()
@@ -92,7 +92,7 @@ class NvmeDevice(object):
         :param obj_id: ID of object that will be deleted
         """
         subprocess.check_call([
-            './nvme', 'objd', self.device,
+            './nvme-cli/nvme', 'objd', self.device,
             obj_id,
         ], cwd=self.nvme_cli_dir)
 
@@ -103,7 +103,7 @@ class NvmeDevice(object):
         :param obj_id: ID checked for existence
         """
         subprocess.check_call([
-            './nvme', 'obje', self.device,
+            './nvme-cli/nvme', 'obje', self.device,
             obj_id,
         ], cwd=self.nvme_cli_dir)
 
@@ -124,8 +124,8 @@ class test_NvmeCli(object):
     OBJ_NAMES = []
 
     def test_delete(self):
-    	"""
-    	Test: Deleted objects can't be read
+        """
+        Test: Deleted objects can't be read
         The test writes an object then reads and deletes it, after deletion
         another read attempt is made testing for an exception to make sure
         a read on a deleted object causes an exception to occur.
@@ -137,10 +137,10 @@ class test_NvmeCli(object):
             self.device.objr(input)
             self.device.objd(input)
             try:
-            	self.device.objr(input)
+                self.device.objr(input)
             except:
                 print("objects_via_ioctl: test_delete finished successfully")
-            	return
+                return
             else:
                 raise Exception("No exception when trying to read deleted object")
 
@@ -156,7 +156,7 @@ class test_NvmeCli(object):
         after which it also verifies objl and obje work as expected
         """
         self.cleanup()
-        for oid in xrange(0, self.OBJECT_COUNT):
+        for oid in range(0, self.OBJECT_COUNT):
             size = random.randint(1, self.MAX_OBJECT_SIZE)
             with data(size) as input:
                 self.device.objw(input)
@@ -169,7 +169,7 @@ class test_NvmeCli(object):
         content = self.device.objl()
         lines = content.split('\n')
         assert len(lines) - 1 == self.OBJECT_COUNT # expected number of objects listed
-        for oid in xrange(0, self.OBJECT_COUNT):
+        for oid in range(0, self.OBJECT_COUNT):
             if lines[oid] != "":
                 self.device.obje(lines[oid]) # check that every listed object exists
         print("objects_via_ioctl: test_read finished successfully")
@@ -209,7 +209,7 @@ class test_NvmeCli(object):
 
 
     def test_overwrite(self):
-    	"""
+        """
         Test: Overwrite objects
         The test iterates over a specified count,
         creating temporary objects with random data of random size.
@@ -219,7 +219,7 @@ class test_NvmeCli(object):
         """
         return # Test is disabled
         self.cleanup()
-        for oid in xrange(0, self.OBJECT_COUNT):
+        for oid in range(0, self.OBJECT_COUNT):
             size = random.randint(1, self.MAX_OBJECT_SIZE) # size limited by qemu allocation, should revert to 1Mb after switch to vssim
             with data(size) as input:
                 self.device.objw(input) # object_id matches tmp file name
@@ -243,13 +243,13 @@ class test_NvmeCli(object):
 
 
     def cleanup(self):
-    	"""
-    	This helper function handles the deletion of a given list of objects
-    	to restore the device to its initial state between tests
-    	"""
-    	for obj in self.OBJ_NAMES:
-    	    self.device.objd(obj)
-    	self.OBJ_NAMES = []
+        """
+        This helper function handles the deletion of a given list of objects
+        to restore the device to its initial state between tests
+        """
+        for obj in self.OBJ_NAMES:
+            self.device.objd(obj)
+        self.OBJ_NAMES = []
 
 
     def align_size(self, size):
