@@ -45,7 +45,7 @@ namespace write_read_test
 
         virtual void TearDown()
         {
-            BaseTest::TearDown(false);
+            BaseTest::BaseTearDown(false);
             TERM_LOG_MANAGER(g_device_index);
             TERM_SSD_CONFIG();
         }

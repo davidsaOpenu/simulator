@@ -1,6 +1,11 @@
 #!/bin/bash
 source ./builder.sh
 
+version="${EVSSIM_QEMU_COMPILE_CONTAINER#ubuntu:}"
+export EVSSIM_DOCKER_IMAGE_NAME="$EVSSIM_DOCKER_IMAGE_NAME:$version"
+
+evssim_run_at_folder "$EVSSIM_SIMULATOR_FOLDER/eVSSIM/osc-osd" "make MK_PATH=. ARCH=x86_64 clean"
+
 # Configure qemu
 evssim_run_at_folder $EVSSIM_QEMU_FOLDER ./configure \
     --enable-trace-backends=log \
@@ -13,7 +18,7 @@ evssim_run_at_folder $EVSSIM_QEMU_FOLDER ./configure \
 
 # Make
 evssim_run_at_folder $EVSSIM_QEMU_FOLDER make clean
-evssim_run_at_folder $EVSSIM_QEMU_FOLDER bear -- make -j8
+evssim_run_at_folder $EVSSIM_QEMU_FOLDER bear -- make -j`nproc`
 
 # Build osc-osd
 evssim_run_at_folder "$EVSSIM_SIMULATOR_FOLDER/eVSSIM/osc-osd" "make MK_PATH=. ARCH=x86_64 clean && \

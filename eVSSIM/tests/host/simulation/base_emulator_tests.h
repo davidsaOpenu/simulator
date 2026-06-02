@@ -293,6 +293,7 @@ namespace {
     };
 
     /* override due to valgrind error and gtest using this operator<< */
+    [[maybe_unused]]
     ostream& operator<<(ostream& os, const SSDConf& value) {
         (void) value;
         return os;
@@ -339,7 +340,11 @@ namespace {
                 FTL_INIT(g_device_index);
             }
 
-            virtual void TearDown(bool term_ssd_conf=true) {
+            virtual void TearDown() override {
+                BaseTearDown(true);
+            }
+
+            virtual void BaseTearDown(bool term_ssd_conf=true) {
                 FTL_TERM(g_device_index);
                 SSD_CLEAR_TEST_CONTEXT();
                 if (term_ssd_conf)
