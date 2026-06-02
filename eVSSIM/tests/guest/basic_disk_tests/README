@@ -1,0 +1,5 @@
+# Basic Disk Tests
+
+This is an extremely basic test that the guest QEMU virtual machine has
+launched with the simulated nvme disks, checking if they are visible from
+inside the VM and checking that they can be read from and written to.
