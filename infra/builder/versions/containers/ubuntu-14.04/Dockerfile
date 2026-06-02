@@ -24,6 +24,7 @@ RUN apt-get update && DEBIAN_FRONTEND=noninteractive apt-get -y install \
   libvirt-bin \
   python-pip \
   python-setuptools \
+  python3-nose \
   libxml++2.6-dev \
   libboost-all-dev \
   eatmydata \

@@ -6,7 +6,7 @@ version="$1"
 
 exofs_test() {
     # Make a fresh copy
-    evssim_qemu_fresh_image "$version"
+    evssim_qemu_fresh_image
 
     # Run qemu with test specific configuration
     EVSSIM_RUNTIME_STORAGE_STRATEGY=2 EVSSIM_QEMU_SIMULATOR_ENABLED=yes evssim_qemu_detached "$version"

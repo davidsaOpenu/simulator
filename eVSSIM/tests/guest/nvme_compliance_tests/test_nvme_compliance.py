@@ -60,9 +60,9 @@ class TestNVMeCompliance:
                 print(cmd)
                 dump_file = open(dump_kernel, 'w')
                 proc = subprocess.Popen(["./log_kernel.sh"], stdout = dump_file)
-                print("START %d" % int(time.time()))
+                print("START", int(time.time()))
                 res = os.system(cmd)
-                print("STOP %d" % int(time.time()))
+                print("STOP", int(time.time()))
                 time.sleep(2)
                 proc.kill()
                 assert 0 == res, "Failed running suit %s" % suiteNum
@@ -72,7 +72,7 @@ class TestNVMeCompliance:
             if suiteNum not in skip_suits:
                 cmd = "./tnvme --rev=1.2 --test=%d --skiptest=skipTests > ./Logs/test%d.txt 2>&1" % (suiteNum, suiteNum)
                 print(cmd)
-                print("START %d" % int(time.time()))
+                print("START", int(time.time()))
                 res = os.system(cmd)
-                print("STOP %d" % int(time.time()))
+                print("STOP", int(time.time()))
                 assert 0 == res, "Failed running suit %s" % suiteNum

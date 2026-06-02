@@ -34,9 +34,8 @@ restore_logging_server() {
 trap "restore_logging_server" EXIT
 copy_logging_server $version
 
-# Build nvme
-evssim_run_at_folder "$version" $EVSSIM_NVME_CLI_FOLDER "make clean && make -j$(nproc) && cp nvme $EVSSIM_DOCKER_ROOT_PATH/$EVSSIM_DIST_FOLDER/nvme"
-
 # Build dnvme & tnvme
-evssim_run_at_folder "$version" $EVSSIM_NVME_COMPLIANCE_FOLDER "cd dnvme && make -j$(nproc) DIST=$EVSSIM_KERNEL_DIST KDIR=$EVSSIM_DOCKER_ROOT_PATH/$EVSSIM_DIST_FOLDER/kernel/lib/modules/$EVSSIM_KERNEL_DIST/build && cp dnvme.ko $EVSSIM_DOCKER_ROOT_PATH/$EVSSIM_DIST_FOLDER/dnvme.ko"
-evssim_run_at_folder "$version" $EVSSIM_NVME_COMPLIANCE_FOLDER "cd tnvme && make -j$(nproc) && cp tnvme $EVSSIM_DOCKER_ROOT_PATH/$EVSSIM_DIST_FOLDER/tnvme"
+# Disabled until dnvme & tnvme is ported to Kernel 7.0.2
+#kernelrelease=$(evssim_run_at_folder "$version" $EVSSIM_KERNEL_FOLDER "make -s kernelrelease" | tr -d '\r\n')
+#evssim_run_at_folder "$version" $EVSSIM_NVME_COMPLIANCE_FOLDER "cd dnvme && make -j$(nproc) DIST=$kernelrelease KDIR=$EVSSIM_DOCKER_ROOT_PATH/$EVSSIM_DIST_FOLDER/kernel/lib/modules/$kernelrelease/build && cp dnvme.ko $EVSSIM_DOCKER_ROOT_PATH/$EVSSIM_DIST_FOLDER/dnvme.ko"
+#evssim_run_at_folder "$version" $EVSSIM_NVME_COMPLIANCE_FOLDER "cd tnvme && make -j$(nproc) && cp tnvme $EVSSIM_DOCKER_ROOT_PATH/$EVSSIM_DIST_FOLDER/tnvme"
