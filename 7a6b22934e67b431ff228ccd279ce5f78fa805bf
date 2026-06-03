@@ -1,0 +1,225 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "ad5f51c3_02ddcc10",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 5
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 1039486
+      },
+      "writtenOn": "2026-06-03T13:43:52Z",
+      "side": 1,
+      "message": "very nice work! i think this change in the ssd.conf file make it much cleaner and scalable. i added a couple of small notes to fix.",
+      "revId": "7a6b22934e67b431ff228ccd279ce5f78fa805bf",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "badbf6b1_33ac3655",
+        "filename": "eVSSIM/CONFIG/vssim_config_manager.c",
+        "patchSetId": 5
+      },
+      "lineNbr": 13,
+      "author": {
+        "id": 1039486
+      },
+      "writtenOn": "2026-06-03T13:43:52Z",
+      "side": 1,
+      "message": "for now both old (flat NSxx and new ([nsxx]) namespace config loading are optional and they can be mix as override each other. i can assume this will be fixed in the future but for now in can create a bug",
+      "revId": "7a6b22934e67b431ff228ccd279ce5f78fa805bf",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "e0ad536c_21fdd31e",
+        "filename": "eVSSIM/CONFIG/vssim_config_manager.c",
+        "patchSetId": 5
+      },
+      "lineNbr": 91,
+      "author": {
+        "id": 1039486
+      },
+      "writtenOn": "2026-06-03T13:43:52Z",
+      "side": 1,
+      "message": "consider define ns_num in the beginning of the function like the othe variables and delete the block scope",
+      "revId": "7a6b22934e67b431ff228ccd279ce5f78fa805bf",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "cbac2015_818cb8db",
+        "filename": "eVSSIM/CONFIG/vssim_config_manager.c",
+        "patchSetId": 5
+      },
+      "lineNbr": 93,
+      "author": {
+        "id": 1039486
+      },
+      "writtenOn": "2026-06-03T13:43:52Z",
+      "side": 1,
+      "message": "this can cause a bug: if key\u003d[ns012], sscanf will return 1 and make ns_num\u003d1. also key\u003d[ns01aaa] will be valid. \nconsider using the following instead:\nchar dummy;\nif (sscanf(key, \"[ns%2u]%c\", \u0026ns_num, \u0026dummy) \u003d\u003d 2 \u0026\u0026 dummy \u003d\u003d \u0027]\u0027)",
+      "revId": "7a6b22934e67b431ff228ccd279ce5f78fa805bf",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "328b2bc0_11b08af3",
+        "filename": "eVSSIM/CONFIG/vssim_config_manager.c",
+        "patchSetId": 5
+      },
+      "lineNbr": 151,
+      "author": {
+        "id": 1039486
+      },
+      "writtenOn": "2026-06-03T13:43:52Z",
+      "side": 1,
+      "message": "consider move this to calculate_derived_values or creating a new function and call it in the same loop as calculate_derived_values",
+      "revId": "7a6b22934e67b431ff228ccd279ce5f78fa805bf",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "dc9f20cb_cf1a326e",
+        "filename": "eVSSIM/CONFIG/vssim_config_manager.c",
+        "patchSetId": 5
+      },
+      "lineNbr": 406,
+      "author": {
+        "id": 1039486
+      },
+      "writtenOn": "2026-06-03T13:43:52Z",
+      "side": 1,
+      "message": "what is the purpose of this? i can assume that this is only a mock and will be removed in the future",
+      "revId": "7a6b22934e67b431ff228ccd279ce5f78fa805bf",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "1ab1b741_54276849",
+        "filename": "eVSSIM/FTL_SOURCE/PAGE_MAP/ftl_sect_strategy.c",
+        "patchSetId": 5
+      },
+      "lineNbr": 152,
+      "author": {
+        "id": 1039486
+      },
+      "writtenOn": "2026-06-03T13:43:52Z",
+      "side": 1,
+      "message": "great fix!",
+      "revId": "7a6b22934e67b431ff228ccd279ce5f78fa805bf",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "ff9a1b3b_0c353c11",
+        "filename": "eVSSIM/tests/host/simulation/ssd_conf_tests.cc",
+        "patchSetId": 5
+      },
+      "lineNbr": 52,
+      "author": {
+        "id": 1039486
+      },
+      "writtenOn": "2026-06-03T13:43:52Z",
+      "side": 1,
+      "message": "consider inherit from BaseTest instead of testing:::Test, and use the same conventions as other tests",
+      "revId": "7a6b22934e67b431ff228ccd279ce5f78fa805bf",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "7161e5ae_7be29237",
+        "filename": "eVSSIM/tests/host/simulation/ssd_conf_tests.cc",
+        "patchSetId": 5
+      },
+      "lineNbr": 142,
+      "author": {
+        "id": 1039486
+      },
+      "writtenOn": "2026-06-03T13:43:52Z",
+      "side": 1,
+      "message": "what about all the other fields in the config?",
+      "revId": "7a6b22934e67b431ff228ccd279ce5f78fa805bf",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "6e24c3bb_f0617ab3",
+        "filename": "infra/builder/builder.sh",
+        "patchSetId": 5
+      },
+      "lineNbr": 415,
+      "author": {
+        "id": 1039486
+      },
+      "writtenOn": "2026-06-03T13:43:52Z",
+      "side": 1,
+      "message": "very good solution",
+      "revId": "7a6b22934e67b431ff228ccd279ce5f78fa805bf",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "8ba13e59_451c8d66",
+        "filename": "infra/builder/builder.sh",
+        "patchSetId": 5
+      },
+      "lineNbr": 421,
+      "author": {
+        "id": 1039486
+      },
+      "writtenOn": "2026-06-03T13:43:52Z",
+      "side": 1,
+      "message": "quote $ssh_base",
+      "revId": "7a6b22934e67b431ff228ccd279ce5f78fa805bf",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "14733992_9bd54329",
+        "filename": "infra/builder/docker-run-sanity.sh",
+        "patchSetId": 5
+      },
+      "lineNbr": 14,
+      "author": {
+        "id": 1039486
+      },
+      "writtenOn": "2026-06-03T13:43:52Z",
+      "side": 1,
+      "message": "consider adding wait_to_evssim_device() func like you did in evssim_wait_for_guest instead of just sleep",
+      "revId": "7a6b22934e67b431ff228ccd279ce5f78fa805bf",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "21452fee_07c52695",
+        "filename": "infra/builder/docker/ssd.conf.template",
+        "patchSetId": 5
+      },
+      "lineNbr": 78,
+      "author": {
+        "id": 1039486
+      },
+      "writtenOn": "2026-06-03T13:43:52Z",
+      "side": 1,
+      "message": "missing NAMESPACE_PAGE_NB",
+      "revId": "7a6b22934e67b431ff228ccd279ce5f78fa805bf",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
+    }
+  ]
+}
