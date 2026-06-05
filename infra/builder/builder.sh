@@ -162,8 +162,10 @@ for line in lines:
 def g(device_data, name):
     return int(device_data.get(name, 0))
 
-# Calculate sizes for all devices
+# Calculate sizes for nvme devices only (skip namespace sections like [ns01])
 for device_name in sorted(devices.keys()):
+    if not device_name.startswith('nvme'):
+        continue
     device_data = devices[device_name]
     size = g(device_data, "FLASH_NB") * g(device_data, "BLOCK_NB") * g(device_data, "PAGE_NB") * g(device_data, "PAGE_SIZE")
     size -= g(device_data, "PAGE_NB") * g(device_data, "PAGE_SIZE") # GC reserved pages
@@ -181,7 +183,7 @@ import sys
 count = 0
 for line in sys.stdin.readlines():
     line = line.strip()
-    if line.startswith('[') and line.endswith(']'):
+    if line.startswith('[nvme') and line.endswith(']'):
         count += 1
 print(count)
 PYTHON
@@ -406,6 +408,47 @@ evssim_copy_tools () {
     evssim_run_mounted "cp -r $EVSSIM_DOCKER_ROOT_PATH/$EVSSIM_DIST_FOLDER/exofs ."
 
     evssim_run_mounted sudo rsync -qrptgo $EVSSIM_DOCKER_ROOT_PATH/$EVSSIM_DIST_FOLDER/kernel/lib/ $EVSSIM_GUEST_MOUNT_POINT/lib/
+}
+
+# Wait for the QEMU VM to become reachable via SSH.
+# Polls every 5 seconds up to max_wait seconds (default 300).
+# Parameters - [max_wait]
+evssim_wait_for_guest () {
+    local max_wait=${1:-300}
+    local interval=5
+    local elapsed=0
+    local ssh_base=(-q -o BatchMode=yes -o ConnectTimeout=3 -o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no -o PasswordAuthentication=no -o PubkeyAcceptedKeyTypes=+ssh-rsa -i "$EVSSIM_ROOT_PATH/$EVSSIM_BUILDER_FOLDER/docker/id_rsa" -p 2222)
+    echo "INFO Waiting for VM to boot (up to ${max_wait}s)..."
+    while ! ssh "${ssh_base[@]}" "$EVSSIM_QEMU_UBUNTU_USERNAME@localhost" /bin/true 2>/dev/null; do
+        elapsed=$((elapsed + interval))
+        if [ $elapsed -ge $max_wait ]; then
+            echo "ERROR VM SSH not available after ${max_wait}s"
+            return 1
+        fi
+        sleep $interval
+    done
+    echo "INFO VM SSH ready after ${elapsed}s"
+}
+
+# Wait for an NVMe device to appear inside the running guest VM.
+# Polls every 2 seconds up to max_wait seconds (default 60).
+# Assumes the guest is already reachable (call evssim_wait_for_guest first).
+# Parameters - [device] [max_wait]
+evssim_wait_for_device () {
+    local device=${1:-/dev/nvme0n1}
+    local max_wait=${2:-60}
+    local interval=2
+    local elapsed=0
+    echo "INFO Waiting for NVMe device $device (up to ${max_wait}s)..."
+    while ! evssim_guest ls -al "$device" 2>/dev/null >/dev/null; do
+        elapsed=$((elapsed + interval))
+        if [ $elapsed -ge $max_wait ]; then
+            echo "ERROR NVMe device $device not available after ${max_wait}s"
+            return 1
+        fi
+        sleep $interval
+    done
+    echo "INFO NVMe device $device ready after ${elapsed}s"
 }
 
 # Execute guest command inside running QEMU virtual machine.
