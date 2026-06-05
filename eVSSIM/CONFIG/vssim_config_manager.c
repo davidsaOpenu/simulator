@@ -17,8 +17,10 @@
 ssd_config_t* devices = NULL;
 uint8_t device_count = 0;
 
-void calculate_derived_values(ssd_config_t *device);
+bool calculate_derived_values(ssd_config_t *device);
+bool validate_namespace_capacity(ssd_config_t *device);
 bool parse_config_line(const char* key, FILE* file, ssd_config_t* device);
+bool parse_ns_config_line(const char* key, FILE* file, ssd_config_t* device, int ns_idx);
 void update_globals(void);
 
 void INIT_SSD_CONFIG(void)
@@ -32,9 +34,13 @@ void INIT_SSD_CONFIG(void)
 
     char key[64];
     uint8_t device_index = 0;
-
+    int current_ns_index = -1;
+    uint32_t ns_num = 0;
+    int ns_key_len = 0;
     uint32_t i = 0;
     ssd_config_t *current_device = NULL;
+    bool used_new_ns_format = false;  /* true once any [nsXX] section is seen */
+    bool used_old_ns_format = false;  /* true once any flat NSxx key is seen */
 
     while (fscanf(pfData, "%63s", key) != EOF) {
 
@@ -60,6 +66,7 @@ void INIT_SSD_CONFIG(void)
 
             // Set the current dev index.
             device_index = disk_num - 1;
+            current_ns_index = -1;
 
             // Create data directory for the device
             char* dirname = GET_DATA_FILENAME(device_index, "");
@@ -85,8 +92,27 @@ void INIT_SSD_CONFIG(void)
             continue;
         }
 
+        ns_num = 0;
+        ns_key_len = 0;
+        if (sscanf(key, "[ns%2u]%n", &ns_num, &ns_key_len) == 1 && ns_key_len > 0 && key[ns_key_len] == '\0') {
+            if (ns_num == 0 || ns_num > MAX_NUMBER_OF_NAMESPACES)
+                RERR(, "Invalid namespace number %u\n", ns_num);
+            if (used_old_ns_format)
+                RERR(, "Cannot mix old flat NSxx and new [nsXX] namespace formats in the same config\n");
+            used_new_ns_format = true;
+            current_ns_index = (int)(ns_num - 1);
+            continue;
+        }
+
         if (current_device == NULL) {
             RERR(, "Configuration parameter found before device header: %s\n", key);
+        }
+
+        if (current_ns_index >= 0) {
+            if (!parse_ns_config_line(key, pfData, current_device, current_ns_index)) {
+                RERR(, "Unknown namespace configuration option: %s\n", key);
+            }
+            continue;
         }
 
         if (strcmp(key, "STAT_PATH") == 0){
@@ -104,6 +130,9 @@ void INIT_SSD_CONFIG(void)
         if (sscanf(key, "NS%2u", &i) == 1){
             if (i > MAX_NUMBER_OF_NAMESPACES || i <= 0)
                 RERR(, "Invalid namespaces index\n");
+            if (used_new_ns_format)
+                RERR(, "Cannot mix old flat NSxx and new [nsXX] namespace formats in the same config\n");
+            used_old_ns_format = true;
 
             if (fscanf(pfData, "%" SCNu64, &current_device->namespaces_size[i-1]) == EOF){
                 RERR(, "Can't read %s\n", key);
@@ -124,7 +153,12 @@ void INIT_SSD_CONFIG(void)
     // Finalize the devices
     for (i = 0; i < device_count; i++)
     {
-        calculate_derived_values(&devices[i]);
+        if (!calculate_derived_values(&devices[i])) {
+            free(devices);
+            devices = NULL;
+            device_count = 0;
+            return;
+        }
     }
 
     g_device_locks = (pthread_mutex_t*)calloc(sizeof(pthread_mutex_t) * device_count, 1);
@@ -358,6 +392,29 @@ bool parse_config_line(const char* key, FILE* file, ssd_config_t* device) {
     return false; // Unknown key
 }
 
+bool parse_ns_config_line(const char* key, FILE* file, ssd_config_t* device, int ns_idx) {
+    if (strcmp(key, "STORAGE_STRATEGY") == 0) {
+        if (fscanf(file, "%d", &device->ns_storage_strategy[ns_idx]) != 1) return false;
+        // Propagate object strategy to the device level so the FTL selects the
+        // correct code path. This is a temporary shim: once the FTL supports
+        // per-namespace strategy selection, device->storage_strategy should be
+        // derived only from device-level config, not from individual namespaces.
+        if (device->ns_storage_strategy[ns_idx] == STRATEGY_OBJECT)
+            device->storage_strategy = STRATEGY_OBJECT;
+        return true;
+    }
+    if (strcmp(key, "NAMESPACE_PAGE_NB") == 0)
+        return fscanf(file, "%" SCNu64, &device->ns_namespace_page_nb[ns_idx]) == 1;
+    if (strcmp(key, "SIZE") == 0)
+        return fscanf(file, "%" SCNu64, &device->namespaces_size[ns_idx]) == 1;
+    if (strcmp(key, "OBJECT_KEY_SIZE") == 0)
+        return fscanf(file, "%" SCNu64, &device->ns_object_key_size[ns_idx]) == 1;
+    if (strcmp(key, "OBJECT_MAX_VALUE_SIZE") == 0)
+        return fscanf(file, "%" SCNu64, &device->ns_object_max_value_size[ns_idx]) == 1;
+    if (strcmp(key, "OBJECT_MAX_CAPACITY") == 0)
+        return fscanf(file, "%" SCNu64, &device->ns_object_max_capacity[ns_idx]) == 1;
+    return false;
+}
 
 char* GET_FILE_NAME(uint8_t device_index){
 	return devices[device_index].file_name;
@@ -408,12 +465,33 @@ ssd_config_t* GET_DEVICES(void){
     return devices;
 }
 
-void calculate_derived_values(ssd_config_t* device) {
+bool validate_namespace_capacity(ssd_config_t *device) {
+    uint64_t disk_bytes = (uint64_t)device->page_size * device->page_nb
+                          * device->block_nb * device->flash_nb;
+    uint64_t ns_total = 0;
+    uint32_t j;
+    for (j = 0; j < MAX_NUMBER_OF_NAMESPACES; j++)
+        ns_total += device->namespaces_size[j];
+    if (ns_total == 0)
+        return true;
+    if (ns_total > disk_bytes) {
+        PERR("Device %s: namespace total %" PRIu64 " bytes exceeds disk capacity %" PRIu64 " bytes\n",
+             device->device_name, ns_total, disk_bytes);
+        return false;
+    }
+    if (ns_total < disk_bytes)
+        PERR("WARNING: Device %s: namespaces use %" PRIu64 " of %" PRIu64 " bytes (%.1f%% utilized)\n",
+             device->device_name, ns_total, disk_bytes,
+             100.0 * (double)ns_total / (double)disk_bytes);
+    return true;
+}
+
+bool calculate_derived_values(ssd_config_t* device) {
     // Exception Handler
     if (device->flash_nb < device->channel_nb)
-        RERR(, "Wrong CHANNEL_NB %d\n", device->channel_nb);
+        RERR(false, "Wrong CHANNEL_NB %d\n", device->channel_nb);
     if (device->planes_per_flash != 1 && device->planes_per_flash % 2 != 0)
-        RERR(, "Wrong PLANES_PER_FLASH %d\n", device->planes_per_flash);
+        RERR(false, "Wrong PLANES_PER_FLASH %d\n", device->planes_per_flash);
 
     // Calculate derived values
     device->sectors_per_page = device->page_size / device->sector_size;
@@ -450,6 +528,9 @@ void calculate_derived_values(ssd_config_t* device) {
     if (device->onfi_manager_threads <= 0) {
         device->onfi_manager_threads = 1;
     }
+    // Validate that the namespaces fit within the device capacity (errors on
+    // overfit, warns on underfit) as part of finalizing the device.
+    return validate_namespace_capacity(device);
 }
 
 char* GET_DATA_FILENAME(uint8_t device_index, const char* filename) {
