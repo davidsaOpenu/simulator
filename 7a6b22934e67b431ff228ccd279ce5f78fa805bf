@@ -1,6 +1,29 @@
 {
   "comments": [
     {
+      "unresolved": true,
+      "key": {
+        "uuid": "110a5317_741c96a7",
+        "filename": "/COMMIT_MSG",
+        "patchSetId": 5
+      },
+      "lineNbr": 1,
+      "author": {
+        "id": 1039371
+      },
+      "writtenOn": "2026-06-05T07:57:28Z",
+      "side": 1,
+      "message": "This is no longer the latest commit.",
+      "range": {
+        "startLine": 1,
+        "startChar": 0,
+        "endLine": 1,
+        "endChar": 59
+      },
+      "revId": "7a6b22934e67b431ff228ccd279ce5f78fa805bf",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
+    },
+    {
       "unresolved": false,
       "key": {
         "uuid": "ad5f51c3_02ddcc10",
@@ -14,6 +37,23 @@
       "writtenOn": "2026-06-03T13:43:52Z",
       "side": 1,
       "message": "very nice work! i think this change in the ssd.conf file make it much cleaner and scalable. i added a couple of small notes to fix.",
+      "revId": "7a6b22934e67b431ff228ccd279ce5f78fa805bf",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "f617903f_bc16d0b9",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 5
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 1039371
+      },
+      "writtenOn": "2026-06-05T07:57:28Z",
+      "side": 1,
+      "message": "Not much to add on top of Yoav\u0027s review.",
       "revId": "7a6b22934e67b431ff228ccd279ce5f78fa805bf",
       "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
     },
@@ -173,6 +213,29 @@
     {
       "unresolved": true,
       "key": {
+        "uuid": "e2a80db7_55c1f726",
+        "filename": "infra/builder/builder.sh",
+        "patchSetId": 5
+      },
+      "lineNbr": 419,
+      "author": {
+        "id": 1039371
+      },
+      "writtenOn": "2026-06-05T07:57:28Z",
+      "side": 1,
+      "message": "Quote this - if the path happens to have folders with spaces in the name, it will be treated as two(or more) different arguments.",
+      "range": {
+        "startLine": 419,
+        "startChar": 187,
+        "endLine": 419,
+        "endChar": 241
+      },
+      "revId": "7a6b22934e67b431ff228ccd279ce5f78fa805bf",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
+    },
+    {
+      "unresolved": true,
+      "key": {
         "uuid": "8ba13e59_451c8d66",
         "filename": "infra/builder/builder.sh",
         "patchSetId": 5
@@ -201,6 +264,23 @@
       "writtenOn": "2026-06-03T13:43:52Z",
       "side": 1,
       "message": "consider adding wait_to_evssim_device() func like you did in evssim_wait_for_guest instead of just sleep",
+      "revId": "7a6b22934e67b431ff228ccd279ce5f78fa805bf",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "174ae0ad_b8d5e0ca",
+        "filename": "infra/builder/docker-run-sanity.sh",
+        "patchSetId": 5
+      },
+      "lineNbr": 14,
+      "author": {
+        "id": 1039371
+      },
+      "writtenOn": "2026-06-05T07:57:28Z",
+      "side": 1,
+      "message": "This line should stay commented out as this is not required on all machines. Only some machines fail without the sleep.",
       "revId": "7a6b22934e67b431ff228ccd279ce5f78fa805bf",
       "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
     },
