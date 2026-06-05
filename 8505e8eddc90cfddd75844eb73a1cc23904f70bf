@@ -49,6 +49,30 @@
     {
       "unresolved": true,
       "key": {
+        "uuid": "0c4203f8_432d2a3e",
+        "filename": "infra/builder/compile-qemu.sh",
+        "patchSetId": 8
+      },
+      "lineNbr": 23,
+      "author": {
+        "id": 1039517
+      },
+      "writtenOn": "2026-06-05T08:41:37Z",
+      "side": 1,
+      "message": "I agree, it\u0027s clearer to state it",
+      "parentUuid": "7775d0fb_8d3831c2",
+      "range": {
+        "startLine": 17,
+        "startChar": 0,
+        "endLine": 23,
+        "endChar": 4
+      },
+      "revId": "8505e8eddc90cfddd75844eb73a1cc23904f70bf",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
+    },
+    {
+      "unresolved": true,
+      "key": {
         "uuid": "4fa7b690_889b166c",
         "filename": "infra/builder/compile-qemu.sh",
         "patchSetId": 8
@@ -95,6 +119,30 @@
     {
       "unresolved": true,
       "key": {
+        "uuid": "756dcf0e_5194567e",
+        "filename": "infra/builder/compile-qemu.sh",
+        "patchSetId": 8
+      },
+      "lineNbr": 56,
+      "author": {
+        "id": 1039517
+      },
+      "writtenOn": "2026-06-05T08:41:37Z",
+      "side": 1,
+      "message": "Good catch, I\u0027ll test the changes and reply\n-j8 is a flag that was set prior to this change",
+      "parentUuid": "b9a7d8d4_58448654",
+      "range": {
+        "startLine": 56,
+        "startChar": 54,
+        "endLine": 56,
+        "endChar": 57
+      },
+      "revId": "8505e8eddc90cfddd75844eb73a1cc23904f70bf",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
+    },
+    {
+      "unresolved": true,
+      "key": {
         "uuid": "e02f6570_38ca5e01",
         "filename": "infra/builder/run-ci.sh",
         "patchSetId": 8
@@ -106,6 +154,24 @@
       "writtenOn": "2026-06-05T07:25:37Z",
       "side": 1,
       "message": "Wouldn\u0027t that mean that qemu stays in the old version?\n(As `./compile-qemu.sh 14.04` would overwrite the compiled version of 11.0 from `./compile-qemu.sh 26.04`)",
+      "revId": "8505e8eddc90cfddd75844eb73a1cc23904f70bf",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "6ded28b7_2fb1e195",
+        "filename": "infra/builder/run-ci.sh",
+        "patchSetId": 8
+      },
+      "lineNbr": 39,
+      "author": {
+        "id": 1039517
+      },
+      "writtenOn": "2026-06-05T08:41:37Z",
+      "side": 1,
+      "message": "Yes.\nThe current scope of the task requires just the build \u0026 compilation of the respective images.\nThe tests are expected to use 14.04 for maman 11.\nIf we\u0027d want to run tests for multiple versions, then we have a few options that I can think of right now.\n1. compile qemu into different directories (or even local branches \u0026 make sure we are running the tests on the correct local branch)\n2. run the compilation of version X and test, then compile version Y and test - I believe this requires a little more cleanups.",
+      "parentUuid": "e02f6570_38ca5e01",
       "revId": "8505e8eddc90cfddd75844eb73a1cc23904f70bf",
       "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
     }
