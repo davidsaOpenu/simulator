@@ -1,0 +1,44 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "29e32c27_f30d77db",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 8
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 1039371
+      },
+      "writtenOn": "2026-06-05T08:11:31Z",
+      "side": 1,
+      "message": "LGTM, just the ID\u003d1 fix.",
+      "revId": "e7bd008a44151950291fc774edd215075c77e98d",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "26ea587e_5e4f79f9",
+        "filename": "infra/builder/versions/configs.json",
+        "patchSetId": 8
+      },
+      "lineNbr": 12,
+      "author": {
+        "id": 1039371
+      },
+      "writtenOn": "2026-06-05T08:11:31Z",
+      "side": 1,
+      "message": "Should be `7.0.1` here.\n(ID 1 is the final 26.04 configuration after all mamans are done)",
+      "range": {
+        "startLine": 12,
+        "startChar": 8,
+        "endLine": 12,
+        "endChar": 26
+      },
+      "revId": "e7bd008a44151950291fc774edd215075c77e98d",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
+    }
+  ]
+}
