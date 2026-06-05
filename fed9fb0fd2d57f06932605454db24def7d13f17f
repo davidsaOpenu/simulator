@@ -102,6 +102,24 @@
       "message": "We might have a dangling pointer with how BaseTest is using GetParam() at SetUp, creating an issue when each TEST_P is deleting ssd_config at teardown, but subsequent TEST_P is using the same pointer.\nI will test it on my machine in a bit, and resolve it with another comment if it is okay.",
       "revId": "fed9fb0fd2d57f06932605454db24def7d13f17f",
       "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "8bcf153f_e5f39284",
+        "filename": "eVSSIM/tests/host/simulation/ssd_conf_tests.cc",
+        "patchSetId": 8
+      },
+      "lineNbr": 27,
+      "author": {
+        "id": 1039517
+      },
+      "writtenOn": "2026-06-05T13:49:42Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "10e87264_e77d7bb4",
+      "revId": "fed9fb0fd2d57f06932605454db24def7d13f17f",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
     }
   ]
 }
