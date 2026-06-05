@@ -41,7 +41,9 @@ static void *GC_BACKGROUND_LOOP(void *arg) {
         } else if (total_zero_page_nb >= devices[device_index].gc_hi_thr_page_nb) {
             ts.tv_sec += devices[device_index].gc_hi_thr_interval_sec;
         } else {
-            pthread_cond_wait(&gc_thread->gc_signal_cond, device_lock);
+            while (!gc_thread->gc_stop_flag) {
+                pthread_cond_wait(&gc_thread->gc_signal_cond, device_lock);
+            }
             // gc_stop_flag must be rechecked immediately
             continue;
         }
