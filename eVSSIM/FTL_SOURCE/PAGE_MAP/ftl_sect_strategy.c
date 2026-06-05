@@ -361,20 +361,21 @@ ftl_ret_val _FTL_COPYBACK(uint8_t device_index, uint64_t source, uint64_t destin
 	uint64_t lpn; //The logical page address, the page that being moved.
 	unsigned int ret = FTL_FAILURE;
 
-	//Handle copyback delays
+	//Handle copyback delays — must hold the lock (updates ssds_manager timing state)
 	ret = SSD_PAGE_COPYBACK(device_index, source, destination, type);
-
-    // actual page swap, go korea
-    /*SSD_PAGE_READ(CALC_FLASH(source), CALC_BLOCK(source), CALC_PAGE(source), 0, GC_READ);
-    SSD_PAGE_WRITE(CALC_FLASH(destination), CALC_BLOCK(destination), CALC_PAGE(destination), 0, GC_WRITE);
-    lpn = GET_INVERSE_MAPPING_INFO(source);
-    UPDATE_NEW_PAGE_MAPPING(lpn, destination);*/
-
 
 	if (ret == FTL_FAILURE)
         RDBG_FTL(FTL_FAILURE, "%u page copyback fail \n", source);
 
-	// Actual page copy
+	// Snapshot the LPN before releasing the lock so we can validate it afterward.
+	GET_INVERSE_MAPPING_INFO(device_index, source, &lpn);
+
+	// File I/O is the bottleneck: release the lock so the QEMU event loop can
+	// post NVMe completions for other in-flight commands while we copy the page.
+	// The destination physical page is already allocated (GET_NEW_PAGE above),
+	// so no concurrent write will touch it.
+	UNLOCK_DEVICE(device_index);
+
 	unsigned char buff[GET_PAGE_SIZE(device_index)];
 	// If ssd_read failed - this is because we don't call _FTL_CREATE to create the ssd.img.
 	// In this case we don't do anything - this is like happen before this change when the ssd.img was not used in the simulation.
@@ -385,14 +386,20 @@ ftl_ret_val _FTL_COPYBACK(uint8_t device_index, uint64_t source, uint64_t destin
 		}
 	}
 
-	//Handle page map
-	GET_INVERSE_MAPPING_INFO(device_index, source, &lpn);
+	LOCK_DEVICE(device_index);
 
 	if (lpn != MAPPING_TABLE_INIT_VAL)
 	{
-		// The given physical page is being map, the mapping information need to be changed,
-		UPDATE_OLD_PAGE_MAPPING(device_index, lpn); //as far as I can tell when being called under the gc manage all the actions are being done, but what if will be called from another place?
-		UPDATE_NEW_PAGE_MAPPING(device_index, lpn, destination);
+		// Re-verify the source page still maps to the same LPN. If a write came
+		// in while the lock was released, UPDATE_OLD_PAGE_MAPPING would have
+		// cleared the inverse mapping for source — in that case skip the update
+		// to avoid pointing lpn at stale GC data instead of the fresh write.
+		uint64_t current_lpn;
+		GET_INVERSE_MAPPING_INFO(device_index, source, &current_lpn);
+		if (current_lpn == lpn) {
+			UPDATE_OLD_PAGE_MAPPING(device_index, lpn);
+			UPDATE_NEW_PAGE_MAPPING(device_index, lpn, destination);
+		}
 	}
 
 	return ret;
