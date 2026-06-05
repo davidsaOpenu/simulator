@@ -18,6 +18,46 @@
       "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "27523288_5cec58c1",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 7
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 1039371
+      },
+      "writtenOn": "2026-06-05T07:05:37Z",
+      "side": 1,
+      "message": "LGTM,\nLeft a small suggestion",
+      "revId": "ccb25f7c4b89ddf46054ee58c6e5d03497e7ebb4",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "cdb6c50f_04f2cbed",
+        "filename": "infra/builder/env.sh",
+        "patchSetId": 7
+      },
+      "lineNbr": 52,
+      "author": {
+        "id": 1039371
+      },
+      "writtenOn": "2026-06-05T07:05:37Z",
+      "side": 1,
+      "message": "This looks like a very convoluted way to test the kernel version. Consider using the configurations from configs.json\n\nFor example, you can add a new \"dist\" value under \"kernel\" configuration with a `7.0.1` value for your id, and `5.0.0` value for the other ids, and have the new variable  replace this one.\n\n(To add the value you need to edit `load_configs.sh`, at the end of the function `load_config()` there is a `load_config_section` for each of the sections with a list of values at the end, and add to it the name of the value you add to `configs.json`)",
+      "range": {
+        "startLine": 51,
+        "startChar": 0,
+        "endLine": 52,
+        "endChar": 51
+      },
+      "revId": "ccb25f7c4b89ddf46054ee58c6e5d03497e7ebb4",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "f5e04a00_ab2ae0c5",
