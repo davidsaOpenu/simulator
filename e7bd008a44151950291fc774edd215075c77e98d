@@ -39,6 +39,30 @@
       },
       "revId": "e7bd008a44151950291fc774edd215075c77e98d",
       "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "eafd509c_d15d18b5",
+        "filename": "infra/builder/versions/configs.json",
+        "patchSetId": 8
+      },
+      "lineNbr": 12,
+      "author": {
+        "id": 1039461
+      },
+      "writtenOn": "2026-06-05T08:34:01Z",
+      "side": 1,
+      "message": "Nice catch! I think it\u0027s supposed to be 7.0.2 so Ill change it accordingly.",
+      "parentUuid": "26ea587e_5e4f79f9",
+      "range": {
+        "startLine": 12,
+        "startChar": 8,
+        "endLine": 12,
+        "endChar": 26
+      },
+      "revId": "e7bd008a44151950291fc774edd215075c77e98d",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
     }
   ]
 }
