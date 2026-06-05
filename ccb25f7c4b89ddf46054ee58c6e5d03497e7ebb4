@@ -58,6 +58,30 @@
       "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "fb209b73_2bbe0f6c",
+        "filename": "infra/builder/env.sh",
+        "patchSetId": 7
+      },
+      "lineNbr": 52,
+      "author": {
+        "id": 1039461
+      },
+      "writtenOn": "2026-06-05T07:57:41Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "cdb6c50f_04f2cbed",
+      "range": {
+        "startLine": 51,
+        "startChar": 0,
+        "endLine": 52,
+        "endChar": 51
+      },
+      "revId": "ccb25f7c4b89ddf46054ee58c6e5d03497e7ebb4",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "f5e04a00_ab2ae0c5",
@@ -75,6 +99,24 @@
       "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "6ff11fff_41ccaba9",
+        "filename": "infra/builder/versions/kernel/5.0.0/build_env.sh",
+        "patchSetId": 7
+      },
+      "lineNbr": 4,
+      "author": {
+        "id": 1039461
+      },
+      "writtenOn": "2026-06-05T07:57:41Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "f5e04a00_ab2ae0c5",
+      "revId": "ccb25f7c4b89ddf46054ee58c6e5d03497e7ebb4",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "79244030_866a7570",
@@ -88,6 +130,24 @@
       "writtenOn": "2026-05-30T15:10:13Z",
       "side": 1,
       "message": "can you remove this line?",
+      "revId": "ccb25f7c4b89ddf46054ee58c6e5d03497e7ebb4",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "db0a1657_2585444c",
+        "filename": "infra/builder/versions/kernel/7.0.2/build_env.sh",
+        "patchSetId": 7
+      },
+      "lineNbr": 4,
+      "author": {
+        "id": 1039461
+      },
+      "writtenOn": "2026-06-05T07:57:41Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "79244030_866a7570",
       "revId": "ccb25f7c4b89ddf46054ee58c6e5d03497e7ebb4",
       "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
     }
