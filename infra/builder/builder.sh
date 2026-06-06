@@ -124,10 +124,76 @@ evssim_guest_ssh_args() {
 }
 
 # Configure docker use of tty if one is available
+docker_extra_stdin=""
 docker_extra_tty=""
 if [ -t 0 ]; then
+    docker_extra_stdin=-i
     docker_extra_tty=-t
 fi
+
+evssim_docker_exit_code=0
+
+evssim_wait_for_docker_container () {
+    local docker_id=$1
+    local state
+    local is_running
+    local exit_code
+
+    while true; do
+        if ! state=$(docker inspect --format '{{.State.Running}} {{.State.ExitCode}}' "$docker_id" 2>/dev/null); then
+            echo "ERROR Failed to inspect docker container $docker_id"
+            return 1
+        fi
+
+        read -r is_running exit_code <<< "$state"
+        if [[ "$is_running" == "false" ]]; then
+            evssim_docker_exit_code=$exit_code
+            return 0
+        fi
+
+        if ! docker exec "$docker_id" true >/dev/null 2>&1; then
+            echo "WARNING Docker helper container $docker_id entered a stale running state; forcing cleanup"
+            evssim_docker_exit_code=$exit_code
+            return 0
+        fi
+
+        sleep 1
+    done
+}
+
+evssim_run_docker () {
+    local docker_args=("$@")
+
+    if [ -t 0 ]; then
+        docker run --rm "${docker_args[@]}"
+        return
+    fi
+
+    local docker_id
+    local docker_logs_pid
+    local wait_rc
+    local exit_code
+
+    docker_id=$(docker run -d "${docker_args[@]}")
+    docker logs -f "$docker_id" &
+    docker_logs_pid=$!
+
+    set +e
+    evssim_wait_for_docker_container "$docker_id"
+    wait_rc=$?
+    exit_code=$evssim_docker_exit_code
+    set -e
+
+    kill "$docker_logs_pid" >/dev/null 2>&1 || true
+    wait "$docker_logs_pid" >/dev/null 2>&1 || true
+    docker rm -f "$docker_id" >/dev/null 2>&1 || true
+
+    if [ $wait_rc -ne 0 ]; then
+        return $wait_rc
+    fi
+
+    return $exit_code
+}
 
 # Change to project root
 cd "$EVSSIM_ROOT_PATH"
@@ -166,7 +232,7 @@ evssim_run_at_path () {
     local docker_network_args=()
 
     read -r -a docker_network_args <<< "$(evssim_docker_network_args)"
-    docker run --rm -i $docker_extra_tty $EVSSIM_DOCKER_XOPTIONS "${docker_network_args[@]}" --privileged --env-file <(evssim_all_env) -v $EVSSIM_ROOT_PATH:$EVSSIM_DOCKER_ROOT_PATH $EVSSIM_DOCKER_IMAGE_NAME bash -c "cd $path; $args"
+    evssim_run_docker $docker_extra_stdin $docker_extra_tty $EVSSIM_DOCKER_XOPTIONS "${docker_network_args[@]}" --privileged --env-file <(evssim_all_env) -v $EVSSIM_ROOT_PATH:$EVSSIM_DOCKER_ROOT_PATH $EVSSIM_DOCKER_IMAGE_NAME bash -c "cd $path; $args"
 }
 
 # Run
@@ -388,7 +454,7 @@ evssim_qemu () {
 
     case "$attached" in
         attached)
-            docker run --rm -i $docker_extra_tty "${qemu_network_args[@]}" $EVSSIM_DOCKER_XOPTIONS --privileged --env-file <(evssim_all_env) -v $EVSSIM_ROOT_PATH/$EVSSIM_DATA_FOLDER:$EVSSIM_DOCKER_ROOT_PATH/$EVSSIM_QEMU_FOLDER/hw/data -v $EVSSIM_ROOT_PATH:$EVSSIM_DOCKER_ROOT_PATH $EVSSIM_DOCKER_IMAGE_NAME bash -c "$args"
+            docker run --rm $docker_extra_stdin $docker_extra_tty "${qemu_network_args[@]}" $EVSSIM_DOCKER_XOPTIONS --privileged --env-file <(evssim_all_env) -v $EVSSIM_ROOT_PATH/$EVSSIM_DATA_FOLDER:$EVSSIM_DOCKER_ROOT_PATH/$EVSSIM_QEMU_FOLDER/hw/data -v $EVSSIM_ROOT_PATH:$EVSSIM_DOCKER_ROOT_PATH $EVSSIM_DOCKER_IMAGE_NAME bash -c "$args"
             ;;
         *)
             export EVSSIM_DOCKER_UUID=$(docker run --rm -d "${qemu_network_args[@]}" $EVSSIM_DOCKER_XOPTIONS --privileged --env-file <(evssim_all_env) -v $EVSSIM_ROOT_PATH/$EVSSIM_DATA_FOLDER:$EVSSIM_DOCKER_ROOT_PATH/$EVSSIM_QEMU_FOLDER/hw/data -v $EVSSIM_ROOT_PATH:$EVSSIM_DOCKER_ROOT_PATH $EVSSIM_DOCKER_IMAGE_NAME bash -c "$args")

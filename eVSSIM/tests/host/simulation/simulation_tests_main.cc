@@ -20,31 +20,37 @@ int main(int argc, char **argv) {
             g_server_mode = true;
         }
         else if (strcmp(argv[i], "--sector-tests") == 0) {
-            tests_filter = "*SectorUnitTest*";
+            tests_filter = "DiskSize/SectorUnitTest.*";
         }
         else if (strcmp(argv[i], "--object-tests") == 0) {
-            tests_filter = "*ObjectUnitTest*";
+            tests_filter = "DiskSize/ObjectUnitTest.*";
         }
         else if (strcmp(argv[i], "--log-mgr-tests") == 0) {
-            tests_filter = "*LogMgrUnitTest*";
+            tests_filter = "LoggerSize/LogMgrUnitTest.*";
         }
         else if (strcmp(argv[i], "--ssd-io-emulator-tests") == 0) {
-            tests_filter = "*SSDIoEmulatorUnitTest*";
+            tests_filter = "DiskSize/SSDIoEmulatorUnitTest.*";
         }
         else if (strcmp(argv[i], "--offline_logger_tests") == 0) {
-            tests_filter = "*OfflineLoggerTest*";
+            tests_filter = "DiskSize/OfflineLoggerTest.*";
         }
         else if (strcmp(argv[i], "--ssd_write_read_test") == 0) {
-            tests_filter = "*WriteReadTest*";
+            tests_filter = "DiskSize/WriteReadTest.*";
         }
         else if (strcmp(argv[i], "--ssd_program_compatible_test") == 0) {
-            tests_filter = "*ProgramCompatibleTest*";
+            tests_filter = "DiskSize/ProgramCompatibleTest.*";
         }
         else if (strcmp(argv[i], "--onfi_ops_test") == 0) {
-            tests_filter = "*OnfiCommandsTest*";
+            tests_filter = "DiskSize/OnfiCommandsTest.*";
+        }
+        else if (strcmp(argv[i], "--gc_tests") == 0) {
+            tests_filter = "DiskSize/GCTest.*";
         }
         else if (strcmp(argv[i], "--multi_device_tests") == 0) {
-            tests_filter = "*MultiDevice*";
+            tests_filter =
+                "Workloads/MultiDeviceWorkloadTest.*:"
+                "ObjectWorkloads/MultiDeviceObjectTest.*:"
+                "MixedWorkloads/MultiDeviceMixedTest.*";
         }
     }
 
