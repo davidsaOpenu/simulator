@@ -140,11 +140,24 @@ eVSSIM/tests/host/*/logging_server.c
 eVSSIM/tests/host/*/logging_server.h
 eVSSIM/tests/host/*/www
 
+# build symlinks for test_context (copied from SSD_MODULE/)
+eVSSIM/tests/host/*/test_context.c
+eVSSIM/tests/host/*/test_context.h
+
+# clangd compile database
+eVSSIM/tests/host/compile_commands.json
+
+# www symlink at tests/host root
+eVSSIM/tests/host/www
+
 # osd-osd files
 eVSSIM/osc-osd/osd-util/.depend
 eVSSIM/osc-osd/osd-target/.depend
 eVSSIM/osc-osd/osd-target/tests
 eVSSIM/osc-osd/osd-target/osd-schema.c
+eVSSIM/osc-osd/tgt/usr/otgtd
+eVSSIM/osc-osd/tgt/usr/tgtadm
+eVSSIM/osc-osd/tgt/usr/tgtimg
 
 # infra/ansible files
 *.retry
