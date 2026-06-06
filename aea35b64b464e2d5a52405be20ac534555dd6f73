@@ -35,6 +35,42 @@
       "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
     },
     {
+      "unresolved": true,
+      "key": {
+        "uuid": "cb164c11_4532fadf",
+        "filename": "/COMMIT_MSG",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 1039542
+      },
+      "writtenOn": "2026-06-06T07:16:34Z",
+      "side": 1,
+      "message": "Acknowledged. A commit body will be added before PS2 is published.",
+      "parentUuid": "90b9dd25_edffc782",
+      "revId": "aea35b64b464e2d5a52405be20ac534555dd6f73",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "61b272f5_fc86eecb",
+        "filename": "/COMMIT_MSG",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 1039542
+      },
+      "writtenOn": "2026-06-06T07:16:34Z",
+      "side": 1,
+      "message": "Fixed; tox passes locally on this branch.",
+      "parentUuid": "dcb49625_97955df6",
+      "revId": "aea35b64b464e2d5a52405be20ac534555dd6f73",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
+    },
+    {
       "unresolved": false,
       "key": {
         "uuid": "53005217_a28d7939",
@@ -48,6 +84,24 @@
       "writtenOn": "2026-05-29T12:41:59Z",
       "side": 1,
       "message": "Nice work 😀",
+      "revId": "aea35b64b464e2d5a52405be20ac534555dd6f73",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "693adee9_7ca2f99b",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 1039542
+      },
+      "writtenOn": "2026-06-06T07:16:34Z",
+      "side": 1,
+      "message": "Thanks.",
+      "parentUuid": "53005217_a28d7939",
       "revId": "aea35b64b464e2d5a52405be20ac534555dd6f73",
       "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
     },
@@ -69,6 +123,24 @@
       "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "dc949d79_c87aaa1e",
+        "filename": "eVSSIM/tests/guest/run_fs_benchmarks/test_fs_benchmark.py",
+        "patchSetId": 1
+      },
+      "lineNbr": 14,
+      "author": {
+        "id": 1039542
+      },
+      "writtenOn": "2026-06-06T07:16:34Z",
+      "side": 1,
+      "message": "Addressed. PEP 484 type comments added to output_stream, run, and benchmark_enabled.",
+      "parentUuid": "79ce33c5_f02ae67b",
+      "revId": "aea35b64b464e2d5a52405be20ac534555dd6f73",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "5d480916_f8dc5fef",
@@ -82,6 +154,24 @@
       "writtenOn": "2026-05-23T16:14:48Z",
       "side": 1,
       "message": "To simplify the code, use with and in the case that the output path is None, use temp dir",
+      "revId": "aea35b64b464e2d5a52405be20ac534555dd6f73",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "5b3d3422_0ecfa656",
+        "filename": "eVSSIM/tests/guest/run_fs_benchmarks/test_fs_benchmark.py",
+        "patchSetId": 1
+      },
+      "lineNbr": 18,
+      "author": {
+        "id": 1039542
+      },
+      "writtenOn": "2026-06-06T07:16:34Z",
+      "side": 1,
+      "message": "Addressed. output_stream is now a contextlib contextmanager and uses tempfile.NamedTemporaryFile when no output_path is provided.",
+      "parentUuid": "5d480916_f8dc5fef",
       "revId": "aea35b64b464e2d5a52405be20ac534555dd6f73",
       "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
     },
@@ -105,6 +195,24 @@
     {
       "unresolved": true,
       "key": {
+        "uuid": "d506f9f3_33752f6f",
+        "filename": "eVSSIM/tests/guest/run_fs_benchmarks/test_fs_benchmark.py",
+        "patchSetId": 1
+      },
+      "lineNbr": 36,
+      "author": {
+        "id": 1039542
+      },
+      "writtenOn": "2026-06-06T07:16:34Z",
+      "side": 1,
+      "message": "Not applied. The test file targets Python 2 (executed via nosetests in the guest image), where f-strings are unavailable. Open to a Py3 migration as a separate change.",
+      "parentUuid": "610ebc63_b4679e23",
+      "revId": "aea35b64b464e2d5a52405be20ac534555dd6f73",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
+    },
+    {
+      "unresolved": true,
+      "key": {
         "uuid": "5f9f9ecc_af8084d4",
         "filename": "infra/builder/builder.sh",
         "patchSetId": 1
@@ -116,6 +224,24 @@
       "writtenOn": "2026-05-29T12:41:59Z",
       "side": 1,
       "message": "Currently QEMU containers always run --net\u003dhost. After this change `evssim_qemu_network_args` returns host networking only when `evssim_use_host_network` is true. on a normal Ubuntu CI host it falls through to $EVSSIM_DOCKER_PORTS_OPTION (bridge)",
+      "revId": "aea35b64b464e2d5a52405be20ac534555dd6f73",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "08cd362a_3054759e",
+        "filename": "infra/builder/builder.sh",
+        "patchSetId": 1
+      },
+      "lineNbr": 49,
+      "author": {
+        "id": 1039542
+      },
+      "writtenOn": "2026-06-06T07:16:34Z",
+      "side": 1,
+      "message": "Addressed. EVSSIM_DOCKER_NETWORK_MODE default changed from auto to host so Ubuntu CI hosts no longer fall through to bridge networking.",
+      "parentUuid": "5f9f9ecc_af8084d4",
       "revId": "aea35b64b464e2d5a52405be20ac534555dd6f73",
       "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
     },
@@ -133,6 +259,24 @@
       "writtenOn": "2026-05-29T14:41:11Z",
       "side": 1,
       "message": "Since qemu_accel is already initialized above, maybe use it here instead of checking EVSSIM_QEMU_ACCELERATION again. This would avoid duplicating the accelerator selection logic.",
+      "revId": "aea35b64b464e2d5a52405be20ac534555dd6f73",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "faeadfc4_ddea05c7",
+        "filename": "infra/builder/builder.sh",
+        "patchSetId": 1
+      },
+      "lineNbr": 327,
+      "author": {
+        "id": 1039542
+      },
+      "writtenOn": "2026-06-06T07:16:34Z",
+      "side": 1,
+      "message": "Not applied. The current check distinguishes \"env var unset\" from \"env var explicitly set to kvm\"; reusing qemu_accel would also downgrade an explicitly requested kvm to TCG when /dev/kvm is missing. Happy to introduce an explicit sentinel if a true DRY rewrite is preferred.",
+      "parentUuid": "d28e3241_ce121b70",
       "revId": "aea35b64b464e2d5a52405be20ac534555dd6f73",
       "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
     },
@@ -160,6 +304,24 @@
       "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "e8f46bdb_5a475754",
+        "filename": "infra/builder/builder.sh",
+        "patchSetId": 1
+      },
+      "lineNbr": 371,
+      "author": {
+        "id": 1039542
+      },
+      "writtenOn": "2026-06-06T07:16:34Z",
+      "side": 1,
+      "message": "Addressed. Path is now produced by evssim_guest_ssh_key_path() and consumers quote on use.",
+      "parentUuid": "52fdec24_920ad775",
+      "revId": "aea35b64b464e2d5a52405be20ac534555dd6f73",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "efa17096_da05b253",
@@ -179,6 +341,24 @@
         "endLine": 375,
         "endChar": 50
       },
+      "revId": "aea35b64b464e2d5a52405be20ac534555dd6f73",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "36ea578d_f25b7086",
+        "filename": "infra/builder/builder.sh",
+        "patchSetId": 1
+      },
+      "lineNbr": 375,
+      "author": {
+        "id": 1039542
+      },
+      "writtenOn": "2026-06-06T07:16:34Z",
+      "side": 1,
+      "message": "Addressed. All uses now reference \"$ssh_key\" or pass it through the argv array as -i \"$ssh_key\".",
+      "parentUuid": "efa17096_da05b253",
       "revId": "aea35b64b464e2d5a52405be20ac534555dd6f73",
       "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
     },
@@ -208,6 +388,24 @@
     {
       "unresolved": true,
       "key": {
+        "uuid": "8a803fa6_1c35a920",
+        "filename": "infra/builder/builder.sh",
+        "patchSetId": 1
+      },
+      "lineNbr": 384,
+      "author": {
+        "id": 1039542
+      },
+      "writtenOn": "2026-06-06T07:16:34Z",
+      "side": 1,
+      "message": "Kept inline. evssim_qemu_flush_disk requires a tight 5s timeout with ServerAlive options that evssim_guest does not expose. Duplication of the argument list was removed via the evssim_guest_ssh_args helper.",
+      "parentUuid": "fef293f0_67748601",
+      "revId": "aea35b64b464e2d5a52405be20ac534555dd6f73",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
+    },
+    {
+      "unresolved": true,
+      "key": {
         "uuid": "813da1b0_c6d52be2",
         "filename": "infra/builder/builder.sh",
         "patchSetId": 1
@@ -225,6 +423,24 @@
         "endLine": 507,
         "endChar": 55
       },
+      "revId": "aea35b64b464e2d5a52405be20ac534555dd6f73",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "5bfcb0d4_873b02f8",
+        "filename": "infra/builder/builder.sh",
+        "patchSetId": 1
+      },
+      "lineNbr": 507,
+      "author": {
+        "id": 1039542
+      },
+      "writtenOn": "2026-06-06T07:16:34Z",
+      "side": 1,
+      "message": "Same rationale as the flush case: evssim_wait_for_guest needs a short ConnectTimeout per poll iteration. Argv is now shared through evssim_guest_ssh_args.",
+      "parentUuid": "813da1b0_c6d52be2",
       "revId": "aea35b64b464e2d5a52405be20ac534555dd6f73",
       "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
     },
@@ -287,6 +503,60 @@
       "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "42a76612_84adf585",
+        "filename": "infra/builder/compile-guest-tests.sh",
+        "patchSetId": 1
+      },
+      "lineNbr": 16,
+      "author": {
+        "id": 1039542
+      },
+      "writtenOn": "2026-06-06T07:16:34Z",
+      "side": 1,
+      "message": "Addressed. Added EVSSIM_YABS_CACHE_DIR; clone now runs only when the cache is missing or its HEAD does not match the pinned ref.",
+      "parentUuid": "44dd13e2_1f64b1b2",
+      "revId": "aea35b64b464e2d5a52405be20ac534555dd6f73",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "72428d40_8fa21595",
+        "filename": "infra/builder/compile-guest-tests.sh",
+        "patchSetId": 1
+      },
+      "lineNbr": 16,
+      "author": {
+        "id": 1039542
+      },
+      "writtenOn": "2026-06-06T07:16:34Z",
+      "side": 1,
+      "message": "Addressed via the persistent cache directory under dist/.cache, reused across runs.",
+      "parentUuid": "c416359a_41b14b18",
+      "revId": "aea35b64b464e2d5a52405be20ac534555dd6f73",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "5b72916c_7598be40",
+        "filename": "infra/builder/compile-guest-tests.sh",
+        "patchSetId": 1
+      },
+      "lineNbr": 16,
+      "author": {
+        "id": 1039542
+      },
+      "writtenOn": "2026-06-06T07:16:34Z",
+      "side": 1,
+      "message": "Kept in compile-guest-tests.sh with a persistent cache. Moving into image-maker.sh would couple the guest image to the YABS ref and require a full image rebuild to bump it. The cache delivers one-time-clone behaviour without that coupling.",
+      "parentUuid": "4274017f_ac177523",
+      "revId": "aea35b64b464e2d5a52405be20ac534555dd6f73",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "2cc9ef8a_a3cf133b",
@@ -304,6 +574,24 @@
       "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "aed8199b_026a36e7",
+        "filename": "infra/builder/docker-test-exofs.sh",
+        "patchSetId": 1
+      },
+      "lineNbr": 8,
+      "author": {
+        "id": 1039542
+      },
+      "writtenOn": "2026-06-06T07:16:34Z",
+      "side": 1,
+      "message": "Addressed. Local benchmark_enabled() removed; EVSSIM_RUN_FS_BENCHMARKS is forwarded to the guest and the skip decision is owned by test_fs_benchmark.py::benchmark_enabled.",
+      "parentUuid": "2cc9ef8a_a3cf133b",
+      "revId": "aea35b64b464e2d5a52405be20ac534555dd6f73",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "4328cf09_3efca4c5",
@@ -317,6 +605,24 @@
       "writtenOn": "2026-05-29T12:41:59Z",
       "side": 1,
       "message": "Porque the us mirror specifically? archive.ubuntu.com should work better performance-wise for us Israelites",
+      "revId": "aea35b64b464e2d5a52405be20ac534555dd6f73",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "5e347749_182bde0f",
+        "filename": "infra/builder/docker/image-maker.sh",
+        "patchSetId": 1
+      },
+      "lineNbr": 6,
+      "author": {
+        "id": 1039542
+      },
+      "writtenOn": "2026-06-06T07:16:34Z",
+      "side": 1,
+      "message": "Addressed. DEBOOTSTRAP_MIRROR changed to http://archive.ubuntu.com/ubuntu/.",
+      "parentUuid": "4328cf09_3efca4c5",
       "revId": "aea35b64b464e2d5a52405be20ac534555dd6f73",
       "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
     }
