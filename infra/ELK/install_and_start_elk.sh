@@ -656,9 +656,7 @@ if [[ $running_containers -gt 0 ]]; then
         $COMPOSE_CMD down
         echo "Restarting ELK stack..."
     else
-        echo "Skipping container restart, checking health..."
-        check_kibana_health
-        exit 0
+      echo "Skipping container restart and reusing the current stack state..."
     fi
 fi
 
