@@ -16,6 +16,23 @@
       "message": "LGTM",
       "revId": "c219a3d7fe97ae46ddb5925b9cc03bb70be936a5",
       "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "9f316a31_92719c55",
+        "filename": "infra/ELK/.env",
+        "patchSetId": 2
+      },
+      "lineNbr": 1,
+      "author": {
+        "id": 1039489
+      },
+      "writtenOn": "2026-06-06T13:19:14Z",
+      "side": 1,
+      "message": "File wasn\u0027t formatted correctly, fixed that here",
+      "revId": "c219a3d7fe97ae46ddb5925b9cc03bb70be936a5",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
     }
   ]
 }
