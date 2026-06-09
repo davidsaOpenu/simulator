@@ -16,6 +16,29 @@
       "message": "recheck",
       "revId": "33bcee2cf9fc000202b7d22cb7d7b1183ba45f1f",
       "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "c58e46b7_cea945a4",
+        "filename": "infra/builder/versions/configs.json",
+        "patchSetId": 11
+      },
+      "lineNbr": 124,
+      "author": {
+        "id": 1007990
+      },
+      "writtenOn": "2026-06-09T04:20:30Z",
+      "side": 1,
+      "message": "Here and above in this file: Is there any reason for having this duplication? The compile and run (host?) containers are supposed to be the same one.",
+      "range": {
+        "startLine": 123,
+        "startChar": 0,
+        "endLine": 124,
+        "endChar": 42
+      },
+      "revId": "33bcee2cf9fc000202b7d22cb7d7b1183ba45f1f",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
     }
   ]
 }
