@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "6828b99d_cc7f9901",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 9
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 1007990
+      },
+      "writtenOn": "2026-06-09T04:12:54Z",
+      "side": 1,
+      "message": "17:48:24  \u003d\u003d\u003d\u003d\u003d\u003d\u003d\u003d\u003d\u003d\u003d\u003d\u003d\u003d\u003d\u003d\u003d\u003d\u003d\u003d\u003d\u003d\u003d\u003d\u003d\u003d\u003d\u003d\u003d\u003d\u003d\u003d\u003d\u003d\u003d\u003d\u003d\u003d\u003d\u003d\u003d\u003d\n17:48:24  linters create: /var/lib/jenkins/workspace/simulator-docker-ng-infra@3/simulator/.tox/linters\n17:48:29  linters installdeps: pre-commit\u003e\u003d1.20.0\n17:48:39  linters installed: cfgv\u003d\u003d3.5.0,distlib\u003d\u003d0.4.1,filelock\u003d\u003d3.29.1,identify\u003d\u003d2.6.19,nodeenv\u003d\u003d1.10.0,platformdirs\u003d\u003d4.10.0,pre_commit\u003d\u003d4.6.0,python-discovery\u003d\u003d1.4.0,PyYAML\u003d\u003d6.0.3,typing_extensions\u003d\u003d4.15.0,virtualenv\u003d\u003d21.4.2\n17:48:39  linters run-test-pre: PYTHONHASHSEED\u003d\u0027376404064\u0027\n17:48:39  linters run-test: commands[0] | python -m pre_commit run --from-ref \u0027HEAD~1\u0027 --to-ref HEAD\n17:48:39  fix end of files.........................................................Failed\n17:48:39  - hook id: end-of-file-fixer\n17:48:39  - exit code: 1\n17:48:39  - files were modified by this hook\n17:48:39  \n17:48:39  Fixing infra/builder/versions/containers/26.04/Dockerfile\n17:48:39  \n17:48:39  trim trailing whitespace.................................................Passed\n17:48:39  mixed line ending........................................................Passed\n17:48:39  check BOM - deprecated: use fix-byte-order-marker........................Passed\n17:48:40  check that executables have shebangs.....................................Passed\n17:48:40  check for merge conflicts................................................Passed\n17:48:40  check for broken symlinks................................................Passed\n17:48:40  debug statements (python)............................(no files to check)Skipped\n17:48:40  ERROR: InvocationError for command /var/lib/jenkins/workspace/simulator-docker-ng-infra@3/simulator/.tox/linters/bin/python -m pre_commit run --from-ref \u0027HEAD~1\u0027 --to-ref HEAD (exited with code 1)\n17:48:40  ___________________________________ summary ____________________________________\n17:48:40  ERROR:   linters: commands failed\n17:48:40  [run-ci.sh] FAILED with exit 1 on: env -u http_proxy -u https_proxy -u HTTP_PROXY -u HTTPS_PROXY tox\n17:48:45  [*] Engine: docker | Project: docker-elk\n17:48:45  [*] Stopping ELK containers...\n17:48:45      none\n17:48:45  [*] Removing ELK containers...\n17:48:45      none\n17:48:45  [*] Removing ELK volumes...\n17:48:45      none\n17:48:45  [*] Removing ELK images...\n17:48:55      none\n17:48:55  [*] Done.\n[Pipeline] }\n[Pipeline] // dir\n[Pipeline] }\n17:48:58  ERROR: script returned exit code 1\n\n\nhttp://192.114.0.189/jenkins/job/simulator-docker-ng-infra/1708/consoleFull",
+      "revId": "607a7cc5ff8b79492e066f2e09ce54747c293111",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
+    }
+  ]
+}
