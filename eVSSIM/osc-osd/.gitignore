@@ -67,6 +67,9 @@ up.conf
 
 # files made by make
 osd-target/osd-schema.c
+tgt/usr/otgtd
+tgt/usr/tgtadm
+tgt/usr/tgtimg
 osd-initiator/python/writefile.py
 diff_upload.patch
 tgt_diff_upload.patch
