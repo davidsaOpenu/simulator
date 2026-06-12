@@ -44,6 +44,7 @@ test_directory_base="$EVSSIM_DOCKER_ROOT_PATH/$EVSSIM_LOGS_FOLDER/tests/$(date +
 # Run disk tests
 guest_test "$test_directory_base" 1 yes nvme_compliance_tests
 guest_test "$test_directory_base" 1 no fio_tests
+guest_test "$test_directory_base" 1 yes ext4
 
 # Run simulator specific tests (With different strategies)
 guest_test "$test_directory_base" 2 yes objects_via_ioctl

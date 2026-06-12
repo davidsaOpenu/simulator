@@ -64,4 +64,25 @@ namespace sector_tests {
         }
     }
 
+    // must be > 1 page, the size of the stale request left by the failed read
+    static const size_t MULTI_PAGE_WRITE_PAGE_NB = 16;
+
+    TEST_P(SectorUnitTest, ReadUnwrittenPageThenMultiPageWrite) {
+        SSDConf* ssd_config = base_test_get_ssd_config();
+
+        // length is in sectors, get_page_size() is in bytes
+        const size_t sectors_per_page = ssd_config->get_page_size() / ssd_config->get_sector_size();
+        const unsigned int multi_page_write =
+            static_cast<unsigned int>(MULTI_PAGE_WRITE_PAGE_NB * sectors_per_page);
+
+        const unsigned int io_request_nb_before = perf_checker[g_device_index].io_request_nb;
+
+        EXPECT_EQ(FTL_FAILURE, FTL_READ_SECT(g_device_index, 0, 1, NULL));
+
+        EXPECT_EQ(io_request_nb_before, perf_checker[g_device_index].io_request_nb)
+            << "failed read leaked its io_request";
+
+        ASSERT_EQ(FTL_SUCCESS, FTL_WRITE_SECT(g_device_index, 0, multi_page_write, NULL));
+    }
+
 } //namespace

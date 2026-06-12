@@ -259,10 +259,14 @@ ftl_ret_val _FTL_OBJ_WRITE(uint8_t device_index, obj_id_t object_loc, const void
         if (GET_NEW_PAGE(device_index, VICTIM_OVERALL, devices[device_index].empty_table_entry_nb, &page_id) == FTL_FAILURE)
         {
             // not enough memory presumably
+            ABORT_IO_REQUEST(device_index);
             RERR(FTL_FAILURE, "[FTL_WRITE] Get new page fail \n");
         }
         if (!add_page(device_index, object, page_id))
+        {
+            ABORT_IO_REQUEST(device_index);
             return FTL_FAILURE;
+        }
 
         // mark new page as valid and used
         UPDATE_NEW_PAGE_MAPPING_NO_LOGICAL(device_index, page_id);
@@ -279,10 +283,12 @@ ftl_ret_val _FTL_OBJ_WRITE(uint8_t device_index, obj_id_t object_loc, const void
         // get the pge we'll be writing to
         if (GET_NEW_PAGE(device_index, VICTIM_OVERALL, devices[device_index].empty_table_entry_nb, &page_id) == FTL_FAILURE)
         {
+            ABORT_IO_REQUEST(device_index);
             RERR(FTL_FAILURE, "[FTL_WRITE] Get new page fail \n");
         }
         if ((temp_page = lookup_page(device_index, page_id)))
         {
+            ABORT_IO_REQUEST(device_index);
             RERR(FTL_FAILURE, "[FTL_WRITE] Object %lu already contains page %lu\n", temp_page->object_id, page_id);
         }
 
@@ -293,7 +299,10 @@ ftl_ret_val _FTL_OBJ_WRITE(uint8_t device_index, obj_id_t object_loc, const void
         {
             current_page = add_page(device_index, object, page_id);
             if (!current_page)
+            {
+                ABORT_IO_REQUEST(device_index);
                 return FTL_FAILURE;
+            }
         }
         else // writing over parts of the object
         {
@@ -342,6 +351,7 @@ ftl_ret_val _FTL_OBJ_WRITE(uint8_t device_index, obj_id_t object_loc, const void
             length, offset, (uint8_t *)data, 0, OSD_SENSE(device_index), DDT_CONTIG);
         if (osd_ret < 0) {
             PDBG_FTL("Failed to osd_write with ret: %d\n", osd_ret);
+            ABORT_IO_REQUEST(device_index);
             return FTL_FAILURE;
         }
     }

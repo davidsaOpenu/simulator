@@ -84,10 +84,10 @@ void TERM_PERF_CHECKER(uint8_t device_index);
 void SEND_TO_PERF_CHECKER(uint8_t device_index, int op_type, int64_t op_delay, int type);
 
 int64_t ALLOC_IO_REQUEST(uint8_t device_index, uint32_t sector_nb, unsigned int length, int io_type, int* page_nb);
-void FREE_DUMMY_IO_REQUEST(uint8_t device_index);
 void FREE_IO_REQUEST(uint8_t device_index, io_request* request);
 int64_t UPDATE_IO_REQUEST(uint8_t device_index, uint32_t request_nb, int offset, int64_t time, int type);
 void INCREASE_IO_REQUEST_SEQ_NB(uint8_t device_index);
+void ABORT_IO_REQUEST(uint8_t device_index);
 io_request* LOOKUP_IO_REQUEST(uint8_t device_index, uint32_t request_nb);
 int64_t CALC_IO_LATENCY(uint8_t device_index, io_request* request);
 

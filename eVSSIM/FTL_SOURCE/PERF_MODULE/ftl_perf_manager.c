@@ -234,51 +234,20 @@ int64_t ALLOC_IO_REQUEST(uint8_t device_index, uint32_t sector_nb, unsigned int 
 	return (end - start);
 }
 
-void FREE_DUMMY_IO_REQUEST(uint8_t device_index)
+void ABORT_IO_REQUEST(uint8_t device_index)
 {
-	uint32_t i;
-	int success = 0;
-	io_request* prev_request = PC(device_index).io_request_start;
-
+	// The lookup is by the current seq_nb, so it must happen before the increase.
 	io_request* request = LOOKUP_IO_REQUEST(device_index, PC(device_index).io_request_seq_nb);
 
-
-	if(PC(device_index).io_request_nb == 1){
-		PC(device_index).io_request_start = NULL;
-		PC(device_index).io_request_end = NULL;
-		success = 1;
+	if (request == NULL) {
+		DEV_PERR(device_index, "no io request found for seq_nb %u\n", PC(device_index).io_request_seq_nb);
 	}
-	else if(prev_request == request){
-		PC(device_index).io_request_start = request->next;
-		success = 1;
-	}
-	else{
-		for(i=0;i<(PC(device_index).io_request_nb-1);i++){
-			if(prev_request->next == request && request == PC(device_index).io_request_end){
-				prev_request->next = NULL;
-				PC(device_index).io_request_end = prev_request;
-				success = 1;
-				break;
-			}
-			else if(prev_request->next == request){
-				prev_request->next = request->next;
-				success = 1;
-				break;
-			}
-			else{
-				prev_request = prev_request->next;
-			}
-		}
+	else {
+		FREE_IO_REQUEST(device_index, request);
 	}
 
-	if (success == 0)
-		RERR(, "There is no such io request\n");
-
-	free(request->start_time);
-	free(request->end_time);
-	free(request);
-
-	PC(device_index).io_request_nb--;
+	// Retire the sequence number either way, so the next request cannot reuse it.
+	INCREASE_IO_REQUEST_SEQ_NB(device_index);
 }
 
 void FREE_IO_REQUEST(uint8_t device_index, io_request* request)
@@ -337,8 +306,20 @@ int64_t UPDATE_IO_REQUEST(uint8_t device_index, uint32_t request_nb, int offset,
 	}
 
 	io_request* curr_request = LOOKUP_IO_REQUEST(device_index, request_nb);
-	if (curr_request == NULL)
-		RDBG_FTL(0, "No such io request, nb %d\n", request_nb);
+	if (curr_request == NULL) {
+		// Not an error: SSD_REG_RECORD updates the request on every register
+		// operation, including paths that never allocate one (ONFI direct access).
+		// This is on the per-page hot path, so it must stay compile-time gated.
+		PDBG_FTL("No such io request, nb %u for device %u\n", request_nb, (unsigned)device_index);
+		return 0;
+	}
+
+	if (offset < 0 || offset >= curr_request->request_size) {
+		DEV_PERR(device_index, "offset %d out of range for request size %d, dropping request %u\n",
+			offset, curr_request->request_size, request_nb);
+		FREE_IO_REQUEST(device_index, curr_request);
+		return 0;
+	}
 
 	if(type == UPDATE_START_TIME){
 		curr_request->start_time[offset] = time;
