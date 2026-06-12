@@ -64,4 +64,21 @@ namespace sector_tests {
         }
     }
 
+    static const size_t MULTI_PAGE_WRITE_PAGE_NB = 16;
+
+    TEST_P(SectorUnitTest, ReadUnwrittenPageThenMultiPageWrite) {
+        SSDConf* ssd_config = base_test_get_ssd_config();
+
+        // length is in sectors, get_page_size() is in bytes
+        const size_t sectors_per_page = ssd_config->get_page_size() / ssd_config->get_sector_size();
+        const unsigned int multi_page_write =
+            static_cast<unsigned int>(MULTI_PAGE_WRITE_PAGE_NB * sectors_per_page);
+
+        EXPECT_EQ(FTL_FAILURE, FTL_READ_SECT(g_device_index, 0, 1, NULL));
+
+        // A failed read must not leave the device in a state that breaks a following
+        // multi-page write.
+        ASSERT_EQ(FTL_SUCCESS, FTL_WRITE_SECT(g_device_index, 0, multi_page_write, NULL));
+    }
+
 } //namespace

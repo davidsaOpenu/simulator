@@ -56,6 +56,7 @@ test_index=0
 # Run disk tests
 guest_test "$test_directory_base" 1 yes nvme_compliance_tests
 guest_test "$test_directory_base" 1 no fio_tests
+guest_test "$test_directory_base" 1 yes ext4
 
 # Run simulator specific tests (With different strategies)
 guest_test "$test_directory_base" 2 yes objects_via_ioctl
