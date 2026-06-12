@@ -15,6 +15,7 @@
  */
 
 #include <cmath>
+#include <unistd.h>
 #include "base_emulator_tests.h"
 
 extern "C"
@@ -321,6 +322,63 @@ namespace program_compatible_test
             ASSERT_EQ(memcmp(reference_buffer, buffer, ssd_config->get_page_size()), 0);
             AssertStatusRegisterOk();
         }
+    }
+
+    // SSD_REG_RECORD hands io_request_seq_nb to UPDATE_IO_REQUEST for every register
+    // operation, but the ONFI path never allocates an io_request, so "request not found"
+    // is the normal case here rather than an error. It has to stay off the hot log path:
+    // logging it per operation buried a single run of PageProgramAllSuccess under ~1.7M
+    // lines and stalled CI. Assert perf-manager chatter does not scale with I/O count.
+    TEST_P(OnfiCommandsTest, PageProgramDoesNotLogPerOperation)
+    {
+        SSDConf *ssd_config = base_test_get_ssd_config();
+
+        const size_t pages_to_program = 64;
+        size_t nprogrammed = 0;
+        unsigned char buffer[ssd_config->get_page_size()];
+        memset(buffer, 0x00, ssd_config->get_page_size());
+
+        char capture_path[] = "/tmp/evssim_onfi_log_XXXXXX";
+        int capture_fd = mkstemp(capture_path);
+        ASSERT_NE(capture_fd, -1);
+
+        fflush(stdout);
+        int saved_stdout = dup(STDOUT_FILENO);
+        ASSERT_NE(saved_stdout, -1);
+        ASSERT_NE(dup2(capture_fd, STDOUT_FILENO), -1);
+
+        // No gtest assertions while stdout is redirected; failures would land in the
+        // capture file instead of the test report.
+        onfi_ret_val program_result = ONFI_SUCCESS;
+        for (size_t page = 0; page < pages_to_program; ++page)
+        {
+            program_result = ONFI_PAGE_PROGRAM(g_device_index, page, 0, buffer,
+                                               ssd_config->get_page_size(), &nprogrammed);
+            if (program_result != ONFI_SUCCESS)
+            {
+                break;
+            }
+        }
+
+        fflush(stdout);
+        dup2(saved_stdout, STDOUT_FILENO);
+        close(saved_stdout);
+        close(capture_fd);
+
+        size_t captured_lines = 0;
+        std::string line;
+        std::ifstream capture(capture_path);
+        while (std::getline(capture, line))
+        {
+            ++captured_lines;
+        }
+        capture.close();
+        remove(capture_path);
+
+        ASSERT_EQ(program_result, ONFI_SUCCESS);
+        EXPECT_LT(captured_lines, pages_to_program)
+            << "perf manager logged " << captured_lines << " lines for "
+            << pages_to_program << " page programs; logging must not scale with I/O";
     }
 
     TEST_P(OnfiCommandsTest, PageProgramPartialPageSuccess)

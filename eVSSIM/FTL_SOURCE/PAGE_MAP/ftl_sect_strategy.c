@@ -88,7 +88,9 @@ ftl_ret_val _FTL_READ_SECT(uint8_t device_index, uint64_t sector_nb, unsigned in
 		ppn = GET_MAPPING_INFO(device_index, lpn);
         if (ppn == MAPPING_TABLE_INIT_VAL)
         {
-            RDBG_FTL(FTL_FAILURE, "No Mapping info\n");
+            PDBG_FTL("No Mapping info\n");
+            ABORT_IO_REQUEST(device_index);
+            return FTL_FAILURE;
         }
 
 		// ONFI doesn't allow data to be NULL, but FTL does.
@@ -280,6 +282,7 @@ ftl_ret_val _FTL_WRITE_SECT(uint8_t device_index, uint64_t sector_nb, unsigned i
 			if (ret == FTL_FAILURE) {
 				ret = GET_NEW_PAGE(device_index, VICTIM_OVERALL_GC, devices[device_index].empty_table_entry_nb, &new_ppn);
 				if (ret == FTL_FAILURE) {
+					ABORT_IO_REQUEST(device_index);
 					RERR(FTL_FAILURE, "[FTL_WRITE] Get new page fail \n");
 				} else {
 					device_full = true;
