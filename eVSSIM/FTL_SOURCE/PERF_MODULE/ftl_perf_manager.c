@@ -242,6 +242,10 @@ void FREE_DUMMY_IO_REQUEST(uint8_t device_index)
 
 	io_request* request = LOOKUP_IO_REQUEST(device_index, PC(device_index).io_request_seq_nb);
 
+	if (request == NULL) {
+		RDBG_FTL(, "FREE_DUMMY_IO_REQUEST: no request found for seq_nb %u, skipping\n", PC(device_index).io_request_seq_nb);
+		return;
+	}
 
 	if(PC(device_index).io_request_nb == 1){
 		PC(device_index).io_request_start = NULL;
@@ -339,6 +343,9 @@ int64_t UPDATE_IO_REQUEST(uint8_t device_index, uint32_t request_nb, int offset,
 	io_request* curr_request = LOOKUP_IO_REQUEST(device_index, request_nb);
 	if (curr_request == NULL)
 		RDBG_FTL(0, "No such io request, nb %d\n", request_nb);
+
+	if (offset < 0 || offset >= curr_request->request_size)
+		RDBG_FTL(-1, "offset %d out of range for request size %d\n", offset, curr_request->request_size);
 
 	if(type == UPDATE_START_TIME){
 		curr_request->start_time[offset] = time;
