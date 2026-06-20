@@ -46,12 +46,26 @@ echo > /sys/kernel/debug/tracing/trace
 # do some file operations here
 dmesg -c
 ./test $1 cache_$2
+test_rc=$?
 
-dmesg -c > "$OUTPUT_DIR/$1_dmesg.txt"
+# Mirror dmesg to stdout so Jenkins logs surface kernel-side failures
+# (OOM-kill, exofs errors, etc.) — file copy may not be archived.
+dmesg_buf="$(dmesg -c)"
+printf '%s\n' "$dmesg_buf" > "$OUTPUT_DIR/$1_dmesg.txt"
+
+if [ $test_rc -ne 0 ]; then
+    echo "ERROR ./test $1 cache_$2 exited with rc=$test_rc (137=SIGKILL/OOM)"
+    echo "--- dmesg captured during the $1 step (guest kernel) ---"
+    printf '%s\n' "$dmesg_buf"
+    echo "--- end dmesg ---"
+fi
+
 cat /sys/kernel/debug/tracing/trace > /tmp/my_log.tmp
 echo > /sys/kernel/debug/tracing/trace
 echo nop > /sys/kernel/debug/tracing/current_tracer
 
 # generate output
 cut /tmp/my_log.tmp -c 23- | tail -n +5 > "$OUTPUT_DIR/$1.txt"
+
+exit $test_rc
 
