@@ -46,11 +46,26 @@ sudo -E $TEST_UTIL_DIR/test_and_log_all_operations.sh
 
 echo "> Done!"
 
+# Diagnostics: show the actual mount state at check time so a magic-number
+# mismatch tells us whether exofs was never mounted, was unmounted, or was
+# replaced by another fs.
+echo "--- mount state at magic-number check ---"
+echo "[/proc/mounts entries for $MOUNT_POINT or nvme0n1]:"
+grep -E "$MOUNT_POINT|nvme0n1" /proc/mounts || echo "  (none)"
+echo "[mount -t exofs]:"
+mount -t exofs || echo "  (none)"
+echo "[ls -la $MOUNT_POINT]:"
+ls -la "$MOUNT_POINT" 2>&1 | head -10 || true
+echo "--- end mount state ---"
+
 magic_number=$(stat -fc '%t' $MOUNT_POINT)
 
 if [[ $magic_number == "5df5" ]]; then
     echo "The magic number is valid."
 else
     echo "The magic number is invalid. It is 0x$magic_number instead of 0x5df5."
+    echo "--- last 80 lines of guest dmesg ---"
+    dmesg | tail -80 || true
+    echo "--- end dmesg ---"
     exit 1
 fi
