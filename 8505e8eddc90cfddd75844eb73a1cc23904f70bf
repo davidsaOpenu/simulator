@@ -73,6 +73,54 @@
     {
       "unresolved": true,
       "key": {
+        "uuid": "5e5f30cb_7f5bb02e",
+        "filename": "infra/builder/compile-qemu.sh",
+        "patchSetId": 8
+      },
+      "lineNbr": 23,
+      "author": {
+        "id": 1039645
+      },
+      "writtenOn": "2026-06-25T17:50:50Z",
+      "side": 1,
+      "message": "yes, there is no such option for 11.0",
+      "parentUuid": "5456ed57_fb9e856f",
+      "range": {
+        "startLine": 17,
+        "startChar": 0,
+        "endLine": 23,
+        "endChar": 4
+      },
+      "revId": "8505e8eddc90cfddd75844eb73a1cc23904f70bf",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "9b52d62c_85cd12d4",
+        "filename": "infra/builder/compile-qemu.sh",
+        "patchSetId": 8
+      },
+      "lineNbr": 23,
+      "author": {
+        "id": 1039645
+      },
+      "writtenOn": "2026-06-25T17:50:50Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "0c4203f8_432d2a3e",
+      "range": {
+        "startLine": 17,
+        "startChar": 0,
+        "endLine": 23,
+        "endChar": 4
+      },
+      "revId": "8505e8eddc90cfddd75844eb73a1cc23904f70bf",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
+    },
+    {
+      "unresolved": true,
+      "key": {
         "uuid": "4fa7b690_889b166c",
         "filename": "infra/builder/compile-qemu.sh",
         "patchSetId": 8
@@ -84,6 +132,30 @@
       "writtenOn": "2026-06-05T07:25:37Z",
       "side": 1,
       "message": "Number of jobs should not be a hardcoded value, as different machines have a different number of CPU cores. Replace with `-j$(nproc)`",
+      "range": {
+        "startLine": 50,
+        "startChar": 70,
+        "endLine": 50,
+        "endChar": 73
+      },
+      "revId": "8505e8eddc90cfddd75844eb73a1cc23904f70bf",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "a849df04_0bfc84a9",
+        "filename": "infra/builder/compile-qemu.sh",
+        "patchSetId": 8
+      },
+      "lineNbr": 50,
+      "author": {
+        "id": 1039645
+      },
+      "writtenOn": "2026-06-25T17:50:50Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "4fa7b690_889b166c",
       "range": {
         "startLine": 50,
         "startChar": 70,
@@ -131,6 +203,30 @@
       "side": 1,
       "message": "Good catch, I\u0027ll test the changes and reply\n-j8 is a flag that was set prior to this change",
       "parentUuid": "b9a7d8d4_58448654",
+      "range": {
+        "startLine": 56,
+        "startChar": 54,
+        "endLine": 56,
+        "endChar": 57
+      },
+      "revId": "8505e8eddc90cfddd75844eb73a1cc23904f70bf",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "0ec1ce4e_4da957f0",
+        "filename": "infra/builder/compile-qemu.sh",
+        "patchSetId": 8
+      },
+      "lineNbr": 56,
+      "author": {
+        "id": 1039645
+      },
+      "writtenOn": "2026-06-25T17:50:50Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "756dcf0e_5194567e",
       "range": {
         "startLine": 56,
         "startChar": 54,
