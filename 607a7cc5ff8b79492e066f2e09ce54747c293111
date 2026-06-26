@@ -52,6 +52,24 @@
       "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "8e7cff16_3a8215d7",
+        "filename": "infra/builder/versions/configs.json",
+        "patchSetId": 9
+      },
+      "lineNbr": 12,
+      "author": {
+        "id": 1039461
+      },
+      "writtenOn": "2026-06-26T07:23:39Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "0d13e5de_1f12770f",
+      "revId": "607a7cc5ff8b79492e066f2e09ce54747c293111",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "40cd06ce_55b0c86f",
@@ -65,6 +83,30 @@
       "writtenOn": "2026-06-09T08:14:30Z",
       "side": 1,
       "message": "same here and in several places below",
+      "range": {
+        "startLine": 37,
+        "startChar": 0,
+        "endLine": 37,
+        "endChar": 26
+      },
+      "revId": "607a7cc5ff8b79492e066f2e09ce54747c293111",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "14f5b4b6_09c1ec3d",
+        "filename": "infra/builder/versions/configs.json",
+        "patchSetId": 9
+      },
+      "lineNbr": 37,
+      "author": {
+        "id": 1039461
+      },
+      "writtenOn": "2026-06-26T07:23:39Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "40cd06ce_55b0c86f",
       "range": {
         "startLine": 37,
         "startChar": 0,
@@ -100,6 +142,30 @@
     {
       "unresolved": true,
       "key": {
+        "uuid": "c973217f_868a5da5",
+        "filename": "infra/builder/versions/configs.json",
+        "patchSetId": 9
+      },
+      "lineNbr": 104,
+      "author": {
+        "id": 1039461
+      },
+      "writtenOn": "2026-06-26T07:23:39Z",
+      "side": 1,
+      "message": "I build upon that change request so I will let them fix it and rebase once they do.",
+      "parentUuid": "432d8739_4f1df84b",
+      "range": {
+        "startLine": 103,
+        "startChar": 0,
+        "endLine": 104,
+        "endChar": 42
+      },
+      "revId": "607a7cc5ff8b79492e066f2e09ce54747c293111",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
+    },
+    {
+      "unresolved": true,
+      "key": {
         "uuid": "0c6e634a_b3afe983",
         "filename": "infra/builder/versions/kernel/5.0.0/.config",
         "patchSetId": 9
@@ -111,6 +177,24 @@
       "writtenOn": "2026-06-09T08:14:30Z",
       "side": 1,
       "message": "Let\u0027s remove .config from the kernel repo to avoid duplicates. Use \n    Depends-On: link to the kernel repo change \nto test your current change and the kernel repo update.",
+      "revId": "607a7cc5ff8b79492e066f2e09ce54747c293111",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "8aec60ad_9a505370",
+        "filename": "infra/builder/versions/kernel/5.0.0/.config",
+        "patchSetId": 9
+      },
+      "lineNbr": 1,
+      "author": {
+        "id": 1039461
+      },
+      "writtenOn": "2026-06-26T07:23:39Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "0c6e634a_b3afe983",
       "revId": "607a7cc5ff8b79492e066f2e09ce54747c293111",
       "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
     }
