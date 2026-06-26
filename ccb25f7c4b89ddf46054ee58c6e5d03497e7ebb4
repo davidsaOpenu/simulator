@@ -82,6 +82,30 @@
       "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "c342f1e7_b16c590e",
+        "filename": "infra/builder/env.sh",
+        "patchSetId": 7
+      },
+      "lineNbr": 52,
+      "author": {
+        "id": 1039461
+      },
+      "writtenOn": "2026-06-26T07:55:05Z",
+      "side": 1,
+      "message": "david added a comment that he does not like the duplication so I reverted this change",
+      "parentUuid": "fb209b73_2bbe0f6c",
+      "range": {
+        "startLine": 51,
+        "startChar": 0,
+        "endLine": 52,
+        "endChar": 51
+      },
+      "revId": "ccb25f7c4b89ddf46054ee58c6e5d03497e7ebb4",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "f5e04a00_ab2ae0c5",
