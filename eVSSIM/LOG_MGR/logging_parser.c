@@ -28,8 +28,13 @@ void logger_busy_read(Logger_Pool *logger, Byte *buffer, int length, AnalyzerTyp
 {
     int bytes_read = 0;
     int bytes_read_total = 0;
-    while (bytes_read < length) {
-        bytes_read = logger_read(logger, buffer + bytes_read, length - bytes_read, analyzer);
+    // Accumulate with bytes_read_total. The original used bytes_read (the last
+    // call's count) for the offset/remaining/loop test, which only works when the
+    // whole body arrives in one read; when a body spans a log boundary the first
+    // read is short and the old code re-read at the wrong offset, dropping events.
+    while (bytes_read_total < length) {
+        bytes_read = logger_read(logger, buffer + bytes_read_total,
+                                 length - bytes_read_total, analyzer);
         if (-1 == bytes_read)
             RERR(, "WARNING: Log is null, the log may be corrupted and unusable!\n");
 
@@ -103,6 +108,10 @@ static void add_metadata_to_json_object(struct json_object *jobj, const LogMetad
     if (m->test_uuid[0] != '\0') {
         json_object_object_add(jobj, "test.uuid", json_object_new_string(m->test_uuid));
     }
+    if (m->run_id[0] != '\0') {
+        json_object_object_add(jobj, "run.id", json_object_new_string(m->run_id));
+    }
+    json_object_object_add(jobj, "seq", json_object_new_int64((int64_t)m->seq));
     if (m->ssd_size_bytes != 0) {
         json_object_object_add(jobj, "test.ssd.size", json_object_new_int64(m->ssd_size_bytes));
     }
@@ -233,7 +242,7 @@ void JSON_GARBAGE_COLLECTION(GarbageCollectionLog *src, char **dst)
     jobj = json_object_new_object();
     json_object_object_add(jobj, "type", json_object_new_string("GarbageCollectionLog"));
     json_object_object_add(jobj, "background", json_object_new_boolean(src->background));
-    // add_metadata_to_json_object(jobj, &src->metadata);
+    add_metadata_to_json_object(jobj, &src->metadata);
 
     const char *json_string = json_object_to_json_string_ext(jobj, JSON_C_TO_STRING_SPACED);
 
@@ -525,22 +534,52 @@ char* json_inject_device_index(const char* json_str, uint8_t device_index) {
     if (json_str == NULL)
         return NULL;
 
-    struct json_object *jobj = json_tokener_parse(json_str);
-    if (jobj == NULL)
-        return NULL;
-
-    json_object_object_add(jobj, "device_index", json_object_new_int(device_index));
-
-    const char *new_str = json_object_to_json_string_ext(jobj, JSON_C_TO_STRING_SPACED);
-    size_t len = strlen(new_str);
-    char* result = (char*)malloc(len + 2);
-    if (result == NULL) {
-        json_object_put(jobj);
-        return NULL;
+    // Splice `"device_index": <n>,` right after the opening brace instead of a
+    // full json-c parse + re-serialize per event (which dominated the offline
+    // analyzer's per-event cost). Output is exactly one '\n'-terminated JSON line.
+    const char* open = strchr(json_str, '{');
+    if (open == NULL) {
+        // not a JSON object; pass through with a single trailing newline
+        size_t n = strlen(json_str);
+        while (n > 0 && (json_str[n - 1] == '\n' || json_str[n - 1] == '\r'))
+            n--;
+        char* result = (char*) malloc(n + 2);
+        if (result == NULL)
+            return NULL;
+        memcpy(result, json_str, n);
+        result[n] = '\n';
+        result[n + 1] = '\0';
+        return result;
     }
 
-    strcpy(result, new_str);
-    strcat(result, "\n");
-    json_object_put(jobj);
+    const char* rest = open + 1;                    // everything after the '{'
+    size_t head_len = (size_t)(rest - json_str);    // up to and including '{'
+    size_t rest_len = strlen(rest);
+    while (rest_len > 0 && (rest[rest_len - 1] == '\n' || rest[rest_len - 1] == '\r'))
+        rest_len--;                                 // drop any trailing newline(s)
+
+    // omit the trailing comma if the object had no other fields ("{}")
+    const char* scan = rest;
+    while (*scan == ' ' || *scan == '\t')
+        scan++;
+    int has_fields = (*scan != '}');
+
+    char inject[48];
+    int ilen = snprintf(inject, sizeof(inject),
+                        has_fields ? " \"device_index\": %u," : " \"device_index\": %u",
+                        (unsigned) device_index);
+    if (ilen < 0)
+        return NULL;
+
+    char* result = (char*) malloc(head_len + (size_t) ilen + rest_len + 2);
+    if (result == NULL)
+        return NULL;
+
+    char* p = result;
+    memcpy(p, json_str, head_len); p += head_len;   // "{"
+    memcpy(p, inject, (size_t) ilen); p += ilen;    // " \"device_index\": N,"
+    memcpy(p, rest, rest_len);     p += rest_len;   // " \"type\": ... }"
+    *p++ = '\n';
+    *p = '\0';
     return result;
 }

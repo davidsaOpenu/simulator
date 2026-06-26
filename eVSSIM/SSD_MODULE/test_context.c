@@ -23,6 +23,14 @@ typedef struct ssd_tls_ctx {
 
 static TLS ssd_tls_ctx_t g_tls_ctx = {0};
 
+/* Process-global monotonic event seq; orders events within a run for offline analysis. */
+static volatile uint64_t g_log_seq = 0;
+
+/* Per-invocation run id (EVSSIM_RUN_ID), process-wide so every event from every
+ * thread (incl. background GC) carries it. The one test hook: a faithful tag, not
+ * a behaviour change. */
+static char g_run_id[RUN_ID_MAX] = {0};
+
 static char* sdup_or_null(const char* s) {
     if (!s) return NULL;
     size_t n = strlen(s) + 1;
@@ -49,6 +57,11 @@ void SSD_SET_TEST_CONTEXT(const test_execution_context_t* ctx) {
     g_tls_ctx.ssd_total_size_bytes    = ctx->ssd_total_size_bytes;
     g_tls_ctx.test_start_timestamp_us = ctx->test_start_timestamp_us;
     g_tls_ctx.initialized             = 1;
+
+    /* run.id is process-wide (see g_run_id): set once here, on the test thread,
+     * before FTL_INIT starts the GC thread, so that thread inherits it too. */
+    if (ctx->run_id) snprintf(g_run_id, sizeof(g_run_id), "%s", ctx->run_id);
+    else             g_run_id[0] = '\0';
 }
 
 void SSD_CLEAR_TEST_CONTEXT(void) {
@@ -62,6 +75,11 @@ LogMetadata LOG_META_MAKE(uint8_t device_index, int64_t start_us, int64_t end_us
 
     m.logging_start_time = start_us;
     m.logging_end_time   = end_us;
+
+    m.seq = __sync_fetch_and_add(&g_log_seq, 1);
+
+    if (g_run_id[0])
+        snprintf(m.run_id, sizeof(m.run_id), "%s", g_run_id);
 
     if (g_tls_ctx.initialized) {
         if (g_tls_ctx.test_name)
