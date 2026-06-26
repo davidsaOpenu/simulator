@@ -29,6 +29,10 @@ cd "$WS"
 
 log "Copying image from /home/davidsa/public_html/$IMAGE_NAME to workspace..."
 cp -f "/home/davidsa/public_html/$IMAGE_NAME" "$WS/"
+# The published image's disk is too small for the ELK images plus the evssim
+# image `podman load` stages below (~2GB archive + extracted layers filled it:
+# "no space left on device"). Grow the disk; the root fs is grown after boot.
+qemu-img resize "$WS/$IMAGE_NAME" +20G
 log "Image ready at: $WS/$IMAGE_NAME"
 
 # ================== PORT SELECTION ==================
@@ -96,6 +100,12 @@ if [[ "$ready" -ne 1 ]]; then
     exit 1
 fi
 
+# Grow the root fs into the resized disk. cloud-init's growpart usually does
+# this on boot; run it explicitly in case the image disables cloud-init.
+# growpart exits 1 on "already grown", so don't let it trip the ERR trap.
+ssh -o StrictHostKeyChecking=no -p "$free_tcp_port" elk@localhost \
+    "sudo growpart /dev/sda 1; sudo resize2fs /dev/sda1; df -h /" || true
+
 # ================== COPY simulator & logs ==================
 
 log "Copying simulator folder to VM..."
@@ -125,6 +135,14 @@ echo "======================= END OUTPUT ====================="
 echo "==================== START ELK ======================"
 ssh -o StrictHostKeyChecking=no -p "$free_tcp_port" elk@localhost \
     "cd ~/simulator/infra/ELK/; ./install_and_start_elk.sh ../../../logs ../ELK"
+echo "======================= END OUTPUT ====================="
+
+log "Loading evssim image from host docker into VM podman..."
+docker save evssim | ssh -o StrictHostKeyChecking=no -p "$free_tcp_port" elk@localhost "podman load"
+
+echo "==================== HOST SIMULATION TESTS (ELK metrics) ======================"
+ssh -o StrictHostKeyChecking=no -p "$free_tcp_port" elk@localhost \
+    "mkdir -p ~/qemu/hw && cd ~/simulator/infra/builder/ && source ./env.sh && SKIP_LEAKCHECK=1 METRIC_GROUPS='object_tests:--object-tests' ./docker-test-host-elk.sh"
 echo "======================= END OUTPUT ====================="
 
 log "test_on_podman_VM.sh completed successfully."

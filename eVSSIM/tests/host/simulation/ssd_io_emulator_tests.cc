@@ -37,6 +37,15 @@ using namespace std;
 
 namespace ssd_io_emulator_tests {
 
+    // Stats reach current_stats through the async monitor pipeline, so tests
+    // must wait for it to catch up before asserting. A blind sleep
+    // (MONITOR_SYNC_DELAY) under-waits on a loaded host — CI read a lagging
+    // snapshot and failed exactly so. Poll the asserted condition instead
+    // (100ms steps, 90s cap), then let the plain asserts report the real
+    // values if it still doesn't hold.
+    #define STATS_SETTLE(cond) \
+        for (int _settle = 0; !(cond) && _settle < 900; ++_settle) usleep(100000)
+
     class SSDIoEmulatorUnitTest : public BaseTest {
         public:
             virtual void SetUp() {
@@ -449,19 +458,22 @@ namespace ssd_io_emulator_tests {
             // here manually to get closer to the theoretical 0.8 utilization.
             GC_CHECK(g_device_index, false, false);
 
-            MONITOR_SYNC_DELAY(15000000);
-
             //at most one block that wasn't cleared by GC algorithem
             double error_util = (double)(ssd_config->get_pages_per_block()) / (ssd_config->get_page_nb() * ssd_config->get_block_nb() * ssd_config->get_flash_nb());
+            // Events are analyzed in stream order: logical_write_count == N
+            // means every write above landed; utilization additionally needs
+            // the trailing GC erases, hence the conjunction.
+            STATS_SETTLE(ssds_manager[g_device_index].ssd.current_stats->logical_write_count == page_x_flash * (x + 1)
+                         && ssds_manager[g_device_index].ssd.current_stats->utilization >= 0.8 - error_util
+                         && ssds_manager[g_device_index].ssd.current_stats->utilization <= 0.8 + error_util);
             ASSERT_NEAR(0.8, ssds_manager[g_device_index].ssd.current_stats->utilization, error_util); // 25% over provitioning = 80% full
 
             ASSERT_EQ(page_x_flash * (x + 1), ssds_manager[g_device_index].ssd.current_stats->logical_write_count);
             ASSERT_LE(page_x_flash * (x + 1), ssds_manager[g_device_index].ssd.current_stats->write_count);
         }
 
-        int expected_write_duration = (devices[g_device_index].channel_switch_delay_w + devices[g_device_index].reg_write_delay + devices[g_device_index].cell_program_delay) * page_x_flash * 2;
-
-        MONITOR_SYNC_DELAY(expected_write_duration);
+        // The loop's final STATS_SETTLE already drained the pipeline (writes
+        // and GC), so the aggregate stats below are stable — no extra wait.
 
         // Assert w.a. is greater then 1
         ASSERT_GE(page_x_flash, ssds_manager[g_device_index].ssd.current_stats->garbage_collection_count);

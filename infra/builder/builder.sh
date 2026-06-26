@@ -29,14 +29,23 @@ elif [[ $(md5sum $EVSSIM_ENV_PATH | cut -d " " -f 1) != $EVSSIM_ENV_HASH ]]; the
     echo "WARNING Environment file hash changed. Please reload using 'source ./env.sh'"
 fi
 
-# Check for docker support
-if ! which docker >/dev/null; then
-    echo "ERORR Missing docker configuration"
+# Container engine: docker, else podman (the test VM has no docker).
+if [ -z "${EVSSIM_CONTAINER_ENGINE:-}" ]; then
+    if which docker >/dev/null 2>&1; then
+        EVSSIM_CONTAINER_ENGINE=docker
+    elif which podman >/dev/null 2>&1; then
+        EVSSIM_CONTAINER_ENGINE=podman
+    fi
+fi
+if [ -z "${EVSSIM_CONTAINER_ENGINE:-}" ]; then
+    echo "ERORR Missing container engine (need docker or podman)"
     exit 1
 fi
+export EVSSIM_CONTAINER_ENGINE
 
-if ! docker ps 2>/dev/null >/dev/null; then
-    echo "ERORR Docker has no permissions. Consider adding user to docker group. Logout and login afterwards."
+if ! $EVSSIM_CONTAINER_ENGINE ps >/dev/null 2>&1; then
+    echo "ERORR $EVSSIM_CONTAINER_ENGINE is not usable (no permissions / daemon down)."
+    echo "      For docker, add your user to the docker group, then re-login:"
     echo "      $ sudo groupadd docker"
     echo "      $ sudo usermod -aG docker $USER"
     exit 1
@@ -82,7 +91,7 @@ evssim_run_at_folder () {
 evssim_run_at_path () {
     local path=$1
     local args="${@:2}"
-    docker run --rm -i $docker_extra_tty $EVSSIM_DOCKER_XOPTIONS $EVSSIM_DOCKER_PORTS_OPTION --privileged --env-file <(evssim_all_env) -v $EVSSIM_ROOT_PATH:$EVSSIM_DOCKER_ROOT_PATH $EVSSIM_DOCKER_IMAGE_NAME bash -c "cd $path; $args"
+    $EVSSIM_CONTAINER_ENGINE run --rm -i $docker_extra_tty $EVSSIM_DOCKER_XOPTIONS $EVSSIM_DOCKER_PORTS_OPTION --privileged --env-file <(evssim_all_env) -v $EVSSIM_ROOT_PATH:$EVSSIM_DOCKER_ROOT_PATH $EVSSIM_DOCKER_IMAGE_NAME bash -c "cd $path; $args"
 }
 
 # Run
@@ -295,10 +304,10 @@ evssim_qemu () {
 
     case "$attached" in
         attached)
-            docker run --rm -i $docker_extra_tty --net=host $EVSSIM_DOCKER_XOPTIONS --privileged --env-file <(evssim_all_env) -v $EVSSIM_ROOT_PATH/$EVSSIM_DATA_FOLDER:$EVSSIM_DOCKER_ROOT_PATH/$EVSSIM_QEMU_FOLDER/hw/data -v $EVSSIM_ROOT_PATH:$EVSSIM_DOCKER_ROOT_PATH $EVSSIM_DOCKER_IMAGE_NAME bash -c "$args"
+            $EVSSIM_CONTAINER_ENGINE run --rm -i $docker_extra_tty --net=host $EVSSIM_DOCKER_XOPTIONS --privileged --env-file <(evssim_all_env) -v $EVSSIM_ROOT_PATH/$EVSSIM_DATA_FOLDER:$EVSSIM_DOCKER_ROOT_PATH/$EVSSIM_QEMU_FOLDER/hw/data -v $EVSSIM_ROOT_PATH:$EVSSIM_DOCKER_ROOT_PATH $EVSSIM_DOCKER_IMAGE_NAME bash -c "$args"
             ;;
         *)
-            export EVSSIM_DOCKER_UUID=$(docker run --rm -d --net=host $EVSSIM_DOCKER_XOPTIONS --privileged --env-file <(evssim_all_env) -v $EVSSIM_ROOT_PATH/$EVSSIM_DATA_FOLDER:$EVSSIM_DOCKER_ROOT_PATH/$EVSSIM_QEMU_FOLDER/hw/data -v $EVSSIM_ROOT_PATH:$EVSSIM_DOCKER_ROOT_PATH $EVSSIM_DOCKER_IMAGE_NAME bash -c "$args")
+            export EVSSIM_DOCKER_UUID=$($EVSSIM_CONTAINER_ENGINE run --rm -d --net=host $EVSSIM_DOCKER_XOPTIONS --privileged --env-file <(evssim_all_env) -v $EVSSIM_ROOT_PATH/$EVSSIM_DATA_FOLDER:$EVSSIM_DOCKER_ROOT_PATH/$EVSSIM_QEMU_FOLDER/hw/data -v $EVSSIM_ROOT_PATH:$EVSSIM_DOCKER_ROOT_PATH $EVSSIM_DOCKER_IMAGE_NAME bash -c "$args")
             echo INFO Docker started $EVSSIM_DOCKER_UUID
             trap "evssim_qemu_stop" EXIT SIGTERM SIGINT
             sleep 1
@@ -317,7 +326,7 @@ evssim_qemu_flush_disk () {
 # Parameters - None
 evssim_qemu_stop () {
     if [ ! -z $EVSSIM_DOCKER_UUID ]; then
-        if docker ps -q --no-trunc | grep $EVSSIM_DOCKER_UUID > /dev/null; then
+        if $EVSSIM_CONTAINER_ENGINE ps -q --no-trunc | grep $EVSSIM_DOCKER_UUID > /dev/null; then
             # Kill qemu safely
             local code=$(cat <<DOCKER
 kill -SIGTERM \$(cat /tmp/qemu.pid)
@@ -325,16 +334,16 @@ timeout 10 tail --pid \$(cat /tmp/qemu.pid) -f /dev/null
 DOCKER
 )
             set +e
-            docker exec --privileged $EVSSIM_DOCKER_UUID /bin/bash -c "$code"
+            $EVSSIM_CONTAINER_ENGINE exec --privileged $EVSSIM_DOCKER_UUID /bin/bash -c "$code"
             sleep 1
             set -e
 
             # Force kill no, wait
-            if docker ps -q --no-trunc | grep $EVSSIM_DOCKER_UUID > /dev/null; then
-                docker ps -q --no-trunc | grep $EVSSIM_DOCKER_UUID
+            if $EVSSIM_CONTAINER_ENGINE ps -q --no-trunc | grep $EVSSIM_DOCKER_UUID > /dev/null; then
+                $EVSSIM_CONTAINER_ENGINE ps -q --no-trunc | grep $EVSSIM_DOCKER_UUID
                 echo "TOOT"
-                docker stop -t 0 $EVSSIM_DOCKER_UUID > /dev/null
-                echo WARNING Killed docker $EVSSIM_DOCKER_UUID
+                $EVSSIM_CONTAINER_ENGINE stop -t 0 $EVSSIM_DOCKER_UUID > /dev/null
+                echo WARNING Killed container $EVSSIM_DOCKER_UUID
             fi
         fi
         export EVSSIM_DOCKER_UUID=""

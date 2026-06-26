@@ -108,12 +108,20 @@ void* log_manager_run(void* args) {
 
 void log_manager_loop(uint8_t device_index, LogManager* manager, int max_loops) {
     SSDStatistics old_stats = stats_init();
+    // Readers (tests, monitor) follow current_stats concurrently, so the
+    // in-progress accumulator `stats` below must stay private: publishing it
+    // directly let readers observe the zeroed/partially-summed struct
+    // mid-rebuild (same hazard the slots in `on_analyzer_update` guard
+    // against, one layer up). Only a fully-built copy lands in `published`.
+    // Remaining window is the struct assignment itself, which only matters
+    // while events are still in flight.
+    SSDStatistics published = stats_init();
+    ssds_manager[device_index].ssd.current_stats = &published;
     int first_loop = 1;
     int loops = 0;
     while (max_loops < 0 || loops < max_loops) {
         // init the current statistics
         SSDStatistics stats = stats_init();
-        ssds_manager[device_index].ssd.current_stats = &stats;
 
         unsigned int analyzer_id;
         // update the statistics according to the different analyzers
@@ -172,6 +180,9 @@ void log_manager_loop(uint8_t device_index, LogManager* manager, int max_loops) 
         #ifdef MONITOR_DEBUG
         validateSSDStat(&stats);
         #endif
+
+        // snapshot is complete; publish it for concurrent readers
+        published = stats;
 
         unsigned int subscriber_id;
         // call present hooks if the statistics changed
