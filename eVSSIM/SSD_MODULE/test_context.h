@@ -9,6 +9,7 @@ typedef struct test_execution_context {
     const char* test_name;
     const char* test_case_name;
     const char* test_run_uuid;
+    const char* run_id;            /* per-invocation id (EVSSIM_RUN_ID); may be NULL */
     uint64_t    ssd_total_size_bytes;
     int64_t     test_start_timestamp_us;
 } test_execution_context_t;

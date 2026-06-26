@@ -129,6 +129,8 @@ ftl_ret_val DEFAULT_GC_COLLECTION_ALGO(uint8_t device_index, int l2, bool backgr
     int valid_page_nb;
 	int copy_page_nb = 0;
 
+	int64_t gc_start = get_usec();
+
 	inverse_block_mapping_entry* inverse_block_entry;
 
 	ret = SELECT_VICTIM_BLOCK(device_index, &victim_phy_flash_nb, &victim_phy_block_nb);
@@ -224,7 +226,10 @@ ftl_ret_val DEFAULT_GC_COLLECTION_ALGO(uint8_t device_index, int l2, bool backgr
 	UPDATE_INVERSE_BLOCK_MAPPING(device_index, victim_phy_flash_nb, victim_phy_block_nb, EMPTY_BLOCK);
 	INSERT_EMPTY_BLOCK(device_index, victim_phy_flash_nb, victim_phy_block_nb);
 
-	LOG_GARBAGE_COLLECTION(GET_LOGGER(device_index, victim_phy_flash_nb), (GarbageCollectionLog) { .background = background });
+	LOG_GARBAGE_COLLECTION(GET_LOGGER(device_index, victim_phy_flash_nb), (GarbageCollectionLog) {
+		.background = background,
+		.metadata = LOG_META(device_index, gc_start, get_usec()),
+	});
 
 	return FTL_SUCCESS;
 }

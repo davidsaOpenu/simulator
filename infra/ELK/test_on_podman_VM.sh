@@ -127,4 +127,10 @@ ssh -o StrictHostKeyChecking=no -p "$free_tcp_port" elk@localhost \
     "cd ~/simulator/infra/ELK/; ./install_and_start_elk.sh ../../../logs ../ELK"
 echo "======================= END OUTPUT ====================="
 
+# Run the host simulation tests + per-case ELK metric assertions against the VM's ELK (maman12).
+echo "==================== HOST SIMULATION TESTS (ELK metrics) ======================"
+ssh -o StrictHostKeyChecking=no -p "$free_tcp_port" elk@localhost \
+    "mkdir -p ~/qemu/hw && cd ~/simulator/infra/builder/ && source ./env.sh && ./build-docker-image.sh && ./compile-host-tests.sh && ./docker-test-host-elk.sh"
+echo "======================= END OUTPUT ====================="
+
 log "test_on_podman_VM.sh completed successfully."

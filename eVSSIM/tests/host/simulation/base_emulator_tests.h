@@ -332,6 +332,7 @@ namespace {
                 ctx.test_name               = ti ? ti->name() : "unknown";
                 ctx.test_case_name          = ti ? GTEST_TEST_SUITE_OR_CASE_NAME(ti) : "unknown";
                 ctx.test_run_uuid           = run_uuid;
+                ctx.run_id                  = getenv("EVSSIM_RUN_ID");  // per-group run id; tags every event
                 ctx.ssd_total_size_bytes    = total_bytes;
                 ctx.test_start_timestamp_us = t0_us;
                 SSD_SET_TEST_CONTEXT(&ctx);

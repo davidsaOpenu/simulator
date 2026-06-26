@@ -7,6 +7,7 @@
 #define _GC_MANAGER_H_
 
 #include "ftl.h"
+#include "test_context.h"
 
 typedef ftl_ret_val (*gc_collection_algo)(uint8_t, int, bool background);
 typedef ftl_ret_val (*gc_next_page_algo)(uint8_t, int, int, uint64_t*);
