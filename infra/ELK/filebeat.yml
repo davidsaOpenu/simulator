@@ -50,6 +50,13 @@ output.elasticsearch:
     verification_mode: full
 
 processors:
+  # Idempotent ingestion: set the ES _id from the logger's flat doc_id (run_id-seq)
+  # so re-ships overwrite instead of duplicating. ignore_missing => non-test events keep an auto _id.
+  - fingerprint:
+      fields: ["doc_id"]
+      target_field: "@metadata._id"
+      method: "sha256"
+      ignore_missing: true
   - add_host_metadata:
       when.not.contains.tags: forwarded
   - add_cloud_metadata: ~

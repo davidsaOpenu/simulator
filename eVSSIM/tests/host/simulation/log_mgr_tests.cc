@@ -580,7 +580,7 @@ namespace log_mgr_tests {
      * Test writing and reading a garbage collection log
      */
     TEST_P(LogMgrUnitTest, GarbageCollection) {
-        GarbageCollectionLog log = { .background = false, };
+        GarbageCollectionLog log = { .background = false, .metadata = LogMetadata() };
         LOG_GARBAGE_COLLECTION(_logger, log);
         ASSERT_EQ(GARBAGE_COLLECTION_LOG_UID, next_log_type(_logger));
         // test that NEXT_GARBAGE_COLLECTION_LOG actually does nothing,
