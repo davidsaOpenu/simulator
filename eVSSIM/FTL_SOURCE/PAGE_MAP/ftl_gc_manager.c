@@ -24,6 +24,9 @@ static void *GC_BACKGROUND_LOOP(void *arg) {
     uint8_t device_index = gc_thread->device_index;
     pthread_mutex_t *device_lock = GET_LOCK_FOR_DEVICE(device_index);
 
+    /* Inherit the test run context so this thread's GC events are tagged (no-op outside a test). */
+    SSD_APPLY_TEST_CONTEXT(&gc_thread->ctx_snapshot);
+
     LOCK_DEVICE(device_index);
     while (!gc_thread->gc_stop_flag) {
         gc_thread->gc_loop_count++;
@@ -53,6 +56,8 @@ static void *GC_BACKGROUND_LOOP(void *arg) {
     }
     UNLOCK_DEVICE(device_index);
 
+    SSD_CLEAR_TEST_CONTEXT();   /* free the inherited TLS context (valgrind-clean) */
+
     return NULL;
 }
 
@@ -67,6 +72,9 @@ void INIT_GC_MANAGER(uint8_t device_index) {
     pthread_cond_init(&gc_thread->gc_signal_cond, NULL);
     gc_thread->gc_stop_flag = false;
     gc_thread->gc_loop_count = 0;
+
+    /* Runs on the test thread (context already set), so the GC thread can inherit it. */
+    SSD_SNAPSHOT_TEST_CONTEXT(&gc_thread->ctx_snapshot);
 
     if (0 != pthread_create(&gc_thread->tid, NULL, GC_BACKGROUND_LOOP, gc_thread)) {
         DEV_RERR(, device_index, "failed to create GC background thread\n");
@@ -89,6 +97,20 @@ void TERM_GC_MANAGER(uint8_t device_index) {
     LOCK_DEVICE(device_index);
 
     pthread_cond_destroy(&gc_thread->gc_signal_cond);
+}
+
+void GC_DRAIN(uint8_t device_index)
+{
+	if (devices[device_index].storage_strategy == STRATEGY_OBJECT) {
+		return;   /* object strategy has no GC */
+	}
+
+	/* Hold the lock for the whole drain so the background GC thread cannot
+	 * interleave: collect every remaining victim until none are left, making
+	 * the total collection count a deterministic, work-conserving sum. */
+	LOCK_DEVICE(device_index);
+	while (GC_CHECK(device_index, true, false)) { }
+	UNLOCK_DEVICE(device_index);
 }
 
 bool GC_CHECK(uint8_t device_index, bool force, bool background)
@@ -128,6 +150,8 @@ ftl_ret_val DEFAULT_GC_COLLECTION_ALGO(uint8_t device_index, int l2, bool backgr
 	char* valid_array;
     int valid_page_nb;
 	int copy_page_nb = 0;
+
+	int64_t gc_start = get_usec();
 
 	inverse_block_mapping_entry* inverse_block_entry;
 
@@ -224,7 +248,10 @@ ftl_ret_val DEFAULT_GC_COLLECTION_ALGO(uint8_t device_index, int l2, bool backgr
 	UPDATE_INVERSE_BLOCK_MAPPING(device_index, victim_phy_flash_nb, victim_phy_block_nb, EMPTY_BLOCK);
 	INSERT_EMPTY_BLOCK(device_index, victim_phy_flash_nb, victim_phy_block_nb);
 
-	LOG_GARBAGE_COLLECTION(GET_LOGGER(device_index, victim_phy_flash_nb), (GarbageCollectionLog) { .background = background });
+	LOG_GARBAGE_COLLECTION(GET_LOGGER(device_index, victim_phy_flash_nb), (GarbageCollectionLog) {
+		.background = background,
+		.metadata = LOG_META(device_index, gc_start, get_usec()),
+	});
 
 	return FTL_SUCCESS;
 }

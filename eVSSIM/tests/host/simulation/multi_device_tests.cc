@@ -40,6 +40,7 @@ namespace multi_device_tests {
                 // Clean up secondary devices FIRST (not the primary one)
                 for (uint8_t i = 0; i < device_count; i++) {
                     if (i != g_device_index) {
+                        GC_DRAIN(i);
                         FTL_TERM(i);
                         TERM_LOG_MANAGER(i);
                         std::ignore = system((std::string("rm -rf data/") + std::to_string(i)).c_str());
@@ -87,9 +88,10 @@ namespace multi_device_tests {
                 << "Device 1 sequential write failed at page " << p;
         }
 
-        // Device 2: Random writes
+        // Device 2: Random writes. Private fixed-seed PRNG (reproducible, order-independent).
+        unsigned int seed = 0;
         for(size_t i = 0; i < pages_to_test; i++) {
-            size_t page = rand() % ssd_config->get_pages();
+            size_t page = rand_r(&seed) % ssd_config->get_pages();
             device2_written_pages.push_back(page);
             ASSERT_EQ(FTL_SUCCESS, FTL_WRITE_SECT(2, page * page_size, 1, NULL))
                 << "Device 2 random write failed";
@@ -127,10 +129,11 @@ namespace multi_device_tests {
         size_t page_size = ssd_config->get_page_size();
         size_t operations = std::min(size_t(50), ssd_config->get_pages());
 
-        // Simulate interleaved database and log operations
+        // Simulate interleaved database and log operations. Private fixed-seed PRNG.
+        unsigned int seed = 0;
         for(size_t i = 0; i < operations; i++) {
             // Database: Random write to device 0
-            size_t db_page = rand() % ssd_config->get_pages();
+            size_t db_page = rand_r(&seed) % ssd_config->get_pages();
             ASSERT_EQ(FTL_SUCCESS, FTL_WRITE_SECT(0, db_page * page_size, 1, NULL))
                 << "Database write failed at iteration " << i;
 
@@ -142,7 +145,7 @@ namespace multi_device_tests {
 
             // Every 10 operations, do a database read
             if (i % 10 == 0 && i > 0) {
-                size_t read_page = rand() % ssd_config->get_pages();
+                size_t read_page = rand_r(&seed) % ssd_config->get_pages();
                 FTL_READ_SECT(0, read_page * page_size, 1, NULL);
             }
         }
@@ -251,6 +254,7 @@ namespace multi_device_tests {
                 // Clean up secondary devices FIRST (not the primary one)
                 for (uint8_t i = 0; i < device_count; i++) {
                     if (i != g_device_index) {
+                        GC_DRAIN(i);
                         FTL_TERM(i);
                         TERM_LOG_MANAGER(i);
                         std::ignore = system((std::string("rm -rf data/") + std::to_string(i)).c_str());
@@ -557,6 +561,7 @@ namespace multi_device_tests {
                         continue;
                     }
 
+                    GC_DRAIN(i);
                     FTL_TERM(i);
                     TERM_LOG_MANAGER(i);
                     std::ignore = system((std::string("rm -rf data/") + std::to_string(i)).c_str());

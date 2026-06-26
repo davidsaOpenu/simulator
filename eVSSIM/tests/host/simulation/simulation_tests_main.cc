@@ -50,5 +50,15 @@ int main(int argc, char **argv) {
 
     testing::GTEST_FLAG(filter) = tests_filter;
     testing::InitGoogleTest(&argc, argv);
-    return RUN_ALL_TESTS();
+    int rc = RUN_ALL_TESTS();
+
+    // Reconciliation manifest: events produced this run; the orchestrator waits
+    // until ELK holds exactly this many for EVSSIM_RUN_ID before asserting.
+    const char* run_id = getenv("EVSSIM_RUN_ID");
+    printf("EVSSIM_RUN_MANIFEST run_id=%s events=%llu\n",
+           run_id ? run_id : "",
+           (unsigned long long)SSD_GET_RUN_EVENT_COUNT());
+    fflush(stdout);
+
+    return rc;
 }
