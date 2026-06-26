@@ -127,4 +127,12 @@ ssh -o StrictHostKeyChecking=no -p "$free_tcp_port" elk@localhost \
     "cd ~/simulator/infra/ELK/; ./install_and_start_elk.sh ../../../logs ../ELK"
 echo "======================= END OUTPUT ====================="
 
+log "Loading evssim image from host docker into VM podman..."
+docker save evssim | ssh -o StrictHostKeyChecking=no -p "$free_tcp_port" elk@localhost "podman load"
+
+echo "==================== HOST SIMULATION TESTS (ELK metrics) ======================"
+ssh -o StrictHostKeyChecking=no -p "$free_tcp_port" elk@localhost \
+    "mkdir -p ~/qemu/hw && cd ~/simulator/infra/builder/ && source ./env.sh && SKIP_LEAKCHECK=1 METRIC_GROUPS='object_tests:--object-tests' ./docker-test-host-elk.sh"
+echo "======================= END OUTPUT ====================="
+
 log "test_on_podman_VM.sh completed successfully."
