@@ -357,6 +357,7 @@ namespace rt_subscriber {
         TIME_MICROSEC(end5);
         LOG_GARBAGE_COLLECTION(logger, (GarbageCollectionLog) {
             .background = false,
+            .metadata = LogMetadata(),
         });
         LOG_LOGICAL_CELL_PROGRAM(logger, (LogicalCellProgramLog) {
             .channel = 7, .block = 8, .page = 9,
@@ -397,6 +398,7 @@ namespace rt_subscriber {
         });
         LOG_GARBAGE_COLLECTION(logger, (GarbageCollectionLog) {
             .background = false,
+            .metadata = LogMetadata(),
         });
     }
 

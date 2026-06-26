@@ -332,6 +332,7 @@ namespace {
                 ctx.test_name               = ti ? ti->name() : "unknown";
                 ctx.test_case_name          = ti ? GTEST_TEST_SUITE_OR_CASE_NAME(ti) : "unknown";
                 ctx.test_run_uuid           = run_uuid;
+                ctx.run_id                  = getenv("EVSSIM_RUN_ID");  // per-group run id; tags every event
                 ctx.ssd_total_size_bytes    = total_bytes;
                 ctx.test_start_timestamp_us = t0_us;
                 SSD_SET_TEST_CONTEXT(&ctx);
@@ -340,6 +341,8 @@ namespace {
             }
 
             virtual void TearDown(bool term_ssd_conf=true) {
+                // Quiesce-and-drain GC before teardown (still under run context, so drain events are tagged).
+                GC_DRAIN(g_device_index);
                 FTL_TERM(g_device_index);
                 SSD_CLEAR_TEST_CONTEXT();
                 if (term_ssd_conf)

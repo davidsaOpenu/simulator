@@ -7,6 +7,7 @@
 #define _GC_MANAGER_H_
 
 #include "ftl.h"
+#include "test_context.h"
 
 typedef ftl_ret_val (*gc_collection_algo)(uint8_t, int, bool background);
 typedef ftl_ret_val (*gc_next_page_algo)(uint8_t, int, int, uint64_t*);
@@ -17,6 +18,8 @@ typedef struct gc_thread {
     pthread_cond_t gc_signal_cond;
     bool gc_stop_flag;
     uint64_t gc_loop_count;
+    /* Run context inherited from the creating test thread so GC events are tagged. */
+    test_context_snapshot_t ctx_snapshot;
 } gc_thread_t;
 
 extern gc_thread_t *gc_threads;
@@ -28,6 +31,13 @@ void INIT_GC_MANAGER(uint8_t device_index);
 void TERM_GC_MANAGER(uint8_t device_index);
 
 bool GC_CHECK(uint8_t device_index, bool force, bool background);
+
+/**
+ * Quiesce-and-drain: force-collect all outstanding garbage (under the device lock)
+ * so cumulative GC/utilization/WA metrics are independent of background-GC timing.
+ * Call at a test's measurement boundary.
+ */
+void GC_DRAIN(uint8_t device_index);
 
 /**
  * Default garbage collection algorithm
