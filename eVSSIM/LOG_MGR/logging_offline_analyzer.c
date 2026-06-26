@@ -40,6 +40,9 @@ int auto_delete = TRUE;
 static int elk_logger_writer_initialized = FALSE;
 static int elk_logger_writer_ref_count = 0;
 
+/* Bytes of '\n'-terminated JSON lines to accumulate before one write() syscall. */
+#define OFFLINE_ANALYZER_BATCH_BYTES (1 << 20)
+
 OfflineLogAnalyzer* offline_log_analyzer_init(Logger_Pool* logger_pool, uint8_t device_index) {
     OfflineLogAnalyzer* analyzer = (OfflineLogAnalyzer*) malloc(sizeof(OfflineLogAnalyzer));
     if (analyzer == NULL)
@@ -59,18 +62,27 @@ void* offline_log_analyzer_run(void* analyzer) {
 
 void offline_log_analyzer_loop(OfflineLogAnalyzer* analyzer) {
     char* json_buf = NULL;
-    // loop as long as exit_loop_flag is not set
-    while( ! ( analyzer->exit_loop_flag ) )
+
+    // Batch file writes: one write() per ~OFFLINE_ANALYZER_BATCH_BYTES of
+    // '\n'-terminated JSON lines instead of one syscall per event.
+    size_t batch_len = 0;
+    char* batch = (char*) malloc(OFFLINE_ANALYZER_BATCH_BYTES);
+
+    while ( 1 )
     {
-        while ( ! ( analyzer->exit_loop_flag )) {
-            // read the log type, while listening to analyzer->exit_loop_flag
+        // Sample the stop flag before draining and exit only after the drain
+        // below, so any events still queued at teardown are flushed before we
+        // stop (the original bailed mid-drain on the flag and dropped them).
+        int stopping = analyzer->exit_loop_flag;
+
+        // Drain until the pool is empty (don't bail mid-drain on exit_loop_flag).
+        while ( 1 ) {
             int log_type;
             int bytes_read = 0;
 
             bytes_read = logger_read(analyzer->logger_pool, ((Byte*)&log_type), sizeof(log_type), OFFLINE_ANALYZER);
 
-            // exit if needed
-            if (analyzer->exit_loop_flag || 0 == bytes_read || -1 == bytes_read) {
+            if (0 == bytes_read || -1 == bytes_read) {
                 break;
             }
 
@@ -200,18 +212,43 @@ void offline_log_analyzer_loop(OfflineLogAnalyzer* analyzer) {
             json_buf = NULL;
 
             if (enriched_buf != NULL) {
-                elk_logger_writer_save_log_to_file((Byte *)enriched_buf, strlen(enriched_buf));
+                size_t len = strlen(enriched_buf);
+                if (batch != NULL && len < OFFLINE_ANALYZER_BATCH_BYTES) {
+                    // flush first if appending this line would overflow the batch
+                    if (batch_len + len > OFFLINE_ANALYZER_BATCH_BYTES) {
+                        elk_logger_writer_save_log_to_file((Byte*)batch, (int)batch_len);
+                        batch_len = 0;
+                    }
+                    memcpy(batch + batch_len, enriched_buf, len);
+                    batch_len += len;
+                } else {
+                    // no batch buffer (malloc failed) or oversized line: write directly
+                    elk_logger_writer_save_log_to_file((Byte*)enriched_buf, (int)len);
+                }
                 free(enriched_buf);
             }
+        }
+
+        // flush the batch at the end of each drain so nothing lingers unwritten
+        if (batch_len > 0) {
+            elk_logger_writer_save_log_to_file((Byte*)batch, (int)batch_len);
+            batch_len = 0;
         }
 
         logger_reduce_size(analyzer->logger_pool);
         logger_clean(analyzer->logger_pool);
 
+        if (stopping)   // drained after observing the stop flag -> safe to exit
+            break;
+
         // go into penalty timeoff after each iteration of the analyzer loop
         // in order to let the rt analyzer complete it's operation on more logs
         (void)usleep(OFFLINE_ANALYZER_LOOP_TIMEOUT_US);
     }
+
+    // each drain flushes its own batch before the stop-flag break above, so
+    // batch_len is always 0 here; just release the buffer.
+    free(batch);
 
     analyzer->exit_loop_flag = 0;
 
@@ -465,13 +502,16 @@ static int elk_logger_writer_open_file_for_write(void) {
             printf("WARNING: there are %d unshipped logs (might need to increase filebeat workers)\n",unshipped);
     }
 
+    // Monotonic counter makes the filename unique: the second-resolution timestamp
+    // alone collided when two 10MB rotations landed in one second, and open()
+    // without O_APPEND then reopened the file at offset 0, overwriting prior events.
+    static unsigned int file_seq = 0;
     char buf[TIME_STAMP_LEN];
-    char log_name[TIME_STAMP_LEN+30];
+    char log_name[TIME_STAMP_LEN+40];
 
-    //the name of the log will be elk_log_file-timeStamp
     elk_logger_writer_get_time_string(buf);
-    sprintf(log_name, ELK_LOGGER_WRITER_LOGS_PATH "elk_log_file-%s.log", buf);
-    elk_logger_writer_obj.log_file = open(log_name, O_WRONLY | O_CREAT, 0644);
+    sprintf(log_name, ELK_LOGGER_WRITER_LOGS_PATH "elk_log_file-%s-%u.log", buf, file_seq++);
+    elk_logger_writer_obj.log_file = open(log_name, O_WRONLY | O_CREAT | O_APPEND, 0644);
 
     if (0 >= elk_logger_writer_obj.log_file) {
         return -1;
@@ -484,7 +524,9 @@ static int elk_logger_writer_open_file_for_write(void) {
  * closes the log file in use
  */
 static void elk_logger_writer_close_file(void) {
-    if (0 >= elk_logger_writer_obj.log_file)
+    // close a valid (open) fd before rotating; the original test was inverted
+    // (0 >= fd) so it never closed real files, leaking the descriptor.
+    if (elk_logger_writer_obj.log_file > 0)
         close(elk_logger_writer_obj.log_file);
 }
 

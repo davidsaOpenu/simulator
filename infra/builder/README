@@ -129,7 +129,7 @@ guest (Including nvme cli, nvme compliance) and available in /home/esd/guest.
 - `./compile-host-tests.sh` - Compile osc-osd and tests that use google testing framework
 
 ## Tests
-- `./docker-test-host.sh` - Host tests
+- `./docker-test-host-elk.sh` - Host tests + per-run.id ELK metric assertions (needs the ELK stack up)
 - `./docker-test-guest.sh` - Guest tests using QEMU. Each test is saved into the "dist/tests"
 unique test folder.
 

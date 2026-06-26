@@ -166,6 +166,7 @@ namespace manager_subscriber {
                 });
         LOG_GARBAGE_COLLECTION(logger1, (GarbageCollectionLog) {
                 .background = false,
+                .metadata = LogMetadata(),
         });
 
         // analyze the logs and propagate the changes to the manager

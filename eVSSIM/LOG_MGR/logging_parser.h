@@ -26,6 +26,7 @@
 #define TEST_NAME_MAX    128
 #define TEST_SUITE_MAX   128
 #define TEST_UUID_MAX     64
+#define RUN_ID_MAX        64
 
 /**
  * Concatenate the parameters given
@@ -81,6 +82,12 @@ typedef struct {
      * Run UUID of test
      */
     char    test_uuid[TEST_UUID_MAX];
+
+    /** Per-invocation run id (from EVSSIM_RUN_ID); empty outside tests. */
+    char    run_id[RUN_ID_MAX];
+
+    /** Monotonic per-event sequence; orders events within a run (logging_time is a non-sortable string). */
+    uint64_t seq;
 
     /**
      * Total SSD size in bytes
@@ -239,6 +246,8 @@ typedef struct {
      * Is it a background action?
      */
     bool background;
+    /** Log metadata (previously absent — GC was the only untagged log type). */
+    LogMetadata metadata;
 } GarbageCollectionLog;
 
 /**
