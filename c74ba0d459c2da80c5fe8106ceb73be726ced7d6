@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "2474a7cb_dcf00bbf",
+        "filename": "eVSSIM/FTL_SOURCE/PERF_MODULE/ftl_perf_manager.c",
+        "patchSetId": 1
+      },
+      "lineNbr": 345,
+      "author": {
+        "id": 1039542
+      },
+      "writtenOn": "2026-06-27T15:01:44Z",
+      "side": 1,
+      "message": "RDBG_FTL(0, ...) returns 0 on an out-of-bounds offset, which is indistinguishable from a valid zero-duration latency measurement. The caller cannot tell whether an error occurred. Consider returning -1 instead to make the failure detectable.",
+      "revId": "c74ba0d459c2da80c5fe8106ceb73be726ced7d6",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
+    }
+  ]
+}
