@@ -1,6 +1,57 @@
 {
   "comments": [
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "8017e04b_bd260915",
+        "filename": "eVSSIM/FTL_SOURCE/PAGE_MAP/ftl_sect_strategy.c",
+        "patchSetId": 1
+      },
+      "lineNbr": 93,
+      "author": {
+        "id": 1039542
+      },
+      "writtenOn": "2026-06-27T15:02:58Z",
+      "side": 1,
+      "message": "Good fix. Are there any other early-exit paths in _FTL_READ_SECT between ALLOC_IO_REQUEST and INCREASE_IO_REQUEST_SEQ_NB that are still missing this cleanup?",
+      "revId": "c74ba0d459c2da80c5fe8106ceb73be726ced7d6",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "5f5b4043_33ecf6de",
+        "filename": "eVSSIM/FTL_SOURCE/PAGE_MAP/ftl_sect_strategy.c",
+        "patchSetId": 1
+      },
+      "lineNbr": 288,
+      "author": {
+        "id": 1039542
+      },
+      "writtenOn": "2026-06-27T15:02:58Z",
+      "side": 1,
+      "message": "Good fix. Same question applies here for _FTL_WRITE_SECT - worth auditing all early exits between ALLOC_IO_REQUEST (line 236) and INCREASE_IO_REQUEST_SEQ_NB (line 335) to confirm this is the only one.",
+      "revId": "c74ba0d459c2da80c5fe8106ceb73be726ced7d6",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "1590e1fe_d6bb5091",
+        "filename": "eVSSIM/FTL_SOURCE/PERF_MODULE/ftl_perf_manager.c",
+        "patchSetId": 1
+      },
+      "lineNbr": 246,
+      "author": {
+        "id": 1039542
+      },
+      "writtenOn": "2026-06-27T15:02:58Z",
+      "side": 1,
+      "message": "The silent return makes it hard to distinguish between a valid edge case and a logic bug where FREE_DUMMY_IO_REQUEST was called incorrectly. A debug log before the return would help diagnose unexpected hits.",
+      "revId": "c74ba0d459c2da80c5fe8106ceb73be726ced7d6",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "2474a7cb_dcf00bbf",
@@ -14,6 +65,40 @@
       "writtenOn": "2026-06-27T15:01:44Z",
       "side": 1,
       "message": "RDBG_FTL(0, ...) returns 0 on an out-of-bounds offset, which is indistinguishable from a valid zero-duration latency measurement. The caller cannot tell whether an error occurred. Consider returning -1 instead to make the failure detectable.",
+      "revId": "c74ba0d459c2da80c5fe8106ceb73be726ced7d6",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "394fe6d5_0a7a424b",
+        "filename": "eVSSIM/tests/guest/ext4/test_ext4format.py",
+        "patchSetId": 1
+      },
+      "lineNbr": 16,
+      "author": {
+        "id": 1039542
+      },
+      "writtenOn": "2026-06-27T15:02:58Z",
+      "side": 1,
+      "message": "Pytest does not guarantee test method ordering within a class, so test_format_all may run before test_setup leaving the NVMe module unloaded. Move the setup logic to setup_method so it runs before every test in the class.",
+      "revId": "c74ba0d459c2da80c5fe8106ceb73be726ced7d6",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "d6d10ed8_5a28ec85",
+        "filename": "eVSSIM/tests/host/simulation/sector_tests.cc",
+        "patchSetId": 1
+      },
+      "lineNbr": 68,
+      "author": {
+        "id": 1039542
+      },
+      "writtenOn": "2026-06-27T15:02:58Z",
+      "side": 1,
+      "message": "With SECTOR_SIZE\u003d1 and PAGE_SIZE\u003d4096, length\u003d16 is 16 bytes - a sub-page write, not a multi-page write. The variable name multi_page_write and the test name ReadUnwrittenPageThenMultiPageWrite are misleading. Either rename to match what is actually happening, or set length to 16 * base_test_get_ssd_config()-\u003eget_page_size() to make the multi-page intent real.",
       "revId": "c74ba0d459c2da80c5fe8106ceb73be726ced7d6",
       "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
     }
