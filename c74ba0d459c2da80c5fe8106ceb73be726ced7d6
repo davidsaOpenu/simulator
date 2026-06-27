@@ -3,6 +3,23 @@
     {
       "unresolved": false,
       "key": {
+        "uuid": "ea2a600e_30c70748",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 1039489
+      },
+      "writtenOn": "2026-06-27T17:42:28Z",
+      "side": 1,
+      "message": "Nice work! Strongly agree with ajr\u0027s review as well so avoided commenting stuff they already noticed.\n\nOne general note:\nour Gerrit policy requires the card link + DoD; + co-author if paired. It would be helpful explaining to the reader why the gitignore/ext4 files are also in this CR. Add a body explaining the alloc/seq-nb desync.",
+      "revId": "c74ba0d459c2da80c5fe8106ceb73be726ced7d6",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
+    },
+    {
+      "unresolved": false,
+      "key": {
         "uuid": "8017e04b_bd260915",
         "filename": "eVSSIM/FTL_SOURCE/PAGE_MAP/ftl_sect_strategy.c",
         "patchSetId": 1
@@ -65,6 +82,23 @@
       "writtenOn": "2026-06-27T15:01:44Z",
       "side": 1,
       "message": "RDBG_FTL(0, ...) returns 0 on an out-of-bounds offset, which is indistinguishable from a valid zero-duration latency measurement. The caller cannot tell whether an error occurred. Consider returning -1 instead to make the failure detectable.",
+      "revId": "c74ba0d459c2da80c5fe8106ceb73be726ced7d6",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "8c3cc14e_a8908624",
+        "filename": "eVSSIM/tests/guest/ext4/test_ext4format.py",
+        "patchSetId": 1
+      },
+      "lineNbr": 5,
+      "author": {
+        "id": 1039489
+      },
+      "writtenOn": "2026-06-27T17:42:28Z",
+      "side": 1,
+      "message": "```suggestion\nNVME_DEVICES \u003d glob.glob(\"/dev/nvme*n1\")\n```\nHard-coded, if the guest\u0027s ssd.conf exposes a different device count, test_format_all fails on the first absent device. Suggest discovering them: for dev in glob.glob(\"/dev/nvme*n1\") and assert the list is non-empty, instead of a fixed list.",
       "revId": "c74ba0d459c2da80c5fe8106ceb73be726ced7d6",
       "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
     },
