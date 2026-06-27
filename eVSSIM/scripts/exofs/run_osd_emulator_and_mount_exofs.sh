@@ -41,6 +41,12 @@ sudo mkfs.exofs --pid=$PID --dev $NVME_DEV
 
 echo "> Mounting exofs on $MOUNT_POINT..."
 sudo mkdir -p $MOUNT_POINT
+# Mount exofs here (no function_graph tracing) instead of inside the tracing
+# harness. The Linux 5.0.0+ in-tree exofs driver hits a NULL-pointer
+# dereference in exofs_read_lookup_dev_table -> osduld_device_same when
+# mount(2) runs under the ftrace function_graph tracer on the CI guest;
+# see test_and_log_all_operations.sh for context.
+sudo mount -t exofs -o pid=$PID $NVME_DEV $MOUNT_POINT
 cd $TEST_UTIL_DIR
 sudo -E $TEST_UTIL_DIR/test_and_log_all_operations.sh
 
