@@ -663,6 +663,24 @@
       "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "95a8d10a_2cf9921b",
+        "filename": "infra/ELK/elk_performance_test.sh",
+        "patchSetId": 1
+      },
+      "lineNbr": 1211,
+      "author": {
+        "id": 1039489
+      },
+      "writtenOn": "2026-06-28T09:36:21Z",
+      "side": 1,
+      "message": "Marked as resolved.",
+      "parentUuid": "3c47fcf1_0e5177ac",
+      "revId": "ff1e8a80027f3df7670c9c9ff22bc7dc7e52dfba",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "a7e7642a_68052ab8",
