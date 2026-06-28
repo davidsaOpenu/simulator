@@ -1,8 +1,7 @@
 #!/usr/bin/env python
 
+import glob
 import os
-
-NVME_DEVICES = ["/dev/nvme0n1", "/dev/nvme1n1", "/dev/nvme2n1"]  # type: list[str]
 
 
 def check_drive(dev):
@@ -13,7 +12,7 @@ def check_drive(dev):
 
 
 class TestExt4Format:
-    def test_setup(self):
+    def setup_method(self):
         # type: () -> None
         os.system("rmmod dnvme 2>/dev/null || true")
         assert 0 == os.system("modprobe nvme")
@@ -21,5 +20,7 @@ class TestExt4Format:
 
     def test_format_all(self):
         # type: () -> None
-        for nvme_device in NVME_DEVICES:
+        nvme_devices = sorted(glob.glob("/dev/nvme*n1"))
+        assert nvme_devices, "No NVMe namespace devices found under /dev/"
+        for nvme_device in nvme_devices:
             check_drive(nvme_device)

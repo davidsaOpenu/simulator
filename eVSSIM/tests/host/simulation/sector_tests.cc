@@ -65,7 +65,8 @@ namespace sector_tests {
     }
 
     TEST_P(SectorUnitTest, ReadUnwrittenPageThenMultiPageWrite) {
-        const unsigned int multi_page_write = 16;
+        SSDConf* ssd_config = base_test_get_ssd_config();
+        const unsigned int multi_page_write = 16 * ssd_config->get_page_size();
 
         EXPECT_EQ(FTL_FAILURE, FTL_READ_SECT(g_device_index, 0, 1, NULL));
         ASSERT_EQ(FTL_SUCCESS, FTL_WRITE_SECT(g_device_index, 0, multi_page_write, NULL));
