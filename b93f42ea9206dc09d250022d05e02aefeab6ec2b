@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "5240f6fb_d5b4846e",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 19
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 1007990
+      },
+      "writtenOn": "2026-07-03T06:59:22Z",
+      "side": 1,
+      "message": "And one last note I missed to mention: can we get rid of symbolic links? IMHO, there\u0027s no real need to keep them in the same folder. We can simply update the code or initially use 14.04.sh instead of ubuntu14.04.sh. Same about 14.04 instead of  ubuntu14.04 everywhere.",
+      "revId": "b93f42ea9206dc09d250022d05e02aefeab6ec2b",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
+    }
+  ]
+}
