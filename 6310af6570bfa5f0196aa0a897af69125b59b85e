@@ -1,6 +1,29 @@
 {
   "comments": [
     {
+      "unresolved": true,
+      "key": {
+        "uuid": "1be03556_ae813f41",
+        "filename": "/COMMIT_MSG",
+        "patchSetId": 17
+      },
+      "lineNbr": 108,
+      "author": {
+        "id": 1007990
+      },
+      "writtenOn": "2026-07-03T05:28:00Z",
+      "side": 1,
+      "message": "it doesn\u0027t actually appear anywhere in the diff",
+      "range": {
+        "startLine": 108,
+        "startChar": 32,
+        "endLine": 108,
+        "endChar": 70
+      },
+      "revId": "6310af6570bfa5f0196aa0a897af69125b59b85e",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
+    },
+    {
       "unresolved": false,
       "key": {
         "uuid": "3439a7d3_b3ff96a8",
@@ -48,6 +71,138 @@
       "writtenOn": "2026-07-02T21:39:24Z",
       "side": 1,
       "message": "recheck",
+      "revId": "6310af6570bfa5f0196aa0a897af69125b59b85e",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "00aa8a7e_dba70ce2",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 17
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 1007990
+      },
+      "writtenOn": "2026-07-03T05:28:00Z",
+      "side": 1,
+      "message": "Great work. Last few nits inline.",
+      "revId": "6310af6570bfa5f0196aa0a897af69125b59b85e",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "0e286d74_5e6c5ca2",
+        "filename": "infra/builder/build-docker-image.sh",
+        "patchSetId": 17
+      },
+      "lineNbr": 10,
+      "author": {
+        "id": 1007990
+      },
+      "writtenOn": "2026-07-03T05:28:00Z",
+      "side": 1,
+      "message": "here same as in  https://review.gerrithub.io/c/davidsaOpenu/simulator/+/1237496/comment/689b42cf_00d8f706/",
+      "range": {
+        "startLine": 6,
+        "startChar": 0,
+        "endLine": 10,
+        "endChar": 4
+      },
+      "revId": "6310af6570bfa5f0196aa0a897af69125b59b85e",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "0cca90df_8d3dcdf1",
+        "filename": "infra/builder/docker-run-sanity.sh",
+        "patchSetId": 17
+      },
+      "lineNbr": 17,
+      "author": {
+        "id": 1007990
+      },
+      "writtenOn": "2026-07-03T05:28:00Z",
+      "side": 1,
+      "message": "The commit message claims: \"Fixed ssh/scp not using the port from EVSSIM_QEMU_SSH_PORT (renamed from EVSSIM_QEMU_PORT) variable.\" However, try_ssh_key() in docker-run-sanity.sh still uses a literal -p 2222 instead of -p $EVSSIM_QEMU_SSH_PORT",
+      "range": {
+        "startLine": 17,
+        "startChar": 21,
+        "endLine": 17,
+        "endChar": 25
+      },
+      "revId": "6310af6570bfa5f0196aa0a897af69125b59b85e",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "30869ea4_6e6e16c9",
+        "filename": "infra/builder/docker-test-guest.sh",
+        "patchSetId": 17
+      },
+      "lineNbr": 9,
+      "author": {
+        "id": 1007990
+      },
+      "writtenOn": "2026-07-03T05:28:00Z",
+      "side": 1,
+      "message": "should be resolved and cleaned up before merging?",
+      "range": {
+        "startLine": 9,
+        "startChar": 0,
+        "endLine": 9,
+        "endChar": 83
+      },
+      "revId": "6310af6570bfa5f0196aa0a897af69125b59b85e",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "dd929495_27b77567",
+        "filename": "infra/builder/docker-test-guest.sh",
+        "patchSetId": 17
+      },
+      "lineNbr": 38,
+      "author": {
+        "id": 1007990
+      },
+      "writtenOn": "2026-07-03T05:28:00Z",
+      "side": 1,
+      "message": "leftover",
+      "range": {
+        "startLine": 38,
+        "startChar": 0,
+        "endLine": 38,
+        "endChar": 128
+      },
+      "revId": "6310af6570bfa5f0196aa0a897af69125b59b85e",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "9e0f5418_e89b1e3e",
+        "filename": "infra/builder/docker-test-guest.sh",
+        "patchSetId": 17
+      },
+      "lineNbr": 54,
+      "author": {
+        "id": 1007990
+      },
+      "writtenOn": "2026-07-03T05:28:00Z",
+      "side": 1,
+      "message": "leftover",
+      "range": {
+        "startLine": 54,
+        "startChar": 0,
+        "endLine": 54,
+        "endChar": 12
+      },
       "revId": "6310af6570bfa5f0196aa0a897af69125b59b85e",
       "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
     },
@@ -138,6 +293,30 @@
       "side": 1,
       "message": "Time consuming? No, Inefficient? Maybe??\nSanity check takes a few seconds, maybe a minute, while the entire run-ci takes hours to finish. Sanity checks are an order(or two) of magnitude faster relative to the entire CI, so they are definitely not time consuming.\n\nIt made sense to me at the time that if the infrastructure is made of different docker images ideally they all should work. I can see why that can be wrong if there\u0027s multiple images with different purposes, in which case only the docker image that is going to run the guest (which would be `qemu.compileContainer`) needs to pass the sanity check.\n\nDo you prefer I change it to that?",
       "parentUuid": "689b42cf_00d8f706",
+      "range": {
+        "startLine": 49,
+        "startChar": 0,
+        "endLine": 51,
+        "endChar": 4
+      },
+      "revId": "6310af6570bfa5f0196aa0a897af69125b59b85e",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "bce09215_65e64fa2",
+        "filename": "infra/builder/run-ci.sh",
+        "patchSetId": 17
+      },
+      "lineNbr": 51,
+      "author": {
+        "id": 1007990
+      },
+      "writtenOn": "2026-07-03T05:28:00Z",
+      "side": 1,
+      "message": "I see. In fact, I have no strong opinion in this case. But at least it would be worth adding a comment explaining the rationale.",
+      "parentUuid": "cd09db77_64c5bc49",
       "range": {
         "startLine": 49,
         "startChar": 0,
