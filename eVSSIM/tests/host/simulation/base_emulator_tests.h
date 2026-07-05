@@ -119,6 +119,7 @@ namespace {
         size_t pages;
         int storage_strategy;
         int onfi_manager_threads;
+        int onfi_manager_queue_size;
 
         // external blocks (non over-provisioned)
         const static size_t CONST_PAGES_PER_BLOCK = 8;
@@ -139,7 +140,7 @@ namespace {
         }
 
     public:
-        SSDConf(size_t size_mb, size_t sector_size = 1, int onfi_manager_threads = 1) {
+        SSDConf(size_t size_mb, size_t sector_size = 1, int onfi_manager_threads = 1, int onfi_manager_queue_size=1024) {
             ssd_conf_calc_based_size_mb(size_mb);
             this->page_size = CONST_PAGE_SIZE_IN_BYTES;
             this->page_nb = CONST_PAGES_PER_BLOCK + CONST_PAGES_PER_BLOCK_OVERPROV;
@@ -149,12 +150,15 @@ namespace {
             this->object_size = 2048; // megabytes
             this->storage_strategy = STRATEGY_SECTOR;
             this->onfi_manager_threads = onfi_manager_threads;
+            this->onfi_manager_queue_size = onfi_manager_queue_size;
         }
 
         SSDConf(size_t page_size, size_t page_nb, size_t sector_size,
-                size_t flash_nb, size_t block_nb, size_t channel_nb, int onfi_manager_threads = 1)
+                size_t flash_nb, size_t block_nb, size_t channel_nb, int onfi_manager_threads = 1,
+                int onfi_manager_queue_size=1024)
                 : page_size(page_size), page_nb(page_nb), sector_size(sector_size),
-                  flash_nb(flash_nb), block_nb(block_nb), channel_nb(channel_nb), onfi_manager_threads(onfi_manager_threads) {
+                  flash_nb(flash_nb), block_nb(block_nb), channel_nb(channel_nb), onfi_manager_threads(onfi_manager_threads), 
+                  onfi_manager_queue_size(onfi_manager_queue_size) {
                     this->pages = page_nb * block_nb * flash_nb;
                     this->object_size = 2048; // default value in bytes
                     this->storage_strategy = STRATEGY_SECTOR;
@@ -220,6 +224,10 @@ namespace {
             return this->onfi_manager_threads;
         }
 
+        int get_onfi_manager_queue_size() {
+            return this->onfi_manager_queue_size;
+        }
+
         void ssd_conf_serialize(void) {
             ofstream ssd_conf("data/ssd.conf", ios_base::out | ios_base::trunc);
             ssd_conf << "[nvme01]\n"
@@ -247,6 +255,7 @@ namespace {
                 "GC_LOW_THR 20\n"
                 "GC_HI_THR 80\n"
                 "ONFI_MANAGER_THREADS " << get_onfi_manager_threads() << "\n"
+                "ONFI_MANAGER_QUEUE_SIZE " << get_onfi_manager_queue_size() << "\n"
                 "[nvme02]\n"
                 "FILE_NAME ./data/ssd2.img\n"
                 "PAGE_SIZE " << get_page_size() << "\n"
@@ -272,6 +281,7 @@ namespace {
                 "GC_LOW_THR 20\n"
                 "GC_HI_THR 80\n"
                 "ONFI_MANAGER_THREADS " << get_onfi_manager_threads() << "\n"
+                "ONFI_MANAGER_QUEUE_SIZE " << get_onfi_manager_queue_size() << "\n"
                 "[nvme03]\n"
                 "FILE_NAME ./data/ssd3.img\n"
                 "PAGE_SIZE " << get_page_size() << "\n"
@@ -296,7 +306,8 @@ namespace {
                 "STORAGE_STRATEGY " << get_storage_strategy() << "\n"
                 "GC_LOW_THR 20\n"
                 "GC_HI_THR 80\n"
-                "ONFI_MANAGER_THREADS " << get_onfi_manager_threads() << "\n";
+                "ONFI_MANAGER_THREADS " << get_onfi_manager_threads() << "\n"
+                "ONFI_MANAGER_QUEUE_SIZE " << get_onfi_manager_queue_size() << "\n";
             ssd_conf.close();
         }
     };
