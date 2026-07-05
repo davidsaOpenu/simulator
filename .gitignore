@@ -84,6 +84,8 @@ eVSSIM/QEMU/hw/www
 
 
 # unit test files
+eVSSIM/tests/host/compile_commands.json
+eVSSIM/tests/host/vgcore.*
 eVSSIM/tests/host/test_*.txt
 eVSSIM/tests/host/*/test_*.txt
 eVSSIM/tests/host/ssd.conf
@@ -92,6 +94,8 @@ eVSSIM/tests/host/simulation_tests_main
 eVSSIM/tests/host/*/simulation_tests_main
 eVSSIM/tests/host/unit_tests_main
 eVSSIM/tests/host/*/unit_tests_main
+eVSSIM/tests/host/*/functional_tests_main
+eVSSIM/tests/host/functional_tests_main
 eVSSIM/tests/host/data
 eVSSIM/tests/host/*/data
 eVSSIM/tests/host/*/common.h
@@ -140,13 +144,8 @@ eVSSIM/tests/host/*/monitor_test.h
 eVSSIM/tests/host/*/logging_server.c
 eVSSIM/tests/host/*/logging_server.h
 eVSSIM/tests/host/*/www
-
-eVSSIM/tests/host/compile_commands.json
-eVSSIM/tests/host/simulation/test_context.c
-eVSSIM/tests/host/simulation/test_context.h
-eVSSIM/tests/host/unit/test_context.c
-eVSSIM/tests/host/unit/test_context.h
-eVSSIM/tests/host/vgcore.40*
+eVSSIM/tests/host/*/test_context.c
+eVSSIM/tests/host/*/test_context.h
 
 # osd-osd files
 eVSSIM/osc-osd/osd-util/.depend
