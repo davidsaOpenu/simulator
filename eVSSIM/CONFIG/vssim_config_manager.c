@@ -12,6 +12,7 @@
 #include <ctype.h>
 
 #include "logging_rt_analyzer.h"
+#include "onfi.h"
 
 /* Devices Configuration */
 ssd_config_t* devices = NULL;
@@ -166,6 +167,14 @@ void INIT_SSD_CONFIG(void)
     if (NULL == g_onfi_devices)
         RERR(, "g_onfi_devices allocation failed!\n");
 
+    g_onfi_mt_managers = (onfi_mt_manager_t*)calloc(sizeof(onfi_mt_manager_t) * device_count, 1);
+    if (NULL == g_onfi_mt_managers)
+        RERR(, "g_onfi_mt_managers allocation failed!\n");
+
+    g_onfi_device_locks = (pthread_mutex_t*)calloc(sizeof(pthread_mutex_t) * device_count, 1);
+    if (NULL == g_onfi_device_locks)
+        RERR(, "g_onfi_device_locks allocation failed!\n");
+
     ssds_manager = (ssd_manager_t*)calloc(sizeof(ssd_manager_t) * device_count, 1);
     if (NULL == ssds_manager)
         RERR(, "ssds_manager allocation failed!\n");
@@ -226,6 +235,12 @@ void TERM_SSD_CONFIG(void)
 
     free(g_onfi_devices);
     g_onfi_devices = NULL;
+
+    free(g_onfi_mt_managers);
+    g_onfi_mt_managers = NULL;
+
+    free(g_onfi_device_locks);
+    g_onfi_device_locks = NULL;
 
     free(ssds_manager);
     ssds_manager = NULL;
@@ -335,6 +350,9 @@ bool parse_config_line(const char* key, FILE* file, ssd_config_t* device) {
     if (strcmp(key, "ONFI_MANAGER_THREADS") == 0) {
         return fscanf(file, "%d", &device->onfi_manager_threads) == 1;
     }
+    if (strcmp(key, "ONFI_MANAGER_QUEUE_SIZE") == 0) {
+        return fscanf(file, "%d", &device->onfi_manager_queue_size) == 1;
+    }
 
 #if defined FTL_MAP_CACHE
     if (strcmp(key, "CACHE_IDX_SIZE") == 0) {
@@ -422,6 +440,9 @@ void calculate_derived_values(ssd_config_t* device) {
     device->block_mapping_entry_nb = (uint64_t)device->block_nb * device->flash_nb;
     device->pages_in_ssd = device->page_nb * device->block_nb * device->flash_nb;
 
+    if (device->channel_nb > 0)
+        device->way_nb = device->flash_nb / device->channel_nb;
+
     // reserve one block for GC
     device->sectors_in_ssd = device->sectors_per_page * (device->pages_in_ssd - device->page_nb);
 
@@ -449,6 +470,11 @@ void calculate_derived_values(ssd_config_t* device) {
     // if ONFI manager threads didn't set, change it to 1
     if (device->onfi_manager_threads <= 0) {
         device->onfi_manager_threads = 1;
+    }
+
+    // if ONFI manager queue size didn't set, default to 1024
+    if (device->onfi_manager_queue_size <= 0) {
+        device->onfi_manager_queue_size = 1024;
     }
 }
 

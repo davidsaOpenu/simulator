@@ -247,6 +247,7 @@ namespace {
                 "GC_LOW_THR 20\n"
                 "GC_HI_THR 80\n"
                 "ONFI_MANAGER_THREADS " << get_onfi_manager_threads() << "\n"
+                "ONFI_MANAGER_QUEUE_SIZE 1024\n"
                 "[nvme02]\n"
                 "FILE_NAME ./data/ssd2.img\n"
                 "PAGE_SIZE " << get_page_size() << "\n"
@@ -272,6 +273,7 @@ namespace {
                 "GC_LOW_THR 20\n"
                 "GC_HI_THR 80\n"
                 "ONFI_MANAGER_THREADS " << get_onfi_manager_threads() << "\n"
+                "ONFI_MANAGER_QUEUE_SIZE 1024\n"
                 "[nvme03]\n"
                 "FILE_NAME ./data/ssd3.img\n"
                 "PAGE_SIZE " << get_page_size() << "\n"
@@ -296,7 +298,8 @@ namespace {
                 "STORAGE_STRATEGY " << get_storage_strategy() << "\n"
                 "GC_LOW_THR 20\n"
                 "GC_HI_THR 80\n"
-                "ONFI_MANAGER_THREADS " << get_onfi_manager_threads() << "\n";
+                "ONFI_MANAGER_THREADS " << get_onfi_manager_threads() << "\n"
+                "ONFI_MANAGER_QUEUE_SIZE 1024\n";
             ssd_conf.close();
         }
     };
