@@ -80,6 +80,7 @@ namespace ssd_conf_tests {
             expected_onfi_manager_threads = 1;
         }
         ASSERT_EQ(expected_onfi_manager_threads, devices[g_device_index].onfi_manager_threads);
+        ASSERT_EQ(1024, devices[g_device_index].onfi_manager_queue_size);
 
         // FILENAME depends on device index
         std::string expected_file_name = "./data/ssd" +
