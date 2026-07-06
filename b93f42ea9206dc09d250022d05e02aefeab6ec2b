@@ -16,6 +16,29 @@
       "message": "And one last note I missed to mention: can we get rid of symbolic links? IMHO, there\u0027s no real need to keep them in the same folder. We can simply update the code or initially use 14.04.sh instead of ubuntu14.04.sh. Same about 14.04 instead of  ubuntu14.04 everywhere.",
       "revId": "b93f42ea9206dc09d250022d05e02aefeab6ec2b",
       "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "20be5de9_b250a551",
+        "filename": "infra/builder/load_config.sh",
+        "patchSetId": 19
+      },
+      "lineNbr": 67,
+      "author": {
+        "id": 1039371
+      },
+      "writtenOn": "2026-07-06T16:10:51Z",
+      "side": 1,
+      "message": "Needs removal",
+      "range": {
+        "startLine": 63,
+        "startChar": 0,
+        "endLine": 67,
+        "endChar": 93
+      },
+      "revId": "b93f42ea9206dc09d250022d05e02aefeab6ec2b",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
     }
   ]
 }
