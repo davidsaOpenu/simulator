@@ -511,6 +511,24 @@
       "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "3964d2ef_5b874583",
+        "filename": "infra/builder/docker-run-sanity.sh",
+        "patchSetId": 2
+      },
+      "lineNbr": 40,
+      "author": {
+        "id": 1039371
+      },
+      "writtenOn": "2026-07-08T19:26:54Z",
+      "side": 1,
+      "message": "Marked as resolved.",
+      "parentUuid": "69294dae_327cdc70",
+      "revId": "5d662f299086ce22b18825e9d2ef1eba9ce67bec",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "fa8be7b3_965b3f6d",
