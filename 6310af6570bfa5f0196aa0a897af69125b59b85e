@@ -26,6 +26,30 @@
     {
       "unresolved": false,
       "key": {
+        "uuid": "d9b3931c_6ebfbcc1",
+        "filename": "/COMMIT_MSG",
+        "patchSetId": 17
+      },
+      "lineNbr": 108,
+      "author": {
+        "id": 1039371
+      },
+      "writtenOn": "2026-07-08T17:04:08Z",
+      "side": 1,
+      "message": "Was leftover, removed.",
+      "parentUuid": "1be03556_ae813f41",
+      "range": {
+        "startLine": 108,
+        "startChar": 32,
+        "endLine": 108,
+        "endChar": 70
+      },
+      "revId": "6310af6570bfa5f0196aa0a897af69125b59b85e",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
+    },
+    {
+      "unresolved": false,
+      "key": {
         "uuid": "3439a7d3_b3ff96a8",
         "filename": "/PATCHSET_LEVEL",
         "patchSetId": 17
@@ -115,6 +139,30 @@
       "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "24dc15aa_36262e43",
+        "filename": "infra/builder/build-docker-image.sh",
+        "patchSetId": 17
+      },
+      "lineNbr": 10,
+      "author": {
+        "id": 1039371
+      },
+      "writtenOn": "2026-07-08T17:04:08Z",
+      "side": 1,
+      "message": "No, that\u0027s what builds the actual images, without this, no images.",
+      "parentUuid": "0e286d74_5e6c5ca2",
+      "range": {
+        "startLine": 6,
+        "startChar": 0,
+        "endLine": 10,
+        "endChar": 4
+      },
+      "revId": "6310af6570bfa5f0196aa0a897af69125b59b85e",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "0cca90df_8d3dcdf1",
@@ -128,6 +176,30 @@
       "writtenOn": "2026-07-03T05:28:00Z",
       "side": 1,
       "message": "The commit message claims: \"Fixed ssh/scp not using the port from EVSSIM_QEMU_SSH_PORT (renamed from EVSSIM_QEMU_PORT) variable.\" However, try_ssh_key() in docker-run-sanity.sh still uses a literal -p 2222 instead of -p $EVSSIM_QEMU_SSH_PORT",
+      "range": {
+        "startLine": 17,
+        "startChar": 21,
+        "endLine": 17,
+        "endChar": 25
+      },
+      "revId": "6310af6570bfa5f0196aa0a897af69125b59b85e",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "04576115_0dd42330",
+        "filename": "infra/builder/docker-run-sanity.sh",
+        "patchSetId": 17
+      },
+      "lineNbr": 17,
+      "author": {
+        "id": 1039371
+      },
+      "writtenOn": "2026-07-08T17:04:08Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "0cca90df_8d3dcdf1",
       "range": {
         "startLine": 17,
         "startChar": 21,
@@ -161,6 +233,30 @@
       "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "096f1814_cfda5cd1",
+        "filename": "infra/builder/docker-test-guest.sh",
+        "patchSetId": 17
+      },
+      "lineNbr": 9,
+      "author": {
+        "id": 1039371
+      },
+      "writtenOn": "2026-07-08T17:04:08Z",
+      "side": 1,
+      "message": "I have just now realized that the meaning of the name is \"The root path for the guest\", and not \"The path of the root of the guest\"\n\nIt\u0027s amazing how easier thinking becomes when you do it *not* at 2AM xD",
+      "parentUuid": "30869ea4_6e6e16c9",
+      "range": {
+        "startLine": 9,
+        "startChar": 0,
+        "endLine": 9,
+        "endChar": 83
+      },
+      "revId": "6310af6570bfa5f0196aa0a897af69125b59b85e",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "dd929495_27b77567",
@@ -184,6 +280,30 @@
       "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "8bdbab84_555ae5bb",
+        "filename": "infra/builder/docker-test-guest.sh",
+        "patchSetId": 17
+      },
+      "lineNbr": 38,
+      "author": {
+        "id": 1039371
+      },
+      "writtenOn": "2026-07-08T17:04:08Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "dd929495_27b77567",
+      "range": {
+        "startLine": 38,
+        "startChar": 0,
+        "endLine": 38,
+        "endChar": 128
+      },
+      "revId": "6310af6570bfa5f0196aa0a897af69125b59b85e",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "9e0f5418_e89b1e3e",
@@ -197,6 +317,30 @@
       "writtenOn": "2026-07-03T05:28:00Z",
       "side": 1,
       "message": "leftover",
+      "range": {
+        "startLine": 54,
+        "startChar": 0,
+        "endLine": 54,
+        "endChar": 12
+      },
+      "revId": "6310af6570bfa5f0196aa0a897af69125b59b85e",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "b65b8410_61d18883",
+        "filename": "infra/builder/docker-test-guest.sh",
+        "patchSetId": 17
+      },
+      "lineNbr": 54,
+      "author": {
+        "id": 1039371
+      },
+      "writtenOn": "2026-07-08T17:04:08Z",
+      "side": 1,
+      "message": "The variable is being used in the `guest_test()` function for the output.",
+      "parentUuid": "9e0f5418_e89b1e3e",
       "range": {
         "startLine": 54,
         "startChar": 0,
@@ -327,6 +471,30 @@
       "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "748b7e3b_6c49e189",
+        "filename": "infra/builder/run-ci.sh",
+        "patchSetId": 17
+      },
+      "lineNbr": 51,
+      "author": {
+        "id": 1039371
+      },
+      "writtenOn": "2026-07-08T17:04:08Z",
+      "side": 1,
+      "message": "I ended up removing the loop, and only running the sanity test on the (docker image)version that will run the QEMU and the evssim.\n(That would be the same version that compiles QEMU, for compatibility)",
+      "parentUuid": "bce09215_65e64fa2",
+      "range": {
+        "startLine": 49,
+        "startChar": 0,
+        "endLine": 51,
+        "endChar": 4
+      },
+      "revId": "6310af6570bfa5f0196aa0a897af69125b59b85e",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "044b1d39_d0a6396c",
@@ -365,6 +533,30 @@
       "side": 1,
       "message": "These are the configurations of the other teams(including ours).\nRemoving them would break everyone\u0027s work.",
       "parentUuid": "044b1d39_d0a6396c",
+      "range": {
+        "startLine": 49,
+        "startChar": 0,
+        "endLine": 117,
+        "endChar": 5
+      },
+      "revId": "6310af6570bfa5f0196aa0a897af69125b59b85e",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "a4aef84c_cf002114",
+        "filename": "infra/builder/versions/configs.json",
+        "patchSetId": 17
+      },
+      "lineNbr": 117,
+      "author": {
+        "id": 1039371
+      },
+      "writtenOn": "2026-07-08T17:04:08Z",
+      "side": 1,
+      "message": "Marked as resolved.",
+      "parentUuid": "4887873b_6c253cbb",
       "range": {
         "startLine": 49,
         "startChar": 0,
