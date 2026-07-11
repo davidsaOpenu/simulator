@@ -50,6 +50,7 @@ RUN apt update && DEBIAN_FRONTEND=noninteractive apt -y install \
 # Install build packages
 RUN apt update && DEBIAN_FRONTEND=noninteractive apt -y install \
   bear \
+  cloud-image-utils \
   qemu-system-x86 \
   valgrind \
   curl \
