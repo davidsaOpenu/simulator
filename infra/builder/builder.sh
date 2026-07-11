@@ -351,7 +351,8 @@ evssim_qemu_default () {
                 $EVSSIM_DOCKER_ROOT_PATH/$EVSSIM_SIMULATOR_FOLDER/infra/ansible/roles/guest_tester_pre/files/bios.bin \
                 $EVSSIM_DOCKER_ROOT_PATH/$EVSSIM_DIST_FOLDER/kernel/vmlinuz-$EVSSIM_KERNEL_DIST \
                 $EVSSIM_DOCKER_ROOT_PATH/$EVSSIM_DIST_FOLDER/kernel/initrd.img-$EVSSIM_KERNEL_DIST \
-                "root=/dev/sda ro"
+                "root=$([ \"$EVSSIM_GUEST_TESTS_HOST_CONTAINER\" = \"ubuntu:26.04\" ] && echo /dev/vda1 || echo /dev/sda1) ro"
+
 }
 
 # Run QEMU attached to console

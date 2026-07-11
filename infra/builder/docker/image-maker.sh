@@ -1,101 +1,261 @@
-#!/bin/bash
-set -e
+#!/bin/bash -x
+set -euo pipefail
 
-IMAGE_PATH=$EVSSIM_DOCKER_ROOT_PATH/$EVSSIM_DIST_FOLDER/$EVSSIM_QEMU_IMAGE
-DEBOOTSTRAP_CACHE=$EVSSIM_DOCKER_ROOT_PATH/$EVSSIM_DIST_FOLDER/debootstrap.tgz
-DEBOOTSTRAP_MIRROR=http://archive.ubuntu.com/ubuntu/
-DEBOOTSTRAP_ADDITIONAL_PACKAGES=ssh
-MOUNT_POINT=/mnt/guest
-
-# Create empty image and format it
-qemu-img create -f raw $IMAGE_PATH $EVSSIM_QEMU_IMAGE_SIZE
-mkfs.ext4 -F $IMAGE_PATH
-
-# Mount the image on-disk. Disable delayed allocation for the initial installation
-mkdir -p $MOUNT_POINT
-mount -o loop,nodelalloc $IMAGE_PATH $MOUNT_POINT
-
-# Make debootstrap/dpkg work without fsync (Feature of eatmydata)
-ln -s /usr/bin/eatmydata /usr/local/bin/debootstrap
-ln -s /usr/bin/eatmydata /usr/local/bin/dpkg
-ln -s /usr/bin/eatmydata /usr/local/bin/wget
-
-# Debootstrap and cache all packages
-if [ ! -f $DEBOOTSTRAP_CACHE ]; then
-    echo INFO Downloading debootstrap packages
-    set +e
-    debootstrap --make-tarball=$DEBOOTSTRAP_CACHE --include $DEBOOTSTRAP_ADDITIONAL_PACKAGES $EVSSIM_QEMU_UBUNTU_SYSTEM $MOUNT_POINT $DEBOOTSTRAP_MIRROR
-    set -e
-    echo INFO Completed debootstrap packages $?
-fi
-
-# Bootstrap into the mount point
-echo INFO Installing debootstrap packages
-debootstrap --unpack-tarball=$DEBOOTSTRAP_CACHE --include $DEBOOTSTRAP_ADDITIONAL_PACKAGES $EVSSIM_QEMU_UBUNTU_SYSTEM $MOUNT_POINT $DEBOOTSTRAP_MIRROR
-
-# Debootstrap without cache currently disabled due to use of cache above
-#debootstrap --include $DEBOOTSTRAP_ADDITIONAL_PACKAGES $EVSSIM_QEMU_UBUNTU_SYSTEM $MOUNT_POINT $DEBOOTSTRAP_MIRROR
-
-# Load the content of the public key
 PUBLIC_KEY=$(cat /scripts/id_rsa.pub)
 
-# Mount facilities
-mount --bind /proc $MOUNT_POINT/proc
-mount --bind /sys $MOUNT_POINT/sys
-mount --bind /dev $MOUNT_POINT/dev
+# ── Required environment variables ──────────────────────────────────────────
+: "${EVSSIM_EXTERNAL_GID:?}"
+: "${EVSSIM_EXTERNAL_UID:?}"
+: "${EVSSIM_QEMU_UBUNTU_USERNAME:?}"
+: "${EVSSIM_QEMU_UBUNTU_ROOT_PASSWORD:?}"
+: "${EVSSIM_QEMU_UBUNTU_PASSWORD:?}"
+: "${EVSSIM_QEMU_UBUNTU_SYSTEM:?}"
+: "${PUBLIC_KEY:?}"
 
-# Chroot and do some ops inside
-cat << CHROOTED | chroot $MOUNT_POINT
+WORK_IMG=/code/$EVSSIM_DIST_FOLDER/$EVSSIM_QEMU_IMAGE
+SEED_IMG="/tmp/seed.img"
 
-# Create user and change passwords
-# NOTE We create the internal user with the same uid as the external use to enable editing when mounted
-addgroup --gid $EVSSIM_EXTERNAL_GID $EVSSIM_QEMU_UBUNTU_USERNAME
-adduser --gecos "" --disabled-password --uid $EVSSIM_EXTERNAL_UID --gid $EVSSIM_EXTERNAL_GID $EVSSIM_QEMU_UBUNTU_USERNAME
-usermod -aG sudo $EVSSIM_QEMU_UBUNTU_USERNAME
-echo "$EVSSIM_QEMU_UBUNTU_USERNAME ALL=(ALL) NOPASSWD: ALL" >> /etc/sudoers
+mkdir -p "$(dirname "$WORK_IMG")"
 
-echo "root:$EVSSIM_QEMU_UBUNTU_ROOT_PASSWORD" | chpasswd
-echo "$EVSSIM_QEMU_UBUNTU_USERNAME:$EVSSIM_QEMU_UBUNTU_PASSWORD" | chpasswd
+if [[ "$EVSSIM_GUEST_TESTS_HOST_CONTAINER" == "ubuntu:26.04" ]]; then
+    # ── 1. Download Ubuntu 26.04 cloud image ────────────────────────────────
+    # /tmp/base.img is intentional - temporary storage inside Docker container
+    # for the downloaded cloud image before converting to raw format.
+    # It gets cleaned up automatically when the container exits.
+    BASE_IMG="/tmp/base.img"
+    wget -q -O "$BASE_IMG" "$EVSSIM_GUEST_TESTS_GUEST_VM_IMAGE"
+    qemu-img convert -f qcow2 -O raw "$BASE_IMG" "$WORK_IMG"
 
-# Change hostname
-echo $EVSSIM_QEMU_UBUNTU_USERNAME > /etc/hostname
-echo "127.0.0.1 $EVSSIM_QEMU_UBUNTU_USERNAME" | tee -a /etc/hosts
+    echo "Working image: $WORK_IMG"
 
-# Configure network
-echo auto eth0 > /etc/network/interfaces.d/eth0
-echo iface eth0 inet dhcp >> /etc/network/interfaces.d/eth0
+    # ── 2. meta-data ─────────────────────────────────────────────────────────
+    cat > /tmp/meta-data << METAEOF
+instance-id: evssim-$(date +%s)
+local-hostname: ${EVSSIM_QEMU_UBUNTU_USERNAME}
+METAEOF
 
-# Configure language
-locale-gen en_US.UTF-8
-update-locale LANG=en_US.UTF-8
-echo "LC_ALL=en_US.UTF-8" >> /etc/environment
-echo "LANGUAGE=en_US.UTF-8" >> /etc/environment
+    # ── 3. user-data for Ubuntu 26.04 ────────────────────────────────────────
+    cat > /tmp/user-data << USEREOF
+#cloud-config
+hostname: ${EVSSIM_QEMU_UBUNTU_USERNAME}
+manage_etc_hosts: true
+groups:
+  - name: ${EVSSIM_QEMU_UBUNTU_USERNAME}
+    gid: ${EVSSIM_EXTERNAL_GID}
+users:
+  - default
+  - name: ${EVSSIM_QEMU_UBUNTU_USERNAME}
+    uid: ${EVSSIM_EXTERNAL_UID}
+    gid: ${EVSSIM_EXTERNAL_GID}
+    groups: [sudo]
+    sudo: "ALL=(ALL) NOPASSWD:ALL"
+    shell: /bin/bash
+    ssh_authorized_keys:
+      - "${PUBLIC_KEY}"
+chpasswd:
+  list: |
+    root:${EVSSIM_QEMU_UBUNTU_ROOT_PASSWORD}
+    ${EVSSIM_QEMU_UBUNTU_USERNAME}:${EVSSIM_QEMU_UBUNTU_PASSWORD}
+  expire: false
+ssh_authorized_keys:
+  - "${PUBLIC_KEY}"
+disable_root: false
+ssh_pwauth: true
+locale: en_US.UTF-8
+write_files:
+  - path: /etc/network/interfaces.d/eth0
+    content: |
+      auto eth0
+      iface eth0 inet dhcp
+  - path: /etc/apt/sources.list
+    content: |
+      deb http://archive.ubuntu.com/ubuntu ${EVSSIM_QEMU_UBUNTU_SYSTEM} main universe
+  - path: /etc/environment
+    append: true
+    content: |
+      LC_ALL=en_US.UTF-8
+      LANGUAGE=en_US.UTF-8
+  - path: /etc/cloud/cloud.cfg.d/99-poweroff.cfg
+    content: |
+      power_state:
+        mode: poweroff
+        timeout: 30
+        condition: true
+package_update: true
+package_upgrade: false
+packages:
+  - python3
+  - python3-nose
+runcmd:
+  - sed -i 's/^#PasswordAuthentication.*/PasswordAuthentication yes/' /etc/ssh/sshd_config
+  - sed -i 's/^PasswordAuthentication no/PasswordAuthentication yes/' /etc/ssh/sshd_config
+  - printf 'LABEL=cloudimg-rootfs / ext4 discard,commit=30,errors=remount-ro 0 1\nLABEL=BOOT /boot ext4 nofail 0 0\nLABEL=UEFI /boot/efi vfat nofail,x-systemd.device-timeout=5 0 0\n' > /etc/fstab
+power_state:
+  mode: poweroff
+  timeout: 120
+  condition: true
+USEREOF
 
-# Add ssh keys
-mkdir -p /root/.ssh
-echo "$PUBLIC_KEY" > /root/.ssh/authorized_keys
+    # ── 4. Build seed image ───────────────────────────────────────────────────
+    cloud-localds "$SEED_IMG" /tmp/user-data /tmp/meta-data
 
-mkdir -p /home/$EVSSIM_QEMU_UBUNTU_USERNAME/.ssh
-echo "$PUBLIC_KEY" > /home/$EVSSIM_QEMU_UBUNTU_USERNAME/.ssh/authorized_keys
-chown -R $EVSSIM_QEMU_UBUNTU_USERNAME:$EVSSIM_QEMU_UBUNTU_USERNAME /home/$EVSSIM_QEMU_UBUNTU_USERNAME/.ssh
+    # ── 5. Boot once - Ubuntu 26.04 uses power_state to shut down cleanly ────
+    echo ">>> Booting VM for first-run configuration (this may take a few minutes)..."
+    qemu-system-x86_64 \
+      -m 1024 \
+      -smp 2 \
+      -nographic \
+      -drive "file=${WORK_IMG},format=raw,if=virtio" \
+      -drive "file=${SEED_IMG},format=raw,if=virtio" \
+      -netdev user,id=net0 \
+      -device virtio-net-pci,netdev=net0 \
+      -no-reboot
 
-# Configure apt sources
-echo "deb http://archive.ubuntu.com/ubuntu $EVSSIM_QEMU_UBUNTU_SYSTEM main universe" > /etc/apt/sources.list
-apt update
+else
+    # ── 1. Download Ubuntu 14.04 cloud image ────────────────────────────────
+    BASE_IMG="ubuntu-14.04-server-cloudimg-amd64-disk1.img"
+    [[ -f "$BASE_IMG" ]] || wget https://cloud-images.ubuntu.com/releases/trusty/release/$BASE_IMG
+    qemu-img convert -f qcow2 -O raw "$BASE_IMG" "$WORK_IMG"
 
-# Additional packages
-apt -y install libxml++2.6-2 libboost-filesystem1.54.0
-apt -y install python python-nose
+    echo "Working image: $WORK_IMG"
 
-# Services which should run immediately
-# RUNLEVEL=1 apt -y install ntp ntpdate
+    # ── 2. meta-data ─────────────────────────────────────────────────────────
+    cat > /tmp/meta-data << METAEOF
+instance-id: evssim-$(date +%s)
+local-hostname: ${EVSSIM_QEMU_UBUNTU_USERNAME}
+METAEOF
 
-CHROOTED
+    # ── 3. user-data for Ubuntu 14.04 ────────────────────────────────────────
+    # datasource_list prevents cloud-init from waiting for CloudStack metadata
+    cat > /tmp/user-data << USEREOF
+#cloud-config
+datasource_list: [NoCloud, None]
+hostname: ${EVSSIM_QEMU_UBUNTU_USERNAME}
+manage_etc_hosts: true
+groups:
+  - name: ${EVSSIM_QEMU_UBUNTU_USERNAME}
+    gid: ${EVSSIM_EXTERNAL_GID}
+users:
+  - default
+  - name: ${EVSSIM_QEMU_UBUNTU_USERNAME}
+    uid: ${EVSSIM_EXTERNAL_UID}
+    gid: ${EVSSIM_EXTERNAL_GID}
+    groups: [sudo]
+    sudo: "ALL=(ALL) NOPASSWD:ALL"
+    shell: /bin/bash
+    ssh_authorized_keys:
+      - "${PUBLIC_KEY}"
+chpasswd:
+  list: |
+    root:${EVSSIM_QEMU_UBUNTU_ROOT_PASSWORD}
+    ${EVSSIM_QEMU_UBUNTU_USERNAME}:${EVSSIM_QEMU_UBUNTU_PASSWORD}
+  expire: false
+ssh_authorized_keys:
+  - "${PUBLIC_KEY}"
+disable_root: false
+ssh_pwauth: true
+locale: en_US.UTF-8
+write_files:
+  - path: /etc/network/interfaces.d/eth0
+    content: |
+      auto eth0
+      iface eth0 inet dhcp
+  - path: /etc/apt/sources.list
+    content: |
+      deb http://archive.ubuntu.com/ubuntu ${EVSSIM_QEMU_UBUNTU_SYSTEM} main universe
+  - path: /etc/environment
+    append: true
+    content: |
+      LC_ALL=en_US.UTF-8
+      LANGUAGE=en_US.UTF-8
+  - path: /etc/cloud/cloud.cfg.d/99-poweroff.cfg
+    content: |
+      power_state:
+        mode: poweroff
+        timeout: 30
+        condition: true
+package_update: true
+package_upgrade: false
+packages:
+  - python3
+  - python3-nose
+runcmd:
+  - echo "datasource_list: [ NoCloud, None ]" > /etc/cloud/cloud.cfg.d/90_dpkg.cfg
+  - sed -i 's/^#PasswordAuthentication.*/PasswordAuthentication yes/' /etc/ssh/sshd_config
+  - sed -i 's/^PasswordAuthentication no/PasswordAuthentication yes/' /etc/ssh/sshd_config
+  - printf 'LABEL=cloudimg-rootfs / ext4 discard,commit=30,errors=remount-ro 0 1\nLABEL=BOOT /boot ext4 nofail 0 0\nLABEL=UEFI /boot/efi vfat nofail,x-systemd.device-timeout=5 0 0\n' > /etc/fstab
+USEREOF
 
-# Unmount facilities
-umount $MOUNT_POINT/sys
-umount $MOUNT_POINT/proc
-umount $MOUNT_POINT/dev
+    # ── 4. Build seed image ───────────────────────────────────────────────────
+    cloud-localds "$SEED_IMG" /tmp/user-data /tmp/meta-data
 
-# Unmount
-umount $MOUNT_POINT
+    # ── 5. Boot once - Ubuntu 14.04 uses setsid+timeout since power_state
+    #       is not reliable in cloud-init 0.7.5 ─────────────────────────────
+    echo ">>> Booting VM for first-run configuration (this may take a few minutes)..."
+    setsid timeout 300 qemu-system-x86_64 \
+      -m 1024 \
+      -smp 2 \
+      -nographic \
+      -drive "file=${WORK_IMG},format=raw,if=virtio" \
+      -drive "file=${SEED_IMG},format=raw,if=virtio" \
+      -netdev user,id=net0 \
+      -device virtio-net-pci,netdev=net0 \
+      -no-reboot || true
+fi
+
+echo ">>> Done. Configured image is: ${WORK_IMG}"
+
+# ── 6. Fix image offline ──────────────────────────────────────────────────────
+echo ">>> Fixing image offline..."
+if [[ "$EVSSIM_GUEST_TESTS_HOST_CONTAINER" == "ubuntu:26.04" ]]; then
+    OFFSET=$(partx -o START,TYPE -g "$WORK_IMG" 2>/dev/null | awk '/4f68bce3/{print $1; exit}')
+else
+    OFFSET=$(partx -o START,TYPE -g "$WORK_IMG" 2>/dev/null | awk 'NR==1{print $1; exit}')
+fi
+OFFSET=$((OFFSET * 512))
+mkdir -p /mnt/evssim
+mount -o loop,offset=$OFFSET "$WORK_IMG" /mnt/evssim
+
+# Add SSH authorized key
+mkdir -p /mnt/evssim/home/$EVSSIM_QEMU_UBUNTU_USERNAME/.ssh
+cp /scripts/id_rsa.pub /mnt/evssim/home/$EVSSIM_QEMU_UBUNTU_USERNAME/.ssh/authorized_keys
+chown -R $EVSSIM_EXTERNAL_UID:$EVSSIM_EXTERNAL_GID /mnt/evssim/home/$EVSSIM_QEMU_UBUNTU_USERNAME/.ssh
+chmod 700 /mnt/evssim/home/$EVSSIM_QEMU_UBUNTU_USERNAME/.ssh
+chmod 600 /mnt/evssim/home/$EVSSIM_QEMU_UBUNTU_USERNAME/.ssh/authorized_keys
+
+# Create user and set passwords directly in the image
+chroot /mnt/evssim groupadd --gid $EVSSIM_EXTERNAL_GID $EVSSIM_QEMU_UBUNTU_USERNAME 2>/dev/null || true
+chroot /mnt/evssim useradd --uid $EVSSIM_EXTERNAL_UID --gid $EVSSIM_EXTERNAL_GID \
+    --shell /bin/bash --create-home $EVSSIM_QEMU_UBUNTU_USERNAME 2>/dev/null || true
+chroot /mnt/evssim usermod -aG sudo $EVSSIM_QEMU_UBUNTU_USERNAME 2>/dev/null || true
+
+# Set passwords using openssl hash (works reliably for both 14.04 and 26.04)
+ROOT_HASH=$(openssl passwd -1 "${EVSSIM_QEMU_UBUNTU_ROOT_PASSWORD}")
+USER_HASH=$(openssl passwd -1 "${EVSSIM_QEMU_UBUNTU_PASSWORD}")
+sed -i "s|^root:[^:]*:|root:${ROOT_HASH}:|" /mnt/evssim/etc/shadow
+grep -q "^${EVSSIM_QEMU_UBUNTU_USERNAME}:" /mnt/evssim/etc/shadow || \
+    echo "${EVSSIM_QEMU_UBUNTU_USERNAME}:${USER_HASH}:18207:0:99999:7:::" >> /mnt/evssim/etc/shadow
+sed -i "s|^${EVSSIM_QEMU_UBUNTU_USERNAME}:[^:]*:|${EVSSIM_QEMU_UBUNTU_USERNAME}:${USER_HASH}:|" /mnt/evssim/etc/shadow
+
+# Install python3-nose inside the image
+cp -r /usr/lib/python3/dist-packages/nose /mnt/evssim/usr/lib/python3/dist-packages/ 2>/dev/null || true
+cp /usr/bin/nosetests* /mnt/evssim/usr/bin/ 2>/dev/null || true
+
+# Disable cloud-init on subsequent boots
+touch /mnt/evssim/etc/cloud/cloud-init.disabled
+
+# Copy configs.json, config ID and kernel version into the image
+mkdir -p /mnt/evssim/etc/evssim
+cp /code/$EVSSIM_BUILDER_FOLDER/versions/configs.json /mnt/evssim/etc/evssim/configs.json
+echo "$EVSSIM_VERSIONS_CONFIGURATION_ID" > /mnt/evssim/etc/evssim/config_id
+echo "$EVSSIM_KERNEL_DIST" > /mnt/evssim/etc/evssim/kernel_version
+
+# Fix fstab and mask boot mounts (only needed for 26.04 GPT image)
+if [[ "$EVSSIM_GUEST_TESTS_HOST_CONTAINER" == "ubuntu:26.04" ]]; then
+    printf 'LABEL=cloudimg-rootfs / ext4 discard,commit=30,errors=remount-ro 0 1\nLABEL=BOOT /boot ext4 nofail 0 0\nLABEL=UEFI /boot/efi vfat nofail,x-systemd.device-timeout=5 0 0\n' > /mnt/evssim/etc/fstab
+    ln -sf /dev/null /mnt/evssim/etc/systemd/system/boot.mount
+    ln -sf /dev/null /mnt/evssim/etc/systemd/system/boot-efi.mount
+fi
+
+umount /mnt/evssim
+echo ">>> Done. Image is ready: ${WORK_IMG}"

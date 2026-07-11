@@ -40,6 +40,8 @@ RUN apt-get update && DEBIAN_FRONTEND=noninteractive apt-get -y install \
 # Install build packages
 RUN apt-get update && DEBIAN_FRONTEND=noninteractive apt-get -y install \
   bear \
+  cloud-image-utils \
+  python3-nose \
   qemu \
   qemu-kvm \
   valgrind \
