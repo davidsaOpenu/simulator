@@ -1,0 +1,7 @@
+{
+   gtest-registration-params-of-filtered-out-tests
+   Memcheck:Leak
+   match-leak-kinds: definite
+   ...
+   fun:*RegisterTests*
+}
