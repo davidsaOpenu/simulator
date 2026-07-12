@@ -11,6 +11,7 @@ cd "$(dirname "${BASH_SOURCE[0]}")"
 # the only script we source on purpose
 source ./env.sh
 export EVSSIM_RUNTIME_ALWAYS_RESET=yes
+export EVSSIM_DOCKER_PORTS_OPTION=""
 
 # freeze absolute paths so later env changes can't break us
 LOGS_DIR="$EVSSIM_ROOT_PATH/$EVSSIM_LOGS_FOLDER"
@@ -43,6 +44,6 @@ env -u http_proxy -u https_proxy -u HTTP_PROXY -u HTTPS_PROXY tox
 "$ELK_INSTALL" "$LOGS_DIR" "$ELK_DIR"
 
 # Running Docker Tests
-./docker-test-host.sh
+./docker-test-host-elk.sh
 ./docker-test-guest.sh
 ./docker-test-exofs.sh

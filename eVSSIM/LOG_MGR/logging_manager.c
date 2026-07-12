@@ -108,12 +108,15 @@ void* log_manager_run(void* args) {
 
 void log_manager_loop(uint8_t device_index, LogManager* manager, int max_loops) {
     SSDStatistics old_stats = stats_init();
+    ssd_disk* ssd = &ssds_manager[device_index].ssd;
+    int back = 0;
+    ssd->stats_bufs[back] = stats_init();
+    ssd->current_stats = &ssd->stats_bufs[back];
     int first_loop = 1;
     int loops = 0;
     while (max_loops < 0 || loops < max_loops) {
         // init the current statistics
         SSDStatistics stats = stats_init();
-        ssds_manager[device_index].ssd.current_stats = &stats;
 
         unsigned int analyzer_id;
         // update the statistics according to the different analyzers
@@ -172,6 +175,10 @@ void log_manager_loop(uint8_t device_index, LogManager* manager, int max_loops) 
         #ifdef MONITOR_DEBUG
         validateSSDStat(&stats);
         #endif
+
+        back = !back;
+        ssd->stats_bufs[back] = stats;
+        __atomic_store_n(&ssd->current_stats, &ssd->stats_bufs[back], __ATOMIC_RELEASE);
 
         unsigned int subscriber_id;
         // call present hooks if the statistics changed
