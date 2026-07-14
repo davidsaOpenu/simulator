@@ -52,6 +52,23 @@
       "parentUuid": "d0e546a7_3351ef7a",
       "revId": "807da155411d60a0a9cb8dea7d514661a5499a87",
       "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "867740b2_5d884da9",
+        "filename": "infra/builder/builder.sh",
+        "patchSetId": 10
+      },
+      "lineNbr": 428,
+      "author": {
+        "id": 1007990
+      },
+      "writtenOn": "2026-07-14T00:25:35Z",
+      "side": 0,
+      "message": "nit: no need",
+      "revId": "807da155411d60a0a9cb8dea7d514661a5499a87",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
     }
   ]
 }

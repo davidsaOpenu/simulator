@@ -16,6 +16,132 @@
       "message": "Nice!",
       "revId": "67a40ecb31e0bc82c0d078164e34f11406af09d3",
       "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "6caccb15_ebedd285",
+        "filename": "eVSSIM/CONFIG/vssim_config_manager.c",
+        "patchSetId": 10
+      },
+      "lineNbr": 452,
+      "author": {
+        "id": 1007990
+      },
+      "writtenOn": "2026-07-14T00:25:35Z",
+      "side": 1,
+      "message": "only works correctly if the device struct is zero-initialized before parsing",
+      "range": {
+        "startLine": 449,
+        "startChar": 0,
+        "endLine": 452,
+        "endChar": 5
+      },
+      "revId": "67a40ecb31e0bc82c0d078164e34f11406af09d3",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "7f44a44b_60698a7a",
+        "filename": "eVSSIM/tests/host/simulation/ssd_conf_tests.cc",
+        "patchSetId": 10
+      },
+      "lineNbr": 126,
+      "author": {
+        "id": 1007990
+      },
+      "writtenOn": "2026-07-14T00:25:35Z",
+      "side": 1,
+      "message": "Trello requirement not fully implemented  namespace-capacity test to \"add warnings if underfit,\". Please add this before merge, since it\u0027s a stated requirement, not a nice-to-have.",
+      "revId": "67a40ecb31e0bc82c0d078164e34f11406af09d3",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "1ee779fb_441e5dbc",
+        "filename": "infra/ELK/elk_performance_test.sh",
+        "patchSetId": 10
+      },
+      "lineNbr": 31,
+      "author": {
+        "id": 1007990
+      },
+      "writtenOn": "2026-07-14T00:25:35Z",
+      "side": 1,
+      "message": "unrelated behavioral change in elk_performance_test.sh\nPlease rebase the change on master - the test was commented out.",
+      "revId": "67a40ecb31e0bc82c0d078164e34f11406af09d3",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "e8e07e51_b2e95559",
+        "filename": "infra/builder/builder.sh",
+        "patchSetId": 10
+      },
+      "lineNbr": 129,
+      "author": {
+        "id": 1007990
+      },
+      "writtenOn": "2026-07-14T00:25:35Z",
+      "side": 1,
+      "message": "python→python3 change is unrelated to this card. Bundling unrelated modernization fixes into a feature commit makes the history harder to bisect/review.",
+      "range": {
+        "startLine": 129,
+        "startChar": 4,
+        "endLine": 129,
+        "endChar": 11
+      },
+      "revId": "67a40ecb31e0bc82c0d078164e34f11406af09d3",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "31ac839e_dc219cb5",
+        "filename": "infra/builder/builder.sh",
+        "patchSetId": 10
+      },
+      "lineNbr": 172,
+      "author": {
+        "id": 1007990
+      },
+      "writtenOn": "2026-07-14T00:25:35Z",
+      "side": 1,
+      "message": "same",
+      "range": {
+        "startLine": 172,
+        "startChar": 18,
+        "endLine": 172,
+        "endChar": 25
+      },
+      "revId": "67a40ecb31e0bc82c0d078164e34f11406af09d3",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "0c13d96d_03e1b2cc",
+        "filename": "infra/builder/builder.sh",
+        "patchSetId": 10
+      },
+      "lineNbr": 188,
+      "author": {
+        "id": 1007990
+      },
+      "writtenOn": "2026-07-14T00:25:35Z",
+      "side": 1,
+      "message": "same",
+      "range": {
+        "startLine": 188,
+        "startChar": 18,
+        "endLine": 188,
+        "endChar": 25
+      },
+      "revId": "67a40ecb31e0bc82c0d078164e34f11406af09d3",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
     }
   ]
 }
