@@ -1,6 +1,23 @@
 {
   "comments": [
     {
+      "unresolved": true,
+      "key": {
+        "uuid": "e42efd49_ce2cad1c",
+        "filename": "/COMMIT_MSG",
+        "patchSetId": 10
+      },
+      "lineNbr": 8,
+      "author": {
+        "id": 1007990
+      },
+      "writtenOn": "2026-07-14T00:28:09Z",
+      "side": 1,
+      "message": "Commit message title suggestion: \n\nAdd onfi_manager_threads to sdd.conf with corresponding host tests",
+      "revId": "67a40ecb31e0bc82c0d078164e34f11406af09d3",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
+    },
+    {
       "unresolved": false,
       "key": {
         "uuid": "a223dd51_31462241",
