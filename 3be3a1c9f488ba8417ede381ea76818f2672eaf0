@@ -1,0 +1,123 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "7230617f_9eb6b5e6",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 3
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 1039489
+      },
+      "writtenOn": "2026-07-16T16:13:20Z",
+      "side": 1,
+      "message": "Nice work! Note you\u0027re missing the trello card link in the commit",
+      "revId": "3be3a1c9f488ba8417ede381ea76818f2672eaf0",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "baf80de9_d69e1350",
+        "filename": "eVSSIM/SSD_MODULE/onfi.c",
+        "patchSetId": 3
+      },
+      "lineNbr": 666,
+      "author": {
+        "id": 1039489
+      },
+      "writtenOn": "2026-07-16T16:13:20Z",
+      "side": 1,
+      "message": "onfi_mt_submit is a clearer name IMO",
+      "revId": "3be3a1c9f488ba8417ede381ea76818f2672eaf0",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "d11485c3_c20f96a3",
+        "filename": "eVSSIM/SSD_MODULE/onfi.c",
+        "patchSetId": 3
+      },
+      "lineNbr": 692,
+      "author": {
+        "id": 1039489
+      },
+      "writtenOn": "2026-07-16T16:13:20Z",
+      "side": 1,
+      "message": "Wouldn\u0027t count always be 0 because join drains the queues first?",
+      "revId": "3be3a1c9f488ba8417ede381ea76818f2672eaf0",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "32e14ccf_4100ece6",
+        "filename": "eVSSIM/SSD_MODULE/onfi.c",
+        "patchSetId": 3
+      },
+      "lineNbr": 715,
+      "author": {
+        "id": 1039489
+      },
+      "writtenOn": "2026-07-16T16:13:20Z",
+      "side": 1,
+      "message": "I think we should check if it\u0027s initialized before this line as if onfi_manager is already initialized we dont want to initialize the mutex again",
+      "revId": "3be3a1c9f488ba8417ede381ea76818f2672eaf0",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "1aa95ccb_d9106213",
+        "filename": "eVSSIM/SSD_MODULE/onfi.c",
+        "patchSetId": 3
+      },
+      "lineNbr": 753,
+      "author": {
+        "id": 1039489
+      },
+      "writtenOn": "2026-07-16T16:13:20Z",
+      "side": 1,
+      "message": "The lock is destroyed before onfi_mt_cleanup runs. After shutdown, workers drain any pending requests and lock g_onfi_device_locks[device_index] (as they should) but the mutex is destroyed earlier by this line - undefined behavior.",
+      "revId": "3be3a1c9f488ba8417ede381ea76818f2672eaf0",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "bf7b7bdb_b62d5287",
+        "filename": "eVSSIM/SSD_MODULE/onfi.c",
+        "patchSetId": 3
+      },
+      "lineNbr": 785,
+      "author": {
+        "id": 1039489
+      },
+      "writtenOn": "2026-07-16T16:13:20Z",
+      "side": 1,
+      "message": "The code in these blocks repeats almost identically - I\u0027d suggest doing one onfi_mt_request_create(type, device_index) function + shared submit or free helper and reusing it.",
+      "revId": "3be3a1c9f488ba8417ede381ea76818f2672eaf0",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "eebc60d2_78f364c1",
+        "filename": "eVSSIM/tests/host/simulation/base_emulator_tests.h",
+        "patchSetId": 3
+      },
+      "lineNbr": 250,
+      "author": {
+        "id": 1039489
+      },
+      "writtenOn": "2026-07-16T16:13:20Z",
+      "side": 1,
+      "message": "I think it\u0027s best if we do get_queue_size() from the config similar to how it\u0027s done with other params in this file",
+      "revId": "3be3a1c9f488ba8417ede381ea76818f2672eaf0",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
+    }
+  ]
+}
