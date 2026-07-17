@@ -35,6 +35,24 @@
       "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "549e0e08_6521fd70",
+        "filename": "eVSSIM/SSD_MODULE/onfi.c",
+        "patchSetId": 3
+      },
+      "lineNbr": 666,
+      "author": {
+        "id": 1039486
+      },
+      "writtenOn": "2026-07-17T10:06:01Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "baf80de9_d69e1350",
+      "revId": "3be3a1c9f488ba8417ede381ea76818f2672eaf0",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "d11485c3_c20f96a3",
@@ -48,6 +66,24 @@
       "writtenOn": "2026-07-16T16:13:20Z",
       "side": 1,
       "message": "Wouldn\u0027t count always be 0 because join drains the queues first?",
+      "revId": "3be3a1c9f488ba8417ede381ea76818f2672eaf0",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "ab83a34e_dec28e3c",
+        "filename": "eVSSIM/SSD_MODULE/onfi.c",
+        "patchSetId": 3
+      },
+      "lineNbr": 692,
+      "author": {
+        "id": 1039486
+      },
+      "writtenOn": "2026-07-17T10:06:01Z",
+      "side": 1,
+      "message": "yes you are right, i did it to make the onfig_mt_queue_destroy function safe, i didn;t want to ignore its return value although i know it allways be 0.",
+      "parentUuid": "d11485c3_c20f96a3",
       "revId": "3be3a1c9f488ba8417ede381ea76818f2672eaf0",
       "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
     },
@@ -69,6 +105,24 @@
       "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "f927ecd7_956a7b6c",
+        "filename": "eVSSIM/SSD_MODULE/onfi.c",
+        "patchSetId": 3
+      },
+      "lineNbr": 715,
+      "author": {
+        "id": 1039486
+      },
+      "writtenOn": "2026-07-17T10:06:01Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "32e14ccf_4100ece6",
+      "revId": "3be3a1c9f488ba8417ede381ea76818f2672eaf0",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "1aa95ccb_d9106213",
@@ -82,6 +136,24 @@
       "writtenOn": "2026-07-16T16:13:20Z",
       "side": 1,
       "message": "The lock is destroyed before onfi_mt_cleanup runs. After shutdown, workers drain any pending requests and lock g_onfi_device_locks[device_index] (as they should) but the mutex is destroyed earlier by this line - undefined behavior.",
+      "revId": "3be3a1c9f488ba8417ede381ea76818f2672eaf0",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "d4ed5f9f_37c96cc0",
+        "filename": "eVSSIM/SSD_MODULE/onfi.c",
+        "patchSetId": 3
+      },
+      "lineNbr": 753,
+      "author": {
+        "id": 1039486
+      },
+      "writtenOn": "2026-07-17T10:06:01Z",
+      "side": 1,
+      "message": "good one!",
+      "parentUuid": "1aa95ccb_d9106213",
       "revId": "3be3a1c9f488ba8417ede381ea76818f2672eaf0",
       "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
     },
@@ -103,6 +175,24 @@
       "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "aded91fa_8f8299d6",
+        "filename": "eVSSIM/SSD_MODULE/onfi.c",
+        "patchSetId": 3
+      },
+      "lineNbr": 785,
+      "author": {
+        "id": 1039486
+      },
+      "writtenOn": "2026-07-17T10:06:01Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "bf7b7bdb_b62d5287",
+      "revId": "3be3a1c9f488ba8417ede381ea76818f2672eaf0",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "eebc60d2_78f364c1",
@@ -116,6 +206,24 @@
       "writtenOn": "2026-07-16T16:13:20Z",
       "side": 1,
       "message": "I think it\u0027s best if we do get_queue_size() from the config similar to how it\u0027s done with other params in this file",
+      "revId": "3be3a1c9f488ba8417ede381ea76818f2672eaf0",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "b1f7c4c7_252bf29c",
+        "filename": "eVSSIM/tests/host/simulation/base_emulator_tests.h",
+        "patchSetId": 3
+      },
+      "lineNbr": 250,
+      "author": {
+        "id": 1039486
+      },
+      "writtenOn": "2026-07-17T10:06:01Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "eebc60d2_78f364c1",
       "revId": "3be3a1c9f488ba8417ede381ea76818f2672eaf0",
       "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
     }
