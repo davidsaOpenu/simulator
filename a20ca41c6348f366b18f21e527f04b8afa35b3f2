@@ -1,0 +1,89 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "9b472949_4d51e3cb",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 6
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 1039489
+      },
+      "writtenOn": "2026-07-17T14:24:58Z",
+      "side": 1,
+      "message": "Love the changes, left some relatively small comments, +1 as non of them are blocking.",
+      "revId": "a20ca41c6348f366b18f21e527f04b8afa35b3f2",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "f026145d_8127341a",
+        "filename": "eVSSIM/SSD_MODULE/onfi.c",
+        "patchSetId": 6
+      },
+      "lineNbr": 726,
+      "author": {
+        "id": 1039489
+      },
+      "writtenOn": "2026-07-17T14:24:58Z",
+      "side": 1,
+      "message": "Edge case - calling any ONFI_MT_* before INIT or after TERM does modulo 0 - undefined behavior",
+      "revId": "a20ca41c6348f366b18f21e527f04b8afa35b3f2",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "819f3d9a_6ed674f1",
+        "filename": "eVSSIM/SSD_MODULE/onfi.c",
+        "patchSetId": 6
+      },
+      "lineNbr": 727,
+      "author": {
+        "id": 1039489
+      },
+      "writtenOn": "2026-07-17T14:24:58Z",
+      "side": 1,
+      "message": "If num of threads \u003e num of channels then we will run idle threads for the duration of the test (the 8 channels 10 threads test).",
+      "revId": "a20ca41c6348f366b18f21e527f04b8afa35b3f2",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "27537493_18769aa5",
+        "filename": "eVSSIM/SSD_MODULE/onfi.c",
+        "patchSetId": 6
+      },
+      "lineNbr": 746,
+      "author": {
+        "id": 1039489
+      },
+      "writtenOn": "2026-07-17T14:24:58Z",
+      "side": 1,
+      "message": "Also relatively an unlikely edge case - If there\u0027s a calloc/queue init/phtread create failure the mutex stays initialized so re-running INIT then (a retry for example) will cause undefined behavior",
+      "revId": "a20ca41c6348f366b18f21e527f04b8afa35b3f2",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "9779ea02_6c625fe6",
+        "filename": "eVSSIM/SSD_MODULE/onfi.c",
+        "patchSetId": 6
+      },
+      "lineNbr": 781,
+      "author": {
+        "id": 1039489
+      },
+      "writtenOn": "2026-07-17T14:24:58Z",
+      "side": 1,
+      "message": "Edge case - if there\u0027s ever a TERM without INIT it\u0027ll destroy this never-initialized mutex",
+      "revId": "a20ca41c6348f366b18f21e527f04b8afa35b3f2",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
+    }
+  ]
+}
