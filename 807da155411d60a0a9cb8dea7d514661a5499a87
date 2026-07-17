@@ -69,6 +69,42 @@
       "message": "nit: no need",
       "revId": "807da155411d60a0a9cb8dea7d514661a5499a87",
       "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "f703bbdb_7a00929c",
+        "filename": "infra/builder/builder.sh",
+        "patchSetId": 10
+      },
+      "lineNbr": 428,
+      "author": {
+        "id": 1039486
+      },
+      "writtenOn": "2026-07-17T09:33:18Z",
+      "side": 0,
+      "message": "Done",
+      "parentUuid": "867740b2_5d884da9",
+      "revId": "807da155411d60a0a9cb8dea7d514661a5499a87",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "304342f8_30673583",
+        "filename": "infra/builder/builder.sh",
+        "patchSetId": 10
+      },
+      "lineNbr": 428,
+      "author": {
+        "id": 1039486
+      },
+      "writtenOn": "2026-07-17T09:33:18Z",
+      "side": 0,
+      "message": "Done",
+      "parentUuid": "867740b2_5d884da9",
+      "revId": "807da155411d60a0a9cb8dea7d514661a5499a87",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
     }
   ]
 }
