@@ -35,6 +35,24 @@
       "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "e325f250_fb47304c",
+        "filename": "eVSSIM/LOG_MGR/logging_manager.c",
+        "patchSetId": 17
+      },
+      "lineNbr": 111,
+      "author": {
+        "id": 1039489
+      },
+      "writtenOn": "2026-07-17T14:51:52Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "f9ceec33_701c5616",
+      "revId": "aafe99fbe26b1fc785999d537b363f705661930c",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "6a5dcb28_da78950f",
@@ -48,6 +66,24 @@
       "writtenOn": "2026-07-17T12:03:29Z",
       "side": 1,
       "message": "this assign is not atomic. a reader thread dereferencing ssds_manager[device_index].ssd.current_state could read struct in the middle of the copy. think on adding a double buffer or a mutex",
+      "revId": "aafe99fbe26b1fc785999d537b363f705661930c",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "b4bdc1da_f696a2e0",
+        "filename": "eVSSIM/LOG_MGR/logging_manager.c",
+        "patchSetId": 17
+      },
+      "lineNbr": 177,
+      "author": {
+        "id": 1039489
+      },
+      "writtenOn": "2026-07-17T14:51:52Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "6a5dcb28_da78950f",
       "revId": "aafe99fbe26b1fc785999d537b363f705661930c",
       "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
     },
@@ -69,6 +105,24 @@
       "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "d025bba8_efb7aa48",
+        "filename": "eVSSIM/LOG_MGR/logging_offline_analyzer.c",
+        "patchSetId": 17
+      },
+      "lineNbr": 66,
+      "author": {
+        "id": 1039489
+      },
+      "writtenOn": "2026-07-17T14:51:52Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "e5d66856_cdd42eee",
+      "revId": "aafe99fbe26b1fc785999d537b363f705661930c",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "f7651a9a_ca4c65ac",
@@ -86,6 +140,24 @@
       "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "b7ad6b67_02cc384d",
+        "filename": "eVSSIM/LOG_MGR/logging_offline_analyzer.c",
+        "patchSetId": 17
+      },
+      "lineNbr": 498,
+      "author": {
+        "id": 1039489
+      },
+      "writtenOn": "2026-07-17T14:51:52Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "f7651a9a_ca4c65ac",
+      "revId": "aafe99fbe26b1fc785999d537b363f705661930c",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "986348b5_a0e859dc",
@@ -99,6 +171,24 @@
       "writtenOn": "2026-07-17T12:03:29Z",
       "side": 1,
       "message": "great trap handling!",
+      "revId": "aafe99fbe26b1fc785999d537b363f705661930c",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "668f3b73_5f774f6c",
+        "filename": "infra/builder/docker-test-host-elk.sh",
+        "patchSetId": 17
+      },
+      "lineNbr": 49,
+      "author": {
+        "id": 1039489
+      },
+      "writtenOn": "2026-07-17T14:51:52Z",
+      "side": 1,
+      "message": "Thanks!",
+      "parentUuid": "986348b5_a0e859dc",
       "revId": "aafe99fbe26b1fc785999d537b363f705661930c",
       "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
     }
