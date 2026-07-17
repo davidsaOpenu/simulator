@@ -1,0 +1,106 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "ddfa03fb_9ed1492b",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 17
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 1039486
+      },
+      "writtenOn": "2026-07-17T12:03:29Z",
+      "side": 1,
+      "message": "Great work! the move to deterministic testing and batching is a really solid solution. Please take a look at the comments, I spotted a few concurrency bugs.",
+      "revId": "aafe99fbe26b1fc785999d537b363f705661930c",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "f9ceec33_701c5616",
+        "filename": "eVSSIM/LOG_MGR/logging_manager.c",
+        "patchSetId": 17
+      },
+      "lineNbr": 111,
+      "author": {
+        "id": 1039486
+      },
+      "writtenOn": "2026-07-17T12:03:29Z",
+      "side": 1,
+      "message": "published can be a dangling pointer if this function returns. it is a stack variable that is pointed by ssds_manager[device_index].ssd.current_stats",
+      "revId": "aafe99fbe26b1fc785999d537b363f705661930c",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "6a5dcb28_da78950f",
+        "filename": "eVSSIM/LOG_MGR/logging_manager.c",
+        "patchSetId": 17
+      },
+      "lineNbr": 177,
+      "author": {
+        "id": 1039486
+      },
+      "writtenOn": "2026-07-17T12:03:29Z",
+      "side": 1,
+      "message": "this assign is not atomic. a reader thread dereferencing ssds_manager[device_index].ssd.current_state could read struct in the middle of the copy. think on adding a double buffer or a mutex",
+      "revId": "aafe99fbe26b1fc785999d537b363f705661930c",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "e5d66856_cdd42eee",
+        "filename": "eVSSIM/LOG_MGR/logging_offline_analyzer.c",
+        "patchSetId": 17
+      },
+      "lineNbr": 66,
+      "author": {
+        "id": 1039486
+      },
+      "writtenOn": "2026-07-17T12:03:29Z",
+      "side": 1,
+      "message": "missing allocation error handling",
+      "revId": "aafe99fbe26b1fc785999d537b363f705661930c",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "f7651a9a_ca4c65ac",
+        "filename": "eVSSIM/LOG_MGR/logging_offline_analyzer.c",
+        "patchSetId": 17
+      },
+      "lineNbr": 498,
+      "author": {
+        "id": 1039486
+      },
+      "writtenOn": "2026-07-17T12:03:29Z",
+      "side": 1,
+      "message": "file_seq is not atomic, so it could lead to data race when elk_logger_writer_open_file_for_write is called in parallel",
+      "revId": "aafe99fbe26b1fc785999d537b363f705661930c",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "986348b5_a0e859dc",
+        "filename": "infra/builder/docker-test-host-elk.sh",
+        "patchSetId": 17
+      },
+      "lineNbr": 49,
+      "author": {
+        "id": 1039486
+      },
+      "writtenOn": "2026-07-17T12:03:29Z",
+      "side": 1,
+      "message": "great trap handling!",
+      "revId": "aafe99fbe26b1fc785999d537b363f705661930c",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
+    }
+  ]
+}
