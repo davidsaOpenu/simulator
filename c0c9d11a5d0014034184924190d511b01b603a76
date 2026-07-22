@@ -1,0 +1,89 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "c1d6d320_ce934f76",
+        "filename": "eVSSIM/tests/guest/test_kernel_version/test_kernel_version.py",
+        "patchSetId": 1
+      },
+      "lineNbr": 18,
+      "author": {
+        "id": 1039461
+      },
+      "writtenOn": "2026-07-22T16:52:14Z",
+      "side": 1,
+      "message": "config and config_id is not really needed. only the kernel release",
+      "revId": "c0c9d11a5d0014034184924190d511b01b603a76",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "bb310c9e_2e4d03cf",
+        "filename": "eVSSIM/tests/guest/test_kernel_version/test_kernel_version.py",
+        "patchSetId": 1
+      },
+      "lineNbr": 26,
+      "author": {
+        "id": 1039461
+      },
+      "writtenOn": "2026-07-22T16:52:14Z",
+      "side": 1,
+      "message": "uname -r will give the kernel release exactly",
+      "revId": "c0c9d11a5d0014034184924190d511b01b603a76",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "8c6975e0_24ce19a8",
+        "filename": "infra/builder/builder.sh",
+        "patchSetId": 1
+      },
+      "lineNbr": 354,
+      "author": {
+        "id": 1039461
+      },
+      "writtenOn": "2026-07-22T16:52:14Z",
+      "side": 1,
+      "message": "/dev/sda1 and /dev/vda1 are magic values. make this standard",
+      "revId": "c0c9d11a5d0014034184924190d511b01b603a76",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "a286ab48_79161e51",
+        "filename": "infra/builder/docker/image-maker.sh",
+        "patchSetId": 1
+      },
+      "lineNbr": 249,
+      "author": {
+        "id": 1039461
+      },
+      "writtenOn": "2026-07-22T16:52:14Z",
+      "side": 1,
+      "message": "you can remove this and change the test to not use it. I really like this approach!",
+      "revId": "c0c9d11a5d0014034184924190d511b01b603a76",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "4f7ef99d_74bd23e8",
+        "filename": "infra/builder/docker/image-maker.sh",
+        "patchSetId": 1
+      },
+      "lineNbr": 250,
+      "author": {
+        "id": 1039461
+      },
+      "writtenOn": "2026-07-22T16:52:14Z",
+      "side": 1,
+      "message": "you can remove this",
+      "revId": "c0c9d11a5d0014034184924190d511b01b603a76",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
+    }
+  ]
+}
