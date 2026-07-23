@@ -5,6 +5,25 @@ trap 'ec=$?; echo "[run-ci.sh] FAILED with exit $ec on: $BASH_COMMAND" >&2' ERR
 # always run from the builder dir so env.sh works
 cd "$(dirname "${BASH_SOURCE[0]}")"
 
+# --long-run (default): sweep host simulation tests up to a 2 TB simulated disk.
+# --fast-run: cap host simulation tests at a 100 MB simulated disk, for quick local iteration.
+# EVSSIM_HOST_TEST_MAX_DISK_MB is exported by load_config.sh (sourced via env.sh below) based on RUN_MODE.
+RUN_MODE="long-run"
+for arg in "$@"; do
+    case "$arg" in
+        --long-run|--long_run)
+            RUN_MODE="long-run"
+            ;;
+        --fast-run|--fast_run)
+            RUN_MODE="fast-run"
+            ;;
+        *)
+            echo "Unknown option: $arg (expected --long-run or --fast-run)" >&2
+            exit 1
+            ;;
+    esac
+done
+
 # Check all required tools are installed
 ./check_tools.sh
 
@@ -32,17 +51,18 @@ env -u http_proxy -u https_proxy -u HTTP_PROXY -u HTTPS_PROXY tox
 
 # build + sanity
 ./build-docker-image.sh
-./build-qemu-image.sh
-./compile-kernel.sh
-./compile-qemu.sh
-./compile-host-tests.sh
-./compile-guest-tests.sh
-./docker-run-sanity.sh
+./build-qemu-image.sh                 # 10:18 - 10:30 -- 12 min
+./compile-kernel.sh                   # 10:30 - 10:34 -- 4  min
+./compile-qemu.sh                     # 10:34 - 10:36 -- 2  min
+./compile-host-tests.sh               # 10:36 - 10:37 -- 1  min
+./compile-guest-tests.sh              # 10:37 - 10:41 -- 4  min
+./docker-run-sanity.sh                # 10:41 - 10:42 -- 1  min
 
 # start ELK (absolute paths)
-"$ELK_INSTALL" "$LOGS_DIR" "$ELK_DIR"
+"$ELK_INSTALL" "$LOGS_DIR" "$ELK_DIR" # 10:42 - 10:48 -- 6  min
 
 # Running Docker Tests
-./docker-test-host.sh
-./docker-test-guest.sh
-./docker-test-exofs.sh
+./docker-test-host.sh                 # 10:48 - 13:33 -- 2 h 45 min
+./docker-test-guest.sh                # 13:33 - 16:01 -- 2 h 33 min
+./docker-test-exofs.sh                # 16:01 - 16:04 --     3  min
+                # podman                16:04 - 16:19 --     15 min
