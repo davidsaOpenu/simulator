@@ -69,6 +69,24 @@
       "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "7db87298_affbd29c",
+        "filename": "infra/ELK/elk_performance_test.sh",
+        "patchSetId": 20
+      },
+      "lineNbr": 31,
+      "author": {
+        "id": 1039371
+      },
+      "writtenOn": "2026-07-23T15:42:11Z",
+      "side": 1,
+      "message": "Change reverted.",
+      "parentUuid": "e904bb18_d4687485",
+      "revId": "9527c8354a905c46ec347d5dbfb33fbcb842012e",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "f502b9d3_ed828b43",
@@ -92,6 +110,30 @@
       "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "26a36cc6_e570e9c0",
+        "filename": "infra/builder/load_config.sh",
+        "patchSetId": 20
+      },
+      "lineNbr": 99,
+      "author": {
+        "id": 1039371
+      },
+      "writtenOn": "2026-07-23T15:42:11Z",
+      "side": 1,
+      "message": "Line removed.",
+      "parentUuid": "f502b9d3_ed828b43",
+      "range": {
+        "startLine": 99,
+        "startChar": 22,
+        "endLine": 99,
+        "endChar": 32
+      },
+      "revId": "9527c8354a905c46ec347d5dbfb33fbcb842012e",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "0cb68a7a_249029aa",
@@ -105,6 +147,30 @@
       "writtenOn": "2026-07-23T12:39:04Z",
       "side": 1,
       "message": "why not VERSION_COMPILE_GTESTS ?",
+      "range": {
+        "startLine": 45,
+        "startChar": 43,
+        "endLine": 45,
+        "endChar": 61
+      },
+      "revId": "9527c8354a905c46ec347d5dbfb33fbcb842012e",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "00e2a038_98d64387",
+        "filename": "infra/builder/run-ci.sh",
+        "patchSetId": 20
+      },
+      "lineNbr": 45,
+      "author": {
+        "id": 1039371
+      },
+      "writtenOn": "2026-07-23T15:42:11Z",
+      "side": 1,
+      "message": "Why should it be the guest tests compilation image version?\nSpecifically the docker side matters less for ***image building***, so it made sense to use the same version(docker) for building as the version(vm) being built.\nWith that in mind, the 26.04 image maker script (in our maman 12 commit https://review.gerrithub.io/c/davidsaOpenu/simulator/+/1238231 ) requires libguestfs commands and comand options that are newer than ubuntu 14.04 and requires the 26.04 container.",
+      "parentUuid": "0cb68a7a_249029aa",
       "range": {
         "startLine": 45,
         "startChar": 43,
