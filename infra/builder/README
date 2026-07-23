@@ -43,10 +43,10 @@ guest (Including nvme cli, nvme compliance) and available in /home/esd/guest.
 
 1. `./docker-run-qemu.sh`:
   - Run qemu attached to the console
-  - Accessible via ssh @ port 2222
-  - Accessible via vnc @ port 5900
+  - Accessible via ssh @ port 2222 (or the next free port, see EVSSIM_QEMU_PORT in env.sh)
+  - Accessible via vnc @ port 5900 (or the next free port, see EVSSIM_QEMU_VNC_PORT in env.sh)
   - Monitors
-      - New logging server http port 2003 (If compiled)
+      - New logging server http port 2003 (or the next free port, see EVSSIM_QEMU_LOG_PORT in env.sh) (If compiled)
       - Old monitoring (If compiled) via Xserver (If available)
   - CTRL+C To stop
   - While QEMU is running, the following scripts are available
