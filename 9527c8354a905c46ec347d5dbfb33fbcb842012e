@@ -67,6 +67,52 @@
       "message": "no need in this change.\ninfra/ELK/elk_performance_test.sh is commented out from run-ci.sh\nand we have a task to fix it properly",
       "revId": "9527c8354a905c46ec347d5dbfb33fbcb842012e",
       "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "f502b9d3_ed828b43",
+        "filename": "infra/builder/load_config.sh",
+        "patchSetId": 20
+      },
+      "lineNbr": 99,
+      "author": {
+        "id": 1007990
+      },
+      "writtenOn": "2026-07-23T12:39:04Z",
+      "side": 1,
+      "message": "nit: probably no need  anymore. If one updates env.sh, chances to update here as well are minimal",
+      "range": {
+        "startLine": 99,
+        "startChar": 22,
+        "endLine": 99,
+        "endChar": 32
+      },
+      "revId": "9527c8354a905c46ec347d5dbfb33fbcb842012e",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "0cb68a7a_249029aa",
+        "filename": "infra/builder/run-ci.sh",
+        "patchSetId": 20
+      },
+      "lineNbr": 45,
+      "author": {
+        "id": 1007990
+      },
+      "writtenOn": "2026-07-23T12:39:04Z",
+      "side": 1,
+      "message": "why not VERSION_COMPILE_GTESTS ?",
+      "range": {
+        "startLine": 45,
+        "startChar": 43,
+        "endLine": 45,
+        "endChar": 61
+      },
+      "revId": "9527c8354a905c46ec347d5dbfb33fbcb842012e",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
     }
   ]
 }
