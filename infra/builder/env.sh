@@ -62,18 +62,34 @@ export EVSSIM_QEMU_UBUNTU_USERNAME=esd
 export EVSSIM_QEMU_UBUNTU_PASSWORD=esd
 export EVSSIM_QEMU_UBUNTU_ROOT_PASSWORD=root
 export EVSSIM_QEMU_FOLDER=qemu
-export EVSSIM_QEMU_PORT=2222
+
+# Prefer the conventional host ports below, but fall back to the next free
+# one when something else already holds it (e.g. another job's build running
+# concurrently on a shared machine). Only the host side is chosen dynamically;
+# the container/guest side keeps listening on the conventional port.
+evssim_free_port () {
+    local port=$1
+    while (exec 3<>"/dev/tcp/127.0.0.1/$port") 2>/dev/null; do
+        exec 3>&-
+        ((port++))
+    done
+    echo "$port"
+}
+
+export EVSSIM_QEMU_PORT=$(evssim_free_port 2222)
+export EVSSIM_QEMU_LOG_PORT=$(evssim_free_port 2003)
+export EVSSIM_QEMU_VNC_PORT=$(evssim_free_port 5900)
 export EVSSIM_QEMU_TRACE_NVME=no
 export EVSSIM_QEMU_TRACE_VSSIM=no
 export EVSSIM_QEMU_TRACE_BLOCK=no
-export EVSSIM_QEMU_VNC=0
+export EVSSIM_QEMU_VNC=$((EVSSIM_QEMU_VNC_PORT - 5900))
 export EVSSIM_QEMU_SIMULATOR_ENABLED=yes
 export EVSSIM_QEMU_DEFAULT_DISK_SIZE=1M
 
 export EVSSIM_DOCKER_ROOT_PATH=/code
 export EVSSIM_DOCKER_IMAGE_NAME=evssim
 export EVSSIM_DOCKER_MAX_TIMEOUT_IN_MINUTES=240
-export EVSSIM_DOCKER_PORTS_OPTION="-p 2222:2222 -p 2003:2003 -p 5900:5900"
+export EVSSIM_DOCKER_PORTS_OPTION="-p $EVSSIM_QEMU_PORT:2222 -p $EVSSIM_QEMU_LOG_PORT:2003 -p $EVSSIM_QEMU_VNC_PORT:5900"
 export EVSSIM_DOCKER_XOPTIONS="-v "$HOME/.Xauthority:/tmp/.Xauthority" -e DISPLAY=$DISPLAY"
 
 export EVSSIM_GUEST_ROOT_PATH=/home/$EVSSIM_QEMU_UBUNTU_USERNAME
