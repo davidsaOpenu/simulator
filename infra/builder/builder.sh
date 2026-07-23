@@ -418,11 +418,11 @@ evssim_guest () {
     if [ -t 0 ]; then
         ssh_extra_tty=-t
     fi
-    ssh -q $ssh_extra_tty -i "$EVSSIM_SSH_KEYS_PATH/id_ed25519" -i "$EVSSIM_SSH_KEYS_PATH/id_rsa" -p 2222 -o ConnectionAttempts=1024 -o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no -o PasswordAuthentication=no -o PubkeyAcceptedKeyTypes=+ssh-rsa,ssh-ed25519 $EVSSIM_QEMU_UBUNTU_USERNAME@localhost bash -c \"$@\"
+    ssh -q $ssh_extra_tty -i "$EVSSIM_SSH_KEYS_PATH/id_ed25519" -i "$EVSSIM_SSH_KEYS_PATH/id_rsa" -p "$EVSSIM_QEMU_PORT" -o ConnectionAttempts=1024 -o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no -o PasswordAuthentication=no -o PubkeyAcceptedKeyTypes=+ssh-rsa,ssh-ed25519 $EVSSIM_QEMU_UBUNTU_USERNAME@localhost bash -c \"$@\"
 }
 
 evssim_guest_copy () {
     DOCKET_FILE_PATH=$1
     OUTPUT_FILE_PATH=$2
-    scp -r -o ConnectionAttempts=1024 -o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no -o PasswordAuthentication=no -o PubkeyAcceptedKeyTypes=+ssh-rsa,ssh-ed25519 -i "$EVSSIM_SSH_KEYS_PATH/id_ed25519" -i "$EVSSIM_SSH_KEYS_PATH/id_rsa" -P 2222 $EVSSIM_QEMU_UBUNTU_USERNAME@localhost:$DOCKET_FILE_PATH $OUTPUT_FILE_PATH
+    scp -r -o ConnectionAttempts=1024 -o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no -o PasswordAuthentication=no -o PubkeyAcceptedKeyTypes=+ssh-rsa,ssh-ed25519 -i "$EVSSIM_SSH_KEYS_PATH/id_ed25519" -i "$EVSSIM_SSH_KEYS_PATH/id_rsa" -P "$EVSSIM_QEMU_PORT" $EVSSIM_QEMU_UBUNTU_USERNAME@localhost:$DOCKET_FILE_PATH $OUTPUT_FILE_PATH
 }
