@@ -18,6 +18,24 @@
       "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "cc4373e0_0d394964",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 19
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 1007990
+      },
+      "writtenOn": "2026-07-23T12:16:12Z",
+      "side": 1,
+      "message": "This one is marked as resolved. Could you please remove the infra/builder/versions/image-maker/14.04.sh as well.",
+      "parentUuid": "5240f6fb_d5b4846e",
+      "revId": "b93f42ea9206dc09d250022d05e02aefeab6ec2b",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "20be5de9_b250a551",

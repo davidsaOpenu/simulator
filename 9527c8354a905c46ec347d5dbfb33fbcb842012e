@@ -50,6 +50,23 @@
       "message": "recheck",
       "revId": "9527c8354a905c46ec347d5dbfb33fbcb842012e",
       "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "e904bb18_d4687485",
+        "filename": "infra/ELK/elk_performance_test.sh",
+        "patchSetId": 20
+      },
+      "lineNbr": 31,
+      "author": {
+        "id": 1007990
+      },
+      "writtenOn": "2026-07-23T12:16:12Z",
+      "side": 1,
+      "message": "no need in this change.\ninfra/ELK/elk_performance_test.sh is commented out from run-ci.sh\nand we have a task to fix it properly",
+      "revId": "9527c8354a905c46ec347d5dbfb33fbcb842012e",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
     }
   ]
 }
