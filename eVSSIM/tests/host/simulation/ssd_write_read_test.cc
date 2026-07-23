@@ -15,13 +15,16 @@
  */
 
 #include <cmath>
+#include <cstdlib>
 #include "base_emulator_tests.h"
 
 extern LogServer log_server;
 
-// 2^10 mb = 1 GB
-// 2^22 nb = 4 TB
-#define MAX_POW 10
+// Largest disk size (in MB) this test sweeps up to, doubling from 2 MB each step.
+// Override with the EVSSIM_HOST_TEST_MAX_DISK_MB env var (set by load_config.sh
+// based on run-ci.sh's --long-run/--fast-run flags) to trade coverage for run time.
+// Default: 2^21 MB = 2 TB (matches the historical "long run" sweep).
+#define DEFAULT_MAX_DISK_MB (2097152)
 
 // for performance.
 #define CHECK_THRESHOLD 0.1 // 10%
@@ -51,20 +54,37 @@ namespace write_read_test
         }
     };
 
+    size_t GetMaxDiskSizeMb()
+    {
+        const char *env_val = std::getenv("EVSSIM_HOST_TEST_MAX_DISK_MB");
+        if (env_val != nullptr)
+        {
+            char *end = nullptr;
+            long parsed = std::strtol(env_val, &end, 10);
+            if (end != env_val && parsed > 0)
+            {
+                return (size_t)parsed;
+            }
+        }
+
+        return DEFAULT_MAX_DISK_MB;
+    }
+
     std::vector<SSDConf *> GetTestParams()
     {
         std::vector<SSDConf *> ssd_configs;
+        size_t max_disk_mb = GetMaxDiskSizeMb();
 
-        for (unsigned int i = 1; i <= MAX_POW; i++)
+        for (size_t size_mb = 2; size_mb <= max_disk_mb; size_mb *= 2)
         {
-            ssd_configs.push_back(new SSDConf(pow(2, i)));
+            ssd_configs.push_back(new SSDConf(size_mb));
         }
 
         return ssd_configs;
     }
 
     /**
-     * this test fills the entire disk in iterations starting from a disk size of 2 pages and continues until 2 ^ MAX_POW
+     * this test fills the entire disk in iterations starting from a disk size of 2 MB and doubling until EVSSIM_HOST_TEST_MAX_DISK_MB
      * the test never writes on a used page so that it wont incure garbage collection and keep the test deterministic
      * this test has 3 cases one in which it only writes, writes then reads and writes the entire disk then reads it
      */
