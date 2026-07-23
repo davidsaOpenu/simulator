@@ -470,7 +470,7 @@ evssim_wait_for_guest () {
     local max_wait=${1:-300}
     local interval=5
     local elapsed=0
-    local ssh_base=(-q -o BatchMode=yes -o ConnectTimeout=3 -o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no -o PasswordAuthentication=no -o PubkeyAcceptedKeyTypes=+ssh-rsa,ssh-ed25519 -i "$EVSSIM_SSH_KEYS_PATH/id_ed25519" -i "$EVSSIM_SSH_KEYS_PATH/id_rsa" -p $EVSSIM_QEMU_SSH_PORT)
+    local ssh_base=(-q -o BatchMode=yes -o ConnectTimeout=3 -o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no -o PasswordAuthentication=no -o PubkeyAcceptedKeyTypes=+ssh-rsa,ssh-ed25519 -i "$EVSSIM_SSH_KEYS_PATH/id_ed25519" -i "$EVSSIM_SSH_KEYS_PATH/id_rsa" -p "$EVSSIM_QEMU_PORT")
     echo "INFO Waiting for VM to boot (up to ${max_wait}s)..."
     while ! ssh "${ssh_base[@]}" "$EVSSIM_QEMU_UBUNTU_USERNAME@localhost" /bin/true 2>/dev/null; do
         elapsed=$((elapsed + interval))
@@ -514,11 +514,11 @@ evssim_guest () {
     if [ -t 0 ]; then
         ssh_extra_tty=-t
     fi
-    ssh -q $ssh_extra_tty -i "$EVSSIM_SSH_KEYS_PATH/id_ed25519" -i "$EVSSIM_SSH_KEYS_PATH/id_rsa" -p $EVSSIM_QEMU_SSH_PORT -o ConnectionAttempts=1024 -o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no -o PasswordAuthentication=no -o PubkeyAcceptedKeyTypes=+ssh-rsa,ssh-ed25519 $EVSSIM_QEMU_UBUNTU_USERNAME@localhost bash -c \"$@\"
+    ssh -q $ssh_extra_tty -i "$EVSSIM_SSH_KEYS_PATH/id_ed25519" -i "$EVSSIM_SSH_KEYS_PATH/id_rsa" -p "$EVSSIM_QEMU_PORT" -o ConnectionAttempts=1024 -o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no -o PasswordAuthentication=no -o PubkeyAcceptedKeyTypes=+ssh-rsa,ssh-ed25519 $EVSSIM_QEMU_UBUNTU_USERNAME@localhost bash -c \"$@\"
 }
 
 evssim_copy_from_guest () {
     local DOCKER_FILE_PATH=$1
     local OUTPUT_FILE_PATH=$2
-    scp -r -o ConnectionAttempts=1024 -o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no -o PasswordAuthentication=no -o PubkeyAcceptedKeyTypes=+ssh-rsa,ssh-ed25519 -i "$EVSSIM_SSH_KEYS_PATH/id_ed25519" -i "$EVSSIM_SSH_KEYS_PATH/id_rsa" -P $EVSSIM_QEMU_SSH_PORT $EVSSIM_QEMU_UBUNTU_USERNAME@localhost:$DOCKER_FILE_PATH $OUTPUT_FILE_PATH
+    scp -r -o ConnectionAttempts=1024 -o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no -o PasswordAuthentication=no -o PubkeyAcceptedKeyTypes=+ssh-rsa,ssh-ed25519 -i "$EVSSIM_SSH_KEYS_PATH/id_ed25519" -i "$EVSSIM_SSH_KEYS_PATH/id_rsa" -P "$EVSSIM_QEMU_PORT" $EVSSIM_QEMU_UBUNTU_USERNAME@localhost:$DOCKER_FILE_PATH $OUTPUT_FILE_PATH
 }
