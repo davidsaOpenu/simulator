@@ -57,7 +57,7 @@ resolve_image_references() {
 # Load config from JSON using jq
 load_config() {
     local config_id=$1
-    local config_file="${SCRIPT_DIR}/$EVSSIM_VERSIONS_CONFIGURATION/configs.json"
+    local config_file="${SCRIPT_DIR}/$EVSSIM_VERSIONS_CONFIGURATION_DIR/configs.json"
 
     if [[ ! -f "$config_file" ]]; then
         echo "ERROR: Config file not found: $config_file"

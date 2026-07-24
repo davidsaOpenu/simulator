@@ -9,7 +9,7 @@ fi
 ######################################################################################################
 #                  eVSSIM version confuguration variables
 ######################################################################################################
-export EVSSIM_VERSIONS_CONFIGURATION="versions"
+export EVSSIM_VERSIONS_CONFIGURATION_DIR="versions"
 # Export:
 #   EVSSIM_KERNEL_BRANCH
 #   EVSSIM_KERNEL_COMPILE_CONTAINER
@@ -27,7 +27,7 @@ source load_config.sh
 FOLDER_NAME="${EVSSIM_HOST_TESTS_COMPILE_CONTAINER##*:}"
 # TODO: will be replaced by EVSSIM_COMPILE_KERNEL_DOCKERFILE, EVSSIM_COMPILE_QEMU_DOCKERFILE
 #       EVSSIM_HOST_TESTS_COMPILE_DOCKERFILE, EVSSIM_GUEST_TESTS_COMPILE_DOCKERFILE
-export EVSSIM_COMPILE_DOCKERFILE="$EVSSIM_VERSIONS_CONFIGURATION/containers/$FOLDER_NAME/Dockerfile"
+export EVSSIM_COMPILE_DOCKERFILE="$EVSSIM_VERSIONS_CONFIGURATION_DIR/containers/$FOLDER_NAME/Dockerfile"
 ########################################################################################################
 #                  end of eVSSIM version confuguration variables
 ########################################################################################################
