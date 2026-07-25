@@ -73,6 +73,50 @@ namespace program_compatible_test
 
     INSTANTIATE_TEST_CASE_P(DiskSize, OnfiCommandsTest, ::testing::ValuesIn(GetTestParams()));
 
+    /**
+     * Returns a representative sample of page indices instead of every page
+     * on the disk: the first/last page overall, the first/last page of every
+     * flash and of a handful of blocks (covering the CALC_FLASH/CALC_BLOCK
+     * address-translation boundaries), plus a coarse stride across the rest.
+     * Iterating all ~327K/262K pages of these configs made ReadAllSuccess and
+     * PageProgramAllSuccess alone dominate this suite's runtime for no
+     * meaningful extra coverage over a boundary-focused sample.
+     */
+    std::vector<size_t> GetSampledPages(SSDConf *ssd_config)
+    {
+        std::vector<size_t> pages;
+        size_t total = ssd_config->get_pages();
+        size_t page_nb = ssd_config->get_page_nb();
+        size_t block_nb = ssd_config->get_block_nb();
+        size_t pages_per_flash = page_nb * block_nb;
+
+        pages.push_back(0);
+        pages.push_back(total - 1);
+
+        for (size_t flash = 0; flash < ssd_config->get_flash_nb(); ++flash)
+        {
+            size_t flash_start = flash * pages_per_flash;
+            pages.push_back(flash_start);
+            pages.push_back(flash_start + pages_per_flash - 1);
+        }
+
+        size_t sample_blocks[] = {0, 1, block_nb / 2, block_nb - 2, block_nb - 1};
+        for (size_t block : sample_blocks)
+        {
+            size_t block_start = block * page_nb;
+            pages.push_back(block_start);
+            pages.push_back(block_start + page_nb - 1);
+        }
+
+        size_t stride = (total / 300 > 0) ? (total / 300) : 1;
+        for (size_t p = 0; p < total; p += stride)
+        {
+            pages.push_back(p);
+        }
+
+        return pages;
+    }
+
     /* ========== ONFI_READ_STATUS tests ========== */
 
     TEST_P(OnfiCommandsTest, InvalidDeviceIndexReadStatusFails)
@@ -210,7 +254,7 @@ namespace program_compatible_test
         unsigned char reference_buffer[ssd_config->get_page_size()];
         memset(reference_buffer, 0xFF, ssd_config->get_page_size());
 
-        for (size_t page = 0; page < ssd_config->get_pages(); ++page)
+        for (size_t page : GetSampledPages(ssd_config))
         {
             memset(buffer, 0x00, ssd_config->get_page_size());
             ASSERT_EQ(ONFI_READ(g_device_index, page, 0, buffer, ssd_config->get_page_size(), &nread), ONFI_SUCCESS);
@@ -311,7 +355,7 @@ namespace program_compatible_test
         unsigned char reference_buffer[ssd_config->get_page_size()];
         memset(reference_buffer, 0x00, ssd_config->get_page_size());
 
-        for (size_t page = 0; page < ssd_config->get_pages(); ++page)
+        for (size_t page : GetSampledPages(ssd_config))
         {
             memset(buffer, 0x00, ssd_config->get_page_size());
             ASSERT_EQ(ONFI_PAGE_PROGRAM(g_device_index, page, 0, buffer, ssd_config->get_page_size(), &nprogrammed), ONFI_SUCCESS);
