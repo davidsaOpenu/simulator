@@ -91,6 +91,8 @@ eVSSIM/tests/host/simulation_tests_main
 eVSSIM/tests/host/*/simulation_tests_main
 eVSSIM/tests/host/unit_tests_main
 eVSSIM/tests/host/*/unit_tests_main
+eVSSIM/tests/host/simulation_tests_main.log
+eVSSIM/tests/host/unit_tests_main.log
 eVSSIM/tests/host/data
 eVSSIM/tests/host/*/data
 eVSSIM/tests/host/*/common.h
