@@ -105,6 +105,28 @@ namespace parameters
 
 using namespace std;
 
+// Largest disk size (in MB) a disk-size sweep should reach, per RUN_MODE.
+// load_config.sh translates run-ci.sh's --long-run/--fast-run into
+// EVSSIM_HOST_TEST_MAX_DISK_MB: 2 TB for long-run, 128 MB for fast-run.
+// Falls back to the long-run default (2 TB) if unset.
+#define DEFAULT_MAX_DISK_SWEEP_MB (2097152)
+
+// inline (not in the anonymous namespace below): included by every host test
+// file, but only ssd_write_read_test.cc currently calls it. A static/anonymous-
+// namespace definition would trip -Werror=unused-function in the rest.
+inline size_t GetRunModeMaxDiskSizeMb() {
+    const char *env_val = std::getenv("EVSSIM_HOST_TEST_MAX_DISK_MB");
+    if (env_val != nullptr) {
+        char *end = nullptr;
+        long parsed = std::strtol(env_val, &end, 10);
+        if (end != env_val && parsed > 0) {
+            return (size_t)parsed;
+        }
+    }
+
+    return DEFAULT_MAX_DISK_SWEEP_MB;
+}
+
 namespace {
     class SSDConf {
     private:

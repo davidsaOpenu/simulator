@@ -125,10 +125,10 @@ load_config() {
 
 # Host simulation disk-size sweep cap, driven by run-ci.sh's RUN_MODE
 # (--long-run/--fast-run): long-run sweeps up to a 2 TB simulated disk,
-# fast-run caps it at 100 MB for quick local/CI iteration.
+# fast-run caps it at 128 MB for quick local/CI iteration.
 set_host_test_max_disk_mb() {
     if [[ "$RUN_MODE" == "fast-run" ]]; then
-        export EVSSIM_HOST_TEST_MAX_DISK_MB=100
+        export EVSSIM_HOST_TEST_MAX_DISK_MB=128
     else
         export EVSSIM_HOST_TEST_MAX_DISK_MB=2097152
     fi
