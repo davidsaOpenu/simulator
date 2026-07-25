@@ -25,7 +25,7 @@ typedef struct ssd_config {
 	uint32_t planes_per_flash;
 
 	uint32_t sectors_per_page;
-	uint32_t sectors_in_ssd;
+	uint64_t sectors_in_ssd;
 	uint64_t pages_per_flash;
 	uint64_t pages_in_ssd;
 
