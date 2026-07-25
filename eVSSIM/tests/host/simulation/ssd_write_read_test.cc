@@ -20,12 +20,6 @@
 
 extern LogServer log_server;
 
-// Largest disk size (in MB) this test sweeps up to, doubling from 2 MB each step.
-// Override with the EVSSIM_HOST_TEST_MAX_DISK_MB env var (set by load_config.sh
-// based on run-ci.sh's --long-run/--fast-run flags) to trade coverage for run time.
-// Default: 2^21 MB = 2 TB (matches the historical "long run" sweep).
-#define DEFAULT_MAX_DISK_MB (2097152)
-
 // for performance.
 #define CHECK_THRESHOLD 0.1 // 10%
 
@@ -54,26 +48,10 @@ namespace write_read_test
         }
     };
 
-    size_t GetMaxDiskSizeMb()
-    {
-        const char *env_val = std::getenv("EVSSIM_HOST_TEST_MAX_DISK_MB");
-        if (env_val != nullptr)
-        {
-            char *end = nullptr;
-            long parsed = std::strtol(env_val, &end, 10);
-            if (end != env_val && parsed > 0)
-            {
-                return (size_t)parsed;
-            }
-        }
-
-        return DEFAULT_MAX_DISK_MB;
-    }
-
     std::vector<SSDConf *> GetTestParams()
     {
         std::vector<SSDConf *> ssd_configs;
-        size_t max_disk_mb = GetMaxDiskSizeMb();
+        size_t max_disk_mb = GetRunModeMaxDiskSizeMb();
 
         for (size_t size_mb = 2; size_mb <= max_disk_mb; size_mb *= 2)
         {
