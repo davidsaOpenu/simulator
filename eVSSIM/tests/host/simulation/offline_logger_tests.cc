@@ -27,7 +27,6 @@
 
 // For logger_writer
 extern elk_logger_writer elk_logger_writer_obj;
-extern int auto_delete;
 
 #define PAGE_SIZE 1024
 #define PAGE_NB 10
@@ -35,15 +34,10 @@ extern int auto_delete;
 #define MAX_POW 6
 #define MAX_MODE 2
 #define POW_START 1
-#define SYSCALL_DELAY 10000
 
 using namespace std;
 
 namespace offline_logger_test{
-
-
-
-void flipAuto();
 
     class OfflineLoggerTest : public BaseTest {
         public:
@@ -61,21 +55,6 @@ void flipAuto();
             }
     };
 
-
-    /**
-     * disables/enables the auto deletion of log files sent by filebeat and deletes all remaining logs
-     */
-    void flipAuto(){
-        auto_delete = !auto_delete;
-        usleep(SYSCALL_DELAY);
-        int retval = system(LOG_FILE_REMOVAL_COMMAND);
-        if(WIFEXITED(retval)){
-            int exitStatus = WEXITSTATUS(retval);
-            if(exitStatus!=0){
-                printf("ERROR could not execute system call with exit status %d\n", exitStatus);
-            }
-        }
-    }
 
     std::vector<SSDConf*> GetTestParams() {
         std::vector<SSDConf*> ssd_configs;
@@ -282,15 +261,8 @@ void flipAuto();
     TEST_P(OfflineLoggerTest, LoggerWriterPageRead) {
         SSDConf* ssd_config = base_test_get_ssd_config();
 
-        if(ssd_config->get_block_nb()==pow(2,POW_START)){
-            flipAuto();
-        }
-        else{
-            printf("[+] Running test for blocks = %lu, mode = %d\n", ssd_config->get_block_nb(), MODE_R);
-            readOrWrite(MODE_R);
-        }
-
-
+        printf("[+] Running test for blocks = %lu, mode = %d\n", ssd_config->get_block_nb(), MODE_R);
+        readOrWrite(MODE_R);
     }
 
     /**
@@ -313,10 +285,6 @@ void flipAuto();
         printf("[+] Running test for blocks = %lu, mode = %d\n", ssd_config->get_block_nb(), MODE_RW);
 
         readOrWrite(MODE_RW);
-
-        if(ssd_config->get_block_nb()==pow(2,MAX_POW)){
-            flipAuto();
-        }
     }
 
 } //namespace

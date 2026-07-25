@@ -2,6 +2,12 @@
 
 using namespace std;
 
+// Defined in logging_offline_analyzer.c; defaults to true, which assumes a live
+// filebeat is shipping logs and confirming it via log.json. Host test runs never
+// start the ELK stack, so that confirmation never arrives and logs are never
+// cleaned up between tests. Default to unconditional per-test log cleanup instead.
+extern int auto_delete;
+
 bool g_monitor_mode = false;
 bool g_server_mode = false;
 
@@ -43,6 +49,8 @@ int main(int argc, char **argv) {
             tests_filter = "*MultiDevice*";
         }
     }
+
+    auto_delete = 0;
 
     testing::GTEST_FLAG(filter) = tests_filter;
     testing::InitGoogleTest(&argc, argv);
