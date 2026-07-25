@@ -27,6 +27,7 @@
 
 // For logger_writer
 extern elk_logger_writer elk_logger_writer_obj;
+extern LogServer log_server;
 
 #define PAGE_SIZE 1024
 #define PAGE_NB 10
@@ -202,18 +203,6 @@ namespace offline_logger_test{
      */
     void readOrWrite(int mode){
 
-        int expected_write_duration = (
-            devices[g_device_index].channel_switch_delay_w +
-            devices[g_device_index].reg_write_delay +
-            devices[g_device_index].cell_program_delay
-        ) * devices[g_device_index].pages_in_ssd;
-
-        int expected_read_duration = (
-            devices[g_device_index].channel_switch_delay_r +
-            devices[g_device_index].reg_read_delay +
-            devices[g_device_index].cell_read_delay
-        ) * devices[g_device_index].pages_in_ssd;
-
         // In case of r/w mode: read / write num_blocks
 
         for (uint64_t i = 0; i < devices[g_device_index].pages_in_ssd; i++) {
@@ -233,13 +222,13 @@ namespace offline_logger_test{
 
         switch (mode) {
             case MODE_R:
-                MONITOR_SYNC_DELAY(2*expected_read_duration);
+                _MONITOR_SYNC(g_device_index, &(log_server.stats[g_device_index]), MONITOR_SLEEP_MAX_USEC);
                 break;
             case MODE_W:
-                MONITOR_SYNC_DELAY(expected_write_duration);
+                _MONITOR_SYNC(g_device_index, &(log_server.stats[g_device_index]), MONITOR_SLEEP_MAX_USEC);
                 break;
             case MODE_RW:
-                MONITOR_SYNC_DELAY(expected_write_duration+expected_read_duration);
+                _MONITOR_SYNC(g_device_index, &(log_server.stats[g_device_index]), MONITOR_SLEEP_MAX_USEC);
                 break;
             default:
                 printf("unknown mode \n");
