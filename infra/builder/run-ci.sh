@@ -65,4 +65,5 @@ env -u http_proxy -u https_proxy -u HTTP_PROXY -u HTTPS_PROXY tox
 ./docker-test-host.sh                 # 10:48 - 13:33 -- 2 h 45 min
 ./docker-test-guest.sh                # 13:33 - 16:01 -- 2 h 33 min
 ./docker-test-exofs.sh                # 16:01 - 16:04 --     3  min
-                # podman                16:04 - 16:19 --     15 min
+
+# podman step (runs from the job)       16:04 - 16:19 --     15 min
