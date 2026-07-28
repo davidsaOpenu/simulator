@@ -33,6 +33,144 @@
       "message": "recheck",
       "revId": "702600e4ab98a1bca932853292e0c81b55a2a815",
       "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "d0fb1a68_b3a063c5",
+        "filename": "infra/builder/run-ci.sh",
+        "patchSetId": 21
+      },
+      "lineNbr": 21,
+      "author": {
+        "id": 1007990
+      },
+      "writtenOn": "2026-07-28T14:06:03Z",
+      "side": 1,
+      "message": "Let\u0027s load all the values by load_config.sh from the version configuration json.",
+      "range": {
+        "startLine": 21,
+        "startChar": 56,
+        "endLine": 21,
+        "endChar": 62
+      },
+      "revId": "702600e4ab98a1bca932853292e0c81b55a2a815",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "bc779933_2c1bf45e",
+        "filename": "infra/builder/run-ci.sh",
+        "patchSetId": 21
+      },
+      "lineNbr": 22,
+      "author": {
+        "id": 1007990
+      },
+      "writtenOn": "2026-07-28T14:06:03Z",
+      "side": 1,
+      "message": "here as well",
+      "range": {
+        "startLine": 22,
+        "startChar": 58,
+        "endLine": 22,
+        "endChar": 64
+      },
+      "revId": "702600e4ab98a1bca932853292e0c81b55a2a815",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "77b6ac8e_b9063515",
+        "filename": "infra/builder/run-ci.sh",
+        "patchSetId": 21
+      },
+      "lineNbr": 23,
+      "author": {
+        "id": 1007990
+      },
+      "writtenOn": "2026-07-28T14:06:03Z",
+      "side": 1,
+      "message": "and here",
+      "range": {
+        "startLine": 23,
+        "startChar": 54,
+        "endLine": 23,
+        "endChar": 60
+      },
+      "revId": "702600e4ab98a1bca932853292e0c81b55a2a815",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "841d0dc0_20aa3fd2",
+        "filename": "infra/builder/run-ci.sh",
+        "patchSetId": 21
+      },
+      "lineNbr": 24,
+      "author": {
+        "id": 1007990
+      },
+      "writtenOn": "2026-07-28T14:06:03Z",
+      "side": 1,
+      "message": "and here",
+      "range": {
+        "startLine": 24,
+        "startChar": 62,
+        "endLine": 24,
+        "endChar": 68
+      },
+      "revId": "702600e4ab98a1bca932853292e0c81b55a2a815",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "12d1c2a0_21c02868",
+        "filename": "infra/builder/run-ci.sh",
+        "patchSetId": 21
+      },
+      "lineNbr": 25,
+      "author": {
+        "id": 1007990
+      },
+      "writtenOn": "2026-07-28T14:06:03Z",
+      "side": 1,
+      "message": "and here",
+      "range": {
+        "startLine": 25,
+        "startChar": 63,
+        "endLine": 25,
+        "endChar": 69
+      },
+      "revId": "702600e4ab98a1bca932853292e0c81b55a2a815",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "66fe2ee5_9c72a27b",
+        "filename": "infra/builder/run-ci.sh",
+        "patchSetId": 21
+      },
+      "lineNbr": 27,
+      "author": {
+        "id": 1007990
+      },
+      "writtenOn": "2026-07-28T14:06:03Z",
+      "side": 1,
+      "message": "And here. It should be the only source of truth for the versions - the JSON file\n\nAnd in that case, one can use the EVSSIM_* variables without creating another level of indirection like \"VERSION_HOST_TESTS\u003d\"${EVSSIM_HOST_TESTS_RUN_CONTAINER#ubuntu:}\"",
+      "range": {
+        "startLine": 27,
+        "startChar": 54,
+        "endLine": 27,
+        "endChar": 60
+      },
+      "revId": "702600e4ab98a1bca932853292e0c81b55a2a815",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
     }
   ]
 }

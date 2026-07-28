@@ -179,6 +179,30 @@
       },
       "revId": "9527c8354a905c46ec347d5dbfb33fbcb842012e",
       "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "20e949b5_b6c2d598",
+        "filename": "infra/builder/run-ci.sh",
+        "patchSetId": 20
+      },
+      "lineNbr": 45,
+      "author": {
+        "id": 1007990
+      },
+      "writtenOn": "2026-07-28T14:06:03Z",
+      "side": 1,
+      "message": "docker_tag \u003d $2\n\nEVSSIM_RUN_SUDO\u003dy evssim_run \"$docker_tag\" \"/scripts/image-maker/${vm_version}.sh\"\nEVSSIM_RUN_SUDO\u003dy evssim_run \"$docker_tag\" chown -R external:external $EVSSIM_DIST_FOLDER\n\n\nUsing VERSION_QEMU_IMAGE for the Docker container tag wich translates to 2.X.y ot 11.0 is deceiving. If build-qemu-image.sh is using a container of a specific version, it should be loaded by load_config.sh from the version configuration JSON.",
+      "parentUuid": "00e2a038_98d64387",
+      "range": {
+        "startLine": 45,
+        "startChar": 43,
+        "endLine": 45,
+        "endChar": 61
+      },
+      "revId": "9527c8354a905c46ec347d5dbfb33fbcb842012e",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
     }
   ]
 }
