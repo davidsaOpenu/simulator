@@ -60,6 +60,30 @@
     {
       "unresolved": true,
       "key": {
+        "uuid": "de4dcd1d_536c996b",
+        "filename": "infra/builder/run-ci.sh",
+        "patchSetId": 21
+      },
+      "lineNbr": 21,
+      "author": {
+        "id": 1039371
+      },
+      "writtenOn": "2026-07-28T17:19:31Z",
+      "side": 1,
+      "message": "I do not understand,\nThis IS the values from the version configuration JSON\nThe values `EVSSIM_GUEST_TESTS_GUEST_VM_IMAGE`, `EVSSIM_KERNEL_COMPILE_CONTAINER`, `EVSSIM_QEMU_COMPILE_CONTAINER`, and etc\u0027 are variables that are defined by `load_config.sh` from `configs.json`",
+      "parentUuid": "d0fb1a68_b3a063c5",
+      "range": {
+        "startLine": 21,
+        "startChar": 56,
+        "endLine": 21,
+        "endChar": 62
+      },
+      "revId": "702600e4ab98a1bca932853292e0c81b55a2a815",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
+    },
+    {
+      "unresolved": true,
+      "key": {
         "uuid": "bc779933_2c1bf45e",
         "filename": "infra/builder/run-ci.sh",
         "patchSetId": 21
