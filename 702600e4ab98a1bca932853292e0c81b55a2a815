@@ -84,6 +84,30 @@
     {
       "unresolved": true,
       "key": {
+        "uuid": "a9e3672f_76589a80",
+        "filename": "infra/builder/run-ci.sh",
+        "patchSetId": 21
+      },
+      "lineNbr": 21,
+      "author": {
+        "id": 1007990
+      },
+      "writtenOn": "2026-07-29T07:57:01Z",
+      "side": 1,
+      "message": "Not exactly. For example, look at https://review.gerrithub.io/c/davidsaOpenu/simulator/+/1237496/21/infra/builder/load_config.sh#b95 where you removed the extraction of EVSSIM_GUEST_TESTS_GUEST_VM_IMAGE from the JSON file and overrode it with the default VERSION_QEMU_IMAGE\u003d\"${EVSSIM_GUEST_TESTS_GUEST_VM_IMAGE#ubuntu:}\". In fact, anyone who removes lines from load_config and then sets default values creates a headache where the values are coming from. This approach leads to long and time-consuming debugging in case of missing values (running the code looking for container tags, etc.). That\u0027s why the JSON file has to be the only source of truth for versions.",
+      "parentUuid": "de4dcd1d_536c996b",
+      "range": {
+        "startLine": 21,
+        "startChar": 56,
+        "endLine": 21,
+        "endChar": 62
+      },
+      "revId": "702600e4ab98a1bca932853292e0c81b55a2a815",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
+    },
+    {
+      "unresolved": true,
+      "key": {
         "uuid": "bc779933_2c1bf45e",
         "filename": "infra/builder/run-ci.sh",
         "patchSetId": 21

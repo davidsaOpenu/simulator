@@ -227,6 +227,30 @@
       },
       "revId": "9527c8354a905c46ec347d5dbfb33fbcb842012e",
       "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "0048afe8_e856cbf9",
+        "filename": "infra/builder/run-ci.sh",
+        "patchSetId": 20
+      },
+      "lineNbr": 45,
+      "author": {
+        "id": 1007990
+      },
+      "writtenOn": "2026-07-29T07:57:01Z",
+      "side": 1,
+      "message": "ou had 2 variables in the JSON file that raised a question why should we have them  both: one for the container that the code is compiled in and another for the container that the code runs in. When asked if we have a use case scenario to compile code in one container and run it in another, the answer was we have no such case. That\u0027s why there was no point in having duplicated values with 2 different keys. The same logic applies here: you are passing 2 variables with the same value to the script, and you are playing with default values when there is no value coming from the JSON file. My point is simple and logical: if there is a use case for having 2 keys with different values, let\u0027s have them in JSON strictly without the current logic of default values that obscures missing key-value pairs in the JSON file. But if there is no such case, please remove duplications. In any case, there should be just one place to change versions—the JSON file.",
+      "parentUuid": "5105669e_7d63259c",
+      "range": {
+        "startLine": 45,
+        "startChar": 43,
+        "endLine": 45,
+        "endChar": 61
+      },
+      "revId": "9527c8354a905c46ec347d5dbfb33fbcb842012e",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
     }
   ]
 }
