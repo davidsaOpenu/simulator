@@ -251,6 +251,30 @@
       },
       "revId": "9527c8354a905c46ec347d5dbfb33fbcb842012e",
       "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "2cdae6aa_05606d35",
+        "filename": "infra/builder/run-ci.sh",
+        "patchSetId": 20
+      },
+      "lineNbr": 45,
+      "author": {
+        "id": 1039371
+      },
+      "writtenOn": "2026-07-30T11:04:41Z",
+      "side": 1,
+      "message": "You can\u0027t say that it is **both** deceiving to use one value for two different things (one for docker, the other for qemu), and at the same time say we need one value to specify both different things. Those sentences mutually exclude each other.\n\nI do not understand what you want here from the code. What should the code do then?\n\nI also do not understand what translation between 2.X.y and 11.0 you are talking about.\n\nI am also not confident I am actually understanding your comment correctly, because I am not fully understanding what you\u0027re suggesting to do/saying is wrong.",
+      "parentUuid": "0048afe8_e856cbf9",
+      "range": {
+        "startLine": 45,
+        "startChar": 43,
+        "endLine": 45,
+        "endChar": 61
+      },
+      "revId": "9527c8354a905c46ec347d5dbfb33fbcb842012e",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
     }
   ]
 }
