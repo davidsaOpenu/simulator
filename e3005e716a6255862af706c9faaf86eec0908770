@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "98d8874c_db0bc8f7",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 2
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 1039489
+      },
+      "writtenOn": "2026-07-31T07:35:05Z",
+      "side": 1,
+      "message": "The premise doesn\u0027t hold in CI: `run-ci.sh` starts ELK and filebeat before `docker-test-host.sh`, and filebeat tails the same logs/ directory the logger writes to. With auto_delete\u003d0, every logger init runs rm -rf on all logs, deleting earlier tests\u0027 events before filebeat ships them and yanking files out from under it mid-read (the auto_delete\u003d1 path only deleted filebeat-confirmed files, so it was lossless).\n\nThis makes the host-test event stream in Elasticsearch lossy/flaky which is no bueno.\n\n\nSuggestion: gate the cleanup on an EVSSIM_ env var set by the runner, so unconditional deletion only happens when ELK is not part of the run.",
+      "revId": "e3005e716a6255862af706c9faaf86eec0908770",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
+    }
+  ]
+}
