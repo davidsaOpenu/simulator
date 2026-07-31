@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "6e21c188_03faf489",
+        "filename": "infra/builder/run-ci.sh",
+        "patchSetId": 2
+      },
+      "lineNbr": 11,
+      "author": {
+        "id": 1039489
+      },
+      "writtenOn": "2026-07-31T07:46:34Z",
+      "side": 1,
+      "message": "Note the comment above still says long run is the default\n\nAlso `load_config.sh` still falls back to long-run when RUN_MODE is unset, so the direct `docker-test-host.sh` path defaults heavy while `run-ci.sh` defaults fast",
+      "revId": "9c0066b6b66b02819f5e816d569241ddf3ea5c15",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
+    }
+  ]
+}
