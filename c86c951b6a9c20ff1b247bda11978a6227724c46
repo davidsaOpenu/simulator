@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "29885c14_734680d4",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 2
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 1039489
+      },
+      "writtenOn": "2026-07-31T07:47:35Z",
+      "side": 1,
+      "message": "Maybe it\u0027s better squashing the revert into this change? i.e. migrate only `ssd_io_emulator_tests.cc` and leave `offline_logger_tests.cc` untouched here",
+      "revId": "c86c951b6a9c20ff1b247bda11978a6227724c46",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
+    }
+  ]
+}
