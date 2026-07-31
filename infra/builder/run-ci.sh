@@ -31,10 +31,12 @@ trap "$ELK_CLEAN --complete-cleanup || true" EXIT
 env -u http_proxy -u https_proxy -u HTTP_PROXY -u HTTPS_PROXY tox
 
 # build + sanity
-./build-docker-image.sh
+./build-docker-image.sh 26.04
+./build-docker-image.sh 14.04
 ./build-qemu-image.sh
 ./compile-kernel.sh
-./compile-qemu.sh
+./compile-qemu.sh 26.04
+./compile-qemu.sh 14.04 # make sure this is second to simplify docker-run-sanity.sh on the correct qemu branch (as it is expecting 14.04 structure atm)
 ./compile-host-tests.sh
 ./compile-guest-tests.sh
 ./docker-run-sanity.sh
