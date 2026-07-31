@@ -1,0 +1,38 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "66ea41c9_ae3d73b2",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 2
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 1039489
+      },
+      "writtenOn": "2026-07-31T07:42:38Z",
+      "side": 1,
+      "message": "Small nitpick",
+      "revId": "4a305e290f717ba6c3de38949e9af0ce7a82591d",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "903d336c_4d1edeaa",
+        "filename": "eVSSIM/tests/host/simulation/onfi_ops_test.cc",
+        "patchSetId": 2
+      },
+      "lineNbr": 103,
+      "author": {
+        "id": 1039489
+      },
+      "writtenOn": "2026-07-31T07:42:38Z",
+      "side": 1,
+      "message": "I suggest a guard here so that a block_nb \u003c 2 cannot underflow.",
+      "revId": "4a305e290f717ba6c3de38949e9af0ce7a82591d",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
+    }
+  ]
+}
