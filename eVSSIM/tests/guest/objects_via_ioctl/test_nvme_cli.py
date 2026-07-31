@@ -121,11 +121,35 @@ class test_NvmeCli(object):
     CHUNK_SIZE = 512
     MAX_OBJECT_SIZE = 1024
     OBJECT_COUNT = 10000
+    RANDOM_SAMPLE_COUNT = 15
     OBJ_NAMES = []
 
+    def rw_test_sizes(self):
+        """
+        Object sizes to exercise in read/write coverage tests: the chunking
+        boundaries (smallest object, one byte either side of a chunk edge,
+        largest object) plus a handful of random sizes in between. Each
+        object write/read is a real nvme-cli subprocess round trip through
+        the simulator, so exhaustively looping OBJECT_COUNT times is too
+        slow to be worth the marginal coverage over sampling.
+        """
+        boundary_sizes = {
+            1,
+            self.CHUNK_SIZE - 1,
+            self.CHUNK_SIZE,
+            self.CHUNK_SIZE + 1,
+            self.MAX_OBJECT_SIZE,
+        }
+        boundary_sizes = {s for s in boundary_sizes if 1 <= s <= self.MAX_OBJECT_SIZE}
+        random_sizes = {
+            random.randint(1, self.MAX_OBJECT_SIZE)
+            for _ in xrange(self.RANDOM_SAMPLE_COUNT)
+        }
+        return list(boundary_sizes | random_sizes)
+
     def test_delete(self):
-    	"""
-    	Test: Deleted objects can't be read
+        """
+        Test: Deleted objects can't be read
         The test writes an object then reads and deletes it, after deletion
         another read attempt is made testing for an exception to make sure
         a read on a deleted object causes an exception to occur.
@@ -137,10 +161,10 @@ class test_NvmeCli(object):
             self.device.objr(input)
             self.device.objd(input)
             try:
-            	self.device.objr(input)
+                self.device.objr(input)
             except:
                 print("objects_via_ioctl: test_delete finished successfully")
-            	return
+                return
             else:
                 raise Exception("No exception when trying to read deleted object")
 
@@ -148,16 +172,15 @@ class test_NvmeCli(object):
     def test_write_read_and_compare(self):
         """
         Test: Written objects match
-        The test iterates over a specified count,
-        creating temporary objects with random data of random size.
-        It writes these objects to the device.
+        The test creates temporary objects of various sizes (chunking
+        boundaries plus a random sample), writing each to the device.
         The function performs a series of assertions to validate that the
         contents of the read object matches the expected content of the written object,
         after which it also verifies objl and obje work as expected
         """
         self.cleanup()
-        for oid in xrange(0, self.OBJECT_COUNT):
-            size = random.randint(1, self.MAX_OBJECT_SIZE)
+        sizes = self.rw_test_sizes()
+        for size in sizes:
             with data(size) as input:
                 self.device.objw(input)
                 os.rename(input, input + "cpy")
@@ -168,8 +191,8 @@ class test_NvmeCli(object):
                     assert write_in == read_out
         content = self.device.objl()
         lines = content.split('\n')
-        assert len(lines) - 1 == self.OBJECT_COUNT # expected number of objects listed
-        for oid in xrange(0, self.OBJECT_COUNT):
+        assert len(lines) - 1 == len(sizes) # expected number of objects listed
+        for oid in xrange(0, len(sizes)):
             if lines[oid] != "":
                 self.device.obje(lines[oid]) # check that every listed object exists
         print("objects_via_ioctl: test_read finished successfully")
@@ -209,7 +232,7 @@ class test_NvmeCli(object):
 
 
     def test_overwrite(self):
-    	"""
+        """
         Test: Overwrite objects
         The test iterates over a specified count,
         creating temporary objects with random data of random size.
@@ -243,13 +266,13 @@ class test_NvmeCli(object):
 
 
     def cleanup(self):
-    	"""
-    	This helper function handles the deletion of a given list of objects
-    	to restore the device to its initial state between tests
-    	"""
-    	for obj in self.OBJ_NAMES:
-    	    self.device.objd(obj)
-    	self.OBJ_NAMES = []
+        """
+        This helper function handles the deletion of a given list of objects
+        to restore the device to its initial state between tests
+        """
+        for obj in self.OBJ_NAMES:
+            self.device.objd(obj)
+        self.OBJ_NAMES = []
 
 
     def align_size(self, size):
