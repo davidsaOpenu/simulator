@@ -8,7 +8,7 @@ cd "$(dirname "${BASH_SOURCE[0]}")"
 # --long-run (default): sweep host simulation tests up to a 2 TB simulated disk.
 # --fast-run: cap host simulation tests at a 128 MB simulated disk, for quick local iteration.
 # EVSSIM_HOST_TEST_MAX_DISK_MB is exported by load_config.sh (sourced via env.sh below) based on RUN_MODE.
-RUN_MODE="long-run"
+RUN_MODE="fast-run"
 for arg in "$@"; do
     case "$arg" in
         --long-run|--long_run)
