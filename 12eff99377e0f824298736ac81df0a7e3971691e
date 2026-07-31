@@ -41,6 +41,30 @@
       "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "20fb2d58_de56940b",
+        "filename": "eVSSIM/tests/host/simulation/ssd_write_read_test.cc",
+        "patchSetId": 2
+      },
+      "lineNbr": 78,
+      "author": {
+        "id": 1039522
+      },
+      "writtenOn": "2026-07-31T13:32:51Z",
+      "side": 1,
+      "message": "I forgot you do the casting and you only multiply it at most by two, so it will fit in size_t",
+      "parentUuid": "776a12c5_643ba4ea",
+      "range": {
+        "startLine": 78,
+        "startChar": 0,
+        "endLine": 78,
+        "endChar": 70
+      },
+      "revId": "12eff99377e0f824298736ac81df0a7e3971691e",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "ca7a7d36_0370bc38",
