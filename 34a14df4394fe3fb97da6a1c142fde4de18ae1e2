@@ -1,0 +1,38 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "3a3aff88_98e23c61",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 2
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 1039489
+      },
+      "writtenOn": "2026-07-31T07:28:05Z",
+      "side": 1,
+      "message": "A small suggestion (not blocking)",
+      "revId": "34a14df4394fe3fb97da6a1c142fde4de18ae1e2",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "091582e2_32612a92",
+        "filename": "infra/builder/env.sh",
+        "patchSetId": 2
+      },
+      "lineNbr": 92,
+      "author": {
+        "id": 1039489
+      },
+      "writtenOn": "2026-07-31T07:28:05Z",
+      "side": 1,
+      "message": "For the non-qemu containers (compile steps, host tests) nothing connects in from outside, so publishing no ports at all would remove the collision without allocation logic. Dynamic allocation is only really needed for the qemu ssh port.",
+      "revId": "34a14df4394fe3fb97da6a1c142fde4de18ae1e2",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
+    }
+  ]
+}
