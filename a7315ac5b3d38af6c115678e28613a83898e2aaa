@@ -1,0 +1,38 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "d7b3326d_664e1098",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 2
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 1039489
+      },
+      "writtenOn": "2026-07-31T07:43:32Z",
+      "side": 1,
+      "message": "Small nitpick",
+      "revId": "a7315ac5b3d38af6c115678e28613a83898e2aaa",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "b0d58e76_696e7ca2",
+        "filename": "infra/builder/run-ci.sh",
+        "patchSetId": 2
+      },
+      "lineNbr": 71,
+      "author": {
+        "id": 1039489
+      },
+      "writtenOn": "2026-07-31T07:43:32Z",
+      "side": 1,
+      "message": "Is this comment here by mistake?",
+      "revId": "a7315ac5b3d38af6c115678e28613a83898e2aaa",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
+    }
+  ]
+}
