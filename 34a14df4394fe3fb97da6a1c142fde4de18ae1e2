@@ -33,6 +33,24 @@
       "message": "For the non-qemu containers (compile steps, host tests) nothing connects in from outside, so publishing no ports at all would remove the collision without allocation logic. Dynamic allocation is only really needed for the qemu ssh port.",
       "revId": "34a14df4394fe3fb97da6a1c142fde4de18ae1e2",
       "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "fa25b213_c8fc6183",
+        "filename": "infra/builder/env.sh",
+        "patchSetId": 2
+      },
+      "lineNbr": 92,
+      "author": {
+        "id": 1007990
+      },
+      "writtenOn": "2026-07-31T13:08:53Z",
+      "side": 1,
+      "message": "Thanks for the review. But not exactly. Host tests are setting up a real-time monitor and are also reporting to ELK",
+      "parentUuid": "091582e2_32612a92",
+      "revId": "34a14df4394fe3fb97da6a1c142fde4de18ae1e2",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
     }
   ]
 }
