@@ -26,6 +26,30 @@
     {
       "unresolved": false,
       "key": {
+        "uuid": "640cdb06_5dd56cde",
+        "filename": "/COMMIT_MSG",
+        "patchSetId": 5
+      },
+      "lineNbr": 1,
+      "author": {
+        "id": 1039387
+      },
+      "writtenOn": "2026-08-01T14:21:47Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "110a5317_741c96a7",
+      "range": {
+        "startLine": 1,
+        "startChar": 0,
+        "endLine": 1,
+        "endChar": 59
+      },
+      "revId": "7a6b22934e67b431ff228ccd279ce5f78fa805bf",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
+    },
+    {
+      "unresolved": false,
+      "key": {
         "uuid": "ad5f51c3_02ddcc10",
         "filename": "/PATCHSET_LEVEL",
         "patchSetId": 5
@@ -75,6 +99,24 @@
       "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "da76664a_1b4e6b5d",
+        "filename": "eVSSIM/CONFIG/vssim_config_manager.c",
+        "patchSetId": 5
+      },
+      "lineNbr": 13,
+      "author": {
+        "id": 1039387
+      },
+      "writtenOn": "2026-08-01T14:21:47Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "badbf6b1_33ac3655",
+      "revId": "7a6b22934e67b431ff228ccd279ce5f78fa805bf",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "e0ad536c_21fdd31e",
@@ -88,6 +130,24 @@
       "writtenOn": "2026-06-03T13:43:52Z",
       "side": 1,
       "message": "consider define ns_num in the beginning of the function like the othe variables and delete the block scope",
+      "revId": "7a6b22934e67b431ff228ccd279ce5f78fa805bf",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "4aa42b73_22acdd32",
+        "filename": "eVSSIM/CONFIG/vssim_config_manager.c",
+        "patchSetId": 5
+      },
+      "lineNbr": 91,
+      "author": {
+        "id": 1039387
+      },
+      "writtenOn": "2026-08-01T14:21:47Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "e0ad536c_21fdd31e",
       "revId": "7a6b22934e67b431ff228ccd279ce5f78fa805bf",
       "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
     },
@@ -109,6 +169,24 @@
       "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "a572a2f7_3d737a5e",
+        "filename": "eVSSIM/CONFIG/vssim_config_manager.c",
+        "patchSetId": 5
+      },
+      "lineNbr": 93,
+      "author": {
+        "id": 1039387
+      },
+      "writtenOn": "2026-08-01T14:21:47Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "cbac2015_818cb8db",
+      "revId": "7a6b22934e67b431ff228ccd279ce5f78fa805bf",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "328b2bc0_11b08af3",
@@ -126,6 +204,24 @@
       "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "2d3bb84f_73cd18e3",
+        "filename": "eVSSIM/CONFIG/vssim_config_manager.c",
+        "patchSetId": 5
+      },
+      "lineNbr": 151,
+      "author": {
+        "id": 1039387
+      },
+      "writtenOn": "2026-08-01T14:21:47Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "328b2bc0_11b08af3",
+      "revId": "7a6b22934e67b431ff228ccd279ce5f78fa805bf",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "dc9f20cb_cf1a326e",
@@ -139,6 +235,24 @@
       "writtenOn": "2026-06-03T13:43:52Z",
       "side": 1,
       "message": "what is the purpose of this? i can assume that this is only a mock and will be removed in the future",
+      "revId": "7a6b22934e67b431ff228ccd279ce5f78fa805bf",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "a3482597_cc7393a4",
+        "filename": "eVSSIM/CONFIG/vssim_config_manager.c",
+        "patchSetId": 5
+      },
+      "lineNbr": 406,
+      "author": {
+        "id": 1039387
+      },
+      "writtenOn": "2026-08-01T14:21:47Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "dc9f20cb_cf1a326e",
       "revId": "7a6b22934e67b431ff228ccd279ce5f78fa805bf",
       "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
     },
@@ -177,6 +291,24 @@
       "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "7a37925d_de1919dc",
+        "filename": "eVSSIM/tests/host/simulation/ssd_conf_tests.cc",
+        "patchSetId": 5
+      },
+      "lineNbr": 52,
+      "author": {
+        "id": 1039387
+      },
+      "writtenOn": "2026-08-01T14:21:47Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "ff9a1b3b_0c353c11",
+      "revId": "7a6b22934e67b431ff228ccd279ce5f78fa805bf",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "7161e5ae_7be29237",
@@ -190,6 +322,24 @@
       "writtenOn": "2026-06-03T13:43:52Z",
       "side": 1,
       "message": "what about all the other fields in the config?",
+      "revId": "7a6b22934e67b431ff228ccd279ce5f78fa805bf",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "177a669a_b947d851",
+        "filename": "eVSSIM/tests/host/simulation/ssd_conf_tests.cc",
+        "patchSetId": 5
+      },
+      "lineNbr": 142,
+      "author": {
+        "id": 1039387
+      },
+      "writtenOn": "2026-08-01T14:21:47Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "7161e5ae_7be29237",
       "revId": "7a6b22934e67b431ff228ccd279ce5f78fa805bf",
       "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
     },
@@ -234,6 +384,30 @@
       "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "61e27d24_79ac026f",
+        "filename": "infra/builder/builder.sh",
+        "patchSetId": 5
+      },
+      "lineNbr": 419,
+      "author": {
+        "id": 1039387
+      },
+      "writtenOn": "2026-08-01T14:21:47Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "e2a80db7_55c1f726",
+      "range": {
+        "startLine": 419,
+        "startChar": 187,
+        "endLine": 419,
+        "endChar": 241
+      },
+      "revId": "7a6b22934e67b431ff228ccd279ce5f78fa805bf",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "8ba13e59_451c8d66",
@@ -247,6 +421,24 @@
       "writtenOn": "2026-06-03T13:43:52Z",
       "side": 1,
       "message": "quote $ssh_base",
+      "revId": "7a6b22934e67b431ff228ccd279ce5f78fa805bf",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "010a72d0_20fe5835",
+        "filename": "infra/builder/builder.sh",
+        "patchSetId": 5
+      },
+      "lineNbr": 421,
+      "author": {
+        "id": 1039387
+      },
+      "writtenOn": "2026-08-01T14:21:47Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "8ba13e59_451c8d66",
       "revId": "7a6b22934e67b431ff228ccd279ce5f78fa805bf",
       "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
     },
@@ -285,6 +477,42 @@
       "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "cca986f7_9f60c62e",
+        "filename": "infra/builder/docker-run-sanity.sh",
+        "patchSetId": 5
+      },
+      "lineNbr": 14,
+      "author": {
+        "id": 1039387
+      },
+      "writtenOn": "2026-08-01T14:21:47Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "174ae0ad_b8d5e0ca",
+      "revId": "7a6b22934e67b431ff228ccd279ce5f78fa805bf",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "89dedfde_926b27af",
+        "filename": "infra/builder/docker-run-sanity.sh",
+        "patchSetId": 5
+      },
+      "lineNbr": 14,
+      "author": {
+        "id": 1039387
+      },
+      "writtenOn": "2026-08-01T14:21:47Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "14733992_9bd54329",
+      "revId": "7a6b22934e67b431ff228ccd279ce5f78fa805bf",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "21452fee_07c52695",
@@ -298,6 +526,24 @@
       "writtenOn": "2026-06-03T13:43:52Z",
       "side": 1,
       "message": "missing NAMESPACE_PAGE_NB",
+      "revId": "7a6b22934e67b431ff228ccd279ce5f78fa805bf",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "7b0f765e_3a1054b9",
+        "filename": "infra/builder/docker/ssd.conf.template",
+        "patchSetId": 5
+      },
+      "lineNbr": 78,
+      "author": {
+        "id": 1039387
+      },
+      "writtenOn": "2026-08-01T14:21:47Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "21452fee_07c52695",
       "revId": "7a6b22934e67b431ff228ccd279ce5f78fa805bf",
       "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
     }
