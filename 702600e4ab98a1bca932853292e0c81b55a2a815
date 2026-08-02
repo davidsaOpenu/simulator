@@ -132,6 +132,30 @@
     {
       "unresolved": true,
       "key": {
+        "uuid": "2f43cf04_6f2f0337",
+        "filename": "infra/builder/run-ci.sh",
+        "patchSetId": 21
+      },
+      "lineNbr": 21,
+      "author": {
+        "id": 1007990
+      },
+      "writtenOn": "2026-08-02T16:40:35Z",
+      "side": 1,
+      "message": "Agreed, # is prefix-stripping, not a default — I overplayed that. But the real issue is separation of concerns: load_config.sh owns parsing, yet run-ci.sh still does its own string transformation (${VAR#ubuntu:}) on an already-loaded value. That\u0027s leaky abstraction — the consumer now encodes an assumption about the JSON\u0027s format. If the format changes (as you proposed — u14.04, alma10, etc.), this strip silently does the wrong thing (or nothing) instead of failing loudly, and someone has to go hunting through run-ci.sh to figure out why a container tag looks wrong.\n\nSuggestion: move the stripping into load_config.sh and export a clean derived value. Consumers should only ever consume finished config — zero parsing logic downstream, single source of truth fully enforced by JSON and load_config.sh.",
+      "parentUuid": "91996cac_7a650cde",
+      "range": {
+        "startLine": 21,
+        "startChar": 56,
+        "endLine": 21,
+        "endChar": 62
+      },
+      "revId": "702600e4ab98a1bca932853292e0c81b55a2a815",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
+    },
+    {
+      "unresolved": true,
+      "key": {
         "uuid": "bc779933_2c1bf45e",
         "filename": "infra/builder/run-ci.sh",
         "patchSetId": 21
