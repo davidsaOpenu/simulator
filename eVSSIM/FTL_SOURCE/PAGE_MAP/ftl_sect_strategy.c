@@ -57,10 +57,6 @@ ftl_ret_val _FTL_READ_SECT(uint8_t device_index, uint64_t sector_nb, unsigned in
 
 	unsigned int ret = FTL_FAILURE;
 	int read_page_nb = 0;
-	int io_page_nb;
-
-	// just calculate the overhead of allocating the request. io_page_nb will be the total number of pages we're gonna read
-	ssds_manager[device_index].io_alloc_overhead = ALLOC_IO_REQUEST(device_index, sector_nb, length, READ, &io_page_nb);
 
 	remain = length;
 	lba = sector_nb;
@@ -136,8 +132,6 @@ ftl_ret_val _FTL_READ_SECT(uint8_t device_index, uint64_t sector_nb, unsigned in
 		// corresponds exactly to one logical read with the exact same parameters; thus, we omit the logical
 		// read log all together, and refer to the physical one as an indication to both.
 	}
-
-	INCREASE_IO_REQUEST_SEQ_NB(device_index);
 
 	PDBG_FTL("Complete\n");
 
@@ -228,12 +222,8 @@ ftl_ret_val _FTL_WRITE_SECT(uint8_t device_index, uint64_t sector_nb, unsigned i
 
 	PDBG_FTL("Start: sector_nb %" PRIu64 "length %u\n", sector_nb, length);
 
-	int io_page_nb;
-
 	if (sector_nb + length > devices[device_index].sectors_in_ssd)
 		RERR(FTL_FAILURE, "[FTL_WRITE] Exceed Sector number\n");
-
-	ssds_manager[device_index].io_alloc_overhead = ALLOC_IO_REQUEST(device_index, sector_nb, length, WRITE, &io_page_nb);
 
 	uint64_t lba = sector_nb; // logical block address
 	uint64_t lpn;			  // logical page number
@@ -326,8 +316,6 @@ ftl_ret_val _FTL_WRITE_SECT(uint8_t device_index, uint64_t sector_nb, unsigned i
 		}
 		left_skip = 0;
 	}
-
-	INCREASE_IO_REQUEST_SEQ_NB(device_index);
 
 #ifdef GC_ON
 	if (device_full) {

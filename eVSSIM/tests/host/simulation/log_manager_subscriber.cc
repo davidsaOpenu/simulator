@@ -21,6 +21,7 @@ extern "C" {
 
 #include <gtest/gtest.h>
 #include "test_context.h"
+#include "base_emulator_tests.h"
 #include <fstream>
 #include <cstdio>
 #include <cstdlib>

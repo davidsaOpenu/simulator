@@ -38,7 +38,6 @@
 #include "vssim_config_manager.h"
 #include "ftl.h"
 #include "ftl_inverse_mapping_manager.h"
-#include "ftl_perf_manager.h"
 
 #include "ftl_sect_strategy.h"
 #include "ftl_obj_strategy.h"
@@ -79,11 +78,6 @@
 #define PAGE_INVALID		'I'
 #define PAGE_ZERO		'0'
 
-/* Perf Checker Calloc Type */
-#define CH_OP		80
-#define REG_OP		81
-#define LATENCY_OP	82
-
 #define CHANNEL_IS_EMPTY 700
 #define CHANNEL_IS_WRITE 701
 #define CHANNEL_IS_READ  702
@@ -106,11 +100,6 @@
 #define GC_WRITE_BACKGROUND		807
 #define COPYBACK_BACKGROUND		808
 #define ERASE_BACKGROUND		809
-
-#define UPDATE_START_TIME	900
-#define UPDATE_END_TIME		901
-#define UPDATE_GC_START_TIME	902
-#define UPDATE_GC_END_TIME	903
 
 #define SUPPORTED_OPERATION 4
 #define LOGICAL_READ	0

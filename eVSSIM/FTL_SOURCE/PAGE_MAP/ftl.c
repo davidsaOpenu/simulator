@@ -73,7 +73,6 @@ void FTL_INIT(uint8_t device_index)
 		INIT_EMPTY_BLOCK_LIST(device_index);
 		INIT_VICTIM_BLOCK_LIST(device_index);
 		INIT_OBJ_STRATEGY(device_index);
-		INIT_PERF_CHECKER(device_index);
         INIT_GC_MANAGER(device_index);
 
 		// Initialize The Statistics gathering component.
@@ -103,7 +102,6 @@ void FTL_TERM(uint8_t device_index)
 	TERM_EMPTY_BLOCK_LIST(device_index);
 	TERM_VICTIM_BLOCK_LIST(device_index);
 	TERM_OBJ_STRATEGY(device_index);
-	TERM_PERF_CHECKER(device_index);
 	FTL_TERM_STATS();
 	TERM_GC_MANAGER(device_index);
 	SSD_IO_TERM(device_index);

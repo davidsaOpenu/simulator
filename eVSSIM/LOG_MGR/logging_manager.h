@@ -20,6 +20,9 @@
 #include "common.h"
 #include "logging_rt_analyzer.h"
 
+#define MEGABYTE_IN_BYTES (1024*1024)
+#define SECOND_IN_USEC 1000000
+
 /**
  * The maximum number of analyzers a LogManager can hold
  */

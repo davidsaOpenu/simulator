@@ -48,7 +48,6 @@ eVSSIM/QEMU/hw/ftl_inverse_mapping_manager.h
 eVSSIM/QEMU/hw/ftl_gc_manager.h
 eVSSIM/QEMU/hw/ftl_sect_strategy.h
 eVSSIM/QEMU/hw/ftl_obj_strategy.h
-eVSSIM/QEMU/hw/ftl_perf_manager.h
 eVSSIM/QEMU/hw/ssd_io_manager.h
 eVSSIM/QEMU/hw/ssd_log_manager.h
 eVSSIM/QEMU/hw/ftl.c
@@ -57,7 +56,6 @@ eVSSIM/QEMU/hw/ftl_inverse_mapping_manager.c
 eVSSIM/QEMU/hw/ftl_gc_manager.c
 eVSSIM/QEMU/hw/ftl_sect_strategy.c
 eVSSIM/QEMU/hw/ftl_obj_strategy.c
-eVSSIM/QEMU/hw/ftl_perf_manager.c
 eVSSIM/QEMU/hw/ssd_io_manager.c
 eVSSIM/QEMU/hw/ssd_log_manager.c
 eVSSIM/QEMU/x86_64-softmmu/data/ssd.conf
@@ -123,8 +121,6 @@ eVSSIM/tests/host/*/ftl_mapping_manager.c
 eVSSIM/tests/host/*/ftl_mapping_manager.h
 eVSSIM/tests/host/*/ftl_obj_strategy.c
 eVSSIM/tests/host/*/ftl_obj_strategy.h
-eVSSIM/tests/host/*/ftl_perf_manager.c
-eVSSIM/tests/host/*/ftl_perf_manager.h
 eVSSIM/tests/host/*/ftl_sect_strategy.c
 eVSSIM/tests/host/*/ftl_sect_strategy.h
 eVSSIM/tests/host/*/ftl_type.h
