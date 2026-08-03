@@ -17,10 +17,11 @@
 #include <stdio.h>
 #include <stdlib.h>
 
-#include "ftl_perf_manager.h"
+#include "common.h"
 #include "vssim_config_manager.h"
 
 #include "logging_rt_analyzer.h"
+#include "logging_manager.h"
 
 
 /**

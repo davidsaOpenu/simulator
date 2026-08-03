@@ -21,10 +21,14 @@ extern "C" {
 
 #include "common.h"
 #include "ftl_sect_strategy.h"
+#include "logging_manager.h"
 #include <uuid/uuid.h>
 
 }
 #include "test_context.h"
+
+#define CALCULATEMBPS(s,t) ((double)s*SECOND_IN_USEC)/MEGABYTE_IN_BYTES/t;
+#define ERROR_THRESHHOLD(x) x*0.01
 
 extern "C" int g_init;
 extern "C" int clientSock;

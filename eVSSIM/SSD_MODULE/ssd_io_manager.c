@@ -110,20 +110,6 @@ int SSD_IO_INIT(uint8_t device_index){
         *(ssds_manager[device_index].cell_io_time + i) = -1;
     }
 
-    /* Init Access sequence_nb */
-    ssds_manager[device_index].access_nb = (uint32_t **)malloc(sizeof(uint32_t*) * devices[device_index].flash_nb * devices[device_index].planes_per_flash);
-    for(i=0; i< devices[device_index].flash_nb*devices[device_index].planes_per_flash; i++){
-        *(ssds_manager[device_index].access_nb + i) = (uint32_t*)malloc(sizeof(uint32_t)*2);
-        ssds_manager[device_index].access_nb[i][0] = UINT32_MAX;
-        ssds_manager[device_index].access_nb[i][1] = UINT32_MAX;
-    }
-
-    /* Init IO Overhead */
-    ssds_manager[device_index].io_overhead = (int64_t *)malloc(sizeof(int64_t) * devices[device_index].flash_nb * devices[device_index].planes_per_flash);
-    for(i=0; i< devices[device_index].flash_nb*devices[device_index].planes_per_flash; i++){
-        *(ssds_manager[device_index].io_overhead + i) = 0;
-    }
-
     ssds_manager[device_index].ssd.prev_channel_mode = (int *)malloc(sizeof(int)*devices[device_index].channel_nb);
     ssds_manager[device_index].ssd.cur_channel_mode = (int *)malloc(sizeof(int)*devices[device_index].channel_nb);
     for (i = 0; i < devices[device_index].channel_nb; i++) {
@@ -143,11 +129,6 @@ int SSD_IO_TERM(uint8_t device_index)
     free(ssds_manager[device_index].reg_io_time);
     free(ssds_manager[device_index].cell_io_time);
 
-    uint32_t i;
-    for(i=0; i < devices[device_index].flash_nb * devices[device_index].planes_per_flash; i++)
-        free(ssds_manager[device_index].access_nb[i]);
-    free(ssds_manager[device_index].access_nb);
-    free(ssds_manager[device_index].io_overhead);
     free(ssds_manager[device_index].ssd.prev_channel_mode);
     free(ssds_manager[device_index].ssd.cur_channel_mode);
 
@@ -209,7 +190,7 @@ ftl_ret_val SSD_PAGE_WRITE(uint8_t device_index, unsigned int flash_nb, unsigned
     SSD_CH_ENABLE(device_index, flash_nb, channel); // Channel enable
 
     if (devices[device_index].io_parallelism == 0 ){
-        delay_ret = SSD_FLASH_ACCESS(device_index, flash_nb, channel, reg);
+        delay_ret = SSD_FLASH_ACCESS(device_index, flash_nb, channel);
     }
     else{
         delay_ret = SSD_REG_ACCESS(device_index, flash_nb, channel, reg);
@@ -223,7 +204,7 @@ ftl_ret_val SSD_PAGE_WRITE(uint8_t device_index, unsigned int flash_nb, unsigned
     /* Record Time Stamp */
     SSD_CH_RECORD(device_index, channel, offset, delay_ret);
     SSD_CELL_RECORD(device_index, reg, channel);
-    SSD_REG_RECORD(device_index, reg, type, offset, channel);
+    SSD_REG_RECORD(device_index, reg, type, channel);
     SSD_REG_ACCESS(device_index, flash_nb, channel, reg);
 
     int64_t end = get_usec();;
@@ -291,7 +272,7 @@ ftl_ret_val SSD_PAGE_READ(uint8_t device_index, unsigned int flash_nb, unsigned 
 
     /* Access Register */
     if( devices[device_index].io_parallelism == 0 ){
-        delay_ret = SSD_FLASH_ACCESS(device_index, flash_nb, channel, reg);
+        delay_ret = SSD_FLASH_ACCESS(device_index, flash_nb, channel);
     }
     else{
         delay_ret = SSD_REG_ACCESS(device_index, flash_nb, channel, reg);
@@ -300,7 +281,7 @@ ftl_ret_val SSD_PAGE_READ(uint8_t device_index, unsigned int flash_nb, unsigned 
     /* Record Time Stamp */
     SSD_CH_RECORD(device_index, channel, offset, delay_ret);
     SSD_CELL_RECORD(device_index, reg, channel);
-    SSD_REG_RECORD(device_index, reg, type, offset, channel);
+    SSD_REG_RECORD(device_index, reg, type, channel);
     SSD_REG_ACCESS(device_index, flash_nb, channel, reg);
 
     int64_t end = get_usec();
@@ -336,14 +317,14 @@ ftl_ret_val SSD_BLOCK_ERASE(uint8_t device_index, unsigned int flash_nb, unsigne
 
     /* Delay Operation */
     if( devices[device_index].io_parallelism == 0 ){
-        SSD_FLASH_ACCESS(device_index, flash_nb, channel, reg);
+        SSD_FLASH_ACCESS(device_index, flash_nb, channel);
     }
     else{
         SSD_REG_ACCESS(device_index, flash_nb, channel, reg);
     }
 
     /* Record Time Stamp */
-    SSD_REG_RECORD(device_index, reg, ERASE, -1, channel);
+    SSD_REG_RECORD(device_index, reg, ERASE, channel);
     SSD_CELL_RECORD(device_index, reg, channel);
 
     int64_t end = get_usec();
@@ -365,7 +346,7 @@ ftl_ret_val SSD_BLOCK_ERASE(uint8_t device_index, unsigned int flash_nb, unsigne
     return FTL_SUCCESS;
 }
 
-int SSD_FLASH_ACCESS(uint8_t device_index, unsigned int flash_nb, unsigned int channel, unsigned int reg)
+int SSD_FLASH_ACCESS(uint8_t device_index, unsigned int flash_nb, unsigned int channel)
 {
     uint32_t i;
     uint32_t r_num = flash_nb * devices[device_index].planes_per_flash;
@@ -373,12 +354,7 @@ int SSD_FLASH_ACCESS(uint8_t device_index, unsigned int flash_nb, unsigned int c
 
     for (i=0;i<devices[device_index].planes_per_flash;i++) {
 
-        if (r_num != reg && ssds_manager[device_index].access_nb[r_num][0] == perf_checker[device_index].io_request_seq_nb) {
-            /* That's OK */
-        }
-        else{
-            ret = SSD_REG_ACCESS(device_index, flash_nb, channel, r_num);
-        }
+        ret = SSD_REG_ACCESS(device_index, flash_nb, channel, r_num);
 
         r_num++;
     }
@@ -418,7 +394,7 @@ int SSD_CH_ENABLE(uint8_t device_index, unsigned int flash_nb, unsigned int chan
     return FTL_SUCCESS;
 }
 
-ftl_ret_val SSD_REG_RECORD(uint8_t device_index, int reg, int type, int offset, int channel)
+ftl_ret_val SSD_REG_RECORD(uint8_t device_index, int reg, int type, int channel)
 {
     ssds_manager[device_index].reg_io_cmd[reg] = ssds_manager[device_index].ssd.cur_channel_mode[channel];
     ssds_manager[device_index].reg_io_type[reg] = type;
@@ -432,46 +408,17 @@ ftl_ret_val SSD_REG_RECORD(uint8_t device_index, int reg, int type, int offset, 
             }
             // SSD_UPDATE_CH_ACCESS_TIME(channel, ssds_manager[device_index].reg_io_time[reg]);
 
-            /* Update SATA request Info */
-            if(type == WRITE) {
-                ssds_manager[device_index].access_nb[reg][0] = perf_checker[device_index].io_request_seq_nb;
-                ssds_manager[device_index].access_nb[reg][1] = offset;
-                ssds_manager[device_index].io_update_overhead = UPDATE_IO_REQUEST(device_index, perf_checker[device_index].io_request_seq_nb, offset, ssds_manager[device_index].last_operation_time_us, UPDATE_START_TIME);
-                SSD_UPDATE_IO_OVERHEAD(device_index, reg, ssds_manager[device_index].io_update_overhead);
-            }
-            else{
-                ssds_manager[device_index].access_nb[reg][0] = UINT32_MAX;
-                ssds_manager[device_index].access_nb[reg][1] = UINT32_MAX;
-            }
         break;
     case READ:
         ssds_manager[device_index].reg_io_time[reg] = SSD_GET_CH_ACCESS_TIME_FOR_READ(device_index, channel, reg);
         if (ssds_manager[device_index].ssd.prev_channel_mode[channel] != READ && ssds_manager[device_index].ssd.prev_channel_mode[channel] != NOOP) {
                 ssds_manager[device_index].reg_io_time[reg] += devices[device_index].channel_switch_delay_r;
             }
-            /* Update SATA request Info */
-            if(type == READ){
-                ssds_manager[device_index].access_nb[reg][0] = perf_checker[device_index].io_request_seq_nb;
-                ssds_manager[device_index].access_nb[reg][1] = offset;
-                ssds_manager[device_index].io_update_overhead = UPDATE_IO_REQUEST(device_index, perf_checker[device_index].io_request_seq_nb, offset, ssds_manager[device_index].last_operation_time_us, UPDATE_START_TIME);
-                SSD_UPDATE_IO_OVERHEAD(device_index, reg, ssds_manager[device_index].io_update_overhead);
-            }
-            else{
-                ssds_manager[device_index].access_nb[reg][0] = UINT32_MAX;
-                ssds_manager[device_index].access_nb[reg][1] = UINT32_MAX;
-            }
         break;
     case ERASE:
-        /* Update SATA request Info */
-        ssds_manager[device_index].access_nb[reg][0] = UINT32_MAX;
-        ssds_manager[device_index].access_nb[reg][1] = UINT32_MAX;
         break;
     case COPYBACK:
         ssds_manager[device_index].reg_io_time[reg] = ssds_manager[device_index].cell_io_time[reg] + devices[device_index].cell_read_delay;
-        ssds_manager[device_index].access_nb[reg][0] = perf_checker[device_index].io_request_seq_nb;
-        ssds_manager[device_index].access_nb[reg][1] = offset;
-        ssds_manager[device_index].io_update_overhead = UPDATE_IO_REQUEST(device_index, perf_checker[device_index].io_request_seq_nb, offset, ssds_manager[device_index].last_operation_time_us, UPDATE_START_TIME);
-        SSD_UPDATE_IO_OVERHEAD(device_index, reg, ssds_manager[device_index].io_update_overhead);
         break;
     default:
         PERR("SSD_REG_RECORD: Command Error! %d\n", ssds_manager[device_index].reg_io_cmd[reg]);
@@ -506,13 +453,6 @@ int SSD_CH_ACCESS(uint8_t device_index, unsigned int flash_nb, int channel)
     }
 
     return ret;
-}
-
-void SSD_UPDATE_IO_OVERHEAD(uint8_t device_index, int reg, int64_t overhead_time)
-{
-    ssds_manager[device_index].io_overhead[reg] += overhead_time;
-    ssds_manager[device_index].io_alloc_overhead = 0;
-    ssds_manager[device_index].io_update_overhead = 0;
 }
 
 int64_t SSD_CH_SWITCH_DELAY(uint8_t device_index, unsigned int flash_nb, int channel)
@@ -595,15 +535,10 @@ int SSD_REG_WRITE_DELAY(uint8_t device_index, unsigned int flash_nb, int channel
     diff = start - ssds_manager[device_index].reg_io_time[reg];
 #endif
 
-    int64_t delay = 0;
     if (diff < devices[device_index].reg_write_delay){
         wait_usec(devices[device_index].reg_write_delay - diff);
-        delay = devices[device_index].reg_write_delay - diff;
         ret = 1;
     }
-
-    /* Send Delay Info To Perf Checker */
-    SEND_TO_PERF_CHECKER(device_index, ssds_manager[device_index].reg_io_type[reg], delay, CH_OP);
 
     /* Update Time Stamp Struct */
     ssds_manager[device_index].reg_io_time[reg] = -1;
@@ -650,10 +585,6 @@ int SSD_REG_READ_DELAY(uint8_t device_index, unsigned int flash_nb, int channel,
 
     end = get_usec();
 
-    /* Send Delay Info To Perf Checker */
-    SEND_TO_PERF_CHECKER(device_index, ssds_manager[device_index].reg_io_type[reg], end-start, CH_OP);
-    SSD_UPDATE_IO_REQUEST(device_index, reg);
-
     /* Update Time Stamp Struct */
     ssds_manager[device_index].reg_io_time[reg] = -1;
     ssds_manager[device_index].reg_io_cmd[reg] = NOOP;
@@ -677,31 +608,23 @@ int SSD_CELL_WRITE_DELAY(uint8_t device_index, int reg)
         return 0;
     /* Cell Write Delay */
     start = get_usec();
-    diff = start - time_stamp + ssds_manager[device_index].io_overhead[reg];
+    diff = start - time_stamp;
 
 #ifdef DEL_QEMU_OVERHEAD
     if(diff < devices[device_index].cell_program_delay){
         SSD_UPDATE_QEMU_OVERHEAD(device_index, devices[device_index].cell_program_delay-diff);
     }
-    diff = start - ssds_manager[device_index].cell_io_time[reg] + ssds_manager[device_index].io_overhead[reg];
+    diff = start - ssds_manager[device_index].cell_io_time[reg];
 #endif
 
     if( diff < devices[device_index].cell_program_delay){
-        ssds_manager[device_index].init_diff_reg = diff;
         wait_usec(devices[device_index].cell_program_delay - diff);
         ret = 1;
     }
 
-    /* Send Delay Info To Perf Checker */
-    SEND_TO_PERF_CHECKER(device_index, ssds_manager[device_index].reg_io_type[reg], diff, REG_OP);
-    SSD_UPDATE_IO_REQUEST(device_index, reg);
-
     /* Update Time Stamp Struct */
     ssds_manager[device_index].cell_io_time[reg] = -1;
     ssds_manager[device_index].reg_io_type[reg] = NOOP;
-
-    /* Update IO Overhead */
-    ssds_manager[device_index].io_overhead[reg] = 0;
 
     return ret;
 }
@@ -710,7 +633,6 @@ int SSD_CELL_READ_DELAY(uint8_t device_index, int reg)
 {
     int ret = 0;
     int64_t start = 0;
-    int64_t end = 0;
     int64_t diff = 0;
     int64_t time_stamp = ssds_manager[device_index].cell_io_time[reg];
 
@@ -721,33 +643,23 @@ int SSD_CELL_READ_DELAY(uint8_t device_index, int reg)
 
     /* Cell Read Delay */
     start = get_usec();
-    diff = start - time_stamp + ssds_manager[device_index].io_overhead[reg];
+    diff = start - time_stamp;
 
 #ifdef DEL_QEMU_OVERHEAD
     if( diff < REG_DELAY){
         SSD_UPDATE_QEMU_OVERHEAD(device_index, REG_DELAY-diff);
     }
-    diff = start - ssds_manager[device_index].cell_io_time[reg] + ssds_manager[device_index].io_overhead[reg];
+    diff = start - ssds_manager[device_index].cell_io_time[reg];
 #endif
 
     if( diff < REG_DELAY){
-        ssds_manager[device_index].init_diff_reg = diff;
         wait_usec(REG_DELAY - diff);
         ret = 1;
     }
 
-    end = get_usec();
-
-    /* Send Delay Info To Perf Checker */
-    SEND_TO_PERF_CHECKER(device_index, ssds_manager[device_index].reg_io_type[reg], end-start, REG_OP);
-    SSD_UPDATE_IO_REQUEST(device_index, reg);
-
     /* Update Time Stamp Struct */
     ssds_manager[device_index].cell_io_time[reg] = -1;
     ssds_manager[device_index].reg_io_type[reg] = NOOP;
-
-    /* Update IO Overhead */
-    ssds_manager[device_index].io_overhead[reg] = 0;
 
     return ret;
 }
@@ -822,21 +734,6 @@ void SSD_UPDATE_CH_ACCESS_TIME(uint8_t device_index, int channel, int64_t curren
     }
 }
 
-void SSD_UPDATE_IO_REQUEST(uint8_t device_index, int reg)
-{
-    int64_t curr_time = get_usec();
-    if(ssds_manager[device_index].init_diff_reg != 0){
-        ssds_manager[device_index].io_update_overhead = UPDATE_IO_REQUEST(device_index, ssds_manager[device_index].access_nb[reg][0], ssds_manager[device_index].access_nb[reg][1], curr_time, UPDATE_END_TIME);
-        SSD_UPDATE_IO_OVERHEAD(device_index, reg, ssds_manager[device_index].io_update_overhead);
-        ssds_manager[device_index].access_nb[reg][0] = UINT32_MAX;
-    }
-    else{
-        ssds_manager[device_index].io_update_overhead = UPDATE_IO_REQUEST(device_index, ssds_manager[device_index].access_nb[reg][0], ssds_manager[device_index].access_nb[reg][1], 0, UPDATE_END_TIME);
-        SSD_UPDATE_IO_OVERHEAD(device_index, reg, ssds_manager[device_index].io_update_overhead);
-        ssds_manager[device_index].access_nb[reg][0] = UINT32_MAX;
-    }
-}
-
 void SSD_REMAIN_IO_DELAY(uint8_t device_index, unsigned int flash_nb, int channel, int reg)
 {
     SSD_REG_ACCESS(device_index, flash_nb, channel, reg);
@@ -898,7 +795,7 @@ ftl_ret_val SSD_PAGE_COPYBACK(uint8_t device_index, uint32_t source, uint32_t de
 
     /* Access Register */
     if (devices[device_index].io_parallelism == 0 ){
-        delay_ret = SSD_FLASH_ACCESS(device_index, flash_nb, channel, reg);
+        delay_ret = SSD_FLASH_ACCESS(device_index, flash_nb, channel);
     }
     else{
         delay_ret = SSD_REG_ACCESS(device_index, flash_nb, channel, reg);
@@ -906,7 +803,7 @@ ftl_ret_val SSD_PAGE_COPYBACK(uint8_t device_index, uint32_t source, uint32_t de
 
     SSD_CH_RECORD(device_index, channel, 0, delay_ret);
     SSD_CELL_RECORD(device_index, reg, channel);
-    SSD_REG_RECORD(device_index, reg, type, 0, channel);
+    SSD_REG_RECORD(device_index, reg, type, channel);
 
     ssds_manager[device_index].ssd.occupied_pages_counter++;
     SSD_UTIL_LOG(device_index, flash_nb);

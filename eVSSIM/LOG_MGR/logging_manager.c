@@ -19,7 +19,7 @@
 
 #include "logging_manager.h"
 #include "ssd_io_manager.h"
-#include "ftl_perf_manager.h"
+#include "common.h"
 #include "vssim_config_manager.h"
 
 /**
