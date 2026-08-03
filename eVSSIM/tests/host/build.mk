@@ -16,7 +16,7 @@ endif
 
 VSSIM_OBJ := vssim_config_manager.o \
 			ftl.o ftl_mapping_manager.o ftl_inverse_mapping_manager.o \
-			ftl_gc_manager.o ftl_perf_manager.o \
+			ftl_gc_manager.o \
 			ssd_log_manager.o ssd_io_manager.o \
 			ftl_sect_strategy.o ftl_obj_strategy.o \
 			logging_backend.o logging_parser.o logging_rt_analyzer.o logging_offline_analyzer.o \
@@ -80,8 +80,6 @@ mklink:
 	ln -sf $(VSSIM_HOME)/FTL_SOURCE/PAGE_MAP/ftl_mapping_manager.h
 	ln -sf $(VSSIM_HOME)/FTL_SOURCE/PAGE_MAP/ftl_mapping_manager.c
 	ln -sf $(VSSIM_HOME)/FTL_SOURCE/PAGE_MAP/TOOLS/uthash.h
-	ln -sf $(VSSIM_HOME)/FTL_SOURCE/PERF_MODULE/ftl_perf_manager.h
-	ln -sf $(VSSIM_HOME)/FTL_SOURCE/PERF_MODULE/ftl_perf_manager.c
 	ln -sf $(VSSIM_HOME)/CONFIG/vssim_config_manager.h
 	ln -sf $(VSSIM_HOME)/CONFIG/vssim_config_manager.c
 	ln -sf $(VSSIM_HOME)/MONITOR/SERVER/logging_server.h
@@ -97,8 +95,8 @@ distclean: clean
 	rm -rf   ssd_io_manager.h ssd_io_manager.c onfi.h onfi.c ssd_log_manager.h ssd_log_manager.c ssd_util.h \
 		common.h ssd_file_operations.c ssd_file_operations.h ftl.h ftl.c ftl_sect_strategy.h ftl_sect_strategy.c \
 		ftl_obj_strategy.h ftl_obj_strategy.c ftl_type.h ftl_gc_manager.h ftl_gc_manager.c ftl_inverse_mapping_manager.h \
-		ftl_inverse_mapping_manager.c ftl_mapping_manager.h ftl_mapping_manager.c ftl_perf_manager.h \
-        ftl_perf_manager.c vssim_config_manager.h vssim_config_manager.c uthash.h \
+		ftl_inverse_mapping_manager.c ftl_mapping_manager.h ftl_mapping_manager.c \
+        vssim_config_manager.h vssim_config_manager.c uthash.h \
         logging_parser.h logging_parser.c logging_backend.h logging_backend.c \
         logging_rt_analyzer.h logging_rt_analyzer.c logging_offline_analyzer.h logging_offline_analyzer.c \
 		monitor_test.h logging_manager.h logging_manager.c \

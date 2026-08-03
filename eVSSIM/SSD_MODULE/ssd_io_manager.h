@@ -46,16 +46,8 @@ typedef struct ssd_manager {
     int64_t* reg_io_time;
     int64_t* cell_io_time;
 
-    uint32_t** access_nb;
-    int64_t* io_overhead;
-
     unsigned int old_channel_nb;
     int64_t last_operation_time_us;
-
-    int64_t io_alloc_overhead;
-    int64_t io_update_overhead;
-
-    int64_t init_diff_reg;
 
     ssd_disk ssd;
 } ssd_manager_t;
@@ -87,7 +79,7 @@ ftl_ret_val SSD_PAGE_COPYBACK(uint8_t device_index, uint32_t source, uint32_t de
 int SSD_CH_ENABLE(uint8_t device_index, unsigned int flash_nb, unsigned int channel);
 
 /* Flash or Register Access */
-int SSD_FLASH_ACCESS(uint8_t device_index, unsigned int flash_nb, unsigned int channel, unsigned int reg);
+int SSD_FLASH_ACCESS(uint8_t device_index, unsigned int flash_nb, unsigned int channel);
 int SSD_REG_ACCESS(uint8_t device_index, unsigned int flash_nb, int channel, int reg);
 
 /* Channel Delay */
@@ -105,7 +97,7 @@ int SSD_CELL_READ_DELAY(uint8_t device_index, int reg);
 int SSD_BLOCK_ERASE_DELAY(uint8_t device_index, int reg);
 
 /* Mark Time Stamp */
-ftl_ret_val SSD_REG_RECORD(uint8_t device_index, int reg, int type, int offset, int channel);
+ftl_ret_val SSD_REG_RECORD(uint8_t device_index, int reg, int type, int channel);
 
 /* Check Read Operation in the Same Channel  */
 int SSD_CH_ACCESS(uint8_t device_index, unsigned int flash_nb, int channel);
@@ -113,8 +105,6 @@ int64_t SSD_GET_CH_ACCESS_TIME_FOR_READ(uint8_t device_index, int channel, int r
 void SSD_UPDATE_CH_ACCESS_TIME(uint8_t device_index, int channel, int64_t current_time);
 
 /* Correction Delay */
-void SSD_UPDATE_IO_REQUEST(uint8_t device_index, int reg);
-void SSD_UPDATE_IO_OVERHEAD(uint8_t device_index, int reg, int64_t overhead_time);
 void SSD_REMAIN_IO_DELAY(uint8_t device_index, unsigned int flash_nb, int channel, int reg);
 void SSD_UPDATE_QEMU_OVERHEAD(uint8_t device_index, int64_t delay);
 
