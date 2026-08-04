@@ -299,6 +299,30 @@
       },
       "revId": "9527c8354a905c46ec347d5dbfb33fbcb842012e",
       "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "0187ecb3_019943f9",
+        "filename": "infra/builder/run-ci.sh",
+        "patchSetId": 20
+      },
+      "lineNbr": 45,
+      "author": {
+        "id": 1039371
+      },
+      "writtenOn": "2026-08-04T17:07:57Z",
+      "side": 1,
+      "message": "In that case I agree, I also hated to use one variable for two completely different things. It was just the only way to make it (so it won\u0027t break) without hardcoding a value or dynamically choosing(with an `if`) a value based on another value.\n\nAs for your suggestion (`./build-qemu-image.sh $VERSION_QEMU_IMAGE $VERSION_COMPILE_QEMU`) it would break (ironically enough in our own configuration even). Because the `26.04.sh` image maker requires a `26.04` docker image — It uses `virt-customize` flags which don\u0027t exist in `14.04`\u0027s libguestfs, (This is why the `26.04`\u0027s image-maker (which you can see at https://gerrithub.io/c/davidsaOpenu/simulator/+/1238231/7/infra/builder/versions/image-maker/ubuntu-26.04.sh) is so much more clean, lean, and readable compared to `14.04`\u0027s image-maker) so the docker image for image making depends on the version of the image-maker (i.e. of the guest VM) and not on the compile qemu version or the tests\u0027 compile version.\n\nIn this case, should I then add a new value to `configs.json`? Something like `guestTests.guestVmBuildContainer` (under `guestTests` because that\u0027s also where `guestVmImage` is located and this is directly tied to it)?",
+      "parentUuid": "29fa3a96_f7378b04",
+      "range": {
+        "startLine": 45,
+        "startChar": 43,
+        "endLine": 45,
+        "endChar": 61
+      },
+      "revId": "9527c8354a905c46ec347d5dbfb33fbcb842012e",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
     }
   ]
 }

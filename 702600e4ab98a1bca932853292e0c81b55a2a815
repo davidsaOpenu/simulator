@@ -156,6 +156,30 @@
     {
       "unresolved": true,
       "key": {
+        "uuid": "f52d242b_68038205",
+        "filename": "infra/builder/run-ci.sh",
+        "patchSetId": 21
+      },
+      "lineNbr": 21,
+      "author": {
+        "id": 1039371
+      },
+      "writtenOn": "2026-08-04T17:07:57Z",
+      "side": 1,
+      "message": "Yeah, I dedinitely like this idea better then doing the `#ubuntu:` thing, `load_config.sh` is a better place than the user scripts. Renaming the values in `load_config.sh` does create a weird situation where the values from the JSON file are immediately transformed into other values upon loading and raise a question \"Why have one set of values that never gets used and that immediately gets transformed into another set of values\", so I propose a counter-suggestion: Instead of revaluing the values in `load_config.sh`, revalue them at the source (`configs.json`). Rename them in JSON to either straight `26.04`/`14.04`, or (for clarity) to `u26.04`/`u14.04`, `ub26.04`/`ub14.04`, `ubuntu-26.04`/`ubuntu-14.04`. \n- Just `26.04`/`14.04` is the easiest to use, but creates ambiguity ***IF*** a migration(for the sake of tools, libraries, stability/modernity, etc\u0027) is ever needed.\n- `u26.04`/`u14.04` is still as short as `26.04`/`14.04` and as easy to use, but while less ambiguous, it\u0027s only for names like \"Ubuntu\" or \"Fedora\" which are very unique, while `f43` is very clearly \"Fedora 43\", \"a10\" isn\u0027t very clear that it\u0027s \"Alma 10\", and `r10`? RHEL? Rocky? Something else that starts with \"R\"?\n- `ubuntu-26.04`/`ubuntu-14.04` completely avoids ambiguity but is long and is a hassle to write when you need to write `./script-name.sh ubuntu-26.04` like 10 times in a row (especially without tab-completion). For the record: `ubuntu-26.04` **sounds like** the same thing as `ubuntu:26.04`, but the difference is that `ubuntu-26.04` is a more \"linuxy\"/\"UNIXy\" naming scheme for files/versions/names than `ubuntu:26.04` (and at least for me is more mentally comfortable to use in the terminal and in linux, colons in general feel subjectively \"forbidden\" to use in names).\n- `ub26.04`/`ub14.04` (That is, a shortened version of the name, enough to avoid ambiguity, rather than strictly TWO letters, could be three for `deb` or `fed` or four for `rhel`) is unambiguous, but on the other side both feels kinda \"weird\" and long(similar to `ubuntu-26.04`/`ubuntu-14.04`, just not AS long). So it\u0027s like a weird middle ground.\nFor clarity: This means I also change the naming of the docker image versions(tags), image-maker names, and script parameters to the new naming scheme, so all the names follow the same scheme, instead of names in `configs.json` following one scheme, while names of parameters/docker image versions follow a different scheme.\n\nI believe I suggested a few months ago to change the naming in JSON (back then to just `26.04`/`14.04`) to avoid having to remove \"ubuntu:\" whenever needing to use the value, and match it to the names of the folders in `versions/` and of the docker image versions, but back then the suggestion was rejected because there was an intent to use the value to pass it (as a parameter) to a singular Dockerfile that could build both version. But we ended up as multiple Dockerfiles due to big changes between 14.04 and 26.04.\n\nSo, what do you think about:\n1. Merging the naming schemes of values in `configs.json` and the names of parameters, docker image versions, and image-maker versions into one (to avoid transformations of values)\n2. The naming schemes themselves, I\u0027m not exactly \"100%\" about any of them, so I\u0027d like to hear your opinion about them(and/or more propositions for the names)",
+      "parentUuid": "2f43cf04_6f2f0337",
+      "range": {
+        "startLine": 21,
+        "startChar": 56,
+        "endLine": 21,
+        "endChar": 62
+      },
+      "revId": "702600e4ab98a1bca932853292e0c81b55a2a815",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
+    },
+    {
+      "unresolved": true,
+      "key": {
         "uuid": "bc779933_2c1bf45e",
         "filename": "infra/builder/run-ci.sh",
         "patchSetId": 21
