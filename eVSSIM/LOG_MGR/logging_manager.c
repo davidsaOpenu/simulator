@@ -113,7 +113,7 @@ void log_manager_loop(uint8_t device_index, LogManager* manager, int max_loops) 
     while (max_loops < 0 || loops < max_loops) {
         // init the current statistics
         SSDStatistics stats = stats_init();
-        ssds_manager[device_index].ssd.current_stats = &stats;
+        __atomic_store_n(&ssds_manager[device_index].ssd.current_stats, &stats, __ATOMIC_RELEASE);
 
         unsigned int analyzer_id;
         // update the statistics according to the different analyzers
