@@ -1,0 +1,50 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "383b5a06_46bd0875",
+        "filename": "infra/ELK/elk_performance_test.sh",
+        "patchSetId": 6
+      },
+      "lineNbr": 1181,
+      "author": {
+        "id": 1007990
+      },
+      "writtenOn": "2026-08-07T05:59:56Z",
+      "side": 1,
+      "message": "relying on the global $idx\n\nsuggestion: \n\n  local disk_idx\u003d\"$1\" es_index\u003d\"$2\"\n  ...\n  \"$ES_URL/$es_index/_search?size\u003d0\"",
+      "range": {
+        "startLine": 1181,
+        "startChar": 69,
+        "endLine": 1181,
+        "endChar": 72
+      },
+      "revId": "0ab522fe8343a87488475346f91609f7dc230222",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "b9f2a1ba_595b17fe",
+        "filename": "infra/ELK/elk_performance_test.sh",
+        "patchSetId": 6
+      },
+      "lineNbr": 1192,
+      "author": {
+        "id": 1007990
+      },
+      "writtenOn": "2026-08-07T05:59:56Z",
+      "side": 1,
+      "message": "Suggetion: disk_json\u003d\"$(curl -k -s -u \"elastic:$ELASTIC_PASSWORD\" \\\n               -H \u0027Content-Type: application/json\u0027 \\\n               \"$ES_URL/$idx/_search?size\u003d0\" --data-binary \"$disk_body\" || true)\"",
+      "range": {
+        "startLine": 1187,
+        "startChar": 0,
+        "endLine": 1192,
+        "endChar": 2
+      },
+      "revId": "0ab522fe8343a87488475346f91609f7dc230222",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
+    }
+  ]
+}
