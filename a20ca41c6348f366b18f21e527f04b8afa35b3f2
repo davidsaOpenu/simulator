@@ -35,6 +35,24 @@
       "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "078fb562_39028de8",
+        "filename": "eVSSIM/SSD_MODULE/onfi.c",
+        "patchSetId": 6
+      },
+      "lineNbr": 726,
+      "author": {
+        "id": 1039486
+      },
+      "writtenOn": "2026-08-07T09:39:32Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "f026145d_8127341a",
+      "revId": "a20ca41c6348f366b18f21e527f04b8afa35b3f2",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "819f3d9a_6ed674f1",
@@ -48,6 +66,24 @@
       "writtenOn": "2026-07-17T14:24:58Z",
       "side": 1,
       "message": "If num of threads \u003e num of channels then we will run idle threads for the duration of the test (the 8 channels 10 threads test).",
+      "revId": "a20ca41c6348f366b18f21e527f04b8afa35b3f2",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "f20d759a_b4b6c6d5",
+        "filename": "eVSSIM/SSD_MODULE/onfi.c",
+        "patchSetId": 6
+      },
+      "lineNbr": 727,
+      "author": {
+        "id": 1039486
+      },
+      "writtenOn": "2026-08-07T09:39:32Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "819f3d9a_6ed674f1",
       "revId": "a20ca41c6348f366b18f21e527f04b8afa35b3f2",
       "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
     },
@@ -69,6 +105,24 @@
       "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "83d2a95c_ca432b4b",
+        "filename": "eVSSIM/SSD_MODULE/onfi.c",
+        "patchSetId": 6
+      },
+      "lineNbr": 746,
+      "author": {
+        "id": 1039486
+      },
+      "writtenOn": "2026-08-07T09:39:32Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "27537493_18769aa5",
+      "revId": "a20ca41c6348f366b18f21e527f04b8afa35b3f2",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "9779ea02_6c625fe6",
@@ -82,6 +136,24 @@
       "writtenOn": "2026-07-17T14:24:58Z",
       "side": 1,
       "message": "Edge case - if there\u0027s ever a TERM without INIT it\u0027ll destroy this never-initialized mutex",
+      "revId": "a20ca41c6348f366b18f21e527f04b8afa35b3f2",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "fb2c1f5b_ff42f45d",
+        "filename": "eVSSIM/SSD_MODULE/onfi.c",
+        "patchSetId": 6
+      },
+      "lineNbr": 781,
+      "author": {
+        "id": 1039486
+      },
+      "writtenOn": "2026-08-07T09:39:32Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "9779ea02_6c625fe6",
       "revId": "a20ca41c6348f366b18f21e527f04b8afa35b3f2",
       "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
     }
