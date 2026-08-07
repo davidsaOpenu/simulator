@@ -46,6 +46,9 @@ int main(int argc, char **argv) {
         else if (strcmp(argv[i], "--multi_device_tests") == 0) {
             tests_filter = "*MultiDevice*";
         }
+        else if (strcmp(argv[i], "--conf-tests") == 0) {
+            tests_filter = "*SSDConfigTest*";
+        }
     }
 
     testing::GTEST_FLAG(filter) = tests_filter;
