@@ -100,6 +100,30 @@
       "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "bfbbf1c5_f06ea225",
+        "filename": "eVSSIM/CONFIG/vssim_config_manager.c",
+        "patchSetId": 10
+      },
+      "lineNbr": 452,
+      "author": {
+        "id": 1007990
+      },
+      "writtenOn": "2026-08-07T05:21:10Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "c3851a78_f4fc8608",
+      "range": {
+        "startLine": 449,
+        "startChar": 0,
+        "endLine": 452,
+        "endChar": 5
+      },
+      "revId": "67a40ecb31e0bc82c0d078164e34f11406af09d3",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "7f44a44b_60698a7a",
@@ -131,6 +155,24 @@
       "side": 1,
       "message": "i added this to the test, do i need to add this to the vssim_config_manager?",
       "parentUuid": "7f44a44b_60698a7a",
+      "revId": "67a40ecb31e0bc82c0d078164e34f11406af09d3",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "e27983d6_4e20a203",
+        "filename": "eVSSIM/tests/host/simulation/ssd_conf_tests.cc",
+        "patchSetId": 10
+      },
+      "lineNbr": 126,
+      "author": {
+        "id": 1007990
+      },
+      "writtenOn": "2026-08-07T05:21:10Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "05b76675_9d3aa9b8",
       "revId": "67a40ecb31e0bc82c0d078164e34f11406af09d3",
       "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
     },
