@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "650275c1_3322b429",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 4
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 1007990
+      },
+      "writtenOn": "2026-08-07T05:15:30Z",
+      "side": 1,
+      "message": "1) Thanks for the patch — it delivers the full pipeline the task asked for (clone, bake into guest, run against exofs, wire into CI) and handles it more robustly than a literal reading required. With that iperf3/Geekbench are skipped by -ign. Please update the Trello card with reasoning. \n\n2) Please go over the checklist in the code review guide (https://docs.google.com/document/d/1SGfbdBjPmZa9fKiH9QKYfxB6MXNwQPDtbs_k52ztMUk/edit?tab\u003dt.0#heading\u003dh.7cxdmn4ck0og)  and fix the remaining nits (long lines, style inconsistencies, etc.) and add a link to the a Trello card in the commit message.\n\n3) And last, please also rebase the patch on top of the current branch and resolve any merge conflicts.",
+      "revId": "1c3d2205f4b23a1ad8900ef19383e41ff2cfc722",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
+    }
+  ]
+}
