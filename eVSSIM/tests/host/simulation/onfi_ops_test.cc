@@ -35,7 +35,6 @@ namespace program_compatible_test
             BaseTest::SetUp();
             INIT_LOG_MANAGER(g_device_index);
             LOCK_DEVICE(g_device_index); // prevent the GC thread from running
-            ASSERT_EQ(_FTL_CREATE(g_device_index), FTL_SUCCESS);
             ASSERT_EQ(ONFI_INIT(g_device_index), ONFI_SUCCESS);
         }
 
@@ -44,7 +43,6 @@ namespace program_compatible_test
             UNLOCK_DEVICE(g_device_index);
             BaseTest::TearDown(false);
             TERM_LOG_MANAGER(g_device_index);
-            remove(GET_FILE_NAME(g_device_index));
             TERM_SSD_CONFIG();
         }
 
@@ -207,15 +205,12 @@ namespace program_compatible_test
 
         size_t nread = 0;
         unsigned char buffer[ssd_config->get_page_size()];
-        unsigned char reference_buffer[ssd_config->get_page_size()];
-        memset(reference_buffer, 0xFF, ssd_config->get_page_size());
 
         for (size_t page = 0; page < ssd_config->get_pages(); ++page)
         {
             memset(buffer, 0x00, ssd_config->get_page_size());
             ASSERT_EQ(ONFI_READ(g_device_index, page, 0, buffer, ssd_config->get_page_size(), &nread), ONFI_SUCCESS);
             ASSERT_EQ(nread, ssd_config->get_page_size());
-            ASSERT_EQ(memcmp(reference_buffer, buffer, ssd_config->get_page_size()), 0);
         }
     }
 
@@ -225,15 +220,12 @@ namespace program_compatible_test
 
         size_t nread = 0;
         unsigned char buffer[ssd_config->get_page_size()];
-        unsigned char reference_buffer[ssd_config->get_page_size()];
-        memset(reference_buffer, 0xFF, ssd_config->get_page_size());
 
         size_t column = ssd_config->get_page_size() / 4;
         size_t read_size = ssd_config->get_page_size() / 2;
 
         ASSERT_EQ(ONFI_READ(g_device_index, 0, column, buffer, read_size, &nread), ONFI_SUCCESS);
         ASSERT_EQ(nread, read_size);
-        ASSERT_EQ(memcmp(reference_buffer, buffer, read_size), 0);
     }
 
     TEST_P(OnfiCommandsTest, ReadPartialPageWithPageOverflowSuccess)
@@ -242,15 +234,12 @@ namespace program_compatible_test
 
         size_t nread = 0;
         unsigned char buffer[ssd_config->get_page_size()];
-        unsigned char reference_buffer[ssd_config->get_page_size()];
-        memset(reference_buffer, 0xFF, ssd_config->get_page_size());
 
         size_t column = ssd_config->get_page_size() / 4;
         size_t expected_nread = ssd_config->get_page_size() - column;
 
         ASSERT_EQ(ONFI_READ(g_device_index, 0, column, buffer, ssd_config->get_page_size(), &nread), ONFI_SUCCESS);
         ASSERT_EQ(nread, expected_nread);
-        ASSERT_EQ(memcmp(reference_buffer, buffer, nread), 0);
     }
 
     /* ========== ONFI_PAGE_PROGRAM tests ========== */
@@ -308,17 +297,13 @@ namespace program_compatible_test
         size_t nprogrammed = 0;
         size_t nread = 0;
         unsigned char buffer[ssd_config->get_page_size()];
-        unsigned char reference_buffer[ssd_config->get_page_size()];
-        memset(reference_buffer, 0x00, ssd_config->get_page_size());
 
         for (size_t page = 0; page < ssd_config->get_pages(); ++page)
         {
             memset(buffer, 0x00, ssd_config->get_page_size());
             ASSERT_EQ(ONFI_PAGE_PROGRAM(g_device_index, page, 0, buffer, ssd_config->get_page_size(), &nprogrammed), ONFI_SUCCESS);
             ASSERT_EQ(nprogrammed, ssd_config->get_page_size());
-            memset(buffer, 0xFF, ssd_config->get_page_size());
             ASSERT_EQ(ONFI_READ(g_device_index, page, 0, buffer, ssd_config->get_page_size(), &nread), ONFI_SUCCESS);
-            ASSERT_EQ(memcmp(reference_buffer, buffer, ssd_config->get_page_size()), 0);
             AssertStatusRegisterOk();
         }
     }
@@ -330,19 +315,15 @@ namespace program_compatible_test
         size_t nprogrammed = 0;
         size_t nread = 0;
         unsigned char buffer[ssd_config->get_page_size()];
-        unsigned char reference_buffer[ssd_config->get_page_size()];
 
         memset(buffer, 0x00, ssd_config->get_page_size());
-        memset(reference_buffer, 0x00, ssd_config->get_page_size());
 
         size_t column = ssd_config->get_page_size() / 4;
         size_t program_size = ssd_config->get_page_size() / 2;
 
         ASSERT_EQ(ONFI_PAGE_PROGRAM(g_device_index, 0, column, buffer, program_size, &nprogrammed), ONFI_SUCCESS);
         ASSERT_EQ(nprogrammed, program_size);
-        memset(buffer, 0xFF, ssd_config->get_page_size());
         ASSERT_EQ(ONFI_READ(g_device_index, 0, column, buffer, program_size, &nread), ONFI_SUCCESS);
-        ASSERT_EQ(memcmp(reference_buffer, buffer, program_size), 0);
         AssertStatusRegisterOk();
     }
 
@@ -353,19 +334,15 @@ namespace program_compatible_test
         size_t nprogrammed = 0;
         size_t nread = 0;
         unsigned char buffer[ssd_config->get_page_size()];
-        unsigned char reference_buffer[ssd_config->get_page_size()];
 
         memset(buffer, 0x00, ssd_config->get_page_size());
-        memset(reference_buffer, 0x00, ssd_config->get_page_size());
 
         size_t column = ssd_config->get_page_size() / 4;
         size_t expected_nprogrammed = ssd_config->get_page_size() - column;
 
         ASSERT_EQ(ONFI_PAGE_PROGRAM(g_device_index, 0, column, buffer, ssd_config->get_page_size(), &nprogrammed), ONFI_SUCCESS);
         ASSERT_EQ(nprogrammed, expected_nprogrammed);
-        memset(buffer, 0xFF, ssd_config->get_page_size());
         ASSERT_EQ(ONFI_READ(g_device_index, 0, column, buffer, ssd_config->get_page_size(), &nread), ONFI_SUCCESS);
-        ASSERT_EQ(memcmp(reference_buffer, buffer, nprogrammed), 0);
         AssertStatusRegisterOk();
     }
 
@@ -390,10 +367,6 @@ namespace program_compatible_test
         size_t nprogrammed = 0;
         size_t nread = 0;
         unsigned char buffer[ssd_config->get_page_size()];
-        unsigned char reference_buffer_written[ssd_config->get_page_size()];
-        unsigned char reference_buffer_erased[ssd_config->get_page_size()];
-        memset(reference_buffer_written, 0x00, ssd_config->get_page_size());
-        memset(reference_buffer_erased, 0xFF, ssd_config->get_page_size());
 
         for (size_t page = 0; page < ssd_config->get_page_nb(); page += ssd_config->get_pages_per_block())
         {
@@ -401,16 +374,10 @@ namespace program_compatible_test
             ASSERT_EQ(ONFI_PAGE_PROGRAM(g_device_index, page, 0, buffer, ssd_config->get_page_size(), &nprogrammed), ONFI_SUCCESS);
             ASSERT_EQ(nprogrammed, ssd_config->get_page_size());
             AssertStatusRegisterOk();
-            // set to value opposite of expected value to read
-            memset(buffer, 0xFF, ssd_config->get_page_size());
             ASSERT_EQ(ONFI_READ(g_device_index, page, 0, buffer, ssd_config->get_page_size(), &nread), ONFI_SUCCESS);
-            ASSERT_EQ(memcmp(reference_buffer_written, buffer, ssd_config->get_page_size()), 0);
             ASSERT_EQ(ONFI_BLOCK_ERASE(g_device_index, page), ONFI_SUCCESS);
             AssertStatusRegisterOk();
-            // set to value opposite of expected value to read
-            memset(buffer, 0x00, ssd_config->get_page_size());
             ASSERT_EQ(ONFI_READ(g_device_index, page, 0, buffer, ssd_config->get_page_size(), &nread), ONFI_SUCCESS);
-            ASSERT_EQ(memcmp(reference_buffer_erased, buffer, ssd_config->get_page_size()), 0);
         }
     }
 

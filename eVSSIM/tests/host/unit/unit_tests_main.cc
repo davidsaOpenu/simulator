@@ -8,10 +8,7 @@ int main(int argc, char **argv)
 
     for (int i = 0; i < argc; i++)
     {
-        if (strcmp(argv[i], "--ssd-file-ops") == 0)
-        {
-            tests_filter = "*SsdFileOpsTest*";
-        } else if (strcmp(argv[i], "--onfi-ops") == 0)
+        if (strcmp(argv[i], "--onfi-ops") == 0)
         {
             tests_filter = "*OnfiOpsTest*";
         }
