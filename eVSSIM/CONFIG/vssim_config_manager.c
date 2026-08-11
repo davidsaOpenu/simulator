@@ -308,9 +308,6 @@ void TERM_SSD_CONFIG(void)
 
 bool parse_config_line(const char* key, FILE* file, ssd_config_t* device) {
 
-    if (strcmp(key, "FILE_NAME") == 0) {
-        return fscanf(file, "%s", device->file_name) == 1;
-    }
     if (strcmp(key, "PAGE_SIZE") == 0) {
         return fscanf(file, "%" SCNu32, &device->page_size) == 1;
     }
@@ -425,10 +422,6 @@ bool parse_ns_config_line(const char* key, FILE* file, ssd_config_t* device, int
     if (strcmp(key, "OBJECT_MAX_CAPACITY") == 0)
         return fscanf(file, "%" SCNu64, &device->ns_object_max_capacity[ns_idx]) == 1;
     return false;
-}
-
-char* GET_FILE_NAME(uint8_t device_index){
-	return devices[device_index].file_name;
 }
 
 uint32_t GET_SECTOR_SIZE(uint8_t device_index){

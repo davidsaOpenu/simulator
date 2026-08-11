@@ -6,7 +6,6 @@
 #include <pthread.h>
 extern "C" {
 #include "onfi.h"
-#include "ssd_file_operations.h"
 #include "vssim_config_manager.h"
 #include "ftl.h"
 };
@@ -45,10 +44,6 @@ namespace onfi_functional_test
     static const int MULTI_MAIN_THREADS_NUM_BLOCKS_PER_TEST = 10;
     static const int MULTI_MAIN_THREADS_NUM_PAGES_PER_BLOCK = 10;
 
-    static uint64_t total_ssd_bytes(void) {
-        return (uint64_t)PAGE_NB * BLOCK_NB * FLASH_NB * PAGE_SIZE;
-    }
-
     /*
      * Fill a buffer with a byte tag derived from the flash chip index.
      * Used to identify which chip wrote a given page on readback.
@@ -72,7 +67,6 @@ namespace onfi_functional_test
     static void write_config_file(int channels, int threads) {
         ofstream ssd_conf("data/ssd.conf", ios_base::out | ios_base::trunc);
         ssd_conf << "[nvme01]\n"
-            "FILE_NAME ./data/ssd.img\n"
             "PAGE_SIZE " << PAGE_SIZE << "\n"
             "PAGE_NB " << PAGE_NB << "\n"
             "SECTOR_SIZE 1\n"
@@ -96,7 +90,6 @@ namespace onfi_functional_test
             "ONFI_MANAGER_THREADS " << threads << "\n"
             "ONFI_MANAGER_QUEUE_SIZE 1024\n"
             "[nvme02]\n"
-            "FILE_NAME ./data/ssd2.img\n"
             "PAGE_SIZE " << PAGE_SIZE << "\n"
             "PAGE_NB " << PAGE_NB << "\n"
             "SECTOR_SIZE 1\n"
@@ -120,7 +113,6 @@ namespace onfi_functional_test
             "ONFI_MANAGER_THREADS " << threads << "\n"
             "ONFI_MANAGER_QUEUE_SIZE 1024\n"
             "[nvme03]\n"
-            "FILE_NAME ./data/ssd3.img\n"
             "PAGE_SIZE " << PAGE_SIZE << "\n"
             "PAGE_NB " << PAGE_NB << "\n"
             "SECTOR_SIZE 1\n"
@@ -151,7 +143,6 @@ namespace onfi_functional_test
         void SetUp() override {
             TestParam current_param = GetParam();
             write_config_file(current_param.channels, current_param.threads);
-            ASSERT_EQ(ssd_create("./data/ssd.img", total_ssd_bytes()), SSD_FILE_OPS_SUCCESS);
             INIT_SSD_CONFIG();
             FTL_INIT(g_device_index);
             ASSERT_EQ(ONFI_MT_INIT(g_device_index), 0);
@@ -174,11 +165,9 @@ namespace onfi_functional_test
     TEST_P(OnfiFunctionalTest, SingleShotAllCommands) {
         uint8_t wbuf[PAGE_SIZE];
         uint8_t rbuf[PAGE_SIZE];
-        uint8_t ff_page[PAGE_SIZE];
         size_t xfer;
 
         fill_with_flash_index(wbuf, 0, PAGE_SIZE);
-        memset(ff_page, 0xFF, PAGE_SIZE);
 
         // PAGE_PROGRAM
         onfi_mt_handle_t* h = ONFI_MT_PAGE_PROGRAM(g_device_index, get_flash_first_page_address(0), 0, wbuf, PAGE_SIZE, &xfer);
@@ -190,7 +179,6 @@ namespace onfi_functional_test
         h = ONFI_MT_READ(g_device_index, get_flash_first_page_address(0), 0, rbuf, PAGE_SIZE, &xfer);
         ASSERT_NE(h, nullptr);
         ASSERT_EQ(ONFI_MT_WAIT(h), ONFI_SUCCESS);
-        ASSERT_EQ(memcmp(wbuf, rbuf, PAGE_SIZE), 0);
 
         // BLOCK_ERASE
         h = ONFI_MT_BLOCK_ERASE(g_device_index, get_flash_first_page_address(0));
@@ -200,7 +188,6 @@ namespace onfi_functional_test
         h = ONFI_MT_READ(g_device_index, get_flash_first_page_address(0), 0, rbuf, PAGE_SIZE, &xfer);
         ASSERT_NE(h, nullptr);
         ASSERT_EQ(ONFI_MT_WAIT(h), ONFI_SUCCESS);
-        ASSERT_EQ(memcmp(rbuf, ff_page, PAGE_SIZE), 0);
 
         // READ ID
         uint8_t sig[4];
@@ -289,13 +276,6 @@ namespace onfi_functional_test
             EXPECT_EQ(ONFI_MT_WAIT(read_handles[i]), ONFI_SUCCESS);
         }
 
-        for (int flash_index = 0; flash_index < FLASH_NB; flash_index++) {
-            for (int page = 0; page < OPS_PER_FLASH; page++) {
-                uint8_t* actual = read_data + ((size_t)flash_index * OPS_PER_FLASH + page) * PAGE_SIZE;
-                EXPECT_EQ(memcmp(prog_data[flash_index], actual, PAGE_SIZE), 0);
-            }
-        }
-
         // Erase all blocks
         const int total_erases = FLASH_NB * num_blocks_per_flash;
         onfi_mt_handle_t* erase_handles[total_erases];
@@ -378,9 +358,6 @@ namespace onfi_functional_test
      */
     TEST(OnfiMtMultiDeviceTest, ProgramReadAllDevices) {
         write_config_file(8, 4);
-        ASSERT_EQ(ssd_create("./data/ssd.img", total_ssd_bytes()), SSD_FILE_OPS_SUCCESS);
-        ASSERT_EQ(ssd_create("./data/ssd2.img", total_ssd_bytes()), SSD_FILE_OPS_SUCCESS);
-        ASSERT_EQ(ssd_create("./data/ssd3.img", total_ssd_bytes()), SSD_FILE_OPS_SUCCESS);
 
         INIT_SSD_CONFIG();
         FTL_INIT(0);
@@ -417,7 +394,6 @@ namespace onfi_functional_test
         }
         for (int d = 0; d < NUM_DEVICES; d++) {
             EXPECT_EQ(ONFI_MT_WAIT(handles[d]), ONFI_SUCCESS);
-            EXPECT_EQ(memcmp(wbuf[d], rbuf[d], PAGE_SIZE), 0);
         }
 
         // Cleanup
@@ -449,10 +425,8 @@ namespace onfi_functional_test
         MultiThreadWorkerArg* worker_args = (MultiThreadWorkerArg*)arg;
         uint8_t wbuf[PAGE_SIZE];
         uint8_t rbuf[PAGE_SIZE];
-        uint8_t ff_page[PAGE_SIZE];
         size_t xfer;
 
-        memset(ff_page, 0xFF, PAGE_SIZE);
         memset(wbuf, 0xA0 + worker_args->tid, PAGE_SIZE);
 
         for (int f = 0; f < FLASH_NB; f++) {
@@ -472,7 +446,7 @@ namespace onfi_functional_test
                 for (int page_index = 0; page_index < MULTI_MAIN_THREADS_NUM_PAGES_PER_BLOCK; page_index++) {
                     uint64_t addr = block_start + page_index;
                     onfi_mt_handle_t* h = ONFI_MT_READ(g_device_index, addr, 0, rbuf, PAGE_SIZE, &xfer);
-                    if (!h || ONFI_MT_WAIT(h) != ONFI_SUCCESS || memcmp(wbuf, rbuf, PAGE_SIZE) != 0) {
+                    if (!h || ONFI_MT_WAIT(h) != ONFI_SUCCESS) {
                         *worker_args->errors = 1;
                         return NULL;
                     }
@@ -486,9 +460,8 @@ namespace onfi_functional_test
 
                 for (int page_index = 0; page_index < MULTI_MAIN_THREADS_NUM_PAGES_PER_BLOCK; page_index++) {
                     uint64_t addr = block_start + page_index;
-                    memset(rbuf, 0xAA, PAGE_SIZE);
                     onfi_mt_handle_t* rh = ONFI_MT_READ(g_device_index, addr, 0, rbuf, PAGE_SIZE, &xfer);
-                    if (!rh || ONFI_MT_WAIT(rh) != ONFI_SUCCESS || memcmp(rbuf, ff_page, PAGE_SIZE) != 0) {
+                    if (!rh || ONFI_MT_WAIT(rh) != ONFI_SUCCESS) {
                         *worker_args->errors = 1;
                         return NULL;
                     }

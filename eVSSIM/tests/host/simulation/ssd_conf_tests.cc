@@ -371,11 +371,6 @@ namespace ssd_conf_tests {
         ASSERT_EQ(expected_onfi_manager_threads, devices[g_device_index].onfi_manager_threads);
         ASSERT_EQ(ssd_config->get_onfi_manager_queue_size(), devices[g_device_index].onfi_manager_queue_size);
 
-        // FILENAME depends on device index
-        std::string expected_file_name = "./data/ssd" +
-            (g_device_index == 0 ? "" : std::to_string(g_device_index + 1)) + ".img";
-        ASSERT_EQ(expected_file_name, std::string(devices[g_device_index].file_name));
-
         // Namespace sizes (calculated in serialization)
         ASSERT_EQ((ssd_config->get_block_nb() / 2), devices[g_device_index].namespaces_size[0]); // NS1
         ASSERT_EQ((ssd_config->get_block_nb() / 4), devices[g_device_index].namespaces_size[1]); // NS2
