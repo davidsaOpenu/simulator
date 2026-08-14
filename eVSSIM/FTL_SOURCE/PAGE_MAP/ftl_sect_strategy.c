@@ -363,15 +363,22 @@ ftl_ret_val _FTL_COPYBACK(uint8_t device_index, uint64_t source, uint64_t destin
         RDBG_FTL(FTL_FAILURE, "%u page copyback fail \n", source);
 
 	// Actual page copy
-	unsigned char buff[GET_PAGE_SIZE(device_index)];
+	size_t page_size = GET_PAGE_SIZE(device_index);
+	unsigned char *buff = malloc(page_size);
+
+	if (buff == NULL) {
+		RERR(FTL_FAILURE, "Failed to allocate copyback buffer\n");
+	}
 	// If ssd_read failed - this is because we don't call _FTL_CREATE to create the ssd.img.
 	// In this case we don't do anything - this is like happen before this change when the ssd.img was not used in the simulation.
-	if (ssd_read(GET_FILE_NAME(device_index), source * GET_PAGE_SIZE(device_index), GET_PAGE_SIZE(device_index), buff) == SSD_FILE_OPS_SUCCESS) {
-		if (ssd_write(GET_FILE_NAME(device_index), destination * GET_PAGE_SIZE(device_index), GET_PAGE_SIZE(device_index), buff) == SSD_FILE_OPS_ERROR) {
+	if (ssd_read(GET_FILE_NAME(device_index), source * page_size, page_size, buff) == SSD_FILE_OPS_SUCCESS) {
+		if (ssd_write(GET_FILE_NAME(device_index), destination * page_size, page_size, buff) == SSD_FILE_OPS_ERROR) {
 			// If ssd_read succeeded this fail shouldn't happen !!
+			free(buff);
 			RDBG_FTL(FTL_FAILURE, "%u page copyback fail \n", source);
 		}
 	}
+	free(buff);
 
 	//Handle page map
 	GET_INVERSE_MAPPING_INFO(device_index, source, &lpn);

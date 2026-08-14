@@ -111,7 +111,7 @@ int osd_set_attributes(struct osd_device *osd, uint64_t pid, uint64_t oid,
                        uint32_t page, uint32_t number, const void *val,
 		       uint16_t len, uint8_t cmd_type, uint32_t cdb_cont_len, uint8_t *sense);
 int osd_set_key(struct osd_device *osd, int key_to_set, uint64_t pid,
-		uint64_t key, uint8_t seed[OSD_CRYPTO_KEYID_SIZE],
+		uint64_t key, uint8_t seed[OSD_SET_KEY_SEED_SIZE],
 		uint8_t *sense);
 int osd_set_master_key(struct osd_device *osd, int dh_step, uint64_t key,
                        uint32_t param_len, uint32_t alloc_len,
