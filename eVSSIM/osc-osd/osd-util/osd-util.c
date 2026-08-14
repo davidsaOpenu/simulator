@@ -64,11 +64,14 @@ osd_info(const char *fmt, ...)
 	struct timeval tv;
 	time_t tp;
 	char buffer[16];
+	unsigned long usec;
 
 	gettimeofday(&tv, NULL);
 	tp = tv.tv_sec;
+	usec = (unsigned long)tv.tv_usec % 1000000UL;
+
 	strftime(buffer, 9, "%H:%M:%S", localtime(&tp));
-	sprintf(buffer+8, ".%06ld", (long) tv.tv_usec);
+	snprintf(buffer + 8, sizeof(buffer) - 8, ".%06lu", usec);
 
 	fprintf(stderr, "%s: [%s] ", progname, buffer);
 	va_start(ap, fmt);
