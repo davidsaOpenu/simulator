@@ -79,7 +79,7 @@ typedef struct ssd_config {
 	char osd_path[PATH_MAX];
 
 	// ONFI Manager
-	int onfi_manager_threads;
+	int onfi_multithreaded;
 	int onfi_manager_queue_size;
 
 	int storage_strategy; // 1 = sector-based, 2 = object-based
