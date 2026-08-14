@@ -328,11 +328,11 @@ namespace ssd_conf_tests {
     std::vector<SSDConf*> GetTestParams() {
         std::vector<SSDConf*> ssd_configs;
         // Add configurations with different parameters
-        int onfi_manager_threads_options[] = {1, 7, 0, -5};
+        int onfi_multithreaded_options[] = {1, 7, 0, -5};
         int sector_size = 1;
 
-        for (int onfi_manager_threads : onfi_manager_threads_options)
-            ssd_configs.push_back(new SSDConf(parameters::Allsizemb[0], sector_size, onfi_manager_threads));
+        for (int onfi_multithreaded : onfi_multithreaded_options)
+            ssd_configs.push_back(new SSDConf(parameters::Allsizemb[0], sector_size, onfi_multithreaded));
         return ssd_configs;
     }
 
@@ -363,12 +363,12 @@ namespace ssd_conf_tests {
         ASSERT_EQ(20, devices[g_device_index].gc_low_thr);
         ASSERT_EQ(80, devices[g_device_index].gc_hi_thr);
 
-        // Validate ONFI manager threads
-        int expected_onfi_manager_threads = ssd_config->get_onfi_manager_threads();
-        if (expected_onfi_manager_threads <= 0) {
-            expected_onfi_manager_threads = 1;
+        // Validate ONFI multithreaded flag
+        int expected_onfi_multithreaded = ssd_config->get_onfi_multithreaded();
+        if (expected_onfi_multithreaded < 0) {
+            expected_onfi_multithreaded = 0;
         }
-        ASSERT_EQ(expected_onfi_manager_threads, devices[g_device_index].onfi_manager_threads);
+        ASSERT_EQ(expected_onfi_multithreaded, devices[g_device_index].onfi_multithreaded);
         ASSERT_EQ(ssd_config->get_onfi_manager_queue_size(), devices[g_device_index].onfi_manager_queue_size);
 
         // Namespace sizes (calculated in serialization)
