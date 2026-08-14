@@ -62,19 +62,19 @@
 
 #define SET_TAILS(node, buf) \
 do { \
-    size_t i; \
-    for(i = 0; i<analyzers_num;i++){ \
-        node->tails[i] =buf; \
+    size_t tail_idx; \
+    for (tail_idx = 0; tail_idx < analyzers_num; tail_idx++) { \
+        node->tails[tail_idx] = buf; \
     } \
-} while(0) 
+} while (0)
 
 #define RESET_DONE(node) \
 do { \
-    size_t i; \
-    for(i = 0; i<analyzers_num;i++){ \
-        node->analyzer_done[i] =false; \
+    size_t done_idx; \
+    for (done_idx = 0; done_idx < analyzers_num; done_idx++) { \
+        node->analyzer_done[done_idx] = false; \
     } \
-} while(0) 
+} while (0)
 
 /**
  * Disconnect node from the linked list

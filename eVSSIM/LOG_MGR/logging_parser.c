@@ -49,7 +49,7 @@ char *timestamp_to_str(int64_t cur_ts, char *buf)
     struct tm ts;
     time_t cur_ts_secs = (time_t)(cur_ts / 1000000);
     int64_t cur_ts_usecs = cur_ts % 1000000;
-    char temp_buf[TIME_STAMP_LEN];
+    char temp_buf[TIME_STAMP_LEN - 8];
 
     if (localtime_r(&cur_ts_secs, &ts) == NULL)
     {
@@ -57,7 +57,7 @@ char *timestamp_to_str(int64_t cur_ts, char *buf)
         return buf;
     }
 
-    size_t len = strftime(temp_buf, TIME_STAMP_LEN - 8, LOG_NAME_PATTERN, &ts);
+    size_t len = strftime(temp_buf, sizeof(temp_buf), LOG_NAME_PATTERN, &ts);
     if (len == 0)
     {
         snprintf(buf, TIME_STAMP_LEN, "FORMAT_ERROR");

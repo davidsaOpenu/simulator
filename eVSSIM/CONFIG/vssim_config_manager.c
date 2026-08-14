@@ -452,20 +452,17 @@ void calculate_derived_values(ssd_config_t* device) {
     }
 }
 
-char* GET_DATA_FILENAME(uint8_t device_index, const char* filename) {
-    int filename_size = strlen(filename) + strlen("./data/") + 3;
+char *GET_DATA_FILENAME(uint8_t device_index, const char *filename)
+{
+    size_t filename_size = strlen(filename) + strlen("./data/") + 3;
+    char *res = malloc(filename_size);
 
-    char* res = (char*)malloc(filename_size);
-    if (NULL == res) {
+    if (res == NULL) {
         RERR(res, "Malloc failed\n");
     }
 
-    memset(res, 0, filename_size);
-
-    strncat(res, "./data/", filename_size);
-    res[strlen("./data/")] = device_index + '0';
-    strncat(res, "/", filename_size);
-    strncat(res, filename, filename_size);
+    snprintf(res, filename_size, "./data/%c/%s",
+             (char)(device_index + '0'), filename);
 
     return res;
 }

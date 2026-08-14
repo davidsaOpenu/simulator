@@ -215,7 +215,6 @@ static int create_dir(const char *dirname)
 static int empty_dir(const char *dirname)
 {
 	int ret = 0;
-	char path[MAXNAMELEN];
 	DIR *dir = NULL;
 	struct dirent *ent = NULL;
 
@@ -225,14 +224,29 @@ static int empty_dir(const char *dirname)
 	while ((ent = readdir(dir)) != NULL) {
 		if (!strcmp(ent->d_name, ".") || !strcmp(ent->d_name, ".."))
 			continue;
-		sprintf(path, "%s/%s", dirname, ent->d_name);
-		if (ent->d_type == DT_DIR) {
-			ret = empty_dir(path);
-		} else {
-			ret = unlink(path);
+
+		size_t path_size = strlen(dirname) + 1 + strlen(ent->d_name) + 1;
+		char *path = malloc(path_size);
+
+		if (path == NULL) {
+		    closedir(dir);
+		    return -1;
 		}
-		if (ret != 0)
-			return -1;
+
+		snprintf(path, path_size, "%s/%s", dirname, ent->d_name);
+
+		if (ent->d_type == DT_DIR) {
+		    ret = empty_dir(path);
+		} else {
+		    ret = unlink(path);
+		}
+
+		free(path);
+
+		if (ret != 0) {
+		    closedir(dir);
+		    return -1;
+		}
 	}
 
 	closedir(dir);
@@ -686,10 +700,12 @@ static int set_uiap(struct osd_device *osd, uint64_t pid, uint64_t oid,
 					UIAP_USERNAME, val, len);
 	case UIAP_LOGICAL_LEN: {
 		char path[MAXNAMELEN];
-		uint64_t len = get_ntohll((const uint8_t *)val);
+		uint64_t logical_len = get_ntohll((const uint8_t *)val);
+
 		get_dfile_name(path, osd->root, pid, oid);
-		osd_debug("%s: %s %llu\n", __func__, path, llu(len));
-		ret = truncate(path, len);
+		osd_debug("%s: %s %llu\n", __func__, path, llu(logical_len));
+
+		ret = truncate(path, logical_len);
 		if (ret < 0)
 			return OSD_ERROR;
 		else
@@ -3595,7 +3611,7 @@ out_hw_err:
 
 
 int osd_set_key(struct osd_device *osd, int key_to_set, uint64_t pid,
-		uint64_t key, uint8_t seed[20], uint8_t *sense)
+		uint64_t key, uint8_t seed[OSD_SET_KEY_SEED_SIZE], uint8_t *sense)
 {
 	osd_debug(__func__);
 	return osd_error_unimplemented(0, sense);

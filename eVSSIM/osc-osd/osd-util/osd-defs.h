@@ -25,6 +25,7 @@
 #define OSD_MAX_SENSE 252
 #define OSD_CRYPTO_KEYID_SIZE 32
 #define OSD_SYS_ID_SIZE 20
+#define OSD_SET_KEY_SEED_SIZE 20
 
 /* varlen cdb service actions for osd2r01 */
 #define OSD_APPEND		        	0x8887
