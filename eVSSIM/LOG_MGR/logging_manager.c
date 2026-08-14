@@ -108,12 +108,15 @@ void* log_manager_run(void* args) {
 
 void log_manager_loop(uint8_t device_index, LogManager* manager, int max_loops) {
     SSDStatistics old_stats = stats_init();
+    SSDStatistics stats = stats_init();
     int first_loop = 1;
     int loops = 0;
+
+    ssds_manager[device_index].ssd.current_stats = &stats;
+
     while (max_loops < 0 || loops < max_loops) {
         // init the current statistics
-        SSDStatistics stats = stats_init();
-        ssds_manager[device_index].ssd.current_stats = &stats;
+        stats = stats_init();
 
         unsigned int analyzer_id;
         // update the statistics according to the different analyzers
@@ -198,6 +201,8 @@ void log_manager_loop(uint8_t device_index, LogManager* manager, int max_loops) 
         if (usleep(MANGER_LOOP_SLEEP))
             break;          // if an error occurred (probably a signal interrupt) just exit
     }
+
+    ssds_manager[device_index].ssd.current_stats = NULL;
 }
 
 

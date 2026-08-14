@@ -1294,7 +1294,7 @@ static int cdb_gen_cas(struct command *cmd, int osd_cmd, uint32_t cdb_cont_len)
 	uint32_t list_len = 0;
 	uint32_t list_off = get_ntohoffset(&cmd->cdb[72]);
 	const uint8_t *list = &cmd->indata[list_off];
-	uint8_t *orig;
+	uint8_t *orig = NULL;
 	uint16_t orig_len;
 	uint32_t orig_page = 0, orig_number = 0;
 	uint8_t cas_res = 0;
@@ -1533,8 +1533,6 @@ static void exec_service_action(struct command *cmd)
 	switch (cmd->action) {
 	case OSD_APPEND: {
 		uint8_t ddt;
-		uint64_t pid = get_ntohll(&cdb[16]);
-		uint64_t oid = get_ntohll(&cdb[24]);
 		uint64_t len = get_ntohll(&cdb[32]);
 
 		ret = verify_enough_input_data(cmd, len);
@@ -1559,8 +1557,6 @@ static void exec_service_action(struct command *cmd)
 	}
 	
 	case OSD_CLEAR: {
-	  	uint64_t pid = get_ntohll(&cdb[16]);
-		uint64_t oid = get_ntohll(&cdb[24]);
 		uint64_t len = get_ntohll(&cdb[32]);
 		uint64_t offset = get_ntohll(&cdb[40]);
 	
@@ -1592,7 +1588,6 @@ static void exec_service_action(struct command *cmd)
 	}
 	case OSD_CREATE_AND_WRITE: {
 		uint8_t ddt;
-		uint64_t pid = get_ntohll(&cdb[16]);
 		uint64_t requested_oid = get_ntohll(&cdb[24]);
 		uint64_t len = get_ntohll(&cdb[32]);
 		uint64_t offset = get_ntohll(&cdb[40]);
@@ -1657,7 +1652,6 @@ static void exec_service_action(struct command *cmd)
 		break;
 	}
 	case OSD_CREATE_USER_TRACKING_COLLECTION: {
-                uint64_t pid = get_ntohll(&cdb[16]);
 		uint64_t requested_cid = get_ntohll(&cdb[24]);
 		uint64_t source_cid = get_ntohll(&cdb[40]);
 		
@@ -1671,8 +1665,6 @@ static void exec_service_action(struct command *cmd)
 		break;
 	}
 	case OSD_FLUSH: {
-		uint64_t pid = get_ntohll(&cdb[16]);
-		uint64_t oid = get_ntohll(&cdb[24]);
 		uint64_t len = get_ntohll(&cdb[32]);
 		uint64_t offset = get_ntohll(&cdb[40]);
 		int flush_scope = cdb[10] & 0x3;
@@ -1685,7 +1677,6 @@ static void exec_service_action(struct command *cmd)
 		break;
 	}
 	case OSD_FLUSH_COLLECTION: {
-		uint64_t pid = get_ntohll(&cdb[16]);
 		uint64_t cid = get_ntohll(&cdb[24]);
 		int flush_scope = cdb[10] & 0x3;
 
@@ -1707,7 +1698,6 @@ static void exec_service_action(struct command *cmd)
 		break;
 	}
 	case OSD_FLUSH_PARTITION: {
-		uint64_t pid = get_ntohll(&cdb[16]);
 		int flush_scope = cdb[10] & 0x3;
 		ret = check_no_continuations(cmd, cdb_cont_len,
 					     pid, PARTITION_OID);
@@ -1731,9 +1721,6 @@ static void exec_service_action(struct command *cmd)
 		break;
 	}
 	case OSD_GET_ATTRIBUTES: {
-		uint64_t pid = get_ntohll(&cdb[16]);
-		uint64_t oid = get_ntohll(&cdb[24]);
-
 		ret = check_no_continuations(cmd, cdb_cont_len, pid, oid);
 		if (ret)
 			break;
@@ -1746,7 +1733,6 @@ static void exec_service_action(struct command *cmd)
 
 	}
 	case OSD_GET_MEMBER_ATTRIBUTES: {
-		uint64_t pid = get_ntohll(&cdb[16]);
 		uint64_t cid = get_ntohll(&cdb[24]);
 		ret = osd_get_member_attributes(osd, pid, cid, cdb_cont_len, sense);
 		break;
@@ -1757,7 +1743,6 @@ static void exec_service_action(struct command *cmd)
 	}
 	case OSD_LIST_COLLECTION: {
 		uint8_t list_attr = (cdb[11] & 0x40) >> 6;
-		uint64_t pid = get_ntohll(&cdb[16]);
 		uint64_t cid = get_ntohll(&cdb[24]);
 		uint32_t list_id = get_ntohl(&cdb[48]);
 		uint64_t alloc_len = get_ntohll(&cdb[32]);
@@ -1791,8 +1776,6 @@ static void exec_service_action(struct command *cmd)
 		break;
 
 	case OSD_PUNCH: {
-	  	uint64_t pid = get_ntohll(&cdb[16]);
-		uint64_t oid = get_ntohll(&cdb[24]);
 		uint64_t len = get_ntohll(&cdb[32]);
 		uint64_t offset = get_ntohll(&cdb[40]);
 		ret = check_no_continuations(cmd, cdb_cont_len, pid, oid);
@@ -1809,7 +1792,6 @@ static void exec_service_action(struct command *cmd)
 	}
 
 	case OSD_QUERY: {
-		uint64_t pid = get_ntohll(&cdb[16]);
 		uint64_t cid = get_ntohll(&cdb[24]);
 		ret = cdb_query(cmd, pid, cid, cdb_cont_len);
 		if (ret)
@@ -1853,7 +1835,6 @@ static void exec_service_action(struct command *cmd)
 	}
 	case OSD_REMOVE_COLLECTION: {
 		uint8_t fcr = (cdb[11] & 0x1);
-		uint64_t pid = get_ntohll(&cdb[16]);
 		uint64_t cid = get_ntohll(&cdb[24]);
 		ret = check_no_continuations(cmd, cdb_cont_len, pid, cid);
 		if (ret)
@@ -1863,7 +1844,6 @@ static void exec_service_action(struct command *cmd)
 		break;
 	}
 	case OSD_REMOVE_MEMBER_OBJECTS: {
-		uint64_t pid = get_ntohll(&cdb[16]);
 		uint64_t cid = get_ntohll(&cdb[24]);
 		ret = check_no_continuations(cmd, cdb_cont_len, pid, oid);
 		if (ret)
@@ -1888,9 +1868,6 @@ static void exec_service_action(struct command *cmd)
 		break;
 	}
 	case OSD_SET_ATTRIBUTES: {
-		uint64_t pid = get_ntohll(&cdb[16]);
-		uint64_t oid = get_ntohll(&cdb[24]);
-
 		ret = check_no_continuations(cmd, cdb_cont_len, pid, oid);
 		if (ret)
 			break;
@@ -1905,10 +1882,9 @@ static void exec_service_action(struct command *cmd)
 	}
 	case OSD_SET_KEY: {
 		int key_to_set = cdb[11] & 0x3;
-		uint64_t pid = get_ntohll(&cdb[16]);
 		uint64_t key = get_ntohll(&cdb[24]);
-		uint8_t seed[20];
-		memcpy(seed, &cdb[32], 20);
+		uint8_t seed[OSD_SET_KEY_SEED_SIZE];
+		memcpy(seed, &cdb[32], OSD_SET_KEY_SEED_SIZE);
 		ret = osd_set_key(osd, key_to_set, pid, key, seed, sense);
 		break;
 	}
@@ -1937,8 +1913,6 @@ static void exec_service_action(struct command *cmd)
 		break;
 	}
 	case OSD_WRITE: {
-		uint64_t pid = get_ntohll(&cdb[16]);
-		uint64_t oid = get_ntohll(&cdb[24]);
 		uint64_t len = get_ntohll(&cdb[32]);
 		uint64_t offset = get_ntohll(&cdb[40]);
 		uint8_t ddt;

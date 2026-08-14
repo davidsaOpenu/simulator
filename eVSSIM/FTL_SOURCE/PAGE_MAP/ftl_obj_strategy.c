@@ -8,7 +8,6 @@
 
 obj_strategy_manager_t *obj_manager = NULL;
 
-#define OSD_READ_VALUE_OFFSET       (44)
 #define OSD_SENSE_BUFFER_SIZE       (1024)
 
 #ifndef MIN
@@ -159,14 +158,14 @@ ftl_ret_val _FTL_OBJ_READ(uint8_t device_index, obj_id_t obj_loc, void *data, of
     if (object == NULL)
         return FTL_FAILURE;
 
-    if (object->size == 0) {
+    if (object->logical_size == 0) {
         *p_length = 0;
         PDBG_FTL("Complete\n");
         return FTL_SUCCESS;
     }
 
     // object not big enough
-    if (object->size < (offset + length))
+    if (object->logical_size < (offset + length))
         return FTL_FAILURE;
 
     if (!(current_page = page_by_offset(device_index, object, offset)))
@@ -205,14 +204,13 @@ ftl_ret_val _FTL_OBJ_READ(uint8_t device_index, obj_id_t obj_loc, void *data, of
     if (data != NULL) {
         uint64_t outlen = 0;
         osd_ret = osd_read(OSD_DEVICE(device_index), obj_loc.partition_id, obj_loc.object_id,
-                    length, 0, NULL, data, &outlen, 0, OSD_SENSE(device_index), DDT_CONTIG);
+                    length, offset, NULL, data, &outlen, 0, OSD_SENSE(device_index), DDT_CONTIG);
         if (osd_ret < 0) {
             PDBG_FTL("osd_read failed with ret: %d.\n", osd_ret);
             return FTL_FAILURE;
         }
 
-        *p_length = get_ntohll(OSD_SENSE(device_index) + OSD_READ_VALUE_OFFSET);
-        if (length < *p_length) *p_length = length;
+        *p_length = outlen;
 
         memset(OSD_SENSE(device_index), 0x0, OSD_SENSE_BUFFER_SIZE);
     }
@@ -344,6 +342,10 @@ ftl_ret_val _FTL_OBJ_WRITE(uint8_t device_index, obj_id_t object_loc, const void
             PDBG_FTL("Failed to osd_write with ret: %d\n", osd_ret);
             return FTL_FAILURE;
         }
+    }
+
+    if (object->logical_size < offset + length) {
+        object->logical_size = offset + length;
     }
 
     INCREASE_IO_REQUEST_SEQ_NB(device_index);
@@ -546,6 +548,7 @@ stored_object *create_object(uint8_t device_index, object_id_t obj_id, size_t si
     // initialize to stored_object struct with size and initial pages
     obj->id = obj_id;
     obj->size = 0;
+    obj->logical_size = size;
     obj->pages = NULL;
 
     // add the new object to the objects' hashtable
