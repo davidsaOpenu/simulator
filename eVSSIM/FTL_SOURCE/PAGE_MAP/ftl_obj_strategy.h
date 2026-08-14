@@ -37,6 +37,7 @@ typedef struct stored_object
 {
     object_id_t id;
     size_t size;
+    size_t logical_size;
     page_node *pages;
     UT_hash_handle hh; /* makes this structure hashable */
 } stored_object;
