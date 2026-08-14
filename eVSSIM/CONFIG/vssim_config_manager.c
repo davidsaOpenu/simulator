@@ -201,9 +201,9 @@ void INIT_SSD_CONFIG(void)
     if (NULL == g_onfi_devices)
         RERR(, "g_onfi_devices allocation failed!\n");
 
-    g_onfi_mt_managers = (onfi_mt_manager_t*)calloc(sizeof(onfi_mt_manager_t) * device_count, 1);
-    if (NULL == g_onfi_mt_managers)
-        RERR(, "g_onfi_mt_managers allocation failed!\n");
+    g_onfi_managers = (onfi_manager_t*)calloc(sizeof(onfi_manager_t) * device_count, 1);
+    if (NULL == g_onfi_managers)
+        RERR(, "g_onfi_managers allocation failed!\n");
 
     g_onfi_device_locks = (pthread_mutex_t*)calloc(sizeof(pthread_mutex_t) * device_count, 1);
     if (NULL == g_onfi_device_locks)
@@ -266,8 +266,8 @@ void TERM_SSD_CONFIG(void)
     free(g_onfi_devices);
     g_onfi_devices = NULL;
 
-    free(g_onfi_mt_managers);
-    g_onfi_mt_managers = NULL;
+    free(g_onfi_managers);
+    g_onfi_managers = NULL;
 
     free(g_onfi_device_locks);
     g_onfi_device_locks = NULL;
@@ -371,8 +371,8 @@ bool parse_config_line(const char* key, FILE* file, ssd_config_t* device) {
     if (strcmp(key, "GC_HI_THR") == 0) {
         return fscanf(file, "%d", &device->gc_hi_thr) == 1;
     }
-    if (strcmp(key, "ONFI_MANAGER_THREADS") == 0) {
-        return fscanf(file, "%d", &device->onfi_manager_threads) == 1;
+    if (strcmp(key, "ONFI_MULTITHREADED") == 0) {
+        return fscanf(file, "%d", &device->onfi_multithreaded) == 1;
     }
     if (strcmp(key, "ONFI_MANAGER_QUEUE_SIZE") == 0) {
         return fscanf(file, "%d", &device->onfi_manager_queue_size) == 1;
@@ -531,9 +531,9 @@ bool calculate_derived_values(ssd_config_t* device) {
     device->gc_low_thr_interval_sec = 10;
     device->gc_hi_thr_interval_sec = 1;
 
-    // if ONFI manager threads didn't set, change it to 1
-    if (device->onfi_manager_threads <= 0) {
-        device->onfi_manager_threads = 1;
+    // if ONFI multithreaded flag didn't set, default to serial mode
+    if (device->onfi_multithreaded < 0) {
+        device->onfi_multithreaded = 0;
     }
 
     // if ONFI manager queue size didn't set, default to 1024

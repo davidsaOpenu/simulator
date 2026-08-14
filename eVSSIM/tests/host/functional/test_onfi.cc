@@ -24,18 +24,14 @@ namespace onfi_functional_test
 
     struct TestParam {
         int channels;
-        int threads;
+        int multithreaded;
     };
 
     static const TestParam TEST_PARAMS[] = {
-        {1, 1},  // 1 channel , 1 thread
-        {4, 1},  // 4 channels, 1 thread
-        {4, 4},  // 4 channels, 4 threads
-        {8, 1},  // 8 channels, 1 thread
-        {8, 4},  // 8 channels, 4 threads
-        {8, 5},  // 8 channels, 5 threads
-        {8, 8},  // 8 channels, 8 threads
-        {8, 10}  // 8 channels, 10 threads
+        {4, 0},  // serial mode
+        {1, 1},  // 1 channel,  multithreaded (8 workers, one per flash)
+        {4, 1},  // 4 channels, multithreaded
+        {8, 1}   // 8 channels, multithreaded
     };
 
     // The number of threads that are used in MultiMainThreads test case
@@ -64,7 +60,7 @@ namespace onfi_functional_test
         return (OPS_PER_FLASH + PAGE_NB - 1) / PAGE_NB;
     }
 
-    static void write_config_file(int channels, int threads) {
+    static void write_config_file(int channels, int multithreaded) {
         ofstream ssd_conf("data/ssd.conf", ios_base::out | ios_base::trunc);
         ssd_conf << "[nvme01]\n"
             "PAGE_SIZE " << PAGE_SIZE << "\n"
@@ -87,7 +83,7 @@ namespace onfi_functional_test
             "STORAGE_STRATEGY 1\n"
             "GC_LOW_THR 20\n"
             "GC_HI_THR 80\n"
-            "ONFI_MANAGER_THREADS " << threads << "\n"
+            "ONFI_MULTITHREADED " << multithreaded << "\n"
             "ONFI_MANAGER_QUEUE_SIZE 1024\n"
             "[nvme02]\n"
             "PAGE_SIZE " << PAGE_SIZE << "\n"
@@ -110,7 +106,7 @@ namespace onfi_functional_test
             "STORAGE_STRATEGY 1\n"
             "GC_LOW_THR 20\n"
             "GC_HI_THR 80\n"
-            "ONFI_MANAGER_THREADS " << threads << "\n"
+            "ONFI_MULTITHREADED " << multithreaded << "\n"
             "ONFI_MANAGER_QUEUE_SIZE 1024\n"
             "[nvme03]\n"
             "PAGE_SIZE " << PAGE_SIZE << "\n"
@@ -133,7 +129,7 @@ namespace onfi_functional_test
             "STORAGE_STRATEGY 1\n"
             "GC_LOW_THR 20\n"
             "GC_HI_THR 80\n"
-            "ONFI_MANAGER_THREADS " << threads << "\n"
+            "ONFI_MULTITHREADED " << multithreaded << "\n"
             "ONFI_MANAGER_QUEUE_SIZE 1024\n";
         ssd_conf.close();
     }
@@ -142,20 +138,18 @@ namespace onfi_functional_test
 
         void SetUp() override {
             TestParam current_param = GetParam();
-            write_config_file(current_param.channels, current_param.threads);
+            write_config_file(current_param.channels, current_param.multithreaded);
             INIT_SSD_CONFIG();
             FTL_INIT(g_device_index);
-            ASSERT_EQ(ONFI_MT_INIT(g_device_index), 0);
         }
 
         void TearDown() override {
-            ASSERT_EQ(ONFI_MT_TERM(g_device_index), 0);
             FTL_TERM(g_device_index);
             TERM_SSD_CONFIG();
         }
     };
 
-    INSTANTIATE_TEST_CASE_P(OnfiMtConfigurations, OnfiFunctionalTest,
+    INSTANTIATE_TEST_CASE_P(OnfiConfigurations, OnfiFunctionalTest,
         ::testing::ValuesIn(TEST_PARAMS));
 
     /*
@@ -170,62 +164,62 @@ namespace onfi_functional_test
         fill_with_flash_index(wbuf, 0, PAGE_SIZE);
 
         // PAGE_PROGRAM
-        onfi_mt_handle_t* h = ONFI_MT_PAGE_PROGRAM(g_device_index, get_flash_first_page_address(0), 0, wbuf, PAGE_SIZE, &xfer);
+        onfi_handle_t* h = ONFI_PAGE_PROGRAM(g_device_index, get_flash_first_page_address(0), 0, wbuf, PAGE_SIZE, &xfer);
         ASSERT_NE(h, nullptr);
-        ASSERT_EQ(ONFI_MT_WAIT(h), ONFI_SUCCESS);
+        ASSERT_EQ(ONFI_WAIT(h), ONFI_SUCCESS);
         ASSERT_EQ(xfer, PAGE_SIZE);
 
         // READ
-        h = ONFI_MT_READ(g_device_index, get_flash_first_page_address(0), 0, rbuf, PAGE_SIZE, &xfer);
+        h = ONFI_READ(g_device_index, get_flash_first_page_address(0), 0, rbuf, PAGE_SIZE, &xfer);
         ASSERT_NE(h, nullptr);
-        ASSERT_EQ(ONFI_MT_WAIT(h), ONFI_SUCCESS);
+        ASSERT_EQ(ONFI_WAIT(h), ONFI_SUCCESS);
 
         // BLOCK_ERASE
-        h = ONFI_MT_BLOCK_ERASE(g_device_index, get_flash_first_page_address(0));
+        h = ONFI_BLOCK_ERASE(g_device_index, get_flash_first_page_address(0));
         ASSERT_NE(h, nullptr);
-        ASSERT_EQ(ONFI_MT_WAIT(h), ONFI_SUCCESS);
+        ASSERT_EQ(ONFI_WAIT(h), ONFI_SUCCESS);
 
-        h = ONFI_MT_READ(g_device_index, get_flash_first_page_address(0), 0, rbuf, PAGE_SIZE, &xfer);
+        h = ONFI_READ(g_device_index, get_flash_first_page_address(0), 0, rbuf, PAGE_SIZE, &xfer);
         ASSERT_NE(h, nullptr);
-        ASSERT_EQ(ONFI_MT_WAIT(h), ONFI_SUCCESS);
+        ASSERT_EQ(ONFI_WAIT(h), ONFI_SUCCESS);
 
         // READ ID
         uint8_t sig[4];
-        h = ONFI_MT_READ_ID(g_device_index, ONFI_SIGNATURE_ADDR, sig, sizeof(sig));
+        h = ONFI_READ_ID(g_device_index, 0, ONFI_SIGNATURE_ADDR, sig, sizeof(sig));
         ASSERT_NE(h, nullptr);
-        ASSERT_EQ(ONFI_MT_WAIT(h), ONFI_SUCCESS);
+        ASSERT_EQ(ONFI_WAIT(h), ONFI_SUCCESS);
         EXPECT_EQ(sig[0], 'O');
         EXPECT_EQ(sig[1], 'N');
         EXPECT_EQ(sig[2], 'F');
         EXPECT_EQ(sig[3], 'I');
 
         uint8_t ids[2];
-        h = ONFI_MT_READ_ID(g_device_index, JEDEC_ID_ADDR, ids, sizeof(ids));
+        h = ONFI_READ_ID(g_device_index, 0, JEDEC_ID_ADDR, ids, sizeof(ids));
         ASSERT_NE(h, nullptr);
-        ASSERT_EQ(ONFI_MT_WAIT(h), ONFI_SUCCESS);
+        ASSERT_EQ(ONFI_WAIT(h), ONFI_SUCCESS);
         EXPECT_EQ(ids[0], 0xCC);
         EXPECT_EQ(ids[1], 0x10);
 
         // READ PARAMETER PAGE
         onfi_param_page_t param_page;
-        h = ONFI_MT_READ_PARAMETER_PAGE(g_device_index, 0, (uint8_t*)&param_page, sizeof(param_page));
+        h = ONFI_READ_PARAMETER_PAGE(g_device_index, 0, 0, (uint8_t*)&param_page, sizeof(param_page));
         ASSERT_NE(h, nullptr);
-        ASSERT_EQ(ONFI_MT_WAIT(h), ONFI_SUCCESS);
+        ASSERT_EQ(ONFI_WAIT(h), ONFI_SUCCESS);
         EXPECT_EQ(param_page.signature[0], 'O');
         EXPECT_EQ(param_page.signature[1], 'N');
         EXPECT_EQ(param_page.signature[2], 'F');
         EXPECT_EQ(param_page.signature[3], 'I');
 
         // RESET
-        h = ONFI_MT_RESET(g_device_index);
+        h = ONFI_RESET(g_device_index, 0);
         ASSERT_NE(h, nullptr);
-        ASSERT_EQ(ONFI_MT_WAIT(h), ONFI_SUCCESS);
+        ASSERT_EQ(ONFI_WAIT(h), ONFI_SUCCESS);
 
         // READ STATUS
         onfi_status_reg_t status;
-        h = ONFI_MT_READ_STATUS(g_device_index, &status);
+        h = ONFI_READ_STATUS(g_device_index, 0, &status);
         ASSERT_NE(h, nullptr);
-        ASSERT_EQ(ONFI_MT_WAIT(h), ONFI_SUCCESS);
+        ASSERT_EQ(ONFI_WAIT(h), ONFI_SUCCESS);
         EXPECT_EQ(status.RDY, 1);
     }
 
@@ -246,49 +240,49 @@ namespace onfi_functional_test
         size_t read_bytes[FLASH_NB][OPS_PER_FLASH] = {0};
 
         // Submit all programs
-        onfi_mt_handle_t* prog_handles[total_pages];
+        onfi_handle_t* prog_handles[total_pages];
         int num_handles = 0;
         for (int flash_index = 0; flash_index < FLASH_NB; flash_index++) {
             uint64_t base = get_flash_first_page_address(flash_index);
             for (int page = 0; page < OPS_PER_FLASH; page++) {
-                prog_handles[num_handles++] = ONFI_MT_PAGE_PROGRAM(g_device_index, base + page, 0, prog_data[flash_index],
+                prog_handles[num_handles++] = ONFI_PAGE_PROGRAM(g_device_index, base + page, 0, prog_data[flash_index],
                     PAGE_SIZE, &programmed_bytes[flash_index][page]);
             }
         }
         for (int i = 0; i < num_handles; i++) {
             ASSERT_NE(prog_handles[i], nullptr);
-            EXPECT_EQ(ONFI_MT_WAIT(prog_handles[i]), ONFI_SUCCESS);
+            EXPECT_EQ(ONFI_WAIT(prog_handles[i]), ONFI_SUCCESS);
         }
 
         // Read back and verify
-        onfi_mt_handle_t* read_handles[total_pages];
+        onfi_handle_t* read_handles[total_pages];
         num_handles = 0;
         for (int flash_index = 0; flash_index < FLASH_NB; flash_index++) {
             uint64_t base = get_flash_first_page_address(flash_index);
             for (int page = 0; page < OPS_PER_FLASH; page++) {
                 uint8_t* buf = read_data + ((size_t)flash_index * OPS_PER_FLASH + page) * PAGE_SIZE;
-                read_handles[num_handles++] = ONFI_MT_READ(g_device_index, base + page, 0, buf,
+                read_handles[num_handles++] = ONFI_READ(g_device_index, base + page, 0, buf,
                     PAGE_SIZE, &read_bytes[flash_index][page]);
             }
         }
         for (int i = 0; i < num_handles; i++) {
             ASSERT_NE(read_handles[i], nullptr);
-            EXPECT_EQ(ONFI_MT_WAIT(read_handles[i]), ONFI_SUCCESS);
+            EXPECT_EQ(ONFI_WAIT(read_handles[i]), ONFI_SUCCESS);
         }
 
         // Erase all blocks
         const int total_erases = FLASH_NB * num_blocks_per_flash;
-        onfi_mt_handle_t* erase_handles[total_erases];
+        onfi_handle_t* erase_handles[total_erases];
         num_handles = 0;
         for (int flash_index = 0; flash_index < FLASH_NB; flash_index++) {
             uint64_t base = get_flash_first_page_address(flash_index);
             for (int block_index = 0; block_index < num_blocks_per_flash; block_index++) {
-                erase_handles[num_handles++] = ONFI_MT_BLOCK_ERASE(g_device_index, base + block_index * PAGE_NB);
+                erase_handles[num_handles++] = ONFI_BLOCK_ERASE(g_device_index, base + block_index * PAGE_NB);
             }
         }
         for (int i = 0; i < num_handles; i++) {
             ASSERT_NE(erase_handles[i], nullptr);
-            EXPECT_EQ(ONFI_MT_WAIT(erase_handles[i]), ONFI_SUCCESS);
+            EXPECT_EQ(ONFI_WAIT(erase_handles[i]), ONFI_SUCCESS);
         }
 
         delete[] read_data;
@@ -312,26 +306,26 @@ namespace onfi_functional_test
         onfi_status_reg_t status_buf[FLASH_NB];
 
         const int num_handlers = FLASH_NB * 7;
-        onfi_mt_handle_t* handles[num_handlers];
+        onfi_handle_t* handles[num_handlers];
         int nh = 0;
 
         // Submit all command types concurrently
         for (int flash_index = 0; flash_index < FLASH_NB; flash_index++) {
             uint64_t addr = get_flash_first_page_address(flash_index);
 
-            handles[nh++] = ONFI_MT_PAGE_PROGRAM(g_device_index, addr, 0, prog_data[flash_index], PAGE_SIZE, &prog_xfer[flash_index]);
-            handles[nh++] = ONFI_MT_READ(g_device_index, addr, 0, read_buf[flash_index], PAGE_SIZE, &read_xfer[flash_index]);
-            handles[nh++] = ONFI_MT_BLOCK_ERASE(g_device_index, addr);
-            handles[nh++] = ONFI_MT_READ_ID(g_device_index, ONFI_SIGNATURE_ADDR, sig_buf[flash_index], sizeof(sig_buf[flash_index]));
-            handles[nh++] = ONFI_MT_READ_PARAMETER_PAGE(g_device_index, 0, (uint8_t*)&pp_buf[flash_index], sizeof(pp_buf[flash_index]));
-            handles[nh++] = ONFI_MT_RESET(g_device_index);
-            handles[nh++] = ONFI_MT_READ_STATUS(g_device_index, &status_buf[flash_index]);
+            handles[nh++] = ONFI_PAGE_PROGRAM(g_device_index, addr, 0, prog_data[flash_index], PAGE_SIZE, &prog_xfer[flash_index]);
+            handles[nh++] = ONFI_READ(g_device_index, addr, 0, read_buf[flash_index], PAGE_SIZE, &read_xfer[flash_index]);
+            handles[nh++] = ONFI_BLOCK_ERASE(g_device_index, addr);
+            handles[nh++] = ONFI_READ_ID(g_device_index, flash_index, ONFI_SIGNATURE_ADDR, sig_buf[flash_index], sizeof(sig_buf[flash_index]));
+            handles[nh++] = ONFI_READ_PARAMETER_PAGE(g_device_index, flash_index, 0, (uint8_t*)&pp_buf[flash_index], sizeof(pp_buf[flash_index]));
+            handles[nh++] = ONFI_RESET(g_device_index, flash_index);
+            handles[nh++] = ONFI_READ_STATUS(g_device_index, flash_index, &status_buf[flash_index]);
         }
 
         // Wait and verify all commands
         for (int i = 0; i < nh; i++) {
             ASSERT_NE(handles[i], nullptr);
-            onfi_ret_val res = ONFI_MT_WAIT(handles[i]);
+            onfi_ret_val res = ONFI_WAIT(handles[i]);
             EXPECT_EQ(res, ONFI_SUCCESS) << "Handle " << i << " failed";
         }
 
@@ -356,16 +350,13 @@ namespace onfi_functional_test
      * Submit concurrent PROGRAM and READ across three separate NVMe
      * devices, then verify data integrity on each.
      */
-    TEST(OnfiMtMultiDeviceTest, ProgramReadAllDevices) {
-        write_config_file(8, 4);
+    TEST(OnfiMultiDeviceTest, ProgramReadAllDevices) {
+        write_config_file(8, 1);
 
         INIT_SSD_CONFIG();
         FTL_INIT(0);
         FTL_INIT(1);
         FTL_INIT(2);
-        ONFI_MT_INIT(0);
-        ONFI_MT_INIT(1);
-        ONFI_MT_INIT(2);
 
         const int NUM_DEVICES = 3;
         uint8_t wbuf[NUM_DEVICES][PAGE_SIZE];
@@ -375,31 +366,28 @@ namespace onfi_functional_test
         for (int d = 0; d < NUM_DEVICES; d++)
             memset(wbuf[d], 0xA0 + d, PAGE_SIZE);
 
-        onfi_mt_handle_t* handles[NUM_DEVICES];
+        onfi_handle_t* handles[NUM_DEVICES];
 
         // Program page 0 on all devices concurrently
         for (int d = 0; d < NUM_DEVICES; d++) {
-            handles[d] = ONFI_MT_PAGE_PROGRAM(d, 0, 0, wbuf[d], PAGE_SIZE, &xfer[d]);
+            handles[d] = ONFI_PAGE_PROGRAM(d, 0, 0, wbuf[d], PAGE_SIZE, &xfer[d]);
             ASSERT_NE(handles[d], nullptr);
         }
         for (int d = 0; d < NUM_DEVICES; d++) {
-            EXPECT_EQ(ONFI_MT_WAIT(handles[d]), ONFI_SUCCESS);
+            EXPECT_EQ(ONFI_WAIT(handles[d]), ONFI_SUCCESS);
             EXPECT_EQ(xfer[d], (size_t)PAGE_SIZE);
         }
 
         // Read back and verify on all devices concurrently
         for (int d = 0; d < NUM_DEVICES; d++) {
-            handles[d] = ONFI_MT_READ(d, 0, 0, rbuf[d], PAGE_SIZE, &xfer[d]);
+            handles[d] = ONFI_READ(d, 0, 0, rbuf[d], PAGE_SIZE, &xfer[d]);
             ASSERT_NE(handles[d], nullptr);
         }
         for (int d = 0; d < NUM_DEVICES; d++) {
-            EXPECT_EQ(ONFI_MT_WAIT(handles[d]), ONFI_SUCCESS);
+            EXPECT_EQ(ONFI_WAIT(handles[d]), ONFI_SUCCESS);
         }
 
         // Cleanup
-        ONFI_MT_TERM(2);
-        ONFI_MT_TERM(1);
-        ONFI_MT_TERM(0);
         FTL_TERM(2);
         FTL_TERM(1);
         FTL_TERM(0);
@@ -436,8 +424,8 @@ namespace onfi_functional_test
 
                 for (int page_index = 0; page_index < MULTI_MAIN_THREADS_NUM_PAGES_PER_BLOCK; page_index++) {
                     uint64_t addr = block_start + page_index;
-                    onfi_mt_handle_t* h = ONFI_MT_PAGE_PROGRAM(g_device_index, addr, 0, wbuf, PAGE_SIZE, &xfer);
-                    if (!h || ONFI_MT_WAIT(h) != ONFI_SUCCESS || xfer != PAGE_SIZE) {
+                    onfi_handle_t* h = ONFI_PAGE_PROGRAM(g_device_index, addr, 0, wbuf, PAGE_SIZE, &xfer);
+                    if (!h || ONFI_WAIT(h) != ONFI_SUCCESS || xfer != PAGE_SIZE) {
                         *worker_args->errors = 1;
                         return NULL;
                     }
@@ -445,23 +433,23 @@ namespace onfi_functional_test
 
                 for (int page_index = 0; page_index < MULTI_MAIN_THREADS_NUM_PAGES_PER_BLOCK; page_index++) {
                     uint64_t addr = block_start + page_index;
-                    onfi_mt_handle_t* h = ONFI_MT_READ(g_device_index, addr, 0, rbuf, PAGE_SIZE, &xfer);
-                    if (!h || ONFI_MT_WAIT(h) != ONFI_SUCCESS) {
+                    onfi_handle_t* h = ONFI_READ(g_device_index, addr, 0, rbuf, PAGE_SIZE, &xfer);
+                    if (!h || ONFI_WAIT(h) != ONFI_SUCCESS) {
                         *worker_args->errors = 1;
                         return NULL;
                     }
                 }
 
-                onfi_mt_handle_t* h = ONFI_MT_BLOCK_ERASE(g_device_index, block_start);
-                if (!h || ONFI_MT_WAIT(h) != ONFI_SUCCESS) {
+                onfi_handle_t* h = ONFI_BLOCK_ERASE(g_device_index, block_start);
+                if (!h || ONFI_WAIT(h) != ONFI_SUCCESS) {
                     *worker_args->errors = 1;
                     return NULL;
                 }
 
                 for (int page_index = 0; page_index < MULTI_MAIN_THREADS_NUM_PAGES_PER_BLOCK; page_index++) {
                     uint64_t addr = block_start + page_index;
-                    onfi_mt_handle_t* rh = ONFI_MT_READ(g_device_index, addr, 0, rbuf, PAGE_SIZE, &xfer);
-                    if (!rh || ONFI_MT_WAIT(rh) != ONFI_SUCCESS) {
+                    onfi_handle_t* rh = ONFI_READ(g_device_index, addr, 0, rbuf, PAGE_SIZE, &xfer);
+                    if (!rh || ONFI_WAIT(rh) != ONFI_SUCCESS) {
                         *worker_args->errors = 1;
                         return NULL;
                     }
@@ -476,8 +464,15 @@ namespace onfi_functional_test
      * Spawn multiple concurrent worker threads that perform PROGRAM, READ,
      * and BLOCK_ERASE across all flash chips to validate thread safety
      * under the multi-threaded ONFI manager.
+     * This test only makes sense in multithreaded mode: in serial mode the
+     * ONFI commands execute inline on the calling thread without the device
+     * lock, so concurrent callers are not safe. It is skipped for serial
+     * configurations.
      */
     TEST_P(OnfiFunctionalTest, MultiMainThreads) {
+        if (!GetParam().multithreaded)
+            return;
+
         // Run the tests for every configured number of threads
         for (int num_threads : MULTI_MAIN_THREADS_NUM_THREADS_OPTIONS) {
             std::cout << "start test with " << num_threads << " main threads" << std::endl;

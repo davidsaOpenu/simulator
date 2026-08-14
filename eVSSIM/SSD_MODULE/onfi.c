@@ -6,6 +6,8 @@
 #include <stdbool.h>
 
 onfi_device_t *g_onfi_devices = NULL;
+onfi_manager_t *g_onfi_managers = NULL;
+pthread_mutex_t *g_onfi_device_locks = NULL;
 
 #define JEDEC_MANUFACTURER_ID 0xCC
 #define DEVICE_ID 0x10
@@ -194,19 +196,12 @@ void _ONFI_UPDATE_STATUS_REGISTER(onfi_status_reg_t *status_reg, onfi_ret_val la
     // RDY/ARDY are set by the command path; WP left unchanged by this helper
 }
 
-onfi_ret_val ONFI_INIT(uint8_t device_index)
-{
-    if (device_index >= device_count) {
-        PERR("Got invalid device index\n")
-        return ONFI_FAILURE;
-    }
+/*
+======= ONFI Commands =======
+*/
 
-    initialize_page_parameter(device_index);
-    return ONFI_RESET(device_index);
-}
-
-onfi_ret_val ONFI_READ(uint8_t device_index, uint64_t row_address, uint32_t column_address,
-                       uint8_t *o_buffer, size_t buffer_size, size_t *o_read_bytes_amount)
+static onfi_ret_val _onfi_read(uint8_t device_index, uint64_t row_address, uint32_t column_address,
+                               uint8_t *o_buffer, size_t buffer_size, size_t *o_read_bytes_amount)
 {
     if (o_buffer == NULL || o_read_bytes_amount == NULL)
     {
@@ -237,8 +232,8 @@ onfi_ret_val ONFI_READ(uint8_t device_index, uint64_t row_address, uint32_t colu
     return ONFI_SUCCESS;
 }
 
-onfi_ret_val ONFI_PAGE_PROGRAM(uint8_t device_index, uint64_t row_address, uint32_t column_address,
-                               const uint8_t *buffer, size_t buffer_size, size_t *o_programmed_bytes_amount)
+static onfi_ret_val _onfi_page_program(uint8_t device_index, uint64_t row_address, uint32_t column_address,
+                                       const uint8_t *buffer, size_t buffer_size, size_t *o_programmed_bytes_amount)
 {
     if (device_index >= device_count) {
         PERR("Got invalid device index\n")
@@ -273,7 +268,7 @@ onfi_ret_val ONFI_PAGE_PROGRAM(uint8_t device_index, uint64_t row_address, uint3
     return ONFI_SUCCESS;
 }
 
-onfi_ret_val ONFI_BLOCK_ERASE(uint8_t device_index, uint64_t row_address)
+static onfi_ret_val _onfi_block_erase(uint8_t device_index, uint64_t row_address)
 {
     if (device_index >= device_count) {
         PERR("Got invalid device index\n")
@@ -301,10 +296,15 @@ onfi_ret_val ONFI_BLOCK_ERASE(uint8_t device_index, uint64_t row_address)
     return ONFI_SUCCESS;
 }
 
-onfi_ret_val ONFI_READ_ID(uint8_t device_index, uint8_t address, uint8_t *o_buffer, size_t buffer_size)
+static onfi_ret_val _onfi_read_id(uint8_t device_index, uint32_t flash_index, uint8_t address, uint8_t *o_buffer, size_t buffer_size)
 {
     if (device_index >= device_count) {
         PERR("Got invalid device index\n")
+        return ONFI_FAILURE;
+    }
+
+    if (flash_index >= GET_FLASH_NB(device_index)) {
+        PERR("Got invalid flash index %u\n", flash_index)
         return ONFI_FAILURE;
     }
 
@@ -344,7 +344,7 @@ onfi_ret_val ONFI_READ_ID(uint8_t device_index, uint8_t address, uint8_t *o_buff
     return ONFI_SUCCESS;
 }
 
-onfi_ret_val ONFI_READ_PARAMETER_PAGE(uint8_t device_index, uint8_t timing_mode, uint8_t *o_buffer, size_t buffer_size)
+static onfi_ret_val _onfi_read_parameter_page(uint8_t device_index, uint32_t flash_index, uint8_t timing_mode, uint8_t *o_buffer, size_t buffer_size)
 {
     if (timing_mode != 0 || o_buffer == NULL || buffer_size == 0)
     {
@@ -357,7 +357,12 @@ onfi_ret_val ONFI_READ_PARAMETER_PAGE(uint8_t device_index, uint8_t timing_mode,
         return ONFI_FAILURE;
     }
 
-    // In principal, ONFI forbidens retransmitting the same parameter page, but for simplicity's sake we will do it.
+    if (flash_index >= GET_FLASH_NB(device_index)) {
+        PERR("Got invalid flash index %u\n", flash_index)
+        return ONFI_FAILURE;
+    }
+
+    // In principal, ONFI forbiddens retransmitting the same parameter page, but for simplicity's sake we will do it.
     while (buffer_size > 0)
     {
         size_t size = (buffer_size >= sizeof(onfi_param_page_t)) ? sizeof(onfi_param_page_t) : buffer_size;
@@ -370,7 +375,7 @@ onfi_ret_val ONFI_READ_PARAMETER_PAGE(uint8_t device_index, uint8_t timing_mode,
     return ONFI_SUCCESS;
 }
 
-onfi_ret_val ONFI_READ_STATUS(uint8_t device_index, onfi_status_reg_t *o_status_register)
+static onfi_ret_val _onfi_read_status(uint8_t device_index, uint32_t flash_index, onfi_status_reg_t *o_status_register)
 {
     if (o_status_register == NULL)
     {
@@ -383,14 +388,24 @@ onfi_ret_val ONFI_READ_STATUS(uint8_t device_index, onfi_status_reg_t *o_status_
         return ONFI_FAILURE;
     }
 
+    if (flash_index >= GET_FLASH_NB(device_index)) {
+        PERR("Got invalid flash index %u\n", flash_index)
+        return ONFI_FAILURE;
+    }
+
     memcpy(o_status_register, get_status_reg(device_index), sizeof(onfi_status_reg_t));
     return ONFI_SUCCESS;
 }
 
-onfi_ret_val ONFI_RESET(uint8_t device_index)
+static onfi_ret_val _onfi_reset(uint8_t device_index, uint32_t flash_index)
 {
     if (device_index >= device_count) {
         PERR("Got invalid device index\n")
+        return ONFI_FAILURE;
+    }
+
+    if (flash_index >= GET_FLASH_NB(device_index)) {
+        PERR("Got invalid flash index %u\n", flash_index)
         return ONFI_FAILURE;
     }
 
@@ -399,14 +414,6 @@ onfi_ret_val ONFI_RESET(uint8_t device_index)
 
     return ONFI_SUCCESS;
 }
-
-
-// ==============================================================================================
-// ONFI Multithreaded
-
-
-onfi_mt_manager_t *g_onfi_mt_managers = NULL;
-pthread_mutex_t *g_onfi_device_locks = NULL;
 
 /*
 ======= Internal Types =======
@@ -423,10 +430,11 @@ typedef enum {
 } onfi_op_type_t;
 
 /* ONFI multithreaded request describes an ONFI operation to be submitted to an ONFI worker */
-struct onfi_mt_request {
+struct onfi_request {
     // request parameters
     onfi_op_type_t type;
     uint8_t device_index;
+    uint32_t flash_index;
 
     uint64_t row_address;
     uint32_t column_address;
@@ -445,11 +453,11 @@ struct onfi_mt_request {
     int done;
 };
 
-typedef struct onfi_mt_request onfi_mt_request_t;
+typedef struct onfi_request onfi_request_t;
 
 /* Fixed-size thread-safe ring buffer of request pointers */
-typedef struct onfi_mt_queue {
-    onfi_mt_request_t** requests;
+struct onfi_queue {
+    onfi_request_t** requests;
     int head;    // current pop index
     int tail;    // current push index
 
@@ -461,7 +469,7 @@ typedef struct onfi_mt_queue {
     pthread_cond_t not_empty;
     pthread_cond_t not_full;
     int shutdown;
-} onfi_mt_queue_t;
+};
 
 /*
 ======= ONFI Multithreaded Queue Functions =======
@@ -471,9 +479,9 @@ typedef struct onfi_mt_queue {
  * Initialize a fixed-size ring buffer queue with capacity size
  * Returns -1 if allocation failed.
  **/
-static int onfi_mt_queue_init(onfi_mt_queue_t* q, int size)
+static int onfi_mt_queue_init(onfi_queue_t* q, int size)
 {
-    q->requests = (onfi_mt_request_t**)calloc(size, sizeof(onfi_mt_request_t*));
+    q->requests = (onfi_request_t**)calloc(size, sizeof(onfi_request_t*));
     if (q->requests == NULL) {
         return -1;
     }
@@ -493,7 +501,7 @@ static int onfi_mt_queue_init(onfi_mt_queue_t* q, int size)
  * Destroy a queue.
  * Returns -1 and doesn't destroy the queue if it still has pending requests.
  **/
-static int onfi_mt_queue_destroy(onfi_mt_queue_t* q)
+static int onfi_mt_queue_destroy(onfi_queue_t* q)
 {
     if (q->count != 0)
         return -1;
@@ -510,7 +518,7 @@ static int onfi_mt_queue_destroy(onfi_mt_queue_t* q)
  * Blocks if the queue is full.
  * Returns -1 and drop the request if the queue is shut down.
  **/
-static int onfi_mt_queue_push(onfi_mt_queue_t* q, onfi_mt_request_t* req)
+static int onfi_mt_queue_push(onfi_queue_t* q, onfi_request_t* req)
 {
     pthread_mutex_lock(&q->lock);
 
@@ -536,7 +544,7 @@ static int onfi_mt_queue_push(onfi_mt_queue_t* q, onfi_mt_request_t* req)
  * Blocks if the queue is empty.
  * Returns NULL when the queue is empty and has been shut down.
  **/
-static onfi_mt_request_t* onfi_mt_queue_pop(onfi_mt_queue_t* q)
+static onfi_request_t* onfi_mt_queue_pop(onfi_queue_t* q)
 {
     pthread_mutex_lock(&q->lock);
 
@@ -548,7 +556,7 @@ static onfi_mt_request_t* onfi_mt_queue_pop(onfi_mt_queue_t* q)
         return NULL;
     }
 
-    onfi_mt_request_t* req = q->requests[q->head];
+    onfi_request_t* req = q->requests[q->head];
     q->head = (q->head + 1) % q->size;
     q->count--;
 
@@ -558,7 +566,7 @@ static onfi_mt_request_t* onfi_mt_queue_pop(onfi_mt_queue_t* q)
 }
 
 /* Set the shutdown flag and wake up any threads blocked on push/pop */
-static void onfi_mt_queue_shutdown(onfi_mt_queue_t* q)
+static void onfi_mt_queue_shutdown(onfi_queue_t* q)
 {
     pthread_mutex_lock(&q->lock);
     q->shutdown = 1;
@@ -571,13 +579,38 @@ static void onfi_mt_queue_shutdown(onfi_mt_queue_t* q)
 ======= ONFI Multithreaded Worker =======
 */
 
+/* Execute the request's ONFI command */
+static onfi_ret_val run_onfi_command(onfi_request_t *req)
+{
+    switch (req->type) {
+    case ONFI_OP_READ:
+        return _onfi_read(req->device_index, req->row_address, req->column_address,
+                          req->buffer, req->buffer_size, req->bytes_transferred);
+    case ONFI_OP_PROGRAM:
+        return _onfi_page_program(req->device_index, req->row_address, req->column_address,
+                                  req->buffer, req->buffer_size, req->bytes_transferred);
+    case ONFI_OP_ERASE:
+        return _onfi_block_erase(req->device_index, req->row_address);
+    case ONFI_OP_READ_ID:
+        return _onfi_read_id(req->device_index, req->flash_index, req->address, req->buffer, req->buffer_size);
+    case ONFI_OP_READ_PARAMETER_PAGE:
+        return _onfi_read_parameter_page(req->device_index, req->flash_index, req->timing_mode, req->buffer, req->buffer_size);
+    case ONFI_OP_READ_STATUS:
+        return _onfi_read_status(req->device_index, req->flash_index, (onfi_status_reg_t *)req->buffer);
+    case ONFI_OP_RESET:
+        return _onfi_reset(req->device_index, req->flash_index);
+    }
+
+    return ONFI_FAILURE;
+}
+
 static void* onfi_mt_worker(void* arg)
 {
-    onfi_mt_queue_t* queue = (onfi_mt_queue_t*)arg;
+    onfi_queue_t* queue = (onfi_queue_t*)arg;
 
     // process requests until the queue is shutdown
     while (true) {
-        onfi_mt_request_t* req = onfi_mt_queue_pop(queue);
+        onfi_request_t* req = onfi_mt_queue_pop(queue);
         if (req == NULL)
             break;
 
@@ -586,32 +619,7 @@ static void* onfi_mt_worker(void* arg)
         // The lock will be removed in the future after making everything safe.
         pthread_mutex_lock(&g_onfi_device_locks[req->device_index]);
 
-        // run the request's ONFI command
-        switch (req->type) {
-        case ONFI_OP_READ:
-            req->result = ONFI_READ(req->device_index, req->row_address, req->column_address,
-                                    req->buffer, req->buffer_size, req->bytes_transferred);
-            break;
-        case ONFI_OP_PROGRAM:
-            req->result = ONFI_PAGE_PROGRAM(req->device_index, req->row_address, req->column_address,
-                                            req->buffer, req->buffer_size, req->bytes_transferred);
-            break;
-        case ONFI_OP_ERASE:
-            req->result = ONFI_BLOCK_ERASE(req->device_index, req->row_address);
-            break;
-        case ONFI_OP_READ_ID:
-            req->result = ONFI_READ_ID(req->device_index, req->address, req->buffer, req->buffer_size);
-            break;
-        case ONFI_OP_READ_PARAMETER_PAGE:
-            req->result = ONFI_READ_PARAMETER_PAGE(req->device_index, req->timing_mode, req->buffer, req->buffer_size);
-            break;
-        case ONFI_OP_READ_STATUS:
-            req->result = ONFI_READ_STATUS(req->device_index, (onfi_status_reg_t*)req->buffer);
-            break;
-        case ONFI_OP_RESET:
-            req->result = ONFI_RESET(req->device_index);
-            break;
-        }
+        req->result = run_onfi_command(req);
 
         pthread_mutex_unlock(&g_onfi_device_locks[req->device_index]);
 
@@ -625,11 +633,11 @@ static void* onfi_mt_worker(void* arg)
 }
 
 /*
-======= ONFI Manager =======
+======= ONFI Request Functions =======
 */
 
 /* Tear down the first n threads + queues of a manager */
-static int onfi_mt_cleanup(onfi_mt_manager_t* onfi_manager, int n)
+static int onfi_mt_cleanup(onfi_manager_t* onfi_manager, int n)
 {
     int i, ret = 0;
 
@@ -650,7 +658,6 @@ static int onfi_mt_cleanup(onfi_mt_manager_t* onfi_manager, int n)
     free(onfi_manager->queues);
     onfi_manager->threads = NULL;
     onfi_manager->queues = NULL;
-    onfi_manager->num_threads = 0;
     onfi_manager->initialized = 0;
     return ret;
 }
@@ -658,9 +665,9 @@ static int onfi_mt_cleanup(onfi_mt_manager_t* onfi_manager, int n)
 /**
  * Allocate and initialize a new request. Returns NULL on failure.
  **/
-static onfi_mt_request_t* onfi_mt_request_create(onfi_op_type_t type, uint8_t device_index)
+static onfi_request_t* onfi_request_create(onfi_op_type_t type, uint8_t device_index)
 {
-    onfi_mt_request_t* req = (onfi_mt_request_t*)calloc(1, sizeof(onfi_mt_request_t));
+    onfi_request_t* req = (onfi_request_t*)calloc(1, sizeof(onfi_request_t));
     if (!req)
         return NULL;
 
@@ -675,7 +682,7 @@ static onfi_mt_request_t* onfi_mt_request_create(onfi_op_type_t type, uint8_t de
 /**
  * Free a request and its sync primitives.
  **/
-static void onfi_mt_request_destroy(onfi_mt_request_t* req)
+static void onfi_request_destroy(onfi_request_t* req)
 {
     pthread_mutex_destroy(&req->done_lock);
     pthread_cond_destroy(&req->done_cond);
@@ -684,89 +691,154 @@ static void onfi_mt_request_destroy(onfi_mt_request_t* req)
 
 /**
  * Submits a request for async processing via ONFI threads.
- * This function can blocks if the target thread's queue is full.
- * Returns -1 and drop the request if the queue is shut down.
+ * This function can block if the target thread's queue is full.
+ * Returns -1 and drops the request if the queue is shut down.
  **/
-static int onfi_mt_request_submit(onfi_mt_request_t* req)
+static int onfi_request_submit(onfi_request_t* req)
 {
     if (req->device_index >= device_count)
         return -1;
 
-    onfi_mt_manager_t* onfi_manager = &g_onfi_mt_managers[req->device_index];
-    // reject submissions before INIT, after TERM, or with a 0-thread/0-channel
-    // configuration, so the modulo calculations below never divide by zero
-    if (!onfi_manager->initialized || onfi_manager->num_channels <= 0 || onfi_manager->num_threads <= 0)
+    onfi_manager_t* onfi_manager = &g_onfi_managers[req->device_index];
+    // reject submissions before INIT, after TERM, or in serial mode
+    if (!onfi_manager->initialized || onfi_manager->threads == NULL)
         return -1;
 
-    // calculate target onfi worker thread
-    int flash_index = CALC_FLASH(req->device_index, req->row_address);
-    int channel_index = flash_index % onfi_manager->num_channels;
-    int onfi_thread_index = channel_index % onfi_manager->num_threads;
+    // calculate target onfi worker thread (one worker per flash chip)
+    int flash_index;
+    switch (req->type) {
+    case ONFI_OP_READ_ID:
+    case ONFI_OP_READ_PARAMETER_PAGE:
+    case ONFI_OP_READ_STATUS:
+    case ONFI_OP_RESET:
+        flash_index = (int)req->flash_index;
+        break;
+    default:
+        flash_index = CALC_FLASH(req->device_index, req->row_address);
+        break;
+    }
+    int onfi_thread_index = flash_index % GET_FLASH_NB(req->device_index);
 
     // push request
     return onfi_mt_queue_push(&onfi_manager->queues[onfi_thread_index], req);
 }
 
+/**
+ * Validates the request and either submits it to the target ONFI worker
+ * (multithreaded mode) or executes it inline (serial mode).
+ * Returns NULL if the request could not be created/submitted.
+ **/
+static onfi_handle_t *onfi_request_dispatch(onfi_request_t *req)
+{
+    if (req->device_index >= device_count) {
+        onfi_request_destroy(req);
+        return NULL;
+    }
+
+    onfi_manager_t *onfi_manager = &g_onfi_managers[req->device_index];
+    if (!onfi_manager->initialized) {
+        onfi_request_destroy(req);
+        return NULL;
+    }
+
+    if (onfi_manager->threads == NULL) {
+        // serial mode: execute the command inline on the calling thread
+        req->result = run_onfi_command(req);
+        pthread_mutex_lock(&req->done_lock);
+        req->done = 1;
+        pthread_cond_signal(&req->done_cond);
+        pthread_mutex_unlock(&req->done_lock);
+    } else {
+        // multithreaded mode
+        if (onfi_request_submit(req) != 0) {
+            onfi_request_destroy(req);
+            return NULL;
+        }
+    }
+
+    return (onfi_handle_t *)req;
+}
+
 /*
-======= ONFI Multithreaded API =======
+======= ONFI Manager API =======
 */
 
-int ONFI_MT_INIT(uint8_t device_index)
+onfi_ret_val ONFI_INIT(uint8_t device_index)
 {
-    if (device_index >= device_count)
-        return -1;
+    if (device_index >= device_count) {
+        PERR("Got invalid device index\n")
+        return ONFI_FAILURE;
+    }
 
-    onfi_mt_manager_t* onfi_manager = &g_onfi_mt_managers[device_index];
+    initialize_page_parameter(device_index);
+    if (_onfi_reset(device_index, 0) != ONFI_SUCCESS) {
+        return ONFI_FAILURE;
+    }
+
+    onfi_manager_t* onfi_manager = &g_onfi_managers[device_index];
     if (onfi_manager->initialized)
-        return 0;
+        return ONFI_SUCCESS;
 
     pthread_mutex_init(&g_onfi_device_locks[device_index], NULL);
     ssd_config_t* cfg = &devices[device_index];
 
-    // initialized onfi manager
-    onfi_manager->num_threads = cfg->onfi_manager_threads;
-    onfi_manager->num_channels = cfg->channel_nb;
-    onfi_manager->threads = (pthread_t*)calloc(onfi_manager->num_threads, sizeof(pthread_t));
-    onfi_manager->queues = (onfi_mt_queue_t*)calloc(onfi_manager->num_threads, sizeof(onfi_mt_queue_t));
-    if (!onfi_manager->threads || !onfi_manager->queues) {
-        onfi_mt_cleanup(onfi_manager, 0);
-        pthread_mutex_destroy(&g_onfi_device_locks[device_index]);
-        return -1;
-    }
+    if (cfg->onfi_multithreaded) {
+        // create one worker thread + queue per flash chip
+        const uint32_t flash_nb = GET_FLASH_NB(device_index);
 
-    // create and start onfi worker threads
-    int i;
-    for (i = 0; i < onfi_manager->num_threads; i++) {
-        if (onfi_mt_queue_init(&onfi_manager->queues[i], cfg->onfi_manager_queue_size) != 0 ||
-                pthread_create(&onfi_manager->threads[i], NULL, onfi_mt_worker, &onfi_manager->queues[i]) != 0) {
-            onfi_mt_queue_destroy(&onfi_manager->queues[i]);
-            onfi_mt_cleanup(onfi_manager, i);
-            return -1;
+        onfi_manager->threads = (pthread_t*)calloc(flash_nb, sizeof(pthread_t));
+        onfi_manager->queues = (onfi_queue_t*)calloc(flash_nb, sizeof(onfi_queue_t));
+        if (!onfi_manager->threads || !onfi_manager->queues) {
+            onfi_mt_cleanup(onfi_manager, 0);
+            pthread_mutex_destroy(&g_onfi_device_locks[device_index]);
+            return ONFI_FAILURE;
+        }
+
+        // create and start onfi worker threads
+        uint32_t i;
+        for (i = 0; i < flash_nb; i++) {
+            if (onfi_mt_queue_init(&onfi_manager->queues[i], cfg->onfi_manager_queue_size) != 0 ||
+                    pthread_create(&onfi_manager->threads[i], NULL, onfi_mt_worker, &onfi_manager->queues[i]) != 0) {
+                onfi_mt_queue_destroy(&onfi_manager->queues[i]);
+                onfi_mt_cleanup(onfi_manager, i);
+                pthread_mutex_destroy(&g_onfi_device_locks[device_index]);
+                return ONFI_FAILURE;
+            }
         }
     }
 
     onfi_manager->initialized = 1;
-    return 0;
+    return ONFI_SUCCESS;
 }
 
-int ONFI_MT_TERM(uint8_t device_index)
+onfi_ret_val ONFI_TERM(uint8_t device_index)
 {
     if (device_index >= device_count)
-        return -1;
+        return ONFI_FAILURE;
 
-    onfi_mt_manager_t* onfi_manager = &g_onfi_mt_managers[device_index];
+    onfi_manager_t* onfi_manager = &g_onfi_managers[device_index];
     if (!onfi_manager->initialized) {
-        return 0;
+        return ONFI_SUCCESS;
     }
 
-    int ret = onfi_mt_cleanup(onfi_manager, onfi_manager->num_threads);
+    int ret = ONFI_SUCCESS;
+    if (onfi_manager->threads != NULL) {
+        if (onfi_mt_cleanup(onfi_manager, GET_FLASH_NB(device_index)) != 0)
+            ret = ONFI_FAILURE;
+    } else {
+        onfi_manager->initialized = 0;
+    }
+
     pthread_mutex_destroy(&g_onfi_device_locks[device_index]);
     return ret;
 }
 
-onfi_ret_val ONFI_MT_WAIT(onfi_mt_handle_t* handle)
+onfi_ret_val ONFI_WAIT(onfi_handle_t* handle)
 {
-    onfi_mt_request_t* req = (onfi_mt_request_t*)handle;
+    if (handle == NULL)
+        return ONFI_FAILURE;
+
+    onfi_request_t* req = (onfi_request_t*)handle;
     if (!req)
         return ONFI_FAILURE;
 
@@ -778,15 +850,14 @@ onfi_ret_val ONFI_MT_WAIT(onfi_mt_handle_t* handle)
     int result = req->result;
     pthread_mutex_unlock(&req->done_lock);
 
-    onfi_mt_request_destroy(req);
+    onfi_request_destroy(req);
     return result;
 }
 
-
-onfi_mt_handle_t* ONFI_MT_READ(uint8_t device_index, uint64_t row_address, uint32_t column_address,
-                                uint8_t* buffer, size_t buffer_size, size_t* o_read_bytes_amount)
+onfi_handle_t* ONFI_READ(uint8_t device_index, uint64_t row_address, uint32_t column_address,
+                         uint8_t* buffer, size_t buffer_size, size_t* o_read_bytes_amount)
 {
-    onfi_mt_request_t* req = onfi_mt_request_create(ONFI_OP_READ, device_index);
+    onfi_request_t* req = onfi_request_create(ONFI_OP_READ, device_index);
     if (!req)
         return NULL;
 
@@ -796,17 +867,13 @@ onfi_mt_handle_t* ONFI_MT_READ(uint8_t device_index, uint64_t row_address, uint3
     req->buffer_size = buffer_size;
     req->bytes_transferred = o_read_bytes_amount;
 
-    if (onfi_mt_request_submit(req) != 0) {
-        onfi_mt_request_destroy(req);
-        return NULL;
-    }
-    return (onfi_mt_handle_t*)req;
+    return onfi_request_dispatch(req);
 }
 
-onfi_mt_handle_t* ONFI_MT_PAGE_PROGRAM(uint8_t device_index, uint64_t row_address, uint32_t column_address,
-                                        const uint8_t* buffer, size_t buffer_size, size_t* o_programmed_bytes_amount)
+onfi_handle_t* ONFI_PAGE_PROGRAM(uint8_t device_index, uint64_t row_address, uint32_t column_address,
+                                 const uint8_t* buffer, size_t buffer_size, size_t* o_programmed_bytes_amount)
 {
-    onfi_mt_request_t* req = onfi_mt_request_create(ONFI_OP_PROGRAM, device_index);
+    onfi_request_t* req = onfi_request_create(ONFI_OP_PROGRAM, device_index);
     if (!req)
         return NULL;
 
@@ -816,87 +883,68 @@ onfi_mt_handle_t* ONFI_MT_PAGE_PROGRAM(uint8_t device_index, uint64_t row_addres
     req->buffer_size = buffer_size;
     req->bytes_transferred = o_programmed_bytes_amount;
 
-    if (onfi_mt_request_submit(req) != 0) {
-        onfi_mt_request_destroy(req);
-        return NULL;
-    }
-    return (onfi_mt_handle_t*)req;
+    return onfi_request_dispatch(req);
 }
 
-onfi_mt_handle_t* ONFI_MT_BLOCK_ERASE(uint8_t device_index, uint64_t row_address)
+onfi_handle_t* ONFI_BLOCK_ERASE(uint8_t device_index, uint64_t row_address)
 {
-    onfi_mt_request_t* req = onfi_mt_request_create(ONFI_OP_ERASE, device_index);
+    onfi_request_t* req = onfi_request_create(ONFI_OP_ERASE, device_index);
     if (!req)
         return NULL;
 
     req->row_address = row_address;
 
-    if (onfi_mt_request_submit(req) != 0) {
-        onfi_mt_request_destroy(req);
-        return NULL;
-    }
-    return (onfi_mt_handle_t*)req;
+    return onfi_request_dispatch(req);
 }
 
-onfi_mt_handle_t* ONFI_MT_READ_ID(uint8_t device_index, uint8_t address, uint8_t* buffer, size_t buffer_size)
+onfi_handle_t* ONFI_READ_ID(uint8_t device_index, uint32_t flash_index, uint8_t address, uint8_t* buffer, size_t buffer_size)
 {
-    onfi_mt_request_t* req = onfi_mt_request_create(ONFI_OP_READ_ID, device_index);
+    onfi_request_t* req = onfi_request_create(ONFI_OP_READ_ID, device_index);
     if (!req)
         return NULL;
 
+    req->flash_index = flash_index;
+    req->address = address;
     req->buffer = buffer;
     req->buffer_size = buffer_size;
-    req->address = address;
 
-    if (onfi_mt_request_submit(req) != 0) {
-        onfi_mt_request_destroy(req);
-        return NULL;
-    }
-    return (onfi_mt_handle_t*)req;
+    return onfi_request_dispatch(req);
 }
 
-onfi_mt_handle_t* ONFI_MT_READ_PARAMETER_PAGE(uint8_t device_index, uint8_t timing_mode, uint8_t* buffer, size_t buffer_size)
+onfi_handle_t* ONFI_READ_PARAMETER_PAGE(uint8_t device_index, uint32_t flash_index, uint8_t timing_mode, uint8_t* buffer, size_t buffer_size)
 {
-    onfi_mt_request_t* req = onfi_mt_request_create(ONFI_OP_READ_PARAMETER_PAGE, device_index);
+    onfi_request_t* req = onfi_request_create(ONFI_OP_READ_PARAMETER_PAGE, device_index);
     if (!req)
         return NULL;
 
+    req->flash_index = flash_index;
     req->buffer = buffer;
     req->buffer_size = buffer_size;
     req->timing_mode = timing_mode;
 
-    if (onfi_mt_request_submit(req) != 0) {
-        onfi_mt_request_destroy(req);
-        return NULL;
-    }
-    return (onfi_mt_handle_t*)req;
+    return onfi_request_dispatch(req);
 }
 
-onfi_mt_handle_t* ONFI_MT_READ_STATUS(uint8_t device_index, onfi_status_reg_t* status)
+onfi_handle_t* ONFI_READ_STATUS(uint8_t device_index, uint32_t flash_index, onfi_status_reg_t* status)
 {
-    onfi_mt_request_t* req = onfi_mt_request_create(ONFI_OP_READ_STATUS, device_index);
+    onfi_request_t* req = onfi_request_create(ONFI_OP_READ_STATUS, device_index);
     if (!req)
         return NULL;
 
+    req->flash_index = flash_index;
     req->buffer = (uint8_t*)status;
     req->buffer_size = sizeof(onfi_status_reg_t);
 
-    if (onfi_mt_request_submit(req) != 0) {
-        onfi_mt_request_destroy(req);
-        return NULL;
-    }
-    return (onfi_mt_handle_t*)req;
+    return onfi_request_dispatch(req);
 }
 
-onfi_mt_handle_t* ONFI_MT_RESET(uint8_t device_index)
+onfi_handle_t* ONFI_RESET(uint8_t device_index, uint32_t flash_index)
 {
-    onfi_mt_request_t* req = onfi_mt_request_create(ONFI_OP_RESET, device_index);
+    onfi_request_t* req = onfi_request_create(ONFI_OP_RESET, device_index);
     if (!req)
         return NULL;
 
-    if (onfi_mt_request_submit(req) != 0) {
-        onfi_mt_request_destroy(req);
-        return NULL;
-    }
-    return (onfi_mt_handle_t*)req;
+    req->flash_index = flash_index;
+
+    return onfi_request_dispatch(req);
 }
