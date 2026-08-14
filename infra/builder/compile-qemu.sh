@@ -14,15 +14,13 @@ case "$version" in
 	"ubuntu-14.04")
 		# Make sure we use correct branch for 14.04
 		git -C "$EVSSIM_ROOT_PATH/$EVSSIM_QEMU_FOLDER" checkout master
-		# this option is not set for qemu 11.0 branch
-		VSSIM_CONFIGURE_ARGS="--enable-vssim"
+		VSSIM_CONFIGURE_ARGS="--enable-vssim --extra-cflags='-Wno-error=unused-but-set-variable -Wno-error=deprecated-declarations -Wno-error=cpp'"
 		;;
 	"ubuntu-26.04")
 		# Use 11.0 branch for 26.04
 		echo "INFO switching qemu source tree to branch 11.0 for Ubuntu 26.04 build"
 		git -C "$EVSSIM_ROOT_PATH/$EVSSIM_QEMU_FOLDER" checkout 11.0
-		# no --enable-vssim option for 11.0 branch
-		VSSIM_CONFIGURE_ARGS=""
+		VSSIM_CONFIGURE_ARGS="--enable-werror"
 		;;
 	*)
         	echo "ERROR unsupported qemu compile version: $version"
@@ -32,10 +30,16 @@ case "$version" in
 esac
 
 # Necessary since builds interfere with each other due to artifacts
-git -C "$EVSSIM_ROOT_PATH/$EVSSIM_QEMU_FOLDER" pull --ff-only # !!!! THIS WILL FAIL FOR CHANGES IN THE QEMU BRANCH !!!!
+git -C "$EVSSIM_ROOT_PATH/$EVSSIM_QEMU_FOLDER" pull --ff-only
 git -C "$EVSSIM_ROOT_PATH/$EVSSIM_QEMU_FOLDER" reset --hard
 git -C "$EVSSIM_ROOT_PATH/$EVSSIM_QEMU_FOLDER" clean -fdx
 git -C "$EVSSIM_ROOT_PATH/$EVSSIM_QEMU_FOLDER" submodule update --init --recursive
+
+if [ "$version" = "ubuntu-26.04" ]; then
+    "$EVSSIM_ROOT_PATH/$EVSSIM_SIMULATOR_FOLDER/infra/builder/prepare-qemu-vssim.sh" \
+        "$EVSSIM_ROOT_PATH/$EVSSIM_QEMU_FOLDER" \
+        "$EVSSIM_ROOT_PATH/$EVSSIM_SIMULATOR_FOLDER/eVSSIM"
+fi
 
 # Configure qemu
 evssim_run_at_folder "$version" $EVSSIM_QEMU_FOLDER ./configure \
@@ -44,8 +48,7 @@ evssim_run_at_folder "$version" $EVSSIM_QEMU_FOLDER ./configure \
     --enable-linux-aio \
     --disable-sdl --disable-gtk \
     --enable-kvm --target-list=x86_64-softmmu \
-    $VSSIM_CONFIGURE_ARGS \
-    "--extra-cflags='-Wno-error=unused-but-set-variable -Wno-error=deprecated-declarations -Wno-error=cpp'"
+    $VSSIM_CONFIGURE_ARGS
 
 # Make
 if [ "$version" = "ubuntu-26.04" ]; then

@@ -290,7 +290,7 @@ static void get_log_files(const char *path, char **files){
  */
 static void extract_log_size(char* line,int* size,char **files, int arrsize){
     int offset;
-    char address[LOG_FILE_NAME_SIZE+strlen(".log")];
+    char address[LOG_FILE_NAME_SIZE + sizeof(".log") - 1];
 
     struct json_object *parsed;
     struct json_object *jsonv;
@@ -342,13 +342,22 @@ static int delete_fully_shipped(int *size, int arrsize, char** files, const char
     int amount = arrsize;
 
     for(i=0;i<arrsize;i++){
-        char fulladdress [strlen(path)+strlen(files[i])+7];
-        strcat(strcpy(fulladdress, path),files[i]);
-        stat(fulladdress, &st);
-        if(size[i] == st.st_size){
-            amount--;
-            remove(fulladdress);
-        }
+	size_t fulladdress_size = strlen(path) + strlen(files[i]) + 7;
+	char *fulladdress = malloc(fulladdress_size);
+
+	if (fulladdress == NULL) {
+	    return amount;
+	}
+
+	snprintf(fulladdress, fulladdress_size, "%s%s", path, files[i]);
+
+	stat(fulladdress, &st);
+	if (size[i] == st.st_size) {
+	    amount--;
+	    remove(fulladdress);
+	}
+
+	free(fulladdress);
     }
     return amount;
 }
@@ -375,7 +384,11 @@ static int delete_shipped(void){
         return amount;
     }
 
-    char *filelist[amount];
+    char **filelist = calloc(amount, sizeof(*filelist));
+
+    if (filelist == NULL) {
+        return amount;
+    }
 
     get_log_files(ELK_LOGGER_WRITER_LOGS_PATH, filelist);
 
@@ -401,12 +414,14 @@ static int delete_shipped(void){
     fp = OPEN_FROM_LOGS("log.json", "r");
 
     if (fp == NULL){
-        free(size);
-        for(i = 0; i<arrsize; i++){
-            free(filelist[i]);
-           }
-        printf("ERROR: fp %s\n", strerror(errno));
-        return amount;
+	free(size);
+	for (i = 0; i < arrsize; i++) {
+	    free(filelist[i]);
+	}
+	free(filelist);
+
+	printf("ERROR: fp %s\n", strerror(errno));
+	return amount;
     }
 
     //start reading the log from the last bit read
@@ -445,7 +460,7 @@ static int delete_shipped(void){
     for(i = 0; i<arrsize; i++){
         free(filelist[i]);
     }
-
+    free(filelist);
     free(size);
 
     return 1;
