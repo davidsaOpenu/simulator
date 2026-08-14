@@ -2941,7 +2941,7 @@ static int contig_read(struct osd_device *osd, uint64_t pid, uint64_t oid,
 				      pid, oid, readlen);
 	}
 
-	*used_outlen = len;
+	*used_outlen = readlen;
 
 	fill_ccap(&osd->ccap, NULL, USEROBJECT, pid, oid, 0);
 	return ret;
