@@ -208,29 +208,26 @@ static const struct lws_extension ws_extensions[] = {
  * A linked list of the mounts available on the server
  */
 static const struct lws_http_mount http_mount = {
-    NULL,           // pointer to the next item in the linked list (None here)
-    "/",            // mount point in URL name space
-    WWW_DIR,        // path to be mounted on
-    "index.html",   // default target
-    NULL,
-    NULL,
-    NULL,
-    NULL,
-    0,
-    0,
-    0,
-    0,
-    0,
-    0,
-    LWSMPRO_FILE,   // mount file system
-    1,              // strlen("/")
-    NULL,
-    {NULL, NULL}
+    .mount_next = NULL,
+    .mountpoint = "/",
+    .origin = WWW_DIR,
+    .def = "index.html",
+    .protocol = NULL,
+    .cgienv = NULL,
+    .extra_mimetypes = NULL,
+    .interpret = NULL,
+    .cgi_timeout = 0,
+    .cache_max_age = 0,
+    .auth_mask = 0,
+    .cache_reusable = 0,
+    .cache_revalidate = 0,
+    .cache_intermediaries = 0,
+    .origin_protocol = LWSMPRO_FILE,
+    .mountpoint_len = 1,
+    .basic_auth_login_file = NULL,
 };
 
-
 /* Wrapper methods */
-
 
 int log_server_init(uint8_t num_devices) {
 

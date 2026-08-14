@@ -81,12 +81,15 @@ configure_git_identity() {
 # input: $1 - project name
 #        $2 - fetch_cmd
 #        $3 - commit hash
+#        $4 - Gerrit target branch
 # output: N/A
 # descr: go to the project repo and perform git fetch
 fetch_ref_spec() {
     local project_name=$1
     local fetch_cmd=$2
     local commit_hash=$3
+    local target_branch=$4
+    local branch_key="${project_name}:${target_branch}"
     project_repo="${WORKSPACE}/$project_name"
 
     if [[ "$project_name" == "dnvme" || "$project_name" == "tnvme" ]]; then
@@ -97,6 +100,7 @@ fetch_ref_spec() {
     echo "FETCH CMD: $fetch_cmd"
     echo "PROJECT REPO: $project_repo"
     echo "COMMIT HASH: $commit_hash"
+    echo "TARGET BRANCH: $target_branch"
 
     pushd "$project_repo"
     echo "PWD: $(pwd)"
@@ -105,39 +109,40 @@ fetch_ref_spec() {
 
     configure_git_identity
 
-    # Ensure we're on a real branch, not detached HEAD, so any new commit
-    # (cherry-pick) lands on a ref that survives after this script exits.
-    current_branch=$(git symbolic-ref --short -q HEAD || echo "")
-    if [[ -z "$current_branch" ]]; then
-        echo "WARNING: Repo is in detached HEAD state. Attaching to a local branch before applying changes."
-
-        # Determine the branch name Jenkins checked out from (usually 'master')
-        default_branch="master"
-
-        if git show-ref --verify --quiet "refs/heads/${default_branch}"; then
-            # Local branch already exists — make sure it points at current HEAD's commit
-            # (the commit Jenkins checked out), then check it out.
-            git checkout -B "$default_branch" HEAD
-        else
-            # No local branch yet — create one tracking origin/<default_branch> at current HEAD
-            git checkout -B "$default_branch" HEAD
-            git branch --set-upstream-to="origin/${default_branch}" "$default_branch" 2>/dev/null || true
-        fi
-
-        echo "Now on branch: $(git symbolic-ref --short -q HEAD)"
-    fi
-
-    # Check if the commit is already in the current repository
-    if git cat-file -e "$commit_hash" 2>/dev/null; then
-        echo "SUCCESS - Commit $commit_hash is already present in the repository"
-        echo "   Status: ALREADY_IN_REPO - No action needed"
+    if ! git check-ref-format --branch "$target_branch" >/dev/null 2>&1; then
+        echo "ERROR: Invalid Gerrit target branch: $target_branch"
         popd
-        echo "PWD: $(pwd)"
-        echo "------------- end fetch_ref_spec ----------------"
-        return 2  # Special return code for "already in repo"
+        return 1
     fi
 
-    # Check if the commit is reachable from any branch
+    # Start each dependency project/branch from its remote target branch once.
+    # Further dependencies for the same branch are then stacked on that result.
+    if [[ -z "${prepared_dependency_branches[$branch_key]:-}" ]]; then
+        echo "Preparing dependency target branch origin/$target_branch"
+        if ! git fetch origin "$target_branch"; then
+            echo "ERROR: Could not fetch origin/$target_branch"
+            popd
+            return 1
+        fi
+        if ! git checkout -B "$target_branch" "origin/$target_branch"; then
+            echo "ERROR: Could not check out origin/$target_branch"
+            popd
+            return 1
+        fi
+        if ! git branch --set-upstream-to="origin/$target_branch" "$target_branch"; then
+            echo "ERROR: Could not set upstream for $target_branch"
+            popd
+            return 1
+        fi
+        prepared_dependency_branches[$branch_key]=1
+    elif ! git checkout "$target_branch"; then
+        echo "ERROR: Could not return to dependency branch $target_branch"
+        popd
+        return 1
+    fi
+
+    # Object presence alone is not sufficient: the dependency must be in the
+    # history of the branch that the build will use.
     if git merge-base --is-ancestor "$commit_hash" HEAD 2>/dev/null; then
         echo "SUCCESS - Commit $commit_hash is already an ancestor of HEAD"
         echo "   Status: ALREADY_IN_REPO - Commit is in history"
@@ -211,6 +216,7 @@ echo "BUILD SOURCE: $BUILD_SOURCE"
 
 # Initialize dependency results array
 declare -a dependency_results=()
+declare -A prepared_dependency_branches=()
 
 # Get commit message if triggered from Gerrit
 if [[ "$BUILD_SOURCE" == "gerrit" ]]; then
@@ -293,10 +299,11 @@ for url in $depends_on_lines; do
     change_status=""
     commit_hash=""
     refs_changes=""
+    target_branch=""
 
     # Try REST API first
     echo "Trying REST API..."
-    api_response=$(curl --noproxy "*" -s "https://${gerrit_host}/changes/${gerrit_user}%2F${project_name}~${change_num}/detail" 2>/dev/null)
+    api_response=$(curl --noproxy "*" -s "https://${gerrit_host}/changes/${gerrit_user}%2F${project_name}~${change_num}/detail?o=CURRENT_REVISION" 2>/dev/null)
 
     if [[ -n "$api_response" && "$api_response" != *"Not Found"* ]]; then
         echo "REST API successful"
@@ -317,6 +324,9 @@ for url in $depends_on_lines; do
             # Try to parse the JSON with error handling
             change_status=$(echo "$clean_response" | jq -r '.status' 2>/dev/null || echo "PARSE_ERROR")
             echo "Debug: Parsed status: '$change_status'"
+
+            target_branch=$(echo "$clean_response" | jq -r '.branch // empty' 2>/dev/null || echo "")
+            echo "Debug: Parsed target branch: '$target_branch'"
 
             # Get the revision hash
             current_revision=$(echo "$clean_response" | jq -r '.current_revision' 2>/dev/null || echo "null")
@@ -372,13 +382,14 @@ for url in $depends_on_lines; do
     # If REST API failed, try SSH
     if [[ -z "$change_status" ]]; then
         echo "REST API failed, trying SSH..."
-        ssh_result=$(ssh -p $gerrit_port $gerrit_user@$gerrit_host gerrit query --current-patch-set --format=JSON change:$change_num 2>/dev/null)
+        ssh_result=$(ssh -p $gerrit_port $gerrit_user@$gerrit_host gerrit query --current-patch-set --format=JSON change:$change_num 2>/dev/null) || true
 
         if [[ -n "$ssh_result" ]]; then
             echo "SSH successful"
             change_status=$(echo "$ssh_result" | jq -r '.status' | head -1)
             commit_hash=$(echo "$ssh_result" | jq -r '.currentPatchSet.revision' | head -1)
             refs_changes=$(echo "$ssh_result" | jq -r '.currentPatchSet.ref' | head -1)
+            target_branch=$(echo "$ssh_result" | jq -r '.branch' | head -1)
         fi
     fi
 
@@ -389,16 +400,17 @@ for url in $depends_on_lines; do
         continue
     fi
 
-    # If we have status but no commit hash, try SSH as fallback
-    if [[ -z "$commit_hash" ]]; then
-        echo "DEBUG: REST API got status but no commit hash, trying SSH fallback..."
-        ssh_result=$(ssh -p $gerrit_port $gerrit_user@$gerrit_host gerrit query --current-patch-set --format=JSON change:$change_num 2>/dev/null)
+    # If REST omitted any required change metadata, try SSH as fallback.
+    if [[ -z "$commit_hash" || -z "$refs_changes" || "$refs_changes" == "null" || -z "$target_branch" || "$target_branch" == "null" ]]; then
+        echo "DEBUG: REST API omitted required metadata, trying SSH fallback..."
+        ssh_result=$(ssh -p $gerrit_port $gerrit_user@$gerrit_host gerrit query --current-patch-set --format=JSON change:$change_num 2>/dev/null) || true
 
         if [[ -n "$ssh_result" ]]; then
             echo "SSH fallback successful"
             commit_hash=$(echo "$ssh_result" | jq -r '.currentPatchSet.revision' | head -1)
             refs_changes=$(echo "$ssh_result" | jq -r '.currentPatchSet.ref' | head -1)
-            echo "Got from SSH - Hash: $commit_hash, Ref: $refs_changes"
+            target_branch=$(echo "$ssh_result" | jq -r '.branch' | head -1)
+            echo "Got from SSH - Hash: $commit_hash, Ref: $refs_changes, Branch: $target_branch"
         fi
     fi
 
@@ -416,6 +428,13 @@ for url in $depends_on_lines; do
 
     echo "CHANGE STATUS: $change_status"
     echo "COMMIT HASH: $commit_hash"
+    echo "TARGET BRANCH: $target_branch"
+
+    if [[ -z "$target_branch" || "$target_branch" == "null" ]]; then
+        echo "ERROR: Could not determine target branch for $change_num"
+        dependency_results+=("Change $change_num - was not applied because its target branch could not be determined")
+        continue
+    fi
 
     # Dependency status
     if [[ "$change_status" == "MERGED" ]]; then
@@ -435,7 +454,7 @@ for url in $depends_on_lines; do
         # Call fetch_ref_spec and capture the result
         echo "Attempting to apply dependency..."
         set +e  # Don't exit on error for fetch_ref_spec
-        fetch_ref_spec "$project_name" "$fetch_cmd" "$commit_hash"
+        fetch_ref_spec "$project_name" "$fetch_cmd" "$commit_hash" "$target_branch"
         fetch_result=$?
         set -e  # Re-enable exit on error
 
