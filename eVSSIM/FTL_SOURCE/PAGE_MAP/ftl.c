@@ -48,7 +48,7 @@ static void _verify_onfi_device(uint8_t device_index)
 {
 	uint8_t onfi_signature[4] = {0};
 	memset(onfi_signature, 0, sizeof(onfi_signature));
-	onfi_ret_val ret = ONFI_READ_ID(device_index, ONFI_SIGNATURE_ADDR, onfi_signature, sizeof(onfi_signature));
+	onfi_ret_val ret = ONFI_WAIT(ONFI_READ_ID(device_index, 0, ONFI_SIGNATURE_ADDR, onfi_signature, sizeof(onfi_signature)));
 
 	if (ret == ONFI_FAILURE) {
 		RERR(, "failed to read ONFI ID\n");
@@ -104,6 +104,7 @@ void FTL_TERM(uint8_t device_index)
 	TERM_OBJ_STRATEGY(device_index);
 	FTL_TERM_STATS();
 	TERM_GC_MANAGER(device_index);
+	ONFI_TERM(device_index);
 	SSD_IO_TERM(device_index);
 
 	g_init_ftl[device_index] = 0;
