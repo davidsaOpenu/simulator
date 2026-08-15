@@ -271,7 +271,8 @@ ftl_ret_val _FTL_COPYBACK(uint8_t device_index, uint64_t source, uint64_t destin
 	unsigned int ret = FTL_FAILURE;
 
 	//Handle copyback delays
-	ret = SSD_PAGE_COPYBACK(device_index, source, destination, type);
+	onfi_ret_val onfi_ret = ONFI_WAIT(ONFI_PAGE_COPYBACK(device_index, source, destination, type));
+	ret = (onfi_ret == ONFI_SUCCESS) ? FTL_SUCCESS : FTL_FAILURE;
 
     // actual page swap, go korea
     /*SSD_PAGE_READ(CALC_FLASH(source), CALC_BLOCK(source), CALC_PAGE(source), 0, GC_READ);
