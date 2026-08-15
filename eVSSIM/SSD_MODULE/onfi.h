@@ -177,10 +177,10 @@ typedef struct
 typedef struct {
     onfi_status_reg_t status_reg;
     onfi_param_page_t param_page;
-} __attribute__((packed)) onfi_device_t;
+} __attribute__((packed)) onfi_flash_device_t;
 #pragma pack(pop)
 
-extern onfi_device_t *g_onfi_devices;
+extern onfi_flash_device_t **g_onfi_flash_devices;
 
 /**
  * Opaque handle returned by the async ONFI command functions.

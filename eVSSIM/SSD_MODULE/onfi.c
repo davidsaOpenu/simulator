@@ -5,7 +5,7 @@
 #include <stdlib.h>
 #include <stdbool.h>
 
-onfi_device_t *g_onfi_devices = NULL;
+onfi_flash_device_t **g_onfi_flash_devices = NULL;
 onfi_manager_t *g_onfi_managers = NULL;
 pthread_mutex_t *g_onfi_device_locks = NULL;
 
@@ -49,19 +49,19 @@ uint16_t _ONFI_CRC16(uint8_t *data, size_t data_size)
     return crc;
 }
 
-static onfi_param_page_t *get_parameter_page(uint8_t device_index)
+static onfi_param_page_t *get_parameter_page(uint8_t device_index, uint32_t flash_index)
 {
-    return &(g_onfi_devices[device_index].param_page);
+    return &(g_onfi_flash_devices[device_index][flash_index].param_page);
 }
 
-static onfi_status_reg_t *get_status_reg(uint8_t device_index)
+static onfi_status_reg_t *get_status_reg(uint8_t device_index, uint32_t flash_index)
 {
-    return &(g_onfi_devices[device_index].status_reg);
+    return &(g_onfi_flash_devices[device_index][flash_index].status_reg);
 }
 
-static void initialize_page_parameter(uint8_t device_index)
+static void initialize_page_parameter(uint8_t device_index, uint32_t flash_index)
 {
-    onfi_param_page_t *paramater_page = get_parameter_page(device_index);
+    onfi_param_page_t *paramater_page = get_parameter_page(device_index, flash_index);
     // =========== revision information and features block ===========
     // signature: "ONFI"
     paramater_page->signature[0] = 'O';
@@ -216,19 +216,22 @@ static onfi_ret_val _onfi_read(uint8_t device_index, uint64_t row_address, uint3
 
     if (row_address >= GET_TOTAL_NUMBER_OF_PAGES(device_index) || column_address >= GET_PAGE_SIZE(device_index))
     {
-        PERR("Invalid address to read (row_address = %zu, column_address = %zu)\n", (size_t)row_address, (size_t)column_address)
+        PERR("Invalid address (row_address = %zu, column_address = %zu)\n", (size_t)row_address, (size_t)column_address)
         return ONFI_FAILURE;
     }
 
+    const uint32_t flash_index = CALC_FLASH(device_index, row_address);
     const size_t amount_to_read = (buffer_size + column_address > GET_PAGE_SIZE(device_index)) ? (GET_PAGE_SIZE(device_index) - column_address) : buffer_size;
 
-    if (SSD_PAGE_READ(device_index, CALC_FLASH(device_index, row_address), CALC_BLOCK(device_index, row_address), CALC_PAGE(device_index, row_address), 0, READ) != FTL_SUCCESS)
+    if (SSD_PAGE_READ(device_index, flash_index, CALC_BLOCK(device_index, row_address), CALC_PAGE(device_index, row_address), 0, READ) != FTL_SUCCESS)
     {
         PERR("Failed reading\n")
+        _ONFI_UPDATE_STATUS_REGISTER(get_status_reg(device_index, flash_index), ONFI_FAILURE);
         return ONFI_FAILURE;
     }
 
     *o_read_bytes_amount = amount_to_read;
+    _ONFI_UPDATE_STATUS_REGISTER(get_status_reg(device_index, flash_index), ONFI_SUCCESS);
     return ONFI_SUCCESS;
 }
 
@@ -240,31 +243,32 @@ static onfi_ret_val _onfi_page_program(uint8_t device_index, uint64_t row_addres
         return ONFI_FAILURE;
     }
 
-    if (buffer == NULL || o_programmed_bytes_amount == NULL)
+    if (row_address >= GET_TOTAL_NUMBER_OF_PAGES(device_index) || column_address >= GET_PAGE_SIZE(device_index))
     {
-        PERR("Got null paramater\n")
-        _ONFI_UPDATE_STATUS_REGISTER(get_status_reg(device_index), ONFI_FAILURE);
+        PERR("Invalid address (row_address = %zu, column_address = %zu)\n", (size_t)row_address, (size_t)column_address)
         return ONFI_FAILURE;
     }
 
-    if (row_address >= GET_TOTAL_NUMBER_OF_PAGES(device_index) || column_address >= GET_PAGE_SIZE(device_index))
+    const uint32_t flash_index = CALC_FLASH(device_index, row_address);
+
+    if (buffer == NULL || o_programmed_bytes_amount == NULL)
     {
-        PERR("Invalid address to read (row_address = %zu, column_address = %zu)\n", (size_t)row_address, (size_t)column_address)
-        _ONFI_UPDATE_STATUS_REGISTER(get_status_reg(device_index), ONFI_FAILURE);
+        PERR("Got null paramater\n")
+        _ONFI_UPDATE_STATUS_REGISTER(get_status_reg(device_index, flash_index), ONFI_FAILURE);
         return ONFI_FAILURE;
     }
 
     const size_t amount_to_write = (buffer_size + column_address > GET_PAGE_SIZE(device_index)) ? (GET_PAGE_SIZE(device_index) - column_address) : buffer_size;
 
-    if (SSD_PAGE_WRITE(device_index, CALC_FLASH(device_index, row_address), CALC_BLOCK(device_index, row_address), CALC_PAGE(device_index, row_address), 0, WRITE) != FTL_SUCCESS)
+    if (SSD_PAGE_WRITE(device_index, flash_index, CALC_BLOCK(device_index, row_address), CALC_PAGE(device_index, row_address), 0, WRITE) != FTL_SUCCESS)
     {
         PERR("Failed writing\n")
-        _ONFI_UPDATE_STATUS_REGISTER(get_status_reg(device_index), ONFI_FAILURE);
+        _ONFI_UPDATE_STATUS_REGISTER(get_status_reg(device_index, flash_index), ONFI_FAILURE);
         return ONFI_FAILURE;
     }
 
     *o_programmed_bytes_amount = amount_to_write;
-    _ONFI_UPDATE_STATUS_REGISTER(get_status_reg(device_index), ONFI_SUCCESS);
+    _ONFI_UPDATE_STATUS_REGISTER(get_status_reg(device_index, flash_index), ONFI_SUCCESS);
     return ONFI_SUCCESS;
 }
 
@@ -278,26 +282,31 @@ static onfi_ret_val _onfi_block_erase(uint8_t device_index, uint64_t row_address
     if (row_address >= GET_TOTAL_NUMBER_OF_PAGES(device_index))
     {
         PERR("Invalid address to erase (row_address = %zu)\n", (size_t)row_address)
-        _ONFI_UPDATE_STATUS_REGISTER(get_status_reg(device_index), ONFI_FAILURE);
         return ONFI_FAILURE;
     }
 
     const uint64_t block_nb = CALC_BLOCK(device_index, row_address);
-    const uint64_t flash_nb = CALC_FLASH(device_index, row_address);
+    const uint32_t flash_nb = CALC_FLASH(device_index, row_address);
 
     if (SSD_BLOCK_ERASE(device_index, flash_nb, block_nb, ERASE) != FTL_SUCCESS)
     {
         PERR("Failed erasing\n")
-        _ONFI_UPDATE_STATUS_REGISTER(get_status_reg(device_index), ONFI_FAILURE);
+        _ONFI_UPDATE_STATUS_REGISTER(get_status_reg(device_index, flash_nb), ONFI_FAILURE);
         return ONFI_FAILURE;
     }
 
-    _ONFI_UPDATE_STATUS_REGISTER(get_status_reg(device_index), ONFI_SUCCESS);
+    _ONFI_UPDATE_STATUS_REGISTER(get_status_reg(device_index, flash_nb), ONFI_SUCCESS);
     return ONFI_SUCCESS;
 }
 
 static onfi_ret_val _onfi_read_id(uint8_t device_index, uint32_t flash_index, uint8_t address, uint8_t *o_buffer, size_t buffer_size)
 {
+    if (o_buffer == NULL)
+    {
+        PERR("Got null paramater\n");
+        return ONFI_FAILURE;
+    }
+
     if (device_index >= device_count) {
         PERR("Got invalid device index\n")
         return ONFI_FAILURE;
@@ -305,12 +314,6 @@ static onfi_ret_val _onfi_read_id(uint8_t device_index, uint32_t flash_index, ui
 
     if (flash_index >= GET_FLASH_NB(device_index)) {
         PERR("Got invalid flash index %u\n", flash_index)
-        return ONFI_FAILURE;
-    }
-
-    if (o_buffer == NULL)
-    {
-        PERR("Got null paramater\n");
         return ONFI_FAILURE;
     }
 
@@ -337,10 +340,12 @@ static onfi_ret_val _onfi_read_id(uint8_t device_index, uint32_t flash_index, ui
     default:
     {
         PERR("Got invalid address\n");
+        _ONFI_UPDATE_STATUS_REGISTER(get_status_reg(device_index, flash_index), ONFI_FAILURE);
         return ONFI_FAILURE;
     }
     }
 
+    _ONFI_UPDATE_STATUS_REGISTER(get_status_reg(device_index, flash_index), ONFI_SUCCESS);
     return ONFI_SUCCESS;
 }
 
@@ -366,12 +371,13 @@ static onfi_ret_val _onfi_read_parameter_page(uint8_t device_index, uint32_t fla
     while (buffer_size > 0)
     {
         size_t size = (buffer_size >= sizeof(onfi_param_page_t)) ? sizeof(onfi_param_page_t) : buffer_size;
-        memcpy(o_buffer, get_parameter_page(device_index), size);
+        memcpy(o_buffer, get_parameter_page(device_index, flash_index), size);
 
         o_buffer += size;
         buffer_size -= size;
     }
 
+    _ONFI_UPDATE_STATUS_REGISTER(get_status_reg(device_index, flash_index), ONFI_SUCCESS);
     return ONFI_SUCCESS;
 }
 
@@ -393,7 +399,7 @@ static onfi_ret_val _onfi_read_status(uint8_t device_index, uint32_t flash_index
         return ONFI_FAILURE;
     }
 
-    memcpy(o_status_register, get_status_reg(device_index), sizeof(onfi_status_reg_t));
+    memcpy(o_status_register, get_status_reg(device_index, flash_index), sizeof(onfi_status_reg_t));
     return ONFI_SUCCESS;
 }
 
@@ -409,9 +415,10 @@ static onfi_ret_val _onfi_reset(uint8_t device_index, uint32_t flash_index)
         return ONFI_FAILURE;
     }
 
-    memset(get_status_reg(device_index), 0, sizeof(onfi_status_reg_t));
-    set_ready(get_status_reg(device_index), true);
+    memset(get_status_reg(device_index, flash_index), 0, sizeof(onfi_status_reg_t));
+    set_ready(get_status_reg(device_index, flash_index), true);
 
+    _ONFI_UPDATE_STATUS_REGISTER(get_status_reg(device_index, flash_index), ONFI_SUCCESS);
     return ONFI_SUCCESS;
 }
 
@@ -770,9 +777,12 @@ onfi_ret_val ONFI_INIT(uint8_t device_index)
         return ONFI_FAILURE;
     }
 
-    initialize_page_parameter(device_index);
-    if (_onfi_reset(device_index, 0) != ONFI_SUCCESS) {
-        return ONFI_FAILURE;
+    uint32_t flash;
+    for (flash = 0; flash < GET_FLASH_NB(device_index); flash++) {
+        initialize_page_parameter(device_index, flash);
+        if (_onfi_reset(device_index, flash) != ONFI_SUCCESS) {
+            return ONFI_FAILURE;
+        }
     }
 
     onfi_manager_t* onfi_manager = &g_onfi_managers[device_index];

@@ -76,6 +76,12 @@ namespace program_compatible_test
                 EXPECT_EQ(arr[i], 0u) << name << " byte[" << i << "] not zero";
             }
         }
+
+        size_t FlashFirstPage(uint32_t flash_index)
+        {
+            SSDConf *ssd_config = base_test_get_ssd_config();
+            return flash_index * ssd_config->get_page_nb() * ssd_config->get_block_nb();
+        }
     };
 
     std::vector<SSDConf *> GetTestParams()
@@ -156,10 +162,11 @@ namespace program_compatible_test
 
         AssertCommandFails(ONFI_BLOCK_ERASE(g_device_index, ssd_config->get_pages()));
         AssertCurrentStatus(status);
-        ASSERT_EQ(status.FAIL, 1);
+        ASSERT_EQ(status.FAIL, 0);
         ASSERT_EQ(status.FAILC, 0);
 
-        AssertCommandFails(ONFI_BLOCK_ERASE(g_device_index, ssd_config->get_pages()));
+        AssertCommandFails(ONFI_PAGE_PROGRAM(g_device_index, 0, 0, NULL, 0, NULL));
+        AssertCommandFails(ONFI_PAGE_PROGRAM(g_device_index, 0, 0, NULL, 0, NULL));
         AssertCurrentStatus(status);
         ASSERT_EQ(status.FAIL, 1);
         ASSERT_EQ(status.FAILC, 1);
@@ -627,6 +634,74 @@ namespace program_compatible_test
         ASSERT_EQ(onfi_signature[2], 'F');
         ASSERT_EQ(onfi_signature[3], 'I');
         ASSERT_EQ(onfi_signature[4], 0);
+    }
+
+    /* ========== Per-flash state tests ========== */
+
+    TEST_P(OnfiCommandsTest, AllFlashesInitializedAfterInit)
+    {
+        SSDConf *ssd_config = base_test_get_ssd_config();
+
+        for (size_t flash_index = 0; flash_index < ssd_config->get_flash_nb(); ++flash_index)
+        {
+            onfi_status_reg_t status;
+            AssertCommandSuccess(ONFI_READ_STATUS(g_device_index, flash_index, &status));
+            ASSERT_EQ(status.FAIL, 0) << "flash " << flash_index << " FAIL not cleared";
+            ASSERT_EQ(status.FAILC, 0) << "flash " << flash_index << " FAILC not cleared";
+            ASSERT_EQ(status.ARDY, 1) << "flash " << flash_index << " ARDY not ready";
+            ASSERT_EQ(status.RDY, 1) << "flash " << flash_index << " RDY not ready";
+
+            onfi_param_page_t param_page;
+            AssertCommandSuccess(ONFI_READ_PARAMETER_PAGE(g_device_index, flash_index, 0, (uint8_t *)&param_page, sizeof(onfi_param_page_t)));
+            ASSERT_EQ(memcmp(param_page.signature, "ONFI", 4), 0) << "flash " << flash_index << " param page signature mismatch";
+            ASSERT_EQ(param_page.vendor_block.integrity_crc,
+                      _ONFI_CRC16((uint8_t *)&param_page, sizeof(param_page) - sizeof(param_page.vendor_block.integrity_crc)))
+                << "flash " << flash_index << " param page CRC mismatch";
+        }
+    }
+
+    TEST_P(OnfiCommandsTest, FlashOperationsDoNotAffectOtherFlashStatus)
+    {
+        SSDConf *ssd_config = base_test_get_ssd_config();
+        ASSERT_GE(ssd_config->get_flash_nb(), 2u);
+
+        // Force two consecutive failures on flash 0 only: FAIL=1, FAILC=1.
+        AssertCommandFails(ONFI_PAGE_PROGRAM(g_device_index, FlashFirstPage(0), 0, NULL, 0, NULL));
+        AssertCommandFails(ONFI_PAGE_PROGRAM(g_device_index, FlashFirstPage(0), 0, NULL, 0, NULL));
+
+        // Successful operation on flash 1. With a shared register this would
+        // have shifted flash 0's FAIL/FAILC bits; per-flash state must not.
+        uint8_t data = 0xFF;
+        size_t nprogrammed = 0;
+        AssertCommandSuccess(ONFI_PAGE_PROGRAM(g_device_index, FlashFirstPage(1), 0, &data, sizeof(data), &nprogrammed));
+
+        onfi_status_reg_t status;
+
+        AssertCommandSuccess(ONFI_READ_STATUS(g_device_index, 0, &status));
+        ASSERT_EQ(status.FAIL, 1) << "flash 0 status corrupted by flash 1 operation";
+        ASSERT_EQ(status.FAILC, 1) << "flash 0 status corrupted by flash 1 operation";
+
+        AssertCommandSuccess(ONFI_READ_STATUS(g_device_index, 1, &status));
+        ASSERT_EQ(status.FAIL, 0) << "flash 1 status not updated by its own operation";
+        ASSERT_EQ(status.FAILC, 0);
+    }
+
+    TEST_P(OnfiCommandsTest, WrongFlashIndexReturnsDifferentStatus)
+    {
+        SSDConf *ssd_config = base_test_get_ssd_config();
+        ASSERT_GE(ssd_config->get_flash_nb(), 2u);
+
+        // Make flash 0's register differ from flash 1's.
+        AssertCommandFails(ONFI_PAGE_PROGRAM(g_device_index, FlashFirstPage(0), 0, NULL, 0, NULL));
+
+        onfi_status_reg_t status0;
+        onfi_status_reg_t status1;
+
+        AssertCommandSuccess(ONFI_READ_STATUS(g_device_index, 0, &status0));
+        AssertCommandSuccess(ONFI_READ_STATUS(g_device_index, 1, &status1));
+
+        // Cross-flash indexing errors must be detectable: each flash reports its own state.
+        ASSERT_NE(status0.FAIL, status1.FAIL);
     }
 
 } // namespace
