@@ -1,6 +1,7 @@
 
 extern "C" {
     #include "onfi.h"
+    #include "common.h"
 };
 
 #include <gtest/gtest.h>
@@ -39,5 +40,9 @@ namespace onfi_ops_test
         _ONFI_UPDATE_STATUS_REGISTER(&status, ONFI_SUCCESS);
         ASSERT_EQ(status.FAIL, 0);
         ASSERT_EQ(status.FAILC, 0);
+    }
+
+    TEST_F(OnfiOpsTest, PageCopybackInvalidDeviceIndexFails) {
+        ASSERT_EQ(ONFI_PAGE_COPYBACK(INVALID_DEVICE_INDEX, 0, 0, 0), nullptr);
     }
 };
