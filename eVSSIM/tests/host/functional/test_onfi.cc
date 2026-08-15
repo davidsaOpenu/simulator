@@ -174,6 +174,15 @@ namespace onfi_functional_test
         ASSERT_NE(h, nullptr);
         ASSERT_EQ(ONFI_WAIT(h), ONFI_SUCCESS);
 
+        // PAGE_COPYBACK
+        h = ONFI_PAGE_COPYBACK(g_device_index, get_flash_first_page_address(0), get_flash_first_page_address(0) + 1, COPYBACK);
+        ASSERT_NE(h, nullptr);
+        ASSERT_EQ(ONFI_WAIT(h), ONFI_SUCCESS);
+
+        h = ONFI_READ(g_device_index, get_flash_first_page_address(0) + 1, 0, rbuf, PAGE_SIZE, &xfer);
+        ASSERT_NE(h, nullptr);
+        ASSERT_EQ(ONFI_WAIT(h), ONFI_SUCCESS);
+
         // BLOCK_ERASE
         h = ONFI_BLOCK_ERASE(g_device_index, get_flash_first_page_address(0));
         ASSERT_NE(h, nullptr);
@@ -233,7 +242,8 @@ namespace onfi_functional_test
             fill_with_flash_index(prog_data[flash_index], flash_index, PAGE_SIZE);
 
         const int total_pages = FLASH_NB * OPS_PER_FLASH;
-        uint8_t* read_data = new uint8_t[(size_t)total_pages * PAGE_SIZE];
+        const int copyback_pages = FLASH_NB * PAGE_NB;
+        uint8_t* read_data = new uint8_t[(size_t)(total_pages + copyback_pages) * PAGE_SIZE];
         const int num_blocks_per_flash = blocks_per_flash();
 
         size_t programmed_bytes[FLASH_NB][OPS_PER_FLASH] = {0};
@@ -268,6 +278,37 @@ namespace onfi_functional_test
         for (int i = 0; i < num_handles; i++) {
             ASSERT_NE(read_handles[i], nullptr);
             EXPECT_EQ(ONFI_WAIT(read_handles[i]), ONFI_SUCCESS);
+        }
+
+        // Copyback the first PAGE_NB pages of each flash into the next block
+        // of the same flash (same plane) and read the copied pages back.
+        onfi_handle_t* copyback_handles[FLASH_NB * PAGE_NB];
+        const int num_copybacks = FLASH_NB * PAGE_NB;
+        num_handles = 0;
+        for (int flash_index = 0; flash_index < FLASH_NB; flash_index++) {
+            uint64_t base = get_flash_first_page_address(flash_index);
+            for (int page = 0; page < PAGE_NB; page++) {
+                copyback_handles[num_handles++] = ONFI_PAGE_COPYBACK(g_device_index, base + page, base + page + PAGE_NB, COPYBACK);
+            }
+        }
+        for (int i = 0; i < num_handles; i++) {
+            ASSERT_NE(copyback_handles[i], nullptr);
+            EXPECT_EQ(ONFI_WAIT(copyback_handles[i]), ONFI_SUCCESS);
+        }
+
+        onfi_handle_t* copy_read_handles[num_copybacks];
+        num_handles = 0;
+        for (int flash_index = 0; flash_index < FLASH_NB; flash_index++) {
+            uint64_t base = get_flash_first_page_address(flash_index);
+            for (int page = 0; page < PAGE_NB; page++) {
+                uint8_t* buf = read_data + ((size_t)(total_pages + flash_index * PAGE_NB + page) * PAGE_SIZE);
+                copy_read_handles[num_handles++] = ONFI_READ(g_device_index, base + page + PAGE_NB, 0, buf,
+                    PAGE_SIZE, &read_bytes[flash_index][page]);
+            }
+        }
+        for (int i = 0; i < num_handles; i++) {
+            ASSERT_NE(copy_read_handles[i], nullptr);
+            EXPECT_EQ(ONFI_WAIT(copy_read_handles[i]), ONFI_SUCCESS);
         }
 
         // Erase all blocks
@@ -434,6 +475,21 @@ namespace onfi_functional_test
                 for (int page_index = 0; page_index < MULTI_MAIN_THREADS_NUM_PAGES_PER_BLOCK; page_index++) {
                     uint64_t addr = block_start + page_index;
                     onfi_handle_t* h = ONFI_READ(g_device_index, addr, 0, rbuf, PAGE_SIZE, &xfer);
+                    if (!h || ONFI_WAIT(h) != ONFI_SUCCESS) {
+                        *worker_args->errors = 1;
+                        return NULL;
+                    }
+                }
+
+                for (int page_index = 0; page_index < MULTI_MAIN_THREADS_NUM_PAGES_PER_BLOCK; page_index++) {
+                    uint64_t src_addr = block_start + page_index;
+                    uint64_t dst_addr = block_start + MULTI_MAIN_THREADS_NUM_PAGES_PER_BLOCK + page_index;
+                    onfi_handle_t* h = ONFI_PAGE_COPYBACK(g_device_index, src_addr, dst_addr, COPYBACK);
+                    if (!h || ONFI_WAIT(h) != ONFI_SUCCESS) {
+                        *worker_args->errors = 1;
+                        return NULL;
+                    }
+                    h = ONFI_READ(g_device_index, dst_addr, 0, rbuf, PAGE_SIZE, &xfer);
                     if (!h || ONFI_WAIT(h) != ONFI_SUCCESS) {
                         *worker_args->errors = 1;
                         return NULL;
