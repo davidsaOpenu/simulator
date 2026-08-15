@@ -197,9 +197,15 @@ void INIT_SSD_CONFIG(void)
     if (NULL == g_init_ftl)
         RERR(, "g_init_ftl allocation failed!\n");
 
-    g_onfi_devices = (onfi_device_t*)calloc(sizeof(onfi_device_t) * device_count, 1);
-    if (NULL == g_onfi_devices)
-        RERR(, "g_onfi_devices allocation failed!\n");
+    g_onfi_flash_devices = (onfi_flash_device_t**)calloc(sizeof(onfi_flash_device_t*) * device_count, 1);
+    if (NULL == g_onfi_flash_devices)
+        RERR(, "g_onfi_flash_devices allocation failed!\n");
+
+    for (i = 0; i < device_count; i++) {
+        g_onfi_flash_devices[i] = (onfi_flash_device_t*)calloc(sizeof(onfi_flash_device_t) * devices[i].flash_nb, 1);
+        if (NULL == g_onfi_flash_devices[i])
+            RERR(, "g_onfi_flash_devices[%u] allocation failed!\n", i);
+    }
 
     g_onfi_managers = (onfi_manager_t*)calloc(sizeof(onfi_manager_t) * device_count, 1);
     if (NULL == g_onfi_managers)
@@ -263,8 +269,16 @@ void TERM_SSD_CONFIG(void)
     free(g_init_ftl);
     g_init_ftl = NULL;
 
-    free(g_onfi_devices);
-    g_onfi_devices = NULL;
+    if (g_onfi_flash_devices != NULL) {
+        uint8_t dev;
+        for (dev = 0; dev < device_count; dev++) {
+            free(g_onfi_flash_devices[dev]);
+            g_onfi_flash_devices[dev] = NULL;
+        }
+
+        free(g_onfi_flash_devices);
+        g_onfi_flash_devices = NULL;
+    }
 
     free(g_onfi_managers);
     g_onfi_managers = NULL;
