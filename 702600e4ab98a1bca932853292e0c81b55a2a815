@@ -180,6 +180,30 @@
     {
       "unresolved": true,
       "key": {
+        "uuid": "d9d5c821_35a6521b",
+        "filename": "infra/builder/run-ci.sh",
+        "patchSetId": 21
+      },
+      "lineNbr": 21,
+      "author": {
+        "id": 1007990
+      },
+      "writtenOn": "2026-08-18T11:07:43Z",
+      "side": 1,
+      "message": "+1 on merging the schemes — that\u0027s really the core fix.\nOn the naming itself, I\u0027d vote is ubuntu-26.04 / ubuntu-14.04, as your analysis suggests",
+      "parentUuid": "f52d242b_68038205",
+      "range": {
+        "startLine": 21,
+        "startChar": 56,
+        "endLine": 21,
+        "endChar": 62
+      },
+      "revId": "702600e4ab98a1bca932853292e0c81b55a2a815",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
+    },
+    {
+      "unresolved": true,
+      "key": {
         "uuid": "bc779933_2c1bf45e",
         "filename": "infra/builder/run-ci.sh",
         "patchSetId": 21
