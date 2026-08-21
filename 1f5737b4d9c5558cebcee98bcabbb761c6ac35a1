@@ -81,6 +81,29 @@
     {
       "unresolved": true,
       "key": {
+        "uuid": "fb438241_6d57e9c7",
+        "filename": "infra/builder/versions/containers/ubuntu-26.04/Dockerfile",
+        "patchSetId": 22
+      },
+      "lineNbr": 50,
+      "author": {
+        "id": 1007990
+      },
+      "writtenOn": "2026-08-21T05:49:59Z",
+      "side": 1,
+      "message": "Is there a way to avoid risky --allow-remove-essential?",
+      "range": {
+        "startLine": 50,
+        "startChar": 64,
+        "endLine": 50,
+        "endChar": 70
+      },
+      "revId": "1f5737b4d9c5558cebcee98bcabbb761c6ac35a1",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
+    },
+    {
+      "unresolved": true,
+      "key": {
         "uuid": "70961a44_96b97881",
         "filename": "infra/builder/versions/containers/ubuntu-26.04/Dockerfile",
         "patchSetId": 22
