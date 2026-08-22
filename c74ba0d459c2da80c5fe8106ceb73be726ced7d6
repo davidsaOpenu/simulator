@@ -86,6 +86,24 @@
       "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "531a6362_d3bb9772",
+        "filename": "eVSSIM/FTL_SOURCE/PERF_MODULE/ftl_perf_manager.c",
+        "patchSetId": 1
+      },
+      "lineNbr": 345,
+      "author": {
+        "id": 1039542
+      },
+      "writtenOn": "2026-08-22T11:06:37Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "2474a7cb_dcf00bbf",
+      "revId": "c74ba0d459c2da80c5fe8106ceb73be726ced7d6",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "8c3cc14e_a8908624",
@@ -138,6 +156,24 @@
       "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "448d682d_9eb9b9e6",
+        "filename": "eVSSIM/tests/guest/ext4/test_ext4format.py",
+        "patchSetId": 1
+      },
+      "lineNbr": 16,
+      "author": {
+        "id": 1039542
+      },
+      "writtenOn": "2026-08-22T11:06:37Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "394fe6d5_0a7a424b",
+      "revId": "c74ba0d459c2da80c5fe8106ceb73be726ced7d6",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "d6d10ed8_5a28ec85",
@@ -151,6 +187,24 @@
       "writtenOn": "2026-06-27T15:02:58Z",
       "side": 1,
       "message": "With SECTOR_SIZE\u003d1 and PAGE_SIZE\u003d4096, length\u003d16 is 16 bytes - a sub-page write, not a multi-page write. The variable name multi_page_write and the test name ReadUnwrittenPageThenMultiPageWrite are misleading. Either rename to match what is actually happening, or set length to 16 * base_test_get_ssd_config()-\u003eget_page_size() to make the multi-page intent real.",
+      "revId": "c74ba0d459c2da80c5fe8106ceb73be726ced7d6",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "0c207e91_d2d9b375",
+        "filename": "eVSSIM/tests/host/simulation/sector_tests.cc",
+        "patchSetId": 1
+      },
+      "lineNbr": 68,
+      "author": {
+        "id": 1039542
+      },
+      "writtenOn": "2026-08-22T11:06:37Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "d6d10ed8_5a28ec85",
       "revId": "c74ba0d459c2da80c5fe8106ceb73be726ced7d6",
       "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
     }
