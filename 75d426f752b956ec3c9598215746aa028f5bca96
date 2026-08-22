@@ -84,6 +84,24 @@
       "message": "I think we can now fold this code into ABORT_IO_REQUEST as it is its\u0027 only caller and it\u0027s a short segment of code.",
       "revId": "75d426f752b956ec3c9598215746aa028f5bca96",
       "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "f2f7a69c_5082beba",
+        "filename": "eVSSIM/FTL_SOURCE/PERF_MODULE/ftl_perf_manager.c",
+        "patchSetId": 3
+      },
+      "lineNbr": 237,
+      "author": {
+        "id": 1039489
+      },
+      "writtenOn": "2026-08-22T13:44:03Z",
+      "side": 1,
+      "message": "Marked as resolved.",
+      "parentUuid": "47bef493_4a793a13",
+      "revId": "75d426f752b956ec3c9598215746aa028f5bca96",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
     }
   ]
 }
