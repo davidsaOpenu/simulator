@@ -54,3 +54,8 @@ else
     echo "The magic number is invalid. It is 0x$magic_number instead of 0x5df5."
     exit 1
 fi
+
+echo "> Running write round-trip test..."
+export MOUNT_POINT
+export EXOFS_PID=$PID
+sudo -E bash /home/esd/exofs/test_write_roundtrip.sh
