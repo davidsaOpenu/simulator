@@ -144,6 +144,24 @@
       "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "2f4d52c3_ab1c499d",
+        "filename": "infra/builder/docker-test-guest.sh",
+        "patchSetId": 22
+      },
+      "lineNbr": 9,
+      "author": {
+        "id": 1039371
+      },
+      "writtenOn": "2026-08-24T11:32:05Z",
+      "side": 1,
+      "message": "Done, renamed to `EVSSIM_GUEST_HOME_PATH` and removed `home_path`.",
+      "parentUuid": "8a994788_b03fcb83",
+      "revId": "1f5737b4d9c5558cebcee98bcabbb761c6ac35a1",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "08990897_f5d31a84",
