@@ -66,6 +66,30 @@
       "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "3343c00e_89d4c4d3",
+        "filename": "infra/builder/bash-completions.sh",
+        "patchSetId": 22
+      },
+      "lineNbr": 7,
+      "author": {
+        "id": 1007990
+      },
+      "writtenOn": "2026-08-24T07:30:08Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "cfb37199_36ce9213",
+      "range": {
+        "startLine": 7,
+        "startChar": 26,
+        "endLine": 7,
+        "endChar": 34
+      },
+      "revId": "1f5737b4d9c5558cebcee98bcabbb761c6ac35a1",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "1ddc7ede_1661c724",
@@ -98,6 +122,24 @@
       "side": 1,
       "message": "This doesn\u0027t answer the question, if `EVSSIM_GUEST_ROOT_PATH` is wrong/errornous, this will just add to more wrong behaviour.\n\nThe value of \"EVSSIM_GUEST_ROOT_PATH\" does not represent the name(it has nothing to do with root??), and I\u0027m not sure what it\u0027s *supposed* to be. Until I\u0027m sure what `EVSSIM_GUEST_ROOT_PATH` was/is supposed to be, I don\u0027t want to replace `home_path` with a potentially wrong variable, hence the confusion comment, we need to find what `EVSSIM_GUEST_ROOT_PATH` is supposed to be first.",
       "parentUuid": "1ddc7ede_1661c724",
+      "revId": "1f5737b4d9c5558cebcee98bcabbb761c6ac35a1",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "8a994788_b03fcb83",
+        "filename": "infra/builder/docker-test-guest.sh",
+        "patchSetId": 22
+      },
+      "lineNbr": 9,
+      "author": {
+        "id": 1007990
+      },
+      "writtenOn": "2026-08-24T07:30:08Z",
+      "side": 1,
+      "message": "$ grep EVSSIM_GUEST_ROOT_PATH * -rn \ninfra/builder/builder.sh:123:    evssim_run \"sudo mkdir -p $mount_point \u0026\u0026 sudo mount -o loop $image_path $mount_point \u0026\u0026 cd $mount_point/$EVSSIM_GUEST_ROOT_PATH \u0026\u0026 bash -c \\\"$@\\\"\"\ninfra/builder/env.sh:78:export EVSSIM_GUEST_ROOT_PATH\u003d/home/$EVSSIM_QEMU_UBUNTU_USERNAME\n\n\nGiven that, home_path\u003d\"/home/$EVSSIM_QEMU_UBUNTU_USERNAME\" in docker-test-guest.sh is a genuine duplicate of $EVSSIM_GUEST_ROOT_PATH\n\nLet\u0027s change the name of the  EVSSIM_GUEST_ROOT_PATH variable to EVSSIM_GUEST_HOMEDIR_PATH or similar, if you like (and let\u0027s replace home_path)",
+      "parentUuid": "da035aa1_d8eb082d",
       "revId": "1f5737b4d9c5558cebcee98bcabbb761c6ac35a1",
       "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
     },
@@ -174,6 +216,24 @@
       "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "4eb2ebe2_732a0463",
+        "filename": "infra/builder/env.sh",
+        "patchSetId": 22
+      },
+      "lineNbr": 47,
+      "author": {
+        "id": 1007990
+      },
+      "writtenOn": "2026-08-24T07:30:08Z",
+      "side": 1,
+      "message": "Agreed, let\u0027s remove it.",
+      "parentUuid": "a5eee85d_c82bbc67",
+      "revId": "1f5737b4d9c5558cebcee98bcabbb761c6ac35a1",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "fb438241_6d57e9c7",
@@ -211,6 +271,30 @@
       "side": 1,
       "message": "(Was answered in meeting, summarizing here just to keep it \"on paper\")\nBecause we need to replace the uutils coreutils with the original GNU coreutils, and coreutils are essential packages, manipulating or replacing one coreutils with another requires `--allow-remove-essential`.\nHere it is safe because we are removing one coreutils base and installing another coreutils base, if we were just removing coreutils **without** installing a different coreutils, it would be a dangerous operation (which is why it requires a dedicated \"I am aware this can break my system\" flag)\n\nWe need the original GNU coreutils because the uutils coreutils (sudo especially) don\u0027t work in evssim infrastructure, some things just break and CI fails.",
       "parentUuid": "fb438241_6d57e9c7",
+      "range": {
+        "startLine": 50,
+        "startChar": 64,
+        "endLine": 50,
+        "endChar": 70
+      },
+      "revId": "1f5737b4d9c5558cebcee98bcabbb761c6ac35a1",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "4c4b7133_135bd6b0",
+        "filename": "infra/builder/versions/containers/ubuntu-26.04/Dockerfile",
+        "patchSetId": 22
+      },
+      "lineNbr": 50,
+      "author": {
+        "id": 1007990
+      },
+      "writtenOn": "2026-08-24T07:30:08Z",
+      "side": 1,
+      "message": "Thanks for the summary",
+      "parentUuid": "b7d1c6ab_1e48ba55",
       "range": {
         "startLine": 50,
         "startChar": 64,
