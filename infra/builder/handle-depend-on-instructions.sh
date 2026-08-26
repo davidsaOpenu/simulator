@@ -105,6 +105,28 @@ fetch_ref_spec() {
 
     configure_git_identity
 
+    # Ensure we're on a real branch, not detached HEAD, so any new commit
+    # (cherry-pick) lands on a ref that survives after this script exits.
+    current_branch=$(git symbolic-ref --short -q HEAD || echo "")
+    if [[ -z "$current_branch" ]]; then
+        echo "WARNING: Repo is in detached HEAD state. Attaching to a local branch before applying changes."
+
+        # Determine the branch name Jenkins checked out from (usually 'master')
+        default_branch="master"
+
+        if git show-ref --verify --quiet "refs/heads/${default_branch}"; then
+            # Local branch already exists — make sure it points at current HEAD's commit
+            # (the commit Jenkins checked out), then check it out.
+            git checkout -B "$default_branch" HEAD
+        else
+            # No local branch yet — create one tracking origin/<default_branch> at current HEAD
+            git checkout -B "$default_branch" HEAD
+            git branch --set-upstream-to="origin/${default_branch}" "$default_branch" 2>/dev/null || true
+        fi
+
+        echo "Now on branch: $(git symbolic-ref --short -q HEAD)"
+    fi
+
     # Check if the commit is already in the current repository
     if git cat-file -e "$commit_hash" 2>/dev/null; then
         echo "SUCCESS - Commit $commit_hash is already present in the repository"
