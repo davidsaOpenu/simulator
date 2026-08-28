@@ -315,10 +315,11 @@ namespace ssd_io_emulator_tests {
             logical_write_count += rt_log_stats[g_device_index][i].logical_write_count;
         }
 
-        ASSERT_EQ(ssds_manager[g_device_index].ssd.physical_page_writes, physical_page_writes);
-        ASSERT_EQ(ssds_manager[g_device_index].ssd.current_stats->write_count, physical_page_writes);
+        SSDStatistics* current_stats = __atomic_load_n(&ssds_manager[g_device_index].ssd.current_stats, __ATOMIC_ACQUIRE);
+        ASSERT_EQ(__atomic_load_n(&ssds_manager[g_device_index].ssd.physical_page_writes, __ATOMIC_RELAXED), physical_page_writes);
+        ASSERT_EQ(current_stats->write_count, physical_page_writes);
 
-        ASSERT_EQ(ssds_manager[g_device_index].ssd.logical_page_writes, logical_page_writes);
+        ASSERT_EQ(__atomic_load_n(&ssds_manager[g_device_index].ssd.logical_page_writes, __ATOMIC_RELAXED), logical_page_writes);
         ASSERT_EQ(logical_write_count, logical_page_writes);
     }
 
@@ -350,10 +351,11 @@ namespace ssd_io_emulator_tests {
             logical_write_count += rt_log_stats[g_device_index][i].logical_write_count;
         }
 
-        ASSERT_EQ(physical_page_writes, ssds_manager[g_device_index].ssd.physical_page_writes);
-        ASSERT_EQ(physical_page_writes, ssds_manager[g_device_index].ssd.current_stats->write_count);
+        SSDStatistics* current_stats = __atomic_load_n(&ssds_manager[g_device_index].ssd.current_stats, __ATOMIC_ACQUIRE);
+        ASSERT_EQ(physical_page_writes, __atomic_load_n(&ssds_manager[g_device_index].ssd.physical_page_writes, __ATOMIC_RELAXED));
+        ASSERT_EQ(physical_page_writes, current_stats->write_count);
 
-        ASSERT_EQ(ssds_manager[g_device_index].ssd.logical_page_writes, logical_page_writes);
+        ASSERT_EQ(__atomic_load_n(&ssds_manager[g_device_index].ssd.logical_page_writes, __ATOMIC_RELAXED), logical_page_writes);
         ASSERT_EQ(logical_write_count, logical_page_writes);
     }
 
@@ -384,8 +386,9 @@ namespace ssd_io_emulator_tests {
 
         MONITOR_SYNC_DELAY(expected_write_duration + expected_read_duration);
 
-        ASSERT_EQ(expected_rw, ssds_manager[g_device_index].ssd.current_stats->write_count);
-        ASSERT_EQ(expected_rw, ssds_manager[g_device_index].ssd.current_stats->read_count);
+        SSDStatistics* current_stats = __atomic_load_n(&ssds_manager[g_device_index].ssd.current_stats, __ATOMIC_ACQUIRE);
+        ASSERT_EQ(expected_rw, current_stats->write_count);
+        ASSERT_EQ(expected_rw, current_stats->read_count);
 
     }
 
@@ -423,8 +426,9 @@ namespace ssd_io_emulator_tests {
 
         MONITOR_SYNC_DELAY(expected_write_duration + expected_read_duration);
 
-        ASSERT_EQ(expected_rw, ssds_manager[g_device_index].ssd.current_stats->write_count);
-        ASSERT_EQ(expected_rw, ssds_manager[g_device_index].ssd.current_stats->read_count);
+        SSDStatistics* current_stats = __atomic_load_n(&ssds_manager[g_device_index].ssd.current_stats, __ATOMIC_ACQUIRE);
+        ASSERT_EQ(expected_rw, current_stats->write_count);
+        ASSERT_EQ(expected_rw, current_stats->read_count);
 
     }
 
@@ -453,10 +457,11 @@ namespace ssd_io_emulator_tests {
 
             //at most one block that wasn't cleared by GC algorithem
             double error_util = (double)(ssd_config->get_pages_per_block()) / (ssd_config->get_page_nb() * ssd_config->get_block_nb() * ssd_config->get_flash_nb());
-            ASSERT_NEAR(0.8, ssds_manager[g_device_index].ssd.current_stats->utilization, error_util); // 25% over provitioning = 80% full
+            SSDStatistics* current_stats = __atomic_load_n(&ssds_manager[g_device_index].ssd.current_stats, __ATOMIC_ACQUIRE);
+            ASSERT_NEAR(0.8, current_stats->utilization, error_util); // 25% over provitioning = 80% full
 
-            ASSERT_EQ(page_x_flash * (x + 1), ssds_manager[g_device_index].ssd.current_stats->logical_write_count);
-            ASSERT_LE(page_x_flash * (x + 1), ssds_manager[g_device_index].ssd.current_stats->write_count);
+            ASSERT_EQ(page_x_flash * (x + 1), current_stats->logical_write_count);
+            ASSERT_LE(page_x_flash * (x + 1), current_stats->write_count);
         }
 
         int expected_write_duration = (devices[g_device_index].channel_switch_delay_w + devices[g_device_index].reg_write_delay + devices[g_device_index].cell_program_delay) * page_x_flash * 2;
@@ -464,12 +469,13 @@ namespace ssd_io_emulator_tests {
         MONITOR_SYNC_DELAY(expected_write_duration);
 
         // Assert w.a. is greater then 1
-        ASSERT_GE(page_x_flash, ssds_manager[g_device_index].ssd.current_stats->garbage_collection_count);
+        SSDStatistics* current_stats = __atomic_load_n(&ssds_manager[g_device_index].ssd.current_stats, __ATOMIC_ACQUIRE);
+        ASSERT_GE(page_x_flash, current_stats->garbage_collection_count);
 
         //write amp = 1 because we work with over-provitioning and write sequentionally, on the second pass
         //we re-allocate the first block, when we get to the second block, there is now a free block that can be used
         //for re-allocating the second block
-        ASSERT_LE(expected_write_amplification, ssds_manager[g_device_index].ssd.current_stats->write_amplification);
+        ASSERT_LE(expected_write_amplification, current_stats->write_amplification);
     }
 
 } //namespace
