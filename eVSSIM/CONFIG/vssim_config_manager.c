@@ -490,6 +490,20 @@ uint32_t GET_NAMESPACE_COUNT(uint8_t device_index){
     return count;
 }
 
+// Get the configured size of a namespace within a device, as the raw SIZE
+// value from ssd.conf's [nsXX] section -- no unit conversion is performed.
+// Unit is caller-defined and not currently consistent across the codebase:
+// some callers treat it as bytes (e.g. validate_namespace_capacity() sums it
+// against a byte-valued disk capacity), while ssd_conf_tests.cc's
+// ParseBasicConfigValues test configures it as a block count instead. Callers
+// must confirm which unit their ssd.conf uses; this accessor does not decide.
+uint64_t GET_NAMESPACE_SIZE(uint8_t device_index, uint32_t ns_index){
+    if (devices == NULL || ns_index >= MAX_NUMBER_OF_NAMESPACES) {
+        return 0;
+    }
+    return devices[device_index].namespaces_size[ns_index];
+}
+
 bool validate_namespace_capacity(ssd_config_t *device) {
     uint64_t disk_bytes = (uint64_t)device->page_size * device->page_nb
                           * device->block_nb * device->flash_nb;

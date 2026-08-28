@@ -340,6 +340,40 @@ TEST_F(SsdConfTest, NamespaceCountIsPerDevice) {
     EXPECT_EQ(2u, GET_NAMESPACE_COUNT(1));
 }
 
+/* =========================================================================
+ * 2c. GET_NAMESPACE_SIZE() accessor tests
+ *
+ * GET_NAMESPACE_SIZE() returns the raw configured SIZE with no unit
+ * conversion (see the accessor's comment in vssim_config_manager.c) -- these
+ * tests deliberately check it against the raw value written to ssd.conf,
+ * not against a byte- or block-count interpretation of it.
+ * ========================================================================= */
+
+TEST_F(SsdConfTest, NamespaceSizeMatchesConfiguredValue) {
+    WriteConf(device_header(1) + ns_section(1, TPL_NS_SIZE));
+    INIT_SSD_CONFIG();
+    ASSERT_EQ(1, device_count);
+    EXPECT_EQ(TPL_NS_SIZE, GET_NAMESPACE_SIZE(0, 0));
+}
+
+TEST_F(SsdConfTest, NamespaceSizeDistinguishesNamespaces) {
+    uint64_t first_size  = TPL_NS_SIZE;
+    uint64_t second_size = TPL_NS_SIZE / 2;
+    WriteConf(device_header(1) + ns_section(1, first_size) +
+              ns_section(2, second_size, true));
+    INIT_SSD_CONFIG();
+    ASSERT_EQ(1, device_count);
+    EXPECT_EQ(first_size,  GET_NAMESPACE_SIZE(0, 0));
+    EXPECT_EQ(second_size, GET_NAMESPACE_SIZE(0, 1));
+}
+
+TEST_F(SsdConfTest, NamespaceSizeOutOfRangeIndexReturnsZero) {
+    WriteConf(device_header(1) + ns_section(1, TPL_NS_SIZE));
+    INIT_SSD_CONFIG();
+    ASSERT_EQ(1, device_count);
+    EXPECT_EQ(0u, GET_NAMESPACE_SIZE(0, MAX_NUMBER_OF_NAMESPACES));
+}
+
 /* ---------------------------------------------------------------------------
  * ONFI manager-threads / config-field tests (SSDConfigTest, BaseTest-based).
  * Complements the [nsXX] parsing + capacity validation tests above.
