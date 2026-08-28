@@ -29,6 +29,10 @@ cd "$WS"
 
 log "Copying image from /home/davidsa/public_html/$IMAGE_NAME to workspace..."
 cp -f "/home/davidsa/public_html/$IMAGE_NAME" "$WS/"
+# the logs folder shipped below outgrows the stock image, and an Elasticsearch
+# node over its disk watermark cannot allocate .security-7, so the cluster comes
+# up red and the built-in user passwords never get set
+qemu-img resize "$WS/$IMAGE_NAME" +20G
 log "Image ready at: $WS/$IMAGE_NAME"
 
 # ================== PORT SELECTION ==================
@@ -119,6 +123,13 @@ echo "==================== PODMAN OUTPUT ===================="
 ssh -o StrictHostKeyChecking=no -p "$free_tcp_port" elk@localhost "podman run hello-world" \
     || echo "Podman command failed"
 echo "======================= END OUTPUT ====================="
+
+# ================== DISK REPORT ==================
+
+# the ELK images and the shipped logs both land here; a node over the Elasticsearch
+# disk watermark cannot allocate .security-7 and the cluster comes up red
+log "Disk state before starting ELK:"
+ssh -o StrictHostKeyChecking=no -p "$free_tcp_port" elk@localhost "df -h; lsblk" || true
 
 # ================== START ELK ==================
 

@@ -65,7 +65,10 @@ namespace program_compatible_test
 
     std::vector<SSDConf *> GetTestParams()
     {
-        std::vector<SSDConf *> ssd_configs;
+        // leaked on purpose; owns the params for the process (see base_emulator_tests.h)
+        static std::vector<SSDConf *>& ssd_configs = *new std::vector<SSDConf *>;
+        if (!ssd_configs.empty())
+            return ssd_configs;
         ssd_configs.push_back(new SSDConf(pow(2, 12), 10, 1, 8, pow(2, 12), 4));
         ssd_configs.push_back(new SSDConf(pow(2, 10), 8, 2, 8, pow(2, 12), 4));
         return ssd_configs;

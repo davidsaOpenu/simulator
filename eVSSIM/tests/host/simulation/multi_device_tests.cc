@@ -53,7 +53,10 @@ namespace multi_device_tests {
     };
 
     std::vector<SSDConf*> GetTestParams() {
-        std::vector<SSDConf*> ssd_configs;
+        // leaked on purpose; owns the params for the process (see base_emulator_tests.h)
+        static std::vector<SSDConf*>& ssd_configs = *new std::vector<SSDConf*>;
+        if (!ssd_configs.empty())
+            return ssd_configs;
 
         ssd_configs.push_back(new SSDConf(1));
         return ssd_configs;
@@ -264,7 +267,10 @@ namespace multi_device_tests {
     };
 
     std::vector<SSDConf*> GetObjectTestParams() {
-        std::vector<SSDConf*> ssd_configs;
+        // leaked on purpose; owns the params for the process (see base_emulator_tests.h)
+        static std::vector<SSDConf*>& ssd_configs = *new std::vector<SSDConf*>;
+        if (!ssd_configs.empty())
+            return ssd_configs;
 
         size_t page_size = 4096;
         size_t sector_size = 1;
@@ -570,7 +576,10 @@ namespace multi_device_tests {
     };
 
     std::vector<SSDConf*> GetMixedTestParams() {
-        std::vector<SSDConf*> ssd_configs;
+        // leaked on purpose; owns the params for the process (see base_emulator_tests.h)
+        static std::vector<SSDConf*>& ssd_configs = *new std::vector<SSDConf*>;
+        if (!ssd_configs.empty())
+            return ssd_configs;
 
         ssd_configs.push_back(new SSDConf(1));
         return ssd_configs;
