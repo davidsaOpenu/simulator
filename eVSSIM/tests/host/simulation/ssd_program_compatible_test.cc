@@ -34,10 +34,12 @@ namespace program_compatible_test
         {
             BaseTest::SetUp();
             INIT_LOG_MANAGER(g_device_index);
+            LOCK_DEVICE(g_device_index); // prevent the GC thread from running
         }
 
         virtual void TearDown()
         {
+            UNLOCK_DEVICE(g_device_index);
             BaseTest::BaseTearDown(false);
             TERM_LOG_MANAGER(g_device_index);
             TERM_SSD_CONFIG();
