@@ -326,7 +326,10 @@ namespace ssd_conf_tests {
 
     // Test parameter generation
     std::vector<SSDConf*> GetTestParams() {
-        std::vector<SSDConf*> ssd_configs;
+        // leaked on purpose; owns the params for the process (see base_emulator_tests.h)
+        static std::vector<SSDConf*>& ssd_configs = *new std::vector<SSDConf*>;
+        if (!ssd_configs.empty())
+            return ssd_configs;
         // Add configurations with different parameters
         int onfi_manager_threads_options[] = {1, 7, 0, -5};
         int sector_size = 1;

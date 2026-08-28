@@ -18,6 +18,8 @@
 #include "logging_backend.h"
 #include <stdlib.h>
 #include <dirent.h>
+#include <sys/stat.h>
+#include <unistd.h>
 #include <time.h>
 #include <algorithm>
 #include <iostream>
@@ -78,7 +80,10 @@ void flipAuto();
     }
 
     std::vector<SSDConf*> GetTestParams() {
-        std::vector<SSDConf*> ssd_configs;
+        // leaked on purpose; owns the params for the process (see base_emulator_tests.h)
+        static std::vector<SSDConf*>& ssd_configs = *new std::vector<SSDConf*>;
+        if (!ssd_configs.empty())
+            return ssd_configs;
 
         for(unsigned int i = POW_START; i <= MAX_POW;i++){
             size_t block_nb = pow(2,i);
@@ -319,4 +324,52 @@ void flipAuto();
         }
     }
 
+    /**
+     * Regression test for log rotation losing data: files were named with second
+     * resolution and opened without O_APPEND, so rotations within one second
+     * overwrote each other. Every written byte must survive on disk.
+     */
+    TEST(ElkLogWriterTest, SameSecondRotationKeepsAllData) {
+        const int WRITES = 5;
+        const int CHUNK = 40 * 1024;
+
+        elk_logger_writer_init();
+
+        // freeze auto deletion so no rotation deletes files mid-count
+        int saved_auto_delete = auto_delete;
+        auto_delete = 0;
+
+        std::vector<std::string> before = get_all_log_files(ELK_LOGGER_WRITER_LOGS_PATH);
+
+        uint32_t saved_size = elk_logger_writer_obj.log_file_size;
+        // smaller than one chunk: every write must rotate to a fresh file first
+        elk_logger_writer_obj.log_file_size = CHUNK - 1;
+
+        std::string chunk(CHUNK, 'x');
+        chunk[CHUNK - 1] = '\n';
+        for (int i = 0; i < WRITES; i++)
+            elk_logger_writer_save_log_to_file((Byte*)&chunk[0], CHUNK);
+
+        elk_logger_writer_obj.log_file_size = saved_size;
+
+        long long new_bytes = 0;
+        std::vector<std::string> new_files;
+        std::vector<std::string> after = get_all_log_files(ELK_LOGGER_WRITER_LOGS_PATH);
+        for (unsigned int i = 0; i < after.size(); i++) {
+            if (std::find(before.begin(), before.end(), after[i]) != before.end())
+                continue;
+            struct stat st;
+            if (stat(after[i].c_str(), &st) == 0)
+                new_bytes += st.st_size;
+            new_files.push_back(after[i]);
+        }
+
+        auto_delete = saved_auto_delete;
+        elk_logger_writer_free();
+        // the filler is not JSON; remove it before any json-parsing test sees it
+        for (unsigned int i = 0; i < new_files.size(); i++)
+            unlink(new_files[i].c_str());
+
+        ASSERT_EQ((long long)WRITES * CHUNK, new_bytes);
+    }
 } //namespace

@@ -94,6 +94,8 @@ eVSSIM/tests/host/unit_tests_main
 eVSSIM/tests/host/*/unit_tests_main
 eVSSIM/tests/host/*/functional_tests_main
 eVSSIM/tests/host/functional_tests_main
+eVSSIM/tests/host/elk_event_generator
+eVSSIM/tests/host/*/elk_event_generator
 eVSSIM/tests/host/data
 eVSSIM/tests/host/*/data
 eVSSIM/tests/host/*/common.h
