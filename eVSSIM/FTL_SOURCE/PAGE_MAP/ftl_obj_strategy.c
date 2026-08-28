@@ -171,7 +171,7 @@ ftl_ret_val _FTL_OBJ_READ(uint8_t device_index, obj_id_t obj_loc, void *data, of
 
     if (!(current_page = page_by_offset(device_index, object, offset)))
     {
-        RERR(FTL_FAILURE, "%u lookup page by offset failed \n", current_page->page_id);
+        RERR(FTL_FAILURE, "lookup page by offset failed (offset=%u, size=%zu)\n", offset, object->size);
     }
 
     // calculate the total number of pages we're gonna read
