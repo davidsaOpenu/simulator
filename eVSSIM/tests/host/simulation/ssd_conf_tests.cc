@@ -339,6 +339,55 @@ TEST_F(SsdConfTest, NamespaceCountIsPerDevice) {
     EXPECT_EQ(2u, GET_NAMESPACE_COUNT(1));
 }
 
+/* =========================================================================
+ * 2c. GET_NAMESPACE_SIZE() accessor tests
+ *
+ * Trello card 157: run against the 6-device ssd.conf.template and verify it
+ * reports 6 devices with correct per-namespace sizes.  SIZE is in bytes -- it
+ * is written in the [nsXX] SIZE field and summed by
+ * validate_namespace_capacity() against the byte-valued disk capacity -- so
+ * these tests assert the configured byte value.
+ * ========================================================================= */
+
+/* Faithful reproduction of infra/builder/docker/ssd.conf.template: 6 devices
+ * with 1,1,2,2,4,4 namespaces, each SIZE 16736256 bytes.  WriteConf()
+ * substitutes the STORAGE_STRATEGY placeholder to sector (1). */
+static std::string six_device_template() {
+    static const int ns_per_device[6] = {1, 1, 2, 2, 4, 4};
+    std::ostringstream s;
+    for (int d = 0; d < 6; d++) {
+        std::string suffix = (d == 0) ? "" : std::to_string(d + 1);
+        s << device_header(d + 1, suffix.c_str());
+        for (int n = 1; n <= ns_per_device[d]; n++)
+            s << ns_section(n, TPL_NS_SIZE);
+    }
+    return s.str();
+}
+
+TEST_F(SsdConfTest, TemplateReportsSixDevicesWithCorrectSizes) {
+    WriteConf(six_device_template());
+    INIT_SSD_CONFIG();
+
+    ASSERT_EQ(6, device_count);
+
+    const uint32_t expected_ns[6] = {1, 1, 2, 2, 4, 4};
+    for (uint8_t d = 0; d < 6; d++) {
+        EXPECT_EQ(expected_ns[d], GET_NAMESPACE_COUNT(d))
+            << "device " << static_cast<int>(d);
+        for (uint32_t n = 0; n < expected_ns[d]; n++) {
+            EXPECT_EQ(TPL_NS_SIZE, GET_NAMESPACE_SIZE(d, n))
+                << "device " << static_cast<int>(d) << " ns " << n;
+        }
+    }
+}
+
+TEST_F(SsdConfTest, NamespaceSizeOutOfRangeIndexReturnsZero) {
+    WriteConf(device_header(1) + ns_section(1, TPL_NS_SIZE));
+    INIT_SSD_CONFIG();
+    ASSERT_EQ(1, device_count);
+    EXPECT_EQ(0u, GET_NAMESPACE_SIZE(0, MAX_NUMBER_OF_NAMESPACES));
+}
+
 /* ---------------------------------------------------------------------------
  * ONFI manager-threads / config-field tests (SSDConfigTest, BaseTest-based).
  * Complements the [nsXX] parsing + capacity validation tests above.
