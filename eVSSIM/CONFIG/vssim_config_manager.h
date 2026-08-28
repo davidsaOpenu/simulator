@@ -109,6 +109,7 @@ uint64_t GET_BLOCK_NB(uint8_t device_index);
 uint32_t GET_FLASH_NB(uint8_t device_index);
 uint64_t GET_TOTAL_NUMBER_OF_PAGES(uint8_t device_index);
 ssd_config_t* GET_DEVICES(void);
+uint32_t GET_NAMESPACE_COUNT(uint8_t device_index);
 char* GET_DATA_FILENAME(uint8_t device_index, const char* filename);
 
 #endif

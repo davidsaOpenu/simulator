@@ -304,6 +304,42 @@ TEST_F(SsdConfTest, CapacityOverfitIsDetected) {
     EXPECT_EQ(0, device_count);
 }
 
+/* =========================================================================
+ * 2b. GET_NAMESPACE_COUNT() accessor tests
+ * ========================================================================= */
+
+TEST_F(SsdConfTest, NamespaceCountZeroWhenNoNamespaceSection) {
+    WriteConf(device_header(1));
+    INIT_SSD_CONFIG();
+    ASSERT_EQ(1, device_count);
+    EXPECT_EQ(0u, GET_NAMESPACE_COUNT(0));
+}
+
+TEST_F(SsdConfTest, NamespaceCountMatchesSingleNamespace) {
+    WriteConf(device_header(1) + ns_section(1, TPL_NS_SIZE));
+    INIT_SSD_CONFIG();
+    ASSERT_EQ(1, device_count);
+    EXPECT_EQ(1u, GET_NAMESPACE_COUNT(0));
+}
+
+TEST_F(SsdConfTest, NamespaceCountMatchesMultipleNamespaces) {
+    WriteConf(device_header(1) + ns_section(1, TPL_NS_SIZE) +
+              ns_section(2, TPL_NS_SIZE, true));
+    INIT_SSD_CONFIG();
+    ASSERT_EQ(1, device_count);
+    EXPECT_EQ(2u, GET_NAMESPACE_COUNT(0));
+}
+
+TEST_F(SsdConfTest, NamespaceCountIsPerDevice) {
+    WriteConf(device_header(1) + ns_section(1, TPL_NS_SIZE) +
+              device_header(2, "2") + ns_section(1, TPL_NS_SIZE) +
+              ns_section(2, TPL_NS_SIZE));
+    INIT_SSD_CONFIG();
+    ASSERT_EQ(2, device_count);
+    EXPECT_EQ(1u, GET_NAMESPACE_COUNT(0));
+    EXPECT_EQ(2u, GET_NAMESPACE_COUNT(1));
+}
+
 /* ---------------------------------------------------------------------------
  * ONFI manager-threads / config-field tests (SSDConfigTest, BaseTest-based).
  * Complements the [nsXX] parsing + capacity validation tests above.

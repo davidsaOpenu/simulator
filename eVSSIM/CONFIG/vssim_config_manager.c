@@ -476,6 +476,20 @@ ssd_config_t* GET_DEVICES(void){
     return devices;
 }
 
+// Count the namespaces configured on a device: the number of contiguous
+// non-zero namespaces_size[] entries starting from index 0.
+uint32_t GET_NAMESPACE_COUNT(uint8_t device_index){
+    uint32_t count = 0;
+    if (devices == NULL) {
+        return 0;
+    }
+    while (count < MAX_NUMBER_OF_NAMESPACES &&
+           devices[device_index].namespaces_size[count] != 0) {
+        count++;
+    }
+    return count;
+}
+
 bool validate_namespace_capacity(ssd_config_t *device) {
     uint64_t disk_bytes = (uint64_t)device->page_size * device->page_nb
                           * device->block_nb * device->flash_nb;
