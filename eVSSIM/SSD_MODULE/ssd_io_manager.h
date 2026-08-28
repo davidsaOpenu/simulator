@@ -29,6 +29,10 @@ extern enum SSDTimeMode{
  *  Member 'cur_channel_mode' holds the current command that runs on this channel
  *  @var SSDStatistics* current_stats
  *  Member 'current_stats' holds stats of browser monitor
+ *  @var SSDStatistics stats_bufs
+ *  Member 'stats_bufs' double buffer backing 'current_stats': the log manager
+ *  fills the inactive buffer and atomically republishes the pointer, so readers
+ *  never observe a partially-copied snapshot
  */
 typedef struct {
     uint64_t occupied_pages_counter;
@@ -37,6 +41,7 @@ typedef struct {
     int* prev_channel_mode;
     int* cur_channel_mode;
     SSDStatistics* current_stats;
+    SSDStatistics stats_bufs[2];
 } ssd_disk;
 
 typedef struct ssd_manager {
