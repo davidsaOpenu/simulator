@@ -29,6 +29,10 @@ cd "$WS"
 
 log "Copying image from /home/davidsa/public_html/$IMAGE_NAME to workspace..."
 cp -f "/home/davidsa/public_html/$IMAGE_NAME" "$WS/"
+# the logs folder shipped below outgrows the stock image, and an Elasticsearch
+# node over its disk watermark cannot allocate .security-7, so the cluster comes
+# up red and the built-in user passwords never get set
+qemu-img resize "$WS/$IMAGE_NAME" +20G
 log "Image ready at: $WS/$IMAGE_NAME"
 
 # ================== PORT SELECTION ==================

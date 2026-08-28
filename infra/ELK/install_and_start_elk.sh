@@ -264,17 +264,22 @@ check_elasticsearch_health() {
 
         health_response=$(curl -k -s -f --connect-timeout 5 -u "elastic:$ELASTIC_PASSWORD" "https://localhost:9200/_cluster/health" 2>/dev/null) && {
             cluster_status=$(echo "$health_response" | grep -o '"status":"[^"]*"' | cut -d':' -f2 | tr -d '"')
-            echo "Elasticsearch is up and running on HTTPS!"
             echo "Cluster status: $cluster_status"
-            echo "Access Elasticsearch at: https://localhost:9200"
-            return 0
+            if [ "$cluster_status" != "red" ]; then
+                echo "Elasticsearch is up and running on HTTPS!"
+                echo "Access Elasticsearch at: https://localhost:9200"
+                return 0
+            fi
+            echo "Cluster is red: shards are unassigned, still waiting..."
         }
 
         echo "Elasticsearch not ready yet, waiting 10 seconds..."
         sleep 10
     done
 
-    echo "ERROR: Elasticsearch failed to start within 300 seconds"
+    echo "ERROR: Elasticsearch did not become healthy within 300 seconds"
+    echo "A cluster stuck in red is usually a disk watermark; check free space with:"
+    echo "  curl -k -u elastic:\$ELASTIC_PASSWORD https://localhost:9200/_cat/allocation?v"
     echo "Check the logs with: $COMPOSE_CMD logs elasticsearch"
     return 1
 }

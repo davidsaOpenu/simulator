@@ -391,7 +391,9 @@ namespace {
                 std::ignore = system((std::string("rm -rf data/") + std::to_string(g_device_index)).c_str());
                 clientSock = 0;
                 g_init_log_server = 0;
-                delete ssd_config;
+                // ssd_config is owned by its generator's leaky vector: gtest builds params at
+                // registration once per TEST_P body, so filtered-out tests' params never reach
+                // TearDown, and a static vector would be destructed before valgrind's exit scan
             }
 
             SSDConf* base_test_get_ssd_config(void) {

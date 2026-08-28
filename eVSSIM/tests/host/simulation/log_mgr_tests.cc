@@ -30,6 +30,9 @@ extern bool g_server_mode;
 #include <pthread.h>
 #include <string>
 #include <unistd.h>
+#include <dirent.h>
+#include <algorithm>
+#include <fstream>
 
 //during the tests most logger_read calls read 1 byte
 #define READ_LENGTH 1
@@ -91,7 +94,10 @@ namespace log_mgr_tests {
      * @return the different buffer sizes for the logger
      */
     std::vector<SSDConf*> GetTestParams() {
-        std::vector<SSDConf*> ssd_configs;
+        // leaked on purpose; owns the params for the process (see base_emulator_tests.h)
+        static std::vector<SSDConf*>& ssd_configs = *new std::vector<SSDConf*>;
+        if (!ssd_configs.empty())
+            return ssd_configs;
 
         size_t page_size = 1048576;
         size_t sector_size = 1048576;
@@ -774,5 +780,143 @@ namespace log_mgr_tests {
 
         json_object_put(parsed);
         free(enriched_json);
+    }
+    /**
+     * Regression test for logger_busy_read advancing by the last read's size
+     * instead of the running total: an event straddling a log boundary arrives
+     * in two chunks, and the second chunk used to land at the wrong offset.
+     */
+    namespace busy_read_boundary {
+        const int PAYLOAD_LEN = 32;
+        const int PREFIX_LEN = 7;
+
+        struct ReaderArgs {
+            Logger_Pool* logger;
+            size_t filler_len;
+            Byte payload[PAYLOAD_LEN];
+            volatile int done;
+        };
+
+        void* reader(void* raw) {
+            ReaderArgs* args = (ReaderArgs*) raw;
+            Byte scratch[4096];
+            size_t consumed = 0;
+
+            // skip over the filler up to the event
+            while (consumed < args->filler_len) {
+                size_t chunk = std::min(sizeof(scratch), args->filler_len - consumed);
+                int bytes_read = logger_read(args->logger, scratch, (int)chunk, RT_ANALYZER);
+                if (bytes_read > 0)
+                    consumed += (size_t)bytes_read;
+            }
+
+            logger_busy_read(args->logger, args->payload, PAYLOAD_LEN, RT_ANALYZER);
+            __sync_synchronize();
+            args->done = 1;
+            return NULL;
+        }
+    }
+
+    TEST_P(LogMgrUnitTest, BusyReadEventStraddlingLogBoundary) {
+        using namespace busy_read_boundary;
+
+        Byte payload[PAYLOAD_LEN];
+        for (int i = 0; i < PAYLOAD_LEN; i++)
+            payload[i] = (Byte)(0x40 + i);
+
+        // fill the first log so that exactly PREFIX_LEN bytes of it remain free
+        Byte filler[4096];
+        memset(filler, 'x', sizeof(filler));
+        size_t filler_len = LOG_SIZE - PREFIX_LEN;
+        size_t written = 0;
+        while (written < filler_len) {
+            size_t chunk = std::min(sizeof(filler), filler_len - written);
+            ASSERT_EQ(0, logger_write(_logger, filler, (int)chunk));
+            written += chunk;
+        }
+
+        // the first PREFIX_LEN bytes of the event close the log
+        ASSERT_EQ(0, logger_write(_logger, payload, PREFIX_LEN));
+
+        ReaderArgs args;
+        args.logger = _logger;
+        args.filler_len = filler_len;
+        memset((void*) args.payload, 0, PAYLOAD_LEN);
+        args.done = 0;
+
+        pthread_t reader_thread;
+        ASSERT_EQ(0, pthread_create(&reader_thread, NULL, reader, &args));
+
+        // let the reader consume the filler and block mid-event on the boundary
+        usleep(300000);
+
+        ASSERT_EQ(0, logger_write(_logger, payload + PREFIX_LEN, PAYLOAD_LEN - PREFIX_LEN));
+
+        // feed sentinels so the buggy code path terminates instead of spinning
+        Byte sentinel[PAYLOAD_LEN];
+        memset(sentinel, 0xEE, sizeof(sentinel));
+        int deadline_ms = 30000;
+        while (!args.done && deadline_ms > 0) {
+            ASSERT_EQ(0, logger_write(_logger, sentinel, PAYLOAD_LEN));
+            usleep(2000);
+            deadline_ms -= 2;
+        }
+        ASSERT_NE(0, args.done) << "reader stuck in logger_busy_read";
+
+        ASSERT_EQ(0, pthread_join(reader_thread, NULL));
+        ASSERT_EQ(0, memcmp(payload, (const void*) args.payload, PAYLOAD_LEN));
+    }
+
+    /** Count the lines across all the ELK log files currently on disk */
+    static size_t count_elk_log_lines() {
+        size_t lines = 0;
+        DIR* dir = opendir(ELK_LOGGER_WRITER_LOGS_PATH);
+        if (dir == NULL)
+            return 0;
+        struct dirent* ent;
+        while ((ent = readdir(dir)) != NULL) {
+            if (strncmp(ent->d_name, "elk_log_file-", strlen("elk_log_file-")) != 0)
+                continue;
+            std::ifstream file((std::string(ELK_LOGGER_WRITER_LOGS_PATH) + ent->d_name).c_str());
+            std::string line;
+            while (std::getline(file, line))
+                lines++;
+        }
+        closedir(dir);
+        return lines;
+    }
+
+    /**
+     * Regression test for the offline analyzer dropping queued events on exit:
+     * raising the exit flag must drain and flush the queue, not discard it.
+     */
+    TEST_P(LogMgrUnitTest, OfflineAnalyzerDrainsQueueOnExit) {
+        const int EVENTS = 500;
+
+        elk_logger_writer_init();
+        size_t lines_before = count_elk_log_lines();
+
+        struct timeval logging_parser_tv;
+        TIME_MICROSEC(start);
+        PhysicalCellReadLog log = {
+            .channel = 1,
+            .block = 2,
+            .page = 3,
+            .background = false,
+            .metadata = LOG_META(g_device_index, start, start + 1),
+        };
+        for (int i = 0; i < EVENTS; i++)
+            LOG_PHYSICAL_CELL_READ(_logger, log);
+
+        OfflineLogAnalyzer* analyzer = offline_log_analyzer_init(_logger, g_device_index);
+        // raise the exit flag before the loop ever runs: it must still drain
+        analyzer->exit_loop_flag = 1;
+        offline_log_analyzer_loop(analyzer);
+        offline_log_analyzer_free(analyzer);
+
+        size_t lines_after = count_elk_log_lines();
+        elk_logger_writer_free();
+
+        ASSERT_EQ((size_t)EVENTS, lines_after - lines_before);
     }
 } //namespace
