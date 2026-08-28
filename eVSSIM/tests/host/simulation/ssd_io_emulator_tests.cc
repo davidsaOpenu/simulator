@@ -37,6 +37,9 @@ using namespace std;
 
 namespace ssd_io_emulator_tests {
 
+    #define STATS_SETTLE(cond) \
+        for (int _settle = 0; !(cond) && _settle < 900; ++_settle) usleep(100000)
+
     class SSDIoEmulatorUnitTest : public BaseTest {
         public:
             virtual void SetUp() {
@@ -54,7 +57,10 @@ namespace ssd_io_emulator_tests {
     };
 
     std::vector<SSDConf*> GetTestParams() {
-        std::vector<SSDConf*> ssd_configs;
+        // leaked on purpose; owns the params for the process (see base_emulator_tests.h)
+        static std::vector<SSDConf*>& ssd_configs = *new std::vector<SSDConf*>;
+        if (!ssd_configs.empty())
+            return ssd_configs;
 
         ssd_configs.push_back(new SSDConf(parameters::Allsizemb[0]));
 
@@ -315,9 +321,10 @@ namespace ssd_io_emulator_tests {
             logical_write_count += rt_log_stats[g_device_index][i].logical_write_count;
         }
 
-        SSDStatistics* current_stats = __atomic_load_n(&ssds_manager[g_device_index].ssd.current_stats, __ATOMIC_ACQUIRE);
+        SSDStatistics current_stats;
+        ASSERT_TRUE(log_manager_stats_snapshot(g_device_index, &current_stats));
         ASSERT_EQ(__atomic_load_n(&ssds_manager[g_device_index].ssd.physical_page_writes, __ATOMIC_RELAXED), physical_page_writes);
-        ASSERT_EQ(current_stats->write_count, physical_page_writes);
+        ASSERT_EQ(current_stats.write_count, physical_page_writes);
 
         ASSERT_EQ(__atomic_load_n(&ssds_manager[g_device_index].ssd.logical_page_writes, __ATOMIC_RELAXED), logical_page_writes);
         ASSERT_EQ(logical_write_count, logical_page_writes);
@@ -351,9 +358,10 @@ namespace ssd_io_emulator_tests {
             logical_write_count += rt_log_stats[g_device_index][i].logical_write_count;
         }
 
-        SSDStatistics* current_stats = __atomic_load_n(&ssds_manager[g_device_index].ssd.current_stats, __ATOMIC_ACQUIRE);
+        SSDStatistics current_stats;
+        ASSERT_TRUE(log_manager_stats_snapshot(g_device_index, &current_stats));
         ASSERT_EQ(physical_page_writes, __atomic_load_n(&ssds_manager[g_device_index].ssd.physical_page_writes, __ATOMIC_RELAXED));
-        ASSERT_EQ(physical_page_writes, current_stats->write_count);
+        ASSERT_EQ(physical_page_writes, current_stats.write_count);
 
         ASSERT_EQ(__atomic_load_n(&ssds_manager[g_device_index].ssd.logical_page_writes, __ATOMIC_RELAXED), logical_page_writes);
         ASSERT_EQ(logical_write_count, logical_page_writes);
@@ -386,9 +394,10 @@ namespace ssd_io_emulator_tests {
 
         MONITOR_SYNC_DELAY(expected_write_duration + expected_read_duration);
 
-        SSDStatistics* current_stats = __atomic_load_n(&ssds_manager[g_device_index].ssd.current_stats, __ATOMIC_ACQUIRE);
-        ASSERT_EQ(expected_rw, current_stats->write_count);
-        ASSERT_EQ(expected_rw, current_stats->read_count);
+        SSDStatistics current_stats;
+        ASSERT_TRUE(log_manager_stats_snapshot(g_device_index, &current_stats));
+        ASSERT_EQ(expected_rw, current_stats.write_count);
+        ASSERT_EQ(expected_rw, current_stats.read_count);
 
     }
 
@@ -426,9 +435,10 @@ namespace ssd_io_emulator_tests {
 
         MONITOR_SYNC_DELAY(expected_write_duration + expected_read_duration);
 
-        SSDStatistics* current_stats = __atomic_load_n(&ssds_manager[g_device_index].ssd.current_stats, __ATOMIC_ACQUIRE);
-        ASSERT_EQ(expected_rw, current_stats->write_count);
-        ASSERT_EQ(expected_rw, current_stats->read_count);
+        SSDStatistics current_stats;
+        ASSERT_TRUE(log_manager_stats_snapshot(g_device_index, &current_stats));
+        ASSERT_EQ(expected_rw, current_stats.write_count);
+        ASSERT_EQ(expected_rw, current_stats.read_count);
 
     }
 
@@ -453,29 +463,33 @@ namespace ssd_io_emulator_tests {
             // here manually to get closer to the theoretical 0.8 utilization.
             GC_CHECK(g_device_index, false, false);
 
-            MONITOR_SYNC_DELAY(15000000);
-
             //at most one block that wasn't cleared by GC algorithem
             double error_util = (double)(ssd_config->get_pages_per_block()) / (ssd_config->get_page_nb() * ssd_config->get_block_nb() * ssd_config->get_flash_nb());
-            SSDStatistics* current_stats = __atomic_load_n(&ssds_manager[g_device_index].ssd.current_stats, __ATOMIC_ACQUIRE);
-            ASSERT_NEAR(0.8, current_stats->utilization, error_util); // 25% over provitioning = 80% full
+            // poll a private copy of the published snapshot instead of sleeping a
+            // fixed delay; the assertions below read that same copy, never the
+            // shared buffer the log manager keeps rewriting
+            SSDStatistics stats;
+            bool published = false;
+            STATS_SETTLE((published = log_manager_stats_snapshot(g_device_index, &stats))
+                         && stats.logical_write_count == page_x_flash * (x + 1)
+                         && stats.utilization >= 0.8 - error_util
+                         && stats.utilization <= 0.8 + error_util);
+            ASSERT_TRUE(published);
+            ASSERT_NEAR(0.8, stats.utilization, error_util); // 25% over provitioning = 80% full
 
-            ASSERT_EQ(page_x_flash * (x + 1), current_stats->logical_write_count);
-            ASSERT_LE(page_x_flash * (x + 1), current_stats->write_count);
+            ASSERT_EQ(page_x_flash * (x + 1), stats.logical_write_count);
+            ASSERT_LE(page_x_flash * (x + 1), stats.write_count);
         }
 
-        int expected_write_duration = (devices[g_device_index].channel_switch_delay_w + devices[g_device_index].reg_write_delay + devices[g_device_index].cell_program_delay) * page_x_flash * 2;
-
-        MONITOR_SYNC_DELAY(expected_write_duration);
-
         // Assert w.a. is greater then 1
-        SSDStatistics* current_stats = __atomic_load_n(&ssds_manager[g_device_index].ssd.current_stats, __ATOMIC_ACQUIRE);
-        ASSERT_GE(page_x_flash, current_stats->garbage_collection_count);
+        SSDStatistics current_stats;
+        ASSERT_TRUE(log_manager_stats_snapshot(g_device_index, &current_stats));
+        ASSERT_GE(page_x_flash, current_stats.garbage_collection_count);
 
         //write amp = 1 because we work with over-provitioning and write sequentionally, on the second pass
         //we re-allocate the first block, when we get to the second block, there is now a free block that can be used
         //for re-allocating the second block
-        ASSERT_LE(expected_write_amplification, current_stats->write_amplification);
+        ASSERT_LE(expected_write_amplification, current_stats.write_amplification);
     }
 
 } //namespace

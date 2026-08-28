@@ -147,7 +147,7 @@ void TERM_LOG_MANAGER(uint8_t device_index)
     for (i = 0; i < devices[device_index].flash_nb; i++)
     {
         analyzers_storage[device_index][i].rt_log_analyzer->exit_loop_flag = 1;
-        analyzers_storage[device_index][i].offline_log_analyzer->exit_loop_flag = 1;
+        __atomic_store_n(&analyzers_storage[device_index][i].offline_log_analyzer->exit_loop_flag, 1, __ATOMIC_RELEASE);
     }
     log_manager[device_index]->exit_loop_flag = 1;
 
