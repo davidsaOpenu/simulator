@@ -63,7 +63,7 @@ guest (Including nvme cli, nvme compliance) and available in /home/esd/guest.
 
 ## Advanced Running
 * gdb:
-  
+
     While qemu is running, its easy to attach with gdb to qemu by attaching to the docker
     ```bash
     $ ./docker-enter.sh
@@ -71,7 +71,7 @@ guest (Including nvme cli, nvme compliance) and available in /home/esd/guest.
     ```
 
 * Tracing:
-  
+
     QEMU has an extensive tracing facilities. The following environment
     variables gives a quick access to enabeling them.
     ```
@@ -91,23 +91,23 @@ guest (Including nvme cli, nvme compliance) and available in /home/esd/guest.
     ```
 
 * Simulator Toggle:
-  
+
   Simulator could be toggled on and off (Without recompilation) using the following environment: (Default is yes)
     `EVSSIM_QEMU_SIMULATOR_ENABLED=yes/no`
 
 * Disk size:
-  
+
   When simulator is turned OFF the nvme disk size is taken from EVSSIM_QEMU_DEFAULT_DISK_SIZE and defaulted to 1M.
 
   When simulator is turned ON the nvme disk size is CALCULATED from the ssd configuration.
 
 * Reset Simulator:
-  
+
   By default, every run of qemu will clear any simulator runtime files (Such as FTL mapping).
   The variable EVSSIM_RUNTIME_ALWAYS_RESET=yes/no controls that behaviour.
 
 * Strategy:
-  
+
   Strategy is configures using EVSSIM_RUNTIME_STORAGE_STRATEGY
   Available values are:
     1. Sector
@@ -129,7 +129,7 @@ guest (Including nvme cli, nvme compliance) and available in /home/esd/guest.
 - `./compile-host-tests.sh` - Compile osc-osd and tests that use google testing framework
 
 ## Tests
-- `./docker-test-host.sh` - Host tests
+- `./docker-test-host-elk.sh` - Host tests + per-case ELK metric assertions (needs the ELK stack up)
 - `./docker-test-guest.sh` - Guest tests using QEMU. Each test is saved into the "dist/tests"
 unique test folder.
 
