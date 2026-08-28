@@ -174,8 +174,8 @@ ftl_ret_val _FTL_OBJ_READ(uint8_t device_index, obj_id_t obj_loc, void *data, of
         RERR(FTL_FAILURE, "%u lookup page by offset failed \n", current_page->page_id);
     }
 
-    // just calculate the overhead of allocating the request. io_page_nb will be the total number of pages we're gonna read
-    ssds_manager[device_index].io_alloc_overhead = ALLOC_IO_REQUEST(device_index, current_page->page_id * devices[device_index].sectors_per_page, length, READ, &io_page_nb);
+    // calculate the total number of pages we're gonna read
+    io_page_nb = (length + devices[device_index].sectors_per_page - 1) / devices[device_index].sectors_per_page;
 
     for (curr_io_page_nb = 0; curr_io_page_nb < io_page_nb; curr_io_page_nb++)
     {
@@ -199,8 +199,6 @@ ftl_ret_val _FTL_OBJ_READ(uint8_t device_index, obj_id_t obj_loc, void *data, of
         // get the next page
         current_page = current_page->next;
     }
-
-    INCREASE_IO_REQUEST_SEQ_NB(device_index);
 
     if (data != NULL) {
         uint64_t outlen = 0;
@@ -250,8 +248,8 @@ ftl_ret_val _FTL_OBJ_WRITE(uint8_t device_index, obj_id_t object_loc, const void
     if (object == NULL)
         RERR(FTL_FAILURE, "failed lookup\n");
 
-    // calculate the overhead of allocating the request. io_page_nb will be the total number of pages we're gonna write
-    ssds_manager[device_index].io_alloc_overhead = ALLOC_IO_REQUEST(device_index, offset, length, WRITE, &io_page_nb);
+    // calculate the total number of pages we're gonna write
+    io_page_nb = (length + (offset % devices[device_index].sectors_per_page) + devices[device_index].sectors_per_page - 1) / devices[device_index].sectors_per_page;
 
     // if the offset is past the current size of the stored_object we need to append new pages until we can start writing
     while (offset > object->size)
@@ -345,8 +343,6 @@ ftl_ret_val _FTL_OBJ_WRITE(uint8_t device_index, obj_id_t object_loc, const void
             return FTL_FAILURE;
         }
     }
-
-    INCREASE_IO_REQUEST_SEQ_NB(device_index);
 
     PDBG_FTL("Complete\n");
 
