@@ -34,7 +34,7 @@ _evssim_scripts_complete() {
 commands="compile-guest-tests.sh compile-host-tests.sh compile-kernel.sh compile-qemu.sh \
     docker-copy-into-guest.sh docker-enter.sh \
     docker-run-bash.sh docker-run-qemu.sh docker-run-qemu-enter-guest.sh docker-run-sanity.sh \
-    docker-test-exofs.sh docker-test-guest.sh docker-test-host.sh"
+    docker-test-exofs.sh docker-test-guest.sh docker-test-host-elk.sh"
 for command in $commands; do
     complete -F _evssim_scripts_complete "./$command"
 done
