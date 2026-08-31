@@ -1,0 +1,44 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "6ba18e3d_7f4ab26d",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 4
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 1007990
+      },
+      "writtenOn": "2026-08-31T17:18:38Z",
+      "side": 1,
+      "message": "Thanks for working on this change.\n\nGeneral comments:\n\n1. Please resolve merge conflicts.\n2. Please add to run-ci.sh the line compile-qemu.sh 26.04 as required by the task https://trello.com/c/3VY15bSN/77-port-changes-from-the-master-branch-to-the-110 that checks out the new QEMU branch to verify compilation passes.\n3. Obtain 2 code reviews before the submission (3 points) according to https://docs.google.com/document/d/1SGfbdBjPmZa9fKiH9QKYfxB6MXNwQPDtbs_k52ztMUk/edit?tab\u003dt.0#heading\u003dh.v9v8xvce88jv\n\nI\u0027m adding one obvious additional comment inline but not providing additional comments to give other reviewers a chance to earn scores.",
+      "revId": "68dd1126f6f357e0600b630c0937f40cd9c14fc4",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "c1ae0fc0_5fec53f6",
+        "filename": "eVSSIM/osc-osd/osd-target/cdb.c",
+        "patchSetId": 4
+      },
+      "lineNbr": 1672,
+      "author": {
+        "id": 1007990
+      },
+      "writtenOn": "2026-08-31T17:18:38Z",
+      "side": 1,
+      "message": "pid was removed. Have you compiled this code?",
+      "range": {
+        "startLine": 1672,
+        "startChar": 50,
+        "endLine": 1672,
+        "endChar": 53
+      },
+      "revId": "68dd1126f6f357e0600b630c0937f40cd9c14fc4",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
+    }
+  ]
+}
