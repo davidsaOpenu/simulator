@@ -421,6 +421,13 @@ evssim_qemu_attached () {
 evssim_qemu_detached () {
     local host_version="$1"
     evssim_qemu_default detached "$host_version"
+
+    # QEMU's user-net hostfwd binds the SSH port the moment QEMU starts, long
+    # before the guest's sshd listens. ssh therefore connects on the first try
+    # and fails the handshake, so ConnectionAttempts never retries and the
+    # failure surfaces as an authentication error. Every caller SSHes into the
+    # guest right after this, so block here until the guest actually answers.
+    evssim_wait_for_guest
 }
 
 # Use fresh image of qemu
@@ -464,7 +471,7 @@ evssim_wait_for_guest () {
     local max_wait=${1:-300}
     local interval=5
     local elapsed=0
-    local ssh_base=(-q -o BatchMode=yes -o ConnectTimeout=3 -o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no -o PasswordAuthentication=no -o PubkeyAcceptedKeyTypes=+ssh-rsa -i "$EVSSIM_ROOT_PATH/$EVSSIM_BUILDER_FOLDER/docker/id_rsa" -p 2222)
+    local ssh_base=(-q -o BatchMode=yes -o ConnectTimeout=3 -o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no -o PasswordAuthentication=no -o PubkeyAcceptedKeyTypes=+ssh-rsa,ssh-ed25519 -i "$EVSSIM_SSH_KEYS_PATH/id_ed25519" -i "$EVSSIM_SSH_KEYS_PATH/id_rsa" -p $EVSSIM_QEMU_SSH_PORT)
     echo "INFO Waiting for VM to boot (up to ${max_wait}s)..."
     while ! ssh "${ssh_base[@]}" "$EVSSIM_QEMU_UBUNTU_USERNAME@localhost" /bin/true 2>/dev/null; do
         elapsed=$((elapsed + interval))
