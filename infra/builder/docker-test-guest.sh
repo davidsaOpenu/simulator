@@ -20,12 +20,7 @@ guest_test() {
     # Run qemu with test specific configuration
     EVSSIM_RUNTIME_STORAGE_STRATEGY=$strategy EVSSIM_QEMU_SIMULATOR_ENABLED=$simulator evssim_qemu_detached "$version"
 
-    # Wait for the VM to boot and expose its NVMe device before running tests.
-    # evssim_guest's ConnectionAttempts does not wait for guest readiness
-    # because QEMU's user-net hostfwd accepts the TCP connection immediately,
-    # so without this the test command runs before the guest is up and silently
-    # does nothing.
-    evssim_wait_for_guest
+    # Wait for the NVMe device to appear before running tests.
     evssim_wait_for_device /dev/nvme0n1
 
     # Run tests inside the guest

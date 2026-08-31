@@ -421,6 +421,9 @@ evssim_qemu_attached () {
 evssim_qemu_detached () {
     local host_version="$1"
     evssim_qemu_default detached "$host_version"
+
+    # hostfwd accepts the moment QEMU starts, so ssh cannot retry its way in
+    evssim_wait_for_guest
 }
 
 # Use fresh image of qemu
@@ -464,7 +467,7 @@ evssim_wait_for_guest () {
     local max_wait=${1:-300}
     local interval=5
     local elapsed=0
-    local ssh_base=(-q -o BatchMode=yes -o ConnectTimeout=3 -o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no -o PasswordAuthentication=no -o PubkeyAcceptedKeyTypes=+ssh-rsa -i "$EVSSIM_ROOT_PATH/$EVSSIM_BUILDER_FOLDER/docker/id_rsa" -p 2222)
+    local ssh_base=(-q -o BatchMode=yes -o ConnectTimeout=3 -o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no -o PasswordAuthentication=no -o PubkeyAcceptedKeyTypes=+ssh-rsa,ssh-ed25519 -i "$EVSSIM_SSH_KEYS_PATH/id_ed25519" -i "$EVSSIM_SSH_KEYS_PATH/id_rsa" -p $EVSSIM_QEMU_SSH_PORT)
     echo "INFO Waiting for VM to boot (up to ${max_wait}s)..."
     while ! ssh "${ssh_base[@]}" "$EVSSIM_QEMU_UBUNTU_USERNAME@localhost" /bin/true 2>/dev/null; do
         elapsed=$((elapsed + interval))

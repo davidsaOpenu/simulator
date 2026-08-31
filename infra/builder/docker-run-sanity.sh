@@ -14,7 +14,7 @@ evssim_qemu_detached "$version"
 try_ssh_key () {
 	local key="$1"
 	# true always returns 0
-	ssh -q -i "$key" -p $EVSSIM_QEMU_SSH_PORT -o ConnectionAttempts=1024 -o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no -o PasswordAuthentication=no -o PubkeyAcceptedKeyTypes=+ssh-rsa,ssh-ed25519 $EVSSIM_QEMU_UBUNTU_USERNAME@localhost true
+	ssh -o LogLevel=ERROR -i "$key" -p $EVSSIM_QEMU_SSH_PORT -o ConnectionAttempts=1024 -o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no -o PasswordAuthentication=no -o PubkeyAcceptedKeyTypes=+ssh-rsa,ssh-ed25519 $EVSSIM_QEMU_UBUNTU_USERNAME@localhost true
 }
 
 ssh_key_works=false
@@ -41,7 +41,6 @@ else
 	exit 1
 fi
 
-evssim_wait_for_guest
 evssim_wait_for_device /dev/nvme0n1
 
 # Run a command inside the container (check if device nvme0n1 exists)
