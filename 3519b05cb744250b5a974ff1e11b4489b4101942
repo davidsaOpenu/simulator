@@ -26,6 +26,30 @@
     {
       "unresolved": true,
       "key": {
+        "uuid": "f1c5deb9_44a8dbe5",
+        "filename": "/COMMIT_MSG",
+        "patchSetId": 3
+      },
+      "lineNbr": 20,
+      "author": {
+        "id": 1039489
+      },
+      "writtenOn": "2026-09-01T19:03:26Z",
+      "side": 1,
+      "message": "Added one regression test per data loss bug (BusyReadEventStraddlingLogBoundary, SameSecondRotationKeepsAllData, OfflineAnalyzerDrainsQueueOnExit)",
+      "parentUuid": "ef2043ab_968b7e96",
+      "range": {
+        "startLine": 11,
+        "startChar": 0,
+        "endLine": 20,
+        "endChar": 41
+      },
+      "revId": "3519b05cb744250b5a974ff1e11b4489b4101942",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
+    },
+    {
+      "unresolved": true,
+      "key": {
         "uuid": "b8b1c7fc_5a285098",
         "filename": "eVSSIM/LOG_MGR/logging_parser.c",
         "patchSetId": 3
@@ -49,6 +73,30 @@
     {
       "unresolved": true,
       "key": {
+        "uuid": "ca5647c2_ef277853",
+        "filename": "eVSSIM/LOG_MGR/logging_parser.c",
+        "patchSetId": 3
+      },
+      "lineNbr": 33,
+      "author": {
+        "id": 1039489
+      },
+      "writtenOn": "2026-09-01T19:03:26Z",
+      "side": 1,
+      "message": "Added LogMgrUnitTest.BusyReadEventStraddlingLogBoundary, which stages a partial read at a log boundary and fails on master with the second chunk at the wrong offset.",
+      "parentUuid": "b8b1c7fc_5a285098",
+      "range": {
+        "startLine": 31,
+        "startChar": 0,
+        "endLine": 33,
+        "endChar": 70
+      },
+      "revId": "3519b05cb744250b5a974ff1e11b4489b4101942",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
+    },
+    {
+      "unresolved": true,
+      "key": {
         "uuid": "967f3819_802bfa59",
         "filename": "eVSSIM/tests/host/run_all_host_tests.sh",
         "patchSetId": 3
@@ -60,6 +108,30 @@
       "writtenOn": "2026-08-31T19:24:53Z",
       "side": 1,
       "message": "What was the actual leak? Can you paste a backtrace to https://pastebin.com? I\u0027d opt to fix the root cause.",
+      "range": {
+        "startLine": 5,
+        "startChar": 55,
+        "endLine": 5,
+        "endChar": 99
+      },
+      "revId": "3519b05cb744250b5a974ff1e11b4489b4101942",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "a475cfed_80bfd9c6",
+        "filename": "eVSSIM/tests/host/run_all_host_tests.sh",
+        "patchSetId": 3
+      },
+      "lineNbr": 5,
+      "author": {
+        "id": 1039489
+      },
+      "writtenOn": "2026-09-01T19:03:26Z",
+      "side": 1,
+      "message": "Fixed by giving the generators ownership so no more need for the suppression file, valgrind now ends with 0 errors from 0 contexts (suppressed: 0 from 0)",
+      "parentUuid": "967f3819_802bfa59",
       "range": {
         "startLine": 5,
         "startChar": 55,
