@@ -260,7 +260,7 @@ static void elk_logger_writer_get_time_string(char *buf)
     struct tm* tm_info;
 
     timer = time(NULL);
-    tm_info = localtime(&timer);
+    tm_info = gmtime(&timer);
 
     strftime(buf, TIME_STAMP_LEN, LOG_NAME_PATTERN, tm_info);
 }
