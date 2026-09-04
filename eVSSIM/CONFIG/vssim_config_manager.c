@@ -40,8 +40,6 @@ void INIT_SSD_CONFIG(void)
     int ns_key_len = 0;
     uint32_t i = 0;
     ssd_config_t *current_device = NULL;
-    bool used_new_ns_format = false;  /* true once any [nsXX] section is seen */
-    bool used_old_ns_format = false;  /* true once any flat NSxx key is seen */
 
     while (fscanf(pfData, "%63s", key) != EOF) {
 
@@ -98,9 +96,6 @@ void INIT_SSD_CONFIG(void)
         if (sscanf(key, "[ns%2u]%n", &ns_num, &ns_key_len) == 1 && ns_key_len > 0 && key[ns_key_len] == '\0') {
             if (ns_num == 0 || ns_num > MAX_NUMBER_OF_NAMESPACES)
                 RERR(, "Invalid namespace number %u\n", ns_num);
-            if (used_old_ns_format)
-                RERR(, "Cannot mix old flat NSxx and new [nsXX] namespace formats in the same config\n");
-            used_new_ns_format = true;
             current_ns_index = (int)(ns_num - 1);
             continue;
         }
@@ -125,19 +120,6 @@ void INIT_SSD_CONFIG(void)
         if (strcmp(key, "OSD_PATH") == 0){
             if (fgets(current_device->osd_path, PATH_MAX, pfData) == NULL)
                 RERR(, "Can't read OSD_PATH\n");
-            continue;
-        }
-
-        if (sscanf(key, "NS%2u", &i) == 1){
-            if (i > MAX_NUMBER_OF_NAMESPACES || i <= 0)
-                RERR(, "Invalid namespaces index\n");
-            if (used_new_ns_format)
-                RERR(, "Cannot mix old flat NSxx and new [nsXX] namespace formats in the same config\n");
-            used_old_ns_format = true;
-
-            if (fscanf(pfData, "%" SCNu64, &current_device->namespaces_size[i-1]) == EOF){
-                RERR(, "Can't read %s\n", key);
-            }
             continue;
         }
 

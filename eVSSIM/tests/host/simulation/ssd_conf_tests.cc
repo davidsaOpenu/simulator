@@ -305,6 +305,35 @@ TEST_F(SsdConfTest, CapacityOverfitIsDetected) {
 }
 
 /* =========================================================================
+ * 1b. Legacy flat NSxx format rejection
+ *
+ * The old flat "NSxx <size>" key (outside a [nsXX] section) and the
+ * old/new-format mixing guard were removed; [nsXX] sections are now the
+ * only supported namespace format. These tests confirm the old key is
+ * rejected as an unknown configuration option rather than silently parsed.
+ * ========================================================================= */
+
+TEST_F(SsdConfTest, LegacyFlatNamespaceKeyIsRejected) {
+    /* NS1 <size> outside a [nsXX] section used to populate
+     * namespaces_size[] directly; it must now be an unknown-option error. */
+    WriteConf(device_header(1) + "NS1 " + std::to_string(TPL_NS_SIZE) + "\n");
+    INIT_SSD_CONFIG();
+    EXPECT_EQ(0, device_count);
+}
+
+TEST_F(SsdConfTest, LegacyFlatNamespaceKeyRejectedOnSecondDevice) {
+    /* The rejection must apply uniformly, not just to the first device:
+     * device 1 uses the (valid) [nsXX] format, device 2 uses the removed
+     * legacy flat key at device level (before any [nsXX] section). */
+    std::string conf = device_header(1) + ns_section(1, TPL_NS_SIZE) +
+                        device_header(2, "2") +
+                        "NS1 " + std::to_string(TPL_NS_SIZE) + "\n";
+    WriteConf(conf);
+    INIT_SSD_CONFIG();
+    EXPECT_EQ(0, device_count);
+}
+
+/* =========================================================================
  * 2b. GET_NAMESPACE_COUNT() accessor tests
  * ========================================================================= */
 
