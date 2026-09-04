@@ -586,11 +586,12 @@ namespace log_mgr_tests {
      * Test writing and reading a garbage collection log
      */
     TEST_P(LogMgrUnitTest, GarbageCollection) {
-        GarbageCollectionLog log = { .background = false, };
+        struct timeval logging_parser_tv;
+        TIME_MICROSEC(now);
+        GarbageCollectionLog log = { .background = false, .logging_time = now, };
         LOG_GARBAGE_COLLECTION(_logger, log);
         ASSERT_EQ(GARBAGE_COLLECTION_LOG_UID, next_log_type(_logger));
-        // test that NEXT_GARBAGE_COLLECTION_LOG actually does nothing,
-        // due to the fact that the struct is empty
+        // test that NEXT_GARBAGE_COLLECTION_LOG leaves nothing behind (READ_GC_LENGTH is 0)
         Byte placeholder;
         ASSERT_EQ(0, logger_read(_logger, &placeholder, READ_GC_LENGTH, RT_ANALYZER));
         GarbageCollectionLog res;
