@@ -166,6 +166,7 @@ elk_settle
 metrics="$(elk_query_metrics)"
 echo "$metrics"
 elk_assert_case object_tests "$metrics"
+elk_assert_event_time
 REMOTE
 echo "======================= END OUTPUT ====================="
 
