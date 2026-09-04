@@ -91,6 +91,7 @@ process_group() {
   echo "$metrics" > "$RESULTS_DIR/$name.run$run_no"
 
   elk_assert_case "$name" "$metrics" || fail=1
+  elk_assert_event_time || fail=1
 }
 
 order_for_round() {

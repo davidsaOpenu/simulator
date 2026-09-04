@@ -55,10 +55,15 @@ processors:
   - add_cloud_metadata: ~
   - add_docker_metadata: ~
   - add_kubernetes_metadata: ~
+  # logging_time is what the simulator wrote when the event happened; parsing it
+  # into @timestamp is what makes the dashboard's time panels bucket on event
+  # time. The layout has to match timestamp_to_str in LOG_MGR/logging_parser.c
+  # exactly - on a mismatch filebeat keeps ingest time and says nothing.
+  # The simulator container's clock is UTC, so that is how the string is read.
   - timestamp:
       field: logging_time
-      timezone: "Asia/Jerusalem"
+      timezone: "UTC"
       layouts:
-        - "2006-01-02 15:04:05.000"
+        - "2006-01-02_15-04-05.000000"
       test:
-        - "2021-06-25 20:10:10.000"
+        - "2021-06-25_20-10-10.000000"

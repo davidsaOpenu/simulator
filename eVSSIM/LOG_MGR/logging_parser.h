@@ -239,6 +239,10 @@ typedef struct {
      * Is it a background action?
      */
     bool background;
+    /**
+     * The time the collection ended (microseconds since epoch)
+     */
+    int64_t logging_time;
 } GarbageCollectionLog;
 
 /**
@@ -423,6 +427,10 @@ typedef struct{
      * Random id used to check if log server is synced with log event
      */
     uint64_t log_id;
+    /**
+     * The time the marker was written (microseconds since epoch)
+     */
+    int64_t logging_time;
 }LoggeingServerSync;
 
 /**
