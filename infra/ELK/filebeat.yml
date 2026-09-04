@@ -61,10 +61,11 @@ processors:
   - add_cloud_metadata: ~
   - add_docker_metadata: ~
   - add_kubernetes_metadata: ~
+  # must match timestamp_to_str in LOG_MGR/logging_parser.c, else @timestamp silently stays ingest time
   - timestamp:
       field: logging_time
-      timezone: "Asia/Jerusalem"
+      timezone: "UTC"
       layouts:
-        - "2006-01-02 15:04:05.000"
+        - "2006-01-02_15-04-05.000000"
       test:
-        - "2021-06-25 20:10:10.000"
+        - "2021-06-25_20-10-10.000000"
