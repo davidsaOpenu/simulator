@@ -75,6 +75,41 @@ class MetricsFromAggsTest(unittest.TestCase):
             hm.metrics_from_aggs(aggs)
 
 
+def hit(logging_time, timestamp, event_type="GarbageCollectionLog"):
+    src = {"type": event_type, "@timestamp": timestamp}
+    if logging_time is not None:
+        src["logging_time"] = logging_time
+    return {"_source": src}
+
+
+class EventTimeTest(unittest.TestCase):
+    def test_event_time_parsed_passes(self):
+        hits = [hit("2026-10-02_09-15-30.123456", "2026-10-02T09:15:30.123Z")]
+        self.assertEqual([], hm.event_time_failures("c", 0, hits, 0, 0))
+
+    def test_ingest_time_fails(self):
+        hits = [hit("2026-10-02_09-15-30.123456", "2026-10-02T09:15:30.123Z"),
+                hit("2026-10-02_09-15-30.123456", "2026-10-02T12:15:31.000Z")]
+        failures = hm.event_time_failures("c", 0, hits, 0, 0)
+        self.assertEqual(1, len(failures))
+        self.assertIn("1 of 2 sampled events", failures[0])
+
+    def test_missing_logging_time_fails(self):
+        self.assertIn("c: 3 events without logging_time", hm.event_time_failures("c", 3, [hit(None, "x")], 0, 0))
+
+    def test_unset_time_fails(self):
+        failures = hm.event_time_failures("c", 0, [hit("1970-01-01_00-00-00.000000", "1970-01-01T00:00:00.000Z")], 0, 0)
+        self.assertIn("is unset", failures[0])
+
+    def test_gc_without_time_buckets_fails(self):
+        hits = [hit("2026-10-02_09-15-30.123456", "2026-10-02T09:15:30.123Z")]
+        self.assertEqual(["c: 96 GC events but no @timestamp buckets"], hm.event_time_failures("c", 0, hits, 96, 0))
+        self.assertEqual([], hm.event_time_failures("c", 0, hits, 96, 3))
+
+    def test_nothing_shipped_fails(self):
+        self.assertEqual(1, len(hm.event_time_failures("c", 0, [], 0, 0)))
+
+
 class ElasticTest(unittest.TestCase):
     def setUp(self):
         self.es = hm.Elastic("pw")

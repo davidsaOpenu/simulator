@@ -36,8 +36,6 @@ extern bool g_server_mode;
 
 //during the tests most logger_read calls read 1 byte
 #define READ_LENGTH 1
-//during the garbage collection test nothing should be read as the struct is empty
-#define READ_GC_LENGTH 0
 
 using namespace std;
 
@@ -586,16 +584,27 @@ namespace log_mgr_tests {
      * Test writing and reading a garbage collection log
      */
     TEST_P(LogMgrUnitTest, GarbageCollection) {
-        GarbageCollectionLog log = { .background = false, };
-        LOG_GARBAGE_COLLECTION(_logger, log);
-        ASSERT_EQ(GARBAGE_COLLECTION_LOG_UID, next_log_type(_logger));
-        // test that NEXT_GARBAGE_COLLECTION_LOG actually does nothing,
-        // due to the fact that the struct is empty
-        Byte placeholder;
-        ASSERT_EQ(0, logger_read(_logger, &placeholder, READ_GC_LENGTH, RT_ANALYZER));
+        struct timeval logging_parser_tv;
+        TIME_MICROSEC(now);
+        GarbageCollectionLog first = { .background = false, .logging_time = now, };
+        GarbageCollectionLog second = { .background = true, .logging_time = now + 1, };
+        LOG_GARBAGE_COLLECTION(_logger, first);
+        LOG_GARBAGE_COLLECTION(_logger, second);
+
         GarbageCollectionLog res;
+        ASSERT_EQ(GARBAGE_COLLECTION_LOG_UID, next_log_type(_logger));
         NEXT_GARBAGE_COLLECTION_LOG(_logger, &res, RT_ANALYZER);
-        ASSERT_EQ(0, logger_read(_logger, &placeholder, READ_GC_LENGTH, RT_ANALYZER));
+        ASSERT_EQ(first.background, res.background);
+        ASSERT_EQ(first.logging_time, res.logging_time);
+
+        // a desync after the first log would misread this type id and struct
+        ASSERT_EQ(GARBAGE_COLLECTION_LOG_UID, next_log_type(_logger));
+        NEXT_GARBAGE_COLLECTION_LOG(_logger, &res, RT_ANALYZER);
+        ASSERT_EQ(second.background, res.background);
+        ASSERT_EQ(second.logging_time, res.logging_time);
+
+        Byte placeholder;
+        ASSERT_EQ(0, logger_read(_logger, &placeholder, READ_LENGTH, RT_ANALYZER));
     }
     /**
      * Test writing and reading a register read log

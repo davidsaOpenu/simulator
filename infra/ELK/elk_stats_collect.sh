@@ -77,7 +77,6 @@ set -o allexport; source "$env_file"; set +o allexport
 unset http_proxy https_proxy HTTP_PROXY HTTPS_PROXY 2>/dev/null || true
 
 FROM_DATE="$(date -u -d "${LOOKBACK_HOURS} hours ago" +%Y-%m-%dT%H:%M:%SZ)"
-TO_DATE="$(date -u +%Y-%m-%dT%H:%M:%SZ)"
 PREFIX="[elk_stats]"
 
 es_query() { curl -k -s -u "elastic:$ELASTIC_PASSWORD" -H 'Content-Type: application/json' "$@"; }
@@ -104,7 +103,7 @@ em_ts_to_us() {
   echo "$((s * 1000000 + us))"
 }
 
-read_body() { echo '{"size":0,"query":{"bool":{"filter":[{"range":{"@timestamp":{"gte":"'$FROM_DATE'","lte":"'$TO_DATE'"}}},{"term":{"type":"'"$1"'"}}]}},"aggs":{"total":{"value_count":{"field":"@timestamp"}},"by_device":{"terms":{"field":"device_index","size":10}},"by_background":{"terms":{"field":"background","size":5}},"by_channel":{"terms":{"field":"channel","size":20}},"first":{"top_hits":{"size":1,"sort":[{"@timestamp":{"order":"asc"}}],"_source":{"includes":["@timestamp","device_index","page","block","channel","background"]}}},"last":{"top_hits":{"size":1,"sort":[{"@timestamp":{"order":"desc"}}],"_source":{"includes":["@timestamp","device_index","page","block","channel","background"]}}}}}'; }
+read_body() { echo '{"size":0,"query":{"bool":{"filter":[{"range":{"@timestamp":{"gte":"'$FROM_DATE'"}}},{"term":{"type":"'"$1"'"}}]}},"aggs":{"total":{"value_count":{"field":"@timestamp"}},"by_device":{"terms":{"field":"device_index","size":10}},"by_background":{"terms":{"field":"background","size":5}},"by_channel":{"terms":{"field":"channel","size":20}},"first":{"top_hits":{"size":1,"sort":[{"@timestamp":{"order":"asc"}}],"_source":{"includes":["@timestamp","device_index","page","block","channel","background"]}}},"last":{"top_hits":{"size":1,"sort":[{"@timestamp":{"order":"desc"}}],"_source":{"includes":["@timestamp","device_index","page","block","channel","background"]}}}}}'; }
 
 
 # ===================================================================
@@ -120,21 +119,21 @@ echo "$PREFIX ES is up"
 
 idx="$(es_query "$ES_URL/_cat/indices/$INDEX_PATTERN?h=index" | awk 'NF' | sort -r | head -1)"
 [[ -n "$idx" ]] || { echo "$PREFIX no indices found"; exit 1; }
-echo "$PREFIX index: $idx | window: $FROM_DATE to $TO_DATE | mode: $MODE${OUTPUT:+ | output: $OUTPUT}"
+echo "$PREFIX index: $idx | window: since $FROM_DATE | mode: $MODE${OUTPUT:+ | output: $OUTPUT}"
 
 tmp_out="$(mktemp)"
 {
 echo "# ELK Stats Snapshot"
 echo "# Generated: $(date -u +%Y-%m-%dT%H:%M:%SZ)"
 echo "# Index: $idx"
-echo "# Window: $FROM_DATE to $TO_DATE (last ${LOOKBACK_HOURS}h)"
+echo "# Window: since $FROM_DATE (last ${LOOKBACK_HOURS}h)"
 echo "# Device filter: ${DEVICE_INDEX:-all}"
 
 # ===================================================================
 section "1. ACTIVITY TIME RANGE"
 
 body=$(cat <<EOF
-{"size":0,"query":{"bool":{"filter":[{"range":{"@timestamp":{"gte":"$FROM_DATE","lte":"$TO_DATE"}}}]}},"aggs":{"first_log":{"top_hits":{"size":1,"sort":[{"@timestamp":{"order":"asc"}}],"_source":{"includes":["@timestamp","type","device_index"]}}},"last_log":{"top_hits":{"size":1,"sort":[{"@timestamp":{"order":"desc"}}],"_source":{"includes":["@timestamp","type","device_index"]}}}}}
+{"size":0,"query":{"bool":{"filter":[{"range":{"@timestamp":{"gte":"$FROM_DATE"}}}]}},"aggs":{"first_log":{"top_hits":{"size":1,"sort":[{"@timestamp":{"order":"asc"}}],"_source":{"includes":["@timestamp","type","device_index"]}}},"last_log":{"top_hits":{"size":1,"sort":[{"@timestamp":{"order":"desc"}}],"_source":{"includes":["@timestamp","type","device_index"]}}}}}
 EOF
 )
 result="$(es_query "$ES_URL/$idx/_search" -d "$body")"
@@ -142,23 +141,10 @@ first_ts="$(echo "$result" | jq -r '.aggregations.first_log.hits.hits[0]._source
 first_type="$(echo "$result" | jq -r '.aggregations.first_log.hits.hits[0]._source["type"] // "n/a"' 2>/dev/null)"
 last_ts="$(echo "$result" | jq -r '.aggregations.last_log.hits.hits[0]._source["@timestamp"] // "n/a"' 2>/dev/null)"
 last_type="$(echo "$result" | jq -r '.aggregations.last_log.hits.hits[0]._source["type"] // "n/a"' 2>/dev/null)"
-duration_ms=""
-if [[ "$first_ts" != "n/a" && "$last_ts" != "n/a" ]]; then
-  e1="$(date -u -d "$first_ts" +%s%3N 2>/dev/null || echo "")"
-  e2="$(date -u -d "$last_ts" +%s%3N 2>/dev/null || echo "")"
-  if [[ -n "$e1" && -n "$e2" ]]; then
-    duration_ms=$((e2 - e1))
-    awk -v ms="$duration_ms" 'BEGIN{printf "Activity span: %.0f ms (%.3f s, %.1f h)\n", ms, ms/1000, ms/3600000}'
-  else
-    echo "Activity span: n/a"
-  fi
-else
-  echo "Activity span: n/a"
-fi
 echo "First log: $first_ts ($first_type)"
 echo "Last log:  $last_ts ($last_type)"
 
-em_body='{"size":0,"track_total_hits":false,"query":{"bool":{"filter":[{"range":{"@timestamp":{"gte":"'$FROM_DATE'","lte":"'$TO_DATE'"}}}]}},"aggs":{"min_sim":{"top_hits":{"size":1,"sort":[{"logging_time":{"order":"asc"}}],"_source":{"includes":["logging_time","type"]}}},"max_sim":{"top_hits":{"size":1,"sort":[{"logging_time":{"order":"desc"}}],"_source":{"includes":["logging_time","type"]}}}}}'
+em_body='{"size":0,"track_total_hits":false,"query":{"bool":{"filter":[{"range":{"@timestamp":{"gte":"'$FROM_DATE'"}}}]}},"aggs":{"min_sim":{"top_hits":{"size":1,"sort":[{"logging_time":{"order":"asc"}}],"_source":{"includes":["logging_time","type"]}}},"max_sim":{"top_hits":{"size":1,"sort":[{"logging_time":{"order":"desc"}}],"_source":{"includes":["logging_time","type"]}}}}}'
 em_result="$(es_query "$ES_URL/$idx/_search" -d "$em_body")"
 min_sim="$(echo "$em_result" | jq -r '.aggregations.min_sim.hits.hits[0]._source["logging_time"] // empty' 2>/dev/null || echo "")"
 max_sim="$(echo "$em_result" | jq -r '.aggregations.max_sim.hits.hits[0]._source["logging_time"] // empty' 2>/dev/null || echo "")"
@@ -214,7 +200,7 @@ echo "  time range: $write_first to $write_last"
 # ===================================================================
 section "5. PhysicalCellProgramCompatibleLog"
 
-compat_body='{"size":0,"query":{"bool":{"filter":[{"range":{"@timestamp":{"gte":"'$FROM_DATE'","lte":"'$TO_DATE'"}}},{"term":{"type":"PhysicalCellProgramCompatibleLog"}}]}},"aggs":{"total":{"value_count":{"field":"@timestamp"}},"by_device":{"terms":{"field":"device_index","size":10}}}}'
+compat_body='{"size":0,"query":{"bool":{"filter":[{"range":{"@timestamp":{"gte":"'$FROM_DATE'"}}},{"term":{"type":"PhysicalCellProgramCompatibleLog"}}]}},"aggs":{"total":{"value_count":{"field":"@timestamp"}},"by_device":{"terms":{"field":"device_index","size":10}}}}'
 result="$(es_query "$ES_URL/$idx/_search" -d "$compat_body")"
 compat_total="$(echo "$result" | jq -r '.aggregations.total.value // 0' 2>/dev/null || echo "?")"
 echo "PhysicalCellProgramCompatibleLog total: $compat_total"
@@ -223,7 +209,7 @@ echo "$result" | jq -r '.aggregations.by_device.buckets[] | "    device \(.key):
 # ===================================================================
 section "6. LogicalCellProgramLog BREAKDOWN"
 
-logical_body='{"size":0,"query":{"bool":{"filter":[{"range":{"@timestamp":{"gte":"'$FROM_DATE'","lte":"'$TO_DATE'"}}},{"term":{"type":"LogicalCellProgramLog"}}]}},"aggs":{"total":{"value_count":{"field":"@timestamp"}},"by_device":{"terms":{"field":"device_index","size":10}}}}'
+logical_body='{"size":0,"query":{"bool":{"filter":[{"range":{"@timestamp":{"gte":"'$FROM_DATE'"}}},{"term":{"type":"LogicalCellProgramLog"}}]}},"aggs":{"total":{"value_count":{"field":"@timestamp"}},"by_device":{"terms":{"field":"device_index","size":10}}}}'
 result="$(es_query "$ES_URL/$idx/_search" -d "$logical_body")"
 logical_total="$(echo "$result" | jq -r '.aggregations.total.value // 0' 2>/dev/null || echo "?")"
 echo "LogicalCellProgramLog total: $logical_total"
@@ -232,7 +218,7 @@ echo "$result" | jq -r '.aggregations.by_device.buckets[] | "    device \(.key):
 # ===================================================================
 section "7. PageCopyBackLog BREAKDOWN"
 
-cb_body='{"size":0,"query":{"bool":{"filter":[{"range":{"@timestamp":{"gte":"'$FROM_DATE'","lte":"'$TO_DATE'"}}},{"term":{"type":"PageCopyBackLog"}}]}},"aggs":{"total":{"value_count":{"field":"@timestamp"}},"by_device":{"terms":{"field":"device_index","size":10}},"by_background":{"terms":{"field":"background","size":5}}}}'
+cb_body='{"size":0,"query":{"bool":{"filter":[{"range":{"@timestamp":{"gte":"'$FROM_DATE'"}}},{"term":{"type":"PageCopyBackLog"}}]}},"aggs":{"total":{"value_count":{"field":"@timestamp"}},"by_device":{"terms":{"field":"device_index","size":10}},"by_background":{"terms":{"field":"background","size":5}}}}'
 result="$(es_query "$ES_URL/$idx/_search" -d "$cb_body")"
 copyback_total="$(echo "$result" | jq -r '.aggregations.total.value // 0' 2>/dev/null || echo "?")"
 echo "PageCopyBackLog total: $copyback_total"
@@ -242,7 +228,7 @@ echo "  by background:"; echo "$result" | jq -r '.aggregations.by_background.buc
 # ===================================================================
 section "8. GarbageCollectionLog BREAKDOWN"
 
-gc_body='{"size":0,"query":{"bool":{"filter":[{"range":{"@timestamp":{"gte":"'$FROM_DATE'","lte":"'$TO_DATE'"}}},{"term":{"type":"GarbageCollectionLog"}}]}},"aggs":{"total":{"value_count":{"field":"@timestamp"}},"by_background":{"terms":{"field":"background","size":5}},"first":{"top_hits":{"size":1,"sort":[{"@timestamp":{"order":"asc"}}],"_source":{"includes":["@timestamp","device_index","background"]}}},"last":{"top_hits":{"size":1,"sort":[{"@timestamp":{"order":"desc"}}],"_source":{"includes":["@timestamp","device_index","background"]}}}}}'
+gc_body='{"size":0,"query":{"bool":{"filter":[{"range":{"@timestamp":{"gte":"'$FROM_DATE'"}}},{"term":{"type":"GarbageCollectionLog"}}]}},"aggs":{"total":{"value_count":{"field":"@timestamp"}},"by_background":{"terms":{"field":"background","size":5}},"first":{"top_hits":{"size":1,"sort":[{"@timestamp":{"order":"asc"}}],"_source":{"includes":["@timestamp","device_index","background"]}}},"last":{"top_hits":{"size":1,"sort":[{"@timestamp":{"order":"desc"}}],"_source":{"includes":["@timestamp","device_index","background"]}}}}}'
 result="$(es_query "$ES_URL/$idx/_search" -d "$gc_body")"
 gc_total="$(echo "$result" | jq -r '.aggregations.total.value // 0' 2>/dev/null || echo "?")"
 gc_bg="$(echo "$result" | jq -r '.aggregations.by_background.buckets[] | select(.key == true or .key_as_string == "true") | .doc_count' 2>/dev/null || echo 0)"
@@ -270,7 +256,7 @@ if [[ "$gc_total" =~ ^[0-9]+$ ]] && (( gc_total > 0 )); then
   else
     echo "GC events: $gc_total"
   fi
-  gc_deep_body='{"size":0,"query":{"bool":{"filter":[{"range":{"@timestamp":{"gte":"'$FROM_DATE'","lte":"'$TO_DATE'"}}},{"term":{"type":"GarbageCollectionLog"}}]}},"aggs":{"by_device":{"terms":{"field":"device_index","size":10},"aggs":{"bg":{"filter":{"term":{"background":true}}}}},"per_interval":{"date_histogram":{"field":"@timestamp","fixed_interval":"30m"},"aggs":{"fg":{"filter":{"term":{"background":false}}}}},"per_minute":{"date_histogram":{"field":"@timestamp","fixed_interval":"1m"}}}}'
+  gc_deep_body='{"size":0,"query":{"bool":{"filter":[{"range":{"@timestamp":{"gte":"'$FROM_DATE'"}}},{"term":{"type":"GarbageCollectionLog"}}]}},"aggs":{"by_device":{"terms":{"field":"device_index","size":10},"aggs":{"bg":{"filter":{"term":{"background":true}}}}},"per_interval":{"date_histogram":{"field":"@timestamp","fixed_interval":"30m"},"aggs":{"fg":{"filter":{"term":{"background":false}}}}},"per_minute":{"date_histogram":{"field":"@timestamp","fixed_interval":"1m"}}}}'
   result="$(es_query "$ES_URL/$idx/_search" -d "$gc_deep_body")" || true
   echo "  by device:"
   echo "$result" | jq -r '.aggregations.by_device.buckets[] | "    device \(.key): total=\(.doc_count) background=\(.bg.doc_count) foreground=\(.doc_count - .bg.doc_count)"' 2>/dev/null
@@ -302,7 +288,7 @@ fi
 # ===================================================================
 section "10. BlockEraseLog BREAKDOWN"
 
-erase_body='{"size":0,"query":{"bool":{"filter":[{"range":{"@timestamp":{"gte":"'$FROM_DATE'","lte":"'$TO_DATE'"}}},{"term":{"type":"BlockEraseLog"}}]}},"aggs":{"total":{"value_count":{"field":"@timestamp"}},"by_device":{"terms":{"field":"device_index","size":10}}}}'
+erase_body='{"size":0,"query":{"bool":{"filter":[{"range":{"@timestamp":{"gte":"'$FROM_DATE'"}}},{"term":{"type":"BlockEraseLog"}}]}},"aggs":{"total":{"value_count":{"field":"@timestamp"}},"by_device":{"terms":{"field":"device_index","size":10}}}}'
 result="$(es_query "$ES_URL/$idx/_search" -d "$erase_body")"
 erase_total="$(echo "$result" | jq -r '.aggregations.total.value // 0' 2>/dev/null || echo "?")"
 echo "BlockEraseLog total: $erase_total"
@@ -312,7 +298,7 @@ echo "  by device:"; echo "$result" | jq -r '.aggregations.by_device.buckets[] |
 section "11. LOW-LEVEL OPERATION COUNTS"
 
 for logtype in RegisterReadLog RegisterWriteLog ChannelSwitchToReadLog ChannelSwitchToWriteLog; do
-  body="{\"size\":0,\"query\":{\"bool\":{\"filter\":[{\"range\":{\"@timestamp\":{\"gte\":\"$FROM_DATE\",\"lte\":\"$TO_DATE\"}}},{\"term\":{\"type\":\"$logtype\"}}]}},\"aggs\":{\"total\":{\"value_count\":{\"field\":\"@timestamp\"}},\"by_device\":{\"terms\":{\"field\":\"device_index\",\"size\":10}}}}"
+  body="{\"size\":0,\"query\":{\"bool\":{\"filter\":[{\"range\":{\"@timestamp\":{\"gte\":\"$FROM_DATE\"}}},{\"term\":{\"type\":\"$logtype\"}}]}},\"aggs\":{\"total\":{\"value_count\":{\"field\":\"@timestamp\"}},\"by_device\":{\"terms\":{\"field\":\"device_index\",\"size\":10}}}}"
   result="$(es_query "$ES_URL/$idx/_search" -d "$body")"
   lt_total="$(echo "$result" | jq -r '.aggregations.total.value // 0' 2>/dev/null || echo "?")"
   echo "$logtype total: $lt_total"
@@ -322,7 +308,7 @@ done
 # ===================================================================
 section "12. UTILIZATION STATS"
 
-util_body='{"size":0,"query":{"bool":{"filter":[{"range":{"@timestamp":{"gte":"'$FROM_DATE'","lte":"'$TO_DATE'"}}},{"term":{"type":"SsdUtilizationLog"}}]}},"aggs":{"util_samples":{"value_count":{"field":"@timestamp"}},"avg_util":{"avg":{"field":"utilization_percent"}},"by_device":{"terms":{"field":"device_index","size":10},"aggs":{"samples":{"value_count":{"field":"@timestamp"}},"max_occupied":{"max":{"field":"occupied_pages"}},"total_pages":{"max":{"field":"total_pages"}}}},"last_by_device":{"terms":{"field":"device_index","size":10,"order":{"_key":"asc"}},"aggs":{"last":{"top_hits":{"size":1,"sort":[{"@timestamp":{"order":"desc"}}],"_source":{"includes":["utilization_percent","occupied_pages","total_pages","test.ssd.size","device_index"]}}}}},"max_occ":{"top_hits":{"size":1,"sort":[{"occupied_pages":{"order":"desc","unmapped_type":"long"}},{"@timestamp":{"order":"desc"}}],"_source":{"includes":["utilization_percent","total_pages","occupied_pages","test.ssd.size"]}}},"min_occ":{"top_hits":{"size":1,"sort":[{"occupied_pages":{"order":"asc","unmapped_type":"long"}},{"@timestamp":{"order":"desc"}}],"_source":{"includes":["utilization_percent","total_pages","occupied_pages","test.ssd.size"]}}}}}'
+util_body='{"size":0,"query":{"bool":{"filter":[{"range":{"@timestamp":{"gte":"'$FROM_DATE'"}}},{"term":{"type":"SsdUtilizationLog"}}]}},"aggs":{"util_samples":{"value_count":{"field":"@timestamp"}},"avg_util":{"avg":{"field":"utilization_percent"}},"by_device":{"terms":{"field":"device_index","size":10},"aggs":{"samples":{"value_count":{"field":"@timestamp"}},"max_occupied":{"max":{"field":"occupied_pages"}},"total_pages":{"max":{"field":"total_pages"}}}},"last_by_device":{"terms":{"field":"device_index","size":10,"order":{"_key":"asc"}},"aggs":{"last":{"top_hits":{"size":1,"sort":[{"@timestamp":{"order":"desc"}}],"_source":{"includes":["utilization_percent","occupied_pages","total_pages","test.ssd.size","device_index"]}}}}},"max_occ":{"top_hits":{"size":1,"sort":[{"occupied_pages":{"order":"desc","unmapped_type":"long"}},{"@timestamp":{"order":"desc"}}],"_source":{"includes":["utilization_percent","total_pages","occupied_pages","test.ssd.size"]}}},"min_occ":{"top_hits":{"size":1,"sort":[{"occupied_pages":{"order":"asc","unmapped_type":"long"}},{"@timestamp":{"order":"desc"}}],"_source":{"includes":["utilization_percent","total_pages","occupied_pages","test.ssd.size"]}}}}}'
 result="$(es_query "$ES_URL/$idx/_search" -d "$util_body")"
 util_samples="$(echo "$result" | jq -r '.aggregations.util_samples.value // 0' 2>/dev/null || echo "?")"
 echo "Utilization log samples: $util_samples"
@@ -335,7 +321,7 @@ section "13. ELK PERFORMANCE TEST METRICS"
 lat_file="$(mktemp)"
 i=1
 while [ "$i" -le "$SAMPLES" ]; do
-  t_sec="$(curl -k -s -o /dev/null -w '%{time_total}' -u "elastic:$ELASTIC_PASSWORD" -H 'Content-Type: application/json' "$ES_URL/$idx/_search" -d '{"size":0,"query":{"range":{"@timestamp":{"gte":"'"$FROM_DATE"'","lte":"'"$TO_DATE"'"}}},"sort":[{"@timestamp":{"order":"desc"}}]}' || true)"
+  t_sec="$(curl -k -s -o /dev/null -w '%{time_total}' -u "elastic:$ELASTIC_PASSWORD" -H 'Content-Type: application/json' "$ES_URL/$idx/_search" -d '{"size":0,"query":{"range":{"@timestamp":{"gte":"'"$FROM_DATE"'"}}},"sort":[{"@timestamp":{"order":"desc"}}]}' || true)"
   ms="$(sec_to_ms "$t_sec")"
   echo "$ms" >>"$lat_file"
   i=$((i + 1))

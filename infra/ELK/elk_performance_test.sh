@@ -109,7 +109,6 @@ disk_threshold() {  # $1=idx  $2=override-token  $3=fallback-var
 }
 
 iso_to_logtime_from() { echo "$1" | sed -E 's/T/_/; s/:/-/g; s/Z$/.000000/'; }
-iso_to_logtime_to()   { echo "$1" | sed -E 's/T/_/; s/:/-/g; s/Z$/.999999/'; }
 
 list_indices_sorted() {
   curl -k -s -u "elastic:$ELASTIC_PASSWORD" \
@@ -141,15 +140,12 @@ pick_ts_field_for_index() {
 
 TS_FIELD="@timestamp"
 TS_FROM=""
-TS_TO=""
 
 set_ts_bounds() {
   if [[ "$TS_FIELD" == "@timestamp" ]]; then
     TS_FROM="$FROM_DATE"
-    TS_TO="$TO_DATE"
   else
     TS_FROM="$(iso_to_logtime_from "$FROM_DATE")"
-    TS_TO="$(iso_to_logtime_to "$TO_DATE")"
   fi
 }
 
@@ -159,8 +155,7 @@ count_body() {
   "query": {
     "range": {
       "$TS_FIELD": {
-        "gte": "$TS_FROM",
-        "lte": "$TS_TO"
+        "gte": "$TS_FROM"
       }
     }
   }
@@ -177,8 +172,7 @@ search_body() {
   "query": {
     "range": {
       "$TS_FIELD": {
-        "gte": "$TS_FROM",
-        "lte": "$TS_TO"
+        "gte": "$TS_FROM"
       }
     }
   },
@@ -465,7 +459,7 @@ global_metrics_body="$(cat <<EOF
   "query": {
     "bool": {
       "filter": [
-        { "range": { "$TS_FIELD": { "gte": "$METRICS_TS_FROM", "lte": "$TS_TO" } } }
+        { "range": { "$TS_FIELD": { "gte": "$METRICS_TS_FROM" } } }
         $device_filter_clause
       ]
     }
@@ -600,7 +594,7 @@ sector_metrics_body="$(cat <<EOF
       "must": [
         {
           "range": {
-            "$TS_FIELD": { "gte": "$METRICS_TS_FROM", "lte": "$TS_TO" }
+            "$TS_FIELD": { "gte": "$METRICS_TS_FROM" }
           }
         },
         $(test_name_filter "$TEST_NAME_FILTER")
@@ -676,7 +670,7 @@ disk_metrics_body() {
   "query": {
     "bool": {
       "must": [
-        { "range": { "$TS_FIELD": { "gte": "$METRICS_TS_FROM", "lte": "$TS_TO" } } },
+        { "range": { "$TS_FIELD": { "gte": "$METRICS_TS_FROM" } } },
         $(disk_filter "$idx"),
         $(test_name_filter "$TEST_NAME_FILTER")
       ]

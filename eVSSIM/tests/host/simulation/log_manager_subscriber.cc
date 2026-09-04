@@ -166,7 +166,7 @@ namespace manager_subscriber {
                 .metadata = LOG_META(g_device_index, start, end6),
                 });
         LOG_GARBAGE_COLLECTION(logger1, (GarbageCollectionLog) {
-                .background = false,
+                .background = false, .logging_time = end6,
         });
 
         // analyze the logs and propagate the changes to the manager
