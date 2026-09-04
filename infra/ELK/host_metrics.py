@@ -85,6 +85,56 @@ METRICS_QUERY = {
 }
 
 
+LOGGING_TIME_FORMAT = "%Y-%m-%d_%H-%M-%S.%f"
+EVENT_TIME_SAMPLE = 500
+EVENT_TIME_TOLERANCE_MS = 1
+MISSING_EVENT_TIME_QUERY = {"query": {"bool": {"must_not": {"exists": {"field": "logging_time"}}}}}
+
+
+def _event_time_query(query):
+    return {"size": EVENT_TIME_SAMPLE, "_source": ["@timestamp", "logging_time", "type"], "query": query}
+
+
+GC_OVER_TIME_QUERY = {  # the "Garbage Collection Events Over Time" panel, as a query
+    "size": 0, "track_total_hits": True, "query": _type_filter("GarbageCollectionLog"),
+    "aggs": {"over_time": {"date_histogram": {"field": "@timestamp", "fixed_interval": "1s",
+                                              "min_doc_count": 1}}}}
+
+
+def event_time_failures(name, missing, hits, gc_total, gc_buckets):
+    """@timestamp must be each event's own logging_time, not ingest time."""
+    failures = []
+    if gc_total and not gc_buckets:
+        failures.append("%s: %d GC events but no @timestamp buckets" % (name, gc_total))
+    if missing:
+        failures.append("%s: %d events without logging_time" % (name, missing))
+    if not hits:
+        failures.append("%s: no events sampled for event time (nothing shipped)" % name)
+    bad = []
+    for hit in hits:
+        src = hit["_source"]
+        try:
+            event = datetime.datetime.strptime(src["logging_time"], LOGGING_TIME_FORMAT).replace(
+                tzinfo=datetime.timezone.utc)
+            ingest = datetime.datetime.fromisoformat(src["@timestamp"].replace("Z", "+00:00"))
+        except (KeyError, ValueError) as e:
+            bad.append("%s has no parseable time (%s)" % (src.get("type"), e))
+            continue
+        if event.year < 2000:
+            bad.append("%s logging_time %s is unset" % (src.get("type"), src["logging_time"]))
+            continue
+        # Elasticsearch keeps @timestamp to the millisecond, logging_time to the microsecond
+        event -= datetime.timedelta(microseconds=event.microsecond % 1000)
+        skew_ms = abs((ingest - event).total_seconds()) * 1000
+        if skew_ms > EVENT_TIME_TOLERANCE_MS:
+            bad.append("%s @timestamp %s != logging_time %s" % (src.get("type"), src["@timestamp"],
+                                                               src["logging_time"]))
+    if bad:
+        failures.append("%s: %d of %d sampled events have a wrong event time, first: %s"
+                        % (name, len(bad), len(hits), bad[0]))
+    return failures
+
+
 def _ratio(num, den):
     return num / den if den else 0.0
 
@@ -185,6 +235,15 @@ class Elastic:
     def metrics(self):
         return metrics_from_aggs(self.request("POST", INDEX + "/_search", METRICS_QUERY)["aggregations"])
 
+    def event_times(self):
+        """(events without logging_time, sampled hits incl. GC-only, GC total, GC buckets)"""
+        missing = self.request("POST", INDEX + "/_count", MISSING_EVENT_TIME_QUERY)["count"]
+        hits = []
+        for query in ({"match_all": {}}, _type_filter("GarbageCollectionLog")):
+            hits += self.request("POST", INDEX + "/_search", _event_time_query(query))["hits"]["hits"]
+        gc = self.request("POST", INDEX + "/_search", GC_OVER_TIME_QUERY)
+        return missing, hits, gc["hits"]["total"]["value"], len(gc["aggregations"]["over_time"]["buckets"])
+
 
 def run_simulation(version, args):
     """Run one case in the test container. data/ is cleared first so leftover images can't skew it."""
@@ -230,6 +289,7 @@ def gate(version):
         for metric in METRIC_NAMES:
             print("    %-22s = %r" % (metric, getattr(metrics, metric)))
         failures += check_bounds(name, metrics, bounds.get(name, {}))
+        failures += event_time_failures(name, *es.event_times())
     for f in failures:
         print("FAIL", f)
     print("[host_metrics] RESULT:", "FAIL" if failures else "PASS")
