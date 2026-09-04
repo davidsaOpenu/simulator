@@ -53,7 +53,7 @@ char *timestamp_to_str(int64_t cur_ts, char *buf)
     // 8 for decimal point + six digits + null terminator.
     const int TIME_STAMP_SECS_LEN = TIME_STAMP_LEN - 8;
 
-    if (localtime_r(&cur_ts_secs, &ts) == NULL)
+    if (gmtime_r(&cur_ts_secs, &ts) == NULL)
     {
         snprintf(buf, TIME_STAMP_LEN, "INVALID_TIMESTAMP");
         return buf;
@@ -236,6 +236,7 @@ void JSON_GARBAGE_COLLECTION(GarbageCollectionLog *src, char **dst)
     json_object_object_add(jobj, "type", json_object_new_string("GarbageCollectionLog"));
     json_object_object_add(jobj, "background", json_object_new_boolean(src->background));
     // add_metadata_to_json_object(jobj, &src->metadata);
+    add_time_to_json_object(jobj, src->logging_time);
 
     const char *json_string = json_object_to_json_string_ext(jobj, JSON_C_TO_STRING_SPACED);
 
@@ -468,6 +469,7 @@ void JSON_LOG_SYNC(LoggeingServerSync *src, char **dst)
     jobj = json_object_new_object();
     json_object_object_add(jobj, "type", json_object_new_string("LoggeingServerSync"));
     json_object_object_add(jobj, "log_id", json_object_new_int(src->log_id));
+    add_time_to_json_object(jobj, src->logging_time);
     const char *json_string = json_object_to_json_string_ext(jobj, JSON_C_TO_STRING_SPACED);
 
     size_t json_length = strlen(json_string);

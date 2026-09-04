@@ -356,7 +356,7 @@ namespace rt_subscriber {
         });
         TIME_MICROSEC(end5);
         LOG_GARBAGE_COLLECTION(logger, (GarbageCollectionLog) {
-            .background = false,
+            .background = false, .logging_time = end5,
         });
         LOG_LOGICAL_CELL_PROGRAM(logger, (LogicalCellProgramLog) {
             .channel = 7, .block = 8, .page = 9,
@@ -396,7 +396,7 @@ namespace rt_subscriber {
             .metadata = LOG_META(g_device_index, start, end11),
         });
         LOG_GARBAGE_COLLECTION(logger, (GarbageCollectionLog) {
-            .background = false,
+            .background = false, .logging_time = end11,
         });
     }
 
