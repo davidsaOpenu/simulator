@@ -19,6 +19,7 @@
 #include <stdlib.h>
 
 #include "logging_server.h"
+#include "ssd_io_manager.h"   /* get_usec: the simulated clock the events are stamped with */
 
 /**
  * The time between server loops, in milliseconds
@@ -356,11 +357,11 @@ void _MONITOR_SYNC(uint8_t device_index, SSDStatistics *stats, uint64_t max_slee
     for(i = 0; i < devices[device_index].flash_nb; i++){
         log_id = rand();
         LOG_LOG_SYNC(GET_LOGGER(device_index, i), (LoggeingServerSync) {
-            .log_id = log_id
+            .log_id = log_id, .logging_time = get_usec()
         });
         _MONITOR_SYNC_LOG_ID(stats, log_id, max_sleep);
         LOG_LOG_SYNC(GET_LOGGER(device_index, i), (LoggeingServerSync) {
-            .log_id = 0
+            .log_id = 0, .logging_time = get_usec()
         });
         if(stats->log_id != log_id){
             RERR(, "Monitor sync timed out logger_id = %lu, of total = %u\n", i, devices[device_index].flash_nb);
