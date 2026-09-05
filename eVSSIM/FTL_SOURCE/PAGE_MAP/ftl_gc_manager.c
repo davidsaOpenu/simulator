@@ -21,6 +21,9 @@ static void *GC_BACKGROUND_LOOP(void *arg) {
     uint8_t device_index = gc_thread->device_index;
     pthread_mutex_t *device_lock = GET_LOCK_FOR_DEVICE(device_index);
 
+    // GC flash time goes to its own slot, so the pause below never takes an I/O command's time
+    ssd_realtime_bind_gc_thread();
+
     LOCK_DEVICE(device_index);
     while (!gc_thread->gc_stop_flag) {
         gc_thread->gc_loop_count++;
@@ -28,6 +31,8 @@ static void *GC_BACKGROUND_LOOP(void *arg) {
         uint64_t total_zero_page_nb;
         do {
             collected = GC_CHECK(gc_thread->device_index, false, true);
+            // spend the pass's flash time holding the device, as the flash would be busy
+            ssd_realtime_pause(device_index);
             total_zero_page_nb = inverse_mappings_manager[device_index].total_zero_page_nb;
         } while (collected && total_zero_page_nb < devices[device_index].gc_hi_thr_page_nb);
 
