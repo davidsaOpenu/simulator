@@ -137,6 +137,8 @@ eVSSIM/tests/host/*/ssd_log_manager.c
 eVSSIM/tests/host/*/ssd_log_manager.h
 eVSSIM/tests/host/*/ssd_util.h
 eVSSIM/tests/host/*/uthash.h
+eVSSIM/tests/host/*/rt_delay.c
+eVSSIM/tests/host/*/rt_delay.h
 eVSSIM/tests/host/*/vssim_config_manager.c
 eVSSIM/tests/host/*/vssim_config_manager.h
 eVSSIM/tests/host/*/test_context.c

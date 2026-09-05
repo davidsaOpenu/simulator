@@ -9,6 +9,7 @@
 //#include "ssd_util.h"
 #include "ftl.h"
 #include "logging_statistics.h"
+#include "rt_delay.h"
 
 extern enum SSDTimeMode{
     REAL, // We have removed the use of REAL SSDTimeMode from io_manager
@@ -58,6 +59,9 @@ typedef struct ssd_manager {
     int64_t sim_time_us;        /* simulated time offset */
 
     ssd_disk ssd;
+
+    rtd_ctx* realtime;              /* REALTIME_DELAY slots, NULL when off */
+    uint32_t realtime_users;        /* threads and coroutines using realtime, see realtime_get() */
 } ssd_manager_t;
 
 extern ssd_manager_t* ssds_manager;
@@ -67,11 +71,17 @@ extern int64_t time_delay;
 /* Get Current time in micro second */
 int64_t get_usec(uint8_t device_index);
 
-/* Insert delay on x usec. depending on config, will actually wait realworld time, otherwise do nothing. could have been a macro but his is more readable in code*/
+/* Advance the simulated clock by usec (and queue it for real-time sleep if REALTIME_DELAY) */
 void wait_usec(uint8_t device_index, int64_t usec);
 
 /* Wait until a specific target time is reached */
 void wait_until(uint8_t device_index, int64_t target_us);
+
+/* Sleep off the flash time the calling thread's slot queued (REALTIME_DELAY only) */
+void ssd_realtime_pause(uint8_t device_index);
+
+/* Mark the calling thread as a GC thread: its flash time and pauses use the GC slot */
+void ssd_realtime_bind_gc_thread(void);
 
 /* Initialize SSD Module */
 int SSD_IO_INIT(uint8_t device_index);
