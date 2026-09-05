@@ -6,6 +6,8 @@
 #include "common.h"
 #include <string.h>
 #include <stdlib.h>
+#include <time.h>
+#include <pthread.h>
 #include "test_context.h"
 #include "logging_parser.h"
 
@@ -22,6 +24,13 @@ enum SSDTimeMode SSDTimeMode;
 
 /* Emulation time state */
 static uint64_t log_seq_id = 0;        /* optional: used where you assign seq ids TODO: Apply this to logs*/
+
+static rtd_ctx *realtime_ctx(uint8_t device_index)
+{
+    if (ssds_manager == NULL || device_index >= device_count)
+        return NULL;
+    return __atomic_load_n(&ssds_manager[device_index].realtime, __ATOMIC_ACQUIRE);
+}
 
 /**
  * Get current time in microseconds
@@ -42,13 +51,148 @@ int64_t get_usec(uint8_t device_index)
  */
 void wait_usec(uint8_t device_index, int64_t usec)
 {
-    if (usec <= 0)
+    rtd_ctx *ctx;
+
+    if (usec <= 0 || ssds_manager == NULL || device_index >= device_count)
         return;
 
     if (SSDTimeMode == EMULATED)
     {
         __atomic_fetch_add(&ssds_manager[device_index].sim_time_us, usec, __ATOMIC_ACQ_REL);
     }
+
+    ctx = realtime_ctx(device_index);
+    if (ctx != NULL)
+        rtd_add_us(ctx, 0, (uint64_t)usec);
+}
+
+/*
+ * Sleep off the flash time accumulated on the device; additive to the virtual clock, which is left
+ * untouched. One call spends everything added since the previous one, whichever thread added it
+ * (the caller, an ONFI worker, or the GC).
+ *
+ * The FTL entry points call this after UNLOCK_DEVICE, never under it: on a coroutine the sleep
+ * yields, the mutex records the owning thread, and the next I/O coroutine scheduled onto that
+ * thread would block on it with nobody left to resume the sleeper. The GC thread is no coroutine
+ * and calls it under the lock: holding the device while the flash is busy is what real hardware
+ * does.
+ */
+void ssd_realtime_pause(uint8_t device_index)
+{
+    rtd_ctx *ctx = realtime_ctx(device_index);
+
+    if (ctx != NULL)
+        rtd_pause(ctx, 0);
+}
+
+int ssd_realtime_report(uint8_t device_index, char *buf, size_t len)
+{
+    int ret = -1;
+    rtd_ctx *ctx;
+
+    ctx = realtime_ctx(device_index);
+    if (ctx != NULL)
+        ret = rtd_report(ctx, 0, buf, len);
+    return ret;
+}
+
+#ifdef VSSIM_NEXTGEN_BUILD_SYSTEM
+/* Forward-declared rather than including qemu/osdep.h, which must be the first
+ * include and would fight a file that also builds for the host tests. */
+extern bool qemu_in_coroutine(void);
+#define QEMU_CLOCK_REALTIME_ID 0
+
+/* Both QEMU builds define VSSIM_NEXTGEN_BUILD_SYSTEM. Only QEMU 11 has qemu/coroutine-core.h
+ * (gcc 4.8, QEMU 2.12's compiler, has no __has_include, so it takes the 2.12 path). */
+#ifdef __has_include
+#if __has_include("qemu/coroutine-core.h")
+#define VSSIM_QEMU_11
+#endif
+#endif
+
+#ifdef VSSIM_QEMU_11
+/* QEMU 11's qemu_co_sleep_ns() is a static inline over qemu_co_sleep_ns_wakeable(), so call
+ * that. This struct mirrors QEMU's QemuCoSleep { Coroutine *to_wake; }. */
+typedef struct vssim_co_sleep {
+    void *to_wake;
+} vssim_co_sleep;
+extern void qemu_co_sleep_ns_wakeable(vssim_co_sleep *w, int clock_type, int64_t ns);
+
+static void vssim_co_sleep_ns(int64_t ns)
+{
+    vssim_co_sleep w = { 0 };
+
+    qemu_co_sleep_ns_wakeable(&w, QEMU_CLOCK_REALTIME_ID, ns);
+}
+
+/* QEMU 11's hw/vssim/meson.build lists its sources and has no rt_delay.c entry
+ * (prepare-qemu-vssim.sh links it next to this file), so build it here.
+ * QEMU 2.12 compiles it separately (hw/vssim/Makefile.objs). */
+#include "rt_delay.c"
+#else
+extern void qemu_co_sleep_ns(int clock_type, int64_t ns);
+
+static void vssim_co_sleep_ns(int64_t ns)
+{
+    qemu_co_sleep_ns(QEMU_CLOCK_REALTIME_ID, ns);
+}
+#endif
+
+/* The sleep phase of a pause: yield the coroutine when on one, so the thread keeps serving other
+ * I/O; block otherwise (the GC thread, and object commands, which nvme.c runs off any coroutine). */
+static void realtime_sleep(uint64_t ns, void *opaque)
+{
+    struct timespec ts;
+
+    (void)opaque;
+    if (qemu_in_coroutine()) {
+        vssim_co_sleep_ns((int64_t)ns);
+        return;
+    }
+    ts.tv_sec = (time_t)(ns / 1000000000u);
+    ts.tv_nsec = (long)(ns % 1000000000u);
+    nanosleep(&ts, NULL);
+}
+#endif
+
+static void realtime_init(uint8_t device_index)
+{
+    rtd_config cfg;
+    rtd_ctx *ctx = NULL;
+
+    if (devices[device_index].realtime_delay) {
+        rtd_config_default(&cfg);
+#ifdef VSSIM_NEXTGEN_BUILD_SYSTEM
+        cfg.sleep_fn = realtime_sleep;
+#endif
+        ctx = rtd_init(1, &cfg);
+        if (ctx == NULL)
+            DEV_PERR(device_index, "failed to create the real-time delay slot, running without it\n");
+    }
+
+    __atomic_store_n(&ssds_manager[device_index].realtime, ctx, __ATOMIC_RELEASE);
+
+    PINFO("realtime delay: %s\n", ctx != NULL ? "on" : "off");
+}
+
+static void realtime_term(uint8_t device_index)
+{
+    char report[512];
+    rtd_ctx *ctx;
+    uint64_t pending;
+
+    if (ssd_realtime_report(device_index, report, sizeof(report)) >= 0)
+        PINFO("realtime delay report: device %u %s\n", device_index, report);
+
+    ctx = realtime_ctx(device_index);
+    __atomic_store_n(&ssds_manager[device_index].realtime, NULL, __ATOMIC_RELEASE);
+
+    if (ctx == NULL)
+        return;
+    pending = rtd_pending_ns(ctx, 0);
+    if (pending != 0)
+        DEV_PERR(device_index, "realtime delay: %llu ns of flash time was never slept\n", (unsigned long long)pending);
+    rtd_destroy(ctx);
 }
 
 /** Wait until a specific target time is reached
@@ -117,11 +261,15 @@ int SSD_IO_INIT(uint8_t device_index){
 
     SSDTimeMode = EMULATED;
 
+    realtime_init(device_index);
+
     return 0;
 }
 
 int SSD_IO_TERM(uint8_t device_index)
 {
+    realtime_term(device_index);
+
     free(ssds_manager[device_index].reg_io_cmd);
     free(ssds_manager[device_index].reg_io_type);
     free(ssds_manager[device_index].reg_io_time);
