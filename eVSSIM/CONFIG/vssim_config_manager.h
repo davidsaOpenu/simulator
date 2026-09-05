@@ -85,6 +85,8 @@ typedef struct ssd_config {
 
 	int storage_strategy; // 1 = sector-based, 2 = object-based
 
+	int realtime_delay; // 0 = off (default), 1 = sleep the simulated flash time
+
 	/* Per-namespace configuration (populated by [nsXX] sections in ssd.conf) */
 	int      ns_storage_strategy[MAX_NUMBER_OF_NAMESPACES];
 	uint64_t ns_namespace_page_nb[MAX_NUMBER_OF_NAMESPACES];

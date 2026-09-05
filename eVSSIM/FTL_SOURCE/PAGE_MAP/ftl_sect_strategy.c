@@ -146,6 +146,7 @@ ftl_ret_val FTL_READ_SECT(uint8_t device_index, uint64_t sector_nb, unsigned int
 	LOCK_DEVICE(device_index);
 	ftl_ret_val ret = _FTL_READ_SECT(device_index, sector_nb, length, data);
 	UNLOCK_DEVICE(device_index);
+	ssd_realtime_pause(device_index);
 	return ret;
 }
 
@@ -336,6 +337,7 @@ ftl_ret_val FTL_WRITE_SECT(uint8_t device_index, uint64_t sector_nb, unsigned in
 	LOCK_DEVICE(device_index);
 	ftl_ret_val ret = _FTL_WRITE_SECT(device_index, sector_nb, length, data);
 	UNLOCK_DEVICE(device_index);
+	ssd_realtime_pause(device_index);
 	return ret;
 }
 

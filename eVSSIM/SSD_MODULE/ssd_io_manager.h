@@ -65,6 +65,13 @@ void wait_usec(int64_t usec);
 /* Wait until a specific target time is reached */
 void wait_until(int64_t target_us);
 
+/* Read and reset the calling thread's accumulated operation time, in usec */
+int64_t ssd_take_op_time_us(void);
+
+/* Sleep off the accumulated flash time when REALTIME_DELAY is on. Must not be
+ * called under the device lock - see the definition. */
+void ssd_realtime_pause(uint8_t device_index);
+
 /* Initialize SSD Module */
 int SSD_IO_INIT(uint8_t device_index);
 int SSD_IO_TERM(uint8_t device_index);
