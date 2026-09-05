@@ -30,6 +30,8 @@ static void *GC_BACKGROUND_LOOP(void *arg) {
         uint64_t total_zero_page_nb;
         do {
             collected = GC_CHECK(gc_thread->device_index, false, true);
+            // spend the pass's flash time holding the device, as the flash would be busy
+            ssd_realtime_pause(device_index);
             total_zero_page_nb = inverse_mappings_manager[device_index].total_zero_page_nb;
         } while (collected && total_zero_page_nb < devices[device_index].gc_hi_thr_page_nb);
 
