@@ -226,6 +226,7 @@ ftl_ret_val FTL_OBJ_READ(uint8_t device_index, obj_id_t obj_loc, void *data, off
     LOCK_DEVICE(device_index);
 	ftl_ret_val ret = _FTL_OBJ_READ(device_index, obj_loc, data, offset, p_length);
     UNLOCK_DEVICE(device_index);
+	ssd_realtime_pause(device_index);
 	return ret;
 }
 
@@ -359,6 +360,7 @@ ftl_ret_val FTL_OBJ_WRITE(uint8_t device_index, obj_id_t object_loc, const void 
     LOCK_DEVICE(device_index);
 	ftl_ret_val ret = _FTL_OBJ_WRITE(device_index, object_loc, data, offset, length);
     UNLOCK_DEVICE(device_index);
+	ssd_realtime_pause(device_index);
 	return ret;
 }
 
@@ -430,6 +432,7 @@ bool FTL_OBJ_CREATE(uint8_t device_index, obj_id_t obj_loc, size_t size)
     LOCK_DEVICE(device_index);
 	bool ret = _FTL_OBJ_CREATE(device_index, obj_loc, size);
     UNLOCK_DEVICE(device_index);
+	ssd_realtime_pause(device_index);
 	return ret;
 }
 
@@ -469,6 +472,7 @@ ftl_ret_val FTL_OBJ_DELETE(uint8_t device_index, obj_id_t obj_loc)
     LOCK_DEVICE(device_index);
 	ftl_ret_val ret = _FTL_OBJ_DELETE(device_index, obj_loc);
     UNLOCK_DEVICE(device_index);
+	ssd_realtime_pause(device_index);
 	return ret;
 }
 
@@ -500,6 +504,7 @@ ftl_ret_val FTL_OBJ_LIST(uint8_t device_index, void *data, size_t *size, uint64_
     LOCK_DEVICE(device_index);
     ftl_ret_val ret = _FTL_OBJ_LIST(device_index, data, size, initial_oid);
     UNLOCK_DEVICE(device_index);
+	ssd_realtime_pause(device_index);
 	return ret;
 }
 
