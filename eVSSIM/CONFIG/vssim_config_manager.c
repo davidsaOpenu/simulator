@@ -368,6 +368,9 @@ bool parse_config_line(const char* key, FILE* file, ssd_config_t* device) {
     if (strcmp(key, "STORAGE_STRATEGY") == 0) {
         return fscanf(file, "%d", &device->storage_strategy) == 1;
     }
+    if (strcmp(key, "REALTIME_DELAY") == 0) {
+        return fscanf(file, "%d", &device->realtime_delay) == 1;
+    }
     if (strcmp(key, "GC_LOW_THR") == 0) {
         return fscanf(file, "%d", &device->gc_low_thr) == 1;
     }

@@ -25,6 +25,10 @@ static int64_t start_wall_time_us = 0; /* wall-clock anchor captured at init */
 static int64_t sim_time_us = 0;        /* simulated time offset */
 static uint64_t log_seq_id = 0;        /* optional: used where you assign seq ids TODO: Apply this to logs*/
 
+/* Per-operation latency. Thread-local because sim_time_us is one global shared
+ * by every device and the GC thread, so a delta of it cannot isolate one op. */
+static __thread int64_t op_time_us = 0;
+
 /**
  * Get current time in microseconds
  * @return Current time in microseconds
@@ -51,7 +55,70 @@ void wait_usec(int64_t usec)
     {
         __atomic_fetch_add(&sim_time_us, usec, __ATOMIC_ACQ_REL);
     }
+
+    op_time_us += usec;
 }
+
+int64_t ssd_take_op_time_us(void)
+{
+    int64_t taken = op_time_us;
+    op_time_us = 0;
+    return taken;
+}
+
+#ifdef VSSIM_NEXTGEN_BUILD_SYSTEM
+/* Forward-declared rather than including qemu/osdep.h, which must be the first
+ * include and would fight a file that also builds for the host tests. */
+#include <unistd.h>
+
+extern bool qemu_in_coroutine(void);
+extern void qemu_co_sleep_ns(int clock_type, int64_t ns);
+
+#define QEMU_CLOCK_REALTIME_ID 0
+
+/*
+ * Sleep off the accumulated flash time; additive to the virtual clock, which is
+ * left untouched. Always takes the accumulator, even when off, or the time
+ * leaks into the next operation on this thread.
+ *
+ * MUST NOT be called under the device lock: this yields on a coroutine, the
+ * mutex records the owning thread, and the next I/O coroutine scheduled onto
+ * that thread blocks on it with nobody left to resume the sleeper.
+ */
+void ssd_realtime_pause(uint8_t device_index)
+{
+    int64_t usec = ssd_take_op_time_us();
+
+    if (!devices[device_index].realtime_delay || usec <= 0)
+        return;
+
+    if (qemu_in_coroutine()) {
+        qemu_co_sleep_ns(QEMU_CLOCK_REALTIME_ID, usec * 1000);
+    }
+    else {
+        usleep(usec);
+    }
+}
+
+/* Called from the page operations, which run under the device lock. On a
+ * coroutine it leaves the time for the FTL entry point to spend after the
+ * unlock; off one (the GC thread) sleeping here is safe, and holding the device
+ * while the flash is busy is what real hardware does. */
+static void ssd_realtime_pause_or_defer(uint8_t device_index)
+{
+    if (qemu_in_coroutine())
+        return;
+
+    ssd_realtime_pause(device_index);
+}
+#else
+void ssd_realtime_pause(uint8_t device_index)
+{
+    (void)device_index;
+}
+
+#define ssd_realtime_pause_or_defer(device_index) ((void)(device_index))
+#endif
 
 /** Wait until a specific target time is reached
  *  @param target_us Target time in microseconds to wait until
@@ -118,6 +185,8 @@ int SSD_IO_INIT(uint8_t device_index){
     }
 
     SSDTimeMode = EMULATED;
+
+    PINFO("realtime delay: %s\n", devices[device_index].realtime_delay ? "on" : "off");
 
     return 0;
 }
@@ -258,6 +327,8 @@ ftl_ret_val SSD_PAGE_WRITE(uint8_t device_index, unsigned int flash_nb, unsigned
         });
     }
 
+    ssd_realtime_pause_or_defer(device_index);
+
     return ret;
 }
 
@@ -307,6 +378,8 @@ ftl_ret_val SSD_PAGE_READ(uint8_t device_index, unsigned int flash_nb, unsigned 
         .background = (type == GC_READ_BACKGROUND),
     });
 
+    ssd_realtime_pause_or_defer(device_index);
+
     return FTL_SUCCESS;
 }
 
@@ -348,6 +421,8 @@ ftl_ret_val SSD_BLOCK_ERASE(uint8_t device_index, unsigned int flash_nb, unsigne
     });
 
     block_entry->dirty_page_nb = 0;
+
+    ssd_realtime_pause_or_defer(device_index);
 
     return FTL_SUCCESS;
 }
@@ -839,6 +914,7 @@ ftl_ret_val SSD_PAGE_COPYBACK(uint8_t device_index, uint32_t source, uint32_t de
         .background = (type == COPYBACK_BACKGROUND),
     });
 
+    ssd_realtime_pause_or_defer(device_index);
 
     return FTL_SUCCESS;
 }

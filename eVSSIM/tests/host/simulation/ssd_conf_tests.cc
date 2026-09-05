@@ -436,3 +436,22 @@ namespace ssd_conf_tests {
     }
 
 } //namespace
+
+/* =========================================================================
+ * 3. REALTIME_DELAY parsing tests
+ * ========================================================================= */
+
+TEST_F(SsdConfTest, RealtimeDelayEnabledAtDeviceLevel) {
+    WriteConf(device_header(1) + "REALTIME_DELAY 1\n" + ns_section(1, TPL_NS_SIZE));
+    INIT_SSD_CONFIG();
+    ASSERT_EQ(1, device_count);
+    EXPECT_EQ(1, devices[0].realtime_delay);
+}
+
+TEST_F(SsdConfTest, RealtimeDelayDefaultsToOffWhenAbsent) {
+    /* device_header() emits no REALTIME_DELAY at all. */
+    WriteConf(device_header(1) + ns_section(1, TPL_NS_SIZE));
+    INIT_SSD_CONFIG();
+    ASSERT_EQ(1, device_count);
+    EXPECT_EQ(0, devices[0].realtime_delay);
+}
