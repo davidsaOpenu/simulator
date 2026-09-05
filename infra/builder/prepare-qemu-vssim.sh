@@ -74,6 +74,10 @@ link_evssim "SSD_MODULE/ssd_util.h" "ssd_util.h"
 link_evssim "SSD_MODULE/onfi.h" "onfi.h"
 link_evssim "SSD_MODULE/onfi.c" "onfi.c"
 
+# Real-time delay library
+link_evssim "RT_DELAY/rt_delay.h" "rt_delay.h"
+link_evssim "RT_DELAY/rt_delay.c" "rt_delay.c"
+
 # Common FTL code
 link_evssim "FTL_SOURCE/COMMON/common.h" "common.h"
 
