@@ -144,7 +144,7 @@ namespace {
         }
 
     public:
-        SSDConf(size_t size_mb, size_t sector_size = 1, int onfi_multithreaded = 0, int onfi_manager_queue_size=1024) {
+        SSDConf(size_t size_mb, size_t sector_size = 1, int onfi_multithreaded = 1, int onfi_manager_queue_size=1024) {
             ssd_conf_calc_based_size_mb(size_mb);
             this->page_size = CONST_PAGE_SIZE_IN_BYTES;
             this->page_nb = CONST_PAGES_PER_BLOCK + CONST_PAGES_PER_BLOCK_OVERPROV;
@@ -158,7 +158,7 @@ namespace {
         }
 
         SSDConf(size_t page_size, size_t page_nb, size_t sector_size,
-                size_t flash_nb, size_t block_nb, size_t channel_nb, int onfi_multithreaded = 0,
+                size_t flash_nb, size_t block_nb, size_t channel_nb, int onfi_multithreaded = 1,
                 int onfi_manager_queue_size=1024)
                 : page_size(page_size), page_nb(page_nb), sector_size(sector_size),
                   flash_nb(flash_nb), block_nb(block_nb), channel_nb(channel_nb), onfi_multithreaded(onfi_multithreaded),
