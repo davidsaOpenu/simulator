@@ -177,8 +177,8 @@ ftl_ret_val DEFAULT_GC_COLLECTION_ALGO(uint8_t device_index, int l2, bool backgr
                 if(ret == FTL_FAILURE)
 				    RERR(FTL_FAILURE, "GET_NEW_PAGE(VICTIM_OVERALL_GC, devices[device_index].empty_table_entry_nb): failed\n");
 
-                SSD_PAGE_READ(device_index, victim_phy_flash_nb, victim_phy_block_nb, i, i, background ? GC_READ_BACKGROUND : GC_READ);
-                SSD_PAGE_WRITE(device_index, CALC_FLASH(device_index, new_ppn), CALC_BLOCK(device_index, new_ppn), CALC_PAGE(device_index, new_ppn), i, background ? GC_WRITE_BACKGROUND : GC_WRITE);
+                ONFI_WAIT(ONFI_READ(device_index, victim_phy_flash_nb * devices[device_index].pages_per_flash + victim_phy_block_nb * devices[device_index].page_nb + i, 0, NULL, 0, NULL, i, background ? GC_READ_BACKGROUND : GC_READ));
+                ONFI_WAIT(ONFI_PAGE_PROGRAM(device_index, new_ppn, 0, NULL, 0, NULL, i, background ? GC_WRITE_BACKGROUND : GC_WRITE));
                 old_ppn = victim_phy_flash_nb * devices[device_index].pages_per_flash + victim_phy_block_nb * devices[device_index].page_nb + i;
                 GET_INVERSE_MAPPING_INFO(device_index, old_ppn, &lpn);
                 UPDATE_NEW_PAGE_MAPPING(device_index, lpn, new_ppn);
@@ -200,8 +200,8 @@ ftl_ret_val DEFAULT_GC_COLLECTION_ALGO(uint8_t device_index, int l2, bool backgr
 
                 if(ret == FTL_FAILURE){
                     PDBG_FTL("failed to copyback\n");
-                    SSD_PAGE_READ(device_index, victim_phy_flash_nb, victim_phy_block_nb, i, i, background ? GC_READ_BACKGROUND : GC_READ);
-                    SSD_PAGE_WRITE(device_index, CALC_FLASH(device_index, new_ppn), CALC_BLOCK(device_index, new_ppn), CALC_PAGE(device_index, new_ppn), i, background ? GC_WRITE_BACKGROUND : GC_WRITE);
+                    ONFI_WAIT(ONFI_READ(device_index, victim_phy_flash_nb * devices[device_index].pages_per_flash + victim_phy_block_nb * devices[device_index].page_nb + i, 0, NULL, 0, NULL, i, background ? GC_READ_BACKGROUND : GC_READ));
+                    ONFI_WAIT(ONFI_PAGE_PROGRAM(device_index, new_ppn, 0, NULL, 0, NULL, i, background ? GC_WRITE_BACKGROUND : GC_WRITE));
                     old_ppn = victim_phy_flash_nb*devices[device_index].pages_per_flash + victim_phy_block_nb* devices[device_index].page_nb + i;
                     GET_INVERSE_MAPPING_INFO(device_index, old_ppn, &lpn);
                     UPDATE_NEW_PAGE_MAPPING(device_index, lpn, new_ppn);
@@ -220,7 +220,7 @@ ftl_ret_val DEFAULT_GC_COLLECTION_ALGO(uint8_t device_index, int l2, bool backgr
 		RERR(FTL_FAILURE, "The number of valid page is not correct copy_page_nb (%d) != valid_page_nb (%d)\n", copy_page_nb, valid_page_nb);
 
 
-	SSD_BLOCK_ERASE(device_index, victim_phy_flash_nb, victim_phy_block_nb, background ? ERASE_BACKGROUND : ERASE);
+	ONFI_WAIT(ONFI_BLOCK_ERASE(device_index, victim_phy_flash_nb * devices[device_index].pages_per_flash + victim_phy_block_nb * devices[device_index].page_nb, background ? ERASE_BACKGROUND : ERASE));
 	//update the physical block write counter as we're deleting the victim block which we're freeing during the GC procedure
 	wa_counters.physical_block_write_counter++;
 	UPDATE_INVERSE_BLOCK_MAPPING(device_index, victim_phy_flash_nb, victim_phy_block_nb, EMPTY_BLOCK);
