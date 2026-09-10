@@ -145,6 +145,7 @@ ftl_ret_val _FTL_OBJ_READ(uint8_t device_index, obj_id_t obj_loc, void *data, of
     int curr_io_page_nb;
     unsigned int ret = FTL_FAILURE;
     int osd_ret;
+    size_t read_amount = 0;
 
     if (p_length == NULL) {
         PDBG_FTL("Invalid null ptr.\n");
@@ -180,10 +181,7 @@ ftl_ret_val _FTL_OBJ_READ(uint8_t device_index, obj_id_t obj_loc, void *data, of
     for (curr_io_page_nb = 0; curr_io_page_nb < io_page_nb; curr_io_page_nb++)
     {
         // simulate the page read
-        ret = SSD_PAGE_READ(device_index, CALC_FLASH(device_index, current_page->page_id),
-                    CALC_BLOCK(device_index, current_page->page_id),
-                    CALC_PAGE(device_index, current_page->page_id),
-                    curr_io_page_nb, READ);
+        ret = (ONFI_WAIT(ONFI_READ(device_index, current_page->page_id, 0, NULL, 0, &read_amount, curr_io_page_nb, READ)) == ONFI_SUCCESS) ? FTL_SUCCESS : FTL_FAILURE;
 
         // send a physical read action being done to the statistics gathering
         if (ret == FTL_SUCCESS)
@@ -241,6 +239,7 @@ ftl_ret_val _FTL_OBJ_WRITE(uint8_t device_index, obj_id_t object_loc, const void
     int curr_io_page_nb;
     unsigned int ret = FTL_SUCCESS;
     int osd_ret;
+    size_t programmed_amount = 0;
 
     object = lookup_object(device_index, object_loc.object_id);
 
@@ -313,8 +312,7 @@ ftl_ret_val _FTL_OBJ_WRITE(uint8_t device_index, obj_id_t object_loc, const void
         // GC_CHECK(CALC_FLASH(current_page->page_id), CALC_BLOCK(current_page->page_id), false, true);
 #endif
 
-        ret = SSD_PAGE_WRITE(device_index, CALC_FLASH(device_index, page_id),
-            CALC_BLOCK(device_index, page_id), CALC_PAGE(device_index, page_id), curr_io_page_nb, WRITE);
+        ret = (ONFI_WAIT(ONFI_PAGE_PROGRAM(device_index, page_id, 0, NULL, 0, &programmed_amount, curr_io_page_nb, WRITE)) == ONFI_SUCCESS) ? FTL_SUCCESS : FTL_FAILURE;
 
         // send a physical write action being done to the statistics gathering
         if (ret == FTL_SUCCESS)

@@ -218,51 +218,51 @@ test case: ssd_program_compatible_tests
 run #1
 write_count=65594
 logical_write_count=65594
-read_iops=220.28434866885334
-write_iops=440.17947866279064
+read_iops=220.31157261804606
+write_iops=440.2338784593954
 write_amplification=1.0
-read_speed_mbps=5.77497448470266
-write_speed_mbps=11.53974521262372
+read_speed_mbps=5.775688187754695
+write_speed_mbps=11.541171357691509
 gc_invocations=3508
 disk_utilization=0.5500799919499136
 run #2
 write_count=65594
 logical_write_count=65594
-read_iops=220.28434866885334
-write_iops=440.17947866279064
+read_iops=220.31157261804606
+write_iops=440.2338784593954
 write_amplification=1.0
-read_speed_mbps=5.77497448470266
-write_speed_mbps=11.53974521262372
+read_speed_mbps=5.775688187754695
+write_speed_mbps=11.541171357691509
 gc_invocations=3508
 disk_utilization=0.5500799919499136
 run #3
 write_count=65594
 logical_write_count=65594
-read_iops=220.28434866885334
-write_iops=440.17947866279064
+read_iops=220.31157261804606
+write_iops=440.2338784593954
 write_amplification=1.0
-read_speed_mbps=5.77497448470266
-write_speed_mbps=11.53974521262372
+read_speed_mbps=5.775688187754695
+write_speed_mbps=11.541171357691509
 gc_invocations=3508
 disk_utilization=0.5500799919499136
 run #4
 write_count=65594
 logical_write_count=65594
-read_iops=220.28434866885334
-write_iops=440.17947866279064
+read_iops=220.31157261804606
+write_iops=440.2338784593954
 write_amplification=1.0
-read_speed_mbps=5.77497448470266
-write_speed_mbps=11.53974521262372
+read_speed_mbps=5.775688187754695
+write_speed_mbps=11.541171357691509
 gc_invocations=3508
 disk_utilization=0.5500799919499136
 run #5
 write_count=65594
 logical_write_count=65594
-read_iops=220.28434866885334
-write_iops=440.17947866279064
+read_iops=220.31157261804606
+write_iops=440.2338784593954
 write_amplification=1.0
-read_speed_mbps=5.77497448470266
-write_speed_mbps=11.53974521262372
+read_speed_mbps=5.775688187754695
+write_speed_mbps=11.541171357691509
 gc_invocations=3508
 disk_utilization=0.5500799919499136
 
