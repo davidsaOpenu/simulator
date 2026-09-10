@@ -137,22 +137,22 @@ namespace program_compatible_test
         size_t nprogrammed = 0;
         uint8_t data = 0xFF;
 
-        AssertCommandFails(ONFI_PAGE_PROGRAM(g_device_index, 0, 0, NULL, 0, NULL));
+        AssertCommandFails(ONFI_PAGE_PROGRAM(g_device_index, 0, 0, NULL, 0, NULL, 0, WRITE));
         AssertCurrentStatus(status);
         ASSERT_EQ(status.FAIL, 1);
         ASSERT_EQ(status.FAILC, 0);
 
-        AssertCommandFails(ONFI_PAGE_PROGRAM(g_device_index, 0, 0, NULL, 0, NULL));
+        AssertCommandFails(ONFI_PAGE_PROGRAM(g_device_index, 0, 0, NULL, 0, NULL, 0, WRITE));
         AssertCurrentStatus(status);
         ASSERT_EQ(status.FAIL, 1);
         ASSERT_EQ(status.FAILC, 1);
 
-        AssertCommandSuccess(ONFI_PAGE_PROGRAM(g_device_index, 0, 0, &data, sizeof(data), &nprogrammed));
+        AssertCommandSuccess(ONFI_PAGE_PROGRAM(g_device_index, 0, 0, &data, sizeof(data), &nprogrammed, 0, WRITE));
         AssertCurrentStatus(status);
         ASSERT_EQ(status.FAIL, 0);
         ASSERT_EQ(status.FAILC, 1);
 
-        AssertCommandSuccess(ONFI_PAGE_PROGRAM(g_device_index, 0, 0, &data, sizeof(data), &nprogrammed));
+        AssertCommandSuccess(ONFI_PAGE_PROGRAM(g_device_index, 0, 0, &data, sizeof(data), &nprogrammed, 0, WRITE));
         AssertCurrentStatus(status);
         ASSERT_EQ(status.FAIL, 0);
         ASSERT_EQ(status.FAILC, 0);
@@ -163,23 +163,23 @@ namespace program_compatible_test
         SSDConf *ssd_config = base_test_get_ssd_config();
         onfi_status_reg_t status;
 
-        AssertCommandFails(ONFI_BLOCK_ERASE(g_device_index, ssd_config->get_pages()));
+        AssertCommandFails(ONFI_BLOCK_ERASE(g_device_index, ssd_config->get_pages(), ERASE));
         AssertCurrentStatus(status);
         ASSERT_EQ(status.FAIL, 0);
         ASSERT_EQ(status.FAILC, 0);
 
-        AssertCommandFails(ONFI_PAGE_PROGRAM(g_device_index, 0, 0, NULL, 0, NULL));
-        AssertCommandFails(ONFI_PAGE_PROGRAM(g_device_index, 0, 0, NULL, 0, NULL));
+        AssertCommandFails(ONFI_PAGE_PROGRAM(g_device_index, 0, 0, NULL, 0, NULL, 0, WRITE));
+        AssertCommandFails(ONFI_PAGE_PROGRAM(g_device_index, 0, 0, NULL, 0, NULL, 0, WRITE));
         AssertCurrentStatus(status);
         ASSERT_EQ(status.FAIL, 1);
         ASSERT_EQ(status.FAILC, 1);
 
-        AssertCommandSuccess(ONFI_BLOCK_ERASE(g_device_index, 0));
+        AssertCommandSuccess(ONFI_BLOCK_ERASE(g_device_index, 0, ERASE));
         AssertCurrentStatus(status);
         ASSERT_EQ(status.FAIL, 0);
         ASSERT_EQ(status.FAILC, 1);
 
-        AssertCommandSuccess(ONFI_BLOCK_ERASE(g_device_index, 0));
+        AssertCommandSuccess(ONFI_BLOCK_ERASE(g_device_index, 0, ERASE));
         AssertCurrentStatus(status);
         ASSERT_EQ(status.FAIL, 0);
         ASSERT_EQ(status.FAILC, 0);
@@ -193,15 +193,7 @@ namespace program_compatible_test
 
         size_t nread = 0;
         unsigned char buffer[ssd_config->get_page_size()];
-        ASSERT_EQ(ONFI_READ(INVALID_DEVICE_INDEX, 0, 0, buffer, ssd_config->get_page_size(), &nread), nullptr);
-    }
-
-    TEST_P(OnfiCommandsTest, NullBufferReadFails)
-    {
-        SSDConf *ssd_config = base_test_get_ssd_config();
-
-        size_t nread = 0;
-        AssertCommandFails(ONFI_READ(g_device_index, 0, 0, NULL, ssd_config->get_page_size(), &nread));
+        ASSERT_EQ(ONFI_READ(INVALID_DEVICE_INDEX, 0, 0, buffer, ssd_config->get_page_size(), &nread, 0, READ), nullptr);
     }
 
     TEST_P(OnfiCommandsTest, NullReadAmountReadFails)
@@ -210,7 +202,7 @@ namespace program_compatible_test
 
         unsigned char buffer[ssd_config->get_page_size()];
 
-        AssertCommandFails(ONFI_READ(g_device_index, 0, 0, buffer, ssd_config->get_page_size(), NULL));
+        AssertCommandFails(ONFI_READ(g_device_index, 0, 0, buffer, ssd_config->get_page_size(), NULL, 0, READ));
     }
 
     TEST_P(OnfiCommandsTest, OutOfBoundsRowAddressReadFails)
@@ -220,7 +212,7 @@ namespace program_compatible_test
         unsigned char buffer[ssd_config->get_page_size()];
         size_t nread = 0;
 
-        AssertCommandFails(ONFI_READ(g_device_index, ssd_config->get_pages(), 0, buffer, ssd_config->get_page_size(), &nread));
+        AssertCommandFails(ONFI_READ(g_device_index, ssd_config->get_pages(), 0, buffer, ssd_config->get_page_size(), &nread, 0, READ));
     }
 
     TEST_P(OnfiCommandsTest, OutOfBoundsColumnAddressReadFails)
@@ -230,7 +222,7 @@ namespace program_compatible_test
         unsigned char buffer[ssd_config->get_page_size()];
         size_t nread = 0;
 
-        AssertCommandFails(ONFI_READ(g_device_index, 0, ssd_config->get_page_size(), buffer, 1, &nread));
+        AssertCommandFails(ONFI_READ(g_device_index, 0, ssd_config->get_page_size(), buffer, 1, &nread, 0, READ));
     }
 
     TEST_P(OnfiCommandsTest, ReadAllSuccess)
@@ -243,7 +235,7 @@ namespace program_compatible_test
         for (size_t page = 0; page < ssd_config->get_pages(); ++page)
         {
             memset(buffer, 0x00, ssd_config->get_page_size());
-            AssertCommandSuccess(ONFI_READ(g_device_index, page, 0, buffer, ssd_config->get_page_size(), &nread));
+            AssertCommandSuccess(ONFI_READ(g_device_index, page, 0, buffer, ssd_config->get_page_size(), &nread, 0, READ));
             ASSERT_EQ(nread, ssd_config->get_page_size());
         }
     }
@@ -258,7 +250,7 @@ namespace program_compatible_test
         size_t column = ssd_config->get_page_size() / 4;
         size_t read_size = ssd_config->get_page_size() / 2;
 
-        AssertCommandSuccess(ONFI_READ(g_device_index, 0, column, buffer, read_size, &nread));
+        AssertCommandSuccess(ONFI_READ(g_device_index, 0, column, buffer, read_size, &nread, 0, READ));
         ASSERT_EQ(nread, read_size);
     }
 
@@ -272,7 +264,7 @@ namespace program_compatible_test
         size_t column = ssd_config->get_page_size() / 4;
         size_t expected_nread = ssd_config->get_page_size() - column;
 
-        AssertCommandSuccess(ONFI_READ(g_device_index, 0, column, buffer, ssd_config->get_page_size(), &nread));
+        AssertCommandSuccess(ONFI_READ(g_device_index, 0, column, buffer, ssd_config->get_page_size(), &nread, 0, READ));
         ASSERT_EQ(nread, expected_nread);
     }
 
@@ -283,45 +275,41 @@ namespace program_compatible_test
         SSDConf *ssd_config = base_test_get_ssd_config();
 
         size_t nprogrammed = 0;
-        unsigned char buffer[ssd_config->get_page_size()] = {};
-        ASSERT_EQ(ONFI_PAGE_PROGRAM(INVALID_DEVICE_INDEX, 0, 0, buffer, ssd_config->get_page_size(), &nprogrammed), nullptr);
-    }
-
-    TEST_P(OnfiCommandsTest, NullBufferPageProgramFails)
-    {
-        SSDConf *ssd_config = base_test_get_ssd_config();
-
-        size_t nprogrammed = 0;
-        AssertCommandFails(ONFI_PAGE_PROGRAM(g_device_index, 0, 0, NULL, ssd_config->get_page_size(), &nprogrammed));
+        unsigned char buffer[ssd_config->get_page_size()];
+        memset(buffer, 0, sizeof(buffer));
+        ASSERT_EQ(ONFI_PAGE_PROGRAM(INVALID_DEVICE_INDEX, 0, 0, buffer, ssd_config->get_page_size(), &nprogrammed, 0, WRITE), nullptr);
     }
 
     TEST_P(OnfiCommandsTest, NullProgramAmountPageProgramFails)
     {
         SSDConf *ssd_config = base_test_get_ssd_config();
 
-        unsigned char buffer[ssd_config->get_page_size()] = {};
+        unsigned char buffer[ssd_config->get_page_size()];
+        memset(buffer, 0, sizeof(buffer));
 
-        AssertCommandFails(ONFI_PAGE_PROGRAM(g_device_index, 0, 0, buffer, ssd_config->get_page_size(), NULL));
+        AssertCommandFails(ONFI_PAGE_PROGRAM(g_device_index, 0, 0, buffer, ssd_config->get_page_size(), NULL, 0, WRITE));
     }
 
     TEST_P(OnfiCommandsTest, OutOfBoundsRowAddressPageProgramFails)
     {
         SSDConf *ssd_config = base_test_get_ssd_config();
 
-        unsigned char buffer[ssd_config->get_page_size()] = {};
+        unsigned char buffer[ssd_config->get_page_size()];
+        memset(buffer, 0, sizeof(buffer));
         size_t nprogrammed = 0;
 
-        AssertCommandFails(ONFI_PAGE_PROGRAM(g_device_index, ssd_config->get_pages(), 0, buffer, ssd_config->get_page_size(), &nprogrammed));
+        AssertCommandFails(ONFI_PAGE_PROGRAM(g_device_index, ssd_config->get_pages(), 0, buffer, ssd_config->get_page_size(), &nprogrammed, 0, WRITE));
     }
 
     TEST_P(OnfiCommandsTest, OutOfBoundsColumnAddressPageProgramFails)
     {
         SSDConf *ssd_config = base_test_get_ssd_config();
 
-        unsigned char buffer[ssd_config->get_page_size()] = {};
+        unsigned char buffer[ssd_config->get_page_size()];
+        memset(buffer, 0, sizeof(buffer));
         size_t nprogrammed = 0;
 
-        AssertCommandFails(ONFI_PAGE_PROGRAM(g_device_index, 0, ssd_config->get_page_size(), buffer, 1, &nprogrammed));
+        AssertCommandFails(ONFI_PAGE_PROGRAM(g_device_index, 0, ssd_config->get_page_size(), buffer, 1, &nprogrammed, 0, WRITE));
     }
 
     TEST_P(OnfiCommandsTest, PageProgramAllSuccess)
@@ -335,9 +323,9 @@ namespace program_compatible_test
         for (size_t page = 0; page < ssd_config->get_pages(); ++page)
         {
             memset(buffer, 0x00, ssd_config->get_page_size());
-            AssertCommandSuccess(ONFI_PAGE_PROGRAM(g_device_index, page, 0, buffer, ssd_config->get_page_size(), &nprogrammed));
+            AssertCommandSuccess(ONFI_PAGE_PROGRAM(g_device_index, page, 0, buffer, ssd_config->get_page_size(), &nprogrammed, 0, WRITE));
             ASSERT_EQ(nprogrammed, ssd_config->get_page_size());
-            AssertCommandSuccess(ONFI_READ(g_device_index, page, 0, buffer, ssd_config->get_page_size(), &nread));
+            AssertCommandSuccess(ONFI_READ(g_device_index, page, 0, buffer, ssd_config->get_page_size(), &nread, 0, READ));
             AssertStatusRegisterOk();
         }
     }
@@ -355,9 +343,9 @@ namespace program_compatible_test
         size_t column = ssd_config->get_page_size() / 4;
         size_t program_size = ssd_config->get_page_size() / 2;
 
-        AssertCommandSuccess(ONFI_PAGE_PROGRAM(g_device_index, 0, column, buffer, program_size, &nprogrammed));
+        AssertCommandSuccess(ONFI_PAGE_PROGRAM(g_device_index, 0, column, buffer, program_size, &nprogrammed, 0, WRITE));
         ASSERT_EQ(nprogrammed, program_size);
-        AssertCommandSuccess(ONFI_READ(g_device_index, 0, column, buffer, program_size, &nread));
+        AssertCommandSuccess(ONFI_READ(g_device_index, 0, column, buffer, program_size, &nread, 0, READ));
         AssertStatusRegisterOk();
     }
 
@@ -374,9 +362,9 @@ namespace program_compatible_test
         size_t column = ssd_config->get_page_size() / 4;
         size_t expected_nprogrammed = ssd_config->get_page_size() - column;
 
-        AssertCommandSuccess(ONFI_PAGE_PROGRAM(g_device_index, 0, column, buffer, ssd_config->get_page_size(), &nprogrammed));
+        AssertCommandSuccess(ONFI_PAGE_PROGRAM(g_device_index, 0, column, buffer, ssd_config->get_page_size(), &nprogrammed, 0, WRITE));
         ASSERT_EQ(nprogrammed, expected_nprogrammed);
-        AssertCommandSuccess(ONFI_READ(g_device_index, 0, column, buffer, ssd_config->get_page_size(), &nread));
+        AssertCommandSuccess(ONFI_READ(g_device_index, 0, column, buffer, ssd_config->get_page_size(), &nread, 0, READ));
         AssertStatusRegisterOk();
     }
 
@@ -384,14 +372,14 @@ namespace program_compatible_test
 
     TEST_P(OnfiCommandsTest, InvalidDeviceIndexBlockEraseFails)
     {
-        ASSERT_EQ(ONFI_BLOCK_ERASE(INVALID_DEVICE_INDEX, 0), nullptr);
+        ASSERT_EQ(ONFI_BLOCK_ERASE(INVALID_DEVICE_INDEX, 0, ERASE), nullptr);
     }
 
     TEST_P(OnfiCommandsTest, OutOfBoundsRowAddressBlockEraseFails)
     {
         SSDConf *ssd_config = base_test_get_ssd_config();
 
-        AssertCommandFails(ONFI_BLOCK_ERASE(g_device_index, ssd_config->get_pages()));
+        AssertCommandFails(ONFI_BLOCK_ERASE(g_device_index, ssd_config->get_pages(), ERASE));
     }
 
     TEST_P(OnfiCommandsTest, BlockEraseAllSuccess)
@@ -405,13 +393,13 @@ namespace program_compatible_test
         for (size_t page = 0; page < ssd_config->get_page_nb(); page += ssd_config->get_pages_per_block())
         {
             memset(buffer, 0x00, ssd_config->get_page_size());
-            AssertCommandSuccess(ONFI_PAGE_PROGRAM(g_device_index, page, 0, buffer, ssd_config->get_page_size(), &nprogrammed));
+            AssertCommandSuccess(ONFI_PAGE_PROGRAM(g_device_index, page, 0, buffer, ssd_config->get_page_size(), &nprogrammed, 0, WRITE));
             ASSERT_EQ(nprogrammed, ssd_config->get_page_size());
             AssertStatusRegisterOk();
-            AssertCommandSuccess(ONFI_READ(g_device_index, page, 0, buffer, ssd_config->get_page_size(), &nread));
-            AssertCommandSuccess(ONFI_BLOCK_ERASE(g_device_index, page));
+            AssertCommandSuccess(ONFI_READ(g_device_index, page, 0, buffer, ssd_config->get_page_size(), &nread, 0, READ));
+            AssertCommandSuccess(ONFI_BLOCK_ERASE(g_device_index, page, ERASE));
             AssertStatusRegisterOk();
-            AssertCommandSuccess(ONFI_READ(g_device_index, page, 0, buffer, ssd_config->get_page_size(), &nread));
+            AssertCommandSuccess(ONFI_READ(g_device_index, page, 0, buffer, ssd_config->get_page_size(), &nread, 0, READ));
         }
     }
 
@@ -426,12 +414,12 @@ namespace program_compatible_test
     {
         onfi_status_reg_t status;
 
-        AssertCommandFails(ONFI_PAGE_PROGRAM(g_device_index, 0, 0, NULL, 0, NULL));
+        AssertCommandFails(ONFI_PAGE_PROGRAM(g_device_index, 0, 0, NULL, 0, NULL, 0, WRITE));
         AssertCurrentStatus(status);
         ASSERT_EQ(status.FAIL, 1);
         ASSERT_EQ(status.FAILC, 0);
 
-        AssertCommandFails(ONFI_PAGE_PROGRAM(g_device_index, 0, 0, NULL, 0, NULL));
+        AssertCommandFails(ONFI_PAGE_PROGRAM(g_device_index, 0, 0, NULL, 0, NULL, 0, WRITE));
         AssertCurrentStatus(status);
         ASSERT_EQ(status.FAIL, 1);
         ASSERT_EQ(status.FAILC, 1);
@@ -673,7 +661,7 @@ namespace program_compatible_test
             uint64_t destination = source + 1;
 
             memset(buffer, 0x00, ssd_config->get_page_size());
-            AssertCommandSuccess(ONFI_PAGE_PROGRAM(g_device_index, source, 0, buffer, ssd_config->get_page_size(), &nprogrammed));
+            AssertCommandSuccess(ONFI_PAGE_PROGRAM(g_device_index, source, 0, buffer, ssd_config->get_page_size(), &nprogrammed, 0, WRITE));
             AssertStatusRegisterOk();
 
             AssertCommandSuccess(ONFI_PAGE_COPYBACK(g_device_index, source, destination, COPYBACK));
@@ -745,14 +733,16 @@ namespace program_compatible_test
         ASSERT_GE(ssd_config->get_flash_nb(), 2u);
 
         // Force two consecutive failures on flash 0 only: FAIL=1, FAILC=1.
-        AssertCommandFails(ONFI_PAGE_PROGRAM(g_device_index, FlashFirstPage(0), 0, NULL, 0, NULL));
-        AssertCommandFails(ONFI_PAGE_PROGRAM(g_device_index, FlashFirstPage(0), 0, NULL, 0, NULL));
+        // A NULL programmed-bytes pointer makes the operation fail even though
+        // the NULL data buffer itself is now supported.
+        AssertCommandFails(ONFI_PAGE_PROGRAM(g_device_index, FlashFirstPage(0), 0, NULL, 0, NULL, 0, WRITE));
+        AssertCommandFails(ONFI_PAGE_PROGRAM(g_device_index, FlashFirstPage(0), 0, NULL, 0, NULL, 0, WRITE));
 
         // Successful operation on flash 1. With a shared register this would
         // have shifted flash 0's FAIL/FAILC bits; per-flash state must not.
         uint8_t data = 0xFF;
         size_t nprogrammed = 0;
-        AssertCommandSuccess(ONFI_PAGE_PROGRAM(g_device_index, FlashFirstPage(1), 0, &data, sizeof(data), &nprogrammed));
+        AssertCommandSuccess(ONFI_PAGE_PROGRAM(g_device_index, FlashFirstPage(1), 0, &data, sizeof(data), &nprogrammed, 0, WRITE));
 
         onfi_status_reg_t status;
 
@@ -771,7 +761,7 @@ namespace program_compatible_test
         ASSERT_GE(ssd_config->get_flash_nb(), 2u);
 
         // Make flash 0's register differ from flash 1's.
-        AssertCommandFails(ONFI_PAGE_PROGRAM(g_device_index, FlashFirstPage(0), 0, NULL, 0, NULL));
+        AssertCommandFails(ONFI_PAGE_PROGRAM(g_device_index, FlashFirstPage(0), 0, NULL, 0, NULL, 0, WRITE));
 
         onfi_status_reg_t status0;
         onfi_status_reg_t status1;
