@@ -7,7 +7,6 @@
 
 onfi_flash_device_t **g_onfi_flash_devices = NULL;
 onfi_manager_t *g_onfi_managers = NULL;
-pthread_mutex_t *g_onfi_device_locks = NULL;
 
 #define JEDEC_MANUFACTURER_ID 0xCC
 #define DEVICE_ID 0x10
@@ -201,14 +200,9 @@ void _ONFI_UPDATE_STATUS_REGISTER(onfi_status_reg_t *status_reg, onfi_ret_val la
 */
 
 static onfi_ret_val _onfi_read(uint8_t device_index, uint64_t row_address, uint32_t column_address,
-                               uint8_t *o_buffer, size_t buffer_size, size_t *o_read_bytes_amount)
+                               uint8_t *o_buffer, size_t buffer_size, size_t *o_read_bytes_amount, int page_offset, int type)
 {
-    if (o_buffer == NULL || o_read_bytes_amount == NULL)
-    {
-        PERR("Got null paramater\n")
-        return ONFI_FAILURE;
-    }
-
+    (void)o_buffer;
     if (device_index >= device_count) {
         PERR("Got invalid device index\n")
         return ONFI_FAILURE;
@@ -221,9 +215,17 @@ static onfi_ret_val _onfi_read(uint8_t device_index, uint64_t row_address, uint3
     }
 
     const uint32_t flash_index = CALC_FLASH(device_index, row_address);
+
+    if (o_read_bytes_amount == NULL)
+    {
+        PERR("Got null parameter\n");
+        _ONFI_UPDATE_STATUS_REGISTER(get_status_reg(device_index, flash_index), ONFI_FAILURE);
+        return ONFI_FAILURE;
+    }
+
     const size_t amount_to_read = (buffer_size + column_address > GET_PAGE_SIZE(device_index)) ? (GET_PAGE_SIZE(device_index) - column_address) : buffer_size;
 
-    if (SSD_PAGE_READ(device_index, flash_index, CALC_BLOCK(device_index, row_address), CALC_PAGE(device_index, row_address), 0, READ) != FTL_SUCCESS)
+    if (SSD_PAGE_READ(device_index, flash_index, CALC_BLOCK(device_index, row_address), CALC_PAGE(device_index, row_address), page_offset, type) != FTL_SUCCESS)
     {
         PERR("Failed reading\n")
         _ONFI_UPDATE_STATUS_REGISTER(get_status_reg(device_index, flash_index), ONFI_FAILURE);
@@ -236,8 +238,9 @@ static onfi_ret_val _onfi_read(uint8_t device_index, uint64_t row_address, uint3
 }
 
 static onfi_ret_val _onfi_page_program(uint8_t device_index, uint64_t row_address, uint32_t column_address,
-                                       const uint8_t *buffer, size_t buffer_size, size_t *o_programmed_bytes_amount)
+                                       const uint8_t *buffer, size_t buffer_size, size_t *o_programmed_bytes_amount, int page_offset, int type)
 {
+    (void)buffer;
     if (device_index >= device_count) {
         PERR("Got invalid device index\n")
         return ONFI_FAILURE;
@@ -251,28 +254,31 @@ static onfi_ret_val _onfi_page_program(uint8_t device_index, uint64_t row_addres
 
     const uint32_t flash_index = CALC_FLASH(device_index, row_address);
 
-    if (buffer == NULL || o_programmed_bytes_amount == NULL)
+    if (o_programmed_bytes_amount == NULL)
     {
-        PERR("Got null paramater\n")
+        PERR("Got null parameter\n");
         _ONFI_UPDATE_STATUS_REGISTER(get_status_reg(device_index, flash_index), ONFI_FAILURE);
         return ONFI_FAILURE;
     }
 
     const size_t amount_to_write = (buffer_size + column_address > GET_PAGE_SIZE(device_index)) ? (GET_PAGE_SIZE(device_index) - column_address) : buffer_size;
 
-    if (SSD_PAGE_WRITE(device_index, flash_index, CALC_BLOCK(device_index, row_address), CALC_PAGE(device_index, row_address), 0, WRITE) != FTL_SUCCESS)
+    if (SSD_PAGE_WRITE(device_index, flash_index, CALC_BLOCK(device_index, row_address), CALC_PAGE(device_index, row_address), page_offset, type) != FTL_SUCCESS)
     {
         PERR("Failed writing\n")
         _ONFI_UPDATE_STATUS_REGISTER(get_status_reg(device_index, flash_index), ONFI_FAILURE);
         return ONFI_FAILURE;
     }
 
-    *o_programmed_bytes_amount = amount_to_write;
+    if (o_programmed_bytes_amount != NULL)
+    {
+        *o_programmed_bytes_amount = amount_to_write;
+    }
     _ONFI_UPDATE_STATUS_REGISTER(get_status_reg(device_index, flash_index), ONFI_SUCCESS);
     return ONFI_SUCCESS;
 }
 
-static onfi_ret_val _onfi_block_erase(uint8_t device_index, uint64_t row_address)
+static onfi_ret_val _onfi_block_erase(uint8_t device_index, uint64_t row_address, int type)
 {
     if (device_index >= device_count) {
         PERR("Got invalid device index\n")
@@ -288,7 +294,7 @@ static onfi_ret_val _onfi_block_erase(uint8_t device_index, uint64_t row_address
     const uint64_t block_nb = CALC_BLOCK(device_index, row_address);
     const uint32_t flash_nb = CALC_FLASH(device_index, row_address);
 
-    if (SSD_BLOCK_ERASE(device_index, flash_nb, block_nb, ERASE) != FTL_SUCCESS)
+    if (SSD_BLOCK_ERASE(device_index, flash_nb, block_nb, type) != FTL_SUCCESS)
     {
         PERR("Failed erasing\n")
         _ONFI_UPDATE_STATUS_REGISTER(get_status_reg(device_index, flash_nb), ONFI_FAILURE);
@@ -474,6 +480,7 @@ struct onfi_request {
     uint32_t column_address;
     uint64_t destination;
     int io_type;
+    int page_offset;
     uint8_t* buffer;
     size_t buffer_size;
     uint8_t address;
@@ -621,12 +628,12 @@ static onfi_ret_val run_onfi_command(onfi_request_t *req)
     switch (req->command) {
     case ONFI_OP_READ:
         return _onfi_read(req->device_index, req->row_address, req->column_address,
-                          req->buffer, req->buffer_size, req->bytes_transferred);
+                          req->buffer, req->buffer_size, req->bytes_transferred, req->page_offset, req->io_type);
     case ONFI_OP_PROGRAM:
         return _onfi_page_program(req->device_index, req->row_address, req->column_address,
-                                  req->buffer, req->buffer_size, req->bytes_transferred);
+                                  req->buffer, req->buffer_size, req->bytes_transferred, req->page_offset, req->io_type);
     case ONFI_OP_ERASE:
-        return _onfi_block_erase(req->device_index, req->row_address);
+        return _onfi_block_erase(req->device_index, req->row_address, req->io_type);
     case ONFI_OP_COPYBACK:
         return _onfi_page_copyback(req->device_index, req->row_address, req->destination, req->io_type);
     case ONFI_OP_READ_ID:
@@ -652,14 +659,7 @@ static void* onfi_mt_worker(void* arg)
         if (req == NULL)
             break;
 
-        // use the onfi device lock before performing any onfi command because current implementation (ssd io manager)
-        // doesn't support multithread and is not safe at the flash level.
-        // The lock will be removed in the future after making everything safe.
-        pthread_mutex_lock(&g_onfi_device_locks[req->device_index]);
-
         req->result = run_onfi_command(req);
-
-        pthread_mutex_unlock(&g_onfi_device_locks[req->device_index]);
 
         pthread_mutex_lock(&req->done_lock);
         req->done = 1;
@@ -820,7 +820,6 @@ onfi_ret_val ONFI_INIT(uint8_t device_index)
     if (onfi_manager->initialized)
         return ONFI_SUCCESS;
 
-    pthread_mutex_init(&g_onfi_device_locks[device_index], NULL);
     ssd_config_t* cfg = &devices[device_index];
 
     if (cfg->onfi_multithreaded) {
@@ -831,7 +830,6 @@ onfi_ret_val ONFI_INIT(uint8_t device_index)
         onfi_manager->queues = (onfi_queue_t*)calloc(flash_nb, sizeof(onfi_queue_t));
         if (!onfi_manager->threads || !onfi_manager->queues) {
             onfi_mt_cleanup(onfi_manager, 0);
-            pthread_mutex_destroy(&g_onfi_device_locks[device_index]);
             return ONFI_FAILURE;
         }
 
@@ -842,7 +840,6 @@ onfi_ret_val ONFI_INIT(uint8_t device_index)
                     pthread_create(&onfi_manager->threads[i], NULL, onfi_mt_worker, &onfi_manager->queues[i]) != 0) {
                 onfi_mt_queue_destroy(&onfi_manager->queues[i]);
                 onfi_mt_cleanup(onfi_manager, i);
-                pthread_mutex_destroy(&g_onfi_device_locks[device_index]);
                 return ONFI_FAILURE;
             }
         }
@@ -870,7 +867,6 @@ onfi_ret_val ONFI_TERM(uint8_t device_index)
         onfi_manager->initialized = 0;
     }
 
-    pthread_mutex_destroy(&g_onfi_device_locks[device_index]);
     return ret;
 }
 
@@ -896,7 +892,7 @@ onfi_ret_val ONFI_WAIT(onfi_handle_t* handle)
 }
 
 onfi_handle_t* ONFI_READ(uint8_t device_index, uint64_t row_address, uint32_t column_address,
-                         uint8_t* buffer, size_t buffer_size, size_t* o_read_bytes_amount)
+                         uint8_t* buffer, size_t buffer_size, size_t* o_read_bytes_amount, int page_offset, int type)
 {
     onfi_request_t* req = onfi_request_create(ONFI_OP_READ, device_index);
     if (!req)
@@ -907,12 +903,14 @@ onfi_handle_t* ONFI_READ(uint8_t device_index, uint64_t row_address, uint32_t co
     req->buffer = buffer;
     req->buffer_size = buffer_size;
     req->bytes_transferred = o_read_bytes_amount;
+    req->page_offset = page_offset;
+    req->io_type = type;
 
     return onfi_request_dispatch(req);
 }
 
 onfi_handle_t* ONFI_PAGE_PROGRAM(uint8_t device_index, uint64_t row_address, uint32_t column_address,
-                                 const uint8_t* buffer, size_t buffer_size, size_t* o_programmed_bytes_amount)
+                                 const uint8_t* buffer, size_t buffer_size, size_t* o_programmed_bytes_amount, int page_offset, int type)
 {
     onfi_request_t* req = onfi_request_create(ONFI_OP_PROGRAM, device_index);
     if (!req)
@@ -923,17 +921,20 @@ onfi_handle_t* ONFI_PAGE_PROGRAM(uint8_t device_index, uint64_t row_address, uin
     req->buffer = (uint8_t*)buffer;
     req->buffer_size = buffer_size;
     req->bytes_transferred = o_programmed_bytes_amount;
+    req->page_offset = page_offset;
+    req->io_type = type;
 
     return onfi_request_dispatch(req);
 }
 
-onfi_handle_t* ONFI_BLOCK_ERASE(uint8_t device_index, uint64_t row_address)
+onfi_handle_t* ONFI_BLOCK_ERASE(uint8_t device_index, uint64_t row_address, int type)
 {
     onfi_request_t* req = onfi_request_create(ONFI_OP_ERASE, device_index);
     if (!req)
         return NULL;
 
     req->row_address = row_address;
+    req->io_type = type;
 
     return onfi_request_dispatch(req);
 }

@@ -206,11 +206,6 @@ typedef struct onfi_manager {
 
 extern onfi_manager_t *g_onfi_managers;
 
-/* Per-device lock shared by all ONFI workers on the same device.
- * WILL BE REMOVED after making ssd layer safe/
- */
-extern pthread_mutex_t *g_onfi_device_locks;
-
 uint16_t _ONFI_CRC16(uint8_t *data, size_t data_size);
 
 void _ONFI_UPDATE_STATUS_REGISTER(onfi_status_reg_t *status_reg, onfi_ret_val last_op_ret_val);
@@ -260,9 +255,11 @@ onfi_ret_val ONFI_WAIT(onfi_handle_t *handle);
 * o_buffer - will be filled with page read
 * buffer_size - output buffer size (the amount of bytes asked to be read)
 * o_read_bytes_amount - will be set according to number of bytes read
+* page_offset - page offset for channel recording
+* type - SSD operation type
 **/
 onfi_handle_t* ONFI_READ(uint8_t device_index, uint64_t row_address, uint32_t column_address,
-                         uint8_t *o_buffer, size_t buffer_size, size_t *o_read_bytes_amount);
+                         uint8_t *o_buffer, size_t buffer_size, size_t *o_read_bytes_amount, int page_offset, int type);
 
 /**
 * Programs a page or portion of a page of data to the page identified by the given row address starting at the column address specified.
@@ -276,9 +273,11 @@ onfi_handle_t* ONFI_READ(uint8_t device_index, uint64_t row_address, uint32_t co
 * buffer -  contains data to program
 * buffer_size - data buffer size (the amount of bytes asked to be programmed/written)
 * o_programmed_bytes_amount - will be set according to number of bytes programmed
+* page_offset - page offset for channel recording
+* type - SSD operation type
 **/
 onfi_handle_t* ONFI_PAGE_PROGRAM(uint8_t device_index, uint64_t row_address, uint32_t column_address,
-                                 const uint8_t *buffer, size_t buffer_size, size_t *o_programmed_bytes_amount);
+                                 const uint8_t *buffer, size_t buffer_size, size_t *o_programmed_bytes_amount, int page_offset, int type);
 
 /**
 * Erases the block consisting of the specified row address (ppn - physical page number).
@@ -288,8 +287,9 @@ onfi_handle_t* ONFI_PAGE_PROGRAM(uint8_t device_index, uint64_t row_address, uin
 *
 * device_index - index (0-based) of the target SSD device
 * row_address - consists of LUN address, block address and page number (ppn - physical page number)
+* type - SSD operation type
 **/
-onfi_handle_t* ONFI_BLOCK_ERASE(uint8_t device_index, uint64_t row_address);
+onfi_handle_t* ONFI_BLOCK_ERASE(uint8_t device_index, uint64_t row_address, int type);
 
 /**
 * Copies the page located at the source row address to the destination row address.

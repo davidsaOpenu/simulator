@@ -70,32 +70,20 @@ ftl_ret_val _FTL_READ_SECT(uint8_t device_index, uint64_t sector_nb, unsigned in
             RDBG_FTL(FTL_FAILURE, "No Mapping info\n");
         }
 
-		// ONFI doesn't allow data to be NULL, but FTL does.
-		// Therefore, in order to keep the statistics in check, in that case we call SSD_PAGE_READ directly.
-        if (data != NULL)
-        {
-            size_t nread = 0;
-            onfi_ret_val onfi_ret = ONFI_WAIT(ONFI_READ(device_index, ppn, offset_in_page, data, amount_of_bytes_to_read, &nread));
-            // Send a physical read action being done to the statistics gathering
-            if (onfi_ret == ONFI_SUCCESS)
-            {
-                ret = FTL_SUCCESS;
-                FTL_STATISTICS_GATHERING(device_index, ppn, PHYSICAL_READ);
-            }
+		// Call ONFI READ command for reading the page from the ssd
+        size_t nread = 0;
+        onfi_ret_val onfi_ret = ONFI_WAIT(ONFI_READ(device_index, ppn, offset_in_page, data, amount_of_bytes_to_read, &nread, read_page_nb, READ));
 
-            if (onfi_ret == ONFI_FAILURE || nread != amount_of_bytes_to_read)
-            {
-                ret = FTL_FAILURE;
-            }
+		// Send a physical read action being done to the statistics gathering
+        if (onfi_ret == ONFI_SUCCESS)
+        {
+            ret = FTL_SUCCESS;
+            FTL_STATISTICS_GATHERING(device_index, ppn, PHYSICAL_READ);
         }
-        else
-        { // Only for statistics gathering without an actual reading of data.
-            ret = SSD_PAGE_READ(device_index, CALC_FLASH(device_index, ppn), CALC_BLOCK(device_index, ppn), CALC_PAGE(device_index, ppn), read_page_nb, READ);
-            // Send a physical read action being done to the statistics gathering
-            if (ret == FTL_SUCCESS)
-            {
-                FTL_STATISTICS_GATHERING(device_index, ppn, PHYSICAL_READ);
-            }
+
+        if (onfi_ret == ONFI_FAILURE || nread != amount_of_bytes_to_read)
+        {
+            ret = FTL_FAILURE;
         }
 
 #ifdef FTL_DEBUG
@@ -199,15 +187,10 @@ ftl_ret_val _FTL_WRITE_SECT(uint8_t device_index, uint64_t sector_nb, unsigned i
 			}
 		}
 
-		// ONFI doesn't allow data to be NULL, but FTL does.
-		// Therefore, in order to keep the statistics in check, in that case we call SSD_PAGE_WRITE directly.
-		if (data != NULL) {
-			size_t nwritten = 0;
-			onfi_ret_val onfi_ret = ONFI_WAIT(ONFI_PAGE_PROGRAM(device_index, new_ppn, offset_in_page, data, amount_of_bytes_to_write, &nwritten));
-			ret = (onfi_ret == ONFI_SUCCESS && nwritten == amount_of_bytes_to_write) ? FTL_SUCCESS : FTL_FAILURE;
-		} else { // Only for statistics gathering without an actual writing of data.
-			ret = SSD_PAGE_WRITE(device_index, CALC_FLASH(device_index, new_ppn), CALC_BLOCK(device_index, new_ppn), CALC_PAGE(device_index, new_ppn), write_page_nb, WRITE);
-		}
+		// Call ONFI PAGE PROGRAM command for writing data to the ssd
+		size_t nwritten = 0;
+		onfi_ret_val onfi_ret = ONFI_WAIT(ONFI_PAGE_PROGRAM(device_index, new_ppn, offset_in_page, data, amount_of_bytes_to_write, &nwritten, write_page_nb, WRITE));
+		ret = (onfi_ret == ONFI_SUCCESS && nwritten == amount_of_bytes_to_write) ? FTL_SUCCESS : FTL_FAILURE;
 
 		// logical page number to physical. will need to be changed to account for objectid
 		UPDATE_OLD_PAGE_MAPPING(device_index, lpn);
