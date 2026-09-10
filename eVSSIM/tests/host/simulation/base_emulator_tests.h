@@ -332,7 +332,8 @@ namespace {
     };
 
     /* override due to valgrind error and gtest using this operator<< */
-    [[maybe_unused]]
+    // [[maybe_unused]]
+    __attribute__((unused))
     ostream& operator<<(ostream& os, const SSDConf& value) {
         (void) value;
         return os;
