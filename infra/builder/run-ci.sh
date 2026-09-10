@@ -41,8 +41,7 @@ env -u http_proxy -u https_proxy -u HTTP_PROXY -u HTTPS_PROXY tox
 ./build-docker-image.sh
 ./build-qemu-image.sh $EVSSIM_GUEST_TESTS_GUEST_VM_IMAGE $EVSSIM_GUEST_TESTS_GUEST_VM_BUILD_CONTAINER
 ./compile-kernel.sh $EVSSIM_KERNEL_COMPILE_CONTAINER
-./compile-qemu.sh ubuntu-26.04
-./compile-qemu.sh ubuntu-14.04 # make sure this is second to simplify docker-run-sanity.sh on the correct qemu branch (as it is expecting 14.04 structure atm)
+./compile-qemu.sh ubuntu-14.04
 ./compile-host-tests.sh $EVSSIM_HOST_TESTS_COMPILE_CONTAINER
 ./compile-guest-tests.sh $EVSSIM_GUEST_TESTS_COMPILE_CONTAINER
 ./docker-run-sanity.sh $EVSSIM_QEMU_COMPILE_CONTAINER
