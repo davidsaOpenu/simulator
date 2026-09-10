@@ -211,10 +211,6 @@ void INIT_SSD_CONFIG(void)
     if (NULL == g_onfi_managers)
         RERR(, "g_onfi_managers allocation failed!\n");
 
-    g_onfi_device_locks = (pthread_mutex_t*)calloc(sizeof(pthread_mutex_t) * device_count, 1);
-    if (NULL == g_onfi_device_locks)
-        RERR(, "g_onfi_device_locks allocation failed!\n");
-
     ssds_manager = (ssd_manager_t*)calloc(sizeof(ssd_manager_t) * device_count, 1);
     if (NULL == ssds_manager)
         RERR(, "ssds_manager allocation failed!\n");
@@ -282,9 +278,6 @@ void TERM_SSD_CONFIG(void)
 
     free(g_onfi_managers);
     g_onfi_managers = NULL;
-
-    free(g_onfi_device_locks);
-    g_onfi_device_locks = NULL;
 
     free(ssds_manager);
     ssds_manager = NULL;
