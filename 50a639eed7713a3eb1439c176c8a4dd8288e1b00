@@ -1,0 +1,38 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "d014018b_98e34fd9",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 1039489
+      },
+      "writtenOn": "2026-09-11T08:37:27Z",
+      "side": 1,
+      "message": "One nitpick, worth adding tests here as well",
+      "revId": "50a639eed7713a3eb1439c176c8a4dd8288e1b00",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "f168d7aa_9c2ef36f",
+        "filename": "eVSSIM/CONFIG/vssim_config_manager.c",
+        "patchSetId": 1
+      },
+      "lineNbr": 493,
+      "author": {
+        "id": 1039489
+      },
+      "writtenOn": "2026-09-11T08:37:27Z",
+      "side": 1,
+      "message": "Note that namespace size in all of its\u0027 usages is not always in bytes, sometimes it counts the number of blocks (ssd_conf_tests.cc)",
+      "revId": "50a639eed7713a3eb1439c176c8a4dd8288e1b00",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
+    }
+  ]
+}
