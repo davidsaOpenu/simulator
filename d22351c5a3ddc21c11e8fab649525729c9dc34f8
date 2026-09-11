@@ -139,6 +139,24 @@
       "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "6a10f5a4_7def568d",
+        "filename": "eVSSIM/LOG_MGR/logging_manager.c",
+        "patchSetId": 13
+      },
+      "lineNbr": 207,
+      "author": {
+        "id": 1039371
+      },
+      "writtenOn": "2026-09-11T15:27:08Z",
+      "side": 1,
+      "message": "Nevermind, now I understand what you meant, I\u0027ll use atomic store for the NULL assignment.",
+      "parentUuid": "f7546f47_b5d489e3",
+      "revId": "d22351c5a3ddc21c11e8fab649525729c9dc34f8",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "ba75a1fc_14105382",
