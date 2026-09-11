@@ -636,6 +636,82 @@ namespace program_compatible_test
         ASSERT_EQ(onfi_signature[4], 0);
     }
 
+    /* ========== ONFI_PAGE_COPYBACK tests ========== */
+
+    TEST_P(OnfiCommandsTest, InvalidDeviceIndexPageCopybackFails)
+    {
+        ASSERT_EQ(ONFI_PAGE_COPYBACK(INVALID_DEVICE_INDEX, 0, 0, COPYBACK), nullptr);
+    }
+
+    TEST_P(OnfiCommandsTest, OutOfBoundsSourcePageCopybackFails)
+    {
+        SSDConf *ssd_config = base_test_get_ssd_config();
+
+        AssertCommandFails(ONFI_PAGE_COPYBACK(g_device_index, ssd_config->get_pages(), 0, COPYBACK));
+    }
+
+    TEST_P(OnfiCommandsTest, OutOfBoundsDestinationPageCopybackFails)
+    {
+        SSDConf *ssd_config = base_test_get_ssd_config();
+
+        AssertCommandFails(ONFI_PAGE_COPYBACK(g_device_index, 0, ssd_config->get_pages(), COPYBACK));
+    }
+
+    TEST_P(OnfiCommandsTest, PageCopybackAllSuccess)
+    {
+        SSDConf *ssd_config = base_test_get_ssd_config();
+
+        size_t nprogrammed = 0;
+        unsigned char buffer[ssd_config->get_page_size()];
+
+        for (size_t flash_index = 0; flash_index < ssd_config->get_flash_nb(); ++flash_index)
+        {
+            uint64_t source = FlashFirstPage(flash_index);
+            uint64_t destination = source + 1;
+
+            memset(buffer, 0x00, ssd_config->get_page_size());
+            AssertCommandSuccess(ONFI_PAGE_PROGRAM(g_device_index, source, 0, buffer, ssd_config->get_page_size(), &nprogrammed));
+            AssertStatusRegisterOk();
+
+            AssertCommandSuccess(ONFI_PAGE_COPYBACK(g_device_index, source, destination, COPYBACK));
+            AssertStatusRegisterOk();
+        }
+    }
+
+    TEST_P(OnfiCommandsTest, PageCopybackCrossFlashFails)
+    {
+        SSDConf *ssd_config = base_test_get_ssd_config();
+        ASSERT_GE(ssd_config->get_flash_nb(), 2u);
+
+        // Different flashes are on different planes, so copyback between them is not supported.
+        AssertCommandFails(ONFI_PAGE_COPYBACK(g_device_index, FlashFirstPage(0), FlashFirstPage(1), COPYBACK));
+    }
+
+    TEST_P(OnfiCommandsTest, StatusRegisterFailValuesCorrectAfterPageCopybackOperation)
+    {
+        onfi_status_reg_t status;
+
+        AssertCommandFails(ONFI_PAGE_COPYBACK(g_device_index, FlashFirstPage(0), FlashFirstPage(1), COPYBACK));
+        AssertCurrentStatus(status);
+        ASSERT_EQ(status.FAIL, 1);
+        ASSERT_EQ(status.FAILC, 0);
+
+        AssertCommandFails(ONFI_PAGE_COPYBACK(g_device_index, FlashFirstPage(0), FlashFirstPage(1), COPYBACK));
+        AssertCurrentStatus(status);
+        ASSERT_EQ(status.FAIL, 1);
+        ASSERT_EQ(status.FAILC, 1);
+
+        AssertCommandSuccess(ONFI_PAGE_COPYBACK(g_device_index, FlashFirstPage(0), FlashFirstPage(0) + 1, COPYBACK));
+        AssertCurrentStatus(status);
+        ASSERT_EQ(status.FAIL, 0);
+        ASSERT_EQ(status.FAILC, 1);
+
+        AssertCommandSuccess(ONFI_PAGE_COPYBACK(g_device_index, FlashFirstPage(0), FlashFirstPage(0) + 1, COPYBACK));
+        AssertCurrentStatus(status);
+        ASSERT_EQ(status.FAIL, 0);
+        ASSERT_EQ(status.FAILC, 0);
+    }
+
     /* ========== Per-flash state tests ========== */
 
     TEST_P(OnfiCommandsTest, AllFlashesInitializedAfterInit)

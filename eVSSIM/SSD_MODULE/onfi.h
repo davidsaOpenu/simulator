@@ -292,6 +292,20 @@ onfi_handle_t* ONFI_PAGE_PROGRAM(uint8_t device_index, uint64_t row_address, uin
 onfi_handle_t* ONFI_BLOCK_ERASE(uint8_t device_index, uint64_t row_address);
 
 /**
+* Copies the page located at the source row address to the destination row address.
+* The copyback is performed internally by the flash (source and destination must be on the same plane).
+* The source page data is preserved after the operation.
+*
+* Make sure you call ONFI_WAIT with the returned onfi_handle_t before trying to use the results.
+*
+* device_index - index (0-based) of the target SSD device
+* source - row address of the source page (consists of LUN address, block address and page number (ppn - physical page number))
+* destination - row address of the destination page (consists of LUN address, block address and page number (ppn - physical page number))
+* io_type - SSD I/O type
+**/
+onfi_handle_t* ONFI_PAGE_COPYBACK(uint8_t device_index, uint64_t source, uint64_t destination, int io_type);
+
+/**
 * Returns ID of specified address. There are two options:
 * 1. When the address is 20h the function returns the ONFI signature if the target supports the ONFI specification.
 *    The ONFI signature is the ASCII encoding of ‘ONFI’ where ‘O’ = 4Fh, ‘N’ = 4Eh, ‘F’ = 46h, and ‘I’ = 49h.

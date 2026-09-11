@@ -299,6 +299,32 @@ static onfi_ret_val _onfi_block_erase(uint8_t device_index, uint64_t row_address
     return ONFI_SUCCESS;
 }
 
+static onfi_ret_val _onfi_page_copyback(uint8_t device_index, uint64_t source, uint64_t destination, int type)
+{
+    if (device_index >= device_count) {
+        PERR("Got invalid device index\n")
+        return ONFI_FAILURE;
+    }
+
+    if (source >= GET_TOTAL_NUMBER_OF_PAGES(device_index) || destination >= GET_TOTAL_NUMBER_OF_PAGES(device_index))
+    {
+        PERR("Invalid copyback address (source = %zu, destination = %zu)\n", (size_t)source, (size_t)destination)
+        return ONFI_FAILURE;
+    }
+
+    const uint32_t flash_index = CALC_FLASH(device_index, source);
+
+    if (SSD_PAGE_COPYBACK(device_index, source, destination, type) != FTL_SUCCESS)
+    {
+        PERR("Failed copyback\n")
+        _ONFI_UPDATE_STATUS_REGISTER(get_status_reg(device_index, flash_index), ONFI_FAILURE);
+        return ONFI_FAILURE;
+    }
+
+    _ONFI_UPDATE_STATUS_REGISTER(get_status_reg(device_index, flash_index), ONFI_SUCCESS);
+    return ONFI_SUCCESS;
+}
+
 static onfi_ret_val _onfi_read_id(uint8_t device_index, uint32_t flash_index, uint8_t address, uint8_t *o_buffer, size_t buffer_size)
 {
     if (o_buffer == NULL)
@@ -430,21 +456,24 @@ typedef enum {
     ONFI_OP_READ,
     ONFI_OP_PROGRAM,
     ONFI_OP_ERASE,
+    ONFI_OP_COPYBACK,
     ONFI_OP_READ_ID,
     ONFI_OP_READ_PARAMETER_PAGE,
     ONFI_OP_READ_STATUS,
     ONFI_OP_RESET
-} onfi_op_type_t;
+} onfi_command_t;
 
 /* ONFI multithreaded request describes an ONFI operation to be submitted to an ONFI worker */
 struct onfi_request {
     // request parameters
-    onfi_op_type_t type;
+    onfi_command_t command;
     uint8_t device_index;
     uint32_t flash_index;
 
     uint64_t row_address;
     uint32_t column_address;
+    uint64_t destination;
+    int io_type;
     uint8_t* buffer;
     size_t buffer_size;
     uint8_t address;
@@ -589,7 +618,7 @@ static void onfi_mt_queue_shutdown(onfi_queue_t* q)
 /* Execute the request's ONFI command */
 static onfi_ret_val run_onfi_command(onfi_request_t *req)
 {
-    switch (req->type) {
+    switch (req->command) {
     case ONFI_OP_READ:
         return _onfi_read(req->device_index, req->row_address, req->column_address,
                           req->buffer, req->buffer_size, req->bytes_transferred);
@@ -598,6 +627,8 @@ static onfi_ret_val run_onfi_command(onfi_request_t *req)
                                   req->buffer, req->buffer_size, req->bytes_transferred);
     case ONFI_OP_ERASE:
         return _onfi_block_erase(req->device_index, req->row_address);
+    case ONFI_OP_COPYBACK:
+        return _onfi_page_copyback(req->device_index, req->row_address, req->destination, req->io_type);
     case ONFI_OP_READ_ID:
         return _onfi_read_id(req->device_index, req->flash_index, req->address, req->buffer, req->buffer_size);
     case ONFI_OP_READ_PARAMETER_PAGE:
@@ -672,13 +703,13 @@ static int onfi_mt_cleanup(onfi_manager_t* onfi_manager, int n)
 /**
  * Allocate and initialize a new request. Returns NULL on failure.
  **/
-static onfi_request_t* onfi_request_create(onfi_op_type_t type, uint8_t device_index)
+static onfi_request_t* onfi_request_create(onfi_command_t command, uint8_t device_index)
 {
     onfi_request_t* req = (onfi_request_t*)calloc(1, sizeof(onfi_request_t));
     if (!req)
         return NULL;
 
-    req->type = type;
+    req->command = command;
     req->device_index = device_index;
     req->done = 0;
     pthread_mutex_init(&req->done_lock, NULL);
@@ -713,7 +744,7 @@ static int onfi_request_submit(onfi_request_t* req)
 
     // calculate target onfi worker thread (one worker per flash chip)
     int flash_index;
-    switch (req->type) {
+    switch (req->command) {
     case ONFI_OP_READ_ID:
     case ONFI_OP_READ_PARAMETER_PAGE:
     case ONFI_OP_READ_STATUS:
@@ -903,6 +934,19 @@ onfi_handle_t* ONFI_BLOCK_ERASE(uint8_t device_index, uint64_t row_address)
         return NULL;
 
     req->row_address = row_address;
+
+    return onfi_request_dispatch(req);
+}
+
+onfi_handle_t* ONFI_PAGE_COPYBACK(uint8_t device_index, uint64_t source, uint64_t destination, int io_type)
+{
+    onfi_request_t* req = onfi_request_create(ONFI_OP_COPYBACK, device_index);
+    if (!req)
+        return NULL;
+
+    req->row_address = source;
+    req->destination = destination;
+    req->io_type = io_type;
 
     return onfi_request_dispatch(req);
 }
