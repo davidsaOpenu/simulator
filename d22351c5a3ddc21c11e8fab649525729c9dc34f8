@@ -1,6 +1,23 @@
 {
   "comments": [
     {
+      "unresolved": true,
+      "key": {
+        "uuid": "0649890e_960c18e8",
+        "filename": "/COMMIT_MSG",
+        "patchSetId": 13
+      },
+      "lineNbr": 38,
+      "author": {
+        "id": 1007990
+      },
+      "writtenOn": "2026-09-11T05:12:23Z",
+      "side": 1,
+      "message": "This one links to the epic.\n\nIt seems we need a ticket about migrating host test compilation to Ubuntu 26.04, fixing -Werror failures (uthash.h bump, -isystem flags), handling the log_server.c ABI split between libwebsockets v4.1 (used for 14.04/QEMU builds) and v4.5 (used for 26.04/host-test builds).",
+      "revId": "d22351c5a3ddc21c11e8fab649525729c9dc34f8",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
+    },
+    {
       "unresolved": false,
       "key": {
         "uuid": "93a8bc3b_f34b0fd4",
@@ -48,6 +65,86 @@
       "writtenOn": "2026-09-07T21:03:25Z",
       "side": 1,
       "message": "recheck",
+      "revId": "d22351c5a3ddc21c11e8fab649525729c9dc34f8",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "9b6d88bb_6a425839",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 13
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 1007990
+      },
+      "writtenOn": "2026-09-11T05:12:23Z",
+      "side": 1,
+      "message": "Well done! Few comments inline",
+      "revId": "d22351c5a3ddc21c11e8fab649525729c9dc34f8",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "b67f9466_40108425",
+        "filename": "eVSSIM/LOG_MGR/logging_manager.c",
+        "patchSetId": 13
+      },
+      "lineNbr": 207,
+      "author": {
+        "id": 1007990
+      },
+      "writtenOn": "2026-09-11T05:12:23Z",
+      "side": 1,
+      "message": "line 121 using __atomic_store. Any reason not to use the same atomic primitive here?",
+      "revId": "d22351c5a3ddc21c11e8fab649525729c9dc34f8",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "ba75a1fc_14105382",
+        "filename": "eVSSIM/LOG_MGR/logging_parser.c",
+        "patchSetId": 13
+      },
+      "lineNbr": 67,
+      "author": {
+        "id": 1007990
+      },
+      "writtenOn": "2026-09-11T05:12:23Z",
+      "side": 1,
+      "message": "%.72s is a magic number. The strftime call two lines above already derives its buffer size from TIME_STAMP_LEN - 8; the truncation width should be derived the same way (e.g. a TIME_STAMP_LEN-based macro) so the two don\u0027t silently drift apart if TIME_STAMP_LEN ever changes.",
+      "range": {
+        "startLine": 67,
+        "startChar": 35,
+        "endLine": 67,
+        "endChar": 44
+      },
+      "revId": "d22351c5a3ddc21c11e8fab649525729c9dc34f8",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "b3924b84_09082653",
+        "filename": "eVSSIM/tests/host/build.mk",
+        "patchSetId": 13
+      },
+      "lineNbr": 30,
+      "author": {
+        "id": 1007990
+      },
+      "writtenOn": "2026-09-11T05:12:23Z",
+      "side": 1,
+      "message": "Maybe -isystem as well?",
+      "range": {
+        "startLine": 30,
+        "startChar": 1,
+        "endLine": 30,
+        "endChar": 3
+      },
       "revId": "d22351c5a3ddc21c11e8fab649525729c9dc34f8",
       "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
     }
