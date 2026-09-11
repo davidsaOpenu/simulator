@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "2a377e69_be7490d7",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 1039489
+      },
+      "writtenOn": "2026-09-11T08:40:25Z",
+      "side": 1,
+      "message": "Worth adding tests here as well, also I believe ssd_conf_tests.cc:380-381 tests the NS1/NS2 options so worth altering those tests as well",
+      "revId": "f5ff5c4cc5aec6d580c3a83d5292df6c4519e869",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
+    }
+  ]
+}
