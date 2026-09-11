@@ -18,6 +18,24 @@
       "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
     },
     {
+      "unresolved": true,
+      "key": {
+        "uuid": "f6de382a_e5223dd8",
+        "filename": "/COMMIT_MSG",
+        "patchSetId": 13
+      },
+      "lineNbr": 38,
+      "author": {
+        "id": 1039371
+      },
+      "writtenOn": "2026-09-11T15:25:33Z",
+      "side": 1,
+      "message": "That\u0027s not the Epic, that\u0027s the maman 11+12 card.",
+      "parentUuid": "0649890e_960c18e8",
+      "revId": "d22351c5a3ddc21c11e8fab649525729c9dc34f8",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
+    },
+    {
       "unresolved": false,
       "key": {
         "uuid": "93a8bc3b_f34b0fd4",
@@ -105,6 +123,24 @@
     {
       "unresolved": true,
       "key": {
+        "uuid": "f7546f47_b5d489e3",
+        "filename": "eVSSIM/LOG_MGR/logging_manager.c",
+        "patchSetId": 13
+      },
+      "lineNbr": 207,
+      "author": {
+        "id": 1039371
+      },
+      "writtenOn": "2026-09-11T15:25:33Z",
+      "side": 1,
+      "message": "Not my code, see commit\n\u003e 1244938: Make ssd_io_manager atomic | https://gerrithub.io/c/davidsaOpenu/simulator/+/1244938\n\nfor that change.",
+      "parentUuid": "b67f9466_40108425",
+      "revId": "d22351c5a3ddc21c11e8fab649525729c9dc34f8",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
+    },
+    {
+      "unresolved": true,
+      "key": {
         "uuid": "ba75a1fc_14105382",
         "filename": "eVSSIM/LOG_MGR/logging_parser.c",
         "patchSetId": 13
@@ -116,6 +152,30 @@
       "writtenOn": "2026-09-11T05:12:23Z",
       "side": 1,
       "message": "%.72s is a magic number. The strftime call two lines above already derives its buffer size from TIME_STAMP_LEN - 8; the truncation width should be derived the same way (e.g. a TIME_STAMP_LEN-based macro) so the two don\u0027t silently drift apart if TIME_STAMP_LEN ever changes.",
+      "range": {
+        "startLine": 67,
+        "startChar": 35,
+        "endLine": 67,
+        "endChar": 44
+      },
+      "revId": "d22351c5a3ddc21c11e8fab649525729c9dc34f8",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "4448861a_22bd499e",
+        "filename": "eVSSIM/LOG_MGR/logging_parser.c",
+        "patchSetId": 13
+      },
+      "lineNbr": 67,
+      "author": {
+        "id": 1039371
+      },
+      "writtenOn": "2026-09-11T15:25:33Z",
+      "side": 1,
+      "message": "Used a `const size_t` instead of a define because it\u0027s only used in one function.",
+      "parentUuid": "ba75a1fc_14105382",
       "range": {
         "startLine": 67,
         "startChar": 35,
@@ -139,6 +199,30 @@
       "writtenOn": "2026-09-11T05:12:23Z",
       "side": 1,
       "message": "Maybe -isystem as well?",
+      "range": {
+        "startLine": 30,
+        "startChar": 1,
+        "endLine": 30,
+        "endChar": 3
+      },
+      "revId": "d22351c5a3ddc21c11e8fab649525729c9dc34f8",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "4d85a671_6ff46bce",
+        "filename": "eVSSIM/tests/host/build.mk",
+        "patchSetId": 13
+      },
+      "lineNbr": 30,
+      "author": {
+        "id": 1039371
+      },
+      "writtenOn": "2026-09-11T15:25:33Z",
+      "side": 1,
+      "message": "Yeah, makes sense",
+      "parentUuid": "b3924b84_09082653",
       "range": {
         "startLine": 30,
         "startChar": 1,
