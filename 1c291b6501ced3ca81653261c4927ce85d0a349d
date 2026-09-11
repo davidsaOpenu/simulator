@@ -16,6 +16,23 @@
       "message": "recheck",
       "revId": "1c291b6501ced3ca81653261c4927ce85d0a349d",
       "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "fc82f14c_f29fdaea",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 5
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 1007990
+      },
+      "writtenOn": "2026-09-11T05:29:36Z",
+      "side": 1,
+      "message": "It seems like there are 2 changes. See https://trello.com/c/nLBabLWN/130-fix-ext4-formatting-bug?filter\u003dmember%3Aroyshama as well. Please split them. After the split, coordinate the CR/merge priority with @silveryoav@gmail.com and @yuriKhordal@proton.me (merge conflicts).",
+      "revId": "1c291b6501ced3ca81653261c4927ce85d0a349d",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
     }
   ]
 }
