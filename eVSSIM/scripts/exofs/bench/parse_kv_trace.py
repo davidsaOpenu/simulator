@@ -28,6 +28,13 @@ EXOFS_SUPER_ID = 0x10000
 EXOFS_DEVTABLE_ID = 0x10001
 EXOFS_ROOT_ID = 0x10002
 
+# super.c:48. Some call sites (exofs_set_obj_data, exofs_delete_obj) OR this bit
+# into the key themselves and pass is_attrib=false, so the traced attr flag is 0
+# even though the target is the attribute object. Both encodings must normalise
+# to the same thing or those commands land against an object id that is not in
+# the inode map and go unclassified.
+NVME_ATTR_KEY_HIGH = 1 << 31
+
 # In this fork the object id IS the inode number: exofs_new_inode() assigns
 # inode->i_ino = s_nextid++ + EXOFS_OBJ_OFF (inode.c) and exofs_oi_objno()
 # returns i_ino unchanged (exofs.h), so the offset is already baked into the
@@ -41,7 +48,10 @@ RECORD_RE = re.compile(
 )
 MARKER_RE = re.compile(r"tracing_mark_write:\s*PHASE=(?P<phase>\S+)")
 
-READ_OPS = ("retrieve", "exist")
+RETRIEVE_OPS = ("retrieve",)
+STORE_OPS = ("store",)
+DELETE_OPS = ("delete",)
+EXIST_OPS = ("exist",)
 
 
 def load_inode_map(path):
@@ -76,6 +86,10 @@ def classify(object_id, is_attr, inode_map):
     An object's attribute is its exofs_fcb -- the inode metadata -- not an
     attribute of its data, so per-inode objects are labelled accordingly.
     """
+    if object_id & NVME_ATTR_KEY_HIGH:
+        object_id &= ~NVME_ATTR_KEY_HIGH
+        is_attr = True
+
     if object_id == EXOFS_SUPER_ID:
         return "superblock attribute" if is_attr else "superblock"
     if object_id == EXOFS_DEVTABLE_ID:
@@ -118,6 +132,9 @@ def parse(trace_path, inode_map):
 
             object_id = int(match.group("key"), 16)
             is_attr = match.group("attr") == "1"
+            if object_id & NVME_ATTR_KEY_HIGH:
+                object_id &= ~NVME_ATTR_KEY_HIGH
+                is_attr = True
 
             rows.append(OrderedDict((
                 ("phase", phase),
@@ -146,16 +163,18 @@ def summarise(rows):
         by_type[row["type"]].append(row)
 
     lines = [
-        "| object type | commands | reads | writes | min size | max size | stddev |",
-        "|---|---|---|---|---|---|---|",
+        "| object type | commands | retrieve | store | delete | exist | min size | max size | stddev |",
+        "|---|---|---|---|---|---|---|---|---|",
     ]
 
     for name in sorted(by_type):
         entries = by_type[name]
         # Only successful commands describe a real stored size.
         sizes = [e["length"] for e in entries if e["ret"] == 0 and e["length"] > 0]
-        reads = sum(1 for e in entries if e["op"] in READ_OPS)
-        writes = len(entries) - reads
+        n_ret = sum(1 for e in entries if e["op"] in RETRIEVE_OPS)
+        n_sto = sum(1 for e in entries if e["op"] in STORE_OPS)
+        n_del = sum(1 for e in entries if e["op"] in DELETE_OPS)
+        n_exi = sum(1 for e in entries if e["op"] in EXIST_OPS)
 
         if not sizes:
             min_s = max_s = spread = "n/a"
@@ -169,8 +188,8 @@ def summarise(rows):
             else:
                 spread = "%.1f" % stddev(sizes)
 
-        lines.append("| %s | %d | %d | %d | %s | %s | %s |" % (
-            name, len(entries), reads, writes, min_s, max_s, spread))
+        lines.append("| %s | %d | %d | %d | %d | %d | %s | %s | %s |" % (
+            name, len(entries), n_ret, n_sto, n_del, n_exi, min_s, max_s, spread))
 
     return "\n".join(lines)
 
