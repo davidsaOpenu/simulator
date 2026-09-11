@@ -16,6 +16,23 @@
       "message": "recheck",
       "revId": "6c195c39348be94c95e902f14782bebc790f8414",
       "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "b11b448e_12f9f686",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 2
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 1007990
+      },
+      "writtenOn": "2026-09-11T05:44:29Z",
+      "side": 1,
+      "message": "Following our talk on Sunday, please update the project spec.\n\nFirst and foremost, we need a spike ticket and a test that makes no changes to eVSSIM code to explore qemu_co_sleep_ns. Tests should stress qemu_co_sleep_ns with the ability to sleep the right amount of time when something else runs on the core. During the spike, we need a library that provides a mechanism to offer core affinity capabilities and to log times correctly, and tests that ensure that correctness. We are not going to change eVSSIM code in this direction without that mechanism.ke ticket",
+      "revId": "6c195c39348be94c95e902f14782bebc790f8414",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
     }
   ]
 }
