@@ -49,6 +49,17 @@ mark() {
     echo "PHASE=$1" > "$TRACE_DIR/trace_marker"
 }
 
+# Reads of data that never reached the device can block indefinitely, and a
+# stalled phase would cost the whole run. Bound them: a timeout is itself a
+# result worth recording, not a reason to lose the trace collected so far.
+READ_TIMEOUT=${READ_TIMEOUT:-60}
+guard() {
+    local what=$1; shift
+    if ! timeout "$READ_TIMEOUT" "$@" > /dev/null 2>&1; then
+        echo "WARNING '$what' did not complete within ${READ_TIMEOUT}s (rc=$?)"
+    fi
+}
+
 echo "> Resetting ftrace buffer..."
 echo 0    > "$TRACE_DIR/tracing_on"
 echo nop  > "$TRACE_DIR/current_tracer"
@@ -91,7 +102,7 @@ done
 # Whole-directory-object reads; exofs re-reads the object per readdir.
 mark readdir_loop
 for _ in 1 2 3; do
-    ls -1 "$WORK" > /dev/null
+    guard "readdir" ls -1 "$WORK"
 done
 
 # --- phase 5: nested tree + deep path resolution ---------------------------
@@ -110,7 +121,7 @@ sync
 
 mark deep_lookup
 for _ in 1 2 3; do
-    cat "$deep/leaf.txt" > /dev/null
+    guard "deep lookup" cat "$deep/leaf.txt"
 done
 
 # --- phase 6: large file write + read back ---------------------------------
@@ -122,7 +133,7 @@ sync
 mark large_read
 # Drop caches so the read reaches the device rather than the page cache.
 sync; echo 3 > /proc/sys/vm/drop_caches 2>/dev/null || true
-cat "$WORK/large.bin" > /dev/null
+guard "large read after drop_caches" cat "$WORK/large.bin"
 
 # --- inode map -------------------------------------------------------------
 # Object id maps to a type only via the inode: obj_id = ino + EXOFS_OBJ_OFF.
