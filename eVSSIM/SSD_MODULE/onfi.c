@@ -1,6 +1,5 @@
 #include "onfi.h"
 #include "common.h"
-#include "ssd_file_operations.h"
 #include "vssim_config_manager.h"
 #include <stdio.h>
 #include <stdlib.h>
@@ -234,12 +233,6 @@ onfi_ret_val ONFI_READ(uint8_t device_index, uint64_t row_address, uint32_t colu
         return ONFI_FAILURE;
     }
 
-    if (ssd_read(GET_FILE_NAME(device_index), row_address * GET_PAGE_SIZE(device_index) + column_address, amount_to_read, o_buffer) != SSD_FILE_OPS_SUCCESS)
-    {
-        PERR("Failed reading\n")
-        return ONFI_FAILURE;
-    }
-
     *o_read_bytes_amount = amount_to_read;
     return ONFI_SUCCESS;
 }
@@ -275,13 +268,6 @@ onfi_ret_val ONFI_PAGE_PROGRAM(uint8_t device_index, uint64_t row_address, uint3
         return ONFI_FAILURE;
     }
 
-    if (ssd_write(GET_FILE_NAME(device_index), row_address * GET_PAGE_SIZE(device_index) + column_address, amount_to_write, buffer) != SSD_FILE_OPS_SUCCESS)
-    {
-        PERR("Failed writing\n")
-        _ONFI_UPDATE_STATUS_REGISTER(get_status_reg(device_index), ONFI_FAILURE);
-        return ONFI_FAILURE;
-    }
-
     *o_programmed_bytes_amount = amount_to_write;
     _ONFI_UPDATE_STATUS_REGISTER(get_status_reg(device_index), ONFI_SUCCESS);
     return ONFI_SUCCESS;
@@ -305,16 +291,6 @@ onfi_ret_val ONFI_BLOCK_ERASE(uint8_t device_index, uint64_t row_address)
     const uint64_t flash_nb = CALC_FLASH(device_index, row_address);
 
     if (SSD_BLOCK_ERASE(device_index, flash_nb, block_nb, ERASE) != FTL_SUCCESS)
-    {
-        PERR("Failed erasing\n")
-        _ONFI_UPDATE_STATUS_REGISTER(get_status_reg(device_index), ONFI_FAILURE);
-        return ONFI_FAILURE;
-    }
-
-    const size_t block_size = GET_PAGE_NB(device_index) * GET_PAGE_SIZE(device_index);
-    const uint64_t first_page_in_block = (row_address / GET_PAGE_NB(device_index)) * GET_PAGE_NB(device_index);
-
-    if (ssd_erase(GET_FILE_NAME(device_index), first_page_in_block * GET_PAGE_SIZE(device_index), block_size) != SSD_FILE_OPS_SUCCESS)
     {
         PERR("Failed erasing\n")
         _ONFI_UPDATE_STATUS_REGISTER(get_status_reg(device_index), ONFI_FAILURE);
@@ -605,7 +581,7 @@ static void* onfi_mt_worker(void* arg)
         if (req == NULL)
             break;
 
-        // use the onfi device lock before performing any onfi command because current implementation (ssd io manager + ssd file io)
+        // use the onfi device lock before performing any onfi command because current implementation (ssd io manager)
         // doesn't support multithread and is not safe at the flash level.
         // The lock will be removed in the future after making everything safe.
         pthread_mutex_lock(&g_onfi_device_locks[req->device_index]);

@@ -13,7 +13,6 @@
 
 typedef struct ssd_config {
 	char device_name[MAX_DEVICE_NAME_LEN];
-    char file_name[PATH_MAX];
 
 	uint32_t sector_size;
 	uint32_t page_size;
@@ -101,7 +100,6 @@ void INIT_SSD_CONFIG(void);
 void TERM_SSD_CONFIG(void);
 
 /* SSD Configuration - functions */
-char* GET_FILE_NAME(uint8_t device_index);
 uint32_t GET_SECTOR_SIZE(uint8_t device_index);
 uint32_t GET_PAGE_SIZE(uint8_t device_index);
 uint64_t GET_PAGE_NB(uint8_t device_index);

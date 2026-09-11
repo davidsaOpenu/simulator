@@ -100,7 +100,6 @@ protected:
 static std::string device_header(int num, const char* stat_suffix = "") {
     std::ostringstream s;
     s << "[nvme0" << num << "]\n"
-      << "FILE_NAME ./data/ssd" << (num > 1 ? std::to_string(num) : "") << ".img\n"
       << "PAGE_SIZE 4096\n"
       << "PAGE_NB 10\n"
       << "SECTOR_SIZE 1\n"
@@ -370,11 +369,6 @@ namespace ssd_conf_tests {
         }
         ASSERT_EQ(expected_onfi_manager_threads, devices[g_device_index].onfi_manager_threads);
         ASSERT_EQ(ssd_config->get_onfi_manager_queue_size(), devices[g_device_index].onfi_manager_queue_size);
-
-        // FILENAME depends on device index
-        std::string expected_file_name = "./data/ssd" +
-            (g_device_index == 0 ? "" : std::to_string(g_device_index + 1)) + ".img";
-        ASSERT_EQ(expected_file_name, std::string(devices[g_device_index].file_name));
 
         // Namespace sizes (calculated in serialization)
         ASSERT_EQ((ssd_config->get_block_nb() / 2), devices[g_device_index].namespaces_size[0]); // NS1
