@@ -217,15 +217,33 @@ ftl_ret_val _FTL_OBJ_READ(uint8_t device_index, obj_id_t obj_loc, void *data, of
 
     if (data != NULL) {
         uint64_t outlen = 0;
+        uint64_t reported;
+
+        /* Cleared first so an absent sense record is distinguishable from one
+         * left behind by an earlier command. */
+        memset(OSD_SENSE(device_index), 0x0, OSD_SENSE_BUFFER_SIZE);
+
         osd_ret = osd_read(OSD_DEVICE(device_index), obj_loc.partition_id, obj_loc.object_id,
-                    length, 0, NULL, data, &outlen, 0, OSD_SENSE(device_index), DDT_CONTIG);
+                    length, offset, NULL, data, &outlen, 0, OSD_SENSE(device_index), DDT_CONTIG);
         if (osd_ret < 0) {
             PDBG_FTL("osd_read failed with ret: %d.\n", osd_ret);
             return FTL_FAILURE;
         }
 
-        *p_length = get_ntohll(OSD_SENSE(device_index) + OSD_READ_VALUE_OFFSET);
-        if (length < *p_length) *p_length = length;
+        /*
+         * contig_read() builds a sense record only when it read less than was
+         * asked for, and that record carried the transferred length. A read the
+         * object satisfies in full leaves no record, so reading the length from
+         * the sense buffer unconditionally reported zero for every partial read
+         * of a larger object -- which is what readahead issues, so any file past
+         * the readahead window came back as zeroes. No record means the whole
+         * request was satisfied.
+         */
+        reported = get_ntohll(OSD_SENSE(device_index) + OSD_READ_VALUE_OFFSET);
+        if (reported == 0)
+            *p_length = length;
+        else
+            *p_length = (length < reported) ? length : reported;
 
         memset(OSD_SENSE(device_index), 0x0, OSD_SENSE_BUFFER_SIZE);
     }
