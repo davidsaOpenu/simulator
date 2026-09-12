@@ -44,8 +44,36 @@ if [[ ! -d $TRACE_DIR ]]; then
     exit 1
 fi
 
+# --- phase timing -----------------------------------------------------------
+# What this time is, and what it is not.
+#
+# It is NOT device latency. The simulator advances a virtual clock: wait_usec()
+# returns immediately and gettimeofday() is read once at init, so nothing in the
+# measured path waits for simulated flash.
+#
+# It IS the host CPU cost of issuing the commands. Every KV command pays a
+# blkdev_get_by_path(), a kzalloc of the whole object, a synchronous submission,
+# a TCG-emulated MMIO round trip into QEMU, and an osd_read()/osd_write()
+# against the backstore. A cache removes commands, so it removes all of that.
+# Read these numbers as "host cost of talking to the device", never as
+# "how fast the SSD is" -- and always beside the KV command counts, which are
+# the load-bearing metric.
+PHASE_CSV="$OUTPUT_DIR/phases.csv"
+_phase=""
+_phase_start=0
+
+phase_close() {
+    [[ -n $_phase ]] || return 0
+    printf '%s,%s\n' "$_phase" "$(( ($(date +%s%N) - _phase_start) / 1000000 ))" \
+        >> "$PHASE_CSV"
+    _phase=""
+}
+
 mark() {
-    # Delimit a phase inside the trace stream.
+    # Delimit a phase inside the trace stream, and time the one just ended.
+    phase_close
+    _phase=$1
+    _phase_start=$(date +%s%N)
     echo "PHASE=$1" > "$TRACE_DIR/trace_marker"
 }
 
@@ -70,6 +98,7 @@ echo      > "$TRACE_DIR/trace"
 echo 1    > "$TRACE_DIR/tracing_on"
 
 mkdir -p "$OUTPUT_DIR"
+printf 'phase,duration_ms\n' > "$PHASE_CSV"
 rm -rf "$WORK"
 
 # --- phase 1: directory creation -------------------------------------------
@@ -151,8 +180,12 @@ mark delete_pass
 rm -rf "$WORK"
 sync
 
+phase_close
 echo 0 > "$TRACE_DIR/tracing_on"
 cp "$TRACE_DIR/trace" "$OUTPUT_DIR/trace.txt"
+
+echo "> Phase timings (host CPU cost of issuing commands, ms):"
+column -s, -t < "$PHASE_CSV" 2>/dev/null || cat "$PHASE_CSV"
 
 records=$(grep -c "exofs_kv " "$OUTPUT_DIR/trace.txt" || true)
 echo "> Wrote $OUTPUT_DIR/trace.txt ($records KV records) and inode_map.txt"
