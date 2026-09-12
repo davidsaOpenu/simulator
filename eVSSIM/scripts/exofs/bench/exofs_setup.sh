@@ -26,13 +26,22 @@ cd /home/esd/guest
 # Trusty is EOL, so its archives may be unreachable. Only reach for the network
 # if something is actually missing, and do not let that failure mask a working
 # image.
+# fio matters beyond convenience: without a local binary YABS tries to download
+# one, and when that fails it silently falls back to dd and reports no
+# per-block-size results at all.
 missing=""
 command -v iscsiadm >/dev/null 2>&1 || missing="$missing open-iscsi"
+command -v fio      >/dev/null 2>&1 || missing="$missing fio"
+command -v bc       >/dev/null 2>&1 || missing="$missing bc"
 if [[ -n "$missing" ]]; then
     echo "> Installing:$missing"
     env DEBIAN_FRONTEND=noninteractive apt-get -o Dpkg::Use-Pty=0 install -y $missing \
         || echo "WARNING apt-get failed; continuing with what the image already has"
 fi
+for tool in iscsiadm fio; do
+    command -v "$tool" >/dev/null 2>&1 \
+        || echo "WARNING $tool is still missing after install"
+done
 
 echo "> Starting the OSD target..."
 cd /home/esd/osc-osd/
