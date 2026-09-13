@@ -66,8 +66,19 @@ mark() {
 # each one: a timeout is a result worth recording.
 guard() {
     local what=$1; shift
-    timeout "$PHASE_TIMEOUT" "$@" > /dev/null 2>&1 \
-        || echo "WARNING '$what' did not complete within ${PHASE_TIMEOUT}s"
+    if ! timeout "$PHASE_TIMEOUT" "$@" > /dev/null 2>&1; then
+        echo "WARNING '$what' did not complete within ${PHASE_TIMEOUT}s"
+        hang_report "$what"
+    fi
+}
+
+# A timeout on its own says only that something was slow. Save the blocked-task
+# stacks at that moment, next to the trace, so a hang leaves its cause behind.
+hang_report() {
+    local f="$OUTPUT_DIR/hang_$(echo "$1" | tr -c 'A-Za-z0-9\n' '_').txt"
+    echo w > /proc/sysrq-trigger 2>/dev/null || true
+    dmesg | tail -150 > "$f" 2>/dev/null || true
+    echo "  blocked-task stacks saved to $f"
 }
 
 # A read that quietly returns nothing looks like a very fast read. Every read
@@ -75,11 +86,14 @@ guard() {
 short_reads=0
 read_file() {
     local path=$1 bs=$2 want got
-    want=$(stat -c %s "$path")
+    # A file an earlier phase failed to create is a result, not a reason to
+    # abort under set -e and lose the whole trace.
+    want=$(stat -c %s "$path" 2>/dev/null) || want=missing
     got=$(timeout "$PHASE_TIMEOUT" dd if="$path" bs="$bs" 2>/dev/null | wc -c)
     if [[ "$got" != "$want" ]]; then
         echo "WARNING short read: $path returned $got of $want bytes"
         short_reads=$((short_reads + 1))
+        [[ "$want" == missing ]] || hang_report "read $(basename "$path")"
     fi
 }
 
