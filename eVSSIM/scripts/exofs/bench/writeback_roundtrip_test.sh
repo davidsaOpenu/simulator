@@ -73,6 +73,23 @@ for spec in "tiny:100" "page:4096" "straddle:10000" "pages16:65536" "pages32:131
     EXPECTED[$name]=$(md5sum < "$REF/$name" | cut -d' ' -f1)
 done
 
+# ------------------------------------------------------- evicted-cache pass
+# Drop the page cache but keep the inodes (drop_caches=1 leaves dentries and
+# inodes alone) and read everything back before remounting. The pages now have
+# to come from the device through ->readpage for inodes this mount created. The
+# remount pass below cannot see that case: remount brings every inode back
+# through exofs_iget(), which is what hid zero-filled reads of new inodes.
+echo "> Verifying contents after page-cache eviction, before remount"
+sync; echo 1 > /proc/sys/vm/drop_caches
+for name in "${!EXPECTED[@]}"; do
+    got=$(md5sum < "$WORK/$name" 2>/dev/null | cut -d' ' -f1)
+    if [[ "$got" == "${EXPECTED[$name]}" ]]; then
+        pass "$name: matches after page-cache eviction"
+    else
+        fail "$name: differs after page-cache eviction"
+    fi
+done
+
 echo "> Wrote ${#EXPECTED[@]} files; unmounting and remounting..."
 remount
 
