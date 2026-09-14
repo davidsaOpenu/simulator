@@ -164,6 +164,30 @@
       "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "80953c66_e71e425f",
+        "filename": "infra/builder/versions/configs.json",
+        "patchSetId": 9
+      },
+      "lineNbr": 104,
+      "author": {
+        "id": 1039461
+      },
+      "writtenOn": "2026-09-14T14:42:00Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "c973217f_868a5da5",
+      "range": {
+        "startLine": 103,
+        "startChar": 0,
+        "endLine": 104,
+        "endChar": 42
+      },
+      "revId": "607a7cc5ff8b79492e066f2e09ce54747c293111",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "0c6e634a_b3afe983",
