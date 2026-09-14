@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "be179cd1_460c9d03",
+        "filename": "eVSSIM/LOG_MGR/logging_parser.c",
+        "patchSetId": 14
+      },
+      "lineNbr": 52,
+      "author": {
+        "id": 1007990
+      },
+      "writtenOn": "2026-09-14T08:02:11Z",
+      "side": 1,
+      "message": "What we\u0027re actually reserving is . + 6-digit microseconds + null \u003d 8 chars, is not it? Someone reading TIME_STAMP_LEN - sizeof(time_t) later will reasonably wonder \"why does the reserved suffix length depend on the width of a time value?\" \nSuggestion: #define TIME_STAMP_SUFFIX_LEN 8  // \".NNNNNN\" + nul \n            or define a constant",
+      "range": {
+        "startLine": 52,
+        "startChar": 53,
+        "endLine": 52,
+        "endChar": 68
+      },
+      "revId": "8cbf13bcbafcc03e823cc2759ec7efaf364f7240",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
+    }
+  ]
+}
