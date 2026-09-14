@@ -22,6 +22,30 @@
       },
       "revId": "8cbf13bcbafcc03e823cc2759ec7efaf364f7240",
       "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "80d5007d_ef5728e4",
+        "filename": "eVSSIM/LOG_MGR/logging_parser.c",
+        "patchSetId": 14
+      },
+      "lineNbr": 52,
+      "author": {
+        "id": 1039371
+      },
+      "writtenOn": "2026-09-14T08:20:08Z",
+      "side": 1,
+      "message": "That\u0027s fair, I misunderstood the code.",
+      "parentUuid": "be179cd1_460c9d03",
+      "range": {
+        "startLine": 52,
+        "startChar": 53,
+        "endLine": 52,
+        "endChar": 68
+      },
+      "revId": "8cbf13bcbafcc03e823cc2759ec7efaf364f7240",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
     }
   ]
 }
