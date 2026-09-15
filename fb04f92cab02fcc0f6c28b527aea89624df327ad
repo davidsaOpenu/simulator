@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "8ee767fc_1fff90c5",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 4
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 1007990
+      },
+      "writtenOn": "2026-09-15T20:35:05Z",
+      "side": 1,
+      "message": "Public API: ONFI_READ(..., size_t *o_read_bytes_amount, int page_offset, int type). Internal: _onfi_read(..., size_t *o_read_bytes_amount, int type, int page_offset) — reversed. \n\nIt\u0027s a landmine for future refactors — anyone bypassing the struct and calling _onfi_read directly, or reordering fields, could silently swap type and page_offset since both are plain int.\n\nSuggestion: align the order across all four signatures.",
+      "revId": "fb04f92cab02fcc0f6c28b527aea89624df327ad",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
+    }
+  ]
+}
