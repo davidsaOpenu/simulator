@@ -1,0 +1,90 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "19259a47_b9d19d23",
+        "filename": "/COMMIT_MSG",
+        "patchSetId": 7
+      },
+      "lineNbr": 13,
+      "author": {
+        "id": 1007990
+      },
+      "writtenOn": "2026-09-15T20:07:12Z",
+      "side": 1,
+      "message": "The message currently combines \"the fix I was carrying is obsolete\" with \"the bug is fixed.\"\n\nRewrite suggestion: The crash was resolved by 5f4971b (perf-manager removal); this commit only adds the regression test.\n\nOr don\u0027t mention it in the commit message at all—just add a comment on the Trello ticket instead.",
+      "range": {
+        "startLine": 8,
+        "startChar": 0,
+        "endLine": 13,
+        "endChar": 42
+      },
+      "revId": "87eb5b02170895dd6462717ea824f99903ee6d05",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "5f1c5a1f_b9f140ec",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 7
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 1007990
+      },
+      "writtenOn": "2026-09-15T20:07:12Z",
+      "side": 1,
+      "message": "in general let\u0027s add -s / --nocapture to the test invocation (or addopts \u003d -s in pytest.ini, or nocapture\u003d1 under [nosetests] in setup.cfg) so per-device actions are visible in the Jenkins console.\nOptionally, have the test print a one-line summary at the end (\"Formatted and verified N devices: [...]\") so future log reviews don\u0027t require re-deriving this from raw subprocess output.\nOther comments inline.",
+      "revId": "87eb5b02170895dd6462717ea824f99903ee6d05",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "281bc082_0a18b906",
+        "filename": "eVSSIM/tests/guest/ext4/test_ext4format.py",
+        "patchSetId": 7
+      },
+      "lineNbr": 115,
+      "author": {
+        "id": 1007990
+      },
+      "writtenOn": "2026-09-15T20:07:12Z",
+      "side": 1,
+      "message": "_wait_for_devices returns on first non-empty poll, not full enumeration\n\nIf device nodes appear staggered, this can return after just 1 device exists rather than waiting for all expected ones. The infra script has the same shape of gap — it only waits for /dev/nvme0n1 specifically before invoking the test. Neither layer currently guarantees full enumeration before testing begins. \n\n\nSuggestion: Should wait for the expected count (or a stable count across consecutive polls), not just \"non-empty.\"",
+      "range": {
+        "startLine": 114,
+        "startChar": 0,
+        "endLine": 115,
+        "endChar": 26
+      },
+      "revId": "87eb5b02170895dd6462717ea824f99903ee6d05",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "411da139_c35455ef",
+        "filename": "eVSSIM/tests/guest/ext4/test_ext4format.py",
+        "patchSetId": 7
+      },
+      "lineNbr": 233,
+      "author": {
+        "id": 1007990
+      },
+      "writtenOn": "2026-09-15T20:07:12Z",
+      "side": 1,
+      "message": "The DoD requires verifying all currently-provisioned NVMe disks, but this only checks the list is non-empty. \n\nSugested fix:\n\n\nEXPECTED_NVME_DEVICE_COUNT \u003d ...  # read from the actual QEMU config or from ls /dev/nvme*| wc -l\nassert len(nvme_devices) \u003d\u003d EXPECTED_NVME_DEVICE_COUNT, (...)",
+      "range": {
+        "startLine": 233,
+        "startChar": 8,
+        "endLine": 233,
+        "endChar": 15
+      },
+      "revId": "87eb5b02170895dd6462717ea824f99903ee6d05",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
+    }
+  ]
+}
