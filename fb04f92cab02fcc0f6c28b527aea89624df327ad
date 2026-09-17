@@ -18,6 +18,24 @@
       "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "216bad12_d19c8fb5",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 4
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 1039486
+      },
+      "writtenOn": "2026-09-17T13:13:17Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "8ee767fc_1fff90c5",
+      "revId": "fb04f92cab02fcc0f6c28b527aea89624df327ad",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "19baa882_09d724eb",
@@ -31,6 +49,30 @@
       "writtenOn": "2026-09-15T20:43:54Z",
       "side": 1,
       "message": "Always true because of line 219. I.e. no need to compare o_read_bytes_amount with NULL",
+      "range": {
+        "startLine": 235,
+        "startChar": 8,
+        "endLine": 235,
+        "endChar": 35
+      },
+      "revId": "fb04f92cab02fcc0f6c28b527aea89624df327ad",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "df73090c_8958ba59",
+        "filename": "eVSSIM/SSD_MODULE/onfi.c",
+        "patchSetId": 4
+      },
+      "lineNbr": 235,
+      "author": {
+        "id": 1039486
+      },
+      "writtenOn": "2026-09-17T13:13:17Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "19baa882_09d724eb",
       "range": {
         "startLine": 235,
         "startChar": 8,
