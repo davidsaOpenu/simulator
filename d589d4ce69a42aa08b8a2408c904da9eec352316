@@ -18,6 +18,24 @@
       "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "5b3b0a04_a34febde",
+        "filename": "infra/ELK/derive_bounds.py",
+        "patchSetId": 28
+      },
+      "lineNbr": 79,
+      "author": {
+        "id": 1039522
+      },
+      "writtenOn": "2026-09-17T13:00:32Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "fea9c83b_88829d51",
+      "revId": "d589d4ce69a42aa08b8a2408c904da9eec352316",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "69db8b57_465912a6",
@@ -31,6 +49,30 @@
       "writtenOn": "2026-09-11T09:30:43Z",
       "side": 1,
       "message": "const all of these numbers",
+      "range": {
+        "startLine": 108,
+        "startChar": 0,
+        "endLine": 108,
+        "endChar": 4
+      },
+      "revId": "d589d4ce69a42aa08b8a2408c904da9eec352316",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "de3018af_481954a7",
+        "filename": "infra/ELK/derive_bounds.py",
+        "patchSetId": 28
+      },
+      "lineNbr": 108,
+      "author": {
+        "id": 1039522
+      },
+      "writtenOn": "2026-09-17T13:00:32Z",
+      "side": 1,
+      "message": "This file still has many magic numbers, for example, this line: abs(spread - 0.1123) \u003c 1e-3, spread",
+      "parentUuid": "69db8b57_465912a6",
       "range": {
         "startLine": 108,
         "startChar": 0,
@@ -58,6 +100,24 @@
       "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "5cf1bc90_b66b9444",
+        "filename": "infra/ELK/elk_run_metrics.sh",
+        "patchSetId": 28
+      },
+      "lineNbr": 18,
+      "author": {
+        "id": 1039522
+      },
+      "writtenOn": "2026-09-17T13:00:32Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "7e75f44a_83da3724",
+      "revId": "d589d4ce69a42aa08b8a2408c904da9eec352316",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "3f5b89bf_9ce4bb27",
@@ -71,6 +131,24 @@
       "writtenOn": "2026-09-11T09:30:43Z",
       "side": 1,
       "message": "Why do you have a quiet fail here?",
+      "revId": "d589d4ce69a42aa08b8a2408c904da9eec352316",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "300b8e36_27646b94",
+        "filename": "infra/ELK/elk_run_metrics.sh",
+        "patchSetId": 28
+      },
+      "lineNbr": 23,
+      "author": {
+        "id": 1039522
+      },
+      "writtenOn": "2026-09-17T13:00:32Z",
+      "side": 1,
+      "message": "You still return 0 on an error. I don\u0027t like the fact that we quietly fail to a default JSON. If you are sure you want this behavior, at least doc it at the start of the function and explain why",
+      "parentUuid": "3f5b89bf_9ce4bb27",
       "revId": "d589d4ce69a42aa08b8a2408c904da9eec352316",
       "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
     }
