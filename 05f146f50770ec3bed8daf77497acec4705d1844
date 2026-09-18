@@ -34,6 +34,24 @@
       "parentUuid": "253c90c4_844571c7",
       "revId": "05f146f50770ec3bed8daf77497acec4705d1844",
       "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "b167da22_4d5fb3b7",
+        "filename": "infra/ELK/derive_bounds.py",
+        "patchSetId": 34
+      },
+      "lineNbr": 126,
+      "author": {
+        "id": 1039522
+      },
+      "writtenOn": "2026-09-18T12:01:26Z",
+      "side": 1,
+      "message": "i think it\u0027s bad to use md as the source of truth but given it was David\u0027s instructions, I will let him decide. I agree that, given the md as the source of truth, your decision is correct",
+      "parentUuid": "3019082b_f5a99686",
+      "revId": "05f146f50770ec3bed8daf77497acec4705d1844",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
     }
   ]
 }
