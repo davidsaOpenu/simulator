@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "253c90c4_844571c7",
+        "filename": "infra/ELK/derive_bounds.py",
+        "patchSetId": 34
+      },
+      "lineNbr": 126,
+      "author": {
+        "id": 1039522
+      },
+      "writtenOn": "2026-09-18T11:44:23Z",
+      "side": 1,
+      "message": "why do you use md file as the source of your data? use something that is mor clearly used as the source of data for the tests. env or json",
+      "revId": "05f146f50770ec3bed8daf77497acec4705d1844",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
+    }
+  ]
+}
