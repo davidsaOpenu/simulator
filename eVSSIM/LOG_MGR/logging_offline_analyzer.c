@@ -42,6 +42,8 @@ static int elk_logger_writer_ref_count = 0;
 
 #define OFFLINE_ANALYZER_BATCH_BYTES (1 << 20)
 
+#define ACTIVE_SNAPSHOT_NAME_MAX_SIZE 256
+
 OfflineLogAnalyzer* offline_log_analyzer_init(Logger_Pool* logger_pool, uint8_t device_index) {
     OfflineLogAnalyzer* analyzer = (OfflineLogAnalyzer*) malloc(sizeof(OfflineLogAnalyzer));
     if (analyzer == NULL)
@@ -264,6 +266,30 @@ static void elk_logger_writer_get_time_string(char *buf)
 }
 
 /**
+ * Tells whether a log file was created by this process.
+ * @param name the log file name (no path)
+ * @return TRUE if this process created the file
+ */
+static int is_log_file_of_current_process(const char *name){
+    const char *seq_sep = strrchr(name, '-');
+    const char *pid_sep = NULL;
+    const char *p;
+
+    if (seq_sep == NULL)
+        return FALSE;
+
+    for (p = name; p < seq_sep; p++){
+        if (*p == '-')
+            pid_sep = p;
+    }
+
+    if (pid_sep == NULL)
+        return FALSE;
+
+    return (pid_t)strtol(pid_sep + 1, NULL, 10) == getpid();
+}
+
+/**
  * returns the number of log files
  * @param path the path to the directory that contain all of the files
  */
@@ -276,7 +302,7 @@ static int get_log_num(const char *path){
 
     if(d) {
         while((dir = readdir(d))!=NULL){
-            if(!strcmp(strrchr(dir->d_name, '\0')-4,".log")){
+            if(!strcmp(strrchr(dir->d_name, '\0')-4,".log") && is_log_file_of_current_process(dir->d_name)){
                 count++;
             }
         }
@@ -299,7 +325,7 @@ static void get_log_files(const char *path, char **files){
 
     int i=0;
     while((dir = readdir(d))!=NULL){
-        if(!strcmp(strrchr(dir->d_name, '\0')-4,".log")){
+        if(!strcmp(strrchr(dir->d_name, '\0')-4,".log") && is_log_file_of_current_process(dir->d_name)){
             files[i] = malloc(strlen(dir->d_name)+1);
             strcpy(files[i], dir->d_name);
             i++;
@@ -320,7 +346,7 @@ static void extract_log_size(char* line,int* size,char **files, int arrsize){
     char address[LOG_FILE_NAME_SIZE+strlen(".log")];
 
     struct json_object *parsed;
-    struct json_object *jsonv;
+    struct json_object *state;
     struct json_object *json_offset;
     struct json_object *json_address;
 
@@ -328,31 +354,42 @@ static void extract_log_size(char* line,int* size,char **files, int arrsize){
         return;
     }
 
-    if (line[2]=='k'){
-        parsed = json_tokener_parse(line);
-        json_object_object_get_ex(parsed, "v", &jsonv);
-        json_object_object_get_ex(jsonv, "source", &json_address);
-        json_object_object_get_ex(jsonv, "offset", &json_offset);
+    parsed = json_tokener_parse(line);
 
-        if(json_address != NULL){
-            strcpy(address,json_object_get_string(json_address));
-            memmove(address,address+6,strlen(address));
-            offset = json_object_get_int(json_offset);
-
-            int i = 0;
-
-            int stop = FALSE;
-
-            while((i < arrsize) && stop == FALSE){
-                if(strcmp(files[i],address)==0){
-                    size[i]=offset;
-                    stop = TRUE;
-                }
-                i++;
-            }
+    //skip the snapshot array brackets and any line that is not an object
+    if(parsed == NULL || json_object_get_type(parsed) != json_type_object){
+        if(parsed != NULL){
+            json_object_put(parsed);
         }
-        json_object_put(parsed);
+        return;
     }
+
+    //log.json nests the state under "v", snapshot lines are the state itself
+    if(!json_object_object_get_ex(parsed, "v", &state)){
+        state = parsed;
+    }
+
+    json_object_object_get_ex(state, "source", &json_address);
+    json_object_object_get_ex(state, "offset", &json_offset);
+
+    if(json_address != NULL){
+        strcpy(address,json_object_get_string(json_address));
+        memmove(address,address+6,strlen(address));
+        offset = json_object_get_int(json_offset);
+
+        int i = 0;
+
+        int stop = FALSE;
+
+        while((i < arrsize) && stop == FALSE){
+            if(strcmp(files[i],address)==0){
+                size[i]=offset;
+                stop = TRUE;
+            }
+            i++;
+        }
+    }
+    json_object_put(parsed);
 }
 
 
@@ -371,8 +408,10 @@ static int delete_fully_shipped(int *size, int arrsize, char** files, const char
     for(i=0;i<arrsize;i++){
         char fulladdress [strlen(path)+strlen(files[i])+7];
         strcat(strcpy(fulladdress, path),files[i]);
-        stat(fulladdress, &st);
-        if(size[i] == st.st_size){
+        if(stat(fulladdress, &st)!=0){
+            continue;
+        }
+        if(st.st_size == 0 || (size[i] != 0 && size[i] == st.st_size)){
             amount--;
             remove(fulladdress);
         }
@@ -381,17 +420,56 @@ static int delete_fully_shipped(int *size, int arrsize, char** files, const char
 }
 
 /**
- * finds and deletes all logs shipped by filebeat
- * finds the last bit read by filebeat using its log.json
+ * reads the name of the active filebeat registry snapshot from active.dat.
+ * @param name buffer to receive the snapshot file name
+ * @param name_size the size of name
+ * @return 0 on success, -1 if active.dat is unavailable or empty
+ */
+static int get_active_snapshot_name(char *name, size_t name_size){
+    FILE * fp = OPEN_FROM_REGISTRY("active.dat", "r");
+    char path[ACTIVE_SNAPSHOT_NAME_MAX_SIZE];
+    const char *base;
+    size_t len;
+
+    if(fp == NULL){
+        return -1;
+    }
+
+    if(fgets(path, sizeof(path), fp) == NULL){
+        fclose(fp);
+        return -1;
+    }
+    fclose(fp);
+
+    base = strrchr(path, '/');
+    base = (base != NULL) ? base + 1 : path;
+
+    len = strlen(base);
+    while(len > 0 && (base[len-1] == '\n' || base[len-1] == '\r')){
+        len--;
+    }
+
+    if(len == 0 || len >= name_size){
+        return -1;
+    }
+
+    memcpy(name, base, len);
+    name[len] = '\0';
+
+    return 0;
+}
+
+/**
+ * finds and deletes all logs shipped by filebeat.
+ * reads the active snapshot (<N>.json) first and log.json on top, so offsets
+ * from before a registry checkpoint are not lost.
  */
 static int delete_shipped(void){
-    struct stat st;
     FILE * fp;
-    FILE * fplr;
     char * line =NULL;
     size_t len = 0;
     ssize_t read;
-    int canRead = 1;
+    int read_state = FALSE;
     int amount = 0;
     int i = 0;
 
@@ -410,57 +488,52 @@ static int delete_shipped(void){
 
     int* size = (int *)calloc(arrsize, sizeof(int));
 
-    //a txt file with the last read bit of the filebeat log
-    fplr = OPEN_FROM_LOGS("lastread.txt", "r");
+    //read the checkpoint snapshot first: it holds every state as of the last checkpoint
+    char snapshot_name[ACTIVE_SNAPSHOT_NAME_MAX_SIZE];
 
-    long start = 0;
+    if(get_active_snapshot_name(snapshot_name, sizeof(snapshot_name)) == 0){
+        char snapshot_path[ACTIVE_SNAPSHOT_NAME_MAX_SIZE + sizeof(FILEBEAT_REGISTRY_PATH)];
+        FILE * fps;
 
-    if(fplr != NULL){
-        if(fscanf (fplr, "%ld", &start)==0){
-            start = 0;
-        }
-        else{
-            fclose(fplr);
-        }
-    }
+        snprintf(snapshot_path, sizeof(snapshot_path), "%s%s",
+                 FILEBEAT_REGISTRY_PATH, snapshot_name);
+        fps = fopen(snapshot_path, "r");
 
-    //the filebeat log
-    fp = OPEN_FROM_LOGS("log.json", "r");
-
-    if (fp == NULL){
-        free(size);
-        for(i = 0; i<arrsize; i++){
-            free(filelist[i]);
-           }
-        printf("ERROR: fp %s\n", strerror(errno));
-        return amount;
-    }
-
-    //start reading the log from the last bit read
-    if(start != 0){
-        if(fseek(fp, start, SEEK_SET)!=0){
-            printf("ERROR: fseek %s\n", strerror(errno));
-            canRead = 0;
+        if(fps != NULL){
+            read_state = TRUE;
+            while((read = getline(&line, &len, fps)) != -1){
+                //snapshot lines are array elements terminated by commas
+                size_t l = strlen(line);
+                while(l > 0 && (line[l-1] == '\n' || line[l-1] == '\r' || line[l-1] == ',')){
+                    line[--l] = '\0';
+                }
+                extract_log_size(line, size, filelist, arrsize);
+            }
+            fclose(fps);
         }
     }
 
-    if(canRead){
-        //reads the log file created by filebeat
+    //then apply the post-checkpoint updates, which override the snapshot
+    fp = OPEN_FROM_REGISTRY("log.json", "r");
+
+    if (fp != NULL){
+        read_state = TRUE;
         while((read = getline(&line, &len, fp)) != -1){
             extract_log_size(line, size, filelist, arrsize);
         }
         fclose(fp);
     }
 
-
-    fplr = OPEN_FROM_LOGS("lastread.txt", "w");
-
-    if(fplr!=NULL){
-        if(stat(ELK_LOGGER_WRITER_LOGS_PATH "log.json", &st)==0){
-            fprintf(fplr,"%zd",st.st_size);
+    if(!read_state){
+        if(line){
+            free(line);
         }
-        fclose(fplr);
-       }
+        free(size);
+        for(i = 0; i<arrsize; i++){
+            free(filelist[i]);
+        }
+        return amount;
+    }
 
     //checks for each file if it has been fully shipped
     amount = delete_fully_shipped(size,arrsize,filelist,ELK_LOGGER_WRITER_LOGS_PATH);
@@ -475,7 +548,40 @@ static int delete_shipped(void){
 
     free(size);
 
-    return 1;
+    return amount;
+}
+
+/**
+ * wait until filebeat read all the logs.
+ */
+int elk_logger_wait_until_all_shipped(uint64_t timeout_ms){
+    uint64_t waited = 0;
+
+    if (get_log_num(ELK_LOGGER_WRITER_LOGS_PATH) == 0){
+        return 0;
+    }
+
+    while(TRUE){
+        FILE * probe = OPEN_FROM_REGISTRY("log.json", "r");
+
+        if(probe == NULL){
+            return -2;
+        }
+        fclose(probe);
+
+        delete_shipped();
+
+        if(get_log_num(ELK_LOGGER_WRITER_LOGS_PATH) == 0){
+            return 0;
+        }
+
+        if (waited >= timeout_ms){
+            return -1;
+        }
+
+        usleep(500 * 1000);
+        waited += 500;
+    }
 }
 
 /**
@@ -554,7 +660,12 @@ void elk_logger_writer_free(void) {
     if (elk_logger_writer_ref_count > 0) {
         return;
     }
+    pthread_mutex_lock(&elk_logger_writer_obj.lock);
     elk_logger_writer_close_file();
+    if (auto_delete) {
+        delete_shipped();
+    }
+    pthread_mutex_unlock(&elk_logger_writer_obj.lock);
     pthread_mutex_destroy(&elk_logger_writer_obj.lock);
     elk_logger_writer_initialized = FALSE;
 }

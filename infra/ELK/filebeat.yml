@@ -8,6 +8,8 @@ filebeat.inputs:
     paths:
       # This is the path INSIDE the container where logs are mounted.
       - /logs/elk_log_file-*.log
+    # Identify files by PATH instead of the default 'native' (inode + device).
+    file_identity.path: ~
     json.keys_under_root: true
     json.add_error_key: true
 
