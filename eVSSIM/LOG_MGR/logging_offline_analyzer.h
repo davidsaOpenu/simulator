@@ -17,15 +17,18 @@
 #ifndef __LOGGING_OFFLINE_ANALYZER_H__
 #define __LOGGING_OFFLINE_ANALYZER_H__
 
+#include <stdint.h>
 #include "logging_parser.h"
 
-// The path for all the log filess
+// The path for all the log files
 #define ELK_LOGGER_WRITER_LOGS_PATH "/code/logs/"
 
 //A command to delete all logs
 #define LOG_FILE_REMOVAL_COMMAND ("rm -rf " ELK_LOGGER_WRITER_LOGS_PATH "*.log")
 
 #define FILEBEAT_LOG_PATH "/logs/"
+#define FILEBEAT_REGISTRY_PATH "/code/simulator/infra/ELK/filebeat-data/registry/filebeat/"
+
 /**
 * maximum number of acceptable unshipped logs by elk
 */
@@ -44,6 +47,11 @@
  * Used for opening files where the logs are stored
  */
 #define OPEN_FROM_LOGS(FILE, MODE) fopen(ELK_LOGGER_WRITER_LOGS_PATH FILE,MODE)
+
+/**
+ * Used for opening files of the filebeat registry
+ */
+#define OPEN_FROM_REGISTRY(FILE, MODE) fopen(FILEBEAT_REGISTRY_PATH FILE,MODE)
 
 /**
  * The offline log analyzer structure
@@ -98,6 +106,17 @@ void elk_logger_writer_init(void);
  * @brief Destructor of LoggerWriter object
  */
 void elk_logger_writer_free(void);
+
+/**
+ * Waits until filebeat has fully shipped every emitted run log (registry
+ * offset >= file size for each log file) and then deletes the log files,
+ * so the logs dir is emptied once the simulator run is over.
+ * @param timeout_ms maximum time to wait in milliseconds
+ * @return  0 if every log file was shipped and deleted;
+ *         -1 if the wait timed out while log files were still pending;
+ *         -2 if the filebeat registry is not available (e.g. no ELK)
+ */
+int elk_logger_wait_until_all_shipped(uint64_t timeout_ms);
 
 /**
  * @brief Save a log to Logger file
