@@ -36,47 +36,64 @@ extern int auto_delete;
 #define MAX_POW 6
 #define MAX_MODE 2
 #define POW_START 1
-#define SYSCALL_DELAY 10000
 
 using namespace std;
 
 namespace offline_logger_test{
 
+enum {MODE_R, MODE_W, MODE_RW };
 
-
-void flipAuto();
+void readOrWrite(int mode);
+int check_offline_logger_test_results(const char *logs_path, int mode);
 
     class OfflineLoggerTest : public BaseTest {
         public:
+            bool lm_active_ = false;
+            bool last_auto_delete_ = false;
+            bool last_drain_all_logs_ = false;
+
             virtual void SetUp(){
                 BaseTest::SetUp();
-                INIT_LOG_MANAGER(g_device_index);
                 LOCK_DEVICE(g_device_index); // prevent the GC thread from running
+                last_auto_delete_ = auto_delete;
+                last_drain_all_logs_ = drain_all_logs;
             }
 
             virtual void TearDown(){
+                if (lm_active_) {
+                    TERM_LOG_MANAGER(g_device_index);
+                    lm_active_ = false;
+                }
+                int retval = system(LOG_FILE_REMOVAL_COMMAND);
+                if(WIFEXITED(retval)){
+                    int exitStatus = WEXITSTATUS(retval);
+                    if(exitStatus!=0){
+                        printf("ERROR could not execute system call with exit status %d\n", exitStatus);
+                    }
+                }
+                auto_delete = last_auto_delete_;
+                drain_all_logs = last_drain_all_logs_;
                 UNLOCK_DEVICE(g_device_index);
                 BaseTest::BaseTearDown(false);
-                TERM_LOG_MANAGER(g_device_index);
                 TERM_SSD_CONFIG();
+            }
+
+        void run_offline_logger_test(int mode){
+                auto_delete = false;
+                drain_all_logs = true;
+                INIT_LOG_MANAGER(g_device_index);
+                lm_active_ = true;
+
+                readOrWrite(mode);
+
+                TERM_LOG_MANAGER(g_device_index);
+                lm_active_ = false;
+
+                int result = check_offline_logger_test_results("/code/logs/", mode);
+                EXPECT_EQ(0, result);
             }
     };
 
-
-    /**
-     * disables/enables the auto deletion of log files sent by filebeat and deletes all remaining logs
-     */
-    void flipAuto(){
-        auto_delete = !auto_delete;
-        usleep(SYSCALL_DELAY);
-        int retval = system(LOG_FILE_REMOVAL_COMMAND);
-        if(WIFEXITED(retval)){
-            int exitStatus = WEXITSTATUS(retval);
-            if(exitStatus!=0){
-                printf("ERROR could not execute system call with exit status %d\n", exitStatus);
-            }
-        }
-    }
 
     std::vector<SSDConf*> GetTestParams() {
         std::vector<SSDConf*> ssd_configs;
@@ -94,8 +111,6 @@ void flipAuto();
 
     #define LOG_FILE_PREFIX "elk_log_file-"
     #define LOG_FILE_PREFIX_LEN sizeof(LOG_FILE_PREFIX)
-
-    enum {MODE_R, MODE_W, MODE_RW };
 
     /**
      * returns a vector of the paths to all the logs
@@ -269,11 +284,6 @@ void flipAuto();
 
         printf("Done waiting!\n");
 
-        // Check that the test passed OK
-
-        int result = check_offline_logger_test_results("/code/logs/", mode);
-        ASSERT_EQ(0, result);
-
     }
 
 
@@ -283,14 +293,9 @@ void flipAuto();
     TEST_P(OfflineLoggerTest, LoggerWriterPageRead) {
         SSDConf* ssd_config = base_test_get_ssd_config();
 
-        if(ssd_config->get_block_nb()==pow(2,POW_START)){
-            flipAuto();
-        }
-        else{
-            printf("[+] Running test for blocks = %lu, mode = %d\n", ssd_config->get_block_nb(), MODE_R);
-            readOrWrite(MODE_R);
-        }
+        printf("[+] Running test for blocks = %lu, mode = %d\n", ssd_config->get_block_nb(), MODE_R);
 
+        run_offline_logger_test(MODE_R);
 
     }
 
@@ -302,7 +307,7 @@ void flipAuto();
 
         printf("[+] Running test for blocks = %lu, mode = %d\n", ssd_config->get_block_nb(), MODE_W);
 
-        readOrWrite(MODE_W);
+        run_offline_logger_test(MODE_W);
 
     }
 
@@ -313,11 +318,7 @@ void flipAuto();
         SSDConf* ssd_config = base_test_get_ssd_config();
         printf("[+] Running test for blocks = %lu, mode = %d\n", ssd_config->get_block_nb(), MODE_RW);
 
-        readOrWrite(MODE_RW);
-
-        if(ssd_config->get_block_nb()==pow(2,MAX_POW)){
-            flipAuto();
-        }
+        run_offline_logger_test(MODE_RW);
     }
 
 } //namespace

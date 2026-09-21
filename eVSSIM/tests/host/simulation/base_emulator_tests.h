@@ -33,6 +33,7 @@ extern "C" {
 extern "C" int g_init;
 extern "C" int clientSock;
 extern "C" int g_init_log_server;
+extern "C" int drain_all_logs;
 
 
 #define GTEST_DONT_DEFINE_FAIL 1
@@ -345,6 +346,9 @@ namespace {
 
         public:
             virtual void SetUp(void) {
+                // Don't wait to all logs - to make the tests shorter
+                drain_all_logs = false;
+
                 // Get SSD config
                 ssd_config = GetParam();
 
