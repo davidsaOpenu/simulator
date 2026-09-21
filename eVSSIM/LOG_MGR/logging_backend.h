@@ -156,11 +156,13 @@ typedef struct {
 
 typedef struct {
     /** File that the LoggerWriter works with */
-    int log_file;
+    FILE* log_file;
     /** Maximum size of a single log file */
     uint32_t log_file_size;
     /** Current log file size */
     uint32_t curr_size;
+    /** Bytes written since the last explicit flush to disk */
+    uint64_t bytes_since_flush;
     /**
      * The lock of the logger writer to update logger file safely from threads
      */

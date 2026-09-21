@@ -510,8 +510,10 @@ void JSON_SSD_UTILIZATION(SsdUtilizationLog *src, char **dst)
         if (logger == NULL)                                         \
             return;                                                 \
         int type = CONCAT(name, _LOG_UID);                          \
-        logger_write(logger, (Byte *)&type, sizeof(type));          \
-        logger_write(logger, (Byte *)&buffer, sizeof(structure));   \
+        Byte record_buf[sizeof(type) + sizeof(structure)];          \
+        memcpy(record_buf, &type, sizeof(type));                    \
+        memcpy(record_buf + sizeof(type), (Byte *)&buffer, sizeof(structure)); \
+        logger_write(logger, record_buf, sizeof(record_buf));       \
     }
 _LOGS_DEFINITIONS(_LOGS_WRITER_DEFINITION_APPLIER)
 

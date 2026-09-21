@@ -36,9 +36,12 @@
 
 elk_logger_writer elk_logger_writer_obj;
 int lines_read_in_json = 0;
-int auto_delete = TRUE;
+/* leave auto_delete FALSE until fixing the mount of the filebeat registry */
+int auto_delete = FALSE;
 static int elk_logger_writer_initialized = FALSE;
 static int elk_logger_writer_ref_count = 0;
+
+#define ELK_LOGGER_FLUSH_BYTES (1 << 20)
 
 OfflineLogAnalyzer* offline_log_analyzer_init(Logger_Pool* logger_pool, uint8_t device_index) {
     OfflineLogAnalyzer* analyzer = (OfflineLogAnalyzer*) malloc(sizeof(OfflineLogAnalyzer));
@@ -60,17 +63,17 @@ void* offline_log_analyzer_run(void* analyzer) {
 void offline_log_analyzer_loop(OfflineLogAnalyzer* analyzer) {
     char* json_buf = NULL;
     // loop as long as exit_loop_flag is not set
-    while( ! ( analyzer->exit_loop_flag ) )
+    while (TRUE)
     {
-        while ( ! ( analyzer->exit_loop_flag )) {
+        while (TRUE) {
             // read the log type, while listening to analyzer->exit_loop_flag
             int log_type;
             int bytes_read = 0;
 
             bytes_read = logger_read(analyzer->logger_pool, ((Byte*)&log_type), sizeof(log_type), OFFLINE_ANALYZER);
 
-            // exit if needed
-            if (analyzer->exit_loop_flag || 0 == bytes_read || -1 == bytes_read) {
+            // the pool is empty (for now); stop draining
+            if (0 == bytes_read || -1 == bytes_read) {
                 break;
             }
 
@@ -207,6 +210,11 @@ void offline_log_analyzer_loop(OfflineLogAnalyzer* analyzer) {
 
         logger_reduce_size(analyzer->logger_pool);
         logger_clean(analyzer->logger_pool);
+
+        // exit if needed
+        if (analyzer->exit_loop_flag) {
+            break;
+        }
 
         // go into penalty timeoff after each iteration of the analyzer loop
         // in order to let the rt analyzer complete it's operation on more logs
@@ -470,21 +478,28 @@ static int elk_logger_writer_open_file_for_write(void) {
     //the name of the log will be elk_log_file-timeStamp
     elk_logger_writer_get_time_string(buf);
     sprintf(log_name, ELK_LOGGER_WRITER_LOGS_PATH "elk_log_file-%s.log", buf);
-    elk_logger_writer_obj.log_file = open(log_name, O_WRONLY | O_CREAT, 0644);
+    elk_logger_writer_obj.log_file = fopen(log_name, "a");
 
-    if (0 >= elk_logger_writer_obj.log_file) {
+    if (NULL == elk_logger_writer_obj.log_file) {
         return -1;
     }
+
+    elk_logger_writer_obj.curr_size = 0;
+    elk_logger_writer_obj.bytes_since_flush = 0;
 
     return 0;
 }
 
 /**
- * closes the log file in use
+ * flushes and closes the log file in use
  */
 static void elk_logger_writer_close_file(void) {
-    if (0 >= elk_logger_writer_obj.log_file)
-        close(elk_logger_writer_obj.log_file);
+    if (NULL == elk_logger_writer_obj.log_file)
+        return;
+
+    fflush(elk_logger_writer_obj.log_file);
+    fclose(elk_logger_writer_obj.log_file);
+    elk_logger_writer_obj.log_file = NULL;
 }
 
 void elk_logger_writer_init(void) {
@@ -495,8 +510,10 @@ void elk_logger_writer_init(void) {
     }
 
     pthread_mutex_init(&elk_logger_writer_obj.lock, NULL);
+    elk_logger_writer_obj.log_file = NULL;
     elk_logger_writer_obj.log_file_size = 10 *1024 * 1024; // 10 MB
     elk_logger_writer_obj.curr_size = 0;
+    elk_logger_writer_obj.bytes_since_flush = 0;
 
     int retval = system("mkdir -p " ELK_LOGGER_WRITER_LOGS_PATH);
 
@@ -537,23 +554,38 @@ void elk_logger_writer_free(void) {
  * @param length the length of the buffer
  */
 void elk_logger_writer_save_log_to_file(Byte *buffer, int length) {
-    int res;
-    if (NULL != buffer) {
-        // I lock here in order to prevent collisions between the different rt_analyzer threads while the touch
-        //  writer_obj related members.
-        pthread_mutex_lock(&elk_logger_writer_obj.lock);
-        // Check if there is enought space in the current log file to write log
-        if (length + elk_logger_writer_obj.curr_size > elk_logger_writer_obj.log_file_size) {
-            elk_logger_writer_obj.curr_size = 0;
-            //logger_writer_obj.curr_log_file = (logger_writer_obj.curr_log_file + 1) % NUM_LOG_FILES;
-            elk_logger_writer_close_file();
-            elk_logger_writer_open_file_for_write();
-        }
-        // Increase the size of current log_file by the buffer's size
-        elk_logger_writer_obj.curr_size += length;
-        res = write(elk_logger_writer_obj.log_file, buffer, length);
-        (void) res;
+    if (NULL == buffer)
+        return;
 
-        pthread_mutex_unlock(&elk_logger_writer_obj.lock);
+    // I lock here in order to prevent collisions between the different rt_analyzer threads while the touch
+    //  writer_obj related members.
+    pthread_mutex_lock(&elk_logger_writer_obj.lock);
+
+    // Check if there is enough space in the current log file to write log
+    if (length + elk_logger_writer_obj.curr_size > elk_logger_writer_obj.log_file_size) {
+        elk_logger_writer_close_file();
+        if (elk_logger_writer_open_file_for_write() != 0) {
+            // cannot open a new log file - keep the record counted as dropped
+            pthread_mutex_unlock(&elk_logger_writer_obj.lock);
+            return;
+        }
     }
+
+    // Increase the size of current log_file by the buffer's size
+    int res = fwrite(buffer, 1, length, elk_logger_writer_obj.log_file);
+    if (res != length) {
+        pthread_mutex_unlock(&elk_logger_writer_obj.lock);
+        return;
+    }
+    elk_logger_writer_obj.curr_size += length;
+
+    // periodically flush so that filebeat sees the data promptly instead of
+    // waiting for the stdio buffer (or the final fflush at rotation/teardown)
+    elk_logger_writer_obj.bytes_since_flush += length;
+    if (elk_logger_writer_obj.bytes_since_flush >= ELK_LOGGER_FLUSH_BYTES) {
+        fflush(elk_logger_writer_obj.log_file);
+        elk_logger_writer_obj.bytes_since_flush = 0;
+    }
+
+    pthread_mutex_unlock(&elk_logger_writer_obj.lock);
 }
