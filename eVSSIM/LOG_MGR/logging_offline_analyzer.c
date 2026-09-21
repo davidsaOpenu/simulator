@@ -371,8 +371,10 @@ static int delete_fully_shipped(int *size, int arrsize, char** files, const char
     for(i=0;i<arrsize;i++){
         char fulladdress [strlen(path)+strlen(files[i])+7];
         strcat(strcpy(fulladdress, path),files[i]);
-        stat(fulladdress, &st);
-        if(size[i] == st.st_size){
+        if(stat(fulladdress, &st)!=0){
+            continue;
+        }
+        if(st.st_size == 0 || (size[i] != 0 && size[i] == st.st_size)){
             amount--;
             remove(fulladdress);
         }
@@ -425,22 +427,26 @@ static int delete_shipped(void){
     }
 
     //the filebeat log
-    fp = OPEN_FROM_LOGS("log.json", "r");
+    fp = OPEN_FROM_REGISTRY("log.json", "r");
 
     if (fp == NULL){
         free(size);
         for(i = 0; i<arrsize; i++){
             free(filelist[i]);
            }
-        printf("ERROR: fp %s\n", strerror(errno));
         return amount;
+    }
+
+    //if the registry was rotated/truncated since the last read, restart from the top
+    if(start != 0){
+        if(fstat(fileno(fp), &st)==0 && start > st.st_size)
+            start = 0;
     }
 
     //start reading the log from the last bit read
     if(start != 0){
         if(fseek(fp, start, SEEK_SET)!=0){
-            printf("ERROR: fseek %s\n", strerror(errno));
-            canRead = 0;
+            rewind(fp);
         }
     }
 
@@ -456,7 +462,7 @@ static int delete_shipped(void){
     fplr = OPEN_FROM_LOGS("lastread.txt", "w");
 
     if(fplr!=NULL){
-        if(stat(ELK_LOGGER_WRITER_LOGS_PATH "log.json", &st)==0){
+        if(stat(FILEBEAT_REGISTRY_PATH "log.json", &st)==0){
             fprintf(fplr,"%zd",st.st_size);
         }
         fclose(fplr);
@@ -475,7 +481,42 @@ static int delete_shipped(void){
 
     free(size);
 
-    return 1;
+    return amount;
+}
+
+/**
+ * wait until fileabeat read all the logs.
+ */
+int elk_logger_wait_until_all_shipped(uint64_t timeout_ms){
+    uint64_t waited = 0;
+
+    if (get_log_num(ELK_LOGGER_WRITER_LOGS_PATH) == 0){
+        remove(ELK_LOGGER_WRITER_LOGS_PATH "lastread.txt");
+        return 0;
+    }
+
+    while(TRUE){
+        FILE * probe = OPEN_FROM_REGISTRY("log.json", "r");
+
+        if(probe == NULL){
+            return -2;
+        }
+        fclose(probe);
+
+        delete_shipped();
+
+        if(get_log_num(ELK_LOGGER_WRITER_LOGS_PATH) == 0){
+            remove(ELK_LOGGER_WRITER_LOGS_PATH "lastread.txt");
+            return 0;
+        }
+
+        if (waited >= timeout_ms){
+            return -1;
+        }
+
+        usleep(500 * 1000);
+        waited += 500;
+    }
 }
 
 /**
@@ -554,7 +595,12 @@ void elk_logger_writer_free(void) {
     if (elk_logger_writer_ref_count > 0) {
         return;
     }
+    pthread_mutex_lock(&elk_logger_writer_obj.lock);
     elk_logger_writer_close_file();
+    if (auto_delete) {
+        delete_shipped();
+    }
+    pthread_mutex_unlock(&elk_logger_writer_obj.lock);
     pthread_mutex_destroy(&elk_logger_writer_obj.lock);
     elk_logger_writer_initialized = FALSE;
 }
