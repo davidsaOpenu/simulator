@@ -188,6 +188,21 @@ void TERM_LOG_MANAGER(uint8_t device_index)
     }
 }
 
+int LOG_MANAGER_WAIT_UNTIL_ALL_SHIPPED(uint64_t timeout_ms)
+{
+    PINFO("Waiting for filebeat to ship all run logs to ELK ...\n");
+    int shipped = elk_logger_wait_until_all_shipped(timeout_ms);
+    if (shipped == 0) {
+        PINFO("All run logs shipped to ELK and removed\n");
+    } else if (shipped == -1) {
+        PINFO("WARNING: timed out waiting for run logs to ship to ELK\n");
+    } else {
+        PINFO("ELK/filebeat not available (registry missing), nothing to wait for\n");
+    }
+
+    return shipped;
+}
+
 Logger_Pool* GET_LOGGER(uint8_t device_index, unsigned int flash_number) {
     if (analyzers_storage == NULL || analyzers_storage[device_index] == NULL) {
         return NULL;
