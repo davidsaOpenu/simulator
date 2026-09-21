@@ -48,6 +48,17 @@ extern pthread_t* log_manager_threads;
 void INIT_LOG_MANAGER(uint8_t device_index);
 void TERM_LOG_MANAGER(uint8_t device_index);
 
+/**
+ * Waits until filebeat has fully shipped every run log to ELK (registry
+ * offset >= file size for each log file), then deletes the log files so
+ * the logs dir is empty once the run is over.
+ * @param timeout_ms maximum time to wait in milliseconds
+ * @return  0 if every log file was shipped and deleted;
+ *         -1 if the wait timed out while log files were still pending;
+ *         -2 if the filebeat registry is not available (e.g. no ELK)
+ */
+int LOG_MANAGER_WAIT_UNTIL_ALL_SHIPPED(uint64_t timeout_ms);
+
 void THREAD_SERVER(void);
 void THREAD_CLIENT(void *arg);
 
