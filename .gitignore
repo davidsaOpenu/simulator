@@ -94,6 +94,9 @@ eVSSIM/tests/host/unit_tests_main
 eVSSIM/tests/host/*/unit_tests_main
 eVSSIM/tests/host/*/functional_tests_main
 eVSSIM/tests/host/functional_tests_main
+eVSSIM/tests/host/onfi_multithreaded_main
+eVSSIM/tests/host/*/onfi_multithreaded_main
+eVSSIM/tests/host/*/onfi_results
 eVSSIM/tests/host/data
 eVSSIM/tests/host/*/data
 eVSSIM/tests/host/*/common.h
