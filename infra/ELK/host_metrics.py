@@ -3,6 +3,8 @@
 
   host_metrics.py characterize <version> [--runs N]  # writes HOST_TESTS_CASES_METRICS.md
   host_metrics.py derive                            # writes host_tests_bounds.json
+  host_metrics.py wipe                              # empty the index before a run someone else starts
+  host_metrics.py read                              # print current metrics from elk without run the simulator
   host_metrics.py gate <version>                    # CI: run every case, assert bounds
 
 Each case wipes the filebeat index, runs its tests with background GC disabled
@@ -108,6 +110,79 @@ def metrics_from_aggs(aggs):
     )
 
 
+@dataclasses.dataclass
+class ExtendedMetrics:
+    reads: int
+    writes: int
+    erases: int
+    ops_per_channel: dict
+    register_reads: int
+    register_writes: int
+    gc_invocations: int
+    concurrency_ratio: float
+    emulated_time_ms: float
+
+
+EXTENDED_METRIC_NAMES = [f.name for f in dataclasses.fields(ExtendedMetrics)]
+
+LOGGING_TIME_FORMAT = "%Y-%m-%d_%H-%M-%S.%f"
+
+
+# logging_time is a fixed-width keyword ("2026-10-05_18-06-45.472875"), so a top_hits
+# sort orders it chronologically. @timestamp cannot be used: it is filebeat ingest time.
+EXTENDED_METRICS_QUERY = {
+    "size": 0,
+    "aggs": {
+        "reads": {"filter": _type_filter("PhysicalCellReadLog")},
+        "writes": {"filter": _type_filter("PhysicalCellProgramLog")},
+        "erases": {"filter": _type_filter("BlockEraseLog")},
+        "register_reads": {"filter": _type_filter("RegisterReadLog")},
+        "register_writes": {"filter": _type_filter("RegisterWriteLog")},
+        "gcs": {"filter": _type_filter("GarbageCollectionLog")},
+        "physical": {
+            "filter": {"terms": {"type": ["PhysicalCellReadLog", "PhysicalCellProgramLog", "BlockEraseLog"]}},
+            "aggs": {"by_channel": {"terms": {"field": "channel", "size": 64}}},
+        },
+        "busy_us": {"sum": {"field": "duration_us"}},
+        "first_log": {"top_hits": {"size": 1, "sort": [{"logging_time": {"order": "asc"}}],
+                                   "_source": {"includes": ["logging_time"]}}},
+        "last_log": {"top_hits": {"size": 1, "sort": [{"logging_time": {"order": "desc"}}],
+                                  "_source": {"includes": ["logging_time"]}}},
+    },
+}
+
+
+def _logging_time_source(aggs, name):
+    hits = aggs[name]["hits"]["hits"]
+    if not hits:
+        raise ElasticError("%s returned no docs" % name)
+    value = hits[0]["_source"].get("logging_time")
+    if not value:
+        raise ElasticError("%s doc carries no logging_time" % name)
+    return value
+
+
+def extended_metrics_from_aggs(aggs):
+    """A missing aggregation raises KeyError. An emulated span of 0 reads as a 0 ratio,
+    because sum(duration_us) is then meaningless too."""
+    first = datetime.datetime.strptime(_logging_time_source(aggs, "first_log"), LOGGING_TIME_FORMAT)
+    last = datetime.datetime.strptime(_logging_time_source(aggs, "last_log"), LOGGING_TIME_FORMAT)
+    span_us = int(abs(last - first) / datetime.timedelta(microseconds=1))
+    channels = {int(bucket["key"]): bucket["doc_count"]
+                for bucket in aggs["physical"]["by_channel"]["buckets"]}
+    return ExtendedMetrics(
+        reads=aggs["reads"]["doc_count"],
+        writes=aggs["writes"]["doc_count"],
+        erases=aggs["erases"]["doc_count"],
+        ops_per_channel=dict(sorted(channels.items())),
+        register_reads=aggs["register_reads"]["doc_count"],
+        register_writes=aggs["register_writes"]["doc_count"],
+        gc_invocations=aggs["gcs"]["doc_count"],
+        concurrency_ratio=_ratio(aggs["busy_us"]["value"], span_us),
+        emulated_time_ms=span_us / 1000.0,
+    )
+
+
 class ElasticError(Exception):
     pass
 
@@ -183,6 +258,10 @@ class Elastic:
     def metrics(self):
         return metrics_from_aggs(self.request("POST", INDEX + "/_search", METRICS_QUERY)["aggregations"])
 
+    def extended_metrics(self):
+        return extended_metrics_from_aggs(
+            self.request("POST", INDEX + "/_search", EXTENDED_METRICS_QUERY)["aggregations"])
+
 
 def run_simulation(version, args):
     """Run one case in the test container. data/ is cleared first so leftover images can't skew it."""
@@ -218,6 +297,12 @@ def check_bounds(name, metrics, case_bounds):
     return failures
 
 
+def print_metrics(names, metrics):
+    """One line per metric, so a caller can parse `    <name> = <value>` with awk/cut."""
+    for name in names:
+        print("    %-22s = %r" % (name, getattr(metrics, name)))
+
+
 def gate(version):
     with open(BOUNDS_JSON) as fh:  # missing file raises: no silent report-only mode
         bounds = json.load(fh)
@@ -225,8 +310,7 @@ def gate(version):
     failures = []
     for name in CASES:  # sequential by construction
         metrics = measure_case(es, version, name)
-        for metric in METRIC_NAMES:
-            print("    %-22s = %r" % (metric, getattr(metrics, metric)))
+        print_metrics(METRIC_NAMES, metrics)
         failures += check_bounds(name, metrics, bounds.get(name, {}))
     for f in failures:
         print("FAIL", f)
@@ -307,6 +391,27 @@ def derive():
     return 0
 
 
+def wipe():
+    """Empty the index and require it to stay empty, for a run this process does not start."""
+    es = Elastic(os.environ.get("ELASTIC_PASSWORD", "changeme"))
+    print("[host_metrics]: wipe", flush=True)
+    es.wipe()
+    print("[host_metrics]: wipe all indexes successfully", flush=True)
+    return 0
+
+
+def read(extended=False):
+    """Wait for ingestion of a run this process did not start, then print its metrics."""
+    es = Elastic(os.environ.get("ELASTIC_PASSWORD", "changeme"))
+    print("[host_metrics]: settle", flush=True)
+    print("[host_metrics]: settled at %d docs" % es.settle(), flush=True)
+    if extended:
+        print_metrics(EXTENDED_METRIC_NAMES, es.extended_metrics())
+    else:
+        print_metrics(METRIC_NAMES, es.metrics())
+    return 0
+
+
 def main(argv):
     parser = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
     sub = parser.add_subparsers(dest="cmd", required=True)
@@ -314,12 +419,18 @@ def main(argv):
     p.add_argument("version")
     p.add_argument("--runs", type=int, default=5)
     sub.add_parser("derive")
+    sub.add_parser("wipe")
+    sub.add_parser("read").add_argument("--extended", action="store_true", default=False)
     sub.add_parser("gate").add_argument("version")
     args = parser.parse_args(argv)
     if args.cmd == "characterize":
         return characterize(args.version, args.runs)
     if args.cmd == "derive":
         return derive()
+    if args.cmd == "wipe":
+        return wipe()
+    if args.cmd == "read":
+        return read(args.extended)
     return gate(args.version)
 
 
