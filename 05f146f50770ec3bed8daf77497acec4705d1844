@@ -3,6 +3,86 @@
     {
       "unresolved": true,
       "key": {
+        "uuid": "d496c69d_a2b63c26",
+        "filename": "/COMMIT_MSG",
+        "patchSetId": 34
+      },
+      "lineNbr": 12,
+      "author": {
+        "id": 1007990
+      },
+      "writtenOn": "2026-09-24T18:37:34Z",
+      "side": 1,
+      "message": "GATED_METRICS in elk_run_metrics.sh gates only five (logical_write_count, write_count, write_amplification, gc_invocations, disk_utilization_avg). Read IOPS, write IOPS, read speed and write speed are report-only. Please gate them as well",
+      "range": {
+        "startLine": 12,
+        "startChar": 0,
+        "endLine": 12,
+        "endChar": 61
+      },
+      "revId": "05f146f50770ec3bed8daf77497acec4705d1844",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "f238366d_7b5cb0e9",
+        "filename": "eVSSIM/tests/host/simulation/ssd_program_compatible_test.cc",
+        "patchSetId": 34
+      },
+      "lineNbr": 42,
+      "author": {
+        "id": 1007990
+      },
+      "writtenOn": "2026-09-24T18:37:34Z",
+      "side": 1,
+      "message": "Let\u0027s not change the existing test to make the metrics deterministic. Please add a new test for that.",
+      "range": {
+        "startLine": 37,
+        "startChar": 0,
+        "endLine": 42,
+        "endChar": 42
+      },
+      "revId": "05f146f50770ec3bed8daf77497acec4705d1844",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "89a150a0_9eeeaf73",
+        "filename": "infra/ELK/derive_bounds.py",
+        "patchSetId": 34
+      },
+      "lineNbr": 21,
+      "author": {
+        "id": 1007990
+      },
+      "writtenOn": "2026-09-24T18:37:34Z",
+      "side": 1,
+      "message": "Only logical_write_count is gated exactly. The characterization shows write_count, write_amplification, gc_invocations and disk_utilization_avg are bit-identical across runs for object, ssd_io, multi_device and program_compatible. Please derive tightness from the data (zero spread means exact) instead of from a hardcoded set.",
+      "revId": "05f146f50770ec3bed8daf77497acec4705d1844",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "0de38c28_c5108d9c",
+        "filename": "infra/ELK/derive_bounds.py",
+        "patchSetId": 34
+      },
+      "lineNbr": 28,
+      "author": {
+        "id": 1007990
+      },
+      "writtenOn": "2026-09-24T18:37:34Z",
+      "side": 1,
+      "message": "The ticket asks for tight bounds, but a 15% minimum margin is applied even to metrics with zero spread across all 5 runs. For example, object_tests.write_count is exactly 17896 in every run, yet the gate accepts anything from 15211 to 20581, so a regression of ±2,000 physical writes would pass.",
+      "revId": "05f146f50770ec3bed8daf77497acec4705d1844",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
+    },
+    {
+      "unresolved": true,
+      "key": {
         "uuid": "253c90c4_844571c7",
         "filename": "infra/ELK/derive_bounds.py",
         "patchSetId": 34
@@ -50,6 +130,184 @@
       "side": 1,
       "message": "i think it\u0027s bad to use md as the source of truth but given it was David\u0027s instructions, I will let him decide. I agree that, given the md as the source of truth, your decision is correct",
       "parentUuid": "3019082b_f5a99686",
+      "revId": "05f146f50770ec3bed8daf77497acec4705d1844",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "ac718401_3d51ea73",
+        "filename": "infra/ELK/elk_run_metrics.sh",
+        "patchSetId": 34
+      },
+      "lineNbr": 189,
+      "author": {
+        "id": 1007990
+      },
+      "writtenOn": "2026-09-24T18:37:34Z",
+      "side": 1,
+      "message": "Read IOPS, write IOPS, read speed and write speed are required by the ticket but not gated. They are identical across all 5 runs for object, ssd_io and program_compatible, and vary by about 0.4% for multi_device.",
+      "range": {
+        "startLine": 189,
+        "startChar": 0,
+        "endLine": 189,
+        "endChar": 103
+      },
+      "revId": "05f146f50770ec3bed8daf77497acec4705d1844",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "3fa314e1_6fa5a95a",
+        "filename": "infra/ELK/elk_run_metrics.sh",
+        "patchSetId": 34
+      },
+      "lineNbr": 210,
+      "author": {
+        "id": 1007990
+      },
+      "writtenOn": "2026-09-24T18:37:34Z",
+      "side": 1,
+      "message": "Please reject empty or non-numeric v with a FAIL. Right now \"\" compares as 0 and can pass zero-valued bounds.",
+      "range": {
+        "startLine": 194,
+        "startChar": 0,
+        "endLine": 210,
+        "endChar": 1
+      },
+      "revId": "05f146f50770ec3bed8daf77497acec4705d1844",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "c85864bf_06332859",
+        "filename": "infra/ELK/host_tests_bounds.env",
+        "patchSetId": 34
+      },
+      "lineNbr": 24,
+      "author": {
+        "id": 1007990
+      },
+      "writtenOn": "2026-09-24T18:37:34Z",
+      "side": 1,
+      "message": "This band spans almost an order of magnitude and only catches \"GC never ran.\" Your own data also shows sector_tests is non-deterministic in write_count, read_count and gc_invocations, and the CI range doesn\u0027t overlap the local range. The ticket says to communicate non-preserved values ASAP rather than absorb them in a wide margin. Suggestion: Create a ticket with a description of the min/max discrepancy and DoD to investigate the root cause.",
+      "range": {
+        "startLine": 23,
+        "startChar": 0,
+        "endLine": 24,
+        "endChar": 43
+      },
+      "revId": "05f146f50770ec3bed8daf77497acec4705d1844",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "e1924834_40311276",
+        "filename": "infra/ELK/host_tests_bounds.env",
+        "patchSetId": 34
+      },
+      "lineNbr": 54,
+      "author": {
+        "id": 1007990
+      },
+      "writtenOn": "2026-09-24T18:37:34Z",
+      "side": 1,
+      "message": "Lines 20, 37, 54, 71, 88 (*_WRITE_AMPLIFICATION_MIN)\nThe lower bounds of 0.85, 0.9037 and so on are physically impossible, because write amplification can\u0027t be below 1.0. Please clamp the WA lower bound at 1.0.",
+      "range": {
+        "startLine": 20,
+        "startChar": 0,
+        "endLine": 54,
+        "endChar": 58
+      },
+      "revId": "05f146f50770ec3bed8daf77497acec4705d1844",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "375d0865_6bf7a08b",
+        "filename": "infra/builder/docker-test-host-elk.sh",
+        "patchSetId": 34
+      },
+      "lineNbr": 24,
+      "author": {
+        "id": 1007990
+      },
+      "writtenOn": "2026-09-24T18:37:34Z",
+      "side": 1,
+      "message": "a missing bounds file should be a hard failure no matter if RUNS \u003d\u003d 1",
+      "range": {
+        "startLine": 22,
+        "startChar": 0,
+        "endLine": 24,
+        "endChar": 2
+      },
+      "revId": "05f146f50770ec3bed8daf77497acec4705d1844",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "da7ed6f1_878e621f",
+        "filename": "infra/builder/docker-test-host-elk.sh",
+        "patchSetId": 34
+      },
+      "lineNbr": 68,
+      "author": {
+        "id": 1007990
+      },
+      "writtenOn": "2026-09-24T18:37:34Z",
+      "side": 1,
+      "message": "Concurrency is not supported. If you find any other places running tests concurrently that I missed, please revert to sequential invocation only.",
+      "range": {
+        "startLine": 68,
+        "startChar": 0,
+        "endLine": 68,
+        "endChar": 24
+      },
+      "revId": "05f146f50770ec3bed8daf77497acec4705d1844",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "a2631c34_02c62402",
+        "filename": "infra/builder/docker-test-host-elk.sh",
+        "patchSetId": 34
+      },
+      "lineNbr": 68,
+      "author": {
+        "id": 1007990
+      },
+      "writtenOn": "2026-09-24T18:37:34Z",
+      "side": 1,
+      "message": "The deleted docker-test-host.sh ran run_all_host_tests.sh. Besides, the name infra/builder/docker-test-host-elk.sh suggests it only calls ELK tests.",
+      "revId": "05f146f50770ec3bed8daf77497acec4705d1844",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "999be0ab_23d6d7aa",
+        "filename": "infra/builder/docker-test-host-elk.sh",
+        "patchSetId": 34
+      },
+      "lineNbr": 68,
+      "author": {
+        "id": 1007990
+      },
+      "writtenOn": "2026-09-24T18:37:34Z",
+      "side": 1,
+      "message": "In general, the reliability of bash scripts tends to easily miss things like this. Can you rewrite them in a simplistic and easy-to-read way?\n\nI\u0027d rewrite bash in Python, keeping a thin bash entry point only because the CI scripts and builder.sh are bash.\n\nThe issues in this patch mostly come from bash\u0027s error semantics, not from carelessness:\n\nset -e is silently turned off inside any function called with || true, which is how an ES error turned into a PASS.\n\nA failure inside $( … ) is lost unless it\u0027s the last command.\n\nAn empty string compares as 0 in awk, so a missing metric passes a [0, 0] gate.\n\nA single \u0026 quietly makes things concurrent.\n\nPython reverses the default: errors raise exceptions and stop the run unless you deliberately catch them. That\u0027s the property you want in a gate.\n\nIt also costs nothing new:\n\nThe script already requires python3 (it checks for it at the top).\n\nderive_bounds.py is already Python.\n\nCI already runs tox, so unit tests come for free.\n\nThe standard library covers everything (urllib, json, subprocess, dataclasses), so there are no pip dependencies to install in the CI image.\n\nDisciplined bash (shellcheck, bats tests, strict helpers) can work, but you have to fight the language on every line, and reviewers have to know its traps to catch mistakes.\n\nAdditional details and the suggested sketch: https://trello.com/c/bjyYFhKX#comment-6ab56990021ce871fd8cea51",
+      "range": {
+        "startLine": 63,
+        "startChar": 2,
+        "endLine": 68,
+        "endChar": 24
+      },
       "revId": "05f146f50770ec3bed8daf77497acec4705d1844",
       "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
     }
