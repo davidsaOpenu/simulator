@@ -312,6 +312,8 @@ evssim_qemu () {
             ((++serial_number))
         done
 
+        EVSSIM_PROVISIONED_DEVICE_COUNT=${#device_sizes[@]}
+
         echo "INFO Simulator mode ($device_count devices)"
         local serial_number=1
         for device_size in "${device_sizes[@]}"; do
@@ -322,6 +324,7 @@ evssim_qemu () {
         # Non-simulator mode - use default size
         drive_args="-drive format=vssim,size=$device_size,simulator=$device_simulator,if=none,id=memory,device_index=0 -drive format=vssim,size=$device_size,simulator=$device_simulator,if=none,id=memory2,device_index=1 -drive format=vssim,size=$device_size,simulator=$device_simulator,if=none,id=memory3,device_index=2"
         device_args="-device nvme,drive=memory,serial=1 -device nvme,drive=memory2,serial=2 -device nvme,drive=memory3,serial=3"
+        EVSSIM_PROVISIONED_DEVICE_COUNT=3
         echo "INFO Non-simulator mode, Default size: $(numfmt --from=iec --to=iec $device_size)"
     fi
 

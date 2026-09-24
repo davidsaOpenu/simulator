@@ -26,7 +26,7 @@ guest_test() {
     # Run tests inside the guest
     echo "INFO Running test id=$test_index strategy=$strategy simulator=$simulator test=$test_name"
     set +e
-    evssim_guest "cd ./guest; mkdir Logs; sudo VSSIM_NEXTGEN_BUILD_SYSTEM=1 nosetests -v --with-xunit --xunit-file=guest_tests_results.xml $test_name"
+    evssim_guest "cd ./guest; mkdir Logs; sudo VSSIM_NEXTGEN_BUILD_SYSTEM=1 EVSSIM_PROVISIONED_DEVICE_COUNT=$EVSSIM_PROVISIONED_DEVICE_COUNT nosetests -v -s --with-xunit --xunit-file=guest_tests_results.xml $test_name"
     test_rc=$?
     set -e
 
@@ -56,6 +56,7 @@ test_index=0
 # Run disk tests
 guest_test "$test_directory_base" 1 yes nvme_compliance_tests
 guest_test "$test_directory_base" 1 no fio_tests
+guest_test "$test_directory_base" 1 yes ext4
 
 # Run simulator specific tests (With different strategies)
 guest_test "$test_directory_base" 2 yes objects_via_ioctl
