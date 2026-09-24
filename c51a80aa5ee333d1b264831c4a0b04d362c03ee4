@@ -1,0 +1,44 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "ecab1953_82eb0117",
+        "filename": "eVSSIM/LOG_MGR/logging_offline_analyzer.c",
+        "patchSetId": 9
+      },
+      "lineNbr": 72,
+      "author": {
+        "id": 1007990
+      },
+      "writtenOn": "2026-09-24T18:35:31Z",
+      "side": 1,
+      "message": "The flag is written from another thread and read here without atomics. Please use __atomic_load_n(\u0026analyzer-\u003eexit_loop_flag, __ATOMIC_ACQUIRE), with a matching release store on the writer side.",
+      "revId": "c51a80aa5ee333d1b264831c4a0b04d362c03ee4",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "ad942bcd_0fc36446",
+        "filename": "eVSSIM/tests/host/simulation/ssd_io_emulator_tests.cc",
+        "patchSetId": 9
+      },
+      "lineNbr": 468,
+      "author": {
+        "id": 1007990
+      },
+      "writtenOn": "2026-09-24T18:35:31Z",
+      "side": 1,
+      "message": "The double buffer narrows the window but doesn\u0027t close it. With two buffers, a reader still holding pointer A when the manager refills A two loops later sees a mixed snapshot. In this test, current_stats is dereferenced by several assertions after STATS_SETTLE, so the claim that they \"read the very snapshot that satisfied the wait\" isn\u0027t guaranteed. It only holds in practice because the stats have stopped changing.",
+      "range": {
+        "startLine": 468,
+        "startChar": 12,
+        "endLine": 468,
+        "endChar": 24
+      },
+      "revId": "c51a80aa5ee333d1b264831c4a0b04d362c03ee4",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
+    }
+  ]
+}
