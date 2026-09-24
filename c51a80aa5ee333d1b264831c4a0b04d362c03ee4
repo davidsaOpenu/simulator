@@ -56,6 +56,29 @@
       },
       "revId": "c51a80aa5ee333d1b264831c4a0b04d362c03ee4",
       "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "0f6d55e8_c21da586",
+        "filename": "eVSSIM/tests/host/simulation/ssd_io_emulator_tests.cc",
+        "patchSetId": 9
+      },
+      "lineNbr": 468,
+      "author": {
+        "id": 1007990
+      },
+      "writtenOn": "2026-09-24T18:37:24Z",
+      "side": 1,
+      "message": "looks like STATS_SETTLE retries until the condition holds, so it passes on and hides tearing rather than detecting it.",
+      "range": {
+        "startLine": 468,
+        "startChar": 12,
+        "endLine": 468,
+        "endChar": 24
+      },
+      "revId": "c51a80aa5ee333d1b264831c4a0b04d362c03ee4",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
     }
   ]
 }
