@@ -26,6 +26,30 @@
     {
       "unresolved": false,
       "key": {
+        "uuid": "beabf9a3_22f77416",
+        "filename": "/COMMIT_MSG",
+        "patchSetId": 7
+      },
+      "lineNbr": 13,
+      "author": {
+        "id": 1007990
+      },
+      "writtenOn": "2026-09-24T10:23:12Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "19259a47_b9d19d23",
+      "range": {
+        "startLine": 8,
+        "startChar": 0,
+        "endLine": 13,
+        "endChar": 42
+      },
+      "revId": "87eb5b02170895dd6462717ea824f99903ee6d05",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
+    },
+    {
+      "unresolved": false,
+      "key": {
         "uuid": "5f1c5a1f_b9f140ec",
         "filename": "/PATCHSET_LEVEL",
         "patchSetId": 7
@@ -64,6 +88,30 @@
       "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "7522ad67_45cc9304",
+        "filename": "eVSSIM/tests/guest/ext4/test_ext4format.py",
+        "patchSetId": 7
+      },
+      "lineNbr": 115,
+      "author": {
+        "id": 1007990
+      },
+      "writtenOn": "2026-09-24T10:23:12Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "281bc082_0a18b906",
+      "range": {
+        "startLine": 114,
+        "startChar": 0,
+        "endLine": 115,
+        "endChar": 26
+      },
+      "revId": "87eb5b02170895dd6462717ea824f99903ee6d05",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "411da139_c35455ef",
@@ -77,6 +125,30 @@
       "writtenOn": "2026-09-15T20:07:12Z",
       "side": 1,
       "message": "The DoD requires verifying all currently-provisioned NVMe disks, but this only checks the list is non-empty. \n\nSugested fix:\n\n\nEXPECTED_NVME_DEVICE_COUNT \u003d ...  # read from the actual QEMU config or from ls /dev/nvme*| wc -l\nassert len(nvme_devices) \u003d\u003d EXPECTED_NVME_DEVICE_COUNT, (...)",
+      "range": {
+        "startLine": 233,
+        "startChar": 8,
+        "endLine": 233,
+        "endChar": 15
+      },
+      "revId": "87eb5b02170895dd6462717ea824f99903ee6d05",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "779da258_6216cccf",
+        "filename": "eVSSIM/tests/guest/ext4/test_ext4format.py",
+        "patchSetId": 7
+      },
+      "lineNbr": 233,
+      "author": {
+        "id": 1007990
+      },
+      "writtenOn": "2026-09-24T10:23:12Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "411da139_c35455ef",
       "range": {
         "startLine": 233,
         "startChar": 8,
