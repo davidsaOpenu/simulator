@@ -1,0 +1,69 @@
+<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 860 592' width='860' height='592' role='img' aria-label='Share of 132 us delays inside the tolerance band'>
+<rect width='860' height='592' fill='#fcfcfb'/>
+<text x='16' y='26' font-family='Inter,Segoe UI,Helvetica,Arial,sans-serif' font-size='15' font-weight='600' fill='#0b0b0b'>Share of 132 us delays inside the tolerance band</text>
+<text x='16' y='44' font-family='Inter,Segoe UI,Helvetica,Arial,sans-serif' font-size='11.5' fill='#52514e'>|actual − requested| ≤ max(5 %, 10 us), no calibration — dashed line = the 99 % required</text>
+<line x1='300.0' y1='58' x2='300.0' y2='558' stroke='#e4e3df' stroke-width='1'/>
+<text x='300.0' y='573' font-family='Inter,Segoe UI,Helvetica,Arial,sans-serif' font-size='10.5' fill='#52514e' text-anchor='middle'>0 %</text>
+<line x1='422.5' y1='58' x2='422.5' y2='558' stroke='#e4e3df' stroke-width='1'/>
+<text x='422.5' y='573' font-family='Inter,Segoe UI,Helvetica,Arial,sans-serif' font-size='10.5' fill='#52514e' text-anchor='middle'>25 %</text>
+<line x1='545.0' y1='58' x2='545.0' y2='558' stroke='#e4e3df' stroke-width='1'/>
+<text x='545.0' y='573' font-family='Inter,Segoe UI,Helvetica,Arial,sans-serif' font-size='10.5' fill='#52514e' text-anchor='middle'>50 %</text>
+<line x1='667.5' y1='58' x2='667.5' y2='558' stroke='#e4e3df' stroke-width='1'/>
+<text x='667.5' y='573' font-family='Inter,Segoe UI,Helvetica,Arial,sans-serif' font-size='10.5' fill='#52514e' text-anchor='middle'>75 %</text>
+<line x1='790.0' y1='58' x2='790.0' y2='558' stroke='#e4e3df' stroke-width='1'/>
+<text x='790.0' y='573' font-family='Inter,Segoe UI,Helvetica,Arial,sans-serif' font-size='10.5' fill='#52514e' text-anchor='middle'>100 %</text>
+<text x='16' y='78' font-family='Inter,Segoe UI,Helvetica,Arial,sans-serif' font-size='11.5' font-weight='600' fill='#52514e'>Untreated: stock util/main-loop.c</text>
+<text x='290' y='98' font-family='Inter,Segoe UI,Helvetica,Arial,sans-serif' font-size='11.5' fill='#0b0b0b' text-anchor='end'>Scenario B, unpinned</text>
+<path d='M300.0,86.0h0.0a0.0,0.0 0 0 1 0.0,0.0v16.0a0.0,0.0 0 0 1 -0.0,0.0h-0.0z' fill='#2a78d6'><title>Scenario B, unpinned: 0.00 % in band</title></path>
+<text x='840' y='98' font-family='Inter,Segoe UI,Helvetica,Arial,sans-serif' font-size='10.5' fill='#52514e' text-anchor='end'>0.0 %</text>
+<text x='16' y='128' font-family='Inter,Segoe UI,Helvetica,Arial,sans-serif' font-size='11.5' font-weight='600' fill='#52514e'>Scenario B: nothing else running (patched)</text>
+<text x='290' y='148' font-family='Inter,Segoe UI,Helvetica,Arial,sans-serif' font-size='11.5' fill='#0b0b0b' text-anchor='end'>unpinned</text>
+<path d='M300.0,136.0h482.3a4,4 0 0 1 4,4v8.0a4,4 0 0 1 -4,4h-482.3z' fill='#2a78d6'><title>unpinned: 99.24 % in band</title></path>
+<text x='840' y='148' font-family='Inter,Segoe UI,Helvetica,Arial,sans-serif' font-size='10.5' fill='#52514e' text-anchor='end'>99.2 %</text>
+<text x='290' y='170' font-family='Inter,Segoe UI,Helvetica,Arial,sans-serif' font-size='11.5' fill='#0b0b0b' text-anchor='end'>driven by aio_poll() instead</text>
+<path d='M300.0,158.0h482.1a4,4 0 0 1 4,4v8.0a4,4 0 0 1 -4,4h-482.1z' fill='#2a78d6'><title>driven by aio_poll() instead: 99.21 % in band</title></path>
+<text x='840' y='170' font-family='Inter,Segoe UI,Helvetica,Arial,sans-serif' font-size='10.5' fill='#52514e' text-anchor='end'>99.2 %</text>
+<text x='290' y='192' font-family='Inter,Segoe UI,Helvetica,Arial,sans-serif' font-size='11.5' fill='#0b0b0b' text-anchor='end'>main loop soft-pinned</text>
+<path d='M300.0,180.0h469.6a4,4 0 0 1 4,4v8.0a4,4 0 0 1 -4,4h-469.6z' fill='#2a78d6'><title>main loop soft-pinned: 96.65 % in band</title></path>
+<text x='840' y='192' font-family='Inter,Segoe UI,Helvetica,Arial,sans-serif' font-size='10.5' fill='#52514e' text-anchor='end'>96.6 %</text>
+<text x='16' y='222' font-family='Inter,Segoe UI,Helvetica,Arial,sans-serif' font-size='11.5' font-weight='600' fill='#52514e'>Scenario B on the isolcpus + nohz_full boot (patched)</text>
+<text x='290' y='242' font-family='Inter,Segoe UI,Helvetica,Arial,sans-serif' font-size='11.5' fill='#0b0b0b' text-anchor='end'>unpinned</text>
+<path d='M300.0,230.0h480.2a4,4 0 0 1 4,4v8.0a4,4 0 0 1 -4,4h-480.2z' fill='#2a78d6'><title>unpinned: 98.82 % in band</title></path>
+<text x='840' y='242' font-family='Inter,Segoe UI,Helvetica,Arial,sans-serif' font-size='10.5' fill='#52514e' text-anchor='end'>98.8 %</text>
+<text x='290' y='264' font-family='Inter,Segoe UI,Helvetica,Arial,sans-serif' font-size='11.5' fill='#0b0b0b' text-anchor='end'>main loop on isolated cpu</text>
+<path d='M300.0,252.0h484.3a4,4 0 0 1 4,4v8.0a4,4 0 0 1 -4,4h-484.3z' fill='#2a78d6'><title>main loop on isolated cpu: 99.66 % in band</title></path>
+<text x='840' y='264' font-family='Inter,Segoe UI,Helvetica,Arial,sans-serif' font-size='10.5' fill='#52514e' text-anchor='end'>99.7 %</text>
+<text x='290' y='286' font-family='Inter,Segoe UI,Helvetica,Arial,sans-serif' font-size='11.5' fill='#0b0b0b' text-anchor='end'>isolated cpu, all housekeeping cpus loaded</text>
+<path d='M300.0,274.0h470.1a4,4 0 0 1 4,4v8.0a4,4 0 0 1 -4,4h-470.1z' fill='#2a78d6'><title>isolated cpu, all housekeeping cpus loaded: 96.76 % in band</title></path>
+<text x='840' y='286' font-family='Inter,Segoe UI,Helvetica,Arial,sans-serif' font-size='10.5' fill='#52514e' text-anchor='end'>96.8 %</text>
+<text x='16' y='316' font-family='Inter,Segoe UI,Helvetica,Arial,sans-serif' font-size='11.5' font-weight='600' fill='#52514e'>Scenario A: one neighbour (patched)</text>
+<text x='290' y='336' font-family='Inter,Segoe UI,Helvetica,Arial,sans-serif' font-size='11.5' fill='#0b0b0b' text-anchor='end'>3 workers on adjacent cores, unpinned</text>
+<path d='M300.0,324.0h463.3a4,4 0 0 1 4,4v8.0a4,4 0 0 1 -4,4h-463.3z' fill='#2a78d6'><title>3 workers on adjacent cores, unpinned: 95.37 % in band</title></path>
+<text x='840' y='336' font-family='Inter,Segoe UI,Helvetica,Arial,sans-serif' font-size='10.5' fill='#52514e' text-anchor='end'>95.4 %</text>
+<text x='290' y='358' font-family='Inter,Segoe UI,Helvetica,Arial,sans-serif' font-size='11.5' fill='#0b0b0b' text-anchor='end'>3 workers on adjacent cores, pinned</text>
+<path d='M300.0,346.0h455.9a4,4 0 0 1 4,4v8.0a4,4 0 0 1 -4,4h-455.9z' fill='#2a78d6'><title>3 workers on adjacent cores, pinned: 93.86 % in band</title></path>
+<text x='840' y='358' font-family='Inter,Segoe UI,Helvetica,Arial,sans-serif' font-size='10.5' fill='#52514e' text-anchor='end'>93.9 %</text>
+<text x='290' y='380' font-family='Inter,Segoe UI,Helvetica,Arial,sans-serif' font-size='11.5' fill='#0b0b0b' text-anchor='end'>cpu-bound on SMT sibling</text>
+<path d='M300.0,368.0h482.3a4,4 0 0 1 4,4v8.0a4,4 0 0 1 -4,4h-482.3z' fill='#2a78d6'><title>cpu-bound on SMT sibling: 99.25 % in band</title></path>
+<text x='840' y='380' font-family='Inter,Segoe UI,Helvetica,Arial,sans-serif' font-size='10.5' fill='#52514e' text-anchor='end'>99.3 %</text>
+<text x='290' y='402' font-family='Inter,Segoe UI,Helvetica,Arial,sans-serif' font-size='11.5' fill='#0b0b0b' text-anchor='end'>I/O-bound on same cpu</text>
+<path d='M300.0,390.0h466.0a4,4 0 0 1 4,4v8.0a4,4 0 0 1 -4,4h-466.0z' fill='#2a78d6'><title>I/O-bound on same cpu: 95.92 % in band</title></path>
+<text x='840' y='402' font-family='Inter,Segoe UI,Helvetica,Arial,sans-serif' font-size='10.5' fill='#52514e' text-anchor='end'>95.9 %</text>
+<text x='290' y='424' font-family='Inter,Segoe UI,Helvetica,Arial,sans-serif' font-size='11.5' fill='#0b0b0b' text-anchor='end'>mixed 50:50 on same cpu</text>
+<path d='M300.0,412.0h462.6a4,4 0 0 1 4,4v8.0a4,4 0 0 1 -4,4h-462.6z' fill='#2a78d6'><title>mixed 50:50 on same cpu: 95.23 % in band</title></path>
+<text x='840' y='424' font-family='Inter,Segoe UI,Helvetica,Arial,sans-serif' font-size='10.5' fill='#52514e' text-anchor='end'>95.2 %</text>
+<text x='290' y='446' font-family='Inter,Segoe UI,Helvetica,Arial,sans-serif' font-size='11.5' fill='#0b0b0b' text-anchor='end'>cpu-bound on same cpu</text>
+<path d='M300.0,434.0h452.7a4,4 0 0 1 4,4v8.0a4,4 0 0 1 -4,4h-452.7z' fill='#2a78d6'><title>cpu-bound on same cpu: 93.20 % in band</title></path>
+<text x='840' y='446' font-family='Inter,Segoe UI,Helvetica,Arial,sans-serif' font-size='10.5' fill='#52514e' text-anchor='end'>93.2 %</text>
+<text x='16' y='476' font-family='Inter,Segoe UI,Helvetica,Arial,sans-serif' font-size='11.5' font-weight='600' fill='#52514e'>Scenario A: whole host loaded (patched)</text>
+<text x='290' y='496' font-family='Inter,Segoe UI,Helvetica,Arial,sans-serif' font-size='11.5' fill='#0b0b0b' text-anchor='end'>half load, unpinned</text>
+<path d='M300.0,484.0h442.4a4,4 0 0 1 4,4v8.0a4,4 0 0 1 -4,4h-442.4z' fill='#2a78d6'><title>half load, unpinned: 91.10 % in band</title></path>
+<text x='840' y='496' font-family='Inter,Segoe UI,Helvetica,Arial,sans-serif' font-size='10.5' fill='#52514e' text-anchor='end'>91.1 %</text>
+<text x='290' y='518' font-family='Inter,Segoe UI,Helvetica,Arial,sans-serif' font-size='11.5' fill='#0b0b0b' text-anchor='end'>full load, unpinned</text>
+<path d='M300.0,506.0h459.3a4,4 0 0 1 4,4v8.0a4,4 0 0 1 -4,4h-459.3z' fill='#2a78d6'><title>full load, unpinned: 94.55 % in band</title></path>
+<text x='840' y='518' font-family='Inter,Segoe UI,Helvetica,Arial,sans-serif' font-size='10.5' fill='#52514e' text-anchor='end'>94.5 %</text>
+<text x='290' y='540' font-family='Inter,Segoe UI,Helvetica,Arial,sans-serif' font-size='11.5' fill='#0b0b0b' text-anchor='end'>full load, soft-pinned</text>
+<path d='M300.0,528.0h323.7a4,4 0 0 1 4,4v8.0a4,4 0 0 1 -4,4h-323.7z' fill='#2a78d6'><title>full load, soft-pinned: 66.89 % in band</title></path>
+<text x='840' y='540' font-family='Inter,Segoe UI,Helvetica,Arial,sans-serif' font-size='10.5' fill='#52514e' text-anchor='end'>66.9 %</text>
+<line x1='785.1' y1='54' x2='785.1' y2='558' stroke='#0b0b0b' stroke-width='1.5' stroke-dasharray='4 3'/>
+</svg>
