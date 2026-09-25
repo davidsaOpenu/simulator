@@ -1,56 +1,49 @@
 #!/bin/bash
+# CI for the real-time delay spike: build QEMU, then benchmark qemu_co_sleep_ns() through QEMU's
+# real main loop in every host configuration that needs no reboot, and print one summary report.
+#
+# What it does NOT do (compared with the previous run-ci.sh): tox, kernel, guest image, host /
+# guest / exofs tests, ELK. Hard-isolated cores (isolcpus + nohz_full) are excluded on purpose:
+# they need a reboot; see simulator/spike_delay_inject/docs/hard_isolation_howto.md for that run.
+#
+# Output: simulator/spike_delay_inject/results_ci/{matrix,mechanisms-3co,mechanisms-16co}/<run>.raw.csv + .log
+#         and results_ci/report-*.md (also printed at the end). Total ~40 min after the QEMU build.
 set -Eeo pipefail
 trap 'ec=$?; echo "[run-ci.sh] FAILED with exit $ec on: $BASH_COMMAND" >&2' ERR
 
-# always run from the builder dir so env.sh works
 cd "$(dirname "${BASH_SOURCE[0]}")"
-
-# Check all required tools are installed
 ./check_tools.sh
-
-# the only script we source on purpose
 source ./env.sh
-export EVSSIM_RUNTIME_ALWAYS_RESET=yes
 
-# freeze absolute paths so later env changes can't break us
-LOGS_DIR="$EVSSIM_ROOT_PATH/$EVSSIM_LOGS_FOLDER"
-ELK_DIR="$EVSSIM_ROOT_PATH/simulator/infra/ELK"
-ELK_INSTALL="$ELK_DIR/install_and_start_elk.sh"
-ELK_CLEAN="$ELK_DIR/elk_cleanup.sh"
+SPIKE="$EVSSIM_ROOT_PATH/simulator/spike_delay_inject"
+RESULTS="${RESULTS:-$SPIKE/results_ci}"
 
-# Temporary override until guest-tests commit
-if [ "$EVSSIM_VERSIONS_CONFIGURATION_ID" == 5 ]; then
-    EVSSIM_GUEST_TESTS_GUEST_VM_IMAGE=ubuntu-14.04
-    EVSSIM_GUEST_TESTS_GUEST_VM_BUILD_CONTAINER=ubuntu-14.04
-    EVSSIM_GUEST_TESTS_COMPILE_CONTAINER=ubuntu-14.04
-fi
-
-# sanity checks
-[[ -x "$ELK_INSTALL" ]] || { echo "Missing: $ELK_INSTALL"; exit 1; }
-[[ -x "$ELK_CLEAN"   ]] || { echo "Missing: $ELK_CLEAN";   exit 1; }
-
-mkdir -p "$LOGS_DIR"
-
-# static trap string (evaluated NOW, not later)
-trap "$ELK_CLEAN --complete-cleanup || true" EXIT
-
-# Run tox
-env -u http_proxy -u https_proxy -u HTTP_PROXY -u HTTPS_PROXY tox
-
-# build + sanity
+# 1. build environment + QEMU 2.12 (libqemuutil.a is what the benchmark links against)
 ./build-docker-image.sh
-./build-qemu-image.sh $EVSSIM_GUEST_TESTS_GUEST_VM_IMAGE $EVSSIM_GUEST_TESTS_GUEST_VM_BUILD_CONTAINER
-./compile-kernel.sh $EVSSIM_KERNEL_COMPILE_CONTAINER
-./compile-qemu.sh ubuntu-26.04
-./compile-qemu.sh ubuntu-14.04 # make sure this is second to simplify docker-run-sanity.sh on the correct qemu branch (as it is expecting 14.04 structure atm)
-./compile-host-tests.sh $EVSSIM_HOST_TESTS_COMPILE_CONTAINER
-./compile-guest-tests.sh $EVSSIM_GUEST_TESTS_COMPILE_CONTAINER
-./docker-run-sanity.sh $EVSSIM_QEMU_COMPILE_CONTAINER
+./compile-qemu.sh ubuntu-14.04
 
-# start ELK (absolute paths)
-"$ELK_INSTALL" "$LOGS_DIR" "$ELK_DIR"
+# 2. the benchmark binary, twice: stock util/main-loop.c and with the fix applied
+"$SPIKE/scripts/build_demo.sh"
 
-# Running Docker Tests
-./docker-test-host.sh $EVSSIM_HOST_TESTS_RUN_CONTAINER
-./docker-test-guest.sh $EVSSIM_QEMU_COMPILE_CONTAINER
-./docker-test-exofs.sh $EVSSIM_QEMU_COMPILE_CONTAINER
+# 3. every configuration of the Scenario A / B matrix that runs on a normal boot (~25 min)
+echo "host: $(nproc) cpus, load $(cut -d' ' -f1-3 /proc/loadavg), isolated=[$(cat /sys/devices/system/cpu/isolated)]"
+RESULTS="$RESULTS/matrix" "$SPIKE/scripts/run_demo_matrix.sh"
+
+# 4. sleep mechanisms, co_sleep vs hybrid, with 3 and with 16 coroutines in flight (~2 x 5 min).
+#    Skipped here: pure spin (serialises the coroutines - 15 min at 16 of them, and already rejected)
+#    and the isolated-cpu rows (need the isolcpus boot).
+for cos in 3 16; do
+    COS=$cos RESULTS="$RESULTS/mechanisms-${cos}co" SKIP="sp$cos co$cos-iso hy$cos-iso" \
+        "$SPIKE/scripts/run_demo_mechanisms.sh"
+done
+
+# 5. summary
+echo
+echo "==================== real-time delay benchmark: summary ===================="
+echo "--- Scenario A / B matrix (qemu_co_sleep_ns through the main loop; stock vs patched)"
+"$SPIKE/scripts/demo_report.py" "$RESULTS/matrix" --md "$RESULTS/report-matrix.md"
+for cos in 3 16; do
+    echo "--- sleep mechanism, $cos coroutines in flight (hybrid is the decided default)"
+    "$SPIKE/scripts/demo_report.py" "$RESULTS/mechanisms-${cos}co" --md "$RESULTS/report-mechanisms-${cos}co.md"
+done
+echo "raw data and per-run logs: $RESULTS"

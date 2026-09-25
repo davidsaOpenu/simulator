@@ -1,0 +1,69 @@
+<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 860 592' width='860' height='592' role='img' aria-label='Overshoot of a 132 us delay, by configuration'>
+<rect width='860' height='592' fill='#fcfcfb'/>
+<text x='16' y='26' font-family='Inter,Segoe UI,Helvetica,Arial,sans-serif' font-size='15' font-weight='600' fill='#0b0b0b'>Overshoot of a 132 us delay, by configuration</text>
+<text x='16' y='44' font-family='Inter,Segoe UI,Helvetica,Arial,sans-serif' font-size='11.5' fill='#52514e'>dot = median, bar end = p99, us past the requested time — shaded = inside the 10 us tolerance floor</text>
+<rect x='300' y='58' width='132.5' height='500' fill='#2a78d6' opacity='0.07'/>
+<line x1='300.0' y1='58' x2='300.0' y2='558' stroke='#e4e3df' stroke-width='1'/>
+<text x='300.0' y='573' font-family='Inter,Segoe UI,Helvetica,Arial,sans-serif' font-size='10.5' fill='#52514e' text-anchor='middle'>0</text>
+<line x1='432.5' y1='58' x2='432.5' y2='558' stroke='#e4e3df' stroke-width='1'/>
+<text x='432.5' y='573' font-family='Inter,Segoe UI,Helvetica,Arial,sans-serif' font-size='10.5' fill='#52514e' text-anchor='middle'>10</text>
+<line x1='565.0' y1='58' x2='565.0' y2='558' stroke='#e4e3df' stroke-width='1'/>
+<text x='565.0' y='573' font-family='Inter,Segoe UI,Helvetica,Arial,sans-serif' font-size='10.5' fill='#52514e' text-anchor='middle'>20</text>
+<line x1='697.5' y1='58' x2='697.5' y2='558' stroke='#e4e3df' stroke-width='1'/>
+<text x='697.5' y='573' font-family='Inter,Segoe UI,Helvetica,Arial,sans-serif' font-size='10.5' fill='#52514e' text-anchor='middle'>30</text>
+<line x1='830.0' y1='58' x2='830.0' y2='558' stroke='#e4e3df' stroke-width='1'/>
+<text x='830.0' y='573' font-family='Inter,Segoe UI,Helvetica,Arial,sans-serif' font-size='10.5' fill='#52514e' text-anchor='middle'>40</text>
+<text x='16' y='78' font-family='Inter,Segoe UI,Helvetica,Arial,sans-serif' font-size='11.5' font-weight='600' fill='#52514e'>Untreated: stock util/main-loop.c</text>
+<text x='290' y='98' font-family='Inter,Segoe UI,Helvetica,Arial,sans-serif' font-size='11.5' fill='#0b0b0b' text-anchor='end'>Scenario B, unpinned</text>
+<g><title>Scenario B, unpinned: p50 +873.9 us, p99 +887.2 us, n=150000</title><line x1='300' y1='94' x2='821' y2='94' stroke='#2a78d6' stroke-width='2' stroke-dasharray='2 4'/><path d='M820,88l10,6l-10,6z' fill='#2a78d6'/></g>
+<text x='814' y='88' font-family='Inter,Segoe UI,Helvetica,Arial,sans-serif' font-size='10.5' font-weight='600' fill='#0b0b0b' text-anchor='end'>off scale: +874 / +887 us (every sleep takes ~1 ms)</text>
+<text x='16' y='128' font-family='Inter,Segoe UI,Helvetica,Arial,sans-serif' font-size='11.5' font-weight='600' fill='#52514e'>Scenario B: nothing else running (patched)</text>
+<text x='290' y='148' font-family='Inter,Segoe UI,Helvetica,Arial,sans-serif' font-size='11.5' fill='#0b0b0b' text-anchor='end'>unpinned</text>
+<g><title>unpinned: p50 +4.3 us, p99 +9.2 us, n=150000</title><line x1='357.6' y1='144' x2='421.3' y2='144' stroke='#2a78d6' stroke-width='2'/><line x1='421.3' y1='139' x2='421.3' y2='149' stroke='#2a78d6' stroke-width='2'/><circle cx='357.6' cy='144' r='4.5' fill='#2a78d6' stroke='#fcfcfb' stroke-width='2'/><rect x='300' y='134' width='530' height='20' fill='transparent'/></g>
+<text x='428.3' y='148' font-family='Inter,Segoe UI,Helvetica,Arial,sans-serif' font-size='10.5' fill='#52514e'>4.3 / 9.2</text>
+<text x='290' y='170' font-family='Inter,Segoe UI,Helvetica,Arial,sans-serif' font-size='11.5' fill='#0b0b0b' text-anchor='end'>driven by aio_poll() instead</text>
+<g><title>driven by aio_poll() instead: p50 +3.5 us, p99 +9.3 us, n=150000</title><line x1='346.9' y1='166' x2='422.9' y2='166' stroke='#2a78d6' stroke-width='2'/><line x1='422.9' y1='161' x2='422.9' y2='171' stroke='#2a78d6' stroke-width='2'/><circle cx='346.9' cy='166' r='4.5' fill='#2a78d6' stroke='#fcfcfb' stroke-width='2'/><rect x='300' y='156' width='530' height='20' fill='transparent'/></g>
+<text x='429.9' y='170' font-family='Inter,Segoe UI,Helvetica,Arial,sans-serif' font-size='10.5' fill='#52514e'>3.5 / 9.3</text>
+<text x='290' y='192' font-family='Inter,Segoe UI,Helvetica,Arial,sans-serif' font-size='11.5' fill='#0b0b0b' text-anchor='end'>main loop soft-pinned</text>
+<g><title>main loop soft-pinned: p50 +4.4 us, p99 +118.8 us, n=150000</title><line x1='358.4' y1='188' x2='830.0' y2='188' stroke='#2a78d6' stroke-width='2'/><line x1='830.0' y1='183' x2='830.0' y2='193' stroke='#2a78d6' stroke-width='2'/><circle cx='358.4' cy='188' r='4.5' fill='#2a78d6' stroke='#fcfcfb' stroke-width='2'/><rect x='300' y='178' width='530' height='20' fill='transparent'/></g>
+<text x='826' y='182' font-family='Inter,Segoe UI,Helvetica,Arial,sans-serif' font-size='10.5' fill='#52514e' text-anchor='end'>4.4 / 118.8 »</text>
+<text x='16' y='222' font-family='Inter,Segoe UI,Helvetica,Arial,sans-serif' font-size='11.5' font-weight='600' fill='#52514e'>Scenario B on the isolcpus + nohz_full boot (patched)</text>
+<text x='290' y='242' font-family='Inter,Segoe UI,Helvetica,Arial,sans-serif' font-size='11.5' fill='#0b0b0b' text-anchor='end'>unpinned</text>
+<g><title>unpinned: p50 +4.4 us, p99 +10.9 us, n=150000</title><line x1='358.8' y1='238' x2='444.4' y2='238' stroke='#2a78d6' stroke-width='2'/><line x1='444.4' y1='233' x2='444.4' y2='243' stroke='#2a78d6' stroke-width='2'/><circle cx='358.8' cy='238' r='4.5' fill='#2a78d6' stroke='#fcfcfb' stroke-width='2'/><rect x='300' y='228' width='530' height='20' fill='transparent'/></g>
+<text x='451.4' y='242' font-family='Inter,Segoe UI,Helvetica,Arial,sans-serif' font-size='10.5' fill='#52514e'>4.4 / 10.9</text>
+<text x='290' y='264' font-family='Inter,Segoe UI,Helvetica,Arial,sans-serif' font-size='11.5' fill='#0b0b0b' text-anchor='end'>main loop on isolated cpu</text>
+<g><title>main loop on isolated cpu: p50 +5.0 us, p99 +6.6 us, n=150000</title><line x1='366.9' y1='260' x2='387.2' y2='260' stroke='#2a78d6' stroke-width='2'/><line x1='387.2' y1='255' x2='387.2' y2='265' stroke='#2a78d6' stroke-width='2'/><circle cx='366.9' cy='260' r='4.5' fill='#2a78d6' stroke='#fcfcfb' stroke-width='2'/><rect x='300' y='250' width='530' height='20' fill='transparent'/></g>
+<text x='394.2' y='264' font-family='Inter,Segoe UI,Helvetica,Arial,sans-serif' font-size='10.5' fill='#52514e'>5.0 / 6.6</text>
+<text x='290' y='286' font-family='Inter,Segoe UI,Helvetica,Arial,sans-serif' font-size='11.5' fill='#0b0b0b' text-anchor='end'>isolated cpu, all housekeeping cpus loaded</text>
+<g><title>isolated cpu, all housekeeping cpus loaded: p50 +5.1 us, p99 +16.1 us, n=150000</title><line x1='368.1' y1='282' x2='513.5' y2='282' stroke='#2a78d6' stroke-width='2'/><line x1='513.5' y1='277' x2='513.5' y2='287' stroke='#2a78d6' stroke-width='2'/><circle cx='368.1' cy='282' r='4.5' fill='#2a78d6' stroke='#fcfcfb' stroke-width='2'/><rect x='300' y='272' width='530' height='20' fill='transparent'/></g>
+<text x='520.5' y='286' font-family='Inter,Segoe UI,Helvetica,Arial,sans-serif' font-size='10.5' fill='#52514e'>5.1 / 16.1</text>
+<text x='16' y='316' font-family='Inter,Segoe UI,Helvetica,Arial,sans-serif' font-size='11.5' font-weight='600' fill='#52514e'>Scenario A: one neighbour (patched)</text>
+<text x='290' y='336' font-family='Inter,Segoe UI,Helvetica,Arial,sans-serif' font-size='11.5' fill='#0b0b0b' text-anchor='end'>3 workers on adjacent cores, unpinned</text>
+<g><title>3 workers on adjacent cores, unpinned: p50 +4.9 us, p99 +14.3 us, n=150000</title><line x1='364.9' y1='332' x2='489.4' y2='332' stroke='#2a78d6' stroke-width='2'/><line x1='489.4' y1='327' x2='489.4' y2='337' stroke='#2a78d6' stroke-width='2'/><circle cx='364.9' cy='332' r='4.5' fill='#2a78d6' stroke='#fcfcfb' stroke-width='2'/><rect x='300' y='322' width='530' height='20' fill='transparent'/></g>
+<text x='496.4' y='336' font-family='Inter,Segoe UI,Helvetica,Arial,sans-serif' font-size='10.5' fill='#52514e'>4.9 / 14.3</text>
+<text x='290' y='358' font-family='Inter,Segoe UI,Helvetica,Arial,sans-serif' font-size='11.5' fill='#0b0b0b' text-anchor='end'>3 workers on adjacent cores, pinned</text>
+<g><title>3 workers on adjacent cores, pinned: p50 +4.8 us, p99 +196.2 us, n=150000</title><line x1='363.2' y1='354' x2='830.0' y2='354' stroke='#2a78d6' stroke-width='2'/><line x1='830.0' y1='349' x2='830.0' y2='359' stroke='#2a78d6' stroke-width='2'/><circle cx='363.2' cy='354' r='4.5' fill='#2a78d6' stroke='#fcfcfb' stroke-width='2'/><rect x='300' y='344' width='530' height='20' fill='transparent'/></g>
+<text x='826' y='348' font-family='Inter,Segoe UI,Helvetica,Arial,sans-serif' font-size='10.5' fill='#52514e' text-anchor='end'>4.8 / 196.2 »</text>
+<text x='290' y='380' font-family='Inter,Segoe UI,Helvetica,Arial,sans-serif' font-size='11.5' fill='#0b0b0b' text-anchor='end'>cpu-bound on SMT sibling</text>
+<g><title>cpu-bound on SMT sibling: p50 +5.4 us, p99 +9.0 us, n=150000</title><line x1='371.6' y1='376' x2='419.0' y2='376' stroke='#2a78d6' stroke-width='2'/><line x1='419.0' y1='371' x2='419.0' y2='381' stroke='#2a78d6' stroke-width='2'/><circle cx='371.6' cy='376' r='4.5' fill='#2a78d6' stroke='#fcfcfb' stroke-width='2'/><rect x='300' y='366' width='530' height='20' fill='transparent'/></g>
+<text x='426.0' y='380' font-family='Inter,Segoe UI,Helvetica,Arial,sans-serif' font-size='10.5' fill='#52514e'>5.4 / 9.0</text>
+<text x='290' y='402' font-family='Inter,Segoe UI,Helvetica,Arial,sans-serif' font-size='11.5' fill='#0b0b0b' text-anchor='end'>I/O-bound on same cpu</text>
+<g><title>I/O-bound on same cpu: p50 +4.3 us, p99 +14.1 us, n=150000</title><line x1='356.8' y1='398' x2='486.4' y2='398' stroke='#2a78d6' stroke-width='2'/><line x1='486.4' y1='393' x2='486.4' y2='403' stroke='#2a78d6' stroke-width='2'/><circle cx='356.8' cy='398' r='4.5' fill='#2a78d6' stroke='#fcfcfb' stroke-width='2'/><rect x='300' y='388' width='530' height='20' fill='transparent'/></g>
+<text x='493.4' y='402' font-family='Inter,Segoe UI,Helvetica,Arial,sans-serif' font-size='10.5' fill='#52514e'>4.3 / 14.1</text>
+<text x='290' y='424' font-family='Inter,Segoe UI,Helvetica,Arial,sans-serif' font-size='11.5' fill='#0b0b0b' text-anchor='end'>mixed 50:50 on same cpu</text>
+<g><title>mixed 50:50 on same cpu: p50 +4.5 us, p99 +14.3 us, n=150000</title><line x1='359.9' y1='420' x2='489.3' y2='420' stroke='#2a78d6' stroke-width='2'/><line x1='489.3' y1='415' x2='489.3' y2='425' stroke='#2a78d6' stroke-width='2'/><circle cx='359.9' cy='420' r='4.5' fill='#2a78d6' stroke='#fcfcfb' stroke-width='2'/><rect x='300' y='410' width='530' height='20' fill='transparent'/></g>
+<text x='496.3' y='424' font-family='Inter,Segoe UI,Helvetica,Arial,sans-serif' font-size='10.5' fill='#52514e'>4.5 / 14.3</text>
+<text x='290' y='446' font-family='Inter,Segoe UI,Helvetica,Arial,sans-serif' font-size='11.5' fill='#0b0b0b' text-anchor='end'>cpu-bound on same cpu</text>
+<g><title>cpu-bound on same cpu: p50 +4.5 us, p99 +14.2 us, n=150000</title><line x1='359.2' y1='442' x2='488.6' y2='442' stroke='#2a78d6' stroke-width='2'/><line x1='488.6' y1='437' x2='488.6' y2='447' stroke='#2a78d6' stroke-width='2'/><circle cx='359.2' cy='442' r='4.5' fill='#2a78d6' stroke='#fcfcfb' stroke-width='2'/><rect x='300' y='432' width='530' height='20' fill='transparent'/></g>
+<text x='495.6' y='446' font-family='Inter,Segoe UI,Helvetica,Arial,sans-serif' font-size='10.5' fill='#52514e'>4.5 / 14.2</text>
+<text x='16' y='476' font-family='Inter,Segoe UI,Helvetica,Arial,sans-serif' font-size='11.5' font-weight='600' fill='#52514e'>Scenario A: whole host loaded (patched)</text>
+<text x='290' y='496' font-family='Inter,Segoe UI,Helvetica,Arial,sans-serif' font-size='11.5' fill='#0b0b0b' text-anchor='end'>half load, unpinned</text>
+<g><title>half load, unpinned: p50 +5.7 us, p99 +166.4 us, n=150000</title><line x1='375.4' y1='492' x2='830.0' y2='492' stroke='#2a78d6' stroke-width='2'/><line x1='830.0' y1='487' x2='830.0' y2='497' stroke='#2a78d6' stroke-width='2'/><circle cx='375.4' cy='492' r='4.5' fill='#2a78d6' stroke='#fcfcfb' stroke-width='2'/><rect x='300' y='482' width='530' height='20' fill='transparent'/></g>
+<text x='826' y='486' font-family='Inter,Segoe UI,Helvetica,Arial,sans-serif' font-size='10.5' fill='#52514e' text-anchor='end'>5.7 / 166.4 »</text>
+<text x='290' y='518' font-family='Inter,Segoe UI,Helvetica,Arial,sans-serif' font-size='11.5' fill='#0b0b0b' text-anchor='end'>full load, unpinned</text>
+<g><title>full load, unpinned: p50 +6.1 us, p99 +16.5 us, n=150000</title><line x1='381.4' y1='514' x2='519.0' y2='514' stroke='#2a78d6' stroke-width='2'/><line x1='519.0' y1='509' x2='519.0' y2='519' stroke='#2a78d6' stroke-width='2'/><circle cx='381.4' cy='514' r='4.5' fill='#2a78d6' stroke='#fcfcfb' stroke-width='2'/><rect x='300' y='504' width='530' height='20' fill='transparent'/></g>
+<text x='526.0' y='518' font-family='Inter,Segoe UI,Helvetica,Arial,sans-serif' font-size='10.5' fill='#52514e'>6.1 / 16.5</text>
+<text x='290' y='540' font-family='Inter,Segoe UI,Helvetica,Arial,sans-serif' font-size='11.5' fill='#0b0b0b' text-anchor='end'>full load, soft-pinned</text>
+<g><title>full load, soft-pinned: p50 +7.8 us, p99 +22.9 us, n=150000</title><line x1='403.8' y1='536' x2='603.3' y2='536' stroke='#2a78d6' stroke-width='2'/><line x1='603.3' y1='531' x2='603.3' y2='541' stroke='#2a78d6' stroke-width='2'/><circle cx='403.8' cy='536' r='4.5' fill='#2a78d6' stroke='#fcfcfb' stroke-width='2'/><rect x='300' y='526' width='530' height='20' fill='transparent'/></g>
+<text x='610.3' y='540' font-family='Inter,Segoe UI,Helvetica,Arial,sans-serif' font-size='10.5' fill='#52514e'>7.8 / 22.9</text>
+</svg>
