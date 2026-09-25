@@ -1,0 +1,20 @@
+diff --git a/util/main-loop.c b/util/main-loop.c
+index 992f9b0f34..996eb59b6d 100644
+--- a/util/main-loop.c
++++ b/util/main-loop.c
+@@ -519,6 +519,15 @@ void main_loop_wait(int nonblocking)
+                                       timerlistgroup_deadline_ns(
+                                           &main_loop_tlg));
+ 
++    /* AioContext timers (e.g. qemu_co_sleep_ns() from a block-layer coroutine)
++     * otherwise reach this loop only through the glib source, where
++     * aio_ctx_prepare() rounds the deadline UP to a whole millisecond. We poll
++     * with ppoll(), so take the deadline here at full nanosecond resolution;
++     * glib's rounded value then is just a harmless upper bound. */
++    timeout_ns = qemu_soonest_timeout(timeout_ns,
++                                      timerlistgroup_deadline_ns(
++                                          &qemu_aio_context->tlg));
++
+     ret = os_host_main_loop_wait(timeout_ns);
+     slirp_pollfds_poll(gpollfds, (ret < 0));
+ 
