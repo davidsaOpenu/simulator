@@ -37,6 +37,24 @@
     {
       "unresolved": true,
       "key": {
+        "uuid": "1a523585_3a1288a9",
+        "filename": "eVSSIM/LOG_MGR/logging_offline_analyzer.c",
+        "patchSetId": 9
+      },
+      "lineNbr": 72,
+      "author": {
+        "id": 1039489
+      },
+      "writtenOn": "2026-09-25T07:55:35Z",
+      "side": 1,
+      "message": "Done. I dropped the : 1 bitfield, since you can\u0027t take a bitfield\u0027s address.",
+      "parentUuid": "ecab1953_82eb0117",
+      "revId": "c51a80aa5ee333d1b264831c4a0b04d362c03ee4",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
+    },
+    {
+      "unresolved": true,
+      "key": {
         "uuid": "ad942bcd_0fc36446",
         "filename": "eVSSIM/tests/host/simulation/ssd_io_emulator_tests.cc",
         "patchSetId": 9
@@ -71,6 +89,54 @@
       "writtenOn": "2026-09-24T18:37:24Z",
       "side": 1,
       "message": "looks like STATS_SETTLE retries until the condition holds, so it passes on and hides tearing rather than detecting it.",
+      "range": {
+        "startLine": 468,
+        "startChar": 12,
+        "endLine": 468,
+        "endChar": 24
+      },
+      "revId": "c51a80aa5ee333d1b264831c4a0b04d362c03ee4",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "d962ae9b_5f29e6a4",
+        "filename": "eVSSIM/tests/host/simulation/ssd_io_emulator_tests.cc",
+        "patchSetId": 9
+      },
+      "lineNbr": 468,
+      "author": {
+        "id": 1039489
+      },
+      "writtenOn": "2026-09-25T07:55:35Z",
+      "side": 1,
+      "message": "Agreed, the double buffer is gone.",
+      "parentUuid": "ad942bcd_0fc36446",
+      "range": {
+        "startLine": 468,
+        "startChar": 12,
+        "endLine": 468,
+        "endChar": 24
+      },
+      "revId": "c51a80aa5ee333d1b264831c4a0b04d362c03ee4",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "e4dab00f_fd1aac6b",
+        "filename": "eVSSIM/tests/host/simulation/ssd_io_emulator_tests.cc",
+        "patchSetId": 9
+      },
+      "lineNbr": 468,
+      "author": {
+        "id": 1039489
+      },
+      "writtenOn": "2026-09-25T07:55:35Z",
+      "side": 1,
+      "message": "The lock now rules tearing out, also STATS_SETTLE waits only until the logger publishes.",
+      "parentUuid": "0f6d55e8_c21da586",
       "range": {
         "startLine": 468,
         "startChar": 12,

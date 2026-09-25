@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "8f165139_879a960f",
+        "filename": "infra/builder/docker-test-host.sh",
+        "patchSetId": 10
+      },
+      "lineNbr": 18,
+      "author": {
+        "id": 1039489
+      },
+      "writtenOn": "2026-09-25T07:55:35Z",
+      "side": 1,
+      "message": "@davidsa@openu.ac.il This is how I make sure the podman doesn\u0027t die in this CR and that it can go green.",
+      "revId": "1f6307fba9b069a467c3e9e5b7af06f9299e4810",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
+    }
+  ]
+}
