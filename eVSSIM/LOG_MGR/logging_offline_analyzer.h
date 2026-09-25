@@ -41,6 +41,13 @@
 #define OFFLINE_ANALYZER_LOOP_TIMEOUT_US 100000
 
 /**
+ * how long to wait, and how many times, for the rest of a log type that a
+ * writer has only partly written when the analyzer reaches it
+ */
+#define OFFLINE_ANALYZER_PARTIAL_WAIT_US 1000
+#define OFFLINE_ANALYZER_PARTIAL_RETRIES 1000
+
+/**
  * Used for opening files where the logs are stored
  */
 #define OPEN_FROM_LOGS(FILE, MODE) fopen(ELK_LOGGER_WRITER_LOGS_PATH FILE,MODE)
