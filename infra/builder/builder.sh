@@ -329,7 +329,7 @@ evssim_qemu () {
     fi
 
     # Build the complete args
-    local args="cd $EVSSIM_DOCKER_ROOT_PATH/$EVSSIM_QEMU_FOLDER/hw && $timeout ../x86_64-softmmu/qemu-system-x86_64 -rtc base=localtime,clock=host -pidfile /tmp/qemu.pid $trace_config -m 4G -smp 4 -drive format=qcow2,file=$image $drive_args $device_args -device e1000,netdev=net0 -netdev user,id=net0,hostfwd=tcp::$EVSSIM_QEMU_SSH_PORT-:22 -vnc :$EVSSIM_QEMU_VNC -machine accel=kvm -kernel $kernel -initrd $initrd -L /usr/share/seabios -L ../pc-bios/optionrom -append '$append'";
+    local args="cd $EVSSIM_DOCKER_ROOT_PATH/$EVSSIM_QEMU_FOLDER/hw && $timeout ../x86_64-softmmu/qemu-system-x86_64 -rtc base=localtime,clock=host -pidfile /tmp/qemu.pid $trace_config -m $EVSSIM_QEMU_MEMORY -smp 4 -drive format=qcow2,file=$image $drive_args $device_args -device e1000,netdev=net0 -netdev user,id=net0,hostfwd=tcp::$EVSSIM_QEMU_SSH_PORT-:22 -vnc :$EVSSIM_QEMU_VNC -machine accel=kvm -kernel $kernel -initrd $initrd -L /usr/share/seabios -L ../pc-bios/optionrom -append '$append'";
 
     # Stop any previous runs
     evssim_qemu_stop
@@ -456,7 +456,7 @@ evssim_copy_tools () {
     evssim_run "$host_version" "sudo guestfish -a '$INTERNAL_IMAGE_PATH' -i << EOF
     command \"mkdir -p '$EVSSIM_GUEST_HOME_PATH/guest'\"
     copy-in '$EVSSIM_DOCKER_ROOT_PATH/$EVSSIM_DIST_FOLDER/nvme' '$EVSSIM_DOCKER_ROOT_PATH/$EVSSIM_DIST_FOLDER/tnvme' '$EVSSIM_DOCKER_ROOT_PATH/$EVSSIM_DIST_FOLDER/dnvme.ko' '$EVSSIM_GUEST_HOME_PATH/guest/'
-    copy-in '$EVSSIM_DOCKER_ROOT_PATH/$EVSSIM_SIMULATOR_FOLDER/eVSSIM/tests/guest/' '$EVSSIM_DOCKER_ROOT_PATH/$EVSSIM_DIST_FOLDER/osc-osd' '$EVSSIM_DOCKER_ROOT_PATH/$EVSSIM_DIST_FOLDER/exofs' '$EVSSIM_GUEST_HOME_PATH'
+    copy-in '$EVSSIM_DOCKER_ROOT_PATH/$EVSSIM_SIMULATOR_FOLDER/eVSSIM/tests/guest/' '$EVSSIM_DOCKER_ROOT_PATH/$EVSSIM_DIST_FOLDER/osc-osd' '$EVSSIM_DOCKER_ROOT_PATH/$EVSSIM_DIST_FOLDER/exofs' '$EVSSIM_DOCKER_ROOT_PATH/$EVSSIM_DIST_FOLDER/ext4' '$EVSSIM_GUEST_HOME_PATH'
     copy-in '$EVSSIM_DOCKER_ROOT_PATH/$EVSSIM_DIST_FOLDER/libosd.so' '/lib'
     copy-in '$EVSSIM_DOCKER_ROOT_PATH/$EVSSIM_DIST_FOLDER/mkfs.exofs' '/bin'
     copy-in '$EVSSIM_DOCKER_ROOT_PATH/$EVSSIM_DIST_FOLDER/kernel/lib/' '/'
