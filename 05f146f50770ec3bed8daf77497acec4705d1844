@@ -26,6 +26,30 @@
     {
       "unresolved": true,
       "key": {
+        "uuid": "63cc9867_c197e9cb",
+        "filename": "/COMMIT_MSG",
+        "patchSetId": 34
+      },
+      "lineNbr": 12,
+      "author": {
+        "id": 1039489
+      },
+      "writtenOn": "2026-09-26T19:53:37Z",
+      "side": 1,
+      "message": "Done. All nine metrics are gated for every case.",
+      "parentUuid": "d496c69d_a2b63c26",
+      "range": {
+        "startLine": 12,
+        "startChar": 0,
+        "endLine": 12,
+        "endChar": 61
+      },
+      "revId": "05f146f50770ec3bed8daf77497acec4705d1844",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
+    },
+    {
+      "unresolved": true,
+      "key": {
         "uuid": "f238366d_7b5cb0e9",
         "filename": "eVSSIM/tests/host/simulation/ssd_program_compatible_test.cc",
         "patchSetId": 34
@@ -37,6 +61,30 @@
       "writtenOn": "2026-09-24T18:37:34Z",
       "side": 1,
       "message": "Let\u0027s not change the existing test to make the metrics deterministic. Please add a new test for that.",
+      "range": {
+        "startLine": 37,
+        "startChar": 0,
+        "endLine": 42,
+        "endChar": 42
+      },
+      "revId": "05f146f50770ec3bed8daf77497acec4705d1844",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "4a825832_4312fa37",
+        "filename": "eVSSIM/tests/host/simulation/ssd_program_compatible_test.cc",
+        "patchSetId": 34
+      },
+      "lineNbr": 42,
+      "author": {
+        "id": 1039489
+      },
+      "writtenOn": "2026-09-26T19:53:37Z",
+      "side": 1,
+      "message": "Reverted. No new test needed: the lock only kept the background GC thread from racing the unlocked _FTL_WRITE calls. The ELK run now disables background GC.",
+      "parentUuid": "f238366d_7b5cb0e9",
       "range": {
         "startLine": 37,
         "startChar": 0,
@@ -66,6 +114,24 @@
     {
       "unresolved": true,
       "key": {
+        "uuid": "d37ee17d_d3068461",
+        "filename": "infra/ELK/derive_bounds.py",
+        "patchSetId": 34
+      },
+      "lineNbr": 21,
+      "author": {
+        "id": 1039489
+      },
+      "writtenOn": "2026-09-26T19:53:37Z",
+      "side": 1,
+      "message": "Done. host_metrics.py derive has no hardcoded sets: every bound is the value all 5 runs agree on (63/63 exact), and derive refuses to write bounds if any metric varies.",
+      "parentUuid": "89a150a0_9eeeaf73",
+      "revId": "05f146f50770ec3bed8daf77497acec4705d1844",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
+    },
+    {
+      "unresolved": true,
+      "key": {
         "uuid": "0de38c28_c5108d9c",
         "filename": "infra/ELK/derive_bounds.py",
         "patchSetId": 34
@@ -77,6 +143,24 @@
       "writtenOn": "2026-09-24T18:37:34Z",
       "side": 1,
       "message": "The ticket asks for tight bounds, but a 15% minimum margin is applied even to metrics with zero spread across all 5 runs. For example, object_tests.write_count is exactly 17896 in every run, yet the gate accepts anything from 15211 to 20581, so a regression of ±2,000 physical writes would pass.",
+      "revId": "05f146f50770ec3bed8daf77497acec4705d1844",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "59cda99a_1e756c9e",
+        "filename": "infra/ELK/derive_bounds.py",
+        "patchSetId": 34
+      },
+      "lineNbr": 28,
+      "author": {
+        "id": 1039489
+      },
+      "writtenOn": "2026-09-26T19:53:37Z",
+      "side": 1,
+      "message": "Removed. object_tests.write_count is now [17896, 17896].",
+      "parentUuid": "0de38c28_c5108d9c",
       "revId": "05f146f50770ec3bed8daf77497acec4705d1844",
       "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
     },
@@ -159,6 +243,30 @@
     {
       "unresolved": true,
       "key": {
+        "uuid": "ed21ca1f_191569d0",
+        "filename": "infra/ELK/elk_run_metrics.sh",
+        "patchSetId": 34
+      },
+      "lineNbr": 189,
+      "author": {
+        "id": 1039489
+      },
+      "writtenOn": "2026-09-26T19:53:37Z",
+      "side": 1,
+      "message": "Done, exact for all 7 cases. multi_device runs without its Parallel* tests: their threads share one simulated clock which makes duration more random (we can address this in a future ticket). They still run fully in docker-test-host.sh though.",
+      "parentUuid": "ac718401_3d51ea73",
+      "range": {
+        "startLine": 189,
+        "startChar": 0,
+        "endLine": 189,
+        "endChar": 103
+      },
+      "revId": "05f146f50770ec3bed8daf77497acec4705d1844",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
+    },
+    {
+      "unresolved": true,
+      "key": {
         "uuid": "3fa314e1_6fa5a95a",
         "filename": "infra/ELK/elk_run_metrics.sh",
         "patchSetId": 34
@@ -170,6 +278,30 @@
       "writtenOn": "2026-09-24T18:37:34Z",
       "side": 1,
       "message": "Please reject empty or non-numeric v with a FAIL. Right now \"\" compares as 0 and can pass zero-valued bounds.",
+      "range": {
+        "startLine": 194,
+        "startChar": 0,
+        "endLine": 210,
+        "endChar": 1
+      },
+      "revId": "05f146f50770ec3bed8daf77497acec4705d1844",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "bf7a96df_05780958",
+        "filename": "infra/ELK/elk_run_metrics.sh",
+        "patchSetId": 34
+      },
+      "lineNbr": 210,
+      "author": {
+        "id": 1039489
+      },
+      "writtenOn": "2026-09-26T19:53:37Z",
+      "side": 1,
+      "message": "Done. A missing aggregation or ES error raises, a missing bound is a FAIL. Unit tested.",
+      "parentUuid": "3fa314e1_6fa5a95a",
       "range": {
         "startLine": 194,
         "startChar": 0,
@@ -205,6 +337,30 @@
     {
       "unresolved": true,
       "key": {
+        "uuid": "6b20581d_2579a38e",
+        "filename": "infra/ELK/host_tests_bounds.env",
+        "patchSetId": 34
+      },
+      "lineNbr": 24,
+      "author": {
+        "id": 1039489
+      },
+      "writtenOn": "2026-09-26T19:53:37Z",
+      "side": 1,
+      "message": "Fixed - root cause is the background GC thread (wall-clock timer). With it disabled, sector is exact: 3685 GCs in every run.",
+      "parentUuid": "c85864bf_06332859",
+      "range": {
+        "startLine": 23,
+        "startChar": 0,
+        "endLine": 24,
+        "endChar": 43
+      },
+      "revId": "05f146f50770ec3bed8daf77497acec4705d1844",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
+    },
+    {
+      "unresolved": true,
+      "key": {
         "uuid": "e1924834_40311276",
         "filename": "infra/ELK/host_tests_bounds.env",
         "patchSetId": 34
@@ -228,6 +384,30 @@
     {
       "unresolved": true,
       "key": {
+        "uuid": "4b19e1f8_c092ff40",
+        "filename": "infra/ELK/host_tests_bounds.env",
+        "patchSetId": 34
+      },
+      "lineNbr": 54,
+      "author": {
+        "id": 1039489
+      },
+      "writtenOn": "2026-09-26T19:53:37Z",
+      "side": 1,
+      "message": "No ranges remain, every bound is exact, so a sub-1.0 bound can\u0027t be produced.",
+      "parentUuid": "e1924834_40311276",
+      "range": {
+        "startLine": 20,
+        "startChar": 0,
+        "endLine": 54,
+        "endChar": 58
+      },
+      "revId": "05f146f50770ec3bed8daf77497acec4705d1844",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
+    },
+    {
+      "unresolved": true,
+      "key": {
         "uuid": "375d0865_6bf7a08b",
         "filename": "infra/builder/docker-test-host-elk.sh",
         "patchSetId": 34
@@ -239,6 +419,30 @@
       "writtenOn": "2026-09-24T18:37:34Z",
       "side": 1,
       "message": "a missing bounds file should be a hard failure no matter if RUNS \u003d\u003d 1",
+      "range": {
+        "startLine": 22,
+        "startChar": 0,
+        "endLine": 24,
+        "endChar": 2
+      },
+      "revId": "05f146f50770ec3bed8daf77497acec4705d1844",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "d136c619_75ebd3b8",
+        "filename": "infra/builder/docker-test-host-elk.sh",
+        "patchSetId": 34
+      },
+      "lineNbr": 24,
+      "author": {
+        "id": 1039489
+      },
+      "writtenOn": "2026-09-26T19:53:37Z",
+      "side": 1,
+      "message": "Done. The gate reads host_tests_bounds.json with no fallback; RUNS mode is gone.",
+      "parentUuid": "375d0865_6bf7a08b",
       "range": {
         "startLine": 22,
         "startChar": 0,
@@ -305,6 +509,72 @@
       "range": {
         "startLine": 63,
         "startChar": 2,
+        "endLine": 68,
+        "endChar": 24
+      },
+      "revId": "05f146f50770ec3bed8daf77497acec4705d1844",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "564da1f9_a12fb60c",
+        "filename": "infra/builder/docker-test-host-elk.sh",
+        "patchSetId": 34
+      },
+      "lineNbr": 68,
+      "author": {
+        "id": 1039489
+      },
+      "writtenOn": "2026-09-26T19:53:37Z",
+      "side": 1,
+      "message": "Done per your sketch: infra/ELK/host_metrics.py (characterize / derive / gate, stdlib), JSON bounds, tox unit env.\n\nCaught a bug in the process - utilization_percent could be mapped as long (filebeat sends 0.0 as 0) because the filebeat setup run never loaded our filebeat.yml which is now fixed.",
+      "parentUuid": "999be0ab_23d6d7aa",
+      "range": {
+        "startLine": 63,
+        "startChar": 2,
+        "endLine": 68,
+        "endChar": 24
+      },
+      "revId": "05f146f50770ec3bed8daf77497acec4705d1844",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "175fdd31_96422978",
+        "filename": "infra/builder/docker-test-host-elk.sh",
+        "patchSetId": 34
+      },
+      "lineNbr": 68,
+      "author": {
+        "id": 1039489
+      },
+      "writtenOn": "2026-09-26T19:53:37Z",
+      "side": 1,
+      "message": "Agreed. docker-test-host.sh is back (run_all_host_tests.sh, incl. functional_tests_main), docker-test-host-elk.sh runs only the ES count gate, run-ci.sh calls both in sequence. Heavy suites are gated on small sizes only (for now) (WriteReadTest 2-16 MB, OnfiCommandsTest without the two full-device sweeps).",
+      "parentUuid": "a2631c34_02c62402",
+      "revId": "05f146f50770ec3bed8daf77497acec4705d1844",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "53d273ff_2a9a3e02",
+        "filename": "infra/builder/docker-test-host-elk.sh",
+        "patchSetId": 34
+      },
+      "lineNbr": 68,
+      "author": {
+        "id": 1039489
+      },
+      "writtenOn": "2026-09-26T19:53:37Z",
+      "side": 1,
+      "message": "Removed. No background leak-check; cases run one at a time.",
+      "parentUuid": "da7ed6f1_878e621f",
+      "range": {
+        "startLine": 68,
+        "startChar": 0,
         "endLine": 68,
         "endChar": 24
       },
