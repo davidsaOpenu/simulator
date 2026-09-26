@@ -1,0 +1,268 @@
+{
+  "multi_device_tests": {
+    "disk_utilization": {
+      "max": 0.06011555992497759,
+      "min": 0.06011555992497759
+    },
+    "gc_invocations": {
+      "max": 0,
+      "min": 0
+    },
+    "logical_write_count": {
+      "max": 144,
+      "min": 144
+    },
+    "read_iops": {
+      "max": 114.60980274015665,
+      "min": 114.60980274015665
+    },
+    "read_speed_mbps": {
+      "max": 3.7555340161894533,
+      "min": 3.7555340161894533
+    },
+    "write_amplification": {
+      "max": 1,
+      "min": 1
+    },
+    "write_count": {
+      "max": 144,
+      "min": 144
+    },
+    "write_iops": {
+      "max": 471.53747413093026,
+      "min": 471.53747413093026
+    },
+    "write_speed_mbps": {
+      "max": 15.451339952322321,
+      "min": 15.451339952322321
+    }
+  },
+  "object_tests": {
+    "disk_utilization": {
+      "max": 0.23188876005945067,
+      "min": 0.23188876005945067
+    },
+    "gc_invocations": {
+      "max": 0,
+      "min": 0
+    },
+    "logical_write_count": {
+      "max": 17896,
+      "min": 17896
+    },
+    "read_iops": {
+      "max": 228.97622134184965,
+      "min": 228.97622134184965
+    },
+    "read_speed_mbps": {
+      "max": 7.503092820929729,
+      "min": 7.503092820929729
+    },
+    "write_amplification": {
+      "max": 1,
+      "min": 1
+    },
+    "write_count": {
+      "max": 17896,
+      "min": 17896
+    },
+    "write_iops": {
+      "max": 534.257947475064,
+      "min": 534.257947475064
+    },
+    "write_speed_mbps": {
+      "max": 17.506564422862898,
+      "min": 17.506564422862898
+    }
+  },
+  "onfi_ops_tests": {
+    "disk_utilization": {
+      "max": 2.0627622251157408e-05,
+      "min": 2.0627622251157408e-05
+    },
+    "gc_invocations": {
+      "max": 0,
+      "min": 0
+    },
+    "logical_write_count": {
+      "max": 14,
+      "min": 14
+    },
+    "read_iops": {
+      "max": 156.45779550966125,
+      "min": 156.45779550966125
+    },
+    "read_speed_mbps": {
+      "max": 1.2817022608151452,
+      "min": 1.2817022608151452
+    },
+    "write_amplification": {
+      "max": 1,
+      "min": 1
+    },
+    "write_count": {
+      "max": 14,
+      "min": 14
+    },
+    "write_iops": {
+      "max": 365.0681895225429,
+      "min": 365.0681895225429
+    },
+    "write_speed_mbps": {
+      "max": 2.990638608568672,
+      "min": 2.990638608568672
+    }
+  },
+  "sector_tests": {
+    "disk_utilization": {
+      "max": 0.7847343460326767,
+      "min": 0.7847343460326767
+    },
+    "gc_invocations": {
+      "max": 3685,
+      "min": 3685
+    },
+    "logical_write_count": {
+      "max": 30720,
+      "min": 30720
+    },
+    "read_iops": {
+      "max": 38.463756694247756,
+      "min": 38.463756694247756
+    },
+    "read_speed_mbps": {
+      "max": 1.008365845496399,
+      "min": 1.008365845496399
+    },
+    "write_amplification": {
+      "max": 1.08701171875,
+      "min": 1.08701171875
+    },
+    "write_count": {
+      "max": 33393,
+      "min": 33393
+    },
+    "write_iops": {
+      "max": 480.51635888178646,
+      "min": 480.51635888178646
+    },
+    "write_speed_mbps": {
+      "max": 12.597216864444915,
+      "min": 12.597216864444915
+    }
+  },
+  "ssd_io_emulator_tests": {
+    "disk_utilization": {
+      "max": 0.7239980916625941,
+      "min": 0.7239980916625941
+    },
+    "gc_invocations": {
+      "max": 67,
+      "min": 67
+    },
+    "logical_write_count": {
+      "max": 563,
+      "min": 563
+    },
+    "read_iops": {
+      "max": 225.68471397078056,
+      "min": 225.68471397078056
+    },
+    "read_speed_mbps": {
+      "max": 5.916550461457983,
+      "min": 5.916550461457983
+    },
+    "write_amplification": {
+      "max": 1.4600355239786855,
+      "min": 1.4600355239786855
+    },
+    "write_count": {
+      "max": 822,
+      "min": 822
+    },
+    "write_iops": {
+      "max": 614.2809102118597,
+      "min": 614.2809102118597
+    },
+    "write_speed_mbps": {
+      "max": 16.103988342114114,
+      "min": 16.103988342114114
+    }
+  },
+  "ssd_program_compatible_tests": {
+    "disk_utilization": {
+      "max": 0.5500799919499136,
+      "min": 0.5500799919499136
+    },
+    "gc_invocations": {
+      "max": 3508,
+      "min": 3508
+    },
+    "logical_write_count": {
+      "max": 65594,
+      "min": 65594
+    },
+    "read_iops": {
+      "max": 220.28434866885334,
+      "min": 220.28434866885334
+    },
+    "read_speed_mbps": {
+      "max": 5.77497448470266,
+      "min": 5.77497448470266
+    },
+    "write_amplification": {
+      "max": 1,
+      "min": 1
+    },
+    "write_count": {
+      "max": 65594,
+      "min": 65594
+    },
+    "write_iops": {
+      "max": 440.17947866279064,
+      "min": 440.17947866279064
+    },
+    "write_speed_mbps": {
+      "max": 11.53974521262372,
+      "min": 11.53974521262372
+    }
+  },
+  "ssd_write_read_tests": {
+    "disk_utilization": {
+      "max": 0.5200587430130206,
+      "min": 0.5200587430130206
+    },
+    "gc_invocations": {
+      "max": 910,
+      "min": 910
+    },
+    "logical_write_count": {
+      "max": 38400,
+      "min": 38400
+    },
+    "read_iops": {
+      "max": 258.34762206487835,
+      "min": 258.34762206487835
+    },
+    "read_speed_mbps": {
+      "max": 6.772841260052851,
+      "min": 6.772841260052851
+    },
+    "write_amplification": {
+      "max": 1,
+      "min": 1
+    },
+    "write_count": {
+      "max": 38400,
+      "min": 38400
+    },
+    "write_iops": {
+      "max": 430.5793701081306,
+      "min": 430.5793701081306
+    },
+    "write_speed_mbps": {
+      "max": 11.288068766754751,
+      "min": 11.288068766754751
+    }
+  }
+}

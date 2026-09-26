@@ -372,8 +372,9 @@ setup_filebeat() {
     # One-time setup (no data mount needed)
     echo "Running one-time setup"
     "$CONTAINER_CMD" run --rm --network "$network_name" --env-file "$env_file" \
+        -v "$fb_cfg:/usr/share/filebeat/filebeat.yml:$ro_subopts" \
         -v "$cert_ca_dir:/usr/share/filebeat/certs/ca:$ro_subopts" \
-        "$fb_image" setup -e --index-management --pipelines --dashboards \
+        "$fb_image" setup -e --strict.perms=false --index-management --pipelines --dashboards \
         -E "setup.xpack.ml.enabled=false" \
         -E "setup.kibana.host=kibana:5601" \
         -E "setup.kibana.protocol=https" \
