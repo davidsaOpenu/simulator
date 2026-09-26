@@ -19,6 +19,12 @@ filebeat.config.modules:
 setup.template.settings:
   index.number_of_shards: 1
 
+# Without this the type comes from the first document of a fresh data stream, and
+# filebeat sends a 0.0 as 0, which maps the field as long and truncates every value.
+setup.template.append_fields:
+  - name: utilization_percent
+    type: float
+
 setup.kibana:
   host: "kibana:5601"
   # Credentials are required for Filebeat to set up dashboards if Kibana is secured.

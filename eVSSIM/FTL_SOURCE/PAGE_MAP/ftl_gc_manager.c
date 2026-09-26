@@ -63,6 +63,10 @@ void INIT_GC_MANAGER(uint8_t device_index) {
         DEV_PINFO(device_index, "GC of object strategy is not currently supported.\n");
         return;
     }
+    if (devices[device_index].gc_background_disabled) {
+        DEV_PINFO(device_index, "Background GC disabled; GC runs only in the write path.\n");
+        return;
+    }
 
     gc_thread_t *gc_thread = &gc_threads[device_index];
     gc_thread->device_index = device_index;
@@ -76,7 +80,7 @@ void INIT_GC_MANAGER(uint8_t device_index) {
 }
 
 void TERM_GC_MANAGER(uint8_t device_index) {
-    if (devices[device_index].storage_strategy == STRATEGY_OBJECT) {
+    if (devices[device_index].storage_strategy == STRATEGY_OBJECT || devices[device_index].gc_background_disabled) {
         return;
     }
 

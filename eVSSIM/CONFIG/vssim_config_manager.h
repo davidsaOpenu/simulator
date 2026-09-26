@@ -67,6 +67,7 @@ typedef struct ssd_config {
 
 	int gc_low_thr;
 	int gc_hi_thr;
+	int gc_background_disabled;
 	uint64_t gc_low_thr_page_nb;
 	uint64_t gc_hi_thr_page_nb;
 	time_t gc_low_thr_interval_sec;
