@@ -2,12 +2,10 @@
 
 from __future__ import print_function
 
-import errno
 import glob
 import os
 import stat
 import subprocess
-import tempfile
 import time
 
 MOUNTS_PATH = "/proc/mounts"
@@ -17,11 +15,24 @@ DEVICE_WAIT_SECONDS = 30
 PROVISIONED_DEVICES_ENV = "EVSSIM_PROVISIONED_DEVICE_COUNT"
 TEST_FILE_NAME = "evssim_roundtrip.txt"
 PAYLOAD_REPEAT = 2048
+# iscsiadm exits 21 ("no objects found") when there are no sessions at all
+ISCSI_NO_SESSIONS = 21
+# mkfs.ext4 creates this; anything else at the root survived from a prior run
+FRESH_ROOT_ENTRIES = set(["lost+found"])
+
+# Must match docker/ssd.conf.filesystems.template: [nvme01] is object mode,
+# [nvme02] sector mode. exofs only works on nvme0n1.
+FILESYSTEMS = [
+    {"fs": "exofs", "dev": "/dev/nvme0n1", "mountpoint": "/mnt/exofs0",
+     "magic": "5df5", "lib": "/home/esd/exofs/exofs_lib.sh"},
+    {"fs": "ext4", "dev": "/dev/nvme1n1", "mountpoint": "/mnt/ext4",
+     "magic": "ef53", "lib": "/home/esd/ext4/ext4_lib.sh"},
+]
 
 
-def _run(cmd, dev, action, check=True):
-    # type: (list, str, str, bool) -> tuple
-    proc = subprocess.Popen(cmd, stdin=subprocess.PIPE,
+def _run(cmd, dev, action, check=True, env=None):
+    # type: (list, str, str, bool, dict) -> tuple
+    proc = subprocess.Popen(cmd, stdin=subprocess.PIPE, env=env,
                             stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
     output = proc.communicate()[0]
     if not isinstance(output, str):
@@ -34,6 +45,14 @@ def _run(cmd, dev, action, check=True):
             "%s failed on %s with exit code %d while trying to %s:\n%s"
             % (cmd[0], dev, proc.returncode, action, output))
     return proc.returncode, output
+
+
+def _run_fs_lib(fs, function, check=True):
+    # type: (dict, str, bool) -> tuple
+    env = dict(os.environ, NVME_DEV=fs["dev"], MOUNT_POINT=fs["mountpoint"])
+    script = 'source "%s"; %s' % (fs["lib"], function)
+    return _run(["bash", "-c", script], fs["dev"],
+                "%s %s" % (function, fs["fs"]), check=check, env=env)
 
 
 def _unescape_mount_field(value):
@@ -111,7 +130,7 @@ def _provisioned_device_count():
     raw = os.environ.get(PROVISIONED_DEVICES_ENV, "").strip()
     assert raw.isdigit() and int(raw) > 0, (
         "%s must be set to the number of provisioned NVMe drives (got %r); "
-        "docker-test-guest.sh sets it from the QEMU configuration"
+        "docker-test-filesystems.sh sets it from the QEMU configuration"
         % (PROVISIONED_DEVICES_ENV, raw))
     return int(raw)
 
@@ -130,7 +149,7 @@ def _wait_for_devices(expected, timeout=DEVICE_WAIT_SECONDS):
 def _payload(dev):
     # type: (str) -> str
     # tagged with the device so a stale file cannot compare equal by accident
-    return ("eVSSIM ext4 round trip on %s\n" % dev) * PAYLOAD_REPEAT
+    return ("eVSSIM round trip on %s\n" % dev) * PAYLOAD_REPEAT
 
 
 def _first_mismatch(expected, actual):
@@ -144,7 +163,7 @@ def _first_mismatch(expected, actual):
     return limit
 
 
-class TestExt4Format:
+class TestFilesystemMount:
 
     # nose resolves per-test fixtures via ('setup', 'setUp') only; setup_method
     # is a pytest name it ignores. The *_method aliases keep pytest 8 working,
@@ -160,8 +179,9 @@ class TestExt4Format:
 
     def teardown(self):
         # type: () -> None
-        for mountpoint in reversed(getattr(self, "_mountpoints", [])):
-            self._release(mountpoint)
+        # unchecked: the residue checks in the test catch a failed teardown
+        for fs in reversed(getattr(self, "_mountpoints", [])):
+            _run_fs_lib(fs, "teardown_" + fs["fs"], check=False)
         self._mountpoints = []
 
     def setup_method(self, _method=None):
@@ -172,22 +192,9 @@ class TestExt4Format:
         # type: (object) -> None
         self.teardown()
 
-    def _release(self, mountpoint):
-        # type: (str) -> None
-        if _is_mounted(mountpoint):
-            _run(["umount", mountpoint], mountpoint,
-                 "unmount a leftover mount point", check=False)
-        if _is_mounted(mountpoint):
-            _run(["umount", "-l", mountpoint], mountpoint,
-                 "lazily unmount a stuck mount point", check=False)
-        try:
-            os.rmdir(mountpoint)
-        except OSError as error:
-            if error.errno != errno.ENOENT:
-                print("WARNING could not remove %s: %s" % (mountpoint, error))
-
-    def _check_drive(self, dev):
-        # type: (str) -> None
+    def _setup_drive(self, fs):
+        # type: (dict) -> None
+        dev = fs["dev"]
         try:
             mode = os.stat(dev).st_mode
         except OSError as error:
@@ -195,48 +202,62 @@ class TestExt4Format:
         assert stat.S_ISBLK(mode), "%s is not a block device" % dev
         _assert_device_is_free(dev)
 
-        _run(["mkfs.ext4", "-F", dev], dev, "create an ext4 filesystem")
-        _run(["dumpe2fs", "-h", dev], dev, "read the ext4 superblock back")
-
-        payload = _payload(dev)
-        mountpoint = tempfile.mkdtemp(prefix="evssim-ext4-")
         # recorded before the mount so teardown also cleans up a failed mount
-        self._mountpoints.append(mountpoint)
-        test_file = os.path.join(mountpoint, TEST_FILE_NAME)
+        self._mountpoints.append(fs)
+        # formats the device, so every run starts from an empty one
+        _run_fs_lib(fs, "setup_" + fs["fs"])
+
+        _rc, output = _run(["stat", "-fc", "%t", fs["mountpoint"]], dev,
+                           "read the filesystem magic number")
+        assert output.strip() == fs["magic"], (
+            "%s on %s reports magic 0x%s, expected 0x%s"
+            % (fs["fs"], fs["mountpoint"], output.strip(), fs["magic"]))
+        leftovers = set(os.listdir(fs["mountpoint"])) - FRESH_ROOT_ENTRIES
+        assert not leftovers, (
+            "%s on %s is not freshly formatted, its root already holds: %s"
+            % (fs["fs"], dev, ", ".join(sorted(leftovers))))
+
+    def _check_drive(self, fs):
+        # type: (dict) -> None
+        dev = fs["dev"]
+        payload = _payload(dev)
+        test_file = os.path.join(fs["mountpoint"], TEST_FILE_NAME)
+        handle = open(test_file, "w")
         try:
-            _run(["mount", "-t", "ext4", dev, mountpoint], dev,
-                 "mount the newly created filesystem")
-
-            handle = open(test_file, "w")
-            try:
-                handle.write(payload)
-                handle.flush()
-                os.fsync(handle.fileno())
-            finally:
-                handle.close()
-            _run(["sync"], dev, "flush the page cache to the device")
-            _run(["umount", mountpoint], dev,
-                 "unmount the filesystem after writing")
-
-            _run(["mount", "-t", "ext4", dev, mountpoint], dev,
-                 "remount the filesystem to read the data back")
-            handle = open(test_file, "r")
-            try:
-                read_back = handle.read()
-            finally:
-                handle.close()
-
-            mismatch = _first_mismatch(payload, read_back)
-            assert mismatch == -1, (
-                "Data written to %s did not survive the unmount/remount cycle: "
-                "wrote %d bytes, read %d bytes back, first difference at "
-                "offset %d" % (dev, len(payload), len(read_back), mismatch))
+            handle.write(payload)
+            handle.flush()
+            os.fsync(handle.fileno())
         finally:
-            self._release(mountpoint)
+            handle.close()
+        _run(["sync"], dev, "flush the page cache to the device")
+        _run(["sh", "-c", "echo 3 > /proc/sys/vm/drop_caches"], dev,
+             "drop the clean page cache")
+        handle = open(test_file, "r")
+        try:
+            read_back = handle.read()
+        finally:
+            handle.close()
 
-        # must run unmounted, hence after the block above
-        _run(["fsck.ext4", "-f", "-n", dev], dev,
-             "verify the filesystem is consistent")
+        mismatch = _first_mismatch(payload, read_back)
+        assert mismatch == -1, (
+            "Data written to %s did not read back intact: wrote %d bytes, "
+            "read %d bytes back, first difference at offset %d"
+            % (dev, len(payload), len(read_back), mismatch))
+
+    def _assert_no_residue(self):
+        # type: () -> None
+        mounts = _read_mounts()
+        nvme_mounts = [entry for entry in mounts if "nvme" in entry[0]]
+        assert not nvme_mounts, (
+            "NVMe devices are still mounted after teardown: %r" % (nvme_mounts,))
+        # exofs mounts from /dev/osd0, which the check above cannot see
+        for fs in FILESYSTEMS:
+            assert not _is_mounted(fs["mountpoint"]), (
+                "%s is still mounted after teardown" % fs["mountpoint"])
+        rc, output = _run(["iscsiadm", "-m", "session"], "iscsi",
+                          "list remaining iSCSI sessions", check=False)
+        assert rc == ISCSI_NO_SESSIONS or (rc == 0 and not output.strip()), (
+            "iSCSI sessions survived teardown (exit %d):\n%s" % (rc, output))
 
     def test_format_all(self):
         # type: () -> None
@@ -248,8 +269,13 @@ class TestExt4Format:
             .format(expected=expected, found=len(nvme_devices),
                     seconds=DEVICE_WAIT_SECONDS,
                     devices=", ".join(nvme_devices) or "nothing"))
-        for nvme_device in nvme_devices:
-            self._check_drive(nvme_device)
+        for fs in FILESYSTEMS:
+            self._setup_drive(fs)
+        for fs in FILESYSTEMS:
+            self._check_drive(fs)
+
+        self.teardown()
+        self._assert_no_residue()
         # one-line recap so a log review does not have to re-derive the device
         # list from the interleaved subprocess output above
         print("Formatted and verified %d device(s): %s"
