@@ -1,5 +1,6 @@
+#!/bin/bash
 check_tools() {
-    local tools=("docker" "docker-compose" "ansible" "tox")
+    local tools=("docker" "docker-compose" "ansible" "tox" "jq")
 
     echo "Checking required tools..."
 
@@ -17,4 +18,3 @@ check_tools() {
 }
 
 check_tools
-
