@@ -12,33 +12,15 @@ fi
 NVME_DEV=/dev/nvme0n1
 MOUNT_POINT=/mnt/exofs0
 TEST_UTIL_DIR=/home/esd/exofs/tracing_the_kernel/lab
-PID=0x10000
-
-cd guest
-./nvme set-feature $NVME_DEV -f 0xc0 --value=1
 
 # Creating client
 pushd /home/esd/exofs/tracing_the_kernel/lab && make && popd
 
-echo "> Setup OSD emulation..."
-cd /home/esd/osc-osd/
-echo -n "
-NUM_TARGETS=1
-LOG_FILE=./otgtd.log
-OSDNAME[1]=my_osd
-BACKSTORE[1]=/var/otgt/otgt-1
-" > ./up.conf;
-sudo ./up
-cd -
+source "$(dirname "$0")/exofs_lib.sh"
+setup_exofs
 
-sudo iscsiadm -m discovery -t st -p 127.0.0.1
-sudo iscsiadm -m node -T esd-.var.otgt.otgt-1 -p 127.0.0.1 --login
-
-echo "> Creating exofs image at $NVME_DEV..."
-sudo mkfs.exofs --pid=$PID --dev $NVME_DEV
-
-echo "> Mounting exofs on $MOUNT_POINT..."
-sudo mkdir -p $MOUNT_POINT
+# setup mounts already; the traced suite unmounts MOUNT_POINT before its own mount
+export MOUNT_POINT
 cd $TEST_UTIL_DIR
 sudo -E $TEST_UTIL_DIR/test_and_log_all_operations.sh
 
