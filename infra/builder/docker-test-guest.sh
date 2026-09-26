@@ -74,7 +74,6 @@ if [ "$kernel_branch" = "master" ]; then
     guest_test "$test_directory_base" 1 yes nvme_compliance_tests
 fi
 guest_test "$test_directory_base" 1 no fio_tests
-guest_test "$test_directory_base" 1 yes ext4
 
 # Run simulator specific tests (With different strategies)
 if [ "$kernel_branch" = "master" ]; then

@@ -9,7 +9,7 @@ TOOLS_PATH="$EVSSIM_DOCKER_ROOT_PATH/$EVSSIM_TOOLS_FOLDER"
 # Prepare directory structure
 evssim_run_at_folder "$version" "$EVSSIM_TOOLS_FOLDER" "\
     mkdir -p usr/local/{sbin,lib} && \
-    mkdir -p '$TOOLS_PATH/$EVSSIM_GUEST_HOME_PATH/'{osc-osd,exofs} \
+    mkdir -p '$TOOLS_PATH/$EVSSIM_GUEST_HOME_PATH/'{osc-osd,exofs,ext4} \
 "
 
 # Build osc-osd
@@ -32,6 +32,6 @@ evssim_run_at_folder "$version" "open-osd" "\
     cp lib/libosd.so '$TOOLS_PATH/usr/local/lib/libosd.so' \
 "
 
-# Copy OSD emulation and exofs setup script into the dist directory
+# Copy the exofs and ext4 setup scripts into the dist directory
 evssim_run_at_folder "$version" "$EVSSIM_SIMULATOR_FOLDER/eVSSIM/scripts" \
-    "cp -r exofs '$TOOLS_PATH/$EVSSIM_GUEST_HOME_PATH/'"
+    "cp -r exofs ext4 '$TOOLS_PATH/$EVSSIM_GUEST_HOME_PATH/'"

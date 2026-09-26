@@ -58,6 +58,6 @@ fi
 ./docker-test-host-elk.sh $EVSSIM_HOST_TESTS_RUN_CONTAINER
 ./docker-test-guest.sh $EVSSIM_QEMU_COMPILE_CONTAINER
 if [[ "$EVSSIM_KERNEL_BRANCH" == "master" ]]; then
-    # Only test exofs for 5.0.0 kernel
-    ./docker-test-exofs.sh $EVSSIM_QEMU_COMPILE_CONTAINER
+    # Only test the filesystems (exofs needs osd) for 5.0.0 kernel
+    ./docker-test-filesystems.sh $EVSSIM_QEMU_COMPILE_CONTAINER
 fi
