@@ -53,4 +53,4 @@ env -u http_proxy -u https_proxy -u HTTP_PROXY -u HTTPS_PROXY tox
 # Running Docker Tests
 ./docker-test-host.sh $EVSSIM_HOST_TESTS_RUN_CONTAINER
 ./docker-test-guest.sh $EVSSIM_QEMU_COMPILE_CONTAINER
-./docker-test-exofs.sh $EVSSIM_QEMU_COMPILE_CONTAINER
+./docker-test-filesystems.sh $EVSSIM_QEMU_COMPILE_CONTAINER
