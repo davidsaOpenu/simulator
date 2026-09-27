@@ -1,0 +1,106 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "f62773d2_0e6a3a7e",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 2
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 1039489
+      },
+      "writtenOn": "2026-09-27T17:24:07Z",
+      "side": 1,
+      "message": "Nice work! Some comments",
+      "revId": "a2ee9f510ca870ed4ece4529a20a3f9729f5e1c0",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "4f92dc9e_9731720e",
+        "filename": "eVSSIM/tests/guest/filesystems/test_mount.py",
+        "patchSetId": 2
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 1039489
+      },
+      "writtenOn": "2026-09-27T17:24:07Z",
+      "side": 1,
+      "message": "The removed test_ext4format.py ran fsck.ext4 -f -n after unmounting. This test drops that check, so a filesystem that reads back correctly through the page cache but is inconsistent on the simulated media would still pass. drop_caches (line 234) does not cover it: the superblock and journal of a mounted fs stay in memory.\nAlso, the old test formatted every provisioned device of the default config (6 devices); this one formats a single device, was that reduction in scope on purpose?",
+      "revId": "a2ee9f510ca870ed4ece4529a20a3f9729f5e1c0",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "a3a39bc9_1e32f7bc",
+        "filename": "eVSSIM/tests/guest/filesystems/test_mount.py",
+        "patchSetId": 2
+      },
+      "lineNbr": 220,
+      "author": {
+        "id": 1039489
+      },
+      "writtenOn": "2026-09-27T17:24:07Z",
+      "side": 1,
+      "message": "_check_drive tears down in its finally, then teardown() tears down every entry in self._mountpoints again. That runs ./up down and the iSCSI logout a second time. It is harmless, but it clutters the log.",
+      "revId": "a2ee9f510ca870ed4ece4529a20a3f9729f5e1c0",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "4e6d3546_a69a621e",
+        "filename": "eVSSIM/tests/guest/filesystems/test_mount.py",
+        "patchSetId": 2
+      },
+      "lineNbr": 265,
+      "author": {
+        "id": 1039489
+      },
+      "writtenOn": "2026-09-27T17:24:07Z",
+      "side": 1,
+      "message": "test_mount_both_filesystems - would be better naming after your changes IMO",
+      "revId": "a2ee9f510ca870ed4ece4529a20a3f9729f5e1c0",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "05dceb66_c35be117",
+        "filename": "infra/builder/docker-test-filesystems.sh",
+        "patchSetId": 2
+      },
+      "lineNbr": 17,
+      "author": {
+        "id": 1039489
+      },
+      "writtenOn": "2026-09-27T17:24:07Z",
+      "side": 1,
+      "message": "There is no size cap. Docker tmpfs defaults to half of host RAM. Add :size\u003d... to put a bound on it",
+      "revId": "a2ee9f510ca870ed4ece4529a20a3f9729f5e1c0",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "6254467b_6c292082",
+        "filename": "infra/builder/docker-test-filesystems.sh",
+        "patchSetId": 2
+      },
+      "lineNbr": 56,
+      "author": {
+        "id": 1039489
+      },
+      "writtenOn": "2026-09-27T17:24:07Z",
+      "side": 1,
+      "message": "The regex matches only json-c\u0027s default spaced format. A switch to JSON_C_TO_STRING_PLAIN would silently turn this into \"no events for either device\". Better parse with python/jq.",
+      "revId": "a2ee9f510ca870ed4ece4529a20a3f9729f5e1c0",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
+    }
+  ]
+}
