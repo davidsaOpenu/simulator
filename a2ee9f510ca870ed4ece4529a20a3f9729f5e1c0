@@ -37,6 +37,24 @@
     {
       "unresolved": true,
       "key": {
+        "uuid": "a0b01bef_b24a4222",
+        "filename": "eVSSIM/tests/guest/filesystems/test_mount.py",
+        "patchSetId": 2
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 1039522
+      },
+      "writtenOn": "2026-09-28T08:11:41Z",
+      "side": 1,
+      "message": "i brought back fsck. About the drive count, I changed it because I moved it out of guest test. I think doing it with 6 drives isn\u0027t necessary",
+      "parentUuid": "4f92dc9e_9731720e",
+      "revId": "a2ee9f510ca870ed4ece4529a20a3f9729f5e1c0",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
+    },
+    {
+      "unresolved": true,
+      "key": {
         "uuid": "a3a39bc9_1e32f7bc",
         "filename": "eVSSIM/tests/guest/filesystems/test_mount.py",
         "patchSetId": 2
@@ -48,6 +66,24 @@
       "writtenOn": "2026-09-27T17:24:07Z",
       "side": 1,
       "message": "_check_drive tears down in its finally, then teardown() tears down every entry in self._mountpoints again. That runs ./up down and the iSCSI logout a second time. It is harmless, but it clutters the log.",
+      "revId": "a2ee9f510ca870ed4ece4529a20a3f9729f5e1c0",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "82bb03c7_6e0685e7",
+        "filename": "eVSSIM/tests/guest/filesystems/test_mount.py",
+        "patchSetId": 2
+      },
+      "lineNbr": 220,
+      "author": {
+        "id": 1039522
+      },
+      "writtenOn": "2026-09-28T08:11:41Z",
+      "side": 1,
+      "message": "fixed",
+      "parentUuid": "a3a39bc9_1e32f7bc",
       "revId": "a2ee9f510ca870ed4ece4529a20a3f9729f5e1c0",
       "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
     },
@@ -71,6 +107,24 @@
     {
       "unresolved": true,
       "key": {
+        "uuid": "698f3121_06f741ce",
+        "filename": "eVSSIM/tests/guest/filesystems/test_mount.py",
+        "patchSetId": 2
+      },
+      "lineNbr": 265,
+      "author": {
+        "id": 1039522
+      },
+      "writtenOn": "2026-09-28T08:11:41Z",
+      "side": 1,
+      "message": "changed to test_mount_filesystems",
+      "parentUuid": "4e6d3546_a69a621e",
+      "revId": "a2ee9f510ca870ed4ece4529a20a3f9729f5e1c0",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
+    },
+    {
+      "unresolved": true,
+      "key": {
         "uuid": "05dceb66_c35be117",
         "filename": "infra/builder/docker-test-filesystems.sh",
         "patchSetId": 2
@@ -88,6 +142,24 @@
     {
       "unresolved": true,
       "key": {
+        "uuid": "0abff2bf_970d2f89",
+        "filename": "infra/builder/docker-test-filesystems.sh",
+        "patchSetId": 2
+      },
+      "lineNbr": 17,
+      "author": {
+        "id": 1039522
+      },
+      "writtenOn": "2026-09-28T08:11:41Z",
+      "side": 1,
+      "message": "fixed",
+      "parentUuid": "05dceb66_c35be117",
+      "revId": "a2ee9f510ca870ed4ece4529a20a3f9729f5e1c0",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
+    },
+    {
+      "unresolved": true,
+      "key": {
         "uuid": "6254467b_6c292082",
         "filename": "infra/builder/docker-test-filesystems.sh",
         "patchSetId": 2
@@ -99,6 +171,24 @@
       "writtenOn": "2026-09-27T17:24:07Z",
       "side": 1,
       "message": "The regex matches only json-c\u0027s default spaced format. A switch to JSON_C_TO_STRING_PLAIN would silently turn this into \"no events for either device\". Better parse with python/jq.",
+      "revId": "a2ee9f510ca870ed4ece4529a20a3f9729f5e1c0",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "6c64666a_7656c8ac",
+        "filename": "infra/builder/docker-test-filesystems.sh",
+        "patchSetId": 2
+      },
+      "lineNbr": 56,
+      "author": {
+        "id": 1039522
+      },
+      "writtenOn": "2026-09-28T08:11:41Z",
+      "side": 1,
+      "message": "fixed",
+      "parentUuid": "6254467b_6c292082",
       "revId": "a2ee9f510ca870ed4ece4529a20a3f9729f5e1c0",
       "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
     }
