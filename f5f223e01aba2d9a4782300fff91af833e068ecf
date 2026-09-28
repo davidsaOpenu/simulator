@@ -1,0 +1,55 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "c0433122_b28887d5",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 11
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 1039522
+      },
+      "writtenOn": "2026-09-28T11:58:50Z",
+      "side": 1,
+      "message": "commit message is missing trello link",
+      "revId": "f5f223e01aba2d9a4782300fff91af833e068ecf",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "8a7bd338_7e39f972",
+        "filename": "eVSSIM/LOG_MGR/logging_backend.c",
+        "patchSetId": 11
+      },
+      "lineNbr": 66,
+      "author": {
+        "id": 1039522
+      },
+      "writtenOn": "2026-09-28T11:58:50Z",
+      "side": 1,
+      "message": "why did you do this change? I personally think that it\u0027s better to change only what is necessary. Same for all the changes in this file",
+      "revId": "f5f223e01aba2d9a4782300fff91af833e068ecf",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "6e9416e7_e40ca4f6",
+        "filename": "eVSSIM/tests/host/build.mk",
+        "patchSetId": 11
+      },
+      "lineNbr": 32,
+      "author": {
+        "id": 1039522
+      },
+      "writtenOn": "2026-09-28T11:58:50Z",
+      "side": 1,
+      "message": "is this order change necessary?",
+      "revId": "f5f223e01aba2d9a4782300fff91af833e068ecf",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
+    }
+  ]
+}
