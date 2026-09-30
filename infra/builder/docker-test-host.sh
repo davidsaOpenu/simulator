@@ -14,4 +14,5 @@ LOGS_TMP="$(mktemp -d)"
 trap 'rm -rf "$LOGS_TMP"' EXIT
 export EVSSIM_DOCKER_XOPTIONS="${EVSSIM_DOCKER_XOPTIONS:-} -v $LOGS_TMP:$EVSSIM_DOCKER_ROOT_PATH/logs"
 
+evssim_run_at_folder "$version" $EVSSIM_SIMULATOR_FOLDER/eVSSIM/RT_DELAY "make clean && make test" || exit
 evssim_run_at_folder "$version" $EVSSIM_SIMULATOR_FOLDER/eVSSIM/tests/host ./run_all_host_tests.sh
