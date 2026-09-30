@@ -14,4 +14,7 @@ LOGS_TMP="$(mktemp -d)"
 trap 'rm -rf "$LOGS_TMP"' EXIT
 export EVSSIM_DOCKER_XOPTIONS="${EVSSIM_DOCKER_XOPTIONS:-} -v $LOGS_TMP:$EVSSIM_DOCKER_ROOT_PATH/logs"
 
+evssim_run_at_folder "$version" $EVSSIM_SIMULATOR_FOLDER/eVSSIM/RT_DELAY "make BUILD=/tmp/rtd_build test-plain" || exit
+# gcc 4.8's ThreadSanitizer can't map its shadow memory on current kernels, so run it on 26.04
+evssim_run_at_folder ubuntu-26.04 $EVSSIM_SIMULATOR_FOLDER/eVSSIM/RT_DELAY "make BUILD=/tmp/rtd_build test-tsan" || exit
 evssim_run_at_folder "$version" $EVSSIM_SIMULATOR_FOLDER/eVSSIM/tests/host ./run_all_host_tests.sh
