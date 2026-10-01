@@ -278,6 +278,9 @@ evssim_qemu () {
     if [[ "$EVSSIM_QEMU_TRACE_BLOCK" =~ y.* ]]; then
         trace_config="$trace_config -trace \"bdrv*\" -trace \"blk*\""
     fi
+    for event in $EVSSIM_QEMU_TRACE_EVENTS; do
+        trace_config="$trace_config -trace \"$event\""
+    done
 
     # Build drive and device arguments
     local drive_args=""
