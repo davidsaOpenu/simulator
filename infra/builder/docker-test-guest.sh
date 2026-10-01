@@ -11,6 +11,7 @@ guest_test() {
     local strategy=$2
     local simulator=$3
     local test_name=$4
+    local required_events=${5:-}
 
     test_index=$(($test_index+1))
 
@@ -18,7 +19,7 @@ guest_test() {
     evssim_qemu_fresh_image "$version"
 
     # Run qemu with test specific configuration
-    EVSSIM_RUNTIME_STORAGE_STRATEGY=$strategy EVSSIM_QEMU_SIMULATOR_ENABLED=$simulator evssim_qemu_detached "$version"
+    EVSSIM_QEMU_TRACE_EVENTS="$required_events" EVSSIM_RUNTIME_STORAGE_STRATEGY=$strategy EVSSIM_QEMU_SIMULATOR_ENABLED=$simulator evssim_qemu_detached "$version"
 
     # Wait for the NVMe device to appear before running tests.
     evssim_wait_for_device /dev/nvme0n1
@@ -29,6 +30,16 @@ guest_test() {
     evssim_guest "cd ./guest; mkdir Logs; sudo VSSIM_NEXTGEN_BUILD_SYSTEM=1 EVSSIM_PROVISIONED_DEVICE_COUNT=$EVSSIM_PROVISIONED_DEVICE_COUNT nosetests -v -s --with-xunit --xunit-file=guest_tests_results.xml $test_name"
     test_rc=$?
     set -e
+
+    # Fail if a required trace event never fired; QEMU's log is lost once it stops
+    for event in $required_events; do
+        count=$(docker logs "$EVSSIM_DOCKER_UUID" 2>&1 | grep -c ":$event " || true)
+        echo "INFO $event fired $count times"
+        if [ "$count" -eq 0 ]; then
+            echo "ERROR Required QEMU trace event $event never fired"
+            test_rc=1
+        fi
+    done
 
     # Stop qemu and wait
     evssim_qemu_flush_disk
@@ -60,6 +71,11 @@ guest_test "$test_directory_base" 1 yes ext4
 
 # Run simulator specific tests (With different strategies)
 guest_test "$test_directory_base" 2 yes objects_via_ioctl
+guest_test "$test_directory_base" 2 yes objects_queue_reset nvme_del_sq
+# TODO: once the object path pauses, run with REALTIME_DELAY on and also require
+# nvme_drain_kv (a queue deleted with object commands in flight); until then no
+# object command is ever in flight, so it never fires
+#guest_test "$test_directory_base" 2 yes objects_queue_reset "nvme_del_sq nvme_drain_kv"
 # NOTE This is mock for future tests
 #guest_test "$test_directory_base" 1 on simulator_test0
 #guest_test "$test_directory_base" 2 on simulator_test0

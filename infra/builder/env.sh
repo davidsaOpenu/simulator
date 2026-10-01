@@ -66,6 +66,7 @@ export EVSSIM_QEMU_SSH_PORT=2222
 export EVSSIM_QEMU_TRACE_NVME=no
 export EVSSIM_QEMU_TRACE_VSSIM=no
 export EVSSIM_QEMU_TRACE_BLOCK=no
+export EVSSIM_QEMU_TRACE_EVENTS=""  # Extra trace event names/patterns, space separated
 export EVSSIM_QEMU_VNC=0
 export EVSSIM_QEMU_SIMULATOR_ENABLED=yes
 export EVSSIM_QEMU_DEFAULT_DISK_SIZE=1M
