@@ -1,5 +1,6 @@
 #!/usr/bin/env python
 
+import glob
 import os
 import time
 import subprocess
@@ -22,41 +23,55 @@ class TestNVMeCompliance:
     def test_NVMeCompliance(self):
         if 0 != subprocess.call("lsmod | grep dnvme",
                                 shell=True, stdout=None, stderr=subprocess.STDOUT):
-            os.system("rmmod nvme")
-            os.system("insmod dnvme.ko")
+            # Hold udev so dnvme's bind uevents can't autoload nvme mid-swap.
+            subprocess.check_call(["udevadm", "control", "--stop-exec-queue"])
+            try:
+                os.system("rmmod nvme")
+                subprocess.check_call(["insmod", "dnvme.ko"])
+            finally:
+                subprocess.check_call(["udevadm", "control", "--start-exec-queue"])
+            subprocess.check_call(["udevadm", "settle"])
+            for dev in sorted(glob.glob("/sys/bus/pci/devices/*")):
+                with open(os.path.join(dev, "class")) as f:
+                    if f.read().strip() != "0x010802":
+                        continue
+                driver = os.path.join(dev, "driver")
+                owner = os.path.basename(os.readlink(driver)) if os.path.exists(driver) else None
+                print("%s %s" % (os.path.basename(dev), owner))
+                assert owner == "dnvme", "%s is bound to %s, not dnvme" % (dev, owner)
 
         skip_single_tests = []
         with open("skipTests", "w+") as f:
             for test in skip_single_tests:
                 f.write("%s\n" % test)
-        
+
         skip_suits = {}
         if DEBUG:
             self.with_kernel_log(skip_suits)
         else:
             self.no_kernel_log(skip_suits)
-                
+
     def with_kernel_log(self, skip_suits):
         for suiteNum in range(1, 28):
             if suiteNum not in skip_suits:
                 cmd = "./tnvme --rev=1.2 --test=%d --skiptest=skipTests > ./Logs/test%d.txt 2>&1" % (suiteNum, suiteNum)
                 dump_kernel = "./Logs/kdump%d.txt" % (suiteNum)
-                print cmd
+                print(cmd)
                 dump_file = open(dump_kernel, 'w')
                 proc = subprocess.Popen(["./log_kernel.sh"], stdout = dump_file)
-                print "START", int(time.time())
+                print("START %d" % int(time.time()))
                 res = os.system(cmd)
-                print "STOP", int(time.time())
+                print("STOP %d" % int(time.time()))
                 time.sleep(2)
                 proc.kill()
                 assert 0 == res, "Failed running suit %s" % suiteNum
-                
+
     def no_kernel_log(self, skip_suits):
         for suiteNum in range(1, 28):
             if suiteNum not in skip_suits:
                 cmd = "./tnvme --rev=1.2 --test=%d --skiptest=skipTests > ./Logs/test%d.txt 2>&1" % (suiteNum, suiteNum)
-                print cmd
-                print "START", int(time.time())
+                print(cmd)
+                print("START %d" % int(time.time()))
                 res = os.system(cmd)
-                print "STOP", int(time.time())
+                print("STOP %d" % int(time.time()))
                 assert 0 == res, "Failed running suit %s" % suiteNum
