@@ -369,23 +369,30 @@ setup_filebeat() {
     "$CONTAINER_CMD" pull "$fb_image"
     "$CONTAINER_CMD" ps -aq -f name=filebeat | xargs -r "$CONTAINER_CMD" rm -f
 
-    # One-time setup (no data mount needed)
-    echo "Running one-time setup"
-    "$CONTAINER_CMD" run --rm --network "$network_name" --env-file "$env_file" \
-        -v "$fb_cfg:/usr/share/filebeat/filebeat.yml:$ro_subopts" \
-        -v "$cert_ca_dir:/usr/share/filebeat/certs/ca:$ro_subopts" \
-        "$fb_image" setup -e --strict.perms=false --index-management --pipelines --dashboards \
-        -E "setup.xpack.ml.enabled=false" \
-        -E "setup.kibana.host=kibana:5601" \
-        -E "setup.kibana.protocol=https" \
-        -E "setup.kibana.username=elastic" \
-        -E "setup.kibana.password=${ELASTIC_PASSWORD}" \
-        -E "setup.kibana.ssl.certificate_authorities=[/usr/share/filebeat/certs/ca/ca.crt]" \
-        -E "output.elasticsearch.hosts=[https://elasticsearch:9200]" \
-        -E "output.elasticsearch.username=elastic" \
-        -E "output.elasticsearch.password=${ELASTIC_PASSWORD}" \
-        -E "output.elasticsearch.ssl.certificate_authorities=[/usr/share/filebeat/certs/ca/ca.crt]" \
-        || { echo "Setup failed"; return 1; }
+    # One-time setup (no data mount needed). Its ILM and template calls are
+    # cluster-state updates; on a slow disk the master can exceed its 30s timeout
+    # (429 process_cluster_event_timeout_exception), so retry the idempotent setup.
+    local attempt
+    for attempt in 1 2 3 4 5; do
+        echo "Running one-time setup (attempt $attempt)"
+        "$CONTAINER_CMD" run --rm --network "$network_name" --env-file "$env_file" \
+            -v "$fb_cfg:/usr/share/filebeat/filebeat.yml:$ro_subopts" \
+            -v "$cert_ca_dir:/usr/share/filebeat/certs/ca:$ro_subopts" \
+            "$fb_image" setup -e --strict.perms=false --index-management --pipelines --dashboards \
+            -E "setup.xpack.ml.enabled=false" \
+            -E "setup.kibana.host=kibana:5601" \
+            -E "setup.kibana.protocol=https" \
+            -E "setup.kibana.username=elastic" \
+            -E "setup.kibana.password=${ELASTIC_PASSWORD}" \
+            -E "setup.kibana.ssl.certificate_authorities=[/usr/share/filebeat/certs/ca/ca.crt]" \
+            -E "output.elasticsearch.hosts=[https://elasticsearch:9200]" \
+            -E "output.elasticsearch.username=elastic" \
+            -E "output.elasticsearch.password=${ELASTIC_PASSWORD}" \
+            -E "output.elasticsearch.ssl.certificate_authorities=[/usr/share/filebeat/certs/ca/ca.crt]" \
+            && break
+        [[ $attempt -eq 5 ]] && { echo "Setup failed"; return 1; }
+        sleep 10
+    done
 
     echo "Starting Filebeat daemon"
     if [[ "$CONTAINER_CMD" == "docker" ]]; then
