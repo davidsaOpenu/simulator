@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "9a160f63_4e5d829f",
+        "filename": "/COMMIT_MSG",
+        "patchSetId": 3
+      },
+      "lineNbr": 33,
+      "author": {
+        "id": 1007990
+      },
+      "writtenOn": "2026-10-02T05:51:49Z",
+      "side": 1,
+      "message": "Please add a link to the Trello ticket",
+      "revId": "dbc65ca17addfcfda5bf135b7bfe0161252a4f85",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
+    }
+  ]
+}
