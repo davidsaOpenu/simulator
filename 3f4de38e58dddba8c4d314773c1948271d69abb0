@@ -33,6 +33,23 @@
       "message": "recheck",
       "revId": "3f4de38e58dddba8c4d314773c1948271d69abb0",
       "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "35dec950_0575e21e",
+        "filename": "infra/builder/docker-test-filesystems.sh",
+        "patchSetId": 4
+      },
+      "lineNbr": 54,
+      "author": {
+        "id": 1007990
+      },
+      "writtenOn": "2026-10-02T05:44:39Z",
+      "side": 1,
+      "message": "-newer compares file modification times, not the log entries inside the file.\nIf elk_log_file-*.log is reused and appended to across runs, this run\u0027s writes make the whole file count as new. Its old entries come with it.\nIn CI, docker-test-guest.sh runs just before this script and logs device_index 0 and 1, so I\u0027m afraid the check could pass even if a device was never simulated in this run.",
+      "revId": "3f4de38e58dddba8c4d314773c1948271d69abb0",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
     }
   ]
 }

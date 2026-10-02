@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "a3636a81_e81c93ed",
+        "filename": "eVSSIM/scripts/exofs/run_osd_emulator_and_mount_exofs.sh",
+        "patchSetId": 4
+      },
+      "lineNbr": 43,
+      "author": {
+        "id": 1007990
+      },
+      "writtenOn": "2026-10-02T05:44:39Z",
+      "side": 0,
+      "message": "Is there any reason to alter the existing test instead of adding a new one?",
+      "range": {
+        "startLine": 11,
+        "startChar": 0,
+        "endLine": 43,
+        "endChar": 53
+      },
+      "revId": "d77659d0a7d017b29c655553ad4810ac4f2d9f27",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
+    }
+  ]
+}
