@@ -53,6 +53,10 @@ typedef struct ssd_manager {
     unsigned int old_channel_nb;
     int64_t last_operation_time_us;
 
+    /* Per-device simulated clock, so concurrent devices don't advance each other's time */
+    int64_t start_wall_time_us; /* wall-clock anchor captured at init */
+    int64_t sim_time_us;        /* simulated time offset */
+
     ssd_disk ssd;
 } ssd_manager_t;
 
@@ -61,13 +65,13 @@ extern ssd_manager_t* ssds_manager;
 extern int64_t time_delay;
 
 /* Get Current time in micro second */
-int64_t get_usec(void);
+int64_t get_usec(uint8_t device_index);
 
 /* Insert delay on x usec. depending on config, will actually wait realworld time, otherwise do nothing. could have been a macro but his is more readable in code*/
-void wait_usec(int64_t usec);
+void wait_usec(uint8_t device_index, int64_t usec);
 
 /* Wait until a specific target time is reached */
-void wait_until(int64_t target_us);
+void wait_until(uint8_t device_index, int64_t target_us);
 
 /* Initialize SSD Module */
 int SSD_IO_INIT(uint8_t device_index);

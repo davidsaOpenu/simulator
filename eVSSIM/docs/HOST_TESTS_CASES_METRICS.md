@@ -1,4 +1,5 @@
 # HOST_TESTS_CASES_METRICS (generated 2026-09-25T15:16:14Z by infra/ELK/host_metrics.py characterize)
+# multi_device_tests re-run 2026-10-02 (5 runs, incl. Parallel*) for per-device clocks
 # 5 runs per case with background GC disabled; case order rotated each round:
 # run #1 order: sector_tests object_tests ssd_io_emulator_tests multi_device_tests ssd_program_compatible_tests ssd_write_read_tests onfi_ops_tests
 # run #2 order: object_tests ssd_io_emulator_tests multi_device_tests ssd_program_compatible_tests ssd_write_read_tests onfi_ops_tests sector_tests
@@ -164,55 +165,55 @@ disk_utilization=0.7239980916625941
 
 test case: multi_device_tests
 run #1
-write_count=144
-logical_write_count=144
-read_iops=114.60980274015665
-write_iops=471.53747413093026
+write_count=54421
+logical_write_count=54421
+read_iops=226.54512479714256
+write_iops=533.460786490645
 write_amplification=1.0
-read_speed_mbps=3.7555340161894533
-write_speed_mbps=15.451339952322321
+read_speed_mbps=7.423430649352768
+write_speed_mbps=17.480443051725455
 gc_invocations=0
-disk_utilization=0.06011555992497759
+disk_utilization=0.23167376147911817
 run #2
-write_count=144
-logical_write_count=144
-read_iops=114.60980274015665
-write_iops=471.53747413093026
+write_count=54421
+logical_write_count=54421
+read_iops=226.54512479714256
+write_iops=533.460786490645
 write_amplification=1.0
-read_speed_mbps=3.7555340161894533
-write_speed_mbps=15.451339952322321
+read_speed_mbps=7.423430649352768
+write_speed_mbps=17.480443051725455
 gc_invocations=0
-disk_utilization=0.06011555992497759
+disk_utilization=0.23167376147911817
 run #3
-write_count=144
-logical_write_count=144
-read_iops=114.60980274015665
-write_iops=471.53747413093026
+write_count=54421
+logical_write_count=54421
+read_iops=226.54512479714256
+write_iops=533.460786490645
 write_amplification=1.0
-read_speed_mbps=3.7555340161894533
-write_speed_mbps=15.451339952322321
+read_speed_mbps=7.423430649352768
+write_speed_mbps=17.480443051725455
 gc_invocations=0
-disk_utilization=0.06011555992497759
+disk_utilization=0.23167376147911817
 run #4
-write_count=144
-logical_write_count=144
-read_iops=114.60980274015665
-write_iops=471.53747413093026
+write_count=54421
+logical_write_count=54421
+read_iops=226.54512479714256
+write_iops=533.460786490645
 write_amplification=1.0
-read_speed_mbps=3.7555340161894533
-write_speed_mbps=15.451339952322321
+read_speed_mbps=7.423430649352768
+write_speed_mbps=17.480443051725455
 gc_invocations=0
-disk_utilization=0.06011555992497759
+disk_utilization=0.23167376147911817
 run #5
-write_count=144
-logical_write_count=144
-read_iops=114.60980274015665
-write_iops=471.53747413093026
+write_count=54421
+logical_write_count=54421
+read_iops=226.54512479714256
+write_iops=533.460786490645
 write_amplification=1.0
-read_speed_mbps=3.7555340161894533
-write_speed_mbps=15.451339952322321
+read_speed_mbps=7.423430649352768
+write_speed_mbps=17.480443051725455
 gc_invocations=0
-disk_utilization=0.06011555992497759
+disk_utilization=0.23167376147911817
 
 test case: ssd_program_compatible_tests
 run #1

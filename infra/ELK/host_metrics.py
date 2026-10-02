@@ -38,9 +38,7 @@ CASES = {
     "sector_tests": "--sector-tests",
     "object_tests": "--object-tests",
     "ssd_io_emulator_tests": "--ssd-io-emulator-tests",
-    # the Parallel* tests drive several devices from their own threads, which share one
-    # simulated clock, so their durations depend on thread interleaving
-    "multi_device_tests": "--gtest_filter=*MultiDevice*-*Parallel*",
+    "multi_device_tests": "--gtest_filter=*MultiDevice*",
     "ssd_program_compatible_tests": "--ssd_program_compatible_test",
     # the small disk sizes only; run_all_host_tests.sh runs the full suites natively
     "ssd_write_read_tests": "--gtest_filter=DiskSize/WriteReadTest.*/0:DiskSize/WriteReadTest.*/1:"
