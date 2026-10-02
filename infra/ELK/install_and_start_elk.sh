@@ -369,6 +369,12 @@ setup_filebeat() {
     "$CONTAINER_CMD" pull "$fb_image"
     "$CONTAINER_CMD" ps -aq -f name=filebeat | xargs -r "$CONTAINER_CMD" rm -f
 
+    # Flush the pull's disk backlog and drain the ES master's queue, or setup can 429.
+    sync
+    curl -k -s -f -u "elastic:$ELASTIC_PASSWORD" \
+        "https://localhost:9200/_cluster/health?wait_for_events=languid&timeout=300s" >/dev/null \
+        || { echo "Elasticsearch master did not drain its pending tasks"; return 1; }
+
     # One-time setup (no data mount needed)
     echo "Running one-time setup"
     "$CONTAINER_CMD" run --rm --network "$network_name" --env-file "$env_file" \
