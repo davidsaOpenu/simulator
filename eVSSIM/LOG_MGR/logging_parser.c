@@ -28,8 +28,9 @@ void logger_busy_read(Logger_Pool *logger, Byte *buffer, int length, AnalyzerTyp
 {
     int bytes_read = 0;
     int bytes_read_total = 0;
-    while (bytes_read < length) {
-        bytes_read = logger_read(logger, buffer + bytes_read, length - bytes_read, analyzer);
+    while (bytes_read_total < length) {
+        bytes_read = logger_read(logger, buffer + bytes_read_total,
+                                 length - bytes_read_total, analyzer);
         if (-1 == bytes_read)
             RERR(, "WARNING: Log is null, the log may be corrupted and unusable!\n");
 

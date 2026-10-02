@@ -33,6 +33,7 @@ extern "C" {
 extern "C" int g_init;
 extern "C" int clientSock;
 extern "C" int g_init_log_server;
+extern bool g_no_bg_gc;
 
 
 #define GTEST_DONT_DEFINE_FAIL 1
@@ -255,6 +256,7 @@ namespace {
                 "STORAGE_STRATEGY " << get_storage_strategy() << "\n"
                 "GC_LOW_THR 20\n"
                 "GC_HI_THR 80\n"
+                "GC_BACKGROUND_DISABLED " << g_no_bg_gc << "\n"
                 "ONFI_MULTITHREADED " << get_onfi_multithreaded() << "\n"
                 "ONFI_MANAGER_QUEUE_SIZE " << get_onfi_manager_queue_size() << "\n"
                 "[ns01]\n"
@@ -286,6 +288,7 @@ namespace {
                 "STORAGE_STRATEGY " << get_storage_strategy() << "\n"
                 "GC_LOW_THR 20\n"
                 "GC_HI_THR 80\n"
+                "GC_BACKGROUND_DISABLED " << g_no_bg_gc << "\n"
                 "ONFI_MULTITHREADED " << get_onfi_multithreaded() << "\n"
                 "ONFI_MANAGER_QUEUE_SIZE " << get_onfi_manager_queue_size() << "\n"
                 "[ns01]\n"
@@ -317,6 +320,7 @@ namespace {
                 "STORAGE_STRATEGY " << get_storage_strategy() << "\n"
                 "GC_LOW_THR 20\n"
                 "GC_HI_THR 80\n"
+                "GC_BACKGROUND_DISABLED " << g_no_bg_gc << "\n"
                 "ONFI_MULTITHREADED " << get_onfi_multithreaded() << "\n"
                 "ONFI_MANAGER_QUEUE_SIZE " << get_onfi_manager_queue_size() << "\n"
                 "[ns01]\n"
@@ -393,7 +397,9 @@ namespace {
                 std::ignore = system((std::string("rm -rf data/") + std::to_string(g_device_index)).c_str());
                 clientSock = 0;
                 g_init_log_server = 0;
-                delete ssd_config;
+                // ssd_config is owned by its generator's leaky vector: gtest builds params at
+                // registration once per TEST_P body, so filtered-out tests' params never reach
+                // TearDown, and a static vector would be destructed before valgrind's exit scan
             }
 
             SSDConf* base_test_get_ssd_config(void) {

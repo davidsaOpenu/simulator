@@ -385,6 +385,9 @@ bool parse_config_line(const char* key, FILE* file, ssd_config_t* device) {
     if (strcmp(key, "GC_HI_THR") == 0) {
         return fscanf(file, "%d", &device->gc_hi_thr) == 1;
     }
+    if (strcmp(key, "GC_BACKGROUND_DISABLED") == 0) {
+        return fscanf(file, "%d", &device->gc_background_disabled) == 1;
+    }
     if (strcmp(key, "ONFI_MULTITHREADED") == 0) {
         return fscanf(file, "%d", &device->onfi_multithreaded) == 1;
     }

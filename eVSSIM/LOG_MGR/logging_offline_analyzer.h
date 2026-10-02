@@ -60,7 +60,7 @@ typedef struct {
     /**
      * Whether the analyzer should stop looping ASAP
      */
-    unsigned int exit_loop_flag : 1;
+    unsigned int exit_loop_flag;
 } OfflineLogAnalyzer;
 
 /**

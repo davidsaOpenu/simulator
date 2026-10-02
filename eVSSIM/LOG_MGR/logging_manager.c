@@ -16,6 +16,7 @@
 
 #include <unistd.h>
 #include <stdlib.h>
+#include <pthread.h>
 
 #include "logging_manager.h"
 #include "ssd_io_manager.h"
@@ -29,6 +30,17 @@
 #define PAGES_PER_USEC_TO_MEGABYTES_PER_SECOND(device_index, x) \
     ((((double) (x)) * (GET_PAGE_SIZE(device_index)) * (SECOND_IN_USEC)) / (MEGABYTE_IN_BYTES))
 
+static pthread_mutex_t stats_lock = PTHREAD_MUTEX_INITIALIZER;
+
+int log_manager_stats_snapshot(uint8_t device_index, SSDStatistics* out) {
+    ssd_disk* ssd = &ssds_manager[device_index].ssd;
+    pthread_mutex_lock(&stats_lock);
+    int published = ssd->stats_published;
+    if (published)
+        *out = ssd->current_stats;
+    pthread_mutex_unlock(&stats_lock);
+    return published;
+}
 
 /**
  * The next slot number
@@ -113,12 +125,12 @@ void log_manager_loop(uint8_t device_index, LogManager* manager, int max_loops) 
         return;
     }
     SSDStatistics old_stats = stats_init();
+    ssd_disk* ssd = &ssds_manager[device_index].ssd;
     int first_loop = 1;
     int loops = 0;
     while (max_loops < 0 || loops < max_loops) {
         // init the current statistics
         *stats = stats_init();
-        __atomic_store_n(&ssds_manager[device_index].ssd.current_stats, stats, __ATOMIC_RELEASE);
 
         unsigned int analyzer_id;
         // update the statistics according to the different analyzers
@@ -178,6 +190,11 @@ void log_manager_loop(uint8_t device_index, LogManager* manager, int max_loops) 
         validateSSDStat(stats);
         #endif
 
+        pthread_mutex_lock(&stats_lock);
+        ssd->current_stats = *stats;
+        ssd->stats_published = 1;
+        pthread_mutex_unlock(&stats_lock);
+
         unsigned int subscriber_id;
         // call present hooks if the statistics changed
         if (first_loop || !stats_equal(old_stats, *stats))
@@ -204,7 +221,9 @@ void log_manager_loop(uint8_t device_index, LogManager* manager, int max_loops) 
             break;          // if an error occurred (probably a signal interrupt) just exit
     }
     free(stats);
-    __atomic_store_n(&ssds_manager[device_index].ssd.current_stats, NULL, __ATOMIC_RELEASE);
+    pthread_mutex_lock(&stats_lock);
+    ssd->stats_published = 0;
+    pthread_mutex_unlock(&stats_lock);
 }
 
 

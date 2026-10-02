@@ -5,6 +5,7 @@ using namespace std;
 bool g_ci_mode = false;
 bool g_monitor_mode = false;
 bool g_server_mode = false;
+bool g_no_bg_gc = false;
 
 int main(int argc, char **argv) {
     string tests_filter = "*";
@@ -18,6 +19,9 @@ int main(int argc, char **argv) {
         }
         else if (strcmp(argv[i], "--run-server") == 0) {
             g_server_mode = true;
+        }
+        else if (strcmp(argv[i], "--no-bg-gc") == 0) {
+            g_no_bg_gc = true;
         }
         else if (strcmp(argv[i], "--sector-tests") == 0) {
             tests_filter = "*SectorUnitTest*";

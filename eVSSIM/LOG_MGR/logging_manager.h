@@ -133,4 +133,12 @@ void log_manager_loop(uint8_t device_index, LogManager* manager, int max_loops);
  */
 void log_manager_free(LogManager* manager);
 
+/**
+ * Copy the last statistics the manager published for a device
+ * @param device_index the device to read
+ * @param out where to copy the statistics
+ * @return 1 if copied, 0 if nothing is published
+ */
+int log_manager_stats_snapshot(uint8_t device_index, SSDStatistics* out);
+
 #endif

@@ -53,7 +53,10 @@ namespace write_read_test
 
     std::vector<SSDConf *> GetTestParams()
     {
-        std::vector<SSDConf *> ssd_configs;
+        // leaked on purpose; owns the params for the process (see base_emulator_tests.h)
+        static std::vector<SSDConf *>& ssd_configs = *new std::vector<SSDConf *>;
+        if (!ssd_configs.empty())
+            return ssd_configs;
 
         for (unsigned int i = 1; i <= MAX_POW; i++)
         {

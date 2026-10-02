@@ -48,7 +48,10 @@ namespace object_tests {
     }; // OccupySpaceStressTest
 
     std::vector<SSDConf*> GetTestParams() {
-        std::vector<SSDConf*> ssd_configs;
+        // leaked on purpose; owns the params for the process (see base_emulator_tests.h)
+        static std::vector<SSDConf*>& ssd_configs = *new std::vector<SSDConf*>;
+        if (!ssd_configs.empty())
+            return ssd_configs;
 
         size_t page_size = 4096;
         size_t sector_size = 1;
