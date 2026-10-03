@@ -43,21 +43,39 @@ mountpoint -q "$MOUNT_POINT" || { echo "ERROR $MOUNT_POINT is not mounted" >&2; 
 [[ -d $TRACE_DIR ]]          || { echo "ERROR mount debugfs first" >&2; exit 1; }
 
 mkdir -p "$OUTPUT_DIR"
+# Simulated device time per phase, from the vendor NVMe log page QEMU serves at
+# 0xc0. The simulator's clock only advances by the modelled delay of a flash
+# operation, so unlike the host timings above this is a property of the device
+# being simulated. Zero when the QEMU in use does not have the page.
+NVME_CTRL=${NVME_CTRL:-/dev/nvme0}
+NVME_TOOL=${NVME_TOOL:-/home/esd/guest/nvme}
+
+device_clock_us() {
+    local raw
+    raw=$("$NVME_TOOL" get-log "$NVME_CTRL" --log-id=192 --log-len=8 --raw-binary 2>/dev/null |
+          od -An -t d8) || { echo 0; return 0; }
+    raw=${raw//[[:space:]]/}
+    [[ $raw =~ ^[0-9]+$ ]] && echo "$raw" || echo 0
+}
+
 PHASE_CSV="$OUTPUT_DIR/phases.csv"
-printf 'phase,duration_ms\n' > "$PHASE_CSV"
+printf 'phase,duration_ms,device_us\n' > "$PHASE_CSV"
 _phase=""
 _phase_start=0
+_phase_device_start=0
 
 phase_close() {
     [[ -n $_phase ]] || return 0
-    printf '%s,%s\n' "$_phase" "$(( ($(date +%s%N) - _phase_start) / 1000000 ))" \
-        >> "$PHASE_CSV"
+    sync
+    printf '%s,%s,%s\n' "$_phase" "$(( ($(date +%s%N) - _phase_start) / 1000000 ))" \
+        "$(( $(device_clock_us) - _phase_device_start ))" >> "$PHASE_CSV"
     _phase=""
 }
 
 mark() {
     phase_close
     _phase=$1
+    _phase_device_start=$(device_clock_us)
     _phase_start=$(date +%s%N)
     echo "PHASE=$1" > "$TRACE_DIR/trace_marker"
 }

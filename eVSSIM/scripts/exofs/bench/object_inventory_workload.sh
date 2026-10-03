@@ -16,6 +16,7 @@
 #         SMALL_SIZE   size of each small file in bytes (default 512)
 #         LARGE_SIZE   size of the large file in KB (default 1024)
 #         TREE_DEPTH   nested directory depth for path-resolution phase (default 6)
+#         WIDE_FILES   entries in the directory used for the multi-page phases (default 400)
 #
 set -euo pipefail
 
@@ -25,6 +26,7 @@ SMALL_FILES=${SMALL_FILES:-64}
 SMALL_SIZE=${SMALL_SIZE:-512}
 LARGE_SIZE=${LARGE_SIZE:-1024}
 TREE_DEPTH=${TREE_DEPTH:-6}
+WIDE_FILES=${WIDE_FILES:-400}
 
 TRACE_DIR=/sys/kernel/debug/tracing
 WORK="$MOUNT_POINT/inventory"
@@ -58,14 +60,31 @@ fi
 # Read these numbers as "host cost of talking to the device", never as
 # "how fast the SSD is" -- and always beside the KV command counts, which are
 # the load-bearing metric.
+# Simulated device time per phase, from the vendor NVMe log page QEMU serves at
+# 0xc0. The simulator's clock only advances by the modelled delay of a flash
+# operation, so unlike the host timings above this is a property of the device
+# being simulated. Zero when the QEMU in use does not have the page.
+NVME_CTRL=${NVME_CTRL:-/dev/nvme0}
+NVME_TOOL=${NVME_TOOL:-/home/esd/guest/nvme}
+
+device_clock_us() {
+    local raw
+    raw=$("$NVME_TOOL" get-log "$NVME_CTRL" --log-id=192 --log-len=8 --raw-binary 2>/dev/null |
+          od -An -t d8) || { echo 0; return 0; }
+    raw=${raw//[[:space:]]/}
+    [[ $raw =~ ^[0-9]+$ ]] && echo "$raw" || echo 0
+}
+
 PHASE_CSV="$OUTPUT_DIR/phases.csv"
 _phase=""
 _phase_start=0
+_phase_device_start=0
 
 phase_close() {
     [[ -n $_phase ]] || return 0
-    printf '%s,%s\n' "$_phase" "$(( ($(date +%s%N) - _phase_start) / 1000000 ))" \
-        >> "$PHASE_CSV"
+    sync
+    printf '%s,%s,%s\n' "$_phase" "$(( ($(date +%s%N) - _phase_start) / 1000000 ))" \
+        "$(( $(device_clock_us) - _phase_device_start ))" >> "$PHASE_CSV"
     _phase=""
 }
 
@@ -73,6 +92,7 @@ mark() {
     # Delimit a phase inside the trace stream, and time the one just ended.
     phase_close
     _phase=$1
+    _phase_device_start=$(device_clock_us)
     _phase_start=$(date +%s%N)
     echo "PHASE=$1" > "$TRACE_DIR/trace_marker"
 }
@@ -98,7 +118,7 @@ echo      > "$TRACE_DIR/trace"
 echo 1    > "$TRACE_DIR/tracing_on"
 
 mkdir -p "$OUTPUT_DIR"
-printf 'phase,duration_ms\n' > "$PHASE_CSV"
+printf 'phase,duration_ms,device_us\n' > "$PHASE_CSV"
 rm -rf "$WORK"
 
 # --- phase 1: directory creation -------------------------------------------
@@ -152,6 +172,32 @@ mark deep_lookup
 for _ in 1 2 3; do
     guard "deep lookup" cat "$deep/leaf.txt"
 done
+
+# --- phase 5b: a directory bigger than one page ----------------------------
+# The phases above all work in directories whose object fits in a single page,
+# which hides how a cold read of a larger one behaves: the pages are faulted one
+# at a time and every miss fetches the object from byte zero again. WIDE_FILES
+# entries put the object over several pages.
+mark wide_dir_create
+wide="$WORK/wide"
+mkdir -p "$wide"
+i=0
+while [[ $i -lt $WIDE_FILES ]]; do
+    : > "$wide/entry_$i"
+    i=$((i + 1))
+done
+sync
+
+mark wide_dir_read_cold
+sync; echo 3 > /proc/sys/vm/drop_caches 2>/dev/null || true
+guard "wide readdir cold" ls -1 "$wide"
+
+mark wide_dir_read_warm
+guard "wide readdir warm" ls -1 "$wide"
+
+mark wide_dir_lookup
+sync; echo 3 > /proc/sys/vm/drop_caches 2>/dev/null || true
+guard "wide lookup" stat "$wide/entry_$((WIDE_FILES - 1))"
 
 # --- phase 6: large file write + read back ---------------------------------
 # Whole-object read amplification: every readpage pulls the entire object.
