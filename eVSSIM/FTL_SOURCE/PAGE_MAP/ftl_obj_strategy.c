@@ -165,17 +165,32 @@ ftl_ret_val _FTL_OBJ_READ(uint8_t device_index, obj_id_t obj_loc, void *data, of
         return FTL_SUCCESS;
     }
 
-    // object not big enough
-    if (object->size < (offset + length))
+    // Only a start offset past the end of the object is an error. Callers
+    // deliberately ask for more bytes than the object holds: contig_read()
+    // builds its sense record only when the read is short, and that record is
+    // the sole channel through which the object's true length reaches
+    // *p_length below. Rejecting the overshoot here made every object whose
+    // size is an exact multiple of the page size unreadable -- object->size is
+    // rounded up to whole pages, so "size + 1" always fell outside it. That
+    // covered every directory, since exofs_make_empty() writes exactly one
+    // chunk.
+    if (offset >= object->size)
         return FTL_FAILURE;
+
+    // The page walk is clamped to what is actually allocated; osd_read() below
+    // still receives the caller's length and zero-fills the tail itself.
+    length_t sim_length = length;
+    if (sim_length > object->size - offset)
+        sim_length = object->size - offset;
 
     if (!(current_page = page_by_offset(device_index, object, offset)))
     {
         RERR(FTL_FAILURE, "lookup page by offset failed (offset=%u, size=%zu)\n", offset, object->size);
     }
 
-    // calculate the total number of pages we're gonna read
-    io_page_nb = (length + devices[device_index].sectors_per_page - 1) / devices[device_index].sectors_per_page;
+    // calculate the total number of pages we're gonna read, over the clamped
+    // length rather than the requested one
+    io_page_nb = (sim_length + devices[device_index].sectors_per_page - 1) / devices[device_index].sectors_per_page;
 
     for (curr_io_page_nb = 0; curr_io_page_nb < io_page_nb; curr_io_page_nb++)
     {
@@ -202,15 +217,33 @@ ftl_ret_val _FTL_OBJ_READ(uint8_t device_index, obj_id_t obj_loc, void *data, of
 
     if (data != NULL) {
         uint64_t outlen = 0;
+        uint64_t reported;
+
+        /* Cleared first so an absent sense record is distinguishable from one
+         * left behind by an earlier command. */
+        memset(OSD_SENSE(device_index), 0x0, OSD_SENSE_BUFFER_SIZE);
+
         osd_ret = osd_read(OSD_DEVICE(device_index), obj_loc.partition_id, obj_loc.object_id,
-                    length, 0, NULL, data, &outlen, 0, OSD_SENSE(device_index), DDT_CONTIG);
+                    length, offset, NULL, data, &outlen, 0, OSD_SENSE(device_index), DDT_CONTIG);
         if (osd_ret < 0) {
             PDBG_FTL("osd_read failed with ret: %d.\n", osd_ret);
             return FTL_FAILURE;
         }
 
-        *p_length = get_ntohll(OSD_SENSE(device_index) + OSD_READ_VALUE_OFFSET);
-        if (length < *p_length) *p_length = length;
+        /*
+         * contig_read() builds a sense record only when it read less than was
+         * asked for, and that record carried the transferred length. A read the
+         * object satisfies in full leaves no record, so reading the length from
+         * the sense buffer unconditionally reported zero for every partial read
+         * of a larger object -- which is what readahead issues, so any file past
+         * the readahead window came back as zeroes. No record means the whole
+         * request was satisfied.
+         */
+        reported = get_ntohll(OSD_SENSE(device_index) + OSD_READ_VALUE_OFFSET);
+        if (reported == 0)
+            *p_length = length;
+        else
+            *p_length = (length < reported) ? length : reported;
 
         memset(OSD_SENSE(device_index), 0x0, OSD_SENSE_BUFFER_SIZE);
     }
