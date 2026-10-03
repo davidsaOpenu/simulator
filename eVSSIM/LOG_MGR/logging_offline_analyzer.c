@@ -74,10 +74,47 @@ void offline_log_analyzer_loop(OfflineLogAnalyzer* analyzer) {
         while ( 1 ) {
             int log_type;
             int bytes_read = 0;
+            int waited = 0;
 
-            bytes_read = logger_read(analyzer->logger_pool, ((Byte*)&log_type), sizeof(log_type), OFFLINE_ANALYZER);
+            /*
+             * Read until the whole type has arrived. logger_read() returns a
+             * short count while a writer is still filling the record, and
+             * taking that as the type desynchronises the stream for good: every
+             * read after it starts mid-record, so the types are garbage, the
+             * JSON built from them is garbage, and this loop spins. The
+             * real-time analyzer already accumulates the same way. The exit flag
+             * is deliberately not consulted here: the loop drains what is queued
+             * before it stops, and the retry below bounds the wait.
+             */
+            while (bytes_read < (int) sizeof(log_type)) {
+                int read_now = logger_read(analyzer->logger_pool, ((Byte*) &log_type) + bytes_read,
+                                           sizeof(log_type) - bytes_read, OFFLINE_ANALYZER);
 
-            if (0 == bytes_read || -1 == bytes_read) {
+                if (-1 == read_now)
+                    break;
+
+                if (0 == read_now) {
+                    // nothing written yet: the caller decides when to come back
+                    if (0 == bytes_read)
+                        break;
+
+                    // mid-record: give the writer time to finish, but not forever
+                    if (++waited > OFFLINE_ANALYZER_PARTIAL_RETRIES) {
+                        fprintf(stderr, "WARNING: log type truncated after %d of %d bytes!\n",
+                                bytes_read, (int) sizeof(log_type));
+                        break;
+                    }
+
+                    (void) usleep(OFFLINE_ANALYZER_PARTIAL_WAIT_US);
+                    continue;
+                }
+
+                waited = 0;
+                bytes_read += read_now;
+            }
+
+            // without a whole type there is nothing to dispatch on
+            if (bytes_read != (int) sizeof(log_type)) {
                 break;
             }
 
