@@ -14,14 +14,24 @@ done
 egrep -c vmx /proc/cpuinfo >/dev/null && export VIRTUALIZATION=intel
 egrep -c svm /proc/cpuinfo >/dev/null && export VIRTUALIZATION=amd
 
-# Check virtualization
+# Check virtualization. EVSSIM_ALLOW_NO_KVM lets a host without /dev/kvm (WSL,
+# or a container not given the device) run the suite under TCG instead of being
+# refused outright.
 if [ -z ${VIRTUALIZATION:-} ]; then
-    echo "ERROR Virtualization not found"; exit 1
+    if [ -n "${EVSSIM_ALLOW_NO_KVM:-}" ]; then
+        echo "WARNING Virtualization unavailable; QEMU commands will use TCG fallback."
+    else
+        echo "ERROR Virtualization not found"; exit 1
+    fi
 fi
 
 if ! virt-host-validate qemu > /dev/null; then # verify only qemu, lxc is irrelevant
-    echo "ERROR Virtualization test failed. Run virt-host-validate \
-          from the CLI and fix any reported issues."; exit 1
+    if [ -n "${EVSSIM_ALLOW_NO_KVM:-}" ]; then
+        echo "WARNING Virtualization validation failed; QEMU commands will use TCG fallback."
+    else
+        echo "ERROR Virtualization test failed. Run virt-host-validate \
+              from the CLI and fix any reported issues."; exit 1
+    fi
 fi
 
 # Install the effective external user as a real user
@@ -36,8 +46,8 @@ if [ -f /tmp/.Xauthority ]; then
     chown external:external /home/external/.Xauthority
 fi
 
-# Give permissions to the kvm
-chmod 777 /dev/kvm
+# Give permissions to the kvm (LOCAL DEV PATCH: absent on hosts without KVM)
+[ -e /dev/kvm ] && chmod 777 /dev/kvm
 
 # Execute intended binary
 if [ ! -z ${EVSSIM_RUN_SUDO:-} ]; then
