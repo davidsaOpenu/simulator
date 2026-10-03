@@ -26,9 +26,8 @@ cd /home/esd/guest
 # Trusty is EOL, so its archives may be unreachable. Only reach for the network
 # if something is actually missing, and do not let that failure mask a working
 # image.
-# fio matters beyond convenience: without a local binary YABS tries to download
-# one, and when that fails it silently falls back to dd and reports no
-# per-block-size results at all.
+# fio is what the repo's own guest tests use; the exofs workloads fall back to dd
+# without it, so a missing fio is a warning rather than a failure.
 missing=""
 command -v iscsiadm >/dev/null 2>&1 || missing="$missing open-iscsi"
 command -v fio      >/dev/null 2>&1 || missing="$missing fio"
