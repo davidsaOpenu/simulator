@@ -236,6 +236,8 @@ int logger_read(Logger_Pool* logger_pool, Byte* buffer, int length, AnalyzerType
     log = logger_pool->dummy_log->next;
     if (NULL == log)
     {
+        // unlock logger pool
+        pthread_mutex_unlock(&logger_pool->lock);
         return -1;
     }
 
