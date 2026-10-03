@@ -17,6 +17,14 @@ exofs_test() {
     set +e
     evssim_guest "sudo OUTPUT_DIR=$OUTPUT_DIR ./exofs/run_osd_emulator_and_mount_exofs.sh"
     test_rc=$?
+
+    # exofs is left mounted, so the correctness tests run in the same session.
+    for t in writeback_roundtrip_test dir_consistency_test; do
+        [ $test_rc -eq 0 ] || break
+        echo "INFO Running exofs/tests/$t.sh"
+        evssim_guest "sudo OUTPUT_DIR=$OUTPUT_DIR ./exofs/tests/$t.sh"
+        test_rc=$?
+    done
     set -e
 
     # When debugging you can find trace logs at OUTPUT_DIR
