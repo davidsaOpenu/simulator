@@ -328,8 +328,29 @@ evssim_qemu () {
         echo "INFO Non-simulator mode, Default size: $(numfmt --from=iec --to=iec $device_size)"
     fi
 
+    # Acceleration: KVM where the host offers it, otherwise emulate. A developer
+    # host without /dev/kvm (WSL, a container without the device passed through)
+    # can still run the guest, just slowly. Set EVSSIM_QEMU_ACCELERATION to pin
+    # it explicitly.
+    local qemu_accel=${EVSSIM_QEMU_ACCELERATION:-kvm}
+    if [[ -z ${EVSSIM_QEMU_ACCELERATION:-} && ! -e /dev/kvm ]]; then
+        qemu_accel=tcg
+        echo "WARNING /dev/kvm is unavailable on the host, falling back to TCG"
+    fi
+
+    # The guest image is qcow2 when built by libguestfs, but a raw image built
+    # by other means is still usable; let qemu probe rather than asserting one.
+    # $image is the in-container path, so probe the host-side copy.
+    local host_image="$EVSSIM_ROOT_PATH/$EVSSIM_DIST_FOLDER/$EVSSIM_QEMU_IMAGE"
+    local image_format=${EVSSIM_QEMU_IMAGE_FORMAT:-}
+    if [[ -z "$image_format" && -f "$host_image" ]]; then
+        image_format=$(qemu-img info "$host_image" 2>/dev/null | sed -n 's/^file format: //p')
+    fi
+    [[ -n "$image_format" ]] || image_format=qcow2
+    echo "INFO Guest image format: $image_format"
+
     # Build the complete args
-    local args="cd $EVSSIM_DOCKER_ROOT_PATH/$EVSSIM_QEMU_FOLDER/hw && $timeout ../x86_64-softmmu/qemu-system-x86_64 -rtc base=localtime,clock=host -pidfile /tmp/qemu.pid $trace_config -m 4G -smp 4 -drive format=qcow2,file=$image $drive_args $device_args -device e1000,netdev=net0 -netdev user,id=net0,hostfwd=tcp::$EVSSIM_QEMU_SSH_PORT-:22 -vnc :$EVSSIM_QEMU_VNC -machine accel=kvm -kernel $kernel -initrd $initrd -L /usr/share/seabios -L ../pc-bios/optionrom -append '$append'";
+    local args="cd $EVSSIM_DOCKER_ROOT_PATH/$EVSSIM_QEMU_FOLDER/hw && $timeout ../x86_64-softmmu/qemu-system-x86_64 -rtc base=localtime,clock=host -pidfile /tmp/qemu.pid $trace_config -m 4G -smp 4 -drive format=$image_format,file=$image $drive_args $device_args -device e1000,netdev=net0 -netdev user,id=net0,hostfwd=tcp::$EVSSIM_QEMU_SSH_PORT-:22 -vnc :$EVSSIM_QEMU_VNC -machine accel=$qemu_accel -kernel $kernel -initrd $initrd -L /usr/share/seabios -L ../pc-bios/optionrom -append '$append'";
 
     # Stop any previous runs
     evssim_qemu_stop

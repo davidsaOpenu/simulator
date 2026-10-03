@@ -145,6 +145,12 @@ eVSSIM/tests/host/*/www
 eVSSIM/tests/host/*/test_context.c
 eVSSIM/tests/host/*/test_context.h
 
+# clangd compile database
+eVSSIM/tests/host/compile_commands.json
+
+# www symlink at tests/host root
+eVSSIM/tests/host/www
+
 # osd-osd files
 eVSSIM/osc-osd/osd-util/.depend
 eVSSIM/osc-osd/osd-target/.depend
