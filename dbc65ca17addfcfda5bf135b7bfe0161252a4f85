@@ -16,6 +16,24 @@
       "message": "Please add a link to the Trello ticket",
       "revId": "dbc65ca17addfcfda5bf135b7bfe0161252a4f85",
       "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "a6033a41_2c6de76d",
+        "filename": "/COMMIT_MSG",
+        "patchSetId": 3
+      },
+      "lineNbr": 33,
+      "author": {
+        "id": 1039486
+      },
+      "writtenOn": "2026-10-05T21:12:48Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "9a160f63_4e5d829f",
+      "revId": "dbc65ca17addfcfda5bf135b7bfe0161252a4f85",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
     }
   ]
 }
