@@ -8,6 +8,7 @@
 Each case wipes the filebeat index, runs its tests with background GC disabled
 (so the traffic and the GC it triggers are deterministic), waits for ingestion
 to settle and reads the metrics over exactly what that case shipped.
+The gate also runs the event generator, whose expected counts are its own tally.
 Any error fails the run; the only way to pass is for every check to pass.
 """
 import argparse
@@ -22,6 +23,8 @@ import sys
 import time
 import urllib.error
 import urllib.request
+
+from event_generator import generate
 
 HERE = os.path.dirname(os.path.abspath(__file__))
 BUILDER_DIR = os.path.join(HERE, "..", "builder")
@@ -131,6 +134,16 @@ def event_time_failures(name, missing, hits, gc_total, gc_buckets):
         failures.append("%s: %d of %d sampled events have a wrong event time, first: %s"
                         % (name, len(bad), len(hits), bad[0]))
     return failures
+
+
+# the generator case's expected values are its own tally, not derived bounds
+GENERATOR_CASE = "event_generator"
+
+COUNTS_QUERY = {
+    "size": 0,
+    "aggs": {"disks": {"terms": {"field": "device_index", "size": 100},
+                       "aggs": {"types": {"terms": {"field": "type", "size": 100}}}}},
+}
 
 
 def _ratio(num, den):
@@ -277,6 +290,39 @@ def check_bounds(name, metrics, case_bounds):
     return failures
 
 
+def counts_from_aggs(aggs):
+    """{disk: {event type: count}} from COUNTS_QUERY, keys as strings like the tally's."""
+    return {str(d["key"]): {t["key"]: t["doc_count"] for t in d["types"]["buckets"]}
+            for d in aggs["disks"]["buckets"]}
+
+
+def check_counts(tally, counts):
+    """Every (disk, event type) in either side must match exactly; prints a PASS/FAIL line for each."""
+    failures = []
+    for disk in sorted(set(tally) | set(counts)):
+        want, got = tally.get(disk, {}), counts.get(disk, {})
+        for event_type in sorted(set(want) | set(got)):
+            line = "%s disk %s %s: expected %d, got %d" % (
+                GENERATOR_CASE, disk, event_type, want.get(event_type, 0), got.get(event_type, 0))
+            ok = want.get(event_type, 0) == got.get(event_type, 0)
+            print("PASS" if ok else "FAIL", line)
+            if not ok:
+                failures.append(line)
+    return failures
+
+
+def generator_gate(es, version):
+    """Ship the generator's stream and assert ES counts equal its tally, per disk and event type."""
+    print("[host_metrics] %s: wipe, run, settle" % GENERATOR_CASE, flush=True)
+    es.wipe()
+    run_simulation(version, "--gtest_filter=EventGeneratorTest.Replay")
+    print("[host_metrics] %s: settled at %d docs" % (GENERATOR_CASE, es.settle()), flush=True)
+    with open(os.devnull, "w") as devnull:
+        tally = generate(devnull)  # deterministic, so the same tally the replayed stream came from
+    counts = counts_from_aggs(es.request("POST", INDEX + "/_search", COUNTS_QUERY)["aggregations"])
+    return check_counts(tally, counts)
+
+
 def gate(version):
     with open(BOUNDS_JSON) as fh:  # missing file raises: no silent report-only mode
         bounds = json.load(fh)
@@ -288,6 +334,7 @@ def gate(version):
             print("    %-22s = %r" % (metric, getattr(metrics, metric)))
         failures += check_bounds(name, metrics, bounds.get(name, {}))
         failures += event_time_failures(name, *es.event_times())
+    failures += generator_gate(es, version)
     for f in failures:
         print("FAIL", f)
     print("[host_metrics] RESULT:", "FAIL" if failures else "PASS")
