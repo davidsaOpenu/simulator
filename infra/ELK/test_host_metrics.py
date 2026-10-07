@@ -75,6 +75,30 @@ class MetricsFromAggsTest(unittest.TestCase):
             hm.metrics_from_aggs(aggs)
 
 
+class CheckCountsTest(unittest.TestCase):
+    TALLY = {"0": {"PhysicalCellReadLog": 3, "BlockEraseLog": 2}, "1": {"PhysicalCellReadLog": 1}}
+
+    def silent_check(self, counts):
+        with mock.patch("sys.stdout", io.StringIO()):
+            return hm.check_counts(self.TALLY, counts)
+
+    def test_exact_match_passes(self):
+        self.assertEqual([], self.silent_check(json.loads(json.dumps(self.TALLY))))
+
+    def test_one_event_lost_fails_naming_disk_and_type(self):
+        counts = {"0": {"PhysicalCellReadLog": 3, "BlockEraseLog": 1}, "1": {"PhysicalCellReadLog": 1}}
+        self.assertEqual(["event_generator disk 0 BlockEraseLog: expected 2, got 1"], self.silent_check(counts))
+
+    def test_missing_disk_and_unexpected_type_fail(self):
+        counts = {"0": {"PhysicalCellReadLog": 3, "BlockEraseLog": 2, "GarbageCollectionLog": 1}}
+        self.assertEqual(["event_generator disk 0 GarbageCollectionLog: expected 0, got 1",
+                          "event_generator disk 1 PhysicalCellReadLog: expected 1, got 0"], self.silent_check(counts))
+
+    def test_counts_from_aggs(self):
+        aggs = {"disks": {"buckets": [{"key": 2, "types": {"buckets": [{"key": "BlockEraseLog", "doc_count": 5}]}}]}}
+        self.assertEqual({"2": {"BlockEraseLog": 5}}, hm.counts_from_aggs(aggs))
+
+
 class ElasticTest(unittest.TestCase):
     def setUp(self):
         self.es = hm.Elastic("pw")
