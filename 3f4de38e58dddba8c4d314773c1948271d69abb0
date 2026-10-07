@@ -50,6 +50,24 @@
       "message": "-newer compares file modification times, not the log entries inside the file.\nIf elk_log_file-*.log is reused and appended to across runs, this run\u0027s writes make the whole file count as new. Its old entries come with it.\nIn CI, docker-test-guest.sh runs just before this script and logs device_index 0 and 1, so I\u0027m afraid the check could pass even if a device was never simulated in this run.",
       "revId": "3f4de38e58dddba8c4d314773c1948271d69abb0",
       "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "1bbe39f6_30965c9d",
+        "filename": "infra/builder/docker-test-filesystems.sh",
+        "patchSetId": 4
+      },
+      "lineNbr": 54,
+      "author": {
+        "id": 1039522
+      },
+      "writtenOn": "2026-10-07T03:59:54Z",
+      "side": 1,
+      "message": "fixed this",
+      "parentUuid": "35dec950_0575e21e",
+      "revId": "3f4de38e58dddba8c4d314773c1948271d69abb0",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
     }
   ]
 }
