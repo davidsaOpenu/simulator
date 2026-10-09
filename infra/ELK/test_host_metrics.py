@@ -129,6 +129,11 @@ class CheckCountsTest(unittest.TestCase):
         self.assertEqual(["event_generator disk 0 GarbageCollectionLog: expected 0, got 1",
                           "event_generator disk 1 PhysicalCellReadLog: expected 1, got 0"], self.silent_check(counts))
 
+    def test_case_name_labels_each_line(self):
+        with mock.patch("sys.stdout", io.StringIO()):
+            failures = hm.check_counts({"0": {"GarbageCollectionLog": 2}}, {}, hm.GC_CASE)
+        self.assertEqual(["event_generator_gc disk 0 GarbageCollectionLog: expected 2, got 0"], failures)
+
     def test_counts_from_aggs(self):
         aggs = {"disks": {"buckets": [{"key": 2, "types": {"buckets": [{"key": "BlockEraseLog", "doc_count": 5}]}}]}}
         self.assertEqual({"2": {"BlockEraseLog": 5}}, hm.counts_from_aggs(aggs))
