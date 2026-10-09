@@ -18,6 +18,24 @@
       "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "1d27b923_c3a54d48",
+        "filename": "eVSSIM/tests/host/onfi_multithreaded/run_onfi_test.sh",
+        "patchSetId": 7
+      },
+      "lineNbr": 7,
+      "author": {
+        "id": 1039486
+      },
+      "writtenOn": "2026-10-09T14:24:34Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "57f2dcf9_85cc6ec7",
+      "revId": "bb47689014ec94adb59dd581a27358bf8040a2f8",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "17f9ab03_77f4b438",
@@ -35,6 +53,24 @@
       "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "e68d7d2e_a4754c1f",
+        "filename": "eVSSIM/tests/host/onfi_multithreaded/run_onfi_test.sh",
+        "patchSetId": 7
+      },
+      "lineNbr": 268,
+      "author": {
+        "id": 1039486
+      },
+      "writtenOn": "2026-10-09T14:24:34Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "17f9ab03_77f4b438",
+      "revId": "bb47689014ec94adb59dd581a27358bf8040a2f8",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "7d7f5067_083eabc4",
@@ -48,6 +84,24 @@
       "writtenOn": "2026-10-09T06:02:38Z",
       "side": 1,
       "message": "trap on_exit_callback EXIT ERR without set -e fires on any failing command. For example, grep -vF with no output, or a failing $ELK_INSTALL before its $? check, runs cleanup mid-run and can tear down ELK, then continue. The callback also runs twice (ERR, then EXIT). Trap only EXIT INT TERM",
+      "revId": "bb47689014ec94adb59dd581a27358bf8040a2f8",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "099ff07b_6f45c539",
+        "filename": "eVSSIM/tests/host/onfi_multithreaded/run_onfi_test.sh",
+        "patchSetId": 7
+      },
+      "lineNbr": 304,
+      "author": {
+        "id": 1039486
+      },
+      "writtenOn": "2026-10-09T14:24:34Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "7d7f5067_083eabc4",
       "revId": "bb47689014ec94adb59dd581a27358bf8040a2f8",
       "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
     }
