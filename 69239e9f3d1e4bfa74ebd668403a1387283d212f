@@ -43,6 +43,30 @@
     {
       "unresolved": true,
       "key": {
+        "uuid": "e5c2ee37_40f7ca75",
+        "filename": "eVSSIM/FTL_SOURCE/PAGE_MAP/ftl_gc_manager.c",
+        "patchSetId": 9
+      },
+      "lineNbr": 235,
+      "author": {
+        "id": 1039489
+      },
+      "writtenOn": "2026-10-09T07:07:33Z",
+      "side": 1,
+      "message": "LOG_META_MAKE stores the start/end its caller passes, and every call site in ssd_io_manager.c takes them from get_usec(device_index) so now GC and sync call the same get_usec, so all event types share one time base now.\n\nWe enforce this by the host_metrics gate that checks this per case (@timestamp \u003d\u003d logging_time on sampled events with GC included) in this commit.",
+      "parentUuid": "2fc9ca59_bb2394c9",
+      "range": {
+        "startLine": 233,
+        "startChar": 0,
+        "endLine": 235,
+        "endChar": 4
+      },
+      "revId": "69239e9f3d1e4bfa74ebd668403a1387283d212f",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
+    },
+    {
+      "unresolved": true,
+      "key": {
         "uuid": "b3a5fb9f_0297eb0b",
         "filename": "eVSSIM/tests/host/simulation/log_mgr_tests.cc",
         "patchSetId": 9
@@ -54,6 +78,30 @@
       "writtenOn": "2026-10-09T05:57:08Z",
       "side": 1,
       "message": "GarbageCollectionLog is no longer empty: the writer macro now writes sizeof(GarbageCollectionLog) (16 bytes), but the test still relies on READ_GC_LENGTH being 0. Reading 0 bytes always returns 0, so the assertion proves nothing. Confirm that NEXT_GARBAGE_COLLECTION_LOG consumes the full struct; otherwise the stream desyncs after every GC log. Assert res.logging_time \u003d\u003d log.logging_time and that a log written after it still parses",
+      "range": {
+        "startLine": 594,
+        "startChar": 0,
+        "endLine": 599,
+        "endChar": 86
+      },
+      "revId": "69239e9f3d1e4bfa74ebd668403a1387283d212f",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "2fe3a435_7b1ab114",
+        "filename": "eVSSIM/tests/host/simulation/log_mgr_tests.cc",
+        "patchSetId": 9
+      },
+      "lineNbr": 599,
+      "author": {
+        "id": 1039489
+      },
+      "writtenOn": "2026-10-09T07:07:33Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "b3a5fb9f_0297eb0b",
       "range": {
         "startLine": 594,
         "startChar": 0,
@@ -81,6 +129,24 @@
       "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "e492c55a_3c8ce607",
+        "filename": "eVSSIM/tests/host/unit/test_event_time.cc",
+        "patchSetId": 9
+      },
+      "lineNbr": 64,
+      "author": {
+        "id": 1039489
+      },
+      "writtenOn": "2026-10-09T07:07:33Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "05f56102_a9b6602c",
+      "revId": "69239e9f3d1e4bfa74ebd668403a1387283d212f",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "8dd7abb7_6aac89e8",
@@ -94,6 +160,30 @@
       "writtenOn": "2026-10-09T05:57:08Z",
       "side": 1,
       "message": "timestamp_to_str formats with gmtime or with localtime? If with localtime it has to be changed",
+      "range": {
+        "startLine": 67,
+        "startChar": 0,
+        "endLine": 67,
+        "endChar": 21
+      },
+      "revId": "69239e9f3d1e4bfa74ebd668403a1387283d212f",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "ab9a27c8_fbcc25ea",
+        "filename": "infra/ELK/filebeat.yml",
+        "patchSetId": 9
+      },
+      "lineNbr": 67,
+      "author": {
+        "id": 1039489
+      },
+      "writtenOn": "2026-10-09T07:07:33Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "8dd7abb7_6aac89e8",
       "range": {
         "startLine": 67,
         "startChar": 0,
