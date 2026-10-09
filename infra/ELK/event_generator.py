@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """Synthetic event stream for the ELK validity tests, 16 MB user-data tier.
 
-  event_generator.py <stream_path>
+  event_generator.py <stream_path> <tally_path>
 
 One writer per (disk, channel, die). Writers take turns, one operation each,
 until 16 MiB of user data (4 KiB page writes) were emitted. There is no
@@ -12,11 +12,12 @@ interleaving, never what a writer emits.
 The stream is one event per line, replayed through the real log manager by
 event_generator_tests.cc:
   disk type channel die block page start_us end_us
-The tally (events emitted per disk and type) is the ground truth; host_metrics.py
-calls generate() for it.
+The tally (events emitted per disk and type) is the ground truth; it goes to
+<tally_path> as JSON, which host_metrics.py gate reads.
 """
 import collections
 import itertools
+import json
 import sys
 
 DISKS = 3
@@ -70,4 +71,6 @@ def generate(stream):
 
 if __name__ == "__main__":
     with open(sys.argv[1], "w") as stream:
-        generate(stream)
+        tally = generate(stream)
+    with open(sys.argv[2], "w") as fh:
+        json.dump(tally, fh)
