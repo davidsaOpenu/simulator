@@ -16,6 +16,97 @@
       "message": "recheck",
       "revId": "e8048a341c569fa2e358c0020ad685b44608fc10",
       "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "91e1c85b_fc9cfe3b",
+        "filename": "eVSSIM/tests/host/simulation/event_generator_tests.cc",
+        "patchSetId": 4
+      },
+      "lineNbr": 28,
+      "author": {
+        "id": 1007990
+      },
+      "writtenOn": "2026-10-09T05:48:06Z",
+      "side": 1,
+      "message": "The path  is hardcoded. The test is a plain TEST in the default suite. Any native run (run_all_host_tests.sh, a dev machine) will fail on the system().",
+      "revId": "e8048a341c569fa2e358c0020ad685b44608fc10",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "413636b0_d4d70839",
+        "filename": "eVSSIM/tests/host/simulation/event_generator_tests.cc",
+        "patchSetId": 4
+      },
+      "lineNbr": 30,
+      "author": {
+        "id": 1007990
+      },
+      "writtenOn": "2026-10-09T05:48:06Z",
+      "side": 1,
+      "message": "The tally JSON is written into ELK_LOGGER_WRITER_LOGS_PATH the directory filebeat harvests. Will it be safer to write it outside?",
+      "revId": "e8048a341c569fa2e358c0020ad685b44608fc10",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "e39e9537_ce2b600e",
+        "filename": "eVSSIM/tests/host/simulation/event_generator_tests.cc",
+        "patchSetId": 4
+      },
+      "lineNbr": 38,
+      "author": {
+        "id": 1007990
+      },
+      "writtenOn": "2026-10-09T05:48:06Z",
+      "side": 1,
+      "message": "?",
+      "range": {
+        "startLine": 38,
+        "startChar": 33,
+        "endLine": 38,
+        "endChar": 34
+      },
+      "revId": "e8048a341c569fa2e358c0020ad685b44608fc10",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "88f7e981_7c1c6265",
+        "filename": "eVSSIM/tests/host/simulation/event_generator_tests.cc",
+        "patchSetId": 4
+      },
+      "lineNbr": 46,
+      "author": {
+        "id": 1007990
+      },
+      "writtenOn": "2026-10-09T05:48:06Z",
+      "side": 1,
+      "message": "worth adding 1 \u003c disk \u003c DISKS",
+      "revId": "e8048a341c569fa2e358c0020ad685b44608fc10",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "d4c0e3f2_5b8d9160",
+        "filename": "infra/ELK/host_metrics.py",
+        "patchSetId": 4
+      },
+      "lineNbr": 139,
+      "author": {
+        "id": 1007990
+      },
+      "writtenOn": "2026-10-09T05:48:06Z",
+      "side": 1,
+      "message": "Let\u0027s derive the path from one place rather than relying on \"..\" count",
+      "revId": "e8048a341c569fa2e358c0020ad685b44608fc10",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
     }
   ]
 }
