@@ -26,7 +26,6 @@ extern int clientSock;
 extern int errno;
 
 extern ssd_disk ssd;
-extern write_amplification_counters wa_counters;
 
 // New browser delay values
 extern int write_elapsed_time;

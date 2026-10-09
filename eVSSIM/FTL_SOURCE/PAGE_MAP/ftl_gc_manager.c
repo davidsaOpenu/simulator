@@ -10,7 +10,6 @@
 
 int fail_cnt = 0;
 
-write_amplification_counters wa_counters;
 extern ssd_disk ssd;
 GCAlgorithm gc_algo = {
     &DEFAULT_GC_COLLECTION_ALGO,
@@ -213,8 +212,6 @@ ftl_ret_val DEFAULT_GC_COLLECTION_ALGO(uint8_t device_index, int l2, bool backgr
             }
 
 			copy_page_nb++;
-			//if we got this far, it means we copied the page from the victim block to a new one -> meaning, we wrote to that new block so we need to update the relevant counter
-			wa_counters.physical_block_write_counter++;
 
 		}
 	}
@@ -225,8 +222,6 @@ ftl_ret_val DEFAULT_GC_COLLECTION_ALGO(uint8_t device_index, int l2, bool backgr
 
 
 	SSD_BLOCK_ERASE(device_index, victim_phy_flash_nb, victim_phy_block_nb, background ? ERASE_BACKGROUND : ERASE);
-	//update the physical block write counter as we're deleting the victim block which we're freeing during the GC procedure
-	wa_counters.physical_block_write_counter++;
 	UPDATE_INVERSE_BLOCK_MAPPING(device_index, victim_phy_flash_nb, victim_phy_block_nb, EMPTY_BLOCK);
 	INSERT_EMPTY_BLOCK(device_index, victim_phy_flash_nb, victim_phy_block_nb);
 

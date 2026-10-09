@@ -40,14 +40,6 @@ ftl_ret_val DEFAULT_GC_COLLECTION_ALGO(uint8_t device_index, int l2, bool backgr
 ftl_ret_val GARBAGE_COLLECTION(uint8_t device_index, int l2, bool background);
 ftl_ret_val SELECT_VICTIM_BLOCK(uint8_t device_index, unsigned int* phy_flash_nb, uint64_t* phy_block_nb);
 
-typedef struct write_amplification_counters
-{
-	unsigned long logical_block_write_counter;
-	unsigned long physical_block_write_counter;
-}write_amplification_counters;
-
-extern write_amplification_counters wa_counters;
-
 /**
  * GC collection algorithm struct
  */

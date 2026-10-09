@@ -213,9 +213,6 @@ ftl_ret_val _FTL_WRITE_SECT(uint8_t device_index, uint64_t sector_nb, unsigned i
 		UPDATE_OLD_PAGE_MAPPING(device_index, lpn);
 		UPDATE_NEW_PAGE_MAPPING(device_index, lpn, new_ppn);
 
-		//we caused a block write -> update the logical block_write counter + update the physical block write counter
-		wa_counters.logical_block_write_counter++;
-		wa_counters.physical_block_write_counter++;
 		//Send a physical write action being done to the statistics gathering
 		if (ret == FTL_SUCCESS)
 		{
