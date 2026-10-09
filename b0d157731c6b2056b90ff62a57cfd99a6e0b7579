@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "7e4c34c6_8708e077",
+        "filename": "eVSSIM/tests/host/simulation/ssd_program_compatible_test.cc",
+        "patchSetId": 14
+      },
+      "lineNbr": 42,
+      "author": {
+        "id": 1007990
+      },
+      "writtenOn": "2026-10-09T05:30:45Z",
+      "side": 1,
+      "message": "Holding LOCK_DEVICE for the whole test stops GC from running. Where exactly does the race happen? It should be fixed in the code under test with the smallest possible lock window",
+      "range": {
+        "startLine": 33,
+        "startChar": 0,
+        "endLine": 42,
+        "endChar": 42
+      },
+      "revId": "b0d157731c6b2056b90ff62a57cfd99a6e0b7579",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
+    }
+  ]
+}
