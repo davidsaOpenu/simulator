@@ -1,0 +1,55 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "57f2dcf9_85cc6ec7",
+        "filename": "eVSSIM/tests/host/onfi_multithreaded/run_onfi_test.sh",
+        "patchSetId": 7
+      },
+      "lineNbr": 7,
+      "author": {
+        "id": 1007990
+      },
+      "writtenOn": "2026-10-09T06:02:38Z",
+      "side": 1,
+      "message": "LOGS_DIR\u003d\"$(cd .../logs \u0026\u0026 pwd)\" is empty when ../logs doesn’t exist (set -u doesn’t catch an empty value), so rm -rf $LOGS_DIR/* becomes rm -rf /*. Abort if the directory is missing, quote the variable, and use \"${LOGS_DIR:?}\"/*. Wiping is also on by default and deletes everyone’s logs in the shared folder; make it opt-in",
+      "revId": "bb47689014ec94adb59dd581a27358bf8040a2f8",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "17f9ab03_77f4b438",
+        "filename": "eVSSIM/tests/host/onfi_multithreaded/run_onfi_test.sh",
+        "patchSetId": 7
+      },
+      "lineNbr": 268,
+      "author": {
+        "id": 1007990
+      },
+      "writtenOn": "2026-10-09T06:02:38Z",
+      "side": 1,
+      "message": "-flashes has a single dash, so parse_int_opt never matches it and the flash count is silently ignored (8 is always used). The results file still reports the requested FLASHES, so the summary is wrong. Change it to --flashes",
+      "revId": "bb47689014ec94adb59dd581a27358bf8040a2f8",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "7d7f5067_083eabc4",
+        "filename": "eVSSIM/tests/host/onfi_multithreaded/run_onfi_test.sh",
+        "patchSetId": 7
+      },
+      "lineNbr": 304,
+      "author": {
+        "id": 1007990
+      },
+      "writtenOn": "2026-10-09T06:02:38Z",
+      "side": 1,
+      "message": "trap on_exit_callback EXIT ERR without set -e fires on any failing command. For example, grep -vF with no output, or a failing $ELK_INSTALL before its $? check, runs cleanup mid-run and can tear down ELK, then continue. The callback also runs twice (ERR, then EXIT). Trap only EXIT INT TERM",
+      "revId": "bb47689014ec94adb59dd581a27358bf8040a2f8",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
+    }
+  ]
+}
