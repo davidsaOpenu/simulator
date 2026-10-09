@@ -14,12 +14,7 @@
  * limitations under the License.
  */
 
-extern "C" {
-#include "common.h"
-}
-
-#include <gtest/gtest.h>
-#include <string>
+#include "base_emulator_tests.h"
 
 using namespace std;
 
@@ -27,6 +22,7 @@ namespace event_generator_tests {
 
 const char* STREAM = "/tmp/event_stream.txt";
 const int DISKS = 3;
+const size_t DISK_SIZE_MB = 16;
 
 /** Replay the generator's stream through the real log manager: one logger and offline analyzer per disk.
  * The 3 disks are processed sequentially: disk 0 drains fully, then disk 1, then disk 2. */
@@ -81,9 +77,57 @@ static void replay() {
 TEST(EventGeneratorTest, Replay) {
     const char* root = getenv("EVSSIM_DOCKER_ROOT_PATH");
     const char* simulator = getenv("EVSSIM_SIMULATOR_FOLDER");
-    ASSERT_TRUE(root != NULL && simulator != NULL);
+    const char* tally_path = getenv("EVSSIM_GENERATOR_TALLY");
+    ASSERT_TRUE(root != NULL && simulator != NULL && tally_path != NULL);
     string generator = string(root) + "/" + simulator + "/infra/ELK/event_generator.py";
-    ASSERT_EQ(0, system(("python3 " + generator + " " + STREAM).c_str()));
+    ASSERT_EQ(0, system(("python3 " + generator + " " + STREAM + " " + tally_path).c_str()));
     replay();
+}
+
+// Every victim block is dead, so each collection copies 0 pages and logs exactly 1 GarbageCollectionLog,
+// 1 BlockEraseLog and 1 SsdUtilizationLog (SSD_BLOCK_ERASE logs it).
+TEST(EventGeneratorTest, GarbageCollection) {
+    ASSERT_TRUE(g_no_bg_gc) << "run with --no-bg-gc";
+    const char* tally_path = getenv("EVSSIM_GENERATOR_TALLY");
+    ASSERT_TRUE(tally_path != NULL);
+    SSDConf(DISK_SIZE_MB).ssd_conf_serialize();
+    INIT_SSD_CONFIG();
+
+    ofstream tally(tally_path);
+    tally << "{";
+    for (uint8_t d = 0; d < device_count; d++) {
+        FTL_INIT(d);
+        INIT_LOG_MANAGER(d);
+        ssd_config_t* config = &devices[d];
+        uint64_t* zero_pages = &inverse_mappings_manager[d].total_zero_page_nb;
+        ASSERT_LT(0, config->gc_victim_nb);
+
+        uint64_t pages_total = config->pages_in_ssd - config->page_nb;
+        for (uint64_t lpn = 0; lpn < pages_total; lpn++) {
+            uint64_t ppn;
+            ASSERT_EQ(FTL_SUCCESS, GET_NEW_PAGE(d, VICTIM_OVERALL, config->empty_table_entry_nb, &ppn));
+            ASSERT_EQ(FTL_SUCCESS, UPDATE_NEW_PAGE_MAPPING(d, lpn, ppn));
+        }
+        for (uint64_t lpn = 0; lpn < pages_total; lpn++)
+            ASSERT_EQ(FTL_SUCCESS, UPDATE_OLD_PAGE_MAPPING(d, lpn));
+
+        uint64_t threshold = (uint64_t) config->gc_threshold_block_nb * config->page_nb;
+        uint64_t collections = 0;
+        while (*zero_pages < threshold) {
+            uint64_t before = *zero_pages;
+            ASSERT_TRUE(GC_CHECK(d, false, true));
+            ASSERT_EQ(before + (uint64_t) config->gc_victim_nb * config->page_nb, *zero_pages);
+            collections += config->gc_victim_nb;
+        }
+        ASSERT_FALSE(GC_CHECK(d, false, true));
+        ASSERT_LT(0u, collections);
+
+        FTL_TERM(d);
+        TERM_LOG_MANAGER(d);
+        tally << (d ? ", " : "") << "\"" << (int) d << "\": {\"GarbageCollectionLog\": " << collections
+              << ", \"BlockEraseLog\": " << collections << ", \"SsdUtilizationLog\": " << collections << "}";
+    }
+    tally << "}\n";
+    TERM_SSD_CONFIG();
 }
 } //namespace
