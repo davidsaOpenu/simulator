@@ -625,6 +625,9 @@ else
   echo "STACK_VERSION=${DOCKER_ELK_TAG}" > .env
 fi
 
+grep -q '^cluster.routing.allocation.disk.threshold_enabled:' elasticsearch/config/elasticsearch.yml \
+  || echo "cluster.routing.allocation.disk.threshold_enabled: false" >> elasticsearch/config/elasticsearch.yml
+
 # Ensure localhost traffic skips any proxy
 # export no_proxy=localhost,127.0.0.0,127.0.1.1,local.home,${no_proxy:-}
 
