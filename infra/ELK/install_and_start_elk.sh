@@ -548,7 +548,7 @@ fi
 
 # Define constant values (With defaults)
 FB_IMAGE_TAG="${FB_IMAGE_TAG:-8.14.2}"
-DOCKER_ELK_TAG="${DOCKER_ELK_TAG:-9.2505.1}"
+DOCKER_ELK_TAG="${DOCKER_ELK_TAG:-9.5.4}"
 DOCKER_ELK_BRANCH="${DOCKER_ELK_BRANCH:-tls}"
 ELASTIC_PASSWORD="${ELASTIC_PASSWORD:-changeme}"
 KIBANA_SYSTEM_PASSWORD="${KIBANA_SYSTEM_PASSWORD:-changeme}"
@@ -609,20 +609,32 @@ EOF
 fi
 
 # Pin to specific Elastic Stack version by updating .env file
+# (docker-elk reads ELASTIC_VERSION; STACK_VERSION is not used by it)
 echo "[*] Setting Elastic Stack version to $DOCKER_ELK_TAG in .env file"
 if [[ -f .env ]]; then
-  # Update existing STACK_VERSION in .env file
-  if grep -q "^STACK_VERSION=" .env; then
-    sed -i "s/^STACK_VERSION=.*/STACK_VERSION=${DOCKER_ELK_TAG}/" .env
-    echo "[*] Updated STACK_VERSION to $DOCKER_ELK_TAG in existing .env file"
+  # Update existing ELASTIC_VERSION in .env file
+  if grep -q "^ELASTIC_VERSION=" .env; then
+    sed -i "s/^ELASTIC_VERSION=.*/ELASTIC_VERSION=${DOCKER_ELK_TAG}/" .env
+    echo "[*] Updated ELASTIC_VERSION to $DOCKER_ELK_TAG in existing .env file"
   else
-    # Add STACK_VERSION if it doesn't exist
-    echo "STACK_VERSION=${DOCKER_ELK_TAG}" >> .env
-    echo "[*] Added STACK_VERSION=$DOCKER_ELK_TAG to .env file"
+    # Add ELASTIC_VERSION if it doesn't exist
+    echo "ELASTIC_VERSION=${DOCKER_ELK_TAG}" >> .env
+    echo "[*] Added ELASTIC_VERSION=$DOCKER_ELK_TAG to .env file"
   fi
 else
-  echo "[*] Creating .env file with STACK_VERSION=$DOCKER_ELK_TAG"
-  echo "STACK_VERSION=${DOCKER_ELK_TAG}" > .env
+  echo "[*] Creating .env file with ELASTIC_VERSION=$DOCKER_ELK_TAG"
+  echo "ELASTIC_VERSION=${DOCKER_ELK_TAG}" > .env
+fi
+
+# Disable the disk watermarks. They are percentages, so on a large CI disk
+# above 90% ES never assigns .security-7 and the cluster stays red, even
+# with many GB free. This node is single-use and removed after the run.
+ES_CONFIG="elasticsearch/config/elasticsearch.yml"
+if grep -q "^cluster.routing.allocation.disk.threshold_enabled:" "$ES_CONFIG"; then
+  echo "[*] Disk watermarks already disabled in $ES_CONFIG"
+else
+  echo "[*] Disabling disk watermarks in $ES_CONFIG"
+  echo "cluster.routing.allocation.disk.threshold_enabled: false" >> "$ES_CONFIG"
 fi
 
 # Ensure localhost traffic skips any proxy
