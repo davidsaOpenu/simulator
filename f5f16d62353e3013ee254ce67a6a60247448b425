@@ -69,6 +69,24 @@
       "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "7ca44821_3cc74c53",
+        "filename": "eVSSIM/LOG_MGR/logging_offline_analyzer.c",
+        "patchSetId": 5
+      },
+      "lineNbr": 377,
+      "author": {
+        "id": 1039486
+      },
+      "writtenOn": "2026-10-10T16:29:07Z",
+      "side": 1,
+      "message": "fixed. i changed get_log_files and get_log_num to read only the log files created by current process, so all the logic will run only on these log files",
+      "parentUuid": "17d57cb9_e2729c5f",
+      "revId": "f5f16d62353e3013ee254ce67a6a60247448b425",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "140d6218_878b403d",
@@ -82,6 +100,24 @@
       "writtenOn": "2026-10-10T12:20:14Z",
       "side": 1,
       "message": "Filebeat 8 does a checkpoint of the registry at intervals. It writes all file states to a new \u003cN\u003e.json snapshot and then truncates log.json.\n\nAfter a checkpoint, this code reads log.json again from the start. But the offsets of files that filebeat shipped before the checkpoint are not in log.json anymore, thus delete_shipped does not delete these files, and the wait goes until the timeout.\n\nFix: read active.dat to get the name of the current snapshot. Then read the snapshot first, and read log.json after it.",
+      "revId": "f5f16d62353e3013ee254ce67a6a60247448b425",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "740b2a1d_99cf4408",
+        "filename": "eVSSIM/LOG_MGR/logging_offline_analyzer.c",
+        "patchSetId": 5
+      },
+      "lineNbr": 442,
+      "author": {
+        "id": 1039486
+      },
+      "writtenOn": "2026-10-10T16:29:07Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "140d6218_878b403d",
       "revId": "f5f16d62353e3013ee254ce67a6a60247448b425",
       "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
     },
@@ -103,6 +139,24 @@
       "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "00858c0c_8e1ee1fa",
+        "filename": "eVSSIM/LOG_MGR/logging_offline_analyzer.c",
+        "patchSetId": 5
+      },
+      "lineNbr": 488,
+      "author": {
+        "id": 1039486
+      },
+      "writtenOn": "2026-10-10T16:29:07Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "9cc22176_2bf3fb44",
+      "revId": "f5f16d62353e3013ee254ce67a6a60247448b425",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "07a9fd97_6f9e9dcb",
@@ -120,6 +174,24 @@
       "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "578f4cf9_31cb43f0",
+        "filename": "eVSSIM/LOG_MGR/logging_offline_analyzer.c",
+        "patchSetId": 5
+      },
+      "lineNbr": 508,
+      "author": {
+        "id": 1039486
+      },
+      "writtenOn": "2026-10-10T16:29:07Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "07a9fd97_6f9e9dcb",
+      "revId": "f5f16d62353e3013ee254ce67a6a60247448b425",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "4766778a_9026bf80",
@@ -133,6 +205,24 @@
       "writtenOn": "2026-10-10T12:20:14Z",
       "side": 1,
       "message": "host_metrics.py runs this binary one time for each of its 8 cases. If the wait cannot end (see my comments on the registry checkpoint and on files of other processes), each case stops for 600 seconds and CI shows no error. Please use a shorter timeout and print a clear error when the function returns -1.",
+      "revId": "f5f16d62353e3013ee254ce67a6a60247448b425",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "487bcebc_b253c2e1",
+        "filename": "eVSSIM/tests/host/simulation/simulation_tests_main.cc",
+        "patchSetId": 5
+      },
+      "lineNbr": 65,
+      "author": {
+        "id": 1039486
+      },
+      "writtenOn": "2026-10-10T16:29:07Z",
+      "side": 1,
+      "message": "LOG_MANAGER_WAIT_UNTIL_ALL_SHIPPED print an error message if the time out is reached. in addition i reduce the timeout to one minute instead of 10.",
+      "parentUuid": "4766778a_9026bf80",
       "revId": "f5f16d62353e3013ee254ce67a6a60247448b425",
       "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
     }
