@@ -33,6 +33,108 @@
       "message": "recheck",
       "revId": "f5f16d62353e3013ee254ce67a6a60247448b425",
       "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "47e80fa5_3f20e148",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 5
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 1039489
+      },
+      "writtenOn": "2026-10-10T12:20:14Z",
+      "side": 1,
+      "message": "Nice work!!\n\nOne small note: The commit message says that this change makes identical runs give identical ELK data. File deletion alone does not do this, because Elasticsearch keeps old events until somebody deletes the index. For the host tests, infra/ELK/host_metrics.py (change 1240426) already does this. It deletes the filebeat data stream before each case and waits until the doc count is stable.",
+      "revId": "f5f16d62353e3013ee254ce67a6a60247448b425",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "17d57cb9_e2729c5f",
+        "filename": "eVSSIM/LOG_MGR/logging_offline_analyzer.c",
+        "patchSetId": 5
+      },
+      "lineNbr": 377,
+      "author": {
+        "id": 1039489
+      },
+      "writtenOn": "2026-10-10T12:20:14Z",
+      "side": 1,
+      "message": "This condition deletes all empty log files. I\u0027d suggest to delete only the files that this process created to avoid surprises. The pid is already in the file name, so compare it with getpid().",
+      "revId": "f5f16d62353e3013ee254ce67a6a60247448b425",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "140d6218_878b403d",
+        "filename": "eVSSIM/LOG_MGR/logging_offline_analyzer.c",
+        "patchSetId": 5
+      },
+      "lineNbr": 442,
+      "author": {
+        "id": 1039489
+      },
+      "writtenOn": "2026-10-10T12:20:14Z",
+      "side": 1,
+      "message": "Filebeat 8 does a checkpoint of the registry at intervals. It writes all file states to a new \u003cN\u003e.json snapshot and then truncates log.json.\n\nAfter a checkpoint, this code reads log.json again from the start. But the offsets of files that filebeat shipped before the checkpoint are not in log.json anymore, thus delete_shipped does not delete these files, and the wait goes until the timeout.\n\nFix: read active.dat to get the name of the current snapshot. Then read the snapshot first, and read log.json after it.",
+      "revId": "f5f16d62353e3013ee254ce67a6a60247448b425",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "9cc22176_2bf3fb44",
+        "filename": "eVSSIM/LOG_MGR/logging_offline_analyzer.c",
+        "patchSetId": 5
+      },
+      "lineNbr": 488,
+      "author": {
+        "id": 1039489
+      },
+      "writtenOn": "2026-10-10T12:20:14Z",
+      "side": 1,
+      "message": "Typo: \"fileabeat\" should be \"filebeat\".",
+      "revId": "f5f16d62353e3013ee254ce67a6a60247448b425",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "07a9fd97_6f9e9dcb",
+        "filename": "eVSSIM/LOG_MGR/logging_offline_analyzer.c",
+        "patchSetId": 5
+      },
+      "lineNbr": 508,
+      "author": {
+        "id": 1039489
+      },
+      "writtenOn": "2026-10-10T12:20:14Z",
+      "side": 1,
+      "message": "If a different process has a log file that is not shipped, this loop waits until the timeout so I\u0027d suggest to only count only the files that have the pid of this process in the name.\n\nIs it likely? No sure, is it a pain in the ass to debug it if it does happen? Yes",
+      "revId": "f5f16d62353e3013ee254ce67a6a60247448b425",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "4766778a_9026bf80",
+        "filename": "eVSSIM/tests/host/simulation/simulation_tests_main.cc",
+        "patchSetId": 5
+      },
+      "lineNbr": 65,
+      "author": {
+        "id": 1039489
+      },
+      "writtenOn": "2026-10-10T12:20:14Z",
+      "side": 1,
+      "message": "host_metrics.py runs this binary one time for each of its 8 cases. If the wait cannot end (see my comments on the registry checkpoint and on files of other processes), each case stops for 600 seconds and CI shows no error. Please use a shorter timeout and print a clear error when the function returns -1.",
+      "revId": "f5f16d62353e3013ee254ce67a6a60247448b425",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
     }
   ]
 }
