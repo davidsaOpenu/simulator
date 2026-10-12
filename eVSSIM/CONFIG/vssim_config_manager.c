@@ -26,10 +26,15 @@ void update_globals(void);
 
 void INIT_SSD_CONFIG(void)
 {
-    FILE *pfData = fopen("./data/ssd.conf", "r");
+    INIT_SSD_CONFIG_FROM("./data/ssd.conf");
+}
+
+void INIT_SSD_CONFIG_FROM(const char *path)
+{
+    FILE *pfData = fopen(path, "r");
 
     if (pfData == NULL){
-        PERR("Can't open file: ./data/ssd.conf\n");
+        PERR("Can't open file: %s\n", path);
         exit(1);
     }
 
