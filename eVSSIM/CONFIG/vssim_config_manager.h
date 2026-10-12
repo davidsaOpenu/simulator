@@ -98,6 +98,7 @@ extern ssd_config_t* devices;
 extern uint8_t device_count;
 
 void INIT_SSD_CONFIG(void);
+void INIT_SSD_CONFIG_FROM(const char *path);
 void TERM_SSD_CONFIG(void);
 
 /* SSD Configuration - functions */
