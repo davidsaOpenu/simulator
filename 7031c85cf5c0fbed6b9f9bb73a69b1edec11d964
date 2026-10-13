@@ -1,0 +1,72 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "c21aeffb_c7d68771",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 5
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 1039517
+      },
+      "writtenOn": "2026-10-13T18:32:54Z",
+      "side": 1,
+      "message": "Just a few concerns I\u0027ve raised.\nSome might be out of scope, some are relevant.",
+      "revId": "7031c85cf5c0fbed6b9f9bb73a69b1edec11d964",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "0cd2bf1d_1d790333",
+        "filename": "eVSSIM/tests/guest/filesystems/test_mount.py",
+        "patchSetId": 5
+      },
+      "lineNbr": 236,
+      "author": {
+        "id": 1039517
+      },
+      "writtenOn": "2026-10-13T18:32:54Z",
+      "side": 1,
+      "message": "The previous ext4 test verified the written file after an unmount/remount.\nThis replacement reads it after sync and drop_caches, while the filesystem remains mounted.\nThe restored fsck provides consistency checking, but we lose the explicit verification that the filesystem can mount again and expose the expected file and contents.\nIs that coverage reduction intentional?\nI think we should retain the ext4 unmount/remount/readback check alongside the new simultaneous-mount test?",
+      "revId": "7031c85cf5c0fbed6b9f9bb73a69b1edec11d964",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "eee6fdda_af492684",
+        "filename": "eVSSIM/tests/guest/filesystems/test_mount.py",
+        "patchSetId": 5
+      },
+      "lineNbr": 251,
+      "author": {
+        "id": 1039517
+      },
+      "writtenOn": "2026-10-13T18:32:54Z",
+      "side": 1,
+      "message": "The test correctly fails when an operation raises, and its finally attempts cleanup.\nBut a failed teardown is ignored and the filesystem is removed from cleanup tracking.\nThe runner then starts another formatting phase despite the failed test.\nCould we preserve cleanup ownership after unsuccessful teardown and stop before that second phase when the test fails?\nI don\u0027t think it\u0027s a merge blocker since we are running the tests on an isolated guest.\nI just wonder about robustness of failure handling in general, and the case for teardown failing is probably when it\u0027s busy due to some other process using the fs, for example.",
+      "revId": "7031c85cf5c0fbed6b9f9bb73a69b1edec11d964",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "1c67b9aa_edcaa414",
+        "filename": "infra/builder/docker/ssd.conf.filesystems.template",
+        "patchSetId": 5
+      },
+      "lineNbr": 2,
+      "author": {
+        "id": 1039517
+      },
+      "writtenOn": "2026-10-13T18:32:54Z",
+      "side": 1,
+      "message": "This configuration results with:\n4096 × (10 × 32768 × 4 − 10) \u003d 5,368,668,160 sectors\nvssim_config_manager.h defines ssd_config-\u003esectors_in_ssd as uint32_t.\nThis overflows.\nAs far as I understand the filesystem tests do not catch it since they use different configurations. Also, vssim.c does not check FTL_WRITE_SECT function\u0027s return values, hence the tests do not actually verify its return value as well.\nI understand it\u0027s a template, and it is probably for @davidsa@openu.ac.il to decide whether its time to update in a separate ticket and I write it here as a heads up.\nChanging this will probably cause modifications in other areas for it to work properly (without adding warnings or even errors), making it out of scope for this change.",
+      "revId": "7031c85cf5c0fbed6b9f9bb73a69b1edec11d964",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
+    }
+  ]
+}
