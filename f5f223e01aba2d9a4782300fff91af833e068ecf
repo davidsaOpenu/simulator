@@ -20,6 +20,24 @@
     {
       "unresolved": true,
       "key": {
+        "uuid": "c1bf6a39_8018ad25",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 11
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 1039517
+      },
+      "writtenOn": "2026-10-13T18:16:49Z",
+      "side": 1,
+      "message": "Added, thank you.",
+      "parentUuid": "c0433122_b28887d5",
+      "revId": "f5f223e01aba2d9a4782300fff91af833e068ecf",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
+    },
+    {
+      "unresolved": true,
+      "key": {
         "uuid": "8a7bd338_7e39f972",
         "filename": "eVSSIM/LOG_MGR/logging_backend.c",
         "patchSetId": 11
@@ -37,6 +55,24 @@
     {
       "unresolved": true,
       "key": {
+        "uuid": "30151f02_85847c6e",
+        "filename": "eVSSIM/LOG_MGR/logging_backend.c",
+        "patchSetId": 11
+      },
+      "lineNbr": 66,
+      "author": {
+        "id": 1039517
+      },
+      "writtenOn": "2026-10-13T18:16:49Z",
+      "side": 1,
+      "message": "I agree, but this was a source of shadowing variable warnings as we use \u0027i\u0027 for outer loops in some places.\nWe consider warnings as errors henceforth and as such it is necessary.\nAn example is on logger_init() line 128, which uses INSERT_NODE that uses SET_TAILS.",
+      "parentUuid": "8a7bd338_7e39f972",
+      "revId": "f5f223e01aba2d9a4782300fff91af833e068ecf",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
+    },
+    {
+      "unresolved": true,
+      "key": {
         "uuid": "6e9416e7_e40ca4f6",
         "filename": "eVSSIM/tests/host/build.mk",
         "patchSetId": 11
@@ -48,6 +84,24 @@
       "writtenOn": "2026-09-28T11:58:50Z",
       "side": 1,
       "message": "is this order change necessary?",
+      "revId": "f5f223e01aba2d9a4782300fff91af833e068ecf",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "090156cd_faa19736",
+        "filename": "eVSSIM/tests/host/build.mk",
+        "patchSetId": 11
+      },
+      "lineNbr": 32,
+      "author": {
+        "id": 1039517
+      },
+      "writtenOn": "2026-10-13T18:16:49Z",
+      "side": 1,
+      "message": "Yes.\nThis was a failure point of this \u0027branch\u0027 after the modifications were made.\nThe old order worked because an earlier function call pulled in the utility library first.\nPreviously, ftl_obj_strategy.c called get_ntohll(). That caused the linker to load osd-util.o, which also supplied the utility functions needed later by libosdtgt.",
+      "parentUuid": "6e9416e7_e40ca4f6",
       "revId": "f5f223e01aba2d9a4782300fff91af833e068ecf",
       "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
     }
