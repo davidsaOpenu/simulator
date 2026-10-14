@@ -1,0 +1,134 @@
+# Standalone exofs guest test
+
+Builds and runs an exofs-over-NVMe test that is independent of the shared
+eVSSIM infrastructure: the regular flow (kernel 5.0.0, `dist/`, `data/`,
+`~/kernel`, `~/qemu`, configs.json, run-ci.sh, open-osd) is not touched.
+Everything this test produces lives in its own folders next to them:
+
+| folder | content |
+|---|---|
+| `~/kernel-exofs` | git worktree of the kernel repo at the fixed commit (7.0.2 + exofs + fixes) |
+| `~/qemu-exofs` | git worktree of the qemu repo at the fixed commit of CR 1245496, own build |
+| `~/dist-exofs` | kernel, initrd, modules, nvme, mkfs.exofs, guest image |
+| `~/data-exofs` | simulator runtime data of the test VM |
+| `~/logs/exofs` | build/test logs, `STATUS`, test results |
+
+One command does everything (skips what is already built):
+
+```bash
+cd ~/simulator/infra/builder && ./exofs/all.sh
+```
+
+```
+build.sh  1. kernel 7.0.2 + exofs.ko + initrd     -> dist-exofs/kernel/
+             nvme-cli + mkfs.exofs (14.04 glibc)   -> dist-exofs/{nvme,mkfs.exofs}
+             Ubuntu 14.04 image with all of above  -> dist-exofs/system.img.template
+run.sh    2. boot the image on the project qemu (object strategy, 2 NVMe drives)
+          3. nvme set-feature <dev> -f 192 --value=1   (key/value mode)
+          4. insmod exofs.ko
+          5. mkfs.exofs + mount -t exofs
+          6. exofs test suite (eVSSIM/tests/guest/exofs), results -> logs/exofs/<date>/
+```
+
+## Prerequisites
+
+* docker images: `./build-docker-image.sh` (needs `evssim:ubuntu-14.04` and `evssim:ubuntu-26.04`)
+* kernel and qemu are built from **fixed commits** (set in `env-exofs.sh`,
+  no cherry-pick): `~/kernel-exofs` is checked out at `EXOFS_KERNEL_COMMIT`
+  (kernel 7.0.2 + exofs CR 1245198 + the exofs fixes) and `~/qemu-exofs` at
+  `EXOFS_QEMU_COMMIT` (CR 1245496 patch set 3, on top of qemu master). A
+  commit missing in the local repo is fetched from its Gerrit ref; changing
+  a commit makes the next `all.sh` rebuild that step. The shared `~/kernel`
+  and `~/qemu` checkouts are not touched.
+* `versions/kernel/7.0.2/.config` - until CR 1237773 is merged the file may be
+  missing; `build.sh kernel` then takes it from the fixed ref
+  `EXOFS_KERNEL_CONFIG_REF` (patch set 19) into `~/dist-exofs` (`versions/`
+  is not touched; `EXOFS_KERNEL_CONFIG_REF=` disables this).
+* simulator with "Fix FTL page aligned and offset obj read" and the mkfs.exofs CR
+
+## Usage (from `infra/builder`)
+
+```bash
+./exofs/build.sh                 # qemu + kernel + tools + image (first time: long)
+./exofs/run.sh boot              # only check that the VM boots 7.0.2 and sees the drives
+./exofs/run.sh shell             # boot and get a shell in the guest (manual debugging)
+./exofs/run.sh                   # full test suite
+```
+
+Useful variables:
+
+| variable | default | meaning |
+|---|---|---|
+| `EXOFS_KERNEL_FOLDER` | `kernel-exofs` | kernel tree (worktree created automatically); `kernel` reuses the existing tree |
+| `EXOFS_KERNEL_COMMIT` / `_REF` | exofs fixes on CR 1245198 | fixed kernel commit and the Gerrit ref it is fetched from |
+| `EXOFS_QEMU_COMMIT` / `_REF` | CR 1245496 ps3 | fixed qemu commit and the Gerrit ref it is fetched from |
+| `EXOFS_BASE_IMAGE` | – | start from an existing pristine 14.04 image instead of downloading one |
+| `EXOFS_STRICT` | `0` | `1` also runs the tests marked `@known_issue` (now only the qemu Flush issue) |
+| `EXOFS_TESTS` | all | e.g. `test_02_exofs_api.py:TestRename` |
+| `EXOFS_LARGE_FILE_MB` | `8` | size of the large-file test |
+| `EXOFS_MANY_FILES` | `200` | files in the many-files test and per create/delete cycle |
+| `EXOFS_CHURN_CYCLES` | `5` | create/delete cycles (`TestCreateDeleteCycles`) |
+
+Steps can be combined: `./exofs/build.sh kernel image`.
+
+## Inside the guest
+
+```bash
+sudo ~/guest/exofs/run_exofs_tests.sh                              # everything
+sudo ~/guest/exofs/run_exofs_tests.sh test_02_exofs_api.py:TestLinks
+sudo EXOFS_STRICT=1 ~/guest/exofs/run_exofs_tests.sh               # incl. known issues
+```
+
+## exofs bugs found by this test (fixed)
+
+The kernel commit pinned in `env-exofs.sh` (`EXOFS_KERNEL_COMMIT`) is the
+exofs change (CR 1245198) plus a fix commit for the bugs these tests found
+(CR 1256141):
+
+* `exofs_write_begin()` treated the byte count returned by
+  `nvme_submit_sync_kv_read()` as an error -> oops on a write into an
+  existing, uncached page (append / modify after remount).
+* `exofs_new_inode()` did not clear `ei->i_data` -> slow symlinks stored
+  stale bytes and came back as fast symlinks after remount.
+* `exofs_set_link()` returned an uninitialized `err` on success.
+* rename over an existing name failed with `EINVAL` (folio not locked for
+  `exofs_set_link()`).
+* rename of a directory to another parent did not update `..` and the
+  parents' link counts; replacing a non-empty directory was not rejected.
+* `mkdir` left the new directory with `nlink == 1`.
+* `exofs_tmpfile()` did not call `finish_open_simple()` (O_TMPFILE).
+* `exofs_show_options()` printed `TODO` into `/proc/mounts`.
+* truncate did not clear the cut data in the KV object, so growing the file
+  again brought the old bytes back (now: delete at 0, zeros otherwise).
+
+The same commit also fixes the NVMe KV layer: a store the device rejected
+returned success (`nvme_submit_sync_kv_cmd()` dropped the NVMe status), so
+exofs lost writes silently; such a store now returns `-EIO` and exofs
+reports writeback errors (`fsync()`/`close()` fail, kernel message
+`exofs: writeback of inode ... failed`). `nvme_submit_sync_kv_exists()`
+now returns `-ENOENT` for a missing key.
+
+## Known qemu / environment issues
+
+* The simulator FTL has no garbage collection in object mode ("GC of object
+  strategy is not currently supported"): every write takes a new flash page
+  and deleted/overwritten pages are never freed, so a drive (640M, 163840
+  pages) runs out after that many page writes, no matter how much data is
+  live. The default `TestCreateDeleteCycles` settings stay well below that;
+  with `EXOFS_CHURN_CYCLES=20 EXOFS_MANY_FILES=1000` the writes run out and
+  the test fails with `EIO` (before the NVMe KV fix the data was lost
+  silently and an old directory came back after remount).
+
+* qemu KV mode (`nvme_kv_io_cmd()` in `hw/block/nvme.c`) rejects NVMe Flush
+  with Invalid Opcode although the controller reports a volatile write cache
+  (`vwc = 1`), so every `fsync()` fails with `EOPNOTSUPP`. The tests set
+  `/sys/block/nvmeXn1/queue/write_cache` to `write through` after enabling KV
+  mode (`EXOFS_KEEP_WRITE_CACHE=1` keeps it; the known-issue test
+  `TestKnownQemuIssues` covers it). Fix: handle `NVME_CMD_FLUSH` in
+  `nvme_kv_io_cmd()` (return success - objects are stored synchronously).
+* The initrd is built with the 26.04 udev, which renames `eth0` to `enp0s5`;
+  the 14.04 guest only configures `eth0`. `kernel.config` therefore adds a
+  built-in command line `net.ifnames=0 biosdevname=0`.
+* The regular VM (`--net=host`) holds ports 2222, 2003 and 5900, so this test
+  uses ssh 2223 and VNC :7. The simulator's log server inside our qemu cannot
+  bind 2003 while the regular VM runs; it is not needed by the tests.
