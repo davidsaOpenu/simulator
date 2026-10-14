@@ -382,9 +382,13 @@ DOCKER
 
             # Force kill no, wait
             if docker ps -q --no-trunc | grep $EVSSIM_DOCKER_UUID > /dev/null; then
-                docker ps -q --no-trunc | grep $EVSSIM_DOCKER_UUID
                 echo "TOOT"
-                docker stop -t 0 $EVSSIM_DOCKER_UUID > /dev/null
+                # docker run --rm: the container may exit (and be removed) by itself meanwhile
+                docker stop -t 0 $EVSSIM_DOCKER_UUID > /dev/null 2>&1 || true
+                if docker ps -q --no-trunc | grep $EVSSIM_DOCKER_UUID > /dev/null; then
+                    echo "ERROR could not stop docker $EVSSIM_DOCKER_UUID"
+                    return 1
+                fi
                 echo WARNING Killed docker $EVSSIM_DOCKER_UUID
             fi
         fi
