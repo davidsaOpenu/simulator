@@ -29,7 +29,7 @@ CFLAGS += -isystem /opt/gtest/include -I$(VSSIM_HOME) -I$(VSSIM_HOME)/osc-osd -I
 	-D_REENTRANT -fPIE -DQT_NO_DEBUG -DQT_WIDGETS_LIB -DQT_NETWORK_LIB -DQT_GUI_LIB -DQT_CORE_LIB \
 	-isystem /usr/include/json-c/
 
-COMMON_FLAGS += -lpthread -lgtest -lgtest_main -losdutil -losdtgt -lsqlite3 -lwebsockets -ljson-c -luuid
+COMMON_FLAGS += -lpthread -lgtest -lgtest_main -losdtgt -losdutil -lsqlite3 -lwebsockets -ljson-c -luuid
 
 W_ALL_ERR := -Wall -Werror
 
