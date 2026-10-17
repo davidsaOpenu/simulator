@@ -53,6 +53,24 @@
       "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "674919e1_ab5a2181",
+        "filename": "eVSSIM/tests/host/simulation/event_generator_tests.cc",
+        "patchSetId": 4
+      },
+      "lineNbr": 28,
+      "author": {
+        "id": 1039489
+      },
+      "writtenOn": "2026-10-17T16:51:11Z",
+      "side": 1,
+      "message": "Acknowledged",
+      "parentUuid": "16539418_5177cf37",
+      "revId": "e8048a341c569fa2e358c0020ad685b44608fc10",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "413636b0_d4d70839",
