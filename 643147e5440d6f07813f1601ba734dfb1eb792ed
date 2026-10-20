@@ -16,6 +16,57 @@
       "message": "recheck",
       "revId": "643147e5440d6f07813f1601ba734dfb1eb792ed",
       "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "9dcb9099_3a1cab43",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 11
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 1007990
+      },
+      "writtenOn": "2026-10-20T06:32:22Z",
+      "side": 1,
+      "message": "infra/ELK/elk_stats_collect.sh:141-161 (not in diff)                                                         Comment: \"Activity span\" (@timestamp first→last) used to be wall-clock ingest span. Now it is the same as \"Emulated     time\" (logging_time), so the report shows the same number twice and loses the real-time span. Either update the         script in this change or call it out as a follow-up.",
+      "revId": "643147e5440d6f07813f1601ba734dfb1eb792ed",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "eaeb9c7c_1e482d16",
+        "filename": "eVSSIM/LOG_MGR/logging_parser.c",
+        "patchSetId": 11
+      },
+      "lineNbr": 56,
+      "author": {
+        "id": 1007990
+      },
+      "writtenOn": "2026-10-20T06:32:22Z",
+      "side": 1,
+      "message": "localtime_r -\u003e gmtime_r changes every formatted time (logging_start_time, logging_end_time, test.start_time)    to                                                                                                                      UTC, not just the ones filebeat parses. It\u0027s correct and consistent with timezone: \"UTC\", but it\u0027s a user-visible       change in the raw logs that the commit message doesn\u0027t mention. Log file names still use localtime                      (logging_offline_analyzer.c:263), so a file name and the timestamps inside it now differ by the TZ offset.",
+      "revId": "643147e5440d6f07813f1601ba734dfb1eb792ed",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "ecb80d88_e48dae21",
+        "filename": "infra/ELK/filebeat.yml",
+        "patchSetId": 11
+      },
+      "lineNbr": 67,
+      "author": {
+        "id": 1007990
+      },
+      "writtenOn": "2026-10-20T06:32:22Z",
+      "side": 1,
+      "message": "@timestamp now comes from emulated time: start_wall_time_us + sim_time_us + time_delay. That clock moves away                                                                                                                          from the wall clock: wait_usec only adds to sim_time_us, so events can land in the future or the past. Anything that    windows on @timestamp relative to now may drop them: Kibana\u0027s \"last N minutes\" and elk_stats_collect.sh:79-80, which    filters @timestamp to now-Nh .. now.",
+      "revId": "643147e5440d6f07813f1601ba734dfb1eb792ed",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
     }
   ]
 }
