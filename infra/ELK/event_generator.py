@@ -12,7 +12,7 @@ interleaving, never what a writer emits.
 The stream is one event per line, replayed through the real log manager by
 event_generator_tests.cc:
   disk type channel die block page start_us end_us
-The tally (events emitted per disk and type) is the ground truth; it goes to
+The tally (events emitted per disk, per (disk, channel), per (disk, die), and type) is the ground truth; it goes to
 <tally_path> as JSON, which host_metrics.py gate reads.
 """
 import collections
@@ -54,7 +54,7 @@ class Writer:
 
 
 def generate(stream):
-    """Write the stream, return the tally: disk -> event type -> count."""
+    """Write the stream, return the tally: key -> event type -> count; key is "disk", "disk channel c" or "disk die d"."""
     tally = collections.defaultdict(collections.Counter)
     writers = [Writer(disk, die) for disk in range(DISKS) for die in range(DIES)]
     writes = 0
@@ -65,7 +65,8 @@ def generate(stream):
         writes += op == "write"
         for event in EVENTS[op]:
             stream.write("%d %s %d %d %d %d %d %d\n" % (w.disk, event, w.channel, w.die, block, page, start, end))
-            tally[str(w.disk)][event] += 1
+            for key in (str(w.disk), "%d channel %d" % (w.disk, w.channel), "%d die %d" % (w.disk, w.die)):
+                tally[key][event] += 1
     return tally
 
 

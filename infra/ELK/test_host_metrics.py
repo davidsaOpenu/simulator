@@ -139,6 +139,44 @@ class CheckCountsTest(unittest.TestCase):
         self.assertEqual({"2": {"BlockEraseLog": 5}}, hm.counts_from_aggs(aggs))
 
 
+def breakdown_aggs(dies):
+    """dies: {(disk, die): {type: count}}, channel = die % 4 as in the generator."""
+    def agg(part_of):
+        out = {}
+        for (disk, die), types in dies.items():
+            part = out.setdefault(disk, {}).setdefault(part_of(die), {})
+            for t, c in types.items():
+                part[t] = part.get(t, 0) + c
+        return {"buckets": [{"key": disk, "parts": {"buckets": [
+            {"key": k, "types": {"buckets": [{"key": t, "doc_count": c} for t, c in types.items()]}}
+            for k, types in parts.items()]}} for disk, parts in out.items()]}
+    return {"channels": agg(lambda die: die % 4), "dies": agg(lambda die: die)}
+
+
+class BreakdownTest(unittest.TestCase):
+    DIES = {(0, 1): {"PhysicalCellReadLog": 5}, (0, 5): {"PhysicalCellReadLog": 7}}
+
+    def test_parsing_per_channel_and_die(self):
+        got = hm.breakdown_from_aggs(breakdown_aggs(self.DIES))
+        self.assertEqual({"PhysicalCellReadLog": 12}, got["0 channel 1"])
+        self.assertEqual({"PhysicalCellReadLog": 7}, got["0 die 5"])
+
+    def test_exact_match_passes(self):
+        got = hm.breakdown_from_aggs(breakdown_aggs(self.DIES))
+        self.assertEqual([], hm.check_counts(dict(got), got))
+
+    def test_one_event_lost_on_one_die_fails_naming_disk_and_die(self):
+        tally = hm.breakdown_from_aggs(breakdown_aggs(self.DIES))
+        lost = dict(self.DIES)
+        lost[(0, 5)] = {"PhysicalCellReadLog": 6}
+        failures = hm.check_counts(tally, hm.breakdown_from_aggs(breakdown_aggs(lost)))
+        self.assertIn("event_generator disk 0 die 5 PhysicalCellReadLog: expected 7, got 6", failures)
+
+    def test_missing_die(self):
+        self.assertEqual([], hm.missing_die_failures("c", 0))
+        self.assertEqual(["c: 3 cell events without die"], hm.missing_die_failures("c", 3))
+
+
 class ElasticTest(unittest.TestCase):
     def setUp(self):
         self.es = hm.Elastic("pw")

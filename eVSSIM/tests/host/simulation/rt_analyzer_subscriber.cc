@@ -339,7 +339,7 @@ namespace rt_subscriber {
         });
         TIME_MICROSEC(end2);
         LOG_PHYSICAL_CELL_READ(logger, (PhysicalCellReadLog) {
-            .channel = 1, .block = 2, .page = 3,
+            .channel = 1, .die = 1, .block = 2, .page = 3,
             .background = false,
             .metadata = LOG_META(g_device_index, start, end2),
         });
@@ -350,7 +350,7 @@ namespace rt_subscriber {
         });
         TIME_MICROSEC(end4);
         LOG_PHYSICAL_CELL_PROGRAM(logger, (PhysicalCellProgramLog) {
-            .channel = 4, .block = 5, .page = 6,
+            .channel = 4, .die = 4, .block = 5, .page = 6,
             .background = false,
             .metadata = LOG_META(g_device_index, start, end4),
         });
@@ -359,7 +359,7 @@ namespace rt_subscriber {
             .background = false, .logging_time = end5,
         });
         LOG_LOGICAL_CELL_PROGRAM(logger, (LogicalCellProgramLog) {
-            .channel = 7, .block = 8, .page = 9,
+            .channel = 7, .die = 7, .block = 8, .page = 9,
             .metadata = LOG_META(g_device_index, start, end5)
         });
         TIME_MICROSEC(end6);
@@ -369,13 +369,13 @@ namespace rt_subscriber {
         });
         TIME_MICROSEC(end7);
         LOG_PHYSICAL_CELL_PROGRAM(logger, (PhysicalCellProgramLog) {
-            .channel = 10, .block = 11, .page = 12,
+            .channel = 10, .die = 10, .block = 11, .page = 12,
             .background = false,
             .metadata = LOG_META(g_device_index, start, end7),
         });
         TIME_MICROSEC(end8);
         LOG_LOGICAL_CELL_PROGRAM(logger, (LogicalCellProgramLog) {
-            .channel = 13, .block = 14, .page = 15,
+            .channel = 13, .die = 13, .block = 14, .page = 15,
             .metadata = LOG_META(g_device_index, start, end8)
         });
         TIME_MICROSEC(end9);
@@ -391,7 +391,7 @@ namespace rt_subscriber {
         });
         TIME_MICROSEC(end11);
         LOG_PHYSICAL_CELL_READ(logger, (PhysicalCellReadLog) {
-            .channel = 16, .block = 17, .page = 18,
+            .channel = 16, .die = 16, .block = 17, .page = 18,
             .background = false,
             .metadata = LOG_META(g_device_index, start, end11),
         });
