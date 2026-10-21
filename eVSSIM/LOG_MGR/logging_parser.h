@@ -144,6 +144,10 @@ typedef struct {
      */
     unsigned int channel;
     /**
+     * The die (flash) number of the cell
+     */
+    unsigned int die;
+    /**
      * The block number of the cell read
      */
     unsigned int block;
@@ -169,6 +173,10 @@ typedef struct {
      * The channel number of the programmed cell
      */
     unsigned int channel;
+    /**
+     * The die (flash) number of the cell
+     */
+    unsigned int die;
     /**
      * The block number of the programmed cell
      */
@@ -196,6 +204,10 @@ typedef struct {
      */
     unsigned int channel;
     /**
+     * The die (flash) number of the cell
+     */
+    unsigned int die;
+    /**
      * The block number of the programmed cell
      */
     unsigned int block;
@@ -217,6 +229,10 @@ typedef struct {
      * The channel number of the programmed cell
      */
     unsigned int channel;
+    /**
+     * The die (flash) number of the cell
+     */
+    unsigned int die;
     /**
      * The block number of the programmed cell
      */

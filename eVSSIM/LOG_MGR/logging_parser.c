@@ -129,6 +129,7 @@ void JSON_PHYSICAL_CELL_READ(PhysicalCellReadLog *src, char **dst)
     jobj = json_object_new_object();
     json_object_object_add(jobj, "type", json_object_new_string("PhysicalCellReadLog"));
     json_object_object_add(jobj, "channel", json_object_new_int(src->channel));
+    json_object_object_add(jobj, "die", json_object_new_int(src->die));
     json_object_object_add(jobj, "block", json_object_new_int(src->block));
     json_object_object_add(jobj, "page", json_object_new_int(src->page));
     json_object_object_add(jobj, "background", json_object_new_boolean(src->background));
@@ -156,6 +157,7 @@ void JSON_PHYSICAL_CELL_PROGRAM(PhysicalCellProgramLog *src, char **dst)
     jobj = json_object_new_object();
     json_object_object_add(jobj, "type", json_object_new_string("PhysicalCellProgramLog"));
     json_object_object_add(jobj, "channel", json_object_new_int(src->channel));
+    json_object_object_add(jobj, "die", json_object_new_int(src->die));
     json_object_object_add(jobj, "block", json_object_new_int(src->block));
     json_object_object_add(jobj, "page", json_object_new_int(src->page));
     json_object_object_add(jobj, "background", json_object_new_boolean(src->background));
@@ -183,6 +185,7 @@ void JSON_PHYSICAL_CELL_PROGRAM_COMPATIBLE(PhysicalCellProgramCompatibleLog *src
     jobj = json_object_new_object();
     json_object_object_add(jobj, "type", json_object_new_string("PhysicalCellProgramCompatibleLog"));
     json_object_object_add(jobj, "channel", json_object_new_int(src->channel));
+    json_object_object_add(jobj, "die", json_object_new_int(src->die));
     json_object_object_add(jobj, "block", json_object_new_int(src->block));
     json_object_object_add(jobj, "page", json_object_new_int(src->page));
     add_metadata_to_json_object(jobj, &src->metadata);
@@ -209,6 +212,7 @@ void JSON_LOGICAL_CELL_PROGRAM(LogicalCellProgramLog *src, char **dst)
     jobj = json_object_new_object();
     json_object_object_add(jobj, "type", json_object_new_string("LogicalCellProgramLog"));
     json_object_object_add(jobj, "channel", json_object_new_int(src->channel));
+    json_object_object_add(jobj, "die", json_object_new_int(src->die));
     json_object_object_add(jobj, "block", json_object_new_int(src->block));
     json_object_object_add(jobj, "page", json_object_new_int(src->page));
     add_metadata_to_json_object(jobj, &src->metadata);
