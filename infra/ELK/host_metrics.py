@@ -150,6 +150,26 @@ COUNTS_QUERY = {
 }
 
 
+BREAKDOWN_QUERY = {
+    "size": 0,
+    "aggs": {name: {"terms": {"field": "device_index", "size": 100},
+                    "aggs": {"parts": {"terms": {"field": field, "size": 100},
+                                       "aggs": {"types": {"terms": {"field": "type", "size": 100}}}}}}
+             for name, field in (("channels", "channel"), ("dies", "die"))},
+}
+
+CELL_EVENT_TYPES = ["PhysicalCellReadLog", "PhysicalCellProgramLog", "PhysicalCellProgramCompatibleLog",
+                    "LogicalCellProgramLog"]
+MISSING_DIE_QUERY = {"query": {"bool": {"filter": {"terms": {"type": CELL_EVENT_TYPES}},
+                                        "must_not": {"exists": {"field": "die"}}}}}
+
+
+def missing_die_failures(name, missing):
+    line = "%s: %d cell events without die" % (name, missing)
+    print("FAIL" if missing else "PASS", line)
+    return [line] if missing else []
+
+
 def _ratio(num, den):
     return num / den if den else 0.0
 
@@ -327,6 +347,9 @@ class Elastic:
         return extended_metrics_from_aggs(
             self.request("POST", INDEX + "/_search", EXTENDED_METRICS_QUERY)["aggregations"])
 
+    def missing_die(self):
+        return self.request("POST", INDEX + "/_count", MISSING_DIE_QUERY)["count"]
+
     def event_times(self):
         """(events without logging_time, sampled hits incl. GC-only and sync-only, GC total, GC buckets)"""
         missing = self.request("POST", INDEX + "/_count", MISSING_EVENT_TIME_QUERY)["count"]
@@ -384,8 +407,16 @@ def counts_from_aggs(aggs):
             for d in aggs["disks"]["buckets"]}
 
 
+def breakdown_from_aggs(aggs):
+    """{"<disk> channel <c>" or "<disk> die <d>": {event type: count}} from BREAKDOWN_QUERY, the tally's keys."""
+    return {"%s %s %s" % (disk["key"], label, part["key"]): {t["key"]: t["doc_count"] for t in part["types"]["buckets"]}
+            for agg, label in (("channels", "channel"), ("dies", "die"))
+            for disk in aggs[agg]["buckets"] for part in disk["parts"]["buckets"]}
+
+
 def check_counts(tally, counts, name=GENERATOR_CASE):
-    """Every (disk, event type) in either side must match exactly; prints a PASS/FAIL line for each."""
+    """Every key (a disk, "<disk> channel <c>" or "<disk> die <d>") and event type in either side must match
+    exactly; prints a PASS/FAIL line for each."""
     failures = []
     for disk in sorted(set(tally) | set(counts)):
         want, got = tally.get(disk, {}), counts.get(disk, {})
@@ -400,7 +431,8 @@ def check_counts(tally, counts, name=GENERATOR_CASE):
 
 
 def generator_gate(es, version, name, test):
-    """Run one EventGeneratorTest and assert ES counts equal the tally it wrote, per disk and event type."""
+    """Run one EventGeneratorTest and assert ES counts equal the tally it wrote, per disk and event type;
+    the Replay case also per (disk, channel) and per (disk, die)."""
     print("[host_metrics] %s: wipe, run, settle" % name, flush=True)
     es.wipe()
     run_simulation(version, "--gtest_filter=EventGeneratorTest." + test,
@@ -409,7 +441,9 @@ def generator_gate(es, version, name, test):
     with open(os.path.join(os.environ["EVSSIM_ROOT_PATH"], GENERATOR_TALLY)) as fh:
         tally = json.load(fh)
     counts = counts_from_aggs(es.request("POST", INDEX + "/_search", COUNTS_QUERY)["aggregations"])
-    return check_counts(tally, counts, name)
+    if name == GENERATOR_CASE:
+        counts.update(breakdown_from_aggs(es.request("POST", INDEX + "/_search", BREAKDOWN_QUERY)["aggregations"]))
+    return check_counts(tally, counts, name) + missing_die_failures(name, es.missing_die())
 
 
 def gate(version):
@@ -422,6 +456,7 @@ def gate(version):
         print_metrics(METRIC_NAMES, metrics)
         failures += check_bounds(name, metrics, bounds.get(name, {}))
         failures += event_time_failures(name, *es.event_times())
+        failures += missing_die_failures(name, es.missing_die())
     for name, test in GENERATOR_CASES.items():
         failures += generator_gate(es, version, name, test)
     for f in failures:
