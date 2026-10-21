@@ -16,6 +16,11 @@
 
 #include "base_emulator_tests.h"
 #include <stdlib.h>
+#include <dirent.h>
+#include <fstream>
+#include <map>
+#include <set>
+#include <string>
 
 #define IO_PAGE_NB 0
 #define GC_IO_PAGE_NB -1
@@ -489,6 +494,71 @@ namespace ssd_io_emulator_tests {
         //we re-allocate the first block, when we get to the second block, there is now a free block that can be used
         //for re-allocating the second block
         ASSERT_LE(expected_write_amplification, current_stats.write_amplification);
+    }
+
+    static set<string> log_files() {
+        set<string> files;
+        DIR* dir = opendir(ELK_LOGGER_WRITER_LOGS_PATH);
+        while (dir) {
+            struct dirent* entry = readdir(dir);
+            if (!entry) {
+                closedir(dir);
+                break;
+            }
+            files.insert(entry->d_name);
+        }
+        return files;
+    }
+
+    /**
+     * @brief the 4 real cell log calls set die to the flash number, not to the channel
+     * - run each of the 4 cell events through the real I/O manager on a flash whose number differs from its channel
+     * - read back the JSON that the offline analyzer wrote
+     */
+    TEST_P(SSDIoEmulatorUnitTest, CellEventsCarryFlashNumberAsDie) {
+        // with as many channels as flashes, channel == flash and the check would prove nothing
+        const unsigned int saved_channel_nb = devices[g_device_index].channel_nb;
+        devices[g_device_index].channel_nb = 4;
+        const unsigned int flash_nb = 5;
+        ASSERT_LT(flash_nb, devices[g_device_index].flash_nb);
+        const unsigned int channel = flash_nb % devices[g_device_index].channel_nb;
+
+        SSD_PAGE_WRITE(g_device_index, flash_nb, 0, 0, 0, WRITE);
+        SSD_PAGE_WRITE(g_device_index, flash_nb, 0, 1, 0, WRITE_COMMIT);
+        SSD_PAGE_READ(g_device_index, flash_nb, 0, 0, 0, READ);
+        TERM_LOG_MANAGER(g_device_index); // the offline analyzers drain and the writer closes its file
+        devices[g_device_index].channel_nb = saved_channel_nb;
+
+        map<string, int> seen;
+        // INIT_LOG_MANAGER opened this test's file; names start with a timestamp, so the newest one is it
+        string newest;
+        for (const string& name : log_files())
+            if (name.find("elk_log_file") == 0 && name > newest)
+                newest = name;
+        ASSERT_FALSE(newest.empty());
+        for (const string& name : {newest}) {
+            ifstream file(string(ELK_LOGGER_WRITER_LOGS_PATH) + name);
+            string line;
+            while (getline(file, line)) {
+                unsigned int die, ch;
+                size_t die_pos = line.find("\"die\": "), channel_pos = line.find("\"channel\": ");
+                for (const char* type : {"PhysicalCellProgramLog", "PhysicalCellProgramCompatibleLog",
+                                         "LogicalCellProgramLog", "PhysicalCellReadLog"}) {
+                    if (line.find(string("\"type\": \"") + type + "\"") == string::npos)
+                        continue;
+                    ASSERT_NE(string::npos, die_pos) << type << " has no die: " << line;
+                    ASSERT_NE(string::npos, channel_pos) << type << " has no channel: " << line;
+                    ASSERT_EQ(1, sscanf(line.c_str() + die_pos, "\"die\": %u", &die));
+                    ASSERT_EQ(1, sscanf(line.c_str() + channel_pos, "\"channel\": %u", &ch));
+                    EXPECT_EQ(flash_nb, die) << type;
+                    EXPECT_EQ(channel, ch) << type;
+                    seen[type]++;
+                }
+            }
+        }
+        for (const char* type : {"PhysicalCellProgramLog", "PhysicalCellProgramCompatibleLog",
+                                 "LogicalCellProgramLog", "PhysicalCellReadLog"})
+            EXPECT_GT(seen[type], 0) << type << " was not logged";
     }
 
 } //namespace
