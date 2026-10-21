@@ -525,7 +525,7 @@ namespace log_mgr_tests {
         struct timeval logging_parser_tv;
         TIME_MICROSEC(start);
         PhysicalCellReadLog log = {
-            .channel = 3,
+            .channel = 3, .die = 6,
             .block = 80,
             .page = 123,
             .background = false,
@@ -546,7 +546,7 @@ namespace log_mgr_tests {
         struct timeval logging_parser_tv;
         TIME_MICROSEC(start);
         PhysicalCellProgramLog log = {
-            .channel = 15,
+            .channel = 15, .die = 2,
             .block = 63,
             .page = 50,
             .background = false,
@@ -567,7 +567,7 @@ namespace log_mgr_tests {
         struct timeval logging_parser_tv;
         TIME_MICROSEC(start);
         LogicalCellProgramLog log = {
-            .channel = 2,
+            .channel = 2, .die = 5,
             .block = 260,
             .page = 3,
             .metadata = LOG_META(g_device_index, start, start + 1)
@@ -908,7 +908,7 @@ namespace log_mgr_tests {
         struct timeval logging_parser_tv;
         TIME_MICROSEC(start);
         PhysicalCellReadLog log = {
-            .channel = 1,
+            .channel = 1, .die = 4,
             .block = 2,
             .page = 3,
             .background = false,
