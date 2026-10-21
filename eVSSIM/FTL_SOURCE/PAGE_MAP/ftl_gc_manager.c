@@ -8,8 +8,6 @@
 #include "ftl_obj_strategy.h"
 #include <time.h>
 
-int fail_cnt = 0;
-
 extern ssd_disk ssd;
 GCAlgorithm gc_algo = {
     &DEFAULT_GC_COLLECTION_ALGO,
@@ -272,7 +270,6 @@ ftl_ret_val SELECT_VICTIM_BLOCK(uint8_t device_index, unsigned int* phy_flash_nb
 		curr_root += 1;
 	}
 	if (*(victim_block->valid_page_nb) == devices[device_index].page_nb) {
-		fail_cnt++;
 		return FTL_FAILURE;
 	}
 	*phy_flash_nb = victim_block->phy_flash_nb;
