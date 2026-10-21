@@ -133,35 +133,35 @@ namespace manager_subscriber {
         // write the different logs to the different loggers
         TIME_MICROSEC(end1);
         LOG_PHYSICAL_CELL_PROGRAM(logger1, (PhysicalCellProgramLog) {
-                .channel = 1, .block = 2, .page = 3,
+                .channel = 1, .die = 4, .block = 2, .page = 3,
                 .background = false,
                 .metadata = LOG_META(g_device_index, start, end1),
                 });
         TIME_MICROSEC(end2);
         LOG_PHYSICAL_CELL_PROGRAM(logger1, (PhysicalCellProgramLog) {
-                .channel = 4, .block = 5, .page = 6,
+                .channel = 4, .die = 7, .block = 5, .page = 6,
                 .background = false,
                 .metadata = LOG_META(g_device_index, start, end2),
                 });
         TIME_MICROSEC(end3);
         LOG_LOGICAL_CELL_PROGRAM(logger1, (LogicalCellProgramLog) {
-                .channel = 7, .block = 8, .page = 9,
+                .channel = 7, .die = 2, .block = 8, .page = 9,
                 .metadata = LOG_META(g_device_index, start, end3)
                 });
         TIME_MICROSEC(end4);
         LOG_PHYSICAL_CELL_PROGRAM(logger2, (PhysicalCellProgramLog) {
-                .channel = 10, .block = 11, .page = 12,
+                .channel = 10, .die = 5, .block = 11, .page = 12,
                 .background = false,
                 .metadata = LOG_META(g_device_index, start, end4),
                 });
         TIME_MICROSEC(end5);
         LOG_LOGICAL_CELL_PROGRAM(logger2, (LogicalCellProgramLog) {
-                .channel = 13, .block = 14, .page = 15,
+                .channel = 13, .die = 0, .block = 14, .page = 15,
                 .metadata = LOG_META(g_device_index, start, end5)
                 });
         TIME_MICROSEC(end6);
         LOG_PHYSICAL_CELL_READ(logger2, (PhysicalCellReadLog) {
-                .channel = 16, .block = 17, .page = 18,
+                .channel = 16, .die = 3, .block = 17, .page = 18,
                 .background = false,
                 .metadata = LOG_META(g_device_index, start, end6),
                 });
