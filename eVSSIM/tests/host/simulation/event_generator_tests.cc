@@ -15,6 +15,10 @@
  */
 
 #include "base_emulator_tests.h"
+#include <atomic>
+#include <chrono>
+#include <thread>
+#include <vector>
 
 using namespace std;
 
@@ -24,8 +28,18 @@ const char* STREAM = "/tmp/event_stream.txt";
 const int DISKS = 3;
 const size_t DISK_SIZE_MB = 16;
 
-/** Replay the generator's stream through the real log manager: one logger and offline analyzer per disk.
- * The 3 disks are processed sequentially: disk 0 drains fully, then disk 1, then disk 2. */
+static bool arrive_all(atomic<int>& arrived, int parties) {
+    arrived++;
+    auto deadline = chrono::steady_clock::now() + chrono::seconds(30);
+    while (arrived < parties) {
+        if (chrono::steady_clock::now() > deadline)
+            return false;
+        this_thread::sleep_for(chrono::milliseconds(1));
+    }
+    return true;
+}
+
+/** Replay the generator's stream through the real log manager: one logger and offline analyzer per disk, one thread per disk. */
 static void replay() {
     Logger_Pool* loggers[DISKS];
     for (int d = 0; d < DISKS; d++)
@@ -61,14 +75,26 @@ static void replay() {
     fclose(stream);
 
     elk_logger_writer_init();
+    atomic<int> arrived(0);
+    vector<char> ok(DISKS, 0);
+    vector<thread> workers;
     for (int d = 0; d < DISKS; d++) {
-        OfflineLogAnalyzer* analyzer = offline_log_analyzer_init(loggers[d], d);
-        // exit flag raised before the loop runs: it drains the whole queue once and returns
-        analyzer->exit_loop_flag = 1;
-        offline_log_analyzer_loop(analyzer);
-        offline_log_analyzer_free(analyzer);
-        logger_free(loggers[d]);
+        workers.emplace_back([&, d]() {
+            if (!arrive_all(arrived, DISKS))
+                return;
+            OfflineLogAnalyzer* analyzer = offline_log_analyzer_init(loggers[d], d);
+            // exit flag raised before the loop runs: it drains the whole queue once and returns
+            analyzer->exit_loop_flag = 1;
+            offline_log_analyzer_loop(analyzer);
+            offline_log_analyzer_free(analyzer);
+            logger_free(loggers[d]);
+            ok[d] = 1;
+        });
     }
+    for (auto& worker : workers)
+        worker.join();
+    for (int d = 0; d < DISKS; d++)
+        EXPECT_TRUE(ok[d]) << "disk " << d << " did not finish replay";
     elk_logger_writer_free();
 }
 
@@ -93,39 +119,56 @@ TEST(EventGeneratorTest, GarbageCollection) {
     SSDConf(DISK_SIZE_MB).ssd_conf_serialize();
     INIT_SSD_CONFIG();
 
-    ofstream tally(tally_path);
-    tally << "{";
     for (uint8_t d = 0; d < device_count; d++) {
         FTL_INIT(d);
         INIT_LOG_MANAGER(d);
-        ssd_config_t* config = &devices[d];
-        uint64_t* zero_pages = &inverse_mappings_manager[d].total_zero_page_nb;
-        ASSERT_LT(0, config->gc_victim_nb);
+        ASSERT_LT(0, devices[d].gc_victim_nb);
+    }
 
-        uint64_t pages_total = config->pages_in_ssd - config->page_nb;
-        for (uint64_t lpn = 0; lpn < pages_total; lpn++) {
-            uint64_t ppn;
-            ASSERT_EQ(FTL_SUCCESS, GET_NEW_PAGE(d, VICTIM_OVERALL, config->empty_table_entry_nb, &ppn));
-            ASSERT_EQ(FTL_SUCCESS, UPDATE_NEW_PAGE_MAPPING(d, lpn, ppn));
-        }
-        for (uint64_t lpn = 0; lpn < pages_total; lpn++)
-            ASSERT_EQ(FTL_SUCCESS, UPDATE_OLD_PAGE_MAPPING(d, lpn));
+    atomic<int> arrived(0);
+    vector<uint64_t> collections(device_count, 0);
+    vector<char> ok(device_count, 0);
+    vector<thread> workers;
+    for (uint8_t d = 0; d < device_count; d++) {
+        workers.emplace_back([&, d]() {
+            if (!arrive_all(arrived, device_count))
+                return;
+            [&]() {
+                ssd_config_t* config = &devices[d];
+                uint64_t* zero_pages = &inverse_mappings_manager[d].total_zero_page_nb;
+                uint64_t pages_total = config->pages_in_ssd - config->page_nb;
+                for (uint64_t lpn = 0; lpn < pages_total; lpn++) {
+                    uint64_t ppn;
+                    ASSERT_EQ(FTL_SUCCESS, GET_NEW_PAGE(d, VICTIM_OVERALL, config->empty_table_entry_nb, &ppn));
+                    ASSERT_EQ(FTL_SUCCESS, UPDATE_NEW_PAGE_MAPPING(d, lpn, ppn));
+                }
+                for (uint64_t lpn = 0; lpn < pages_total; lpn++)
+                    ASSERT_EQ(FTL_SUCCESS, UPDATE_OLD_PAGE_MAPPING(d, lpn));
 
-        uint64_t threshold = (uint64_t) config->gc_threshold_block_nb * config->page_nb;
-        uint64_t collections = 0;
-        while (*zero_pages < threshold) {
-            uint64_t before = *zero_pages;
-            ASSERT_TRUE(GC_CHECK(d, false, false));
-            ASSERT_EQ(before + (uint64_t) config->gc_victim_nb * config->page_nb, *zero_pages);
-            collections += config->gc_victim_nb;
-        }
-        ASSERT_FALSE(GC_CHECK(d, false, false));
-        ASSERT_LT(0u, collections);
+                uint64_t threshold = (uint64_t) config->gc_threshold_block_nb * config->page_nb;
+                while (*zero_pages < threshold) {
+                    uint64_t before = *zero_pages;
+                    ASSERT_TRUE(GC_CHECK(d, false, false));
+                    ASSERT_EQ(before + (uint64_t) config->gc_victim_nb * config->page_nb, *zero_pages);
+                    collections[d] += config->gc_victim_nb;
+                }
+                ASSERT_FALSE(GC_CHECK(d, false, false));
+                ok[d] = 1;
+            }();
+        });
+    }
+    for (auto& worker : workers)
+        worker.join();
 
+    ofstream tally(tally_path);
+    tally << "{";
+    for (uint8_t d = 0; d < device_count; d++) {
+        EXPECT_TRUE(ok[d]) << "disk " << (int) d << " did not finish";
+        EXPECT_LT(0u, collections[d]) << "disk " << (int) d;
         FTL_TERM(d);
         TERM_LOG_MANAGER(d);
-        tally << (d ? ", " : "") << "\"" << (int) d << "\": {\"GarbageCollectionLog\": " << collections
-              << ", \"BlockEraseLog\": " << collections << ", \"SsdUtilizationLog\": " << collections << "}";
+        tally << (d ? ", " : "") << "\"" << (int) d << "\": {\"GarbageCollectionLog\": " << collections[d]
+              << ", \"BlockEraseLog\": " << collections[d] << ", \"SsdUtilizationLog\": " << collections[d] << "}";
     }
     tally << "}\n";
     TERM_SSD_CONFIG();
