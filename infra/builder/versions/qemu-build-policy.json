@@ -1,0 +1,42 @@
+{
+  "default_profile": 2,
+  "qemu_branches": {
+    "master": 2,
+    "11.0": 6
+  },
+  "builds": {
+    "ubuntu-14.04": {
+      "container_image": "evssim:ubuntu-14.04",
+      "target": "x86_64-softmmu",
+      "configure_args": [
+        "--enable-trace-backends=log",
+        "--disable-docs",
+        "--enable-tools",
+        "--enable-linux-aio",
+        "--disable-sdl",
+        "--disable-gtk",
+        "--enable-kvm",
+        "--enable-vssim",
+        "--disable-git-update",
+        "--extra-cflags=-Wno-error=unused-but-set-variable -Wno-error=deprecated-declarations -Wno-error=cpp"
+      ],
+      "build_environment": {}
+    },
+    "ubuntu-26.04": {
+      "container_image": "evssim:ubuntu-26.04",
+      "target": "x86_64-softmmu",
+      "configure_args": [
+        "--enable-trace-backends=log",
+        "--disable-docs",
+        "--enable-tools",
+        "--enable-linux-aio",
+        "--disable-sdl",
+        "--disable-gtk",
+        "--enable-kvm",
+        "--enable-werror",
+        "--disable-download"
+      ],
+      "build_environment": {}
+    }
+  }
+}
