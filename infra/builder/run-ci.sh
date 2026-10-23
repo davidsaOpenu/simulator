@@ -5,11 +5,15 @@ trap 'ec=$?; echo "[run-ci.sh] FAILED with exit $ec on: $BASH_COMMAND" >&2' ERR
 # always run from the builder dir so env.sh works
 cd "$(dirname "${BASH_SOURCE[0]}")"
 
-# Check all required tools are installed
-./check_tools.sh
+if [[ -n "${EVSSIM_QEMU_INPUT_RECORD:-}" ]]; then
+    echo "ERROR: run-ci.sh does not consume resolved QEMU input records yet; workflow integration remains S7." >&2
+    exit 1
+fi
 
-# the only script we source on purpose
 source ./env.sh
+
+# Check all required tools are installed after rejecting unsupported requests.
+./check_tools.sh
 export EVSSIM_RUNTIME_ALWAYS_RESET=yes
 
 # freeze absolute paths so later env changes can't break us
@@ -35,9 +39,12 @@ rm -rf "$EVSSIM_ROOT_PATH"/{data,dist}/*
 
 # build + sanity
 ./build-docker-image.sh
+# Use the selected profile directly: its declared guest settings describe
+# the actual build inputs, without profile-specific overrides in this script.
 ./build-qemu-image.sh $EVSSIM_GUEST_TESTS_GUEST_VM_IMAGE $EVSSIM_GUEST_TESTS_GUEST_VM_BUILD_CONTAINER
 ./compile-kernel.sh $EVSSIM_KERNEL_COMPILE_CONTAINER
-./compile-qemu.sh $EVSSIM_QEMU_COMPILE_CONTAINER
+# Build only the configuration loaded by env.sh.
+./compile-qemu.sh "$EVSSIM_QEMU_COMPILE_CONTAINER"
 if [[ "$EVSSIM_KERNEL_BRANCH" == "master" ]]; then
     # Only compile osd & exofs for 5.0.0 kernel
     ./compile-osd-exofs.sh $EVSSIM_KERNEL_COMPILE_CONTAINER

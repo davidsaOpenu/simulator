@@ -13,7 +13,9 @@ fi
 #                  eVSSIM version confuguration variables
 ######################################################################################################
 export EVSSIM_VERSIONS_CONFIGURATION="versions"
-export EVSSIM_VERSIONS_CONFIGURATION_ID=2
+# Use upstream profile 2 when the caller leaves the ID unset or empty.
+# Preserve explicit selections, including profile 4 for QEMU 11.
+export EVSSIM_VERSIONS_CONFIGURATION_ID="${EVSSIM_VERSIONS_CONFIGURATION_ID:-2}"
 # Export:
 #   EVSSIM_KERNEL_BRANCH
 #   EVSSIM_KERNEL_COMPILE_CONTAINER
