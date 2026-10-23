@@ -5,11 +5,22 @@ trap 'ec=$?; echo "[run-ci.sh] FAILED with exit $ec on: $BASH_COMMAND" >&2' ERR
 # always run from the builder dir so env.sh works
 cd "$(dirname "${BASH_SOURCE[0]}")"
 
-# Check all required tools are installed
-./check_tools.sh
+if [[ -n "${EVSSIM_QEMU_INPUT_RECORD:-}" ]]; then
+    echo "ERROR: run-ci.sh does not consume resolved QEMU input records yet; workflow integration remains S7." >&2
+    exit 1
+fi
 
-# the only script we source on purpose
 source ./env.sh
+
+# The launcher still uses the legacy binary layout. A modern profile must
+# not run that binary in a modern container or be silently replaced by legacy.
+if [[ "$EVSSIM_QEMU_BRANCH" != master || "$EVSSIM_QEMU_COMPILE_CONTAINER" != ubuntu-14.04 ]]; then
+    echo "ERROR: run-ci.sh currently tests legacy QEMU master in ubuntu-14.04; profile $EVSSIM_VERSIONS_CONFIGURATION_ID selects $EVSSIM_QEMU_BRANCH in $EVSSIM_QEMU_COMPILE_CONTAINER. QEMU 11 runtime integration remains S3/S7." >&2
+    exit 1
+fi
+
+# Check all required tools are installed after rejecting unsupported requests.
+./check_tools.sh
 export EVSSIM_RUNTIME_ALWAYS_RESET=yes
 
 # freeze absolute paths so later env changes can't break us
@@ -35,9 +46,20 @@ rm -rf "$EVSSIM_ROOT_PATH"/{data,dist}/*
 
 # build + sanity
 ./build-docker-image.sh
+# Use the selected profile directly: its declared guest settings describe
+# the actual build inputs, without profile-specific overrides in this script.
 ./build-qemu-image.sh $EVSSIM_GUEST_TESTS_GUEST_VM_IMAGE $EVSSIM_GUEST_TESTS_GUEST_VM_BUILD_CONTAINER
 ./compile-kernel.sh $EVSSIM_KERNEL_COMPILE_CONTAINER
-./compile-qemu.sh $EVSSIM_QEMU_COMPILE_CONTAINER
+# Check modern compilation separately, then build the selected legacy runtime.
+# Only the modern check changes its child profile; the final build and tests
+# use the same parent configuration.
+(
+    EVSSIM_VERSIONS_CONFIGURATION_ID=$(jq -er '.qemu_branches["11.0"]' "$EVSSIM_ROOT_PATH/$EVSSIM_VERSIONS_FOLDER/qemu-build-policy.json")
+    export EVSSIM_VERSIONS_CONFIGURATION_ID
+    source ./load_config.sh
+    ./compile-qemu.sh "$EVSSIM_QEMU_COMPILE_CONTAINER"
+)
+./compile-qemu.sh "$EVSSIM_QEMU_COMPILE_CONTAINER"
 if [[ "$EVSSIM_KERNEL_BRANCH" == "master" ]]; then
     # Only compile osd & exofs for 5.0.0 kernel
     ./compile-osd-exofs.sh $EVSSIM_KERNEL_COMPILE_CONTAINER
