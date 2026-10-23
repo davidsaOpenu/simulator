@@ -13,7 +13,9 @@ fi
 #                  eVSSIM version confuguration variables
 ######################################################################################################
 export EVSSIM_VERSIONS_CONFIGURATION="versions"
-export EVSSIM_VERSIONS_CONFIGURATION_ID=5
+# Keep the existing default. S2 must also allow an explicit profile (4 for
+# QEMU 11) instead of overwriting the caller's selection with profile 5.
+export EVSSIM_VERSIONS_CONFIGURATION_ID="${EVSSIM_VERSIONS_CONFIGURATION_ID-5}"
 # Export:
 #   EVSSIM_KERNEL_BRANCH
 #   EVSSIM_KERNEL_COMPILE_CONTAINER
