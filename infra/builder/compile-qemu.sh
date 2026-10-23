@@ -1,6 +1,13 @@
 #!/bin/bash
 set -e
 
+# Explicit S2 input mode avoids builder.sh side effects and development-tree
+# checkout/reset/clean operations. Existing version callers retain their path
+# until artifact publication and caller handoff are implemented.
+if [ "${1:-}" = "--request" ]; then
+    exec python3 "$(dirname "$(realpath "$0")")/qemu-artifact.py" "$@"
+fi
+
 source ./builder.sh
 
 evssim_validate_version_arguments "$0" "${1:-}" "$#"
