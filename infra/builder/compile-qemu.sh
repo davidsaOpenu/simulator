@@ -1,25 +1,53 @@
 #!/bin/bash
 set -e
 
+# S2b resolves source/profile inputs without builder.sh side effects or a build.
+if [ "${1:-}" = "--resolve-dependencies" ]; then
+    exec python3 "$(dirname "$(realpath "$0")")/qemu-inputs.py" "$@"
+fi
+
+# A container is a build environment, not a source-branch selector. Reject
+# conflicting callers before builder.sh or any checkout/cleanup side effects.
+if [[ $# -ne 1 ]]; then
+    echo "Usage: $0 <ubuntu-14.04|ubuntu-26.04>" >&2
+    exit 1
+fi
+version="${1:-}"
+if [[ -z "${EVSSIM_QEMU_BRANCH:-}" || -z "${EVSSIM_QEMU_COMPILE_CONTAINER:-}" ]]; then
+    echo "ERROR: Load the selected configuration with source ./env.sh first" >&2
+    exit 1
+fi
+if [[ "$version" != "$EVSSIM_QEMU_COMPILE_CONTAINER" ]]; then
+    echo "ERROR: Requested container $version conflicts with selected profile $EVSSIM_VERSIONS_CONFIGURATION_ID ($EVSSIM_QEMU_COMPILE_CONTAINER)" >&2
+    exit 1
+fi
+if [[ "$version" != ubuntu-14.04 && "$version" != ubuntu-26.04 ]]; then
+    echo "ERROR: Unsupported QEMU compile container: $version" >&2
+    exit 1
+fi
+git check-ref-format --branch "$EVSSIM_QEMU_BRANCH" >/dev/null
+# Compiling a frozen artifact record is S2c work. Reject it here rather than
+# silently building from different inputs through the existing version path.
+if [[ -n "${EVSSIM_QEMU_INPUT_RECORD:-}" ]]; then
+    echo "ERROR: Saved-input compilation belongs to S2c; no build was started" >&2
+    exit 1
+fi
+
 source ./builder.sh
 
 evssim_validate_version_arguments "$0" "${1:-}" "$#"
-version="$1"
 
 evssim_run_at_folder "$version" "$EVSSIM_SIMULATOR_FOLDER/eVSSIM/osc-osd" "make MK_PATH=. ARCH=x86_64 clean"
 
 # Setup git branch, and cleanup artifacts on host
 git -C "$EVSSIM_ROOT_PATH/$EVSSIM_QEMU_FOLDER" fetch --all --prune
+echo "INFO building QEMU branch $EVSSIM_QEMU_BRANCH, profile $EVSSIM_VERSIONS_CONFIGURATION_ID, container $version"
+git -C "$EVSSIM_ROOT_PATH/$EVSSIM_QEMU_FOLDER" checkout "$EVSSIM_QEMU_BRANCH"
 case "$version" in
 	"ubuntu-14.04")
-		# Make sure we use correct branch for 14.04
-		git -C "$EVSSIM_ROOT_PATH/$EVSSIM_QEMU_FOLDER" checkout master
 		VSSIM_CONFIGURE_ARGS="--enable-vssim --extra-cflags='-Wno-error=unused-but-set-variable -Wno-error=deprecated-declarations -Wno-error=cpp'"
 		;;
 	"ubuntu-26.04")
-		# Use 11.0 branch for 26.04
-		echo "INFO switching qemu source tree to branch 11.0 for Ubuntu 26.04 build"
-		git -C "$EVSSIM_ROOT_PATH/$EVSSIM_QEMU_FOLDER" checkout 11.0
 		VSSIM_CONFIGURE_ARGS="--enable-werror"
 		;;
 	*)
