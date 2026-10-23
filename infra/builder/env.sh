@@ -13,7 +13,9 @@ fi
 #                  eVSSIM version confuguration variables
 ######################################################################################################
 export EVSSIM_VERSIONS_CONFIGURATION="versions"
-export EVSSIM_VERSIONS_CONFIGURATION_ID=5
+# Use profile 5 when the caller leaves the ID unset or empty. Preserve an
+# explicit selection, including profile 4 for the QEMU 11 compatibility lane.
+export EVSSIM_VERSIONS_CONFIGURATION_ID="${EVSSIM_VERSIONS_CONFIGURATION_ID:-5}"
 # Export:
 #   EVSSIM_KERNEL_BRANCH
 #   EVSSIM_KERNEL_COMPILE_CONTAINER

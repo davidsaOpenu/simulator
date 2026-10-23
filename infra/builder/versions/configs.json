@@ -115,9 +115,9 @@
         "runContainer": "ubuntu-26.04"
       },
       "guestTests": {
-        "guestVmImage": "ubuntu-26.04",
-        "guestVmBuildContainer": "ubuntu-26.04",
-        "compileContainer": "ubuntu-26.04"
+        "guestVmImage": "ubuntu-14.04",
+        "guestVmBuildContainer": "ubuntu-14.04",
+        "compileContainer": "ubuntu-14.04"
       }
     }
   ]
