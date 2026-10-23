@@ -37,6 +37,24 @@ filesystems_test() {
     test_rc=$?
     set -e
 
+    local results_dir="$EVSSIM_ROOT_PATH/$EVSSIM_LOGS_FOLDER/benchmarks/$(date +'%Y-%m-%d-%H-%M-%S')"
+    mkdir -p "$results_dir"
+    local copy_rc=0
+    evssim_copy_from_guest "/tmp/benchmark/*.json" "$results_dir/" || copy_rc=$?
+    if [ $test_rc -eq 0 ]; then
+        if [ $copy_rc -ne 0 ]; then
+            echo "ERROR copying the fio results from the guest failed (exit $copy_rc)"
+            exit 1
+        fi
+        if ! compgen -G "$results_dir/*.json" > /dev/null; then
+            echo "ERROR no fio results were copied from the guest into $results_dir"
+            exit 1
+        fi
+    fi
+    if compgen -G "$results_dir/*.json" > /dev/null; then
+        echo "INFO fio results @ $results_dir"
+    fi
+
     # Formats nvme0n1 again and traces exofs operations on it
     exofs_rc=0
     if [ $test_rc -eq 0 ]; then
