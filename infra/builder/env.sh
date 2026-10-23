@@ -12,8 +12,9 @@ fi
 ######################################################################################################
 #                  eVSSIM version confuguration variables
 ######################################################################################################
-export EVSSIM_VERSIONS_CONFIGURATION="versions"
-export EVSSIM_VERSIONS_CONFIGURATION_ID=5
+export EVSSIM_VERSIONS_CONFIGURATION="${EVSSIM_VERSIONS_CONFIGURATION:-versions}"
+# load_config preserves an explicit ID or a resolved input record; otherwise
+# the policy file supplies the default (legacy profile 2).
 # Export:
 #   EVSSIM_KERNEL_BRANCH
 #   EVSSIM_KERNEL_COMPILE_CONTAINER
@@ -26,7 +27,7 @@ export EVSSIM_VERSIONS_CONFIGURATION_ID=5
 #   EVSSIM_GUEST_TESTS_COMPILE_CONTAINER
 #   EVSSIM_GUEST_TESTS_GUEST_VM_IMAGE
 #   EVSSIM_GUEST_TESTS_GUEST_VM_BUILD_CONTAINER
-source load_config.sh
+source ./load_config.sh || return 1
 
 ########################################################################################################
 #                  end of eVSSIM version confuguration variables

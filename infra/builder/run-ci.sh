@@ -18,13 +18,6 @@ ELK_DIR="$EVSSIM_ROOT_PATH/simulator/infra/ELK"
 ELK_INSTALL="$ELK_DIR/install_and_start_elk.sh"
 ELK_CLEAN="$ELK_DIR/elk_cleanup.sh"
 
-# Temporary override until guest-tests commit
-if [ "$EVSSIM_VERSIONS_CONFIGURATION_ID" == 5 ]; then
-    EVSSIM_GUEST_TESTS_GUEST_VM_IMAGE=ubuntu-14.04
-    EVSSIM_GUEST_TESTS_GUEST_VM_BUILD_CONTAINER=ubuntu-14.04
-    EVSSIM_GUEST_TESTS_COMPILE_CONTAINER=ubuntu-14.04
-fi
-
 # sanity checks
 [[ -x "$ELK_INSTALL" ]] || { echo "Missing: $ELK_INSTALL"; exit 1; }
 [[ -x "$ELK_CLEAN"   ]] || { echo "Missing: $ELK_CLEAN";   exit 1; }
@@ -41,8 +34,21 @@ env -u http_proxy -u https_proxy -u HTTP_PROXY -u HTTPS_PROXY tox
 ./build-docker-image.sh
 ./build-qemu-image.sh $EVSSIM_GUEST_TESTS_GUEST_VM_IMAGE $EVSSIM_GUEST_TESTS_GUEST_VM_BUILD_CONTAINER
 ./compile-kernel.sh $EVSSIM_KERNEL_COMPILE_CONTAINER
-./compile-qemu.sh ubuntu-26.04
-./compile-qemu.sh ubuntu-14.04 # make sure this is second to simplify docker-run-sanity.sh on the correct qemu branch (as it is expecting 14.04 structure atm)
+# Keep the existing QEMU 11 build check followed by the legacy build. Each
+# check selects a declared profile explicitly; neither changes the parent
+# runtime selection or infers a source branch from a container name.
+(
+    EVSSIM_VERSIONS_CONFIGURATION_ID=$(jq -er '.qemu_branches["11.0"]' "$EVSSIM_ROOT_PATH/$EVSSIM_VERSIONS_FOLDER/qemu-build-policy.json")
+    export EVSSIM_VERSIONS_CONFIGURATION_ID
+    source ./load_config.sh
+    ./compile-qemu.sh "$EVSSIM_QEMU_COMPILE_CONTAINER"
+)
+(
+    EVSSIM_VERSIONS_CONFIGURATION_ID=$(jq -er '.qemu_branches.master' "$EVSSIM_ROOT_PATH/$EVSSIM_VERSIONS_FOLDER/qemu-build-policy.json")
+    export EVSSIM_VERSIONS_CONFIGURATION_ID
+    source ./load_config.sh
+    ./compile-qemu.sh "$EVSSIM_QEMU_COMPILE_CONTAINER"
+)
 ./compile-host-tests.sh $EVSSIM_HOST_TESTS_COMPILE_CONTAINER
 ./compile-guest-tests.sh $EVSSIM_GUEST_TESTS_COMPILE_CONTAINER
 ./docker-run-sanity.sh $EVSSIM_QEMU_COMPILE_CONTAINER
