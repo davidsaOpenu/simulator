@@ -37,6 +37,24 @@
     {
       "unresolved": true,
       "key": {
+        "uuid": "753e3013_4b5d43ea",
+        "filename": "eVSSIM/tests/guest/filesystems/test_mount.py",
+        "patchSetId": 5
+      },
+      "lineNbr": 236,
+      "author": {
+        "id": 1039522
+      },
+      "writtenOn": "2026-10-23T15:07:10Z",
+      "side": 1,
+      "message": "brought it back",
+      "parentUuid": "0cd2bf1d_1d790333",
+      "revId": "7031c85cf5c0fbed6b9f9bb73a69b1edec11d964",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
+    },
+    {
+      "unresolved": true,
+      "key": {
         "uuid": "eee6fdda_af492684",
         "filename": "eVSSIM/tests/guest/filesystems/test_mount.py",
         "patchSetId": 5
@@ -54,6 +72,24 @@
     {
       "unresolved": true,
       "key": {
+        "uuid": "14fccbaa_432c772e",
+        "filename": "eVSSIM/tests/guest/filesystems/test_mount.py",
+        "patchSetId": 5
+      },
+      "lineNbr": 251,
+      "author": {
+        "id": 1039522
+      },
+      "writtenOn": "2026-10-23T15:07:10Z",
+      "side": 1,
+      "message": "fixed",
+      "parentUuid": "eee6fdda_af492684",
+      "revId": "7031c85cf5c0fbed6b9f9bb73a69b1edec11d964",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
+    },
+    {
+      "unresolved": true,
+      "key": {
         "uuid": "1c67b9aa_edcaa414",
         "filename": "infra/builder/docker/ssd.conf.filesystems.template",
         "patchSetId": 5
@@ -65,6 +101,24 @@
       "writtenOn": "2026-10-13T18:32:54Z",
       "side": 1,
       "message": "This configuration results with:\n4096 × (10 × 32768 × 4 − 10) \u003d 5,368,668,160 sectors\nvssim_config_manager.h defines ssd_config-\u003esectors_in_ssd as uint32_t.\nThis overflows.\nAs far as I understand the filesystem tests do not catch it since they use different configurations. Also, vssim.c does not check FTL_WRITE_SECT function\u0027s return values, hence the tests do not actually verify its return value as well.\nI understand it\u0027s a template, and it is probably for @davidsa@openu.ac.il to decide whether its time to update in a separate ticket and I write it here as a heads up.\nChanging this will probably cause modifications in other areas for it to work properly (without adding warnings or even errors), making it out of scope for this change.",
+      "revId": "7031c85cf5c0fbed6b9f9bb73a69b1edec11d964",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "a49feac6_1f5a42a9",
+        "filename": "infra/builder/docker/ssd.conf.filesystems.template",
+        "patchSetId": 5
+      },
+      "lineNbr": 2,
+      "author": {
+        "id": 1039522
+      },
+      "writtenOn": "2026-10-23T15:07:10Z",
+      "side": 1,
+      "message": "I\u0027ve fixed it here: BLOCK_NB 32768 → 4096 on both devices (about 640 MiB each, which fits in uint32 and matches the main template), and the /tmp/osd tmpfs shrunk to match.",
+      "parentUuid": "1c67b9aa_edcaa414",
       "revId": "7031c85cf5c0fbed6b9f9bb73a69b1edec11d964",
       "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
     }
