@@ -33,6 +33,11 @@ filesystems_test() {
     test_rc=$?
     set -e
 
+    local results_dir="$EVSSIM_ROOT_PATH/$EVSSIM_LOGS_FOLDER/benchmarks/$(date +'%Y-%m-%d-%H-%M-%S')"
+    mkdir -p "$results_dir"
+    evssim_copy_from_guest "/tmp/benchmark/*.json" "$results_dir/" || true
+    echo "INFO fio results @ $results_dir"
+
     # Formats nvme0n1 again and traces exofs operations on it
     exofs_rc=0
     if [ $test_rc -eq 0 ]; then
