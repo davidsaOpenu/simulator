@@ -8,16 +8,16 @@ SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 load_json_value() {
     local var_name=$1
     local jq_query=$2
-    local config_file=$3
+    local config_json=$3
 
-    local value=$(jq -r "$jq_query" "$config_file" 2>/dev/null)
-
-    if [[ -z "$value" || "$value" == "null" ]]; then
-        echo "ERROR: Failed to load $var_name"
+    local value
+    if ! value=$(jq -er "$jq_query | select(type == \"string\" and length > 0)" <<< "$config_json"); then
+        echo "ERROR: Failed to load $var_name" >&2
         return 1
     fi
 
-    eval "export $var_name='$value'"
+    printf -v "$var_name" '%s' "$value"
+    export "$var_name"
     return 0
 }
 
@@ -25,7 +25,7 @@ load_json_value() {
 load_config_section() {
     local section_name=$1
     local jq_base_path=$2
-    local config_file=$3
+    local config_json=$3
     shift 3
     local fields=("$@")
 
@@ -35,7 +35,7 @@ load_config_section() {
         local field_upper=$(echo "$field" | sed 's/\([A-Z]\)/_\1/g' | sed 's/^_//' | tr '[:lower:]' '[:upper:]')
         local var_name="EVSSIM_${section_name}_${field_upper}"
         local jq_path="${jq_base_path}.${field}"
-        load_json_value "$var_name" "$jq_path" "$config_file" || return 1
+        load_json_value "$var_name" "$jq_path" "$config_json" || return 1
     done
 
     return 0
@@ -43,29 +43,48 @@ load_config_section() {
 
 # Load config from JSON using jq
 load_config() {
-    local config_id=$1
-    local config_file="${SCRIPT_DIR}/$EVSSIM_VERSIONS_CONFIGURATION/configs.json"
-
-    if [[ ! -f "$config_file" ]]; then
-        echo "ERROR: Config file not found: $config_file"
-        return 1
+    local config_id=""
+    local config_json
+    local directory="${SCRIPT_DIR}/${EVSSIM_VERSIONS_CONFIGURATION:-versions}"
+    if [[ $# -gt 0 ]]; then
+        config_id=$1
+        [[ "$config_id" =~ ^[1-9][0-9]*$ ]] || { echo "ERROR: Invalid configuration ID" >&2; return 1; }
+    elif [[ -n "${EVSSIM_VERSIONS_CONFIGURATION_ID+x}" ]]; then
+        config_id=$EVSSIM_VERSIONS_CONFIGURATION_ID
+        [[ "$config_id" =~ ^[1-9][0-9]*$ ]] || { echo "ERROR: Invalid configuration ID" >&2; return 1; }
     fi
 
-    # Check if config ID exists
-    if ! jq -e ".configs[] | select(.id == $config_id)" "$config_file" > /dev/null 2>&1; then
-        echo "ERROR: Config ID $config_id not found in $config_file"
-        return 1
+    if [[ -n "${EVSSIM_QEMU_INPUT_RECORD:-}" ]]; then
+        # Use the full frozen profile, not a later version of the same ID.
+        config_json=$(python3 "$SCRIPT_DIR/qemu-artifact.py" \
+            --profile-from-inputs "$EVSSIM_QEMU_INPUT_RECORD") || return 1
+        local recorded_id
+        recorded_id=$(jq -er '.id' <<< "$config_json") || return 1
+        if [[ -n "$config_id" && "$config_id" != "$recorded_id" ]]; then
+            echo "ERROR: Configuration ID conflicts with the resolved input record" >&2
+            return 1
+        fi
+        config_id=$recorded_id
+    else
+        if [[ -z "$config_id" ]]; then
+            config_id=$(jq -er '.default_profile' "$directory/qemu-build-policy.json") || return 1
+        fi
+        [[ "$config_id" =~ ^[1-9][0-9]*$ ]] || { echo "ERROR: Invalid default configuration ID" >&2; return 1; }
+        if ! config_json=$(jq -ce --argjson id "$config_id" \
+            '[.configs[] | select(.id == $id)] | if length == 1 then .[0] else error("configuration ID missing or duplicated") end' \
+            "$directory/configs.json"); then
+            echo "ERROR: Failed to load configuration $config_id" >&2
+            return 1
+        fi
     fi
-
-    # Define the base jq query for the selected config
-    local cfg_query=".configs[] | select(.id == $config_id)"
 
     # Load component configurations using the loop function
-    load_config_section "KERNEL" "$cfg_query | .kernel" "$config_file" "branch" "compileContainer" || return 1
-    load_config_section "QEMU" "$cfg_query | .qemu" "$config_file" "branch" "compileContainer" || return 1
-    load_config_section "NVME_CLI" "$cfg_query | .[\"nvme-cli\"]" "$config_file" "branch" "compileContainer" || return 1
-    load_config_section "HOST_TESTS" "$cfg_query | .hostTests" "$config_file" "compileContainer" "runContainer" || return 1
-    load_config_section "GUEST_TESTS" "$cfg_query | .guestTests" "$config_file" "guestVmImage" "guestVmBuildContainer" "compileContainer" || return 1
+    load_config_section "KERNEL" '.kernel' "$config_json" "branch" "compileContainer" || return 1
+    load_config_section "QEMU" '.qemu' "$config_json" "branch" "compileContainer" || return 1
+    load_config_section "NVME_CLI" '.["nvme-cli"]' "$config_json" "branch" "compileContainer" || return 1
+    load_config_section "HOST_TESTS" '.hostTests' "$config_json" "compileContainer" "runContainer" || return 1
+    load_config_section "GUEST_TESTS" '.guestTests' "$config_json" "guestVmImage" "guestVmBuildContainer" "compileContainer" || return 1
+    export EVSSIM_VERSIONS_CONFIGURATION_ID="$config_id"
 
     # Print configuration summary
     echo "=========================================="
@@ -97,7 +116,7 @@ load_config() {
     return 0
 }
 
-if ! load_config "$EVSSIM_VERSIONS_CONFIGURATION_ID"; then
+if ! load_config; then
     echo "ERROR: Failed to load configuration"
-    exit 1
+    return 1 2>/dev/null || exit 1
 fi

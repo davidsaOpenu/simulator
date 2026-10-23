@@ -21,6 +21,9 @@ Examples:
   From timer:
     $(basename "$0") workspace unused davidsaOpenu timer
 
+Optional: set EVSSIM_DEPENDENCY_RECORD to an output JSON path for S2 input
+resolution. Required dependency failures return nonzero with or without it.
+
 EOF
     exit 0
 }
@@ -68,52 +71,120 @@ print_dependency_summary() {
 }
 
 
+# The record is opt-in until the workflow uses S2's resolved-input path.
+# A partial scan must never look like a successful no-dependency selection.
+write_dependency_record() {
+    [[ -n "${EVSSIM_DEPENDENCY_RECORD:-}" ]] || return 0
+    local exit_status=$1
+    local temporary
+    temporary=$(mktemp "${EVSSIM_DEPENDENCY_RECORD}.XXXXXX") || return 1
+    if ! printf '%s\n' "${dependency_records[@]}" | jq -s \
+        --argjson complete "$dependency_scan_complete" --argjson exit_status "$exit_status" \
+        '{schema_version: 1,
+          status: (if $complete == 1 and $exit_status == 0 and
+                      all(.[]; .disposition == "applied" or .disposition == "already_present")
+                   then "complete" else "failed" end), dependencies: .}' > "$temporary"; then
+        rm -f -- "$temporary"
+        return 1
+    fi
+    mv -- "$temporary" "$EVSSIM_DEPENDENCY_RECORD"
+}
+
+record_dependency() {
+    local disposition=$1
+    local error=${2:-}
+    local applied_revision=""
+    local patch_set=0
+    local repo="${WORKSPACE}/$project_name"
+    if [[ "$project_name" == "dnvme" || "$project_name" == "tnvme" ]]; then
+        repo="${WORKSPACE}/nvmeCompl/$project_name"
+    fi
+    if [[ "$disposition" != failed && "$change_status" != NEW && "$change_status" != MERGED ]]; then
+        disposition=failed
+        error="Unsupported Gerrit change status"
+    fi
+    if [[ "$refs_changes" =~ ^refs/changes/[0-9]{2}/[0-9]+/([1-9][0-9]*)$ ]]; then
+        patch_set=${BASH_REMATCH[1]}
+    elif [[ "$disposition" != failed ]]; then
+        disposition=failed
+        error="Exact Gerrit patch-set ref was not obtained"
+    fi
+    # The command's result must not depend on whether JSON export is enabled.
+    if [[ "$disposition" == failed ]]; then
+        dependency_failed=1
+    fi
+    [[ -n "${EVSSIM_DEPENDENCY_RECORD:-}" ]] || return 0
+    if [[ "$disposition" == applied || "$disposition" == already_present ]]; then
+        if [[ "$disposition" == already_present ]] && \
+                git -C "$repo" merge-base --is-ancestor "$commit_hash" HEAD 2>/dev/null; then
+            applied_revision=$commit_hash
+        else
+            # A cherry-pick has a new commit ID; retain the actual applied HEAD.
+            applied_revision=$(git -C "$repo" rev-parse HEAD) || return 1
+        fi
+    fi
+    local entry
+    entry=$(jq -nc --arg project "$project_name" --arg url "$url" \
+        --argjson patch_set "$patch_set" --arg revision "$commit_hash" --arg ref "$refs_changes" \
+        --arg branch "$target_branch" --arg applied "$applied_revision" \
+        --arg disposition "$disposition" --arg error "$error" \
+        '{project: $project, url: $url, patch_set: $patch_set, revision: $revision, ref: $ref,
+          target_branch: $branch, applied_revision: $applied, disposition: $disposition, error: $error}') || return 1
+    dependency_records+=("$entry")
+}
+
 
 # Configure Git identity if not already set
 configure_git_identity() {
     # Check if user.name and user.email are configured
     if ! git config --global user.name >/dev/null 2>&1; then
         echo "Configuring Git user.name..."
-        git config --global user.name "Jenkins Build System"
+        git config --global user.name "Jenkins Build System" || return 1
     fi
 
     if ! git config --global user.email >/dev/null 2>&1; then
         echo "Configuring Git user.email..."
-        git config --global user.email "jenkins@build.system"
+        git config --global user.email "jenkins@build.system" || return 1
     fi
 }
 
 
 # input: $1 - project name
-#        $2 - fetch_cmd
+#        $2 - fetch URL
 #        $3 - commit hash
 #        $4 - Gerrit target branch
+#        $5 - exact patch-set ref
 # output: N/A
 # descr: go to the project repo and perform git fetch
 fetch_ref_spec() {
     local project_name=$1
-    local fetch_cmd=$2
+    local fetch_url=$2
     local commit_hash=$3
     local target_branch=$4
+    local patch_ref=$5
     local branch_key="${project_name}:${target_branch}"
-    project_repo="${WORKSPACE}/$project_name"
+    local project_repo="${WORKSPACE}/$project_name"
+    application_error="Dependency application failed"
 
     if [[ "$project_name" == "dnvme" || "$project_name" == "tnvme" ]]; then
         project_repo="${WORKSPACE}/nvmeCompl/$project_name"
     fi
 
     echo "------------- start fetch_ref_spec ----------------"
-    echo "FETCH CMD: $fetch_cmd"
+    echo "FETCH URL: $fetch_url ($patch_ref)"
     echo "PROJECT REPO: $project_repo"
     echo "COMMIT HASH: $commit_hash"
     echo "TARGET BRANCH: $target_branch"
 
-    pushd "$project_repo"
+    pushd "$project_repo" || return 1
     echo "PWD: $(pwd)"
     echo "BRANCH PRIOR TO FETCH CMD: $(git branch -a)"
     echo "REPO STATUS PRIOR TO FETCH CMD: $(git status)"
 
-    configure_git_identity
+    if ! configure_git_identity; then
+        popd
+        return 1
+    fi
 
     if ! git check-ref-format --branch "$target_branch" >/dev/null 2>&1; then
         echo "ERROR: Invalid Gerrit target branch: $target_branch"
@@ -158,31 +229,43 @@ fetch_ref_spec() {
         return 2  # Special return code for "already in repo"
     fi
 
-    # Proceed with fetch and cherry-pick
+    # Fetch and verify before applying: a moving/mismatched ref must not be
+    # applied merely because recording the result is disabled.
     echo "Attempting to fetch and cherry-pick..."
-    set +e  # Don't exit on error for this section
-
-    eval "$fetch_cmd"
-    local exit_code=$?
-
-    set -e  # Re-enable exit on error
-
-    if [ $exit_code -eq 0 ]; then
+    if ! git fetch "$fetch_url" "$patch_ref"; then
+        popd
+        return 1
+    fi
+    local fetched_revision
+    if ! fetched_revision=$(git rev-parse FETCH_HEAD); then
+        popd
+        return 1
+    fi
+    if [[ "$fetched_revision" != "$commit_hash" ]]; then
+        application_error="Fetched revision differs from Gerrit metadata"
+        echo "ERROR: $application_error"
+        popd
+        return 1
+    fi
+    if git cherry-pick FETCH_HEAD; then
         echo "SUCCESS - Fetched and applied dependency successfully"
         echo "   Status: NEWLY_APPLIED - Cherry-pick completed"
     else
-        echo "Git command failed with exit code: $exit_code"
+        echo "Cherry-pick failed"
         echo "REPO STATUS AFTER THE FETCH: $(git status)"
 
         # Check if we're in a cherry-pick state
-        if [[ -f .git/CHERRY_PICK_HEAD ]]; then
+        if git rev-parse --verify CHERRY_PICK_HEAD >/dev/null 2>&1; then
             echo "Cherry-pick in progress. Checking if it's an empty commit..."
 
             # Check if the cherry-pick resulted in no changes (empty commit)
             if git diff --cached --quiet && git diff --quiet; then
                 echo "Cherry-pick resulted in no changes (commit already applied). Skipping..."
+                if ! git cherry-pick --skip; then
+                    popd
+                    return 1
+                fi
                 echo "   Status: ALREADY_IN_REPO - Empty cherry-pick skipped"
-                git cherry-pick --skip
                 popd
                 echo "PWD: $(pwd)"
                 echo "------------- end fetch_ref_spec ----------------"
@@ -190,17 +273,17 @@ fetch_ref_spec() {
             else
                 echo "Cherry-pick has conflicts or other issues"
                 echo "   Status: FAILED - Conflicts detected"
-                echo "Aborting cherry-pick and resetting repository"
-                git cherry-pick --abort
-                git reset --hard
+                echo "Aborting cherry-pick"
+                if ! git cherry-pick --abort; then
+                    popd
+                    return 1
+                fi
                 popd
                 return 1  # Failed
             fi
         else
             echo "FAILED to fetch due to other reasons"
             echo "   Status: FAILED - Unknown error"
-            echo "Resetting the local repo"
-            git reset --hard
             popd
             return 1  # Failed
         fi
@@ -223,21 +306,49 @@ echo "BUILD SOURCE: $BUILD_SOURCE"
 # Initialize dependency results array
 declare -a dependency_results=()
 declare -A prepared_dependency_branches=()
+declare -a dependency_records=()
+dependency_scan_complete=0
+dependency_failed=0
+if [[ -n "${EVSSIM_DEPENDENCY_RECORD:-}" ]]; then
+    command -v jq >/dev/null || { echo "ERROR: jq is required for the dependency record" >&2; exit 1; }
+    trap 'dependency_record_exit=$?; write_dependency_record "$dependency_record_exit" || exit 1' EXIT
+    write_dependency_record 1
+fi
 
 # Get commit message if triggered from Gerrit
 if [[ "$BUILD_SOURCE" == "gerrit" ]]; then
     echo "Fetching commit message from Gerrit REST API..."
-    # Remove the )]}' prefix that Gerrit adds to prevent XSSI attacks
-    commit_message=$(curl --noproxy "*" -s "https://${GERRIT_HOST}/changes/${GERRIT_USER}%2F${PROJECT}~${CHANGE_ID}/revisions/current/commit" \
-        | sed "1s/^)]}'*//" | jq -r '.message' 2>/dev/null)
+    # Check transport/HTTP success separately from JSON parsing so a failed
+    # request cannot supply a commit message, even if it returned valid JSON.
+    commit_message=""
+    if commit_response=$(curl --noproxy "*" -f -s "https://${GERRIT_HOST}/changes/${GERRIT_USER}%2F${PROJECT}~${CHANGE_ID}/revisions/current/commit"); then
+        # Remove Gerrit's XSSI prefix and require one nonblank string message.
+        commit_message=$(printf '%s\n' "$commit_response" | sed "1s/^)]}'*//" | jq -ers '
+            if length == 1 then
+                .[0].message |
+                if type == "string" then select(test("\\S"))
+                else error("Missing Gerrit commit message") end
+            else error("Expected exactly one Gerrit commit") end' 2>/dev/null) || commit_message=""
+    fi
 
     if [[ -z "$commit_message" || "$commit_message" == "null" ]]; then
         echo "ERROR: Failed to retrieve commit message from Gerrit"
         echo "Trying alternative method using SSH..."
-        # Fallback to SSH method if REST API fails
-        commit_message=$(ssh -p 29418 "${GERRIT_USER}@${GERRIT_HOST}" \
-            gerrit query --current-patch-set --format=JSON "change:${CHANGE_ID}" \
-            | jq -r '.commitMessage' | head -1)
+        # SSH emits one JSON record per change plus a stats record. Select
+        # the change before decoding its multiline message; head on raw text
+        # would discard the Depends-on trailers. Reject failed SSH commands
+        # even if they emitted a partial response before failing.
+        commit_message=""
+        if ssh_response=$(ssh -p 29418 "${GERRIT_USER}@${GERRIT_HOST}" \
+                gerrit query --current-patch-set --commit-message --format=JSON "change:${CHANGE_ID}"); then
+            commit_message=$(printf '%s\n' "$ssh_response" | jq -ers '
+                map(select(.type != "stats")) |
+                if length == 1 then
+                    .[0].commitMessage |
+                    if type == "string" then select(test("\\S"))
+                    else error("Missing Gerrit commit message") end
+                else error("Expected exactly one Gerrit change") end') || commit_message=""
+        fi
 
         if [[ -z "$commit_message" || "$commit_message" == "null" ]]; then
             echo "ERROR: Failed to retrieve commit message via SSH as well"
@@ -261,6 +372,7 @@ if [[ "$BUILD_SOURCE" == "timer" ]]; then
     echo "Timer triggered — skipping depends-on parsing."
     print_dependency_summary
     echo "******************** end handle-depend-on-instructions.sh *************************"
+    dependency_scan_complete=1
     exit 0
 fi
 
@@ -272,24 +384,36 @@ The name of the project should be one of the following:
 $(printf '%s\n' ${projectArr[@]})
 "
 
-# "|| true" to avoid script fail for commit message that contains no depends-on: http.* lines
-depends_on_lines=$(echo "$cleaned_commit_message" | grep -i 'depends-on' | grep -o 'http.*') || true
+# Parse each required trailer, including malformed ones, so none disappear
+# from the summary or turn a failed scan into a successful no-dependency run.
+mapfile -t depends_on_lines < <(printf '%s\n' "$cleaned_commit_message" | grep -i '^[[:space:]]*depends-on:')
 
 echo "PARSING DEPENDS-ON LINES"
 
-for url in $depends_on_lines; do
+for dependency_line in "${depends_on_lines[@]}"; do
+    url="${dependency_line#*:}"
+    url="${url#"${url%%[![:space:]]*}"}"
+    url="${url%"${url##*[![:space:]]}"}"
+    change_status=""
+    commit_hash=""
+    refs_changes=""
+    target_branch=""
+    project_name=""
     # Remove trailing slash if it exists
-    url=$(echo "$url" | sed 's:/*$::')
+    url=${url%/}
 
     # Parse Gerrit URL properly
     # URL format: https://review.gerrithub.io/c/davidsaOpenu/qemu/+/1220521
-    gerrit_host=$(echo "$url" | cut -d "/" -f 3)
-    change_num=$(echo "$url" | grep -o '[0-9]*$')
-
-    # Extract user and project from the /c/user/project/ part
-    url_path=$(echo "$url" | sed 's|https://[^/]*/c/||' | sed 's|/+/[0-9]*$||')
-    gerrit_user=$(echo "$url_path" | cut -d "/" -f 1)
-    project_name=$(echo "$url_path" | cut -d "/" -f 2)
+    if [[ "$url" =~ ^https://([A-Za-z0-9.-]+)/c/([A-Za-z0-9_.-]+)/([A-Za-z0-9_.-]+)/\+/([1-9][0-9]*)$ ]]; then
+        gerrit_host=${BASH_REMATCH[1]}
+        gerrit_user=${BASH_REMATCH[2]}
+        project_name=${BASH_REMATCH[3]}
+        change_num=${BASH_REMATCH[4]}
+    else
+        dependency_results+=("Malformed Depends-on trailer: $dependency_line")
+        record_dependency failed "Invalid dependency URL"
+        continue
+    fi
     gerrit_port="29418"
 
     echo ""
@@ -301,15 +425,16 @@ for url in $depends_on_lines; do
     echo "GERRIT USER: $gerrit_user"
     echo "------------------------------------------------------------"
 
-    # Try to get change info - first try REST API, then SSH
-    change_status=""
-    commit_hash=""
-    refs_changes=""
-    target_branch=""
+    if [[ ! " ${projectArr[*]} " =~ " $project_name " ]]; then
+        echo "$ERROR_INVALID_PROJECT_NAME_OR_URL"
+        dependency_results+=("Change $change_num - was not applied because of invalid project name")
+        record_dependency failed "Invalid project name"
+        continue
+    fi
 
     # Try REST API first
     echo "Trying REST API..."
-    api_response=$(curl --noproxy "*" -s "https://${gerrit_host}/changes/${gerrit_user}%2F${project_name}~${change_num}/detail?o=CURRENT_REVISION" 2>/dev/null)
+    api_response=$(curl --noproxy "*" -s "https://${gerrit_host}/changes/${gerrit_user}%2F${project_name}~${change_num}/detail?o=CURRENT_REVISION" 2>/dev/null) || api_response=""
 
     if [[ -n "$api_response" && "$api_response" != *"Not Found"* ]]; then
         echo "REST API successful"
@@ -338,24 +463,6 @@ for url in $depends_on_lines; do
             current_revision=$(echo "$clean_response" | jq -r '.current_revision' 2>/dev/null || echo "null")
             echo "Debug: current_revision from API: '$current_revision'"
 
-            # If current_revision is null, try to get it from revisions object
-            if [[ "$current_revision" == "null" || -z "$current_revision" ]]; then
-                echo "Debug: get revision from revisions object..."
-                # Keys available in revisions
-                revision_keys=$(echo "$clean_response" | jq -r '.revisions | keys[]' 2>/dev/null || echo "")
-                echo "Debug: Available revision keys: '$revision_keys'"
-
-                if [[ -n "$revision_keys" ]]; then
-                    # Get the first revision key
-                    current_revision=$(echo "$revision_keys" | head -1)
-                    echo "Debug: Using first revision key: '$current_revision'"
-                else
-                    echo "Debug: No revisions found, trying alternative approach..."
-                    # Try to get it from a different path - sometimes it's in the response differently
-                    current_revision=$(echo "$clean_response" | jq -r 'try (.revisions | to_entries[0].key) // empty' 2>/dev/null || echo "")
-                fi
-            fi
-
             echo "Debug: Final current_revision: '$current_revision'"
 
             if [[ -n "$current_revision" && "$current_revision" != "null" && "$current_revision" != "PARSE_ERROR" ]]; then
@@ -363,15 +470,8 @@ for url in $depends_on_lines; do
                 echo "Debug: Using commit_hash: '$commit_hash'"
 
                 # Get the ref from the revision details
-                refs_changes=$(echo "$clean_response" | jq -r ".revisions.\"$current_revision\".ref" 2>/dev/null || echo "null")
+                refs_changes=$(echo "$clean_response" | jq -r --arg revision "$current_revision" '.revisions[$revision].ref // empty' 2>/dev/null || echo "")
                 echo "Debug: refs from API: '$refs_changes'"
-
-                # If ref is not available, construct it
-                if [[ "$refs_changes" == "null" || -z "$refs_changes" ]]; then
-                    change_suffix=$(printf "%02d" $((change_num % 100)))
-                    refs_changes="refs/changes/${change_suffix}/${change_num}/1"
-                    echo "Debug: Constructed refs: '$refs_changes'"
-                fi
             else
                 echo "Debug: Could not get commit hash"
                 commit_hash=""
@@ -385,17 +485,25 @@ for url in $depends_on_lines; do
 
     echo "Debug: Final values - status: '$change_status', hash: '$commit_hash'"
 
-    # If REST API failed, try SSH
-    if [[ -z "$change_status" ]]; then
+    # Missing or invalid REST metadata requires an authoritative SSH response;
+    # do not guess a revision or assume patch set 1.
+    if [[ "$change_status" != NEW && "$change_status" != MERGED && "$change_status" != ABANDONED ]] || \
+            [[ ! "$commit_hash" =~ ^[0-9a-f]{40}$ || ! "$refs_changes" =~ ^refs/changes/[0-9]{2}/[0-9]+/[1-9][0-9]*$ || -z "$target_branch" || "$target_branch" == null ]]; then
         echo "REST API failed, trying SSH..."
-        ssh_result=$(ssh -p $gerrit_port $gerrit_user@$gerrit_host gerrit query --current-patch-set --format=JSON change:$change_num 2>/dev/null) || true
-
-        if [[ -n "$ssh_result" ]]; then
-            echo "SSH successful"
-            change_status=$(echo "$ssh_result" | jq -r '.status' | head -1)
-            commit_hash=$(echo "$ssh_result" | jq -r '.currentPatchSet.revision' | head -1)
-            refs_changes=$(echo "$ssh_result" | jq -r '.currentPatchSet.ref' | head -1)
-            target_branch=$(echo "$ssh_result" | jq -r '.branch' | head -1)
+        if ssh_result=$(ssh -p $gerrit_port $gerrit_user@$gerrit_host gerrit query --current-patch-set --format=JSON change:$change_num 2>/dev/null); then
+            if [[ -n "$ssh_result" ]]; then
+                echo "SSH successful"
+                change_status=$(echo "$ssh_result" | jq -r '.status // empty' | head -1) || change_status=""
+                commit_hash=$(echo "$ssh_result" | jq -r '.currentPatchSet.revision // empty' | head -1) || commit_hash=""
+                refs_changes=$(echo "$ssh_result" | jq -r '.currentPatchSet.ref // empty' | head -1) || refs_changes=""
+                target_branch=$(echo "$ssh_result" | jq -r '.branch // empty' | head -1) || target_branch=""
+            fi
+        else
+            ssh_status=$?
+            echo "ERROR: SSH metadata retrieval failed for $change_num (exit $ssh_status)"
+            dependency_results+=("Change $change_num - was not applied because SSH metadata retrieval failed")
+            record_dependency failed "SSH metadata retrieval failed (exit $ssh_status)"
+            continue
         fi
     fi
 
@@ -403,25 +511,12 @@ for url in $depends_on_lines; do
     if [[ -z "$change_status" ]]; then
         echo "ERROR: Could not retrieve change status for $change_num"
         dependency_results+=("Change $change_num - was not applied because API failed")
+        record_dependency failed "Change metadata was not obtained"
         continue
     fi
 
-    # If REST omitted any required change metadata, try SSH as fallback.
-    if [[ -z "$commit_hash" || -z "$refs_changes" || "$refs_changes" == "null" || -z "$target_branch" || "$target_branch" == "null" ]]; then
-        echo "DEBUG: REST API omitted required metadata, trying SSH fallback..."
-        ssh_result=$(ssh -p $gerrit_port $gerrit_user@$gerrit_host gerrit query --current-patch-set --format=JSON change:$change_num 2>/dev/null) || true
-
-        if [[ -n "$ssh_result" ]]; then
-            echo "SSH fallback successful"
-            commit_hash=$(echo "$ssh_result" | jq -r '.currentPatchSet.revision' | head -1)
-            refs_changes=$(echo "$ssh_result" | jq -r '.currentPatchSet.ref' | head -1)
-            target_branch=$(echo "$ssh_result" | jq -r '.branch' | head -1)
-            echo "Got from SSH - Hash: $commit_hash, Ref: $refs_changes, Branch: $target_branch"
-        fi
-    fi
-
-    # If still no commit hash, construct what we can
-    if [[ -z "$commit_hash" ]]; then
+    # An unverified revision cannot satisfy a required dependency.
+    if [[ ! "$commit_hash" =~ ^[0-9a-f]{40}$ ]]; then
         echo "WARNING: Could not get commit hash, but change status is $change_status"
         if [[ "$change_status" == "MERGED" ]]; then
             echo "INFO: Since change is MERGED, it might already be in the repository"
@@ -429,6 +524,13 @@ for url in $depends_on_lines; do
         else
             dependency_results+=("Change $change_num - was not applied because commit hash could not be determined")
         fi
+        record_dependency failed "Revision was not obtained"
+        continue
+    fi
+
+    if [[ ! "$refs_changes" =~ ^refs/changes/[0-9]{2}/[0-9]+/[1-9][0-9]*$ ]]; then
+        dependency_results+=("Change $change_num - was not applied because its exact patch-set ref was not obtained")
+        record_dependency failed "Exact Gerrit patch-set ref was not obtained"
         continue
     fi
 
@@ -439,6 +541,7 @@ for url in $depends_on_lines; do
     if [[ -z "$target_branch" || "$target_branch" == "null" ]]; then
         echo "ERROR: Could not determine target branch for $change_num"
         dependency_results+=("Change $change_num - was not applied because its target branch could not be determined")
+        record_dependency failed "Target branch was not obtained"
         continue
     fi
 
@@ -448,39 +551,37 @@ for url in $depends_on_lines; do
     elif [[ "$change_status" == "ABANDONED" ]]; then
         echo "WARNING: Change $change_num is ABANDONED. Skipping..."
         dependency_results+=("Change $change_num - was not applied because it was abandoned")
+        record_dependency failed "Change is abandoned"
         continue
-    else
+    elif [[ "$change_status" == NEW ]]; then
         echo "INFO: Change $change_num is not merged (status: $change_status). Will apply if possible..."
+    else
+        dependency_results+=("Change $change_num - was not applied because of unsupported status: $change_status")
+        record_dependency failed "Unsupported Gerrit change status"
+        continue
     fi
 
-    fetch_cmd="git fetch https://$gerrit_host/$gerrit_user/$project_name $refs_changes && git cherry-pick FETCH_HEAD"
-    echo "FETCH CMD: $fetch_cmd"
+    # Capture the special already-present result without toggling errexit.
+    echo "Attempting to apply dependency..."
+    fetch_result=0
+    fetch_ref_spec "$project_name" "https://$gerrit_host/$gerrit_user/$project_name" \
+        "$commit_hash" "$target_branch" "$refs_changes" || fetch_result=$?
 
-    if [[ " ${projectArr[*]} " =~ " $project_name " ]]; then
-        # Call fetch_ref_spec and capture the result
-        echo "Attempting to apply dependency..."
-        set +e  # Don't exit on error for fetch_ref_spec
-        fetch_ref_spec "$project_name" "$fetch_cmd" "$commit_hash" "$target_branch"
-        fetch_result=$?
-        set -e  # Re-enable exit on error
-
-        # Store the result based on return code
-        if [ $fetch_result -eq 0 ]; then
-            dependency_results+=("Change $change_num - was applied")
-        elif [ $fetch_result -eq 2 ]; then
-            dependency_results+=("Change $change_num - was not applied because it is already in the repo")
-        else
-            dependency_results+=("Change $change_num - was not applied because of error")
-        fi
+    if [ $fetch_result -eq 0 ]; then
+        dependency_results+=("Change $change_num - was applied")
+        record_dependency applied
+    elif [ $fetch_result -eq 2 ]; then
+        dependency_results+=("Change $change_num - was not applied because it is already in the repo")
+        record_dependency already_present
     else
-        echo "$ERROR_INVALID_PROJECT_NAME_OR_URL"
-        dependency_results+=("Change $change_num - was not applied because of invalid project name")
-        print_dependency_summary
-        exit 1
+        dependency_results+=("Change $change_num - was not applied because of error: $application_error")
+        record_dependency failed "$application_error"
     fi
 done
+dependency_scan_complete=1
 
 # Always print summary at the end
 print_dependency_summary
 
 echo "******************** end handle-depend-on-instructions.sh *************************"
+exit "$dependency_failed"
