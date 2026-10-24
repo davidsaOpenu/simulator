@@ -26,6 +26,10 @@ setup.template.settings:
 setup.template.append_fields:
   - name: utilization_percent
     type: float
+  - name: iops
+    type: float
+  - name: bw_kbps
+    type: float
 
 setup.kibana:
   host: "kibana:5601"
