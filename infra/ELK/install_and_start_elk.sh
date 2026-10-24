@@ -495,6 +495,20 @@ add_kibana_runtime_field() {
   unset IFS
 }
 
+# Import the Kibana dashboards
+import_kibana_dashboards() {
+    local ndjson response
+    for ndjson in eVSSIM_Logs_Dashboard.ndjson eVSSIM_fio_Benchmark_Dashboard.ndjson; do
+        response="$(curl -k -s -X POST "https://localhost:5601/api/saved_objects/_import?overwrite=true" \
+                    -H "kbn-xsrf: true" --form file=@"$ndjson" -u "elastic:$ELASTIC_PASSWORD")"
+        if [[ "$(jq -r '.success' <<< "$response" 2>/dev/null)" != "true" ]]; then
+            echo "ERROR: importing $ndjson failed: $response"
+            return 1
+        fi
+        echo "OK: imported $ndjson"
+    done
+}
+
 # Get user input
 if [[ $# -ne 2 ]]; then
     echo "Usage: $0 <log_directory> <elk_directory> - Please provide the full path"
@@ -670,6 +684,7 @@ if [[ $running_containers -gt 0 ]]; then
     else
         echo "Skipping container restart, checking health..."
         check_kibana_health
+        (cd "$ELK_DIR" && import_kibana_dashboards) || exit 1
         exit 0
     fi
 fi
@@ -709,7 +724,7 @@ setup_filebeat "$LOG_DIR" "$ELK_DIR" || { echo "Filebeat setup failed, exiting";
 
 # Upload Dashboard
 add_kibana_runtime_field
-curl -k -X POST "https://localhost:5601/api/saved_objects/_import?overwrite=true" -H "kbn-xsrf: true" --form file=@eVSSIM_Logs_Dashboard.ndjson -u elastic:$ELASTIC_PASSWORD
+import_kibana_dashboards || { echo "Dashboard import failed, exiting"; exit 1; }
 
 # Display container status
 echo ""
