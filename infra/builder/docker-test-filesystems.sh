@@ -4,6 +4,25 @@ source ./builder.sh
 evssim_validate_version_arguments "$0" "${1:-}" "$#"
 version="$1"
 
+# Waits up to 2 minutes for Elasticsearch to hold every document of the fio log file $1
+fio_results_in_elk() {
+    local run_id expected password count=""
+    run_id=$(head -1 "$1" | jq -r .run_id)
+    expected=$(wc -l < "$1")
+    password=$(sed -n 's/^ELASTIC_PASSWORD=//p' "$EVSSIM_ROOT_PATH/$EVSSIM_SIMULATOR_FOLDER/infra/ELK/.env")
+    for _ in $(seq 24); do
+        count=$(curl -sk --noproxy '*' -u "elastic:$password" -G "https://localhost:9200/filebeat-*/_count" \
+            --data-urlencode "q=run_id:\"$run_id\"" | jq -r .count)
+        if [ "$count" = "$expected" ]; then
+            echo "INFO All $expected fio documents of run_id $run_id are in Elasticsearch"
+            return 0
+        fi
+        sleep 5
+    done
+    echo "ERROR Elasticsearch has ${count:-no} of $expected fio documents of run_id $run_id"
+    return 1
+}
+
 filesystems_test() {
     # Make a fresh copy
     evssim_qemu_fresh_image "$version"
@@ -37,6 +56,8 @@ filesystems_test() {
     mkdir -p "$results_dir"
     evssim_copy_from_guest "/tmp/benchmark/*.json" "$results_dir/" || true
     echo "INFO fio results @ $results_dir"
+    local kernel_version
+    kernel_version=$(evssim_guest "uname -r" | tr -d '\r' || true)
 
     # Formats nvme0n1 again and traces exofs operations on it
     exofs_rc=0
@@ -77,6 +98,25 @@ filesystems_test() {
         fi
     done
 
+    # Ship the fio results to ELK; filebeat picks up any elk_log_file-*.log
+    local fio_rc=0
+    local fio_log="$logs_dir/elk_log_file-fio-$(basename "$results_dir").log"
+    if [ $test_rc -eq 0 ]; then
+        set +e
+        python3 "$EVSSIM_ROOT_PATH/$EVSSIM_SIMULATOR_FOLDER/infra/ELK/fio_to_elk.py" "$results_dir" \
+            --job-file "$EVSSIM_ROOT_PATH/$EVSSIM_SIMULATOR_FOLDER/eVSSIM/tests/guest/filesystems/fs_benchmark.fio" \
+            --kernel-version "$kernel_version" \
+            --output "$fio_log"
+        fio_rc=$?
+        set -e
+    fi
+
+    # Every fio document of this run must have reached Elasticsearch
+    local elk_rc=0
+    if [ $test_rc -eq 0 ] && [ $fio_rc -eq 0 ]; then
+        fio_results_in_elk "$fio_log" || elk_rc=1
+    fi
+
     # Fail if tests fails
     if [ $test_rc -ne 0 ]; then
         echo "ERROR filesystem mount test failed"
@@ -85,6 +125,14 @@ filesystems_test() {
     if [ $exofs_rc -ne 0 ]; then
         echo "ERROR exofs test failed"
         exit $exofs_rc
+    fi
+    if [ $fio_rc -ne 0 ]; then
+        echo "ERROR converting the fio results for ELK failed"
+        exit $fio_rc
+    fi
+    if [ $elk_rc -ne 0 ]; then
+        echo "ERROR the fio results did not reach Elasticsearch"
+        exit $elk_rc
     fi
     exit $ftl_rc
 }

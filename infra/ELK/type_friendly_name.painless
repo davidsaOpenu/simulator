@@ -17,6 +17,7 @@ m.put('BlockEraseLog',            'Memory Block Erase');
 m.put('ChannelSwitchToReadLog',   'Channel Mode Switched to Read');
 m.put('ChannelSwitchToWriteLog',  'Channel Mode Switched to Write');
 m.put('SsdUtilizationLog',  'SSD Utilization');
+m.put('FioBenchmarkLog',    'fio Benchmark Result');
 
 def label = m.get(t);
 emit(label != null ? label : t);
