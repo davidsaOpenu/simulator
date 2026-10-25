@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "28f89edc_1c5db4ca",
+        "filename": "/COMMIT_MSG",
+        "patchSetId": 3
+      },
+      "lineNbr": 22,
+      "author": {
+        "id": 1007990
+      },
+      "writtenOn": "2026-10-25T06:30:39Z",
+      "side": 1,
+      "message": "The definition of the Trello card reveals an implementation mismatch. The Trello card states that we must verify sizes for 6 devices, but the current tests are not compliant. Also, please state the Trello card definitions according to https://docs.google.com/document/d/1Gjikl3VnJRQdp1QKvI3_fRFVSz6secq02fra79A9NW4/edit?tab\u003dt.0",
+      "range": {
+        "startLine": 22,
+        "startChar": 0,
+        "endLine": 22,
+        "endChar": 118
+      },
+      "revId": "986e884da92a30e955c33fb3cfad627eeea65ac9",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
+    }
+  ]
+}
