@@ -53,6 +53,24 @@
       "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "838a341d_84cb17bd",
+        "filename": "eVSSIM/tests/guest/filesystems/test_mount.py",
+        "patchSetId": 5
+      },
+      "lineNbr": 236,
+      "author": {
+        "id": 1039517
+      },
+      "writtenOn": "2026-10-26T20:21:55Z",
+      "side": 1,
+      "message": "Acknowledged",
+      "parentUuid": "753e3013_4b5d43ea",
+      "revId": "7031c85cf5c0fbed6b9f9bb73a69b1edec11d964",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "eee6fdda_af492684",
@@ -88,6 +106,24 @@
       "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "36682b0f_1faa4d5d",
+        "filename": "eVSSIM/tests/guest/filesystems/test_mount.py",
+        "patchSetId": 5
+      },
+      "lineNbr": 251,
+      "author": {
+        "id": 1039517
+      },
+      "writtenOn": "2026-10-26T20:21:55Z",
+      "side": 1,
+      "message": "Acknowledged",
+      "parentUuid": "14fccbaa_432c772e",
+      "revId": "7031c85cf5c0fbed6b9f9bb73a69b1edec11d964",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "1c67b9aa_edcaa414",
@@ -119,6 +155,24 @@
       "side": 1,
       "message": "I\u0027ve fixed it here: BLOCK_NB 32768 → 4096 on both devices (about 640 MiB each, which fits in uint32 and matches the main template), and the /tmp/osd tmpfs shrunk to match.",
       "parentUuid": "1c67b9aa_edcaa414",
+      "revId": "7031c85cf5c0fbed6b9f9bb73a69b1edec11d964",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "de691b02_23ab4f8d",
+        "filename": "infra/builder/docker/ssd.conf.filesystems.template",
+        "patchSetId": 5
+      },
+      "lineNbr": 2,
+      "author": {
+        "id": 1039517
+      },
+      "writtenOn": "2026-10-26T20:21:55Z",
+      "side": 1,
+      "message": "Acknowledged",
+      "parentUuid": "a49feac6_1f5a42a9",
       "revId": "7031c85cf5c0fbed6b9f9bb73a69b1edec11d964",
       "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
     }
