@@ -16,6 +16,24 @@
       "message": "The ext4 stand-in is still reported as exofs: _benchmark(\"exofs\") writes fio-exofs.json, the converter derives \"filesystem\": \"exofs\" from that filename, and the dashboard displays an exofs-labelled series.\nAlso, the device remains configured for object storage, so its sector FTL calls are rejected even though legacy QEMU can return success.\nCould we skip this benchmark until exofs is available, or clearly label and exclude placeholder results from the comparison while using a matching simulator configuration?\nI\u0027m just adding a consideration as opposed to keeping a TODO to sort the stand-in in the future.",
       "revId": "d419c699585318e16c8c6b8427b2655013e728eb",
       "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "e38290df_fc15bd3d",
+        "filename": "eVSSIM/tests/guest/filesystems/test_benchmark.py",
+        "patchSetId": 1
+      },
+      "lineNbr": 27,
+      "author": {
+        "id": 1039522
+      },
+      "writtenOn": "2026-10-28T18:14:38Z",
+      "side": 1,
+      "message": "added indicative label",
+      "parentUuid": "764f99b5_ebe87c2e",
+      "revId": "d419c699585318e16c8c6b8427b2655013e728eb",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
     }
   ]
 }
