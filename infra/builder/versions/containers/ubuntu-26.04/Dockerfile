@@ -23,6 +23,7 @@ RUN apt-get update && DEBIAN_FRONTEND=noninteractive apt-get -y install \
   libvncserver-dev \
   libpci-dev \
   libaio-dev \
+  libslirp-dev \
   libssl-dev \
   libpixman-1-dev \
   sshpass \
