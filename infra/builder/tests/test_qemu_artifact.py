@@ -13,6 +13,7 @@ import io
 import json
 import os
 from pathlib import Path
+import re
 import shlex
 import shutil
 import subprocess
@@ -102,6 +103,102 @@ class DockerBuild:
             manifest = json.loads((Path(arguments[arguments.index("--volume") + 1]
                 .removesuffix(":/artifact:ro")) / "manifest.json").read_text())
             log.write_text("QEMU emulator version " + manifest["version"] + "\n")
+
+
+class StartupReadinessTests(unittest.TestCase):
+    """Exercise production startup functions with Docker/SSH boundaries replaced."""
+
+    def shell(self, commands, host_port="2223"):
+        source = (BUILDER / "builder.sh").read_text()
+        names = ("evssim_guest_probe", "evssim_wait_for_guest_startup",
+                 "evssim_wait_for_devices", "evssim_qemu_is_running",
+                 "evssim_qemu_fresh_image")
+        functions = "\n".join(re.search(
+            r"^" + name + r" \(\) \{.*?^\}", source, re.M | re.S).group(0)
+            for name in names)
+        environment = dict(os.environ, EVSSIM_QEMU_SSH_PORT="2222",
+                           EVSSIM_SSH_KEYS_PATH="/fixture/keys",
+                           EVSSIM_QEMU_UBUNTU_USERNAME="fixture",
+                           EVSSIM_DOCKER_UUID="fixture",
+                           EVSSIM_PROVISIONED_DEVICE_COUNT="2")
+        environment.pop("EVSSIM_QEMU_PORT", None)
+        if host_port is not None:
+            environment["EVSSIM_QEMU_PORT"] = host_port
+        return subprocess.run(["bash", "--noprofile", "--norc", "-c",
+            "set -eu -o pipefail\n" + functions + "\n" + commands],
+            env=environment, capture_output=True, text=True, timeout=10)
+
+    def test_fresh_image_stops_on_preparation_failure_in_conditional_call(self):
+        for stop_status, copy_status, expected_steps in (
+                (0, 0, ["stop", "copy", "inject"]),
+                (7, 0, ["stop"]),
+                (0, 9, ["stop", "copy"])):
+            with self.subTest(stop=stop_status, copy=copy_status), tempfile.TemporaryDirectory() as folder:
+                template, image = Path(folder) / "template", Path(folder) / "image"
+                template.write_text("fresh image")
+                image.write_text("old image")
+                result = self.shell(
+                    'IMAGE_PATH_TEMPLATE=' + shlex.quote(str(template)) + '\n'
+                    'IMAGE_PATH=' + shlex.quote(str(image)) + '\n'
+                    'evssim_validate_guest_payload() { return 0; }\n'
+                    'evssim_qemu_stop() { echo TRACE:stop; return ' + str(stop_status) + '; }\n'
+                    'cp() { echo TRACE:copy; '
+                    + ('command cp "$@";' if copy_status == 0 else 'return 9;') + ' }\n'
+                    'evssim_copy_tools() { echo TRACE:inject; }\n'
+                    'if ! evssim_qemu_fresh_image ubuntu-14.04 core; then exit 1; fi\n')
+                success = stop_status == copy_status == 0
+                self.assertEqual(0 if success else 1, result.returncode, result.stdout + result.stderr)
+                steps = [line.removeprefix("TRACE:") for line in result.stdout.splitlines()
+                         if line.startswith("TRACE:")]
+                self.assertEqual(expected_steps, steps)
+                self.assertEqual("fresh image" if success else "old image", image.read_text())
+
+    def test_probe_uses_host_port_and_supports_older_parent(self):
+        for host_port, expected in (("2223", "2223"), (None, "2222")):
+            with self.subTest(host_port=host_port):
+                result = self.shell('timeout() { printf "%s\\n" "$@"; }\n'
+                                    'evssim_guest_probe 10 /bin/true', host_port)
+                self.assertEqual(0, result.returncode, result.stderr)
+                arguments = result.stdout.splitlines()
+                self.assertEqual("5", arguments[0])
+                self.assertEqual(expected, arguments[arguments.index("-p") + 1])
+                self.assertEqual("/bin/true", arguments[-1])
+
+    def test_startup_accepts_ready_guest(self):
+        result = self.shell('docker() { printf "true\\n"; }\n'
+                            'timeout() { return 0; }\n'
+                            'evssim_wait_for_guest_startup 5')
+        self.assertEqual(0, result.returncode, result.stderr)
+        self.assertIn("VM SSH ready", result.stdout)
+
+    def test_startup_stops_when_qemu_exits(self):
+        result = self.shell('docker() { printf "false\\n"; }\n'
+                            'timeout() { echo UNEXPECTED_SSH; }\n'
+                            'evssim_wait_for_guest_startup 5')
+        self.assertEqual(1, result.returncode, result.stderr)
+        self.assertIn("QEMU exited", result.stdout)
+        self.assertNotIn("UNEXPECTED_SSH", result.stdout)
+
+    def test_startup_stops_at_deadline(self):
+        result = self.shell('docker() { printf "true\\n"; }\n'
+                            'timeout() { SECONDS=10; return 1; }\n'
+                            'SECONDS=0\nevssim_wait_for_guest_startup 5')
+        self.assertEqual(1, result.returncode, result.stderr)
+        self.assertIn("VM SSH not available after 5s", result.stdout)
+
+    def test_device_inventory_probe_uses_host_port(self):
+        for inventory, success in (("/dev/nvme0n1\\n/dev/nvme1n1", True),
+                                   ("/dev/nvme0n1\\n/dev/nvme2n1", False)):
+            with self.subTest(inventory=inventory):
+                result = self.shell('docker() { printf "true\\n"; }\n'
+                    'timeout() {\n'
+                    '  while [ "$1" != -p ]; do shift; done\n'
+                    '  [ "$2" = "$EVSSIM_QEMU_PORT" ] || exit 9\n'
+                    '  printf "' + inventory + '\\n"\n}\n'
+                    'evssim_wait_for_devices 5')
+                self.assertEqual(0 if success else 1, result.returncode, result.stderr)
+                self.assertIn("inventory verified" if success else "Unexpected NVMe device",
+                              result.stdout)
 
 
 class ArtifactTests(unittest.TestCase):
@@ -338,6 +435,44 @@ class ArtifactTests(unittest.TestCase):
         self.image.return_value = dict(IMAGE, image_id="sha256:" + "2" * 64)
         with self.assertRaisesRegex(artifact.InputError, "container differ"):
             artifact.validate_saved_inputs(self.identity, str(self.qemu), str(self.simulator))
+
+    def test_runtime_selection_preserves_s2c_dependency_report_and_older_selections(self):
+        self.bundle(self.dist)
+        environment = dict(os.environ, EVSSIM_VERSIONS_CONFIGURATION_ID="4")
+        loaded = subprocess.check_output(["bash", "-c", "set -e; source ./env.sh >/dev/null; env -0"],
+                                         cwd=BUILDER, env=environment)
+        environment = dict(entry.decode().split("=", 1) for entry in loaded.split(b"\0") if entry)
+        selection_path = self.root / "selection.json"
+        for report in (False, True):
+            with self.subTest(dependency_report=report):
+                identity = copy.deepcopy(self.identity)
+                if report:
+                    identity["dependency_report"].append(self.dependency("kernel", branch="master"))
+                else:
+                    identity.pop("dependency_report")
+                selection = artifact.artifact_selection(identity, self.artifacts, self.dist, "hit")
+                selection_path.write_text(json.dumps(selection))
+                with mock.patch.dict(os.environ, environment, clear=True), mock.patch.object(
+                        artifact, "command_output", return_value=b"QEMU emulator version 11.0.0\n"):
+                    status, output, errors = self.cli("--runtime-selection", selection_path)
+                self.assertEqual(0, status, errors)
+                runtime = json.loads(output)
+                self.assertEqual(selection, {k: v for k, v in runtime.items() if not k.startswith("runtime_")})
+                self.assertEqual("/qemu-artifact/bin/qemu-system-x86_64", runtime["runtime_executable"])
+                if report:
+                    self.assertEqual(identity["dependency_report"], runtime["dependency_report"])
+                    selection["dependency_report"][0]["applied_revision"] = "f" * 40
+                    with self.assertRaises(artifact.InputError):
+                        artifact.runtime_selection(selection, self.profiles, environment)
+
+    def test_runtime_selection_rejects_build_policy_override(self):
+        with mock.patch.object(artifact, "runtime_selection") as runtime:
+            status, output, errors = self.cli("--runtime-selection", "unused.json",
+                                               "--build-policy", "unused-policy.json")
+        self.assertNotEqual(0, status)
+        self.assertEqual("", output)
+        self.assertIn("build/selection options are not allowed", errors)
+        runtime.assert_not_called()
 
     def test_ordinary_and_artifact_configure_arguments_match_both_lanes(self):
         for container in ("ubuntu-14.04", "ubuntu-26.04"):

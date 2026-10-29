@@ -34,6 +34,7 @@
         "--disable-gtk",
         "--enable-kvm",
         "--enable-werror",
+        "--enable-slirp",
         "--disable-download"
       ],
       "build_environment": {}

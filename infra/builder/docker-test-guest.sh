@@ -15,7 +15,7 @@ guest_test() {
     test_index=$(($test_index+1))
 
     # Make a fresh copy
-    evssim_qemu_fresh_image "$version"
+    evssim_qemu_fresh_image "$version" core
 
     # Run qemu with test specific configuration
     EVSSIM_RUNTIME_STORAGE_STRATEGY=$strategy EVSSIM_QEMU_SIMULATOR_ENABLED=$simulator evssim_qemu_detached "$version"
