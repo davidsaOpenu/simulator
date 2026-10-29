@@ -261,6 +261,48 @@ evssim_qemu () {
     local append=$7
     local host_version=$8
 
+    if [ "$host_version" != "$EVSSIM_QEMU_COMPILE_CONTAINER" ]; then
+        echo "ERROR Runtime container $host_version conflicts with configuration $EVSSIM_VERSIONS_CONFIGURATION_ID"
+        return 1
+    fi
+
+    local runtime_image="$EVSSIM_DOCKER_IMAGE_NAME:$host_version"
+    local runtime_workdir="$EVSSIM_DOCKER_ROOT_PATH/$EVSSIM_QEMU_FOLDER/hw"
+    local runtime_executable="../x86_64-softmmu/qemu-system-x86_64"
+    local firmware_args="-L /usr/share/seabios -L ../pc-bios/optionrom"
+    local runtime_selection=""
+    local runtime_mounts=(-v "$EVSSIM_ROOT_PATH/$EVSSIM_DATA_FOLDER:$runtime_workdir/data")
+    if [ -n "${EVSSIM_QEMU_ARTIFACT_SELECTION:-}" ]; then
+        # S2 emits this JSON selection. Verify it against the loaded profile;
+        # never substitute a mutable tag or the last binary built in qemu/.
+        if ! runtime_selection=$(python3 "$EVSSIM_ROOT_PATH/$EVSSIM_BUILDER_FOLDER/qemu-artifact.py" \
+            --runtime-selection "$EVSSIM_QEMU_ARTIFACT_SELECTION" \
+            --profiles "$EVSSIM_ROOT_PATH/$EVSSIM_VERSIONS_FOLDER/configs.json"); then
+            return 1
+        fi
+        runtime_image=$(jq -er '.container_image_id' <<< "$runtime_selection")
+        runtime_executable=$(jq -er '.runtime_executable' <<< "$runtime_selection")
+        local runtime_data_dir
+        local staged_bundle
+        local monitor_assets
+        runtime_data_dir=$(jq -er '.runtime_data_dir' <<< "$runtime_selection")
+        staged_bundle=$(jq -er '.staged_bundle' <<< "$runtime_selection")
+        monitor_assets=$(jq -er '.vssim_www_dir' <<< "$runtime_selection")
+        printf -v firmware_args '%s %q' '-L' "$runtime_data_dir"
+        runtime_workdir=/qemu-runtime
+        # Writable data stays outside the immutable bundle. The temporary
+        # working directory preserves ./data/ssd.conf and both monitor layouts.
+        runtime_mounts=(--tmpfs /qemu-runtime \
+            -v "$staged_bundle:/qemu-artifact:ro" \
+            -v "$EVSSIM_ROOT_PATH/$EVSSIM_DATA_FOLDER:/qemu-runtime/data" \
+            -v "$monitor_assets:/qemu-runtime/vssim/simulator/www:ro" \
+            -v "$monitor_assets:/qemu-runtime/www:ro")
+        echo "INFO Selected QEMU artifact: $(jq -cr '{key,profile_id,version,binary_sha256,sources}' <<< "$runtime_selection")"
+    elif [ "$EVSSIM_QEMU_BRANCH" != master ]; then
+        echo "ERROR QEMU $EVSSIM_QEMU_BRANCH requires EVSSIM_QEMU_ARTIFACT_SELECTION from S2"
+        return 1
+    fi
+
     # Max timeout of the docker before we force quit
     local timeout=""
     if [ "$attached" != "attached" ]; then
@@ -290,13 +332,28 @@ evssim_qemu () {
         device_simulator="on";
         echo "Starting simulator mode"
 
-        local device_count=($(evssim_get_device_count))
-        local device_sizes=($(evssim_calculate_ssd_conf_disk_sizes))
-
-        if [ ${#device_sizes[@]} -eq 0 ]; then
-            echo "ERROR: No devices found in SSD configuration"
-            exit 1
+        local device_count
+        local rendered_sizes
+        if ! device_count=$(evssim_get_device_count) || \
+                ! rendered_sizes=$(evssim_calculate_ssd_conf_disk_sizes); then
+            echo "ERROR: Cannot read devices from SSD configuration"
+            return 1
         fi
+        local device_sizes=($rendered_sizes)
+
+        # Preserve the existing parsers, but do not launch a partial or empty
+        # device set if their count/size results disagree.
+        if [[ ! "$device_count" =~ ^[1-9][0-9]*$ ]] || \
+                [ "$device_count" -ne "${#device_sizes[@]}" ]; then
+            echo "ERROR: SSD device count and calculated sizes disagree"
+            return 1
+        fi
+        for device_size in "${device_sizes[@]}"; do
+            if [[ ! "$device_size" =~ ^[1-9][0-9]*$ ]]; then
+                echo "ERROR: Invalid calculated SSD size: $device_size"
+                return 1
+            fi
+        done
 
         # Multi-device mode with real configuration
         local serial_number=1
@@ -328,30 +385,58 @@ evssim_qemu () {
         echo "INFO Non-simulator mode, Default size: $(numfmt --from=iec --to=iec $device_size)"
     fi
 
+    # Runtime uses host networking, so hostfwd listens on the selected host port.
     # Build the complete args
-    local args="cd $EVSSIM_DOCKER_ROOT_PATH/$EVSSIM_QEMU_FOLDER/hw && $timeout ../x86_64-softmmu/qemu-system-x86_64 -rtc base=localtime,clock=host -pidfile /tmp/qemu.pid $trace_config -m 4G -smp 4 -drive format=qcow2,file=$image $drive_args $device_args -device e1000,netdev=net0 -netdev user,id=net0,hostfwd=tcp::$EVSSIM_QEMU_SSH_PORT-:22 -vnc :$EVSSIM_QEMU_VNC -machine accel=kvm -kernel $kernel -initrd $initrd -L /usr/share/seabios -L ../pc-bios/optionrom -append '$append'";
+    local quoted_workdir
+    local quoted_executable
+    printf -v quoted_workdir '%q' "$runtime_workdir"
+    printf -v quoted_executable '%q' "$runtime_executable"
+    local args="cd $quoted_workdir && $timeout $quoted_executable -rtc base=localtime,clock=host -pidfile /tmp/qemu.pid $trace_config -m 4G -smp 4 -drive format=qcow2,file=$image $drive_args $device_args -device e1000,netdev=net0 -netdev user,id=net0,hostfwd=tcp::${EVSSIM_QEMU_PORT:-$EVSSIM_QEMU_SSH_PORT}-:22 -vnc :$EVSSIM_QEMU_VNC -machine accel=kvm -kernel $kernel -initrd $initrd $firmware_args -append '$append'";
 
     # Stop any previous runs
-    evssim_qemu_stop
+    if ! evssim_qemu_stop; then
+        return 1
+    fi
 
     echo "INFO Starting QEMU ($attached) with args = $args"
 
     # Clear previous runtime data
     if [[ "$EVSSIM_RUNTIME_ALWAYS_RESET" =~ y.* ]]; then
-        find "$EVSSIM_DATA_FOLDER" -name "*.dat" -delete
+        if ! find "$EVSSIM_DATA_FOLDER" -name "*.dat" -delete; then
+            echo "ERROR Cannot clear previous QEMU runtime data"
+            return 1
+        fi
     fi
 
     # Build ssd configuration
-    echo "$ssd" > $EVSSIM_DATA_FOLDER/ssd.conf
+    if ! echo "$ssd" > "$EVSSIM_DATA_FOLDER/ssd.conf"; then
+        echo "ERROR Cannot write the launch SSD configuration"
+        return 1
+    fi
+    # Keep the verified selection in this shell for the detached PID check.
+    EVSSIM_QEMU_LAUNCH_SELECTION="$runtime_selection"
 
     case "$attached" in
         attached)
-            docker run --rm -i $docker_extra_tty --net=host $EVSSIM_DOCKER_XOPTIONS --privileged --env-file <(evssim_all_env) -v $EVSSIM_ROOT_PATH/$EVSSIM_DATA_FOLDER:$EVSSIM_DOCKER_ROOT_PATH/$EVSSIM_QEMU_FOLDER/hw/data -v $EVSSIM_ROOT_PATH:$EVSSIM_DOCKER_ROOT_PATH "$EVSSIM_DOCKER_IMAGE_NAME:$host_version" bash -c "$args"
+            docker run --rm -i $docker_extra_tty --net=host $EVSSIM_DOCKER_XOPTIONS --privileged --env-file <(evssim_all_env) "${runtime_mounts[@]}" -v $EVSSIM_ROOT_PATH:$EVSSIM_DOCKER_ROOT_PATH "$runtime_image" bash -c "$args"
             ;;
         *)
-            export EVSSIM_DOCKER_UUID=$(docker run --rm -d --net=host $EVSSIM_DOCKER_XOPTIONS --privileged --env-file <(evssim_all_env) -v $EVSSIM_ROOT_PATH/$EVSSIM_DATA_FOLDER:$EVSSIM_DOCKER_ROOT_PATH/$EVSSIM_QEMU_FOLDER/hw/data -v $EVSSIM_ROOT_PATH:$EVSSIM_DOCKER_ROOT_PATH "$EVSSIM_DOCKER_IMAGE_NAME:$host_version" bash -c "$args")
+            # export would mask docker run's failure status. Capture first so
+            # a rejected launch cannot proceed to readiness or guest tests.
+            # Keep an exited container until cleanup so startup logs survive.
+            if ! EVSSIM_DOCKER_UUID=$(docker run -d --net=host $EVSSIM_DOCKER_XOPTIONS --privileged --env-file <(evssim_all_env) "${runtime_mounts[@]}" -v $EVSSIM_ROOT_PATH:$EVSSIM_DOCKER_ROOT_PATH "$runtime_image" bash -c "$args"); then
+                echo "ERROR Docker failed to launch QEMU"
+                return 1
+            fi
+            export EVSSIM_DOCKER_UUID
             echo INFO Docker started $EVSSIM_DOCKER_UUID
-            trap "evssim_qemu_stop" EXIT SIGTERM SIGINT
+            # Signals must end the run. Cleanup preserves an earlier failure,
+            # and a cleanup failure must also fail an otherwise successful run.
+            trap 'qemu_exit_status=$?
+                if ! evssim_qemu_stop && [ "$qemu_exit_status" -eq 0 ]; then qemu_exit_status=1; fi
+                exit "$qemu_exit_status"' EXIT
+            trap 'exit 143' SIGTERM
+            trap 'exit 130' SIGINT
             sleep 1
             ;;
     esac
@@ -367,29 +452,33 @@ evssim_qemu_flush_disk () {
 # Will first soft kill the qemu and if fails, will force kill it.
 # Parameters - None
 evssim_qemu_stop () {
-    if [ ! -z ${EVSSIM_DOCKER_UUID:-} ]; then
-        if docker ps -q --no-trunc | grep $EVSSIM_DOCKER_UUID > /dev/null; then
-            # Kill qemu safely
-            local code=$(cat <<DOCKER
-kill -SIGTERM \$(cat /tmp/qemu.pid)
-timeout 10 tail --pid \$(cat /tmp/qemu.pid) -f /dev/null
-DOCKER
-)
-            set +e
-            docker exec --privileged $EVSSIM_DOCKER_UUID /bin/bash -c "$code"
-            sleep 1
-            set -e
-
-            # Force kill no, wait
-            if docker ps -q --no-trunc | grep $EVSSIM_DOCKER_UUID > /dev/null; then
-                docker ps -q --no-trunc | grep $EVSSIM_DOCKER_UUID
-                echo "TOOT"
-                docker stop -t 0 $EVSSIM_DOCKER_UUID > /dev/null
-                echo WARNING Killed docker $EVSSIM_DOCKER_UUID
+    local container="${EVSSIM_DOCKER_UUID:-}"
+    if [ -z "$container" ]; then
+        return 0
+    fi
+    local existing
+    if ! existing=$(docker ps -aq --no-trunc --filter "id=$container"); then
+        echo "ERROR Cannot inspect QEMU container during cleanup: $container"
+        return 1
+    fi
+    if [ -n "$existing" ]; then
+        # Retain the graceful QEMU stop, then remove the container even when
+        # its PID file/process is gone. Do not change the caller's set -e mode.
+        if ! docker exec --privileged "$container" /bin/bash -c '
+            pid=$(cat /tmp/qemu.pid) &&
+            [[ "$pid" =~ ^[1-9][0-9]*$ ]] &&
+            kill -SIGTERM "$pid" && timeout 10 tail --pid "$pid" -f /dev/null'; then
+            echo "WARNING QEMU graceful stop unavailable; removing container $container"
+        fi
+        if ! docker rm -f "$container" >/dev/null 2>&1; then
+            # --rm can remove it between the graceful stop and docker rm.
+            if ! existing=$(docker ps -aq --no-trunc --filter "id=$container") || [ -n "$existing" ]; then
+                echo "ERROR Failed to remove QEMU container: $container"
+                return 1
             fi
         fi
-        export EVSSIM_DOCKER_UUID=""
     fi
+    export EVSSIM_DOCKER_UUID=""
 }
 
 # Common function running qemu
@@ -400,8 +489,15 @@ DOCKER
 evssim_qemu_default () {
     local attached="$1"
     local host_version="$2"
+    local ssd
+    # Command substitution in an argument would hide a failed template render,
+    # especially in simulator-off mode where the size parser is not called.
+    if ! ssd=$(evssim_build_ssd_conf) || [ -z "$ssd" ]; then
+        echo "ERROR Cannot render the launch SSD configuration"
+        return 1
+    fi
     evssim_qemu "$attached" \
-                "$(evssim_build_ssd_conf)" \
+                "$ssd" \
                 "$EVSSIM_DOCKER_ROOT_PATH/$EVSSIM_DIST_FOLDER/$EVSSIM_QEMU_IMAGE" \
                 "$EVSSIM_DOCKER_ROOT_PATH/$EVSSIM_SIMULATOR_FOLDER/infra/ansible/roles/guest_tester_pre/files/bios.bin" \
                 "$EVSSIM_DOCKER_ROOT_PATH/$EVSSIM_DIST_FOLDER/kernel/vmlinuz-$EVSSIM_KERNEL_DIST" \
@@ -423,44 +519,170 @@ evssim_qemu_attached () {
 #  - host_version - Host docker image version to run qemu from.
 evssim_qemu_detached () {
     local host_version="$1"
-    evssim_qemu_default detached "$host_version"
+    if ! evssim_qemu_default detached "$host_version"; then
+        return 1
+    fi
 
     # hostfwd accepts the moment QEMU starts, so ssh cannot retry its way in
-    evssim_wait_for_guest
+    if evssim_wait_for_guest_startup && {
+        # Recheck the frozen record, not a selection file that may have changed
+        # during boot. PID, command line, binary hash and image must agree.
+        [ -z "${EVSSIM_QEMU_LAUNCH_SELECTION:-}" ] ||
+            jq 'del(.runtime_executable, .runtime_data_dir)' <<< "$EVSSIM_QEMU_LAUNCH_SELECTION" | \
+                python3 "$EVSSIM_ROOT_PATH/$EVSSIM_BUILDER_FOLDER/qemu-artifact.py" \
+                --runtime-selection /dev/stdin --running-container "$EVSSIM_DOCKER_UUID" \
+                --profiles "$EVSSIM_ROOT_PATH/$EVSSIM_VERSIONS_FOLDER/configs.json" >/dev/null
+    } && evssim_wait_for_devices; then
+        return 0
+    fi
+
+    # Capture startup output before cleanup removes the failed container.
+    if ! docker logs --tail 50 "$EVSSIM_DOCKER_UUID" >&2; then
+        echo "WARNING QEMU container logs are unavailable"
+    fi
+    if ! evssim_qemu_stop; then
+        echo "ERROR QEMU startup cleanup failed"
+    fi
+    return 1
 }
 
 # Use fresh image of qemu
 # Parameters
 #  - host_version - Host docker image version to run from.
+#  - tool_group - core or exofs; omitted preserves the existing full payload.
 evssim_qemu_fresh_image () {
     local host_version="$1"
-    if [ ! -f $IMAGE_PATH ]; then
-        echo "ERROR QEMU Image is missing. Please run ./build-qemu-image.sh first."
-        exit 1;
+    local tool_group="${2:-exofs}"
+    if [ ! -f "$IMAGE_PATH_TEMPLATE" ]; then
+        echo "ERROR QEMU image template is missing. Please run ./build-qemu-image.sh first."
+        return 1
+    fi
+    # Reject missing inputs before replacing the image or starting injection.
+    if ! evssim_validate_guest_payload "$tool_group"; then
+        return 1
     fi
 
-    cp -f $IMAGE_PATH_TEMPLATE $IMAGE_PATH
+    # Image injection is offline: stop the previous guest before replacement.
+    evssim_qemu_stop
+    cp -f "$IMAGE_PATH_TEMPLATE" "$IMAGE_PATH"
 
     # Copy tools inside
-    evssim_copy_tools "$host_version"
+    evssim_copy_tools "$host_version" "$tool_group"
 }
 
-# Copy NVME tools, exofs tool and OSD emulator into the QEMU image
+# Core preparation must not depend on outputs from the separate exofs build.
+evssim_validate_guest_payload () {
+    local tool_group="$1"
+    case "$tool_group" in
+        core|exofs) ;;
+        *) echo "ERROR Unknown guest tool group: $tool_group (expected core or exofs)"; return 1 ;;
+    esac
+
+    local dist="$EVSSIM_ROOT_PATH/$EVSSIM_DIST_FOLDER"
+    local payload
+    local required_files=("$dist/nvme" "$dist/tnvme" "$dist/dnvme.ko")
+    local required_directories=("$EVSSIM_ROOT_PATH/$EVSSIM_SIMULATOR_FOLDER/eVSSIM/tests/guest" "$dist/kernel/lib")
+    if [ "$tool_group" = exofs ]; then
+        required_files+=("$dist/libosd.so" "$dist/mkfs.exofs")
+        required_directories+=("$dist/osc-osd" "$dist/exofs")
+    fi
+    for payload in "${required_files[@]}"; do
+        if [ ! -f "$payload" ]; then
+            echo "ERROR Missing $tool_group guest payload file: $payload"
+            return 1
+        fi
+    done
+    for payload in "${required_directories[@]}"; do
+        if [ ! -d "$payload" ]; then
+            echo "ERROR Missing $tool_group guest payload directory: $payload"
+            return 1
+        fi
+    done
+}
+
+# Copy the core payload and, when selected, existing exofs outputs.
 # Copy into an offline image using mounting of the qemu image.
 # Parameters
 #  - host_version - Host docker image version to run from.
+#  - tool_group - core or exofs; omitted preserves the existing full payload.
 # Example
 #   evssim_copy_tools
 evssim_copy_tools () {
     local host_version="$1"
+    local tool_group="${2:-exofs}"
+    if ! evssim_validate_guest_payload "$tool_group"; then
+        return 1
+    fi
+    local exofs_commands=""
+    if [ "$tool_group" = exofs ]; then
+        exofs_commands="    copy-in '$EVSSIM_DOCKER_ROOT_PATH/$EVSSIM_DIST_FOLDER/osc-osd' '$EVSSIM_DOCKER_ROOT_PATH/$EVSSIM_DIST_FOLDER/exofs' '$EVSSIM_GUEST_HOME_PATH'
+    copy-in '$EVSSIM_DOCKER_ROOT_PATH/$EVSSIM_DIST_FOLDER/libosd.so' '/lib'
+    copy-in '$EVSSIM_DOCKER_ROOT_PATH/$EVSSIM_DIST_FOLDER/mkfs.exofs' '/bin'"
+    fi
     evssim_run "$host_version" "sudo guestfish -a '$INTERNAL_IMAGE_PATH' -i << EOF
     command \"mkdir -p '$EVSSIM_GUEST_HOME_PATH/guest'\"
     copy-in '$EVSSIM_DOCKER_ROOT_PATH/$EVSSIM_DIST_FOLDER/nvme' '$EVSSIM_DOCKER_ROOT_PATH/$EVSSIM_DIST_FOLDER/tnvme' '$EVSSIM_DOCKER_ROOT_PATH/$EVSSIM_DIST_FOLDER/dnvme.ko' '$EVSSIM_GUEST_HOME_PATH/guest/'
-    copy-in '$EVSSIM_DOCKER_ROOT_PATH/$EVSSIM_SIMULATOR_FOLDER/eVSSIM/tests/guest/' '$EVSSIM_DOCKER_ROOT_PATH/$EVSSIM_DIST_FOLDER/osc-osd' '$EVSSIM_DOCKER_ROOT_PATH/$EVSSIM_DIST_FOLDER/exofs' '$EVSSIM_GUEST_HOME_PATH'
-    copy-in '$EVSSIM_DOCKER_ROOT_PATH/$EVSSIM_DIST_FOLDER/libosd.so' '/lib'
-    copy-in '$EVSSIM_DOCKER_ROOT_PATH/$EVSSIM_DIST_FOLDER/mkfs.exofs' '/bin'
+    copy-in '$EVSSIM_DOCKER_ROOT_PATH/$EVSSIM_SIMULATOR_FOLDER/eVSSIM/tests/guest/' '$EVSSIM_GUEST_HOME_PATH'
+$exofs_commands
     copy-in '$EVSSIM_DOCKER_ROOT_PATH/$EVSSIM_DIST_FOLDER/kernel/lib/' '/'
 EOF"
+}
+
+# A running container can still contain a dead QEMU process. A missing PID
+# file is allowed while QEMU is starting; readiness still has a deadline.
+evssim_qemu_is_running () {
+    if [ -z "${EVSSIM_DOCKER_UUID:-}" ]; then
+        return 1
+    fi
+    local running
+    if ! running=$(docker inspect --format '{{.State.Running}}' "$EVSSIM_DOCKER_UUID") || [ "$running" != true ]; then
+        return 1
+    fi
+    docker exec "$EVSSIM_DOCKER_UUID" /bin/bash -c '
+        if [ ! -f /tmp/qemu.pid ]; then exit 0; fi
+        read -r pid < /tmp/qemu.pid &&
+        [[ "$pid" =~ ^[1-9][0-9]*$ ]] && kill -0 "$pid"' 2>/dev/null
+}
+
+# Startup probes use one bounded SSH attempt against the published host port.
+# Older parent revisions expose only EVSSIM_QEMU_SSH_PORT. The general
+# guest-command helper retains its existing retry policy for the test suites.
+evssim_guest_probe () {
+    local remaining="$1"
+    shift
+    if [ "$remaining" -gt 5 ]; then remaining=5; fi
+    timeout "$remaining" ssh -q -o BatchMode=yes -o ConnectionAttempts=1 -o ConnectTimeout=3 \
+        -o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no -o PasswordAuthentication=no \
+        -o PubkeyAcceptedKeyTypes=+ssh-rsa,ssh-ed25519 \
+        -i "$EVSSIM_SSH_KEYS_PATH/id_ed25519" -i "$EVSSIM_SSH_KEYS_PATH/id_rsa" \
+        -p "${EVSSIM_QEMU_PORT:-$EVSSIM_QEMU_SSH_PORT}" "$EVSSIM_QEMU_UBUNTU_USERNAME@localhost" "$@"
+}
+
+# Wait for SSH within a wall-clock deadline, detecting QEMU exit each poll.
+# Parameters - [max_wait] (default 300 seconds)
+evssim_wait_for_guest_startup () {
+    local max_wait=${1:-300}
+    local started=$SECONDS
+    local deadline=$((started + max_wait))
+    local remaining
+    echo "INFO Waiting for VM to boot (up to ${max_wait}s)..."
+    while [ "$SECONDS" -lt "$deadline" ]; do
+        if ! evssim_qemu_is_running; then
+            echo "ERROR QEMU exited while waiting for guest SSH"
+            return 1
+        fi
+        remaining=$((deadline - SECONDS))
+        if [ "$remaining" -le 0 ]; then break; fi
+        if evssim_guest_probe "$remaining" /bin/true 2>/dev/null; then
+            echo "INFO VM SSH ready after $((SECONDS - started))s"
+            return 0
+        fi
+        remaining=$((deadline - SECONDS))
+        if [ "$remaining" -gt 5 ]; then remaining=5; fi
+        if [ "$remaining" -gt 0 ]; then sleep "$remaining"; fi
+    done
+    echo "ERROR VM SSH not available after ${max_wait}s"
+    return 1
 }
 
 # Wait for the QEMU VM to become reachable via SSH.
@@ -502,6 +724,62 @@ evssim_wait_for_device () {
         sleep $interval
     done
     echo "INFO NVMe device $device ready after ${elapsed}s"
+}
+
+# Require exactly the namespaces corresponding to the arguments just rendered
+# by evssim_qemu, including all three existing simulator-off devices.
+# Parameters - [max_wait] (default 60 seconds for the whole device set)
+evssim_wait_for_devices () {
+    local max_wait=${1:-60}
+    local started=$SECONDS
+    local deadline=$((started + max_wait))
+    local remaining
+    local expected=()
+    local index
+    for ((index=0; index<EVSSIM_PROVISIONED_DEVICE_COUNT; index++)); do
+        expected+=("/dev/nvme${index}n1")
+    done
+    if [ "${#expected[@]}" -eq 0 ]; then
+        echo "ERROR No expected NVMe devices were provisioned"
+        return 1
+    fi
+    local expected_inventory
+    expected_inventory=$(printf '%s\n' "${expected[@]}" | LC_ALL=C sort)
+    local inventory=""
+    local device
+    echo "INFO Waiting for NVMe devices: ${expected[*]} (up to ${max_wait}s)..."
+    while [ "$SECONDS" -lt "$deadline" ]; do
+        if ! evssim_qemu_is_running; then
+            echo "ERROR QEMU exited while waiting for NVMe devices"
+            return 1
+        fi
+        remaining=$((deadline - SECONDS))
+        if [ "$remaining" -le 0 ]; then break; fi
+        # /sys/block excludes partitions. Require real block nodes, not stale
+        # names; a second namespace is an unexpected device in this topology.
+        if inventory=$(evssim_guest_probe "$remaining" '
+            for path in /sys/block/nvme*n*; do
+                name=${path##*/}
+                if [ -b "/dev/$name" ]; then printf "/dev/%s\n" "$name"; fi
+            done' 2>/dev/null); then
+            inventory=$(LC_ALL=C sort <<< "$inventory")
+            for device in $inventory; do
+                if [[ " ${expected[*]} " != *" $device "* ]]; then
+                    echo "ERROR Unexpected NVMe device: $device; expected ${expected[*]}"
+                    return 1
+                fi
+            done
+            if [ "$inventory" = "$expected_inventory" ]; then
+                echo "INFO NVMe inventory verified after $((SECONDS - started))s: ${expected[*]}"
+                return 0
+            fi
+        fi
+        remaining=$((deadline - SECONDS))
+        if [ "$remaining" -gt 2 ]; then remaining=2; fi
+        if [ "$remaining" -gt 0 ]; then sleep "$remaining"; fi
+    done
+    echo "ERROR NVMe inventory did not match after ${max_wait}s; expected ${expected[*]}; observed $inventory"
+    return 1
 }
 
 # Execute guest command inside running QEMU virtual machine.
