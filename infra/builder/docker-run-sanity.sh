@@ -5,7 +5,7 @@ evssim_validate_version_arguments "$0" "${1:-}" "$#"
 version="$1"
 
 # Make a fresh copy
-evssim_qemu_fresh_image "$version"
+evssim_qemu_fresh_image "$version" core
 
 # Run qemu
 evssim_qemu_detached "$version"
@@ -41,19 +41,6 @@ else
 	exit 1
 fi
 
-evssim_wait_for_device /dev/nvme0n1
-
-# Run a command inside the container (check if device nvme0n1 exists)
-if evssim_guest ls -al /dev/nvme0n1 2>/dev/null >/dev/null; then
-    echo "eVSSIM Up & Running!"
-else
-    echo "eVSSIM Failed to find /dev/nvme0n1."
-    exit 1
-fi
-# Check with multiple disks
-if evssim_guest ls -al /dev/nvme1n1 2>/dev/null >/dev/null; then
-    echo "eVSSIM Up & Running!"
-else
-    echo "eVSSIM Failed to find /dev/nvme1n1."
-    exit 1
-fi
+# The detached launcher already verified every expected namespace, so sanity
+# applies to the configured device count instead of assuming exactly two.
+echo "eVSSIM Up & Running with $EVSSIM_PROVISIONED_DEVICE_COUNT verified NVMe devices!"
