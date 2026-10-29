@@ -268,25 +268,30 @@ def profile_from_inputs(record):
     return request_from_inputs(record)["profile"]
 
 
+def validate_profile_environment(profile, environment):
+    """Require the loaded component settings to match the selected profile."""
+    expected = {"EVSSIM_VERSIONS_CONFIGURATION_ID": str(profile["id"])}
+    sections = {
+        "kernel": ("KERNEL", ("branch", "compileContainer")),
+        "qemu": ("QEMU", ("branch", "compileContainer")),
+        "nvme-cli": ("NVME_CLI", ("branch", "compileContainer")),
+        "hostTests": ("HOST_TESTS", ("compileContainer", "runContainer")),
+        "guestTests": ("GUEST_TESTS", ("guestVmImage", "guestVmBuildContainer", "compileContainer")),
+    }
+    for section, (prefix, fields) in sections.items():
+        for field in fields:
+            suffix = re.sub(r"([A-Z])", r"_\1", field).upper()
+            expected["EVSSIM_" + prefix + "_" + suffix] = profile[section][field]
+    for name, value in expected.items():
+        if environment.get(name) != value:
+            raise InputError("environment conflicts with the resolved input record: " + name)
+
+
 def validate_saved_inputs(record, qemu_dir, simulator_dir, environment=None):
     """Check a saved identity against current inputs without mutating them."""
     request = request_from_inputs(record)
     if environment is not None:
-        expected = {"EVSSIM_VERSIONS_CONFIGURATION_ID": str(request["profile"]["id"])}
-        sections = {
-            "kernel": ("KERNEL", ("branch", "compileContainer")),
-            "qemu": ("QEMU", ("branch", "compileContainer")),
-            "nvme-cli": ("NVME_CLI", ("branch", "compileContainer")),
-            "hostTests": ("HOST_TESTS", ("compileContainer", "runContainer")),
-            "guestTests": ("GUEST_TESTS", ("guestVmImage", "guestVmBuildContainer", "compileContainer")),
-        }
-        for section, (prefix, fields) in sections.items():
-            for field in fields:
-                suffix = re.sub(r"([A-Z])", r"_\1", field).upper()
-                expected["EVSSIM_" + prefix + "_" + suffix] = request["profile"][section][field]
-        for name, value in expected.items():
-            if environment.get(name) != value:
-                raise InputError("environment conflicts with the resolved input record: " + name)
+        validate_profile_environment(request["profile"], environment)
     current = identify(request, qemu_dir, simulator_dir)
     for field, value in current["inputs"].items():
         if value != record["inputs"][field]:
@@ -951,6 +956,79 @@ def artifact_selection(identity, persistent, staged, cache):
     return selection
 
 
+def verify_running_artifact(runtime, container):
+    """Check the detached QEMU process against the frozen launch selection."""
+    actual_image = command_output(["docker", "inspect", "--format", "{{.Image}}", container]).decode().strip()
+    if actual_image != runtime["container_image_id"]:
+        raise InputError("running container differs from the selected image")
+    pid = command_output(["docker", "exec", container, "cat", "/tmp/qemu.pid"]).decode().strip()
+    if not re.fullmatch(r"[1-9][0-9]*", pid):
+        raise InputError("running QEMU PID is invalid")
+    process = "/proc/" + pid
+    executable = command_output(["docker", "exec", container, "readlink", process + "/exe"]).decode().strip()
+    digest = command_output(["docker", "exec", container, "sha256sum", process + "/exe"]).decode().split()
+    argv = command_output(["docker", "exec", container, "cat", process + "/cmdline"]).split(b"\0")
+    data_args = [argv[i + 1] for i, arg in enumerate(argv[:-1]) if arg == b"-L"]
+    if (executable != runtime["runtime_executable"] or not digest
+            or digest[0] != runtime["binary_sha256"] or not argv
+            or argv[0] != os.fsencode(runtime["runtime_executable"])
+            or data_args != [os.fsencode(runtime["runtime_data_dir"])]):
+        raise InputError("running QEMU executable/hash/arguments differ from the selected artifact")
+    print("INFO: running artifact {} verified in container {} at PID {}".format(
+        runtime["key"], container, pid), file=sys.stderr)
+
+
+def runtime_selection(selection, profiles, environment, running_container=None):
+    """Verify an explicit S2 selection before returning container launch paths."""
+    fields = ("status", "cache", "key", "bundle", "staged_bundle", "manifest",
+              "executable", "vssim_www_dir", "data_dir", "version", "binary_sha256",
+              "container_image_id", "profile_id", "sources")
+    if isinstance(selection, dict) and "dependency_report" in selection:
+        fields += ("dependency_report",)
+    require_fields(selection, fields, "artifact selection")
+    if selection["status"] != "selected" or selection["cache"] not in ("hit", "miss"):
+        raise InputError("runtime requires a successfully selected artifact")
+    for name in ("bundle", "staged_bundle"):
+        require_string(selection[name], name)
+        if not Path(selection[name]).is_absolute():
+            raise InputError("selected bundle paths must be absolute")
+    staged = Path(selection["staged_bundle"])
+    manifest_path = staged / "manifest.json"
+    if manifest_path.is_symlink():
+        raise InputError("manifest must be a regular file")
+    with manifest_path.open(encoding="utf-8") as stream:
+        manifest = json.load(stream, object_pairs_hook=unique_object)
+    # S2c keeps the complete per-run dependency report outside keyed inputs.
+    # Validate it against those inputs and preserve it through launch checks.
+    record = dict(manifest)
+    if "dependency_report" in selection:
+        record["dependency_report"] = selection["dependency_report"]
+    request = request_from_inputs(record)
+    require_fields(profiles, ("configs",), "profiles")
+    matches = [p for p in profiles["configs"] if p.get("id") == request["profile"]["id"]]
+    if len(matches) != 1 or matches[0] != request["profile"]:
+        raise InputError("artifact profile differs from the declared configuration")
+    validate_profile_environment(request["profile"], environment)
+    identity = {"key": manifest["key"], "inputs": manifest["inputs"]}
+    if "dependency_report" in request:
+        identity["dependency_report"] = request["dependency_report"]
+    expected = artifact_selection(identity, Path(selection["bundle"]), staged, selection["cache"])
+    if expected != selection:
+        raise InputError("artifact selection differs from its verified bundle")
+    if inspect_image(selection["container_image_id"]) != manifest["inputs"]["container"]:
+        raise InputError("runtime container differs from the recorded image")
+    executable = "/qemu-artifact/" + manifest["executable"]
+    version = command_output(container_command(identity["inputs"], staged, "/qemu-artifact", "/tmp", readonly=True)
+                             + [executable, "--version"]).decode().splitlines()
+    if not version or version[0] != "QEMU emulator version " + manifest["version"]:
+        raise InputError("runtime executable version differs from the manifest")
+    runtime = {**selection, "runtime_executable": executable,
+               "runtime_data_dir": "/qemu-artifact/" + manifest["data_dir"]}
+    if running_container is not None:
+        verify_running_artifact(runtime, running_container)
+    return runtime
+
+
 def select_artifact(identity, qemu_dir, simulator_dir, destination, jobs,
                     subproject_cache, artifact_root, dist_root):
     """Select only verified inputs/payloads; compile only when no entry exists."""
@@ -1024,6 +1102,7 @@ def main():
     mode.add_argument("--profile-from-inputs", help="validate a saved identity/manifest and print its effective profile")
     mode.add_argument("--validate-inputs", help="check saved identity/manifest against current sources, recipes, and image")
     mode.add_argument("--saved-inputs", help="validate saved identity/manifest and use its exact build recipe")
+    mode.add_argument("--runtime-selection", help="verify an S2 selection against the loaded profile and print launch paths")
     parser.add_argument("--check-environment", action="store_true", help="also require loaded profile fields to match saved inputs")
     parser.add_argument("--selection-policy", help="profile selection policy JSON (default: versions/qemu-build-policy.json)")
     parser.add_argument("--build-policy", help="build recipes for S2b inputs (default: selection policy file)")
@@ -1037,8 +1116,11 @@ def main():
     parser.add_argument("--subproject-cache", help="source Git repositories for pinned Meson projects")
     parser.add_argument("--artifact-root", help="persistent artifact root (normally ROOT/artifacts)")
     parser.add_argument("--dist-root", help="staging root selected by EVSSIM_DIST_FOLDER")
+    parser.add_argument("--running-container", help="with --runtime-selection, also verify this detached QEMU process")
     args = parser.parse_args()
     try:
+        if args.running_container and not args.runtime_selection:
+            raise InputError("--running-container requires --runtime-selection")
         if bool(args.artifact_root) != bool(args.dist_root) or (args.artifact_root and not args.build_dir):
             raise InputError("publication requires --build-dir, --artifact-root, and --dist-root together")
         def read_json(path):
@@ -1058,6 +1140,16 @@ def main():
                 print(" ".join(shlex.quote(arg) for arg in command))
             else:
                 print(canonical_bytes(prepare_subprojects(Path(args.prepare_subprojects).resolve())).decode("ascii"))
+            return 0
+        if args.runtime_selection:
+            if (args.qemu_dir or args.simulator_dir or args.build_dir or args.artifact_root
+                    or args.dist_root or args.subproject_cache or args.selection_policy or args.build_policy
+                    or args.profile_id is not None or args.simulator_branch or args.check_environment):
+                raise InputError("--runtime-selection verifies an existing selection; build/selection options are not allowed")
+            result = runtime_selection(read_json(args.runtime_selection),
+                                       read_json(args.profiles or Path(__file__).parent / "versions/configs.json"),
+                                       os.environ, args.running_container)
+            print(canonical_bytes(result).decode("ascii"))
             return 0
         if args.profile_from_inputs:
             if (args.qemu_dir or args.simulator_dir or args.build_dir or args.artifact_root
