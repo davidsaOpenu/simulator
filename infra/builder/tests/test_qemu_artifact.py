@@ -339,6 +339,44 @@ class ArtifactTests(unittest.TestCase):
         with self.assertRaisesRegex(artifact.InputError, "container differ"):
             artifact.validate_saved_inputs(self.identity, str(self.qemu), str(self.simulator))
 
+    def test_runtime_selection_preserves_s2c_dependency_report_and_older_selections(self):
+        self.bundle(self.dist)
+        environment = dict(os.environ, EVSSIM_VERSIONS_CONFIGURATION_ID="4")
+        loaded = subprocess.check_output(["bash", "-c", "set -e; source ./env.sh >/dev/null; env -0"],
+                                         cwd=BUILDER, env=environment)
+        environment = dict(entry.decode().split("=", 1) for entry in loaded.split(b"\0") if entry)
+        selection_path = self.root / "selection.json"
+        for report in (False, True):
+            with self.subTest(dependency_report=report):
+                identity = copy.deepcopy(self.identity)
+                if report:
+                    identity["dependency_report"].append(self.dependency("kernel", branch="master"))
+                else:
+                    identity.pop("dependency_report")
+                selection = artifact.artifact_selection(identity, self.artifacts, self.dist, "hit")
+                selection_path.write_text(json.dumps(selection))
+                with mock.patch.dict(os.environ, environment, clear=True), mock.patch.object(
+                        artifact, "command_output", return_value=b"QEMU emulator version 11.0.0\n"):
+                    status, output, errors = self.cli("--runtime-selection", selection_path)
+                self.assertEqual(0, status, errors)
+                runtime = json.loads(output)
+                self.assertEqual(selection, {k: v for k, v in runtime.items() if not k.startswith("runtime_")})
+                self.assertEqual("/qemu-artifact/bin/qemu-system-x86_64", runtime["runtime_executable"])
+                if report:
+                    self.assertEqual(identity["dependency_report"], runtime["dependency_report"])
+                    selection["dependency_report"][0]["applied_revision"] = "f" * 40
+                    with self.assertRaises(artifact.InputError):
+                        artifact.runtime_selection(selection, self.profiles, environment)
+
+    def test_runtime_selection_rejects_build_policy_override(self):
+        with mock.patch.object(artifact, "runtime_selection") as runtime:
+            status, output, errors = self.cli("--runtime-selection", "unused.json",
+                                               "--build-policy", "unused-policy.json")
+        self.assertNotEqual(0, status)
+        self.assertEqual("", output)
+        self.assertIn("build/selection options are not allowed", errors)
+        runtime.assert_not_called()
+
     def test_ordinary_and_artifact_configure_arguments_match_both_lanes(self):
         for container in ("ubuntu-14.04", "ubuntu-26.04"):
             with self.subTest(container=container):
