@@ -26,7 +26,7 @@ DIES = 8  # die = flash index, channel = die % CHANNEL_NB, as in ssd_io_manager.
 BLOCK_NB = 64
 PAGE_NB = 64
 PAGE_SIZE = 4096
-USER_BYTES = 16 * 2**20
+USER_BYTES = 1024 * 2**20
 BASE_US = 1767225600000000  # 2026-01-01 00:00:00 UTC
 DURATION_US = {"write": 900, "read": 50, "erase": 2000}
 CYCLE = ("write", "read", "erase")
