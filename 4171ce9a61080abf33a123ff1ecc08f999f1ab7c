@@ -84,6 +84,217 @@
       "message": "recheck",
       "revId": "4171ce9a61080abf33a123ff1ecc08f999f1ab7c",
       "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "69a44efb_c3b6ea62",
+        "filename": "eVSSIM/tests/guest/basic_disk_tests/test_nvme_disk.py",
+        "patchSetId": 14
+      },
+      "lineNbr": 15,
+      "author": {
+        "id": 1007990
+      },
+      "writtenOn": "2026-10-30T06:49:25Z",
+      "side": 1,
+      "message": "Issue: -\u003e list[dict] needs Python 3.9 or later and capture_output (line 12) needs 3.7 or later, so the test won\u0027t\n  import on a 14.04 guest (Python 3.4).\n  Suggestion: Use typing.List or drop the hint, and use stdout\u003dPIPE.",
+      "revId": "4171ce9a61080abf33a123ff1ecc08f999f1ab7c",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "d7cbc35e_21593016",
+        "filename": "infra/builder/builder.sh",
+        "patchSetId": 14
+      },
+      "lineNbr": 455,
+      "author": {
+        "id": 1007990
+      },
+      "writtenOn": "2026-10-30T06:49:25Z",
+      "side": 1,
+      "message": "Issue: dist/tools keeps adding files and is never cleaned, except by run-ci. After a config switch, the old nvme,\n  libosd.so and kernel modules get copied into the new guest.\n  Suggestion: Clear dist/tools at the start of each build, or keep one tools directory per config.",
+      "range": {
+        "startLine": 453,
+        "startChar": 1,
+        "endLine": 455,
+        "endChar": 33
+      },
+      "revId": "4171ce9a61080abf33a123ff1ecc08f999f1ab7c",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "50593a2c_c5a6012b",
+        "filename": "infra/builder/compile-guest-tests.sh",
+        "patchSetId": 14
+      },
+      "lineNbr": 38,
+      "author": {
+        "id": 1007990
+      },
+      "writtenOn": "2026-10-30T06:49:25Z",
+      "side": 1,
+      "message": "Issue: source \"$EVSSIM_VERSIONS_FOLDER/...\" uses a path relative to the eVSSIM root (simulator/infra/...), but the\n  script runs from builder/, so the file isn\u0027t found.\n  Suggestion: Put $EVSSIM_ROOT_PATH/ in front. Line 25 has the same problem from before this commit.",
+      "revId": "4171ce9a61080abf33a123ff1ecc08f999f1ab7c",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "8f50b960_369913d6",
+        "filename": "infra/builder/compile-kernel.sh",
+        "patchSetId": 14
+      },
+      "lineNbr": 17,
+      "author": {
+        "id": 1007990
+      },
+      "writtenOn": "2026-10-30T06:49:25Z",
+      "side": 1,
+      "message": "Suggestion: Always copy .config after the branch check",
+      "range": {
+        "startLine": 9,
+        "startChar": 0,
+        "endLine": 17,
+        "endChar": 116
+      },
+      "revId": "4171ce9a61080abf33a123ff1ecc08f999f1ab7c",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "36c31d69_fb7f6d6a",
+        "filename": "infra/builder/compile-osd-exofs.sh",
+        "patchSetId": 14
+      },
+      "lineNbr": 4,
+      "author": {
+        "id": 1007990
+      },
+      "writtenOn": "2026-10-30T06:49:25Z",
+      "side": 1,
+      "message": "Use \"$0\" \"${1:-}\" \"$#\", as the other scripts do.",
+      "revId": "4171ce9a61080abf33a123ff1ecc08f999f1ab7c",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "35cb071f_f5a324da",
+        "filename": "infra/builder/compile-osd-exofs.sh",
+        "patchSetId": 14
+      },
+      "lineNbr": 37,
+      "author": {
+        "id": 1007990
+      },
+      "writtenOn": "2026-10-30T06:49:25Z",
+      "side": 1,
+      "message": "not defined",
+      "range": {
+        "startLine": 37,
+        "startChar": 19,
+        "endLine": 37,
+        "endChar": 24
+      },
+      "revId": "4171ce9a61080abf33a123ff1ecc08f999f1ab7c",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "49e026ed_13d6ea03",
+        "filename": "infra/builder/docker-test-guest.sh",
+        "patchSetId": 14
+      },
+      "lineNbr": 29,
+      "author": {
+        "id": 1007990
+      },
+      "writtenOn": "2026-10-30T06:49:25Z",
+      "side": 1,
+      "message": "Issue: It now calls nosetests3, and the tests are Python 3 only. The 14.04 guest image installs only python\n  python-nose\n  (ubuntu-14.04.sh:79), so guest tests break for configs 1–4.\n  Suggestion: Choose the runner per guest image, or install python3-nose in the 14.04 image.",
+      "revId": "4171ce9a61080abf33a123ff1ecc08f999f1ab7c",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "8a585449_29d843ce",
+        "filename": "infra/builder/docker-test-guest.sh",
+        "patchSetId": 14
+      },
+      "lineNbr": 71,
+      "author": {
+        "id": 1007990
+      },
+      "writtenOn": "2026-10-30T06:49:25Z",
+      "side": 1,
+      "message": "Issue: nvme_compliance_tests and objects_via_ioctl are commented out for all configs, not only config 5, so CI\n  coverage\n  drops for 14.04 too.",
+      "range": {
+        "startLine": 65,
+        "startChar": 0,
+        "endLine": 71,
+        "endChar": 59
+      },
+      "revId": "4171ce9a61080abf33a123ff1ecc08f999f1ab7c",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "78b93ae7_1fe6066b",
+        "filename": "infra/builder/env.sh",
+        "patchSetId": 14
+      },
+      "lineNbr": 50,
+      "author": {
+        "id": 1007990
+      },
+      "writtenOn": "2026-10-30T06:49:25Z",
+      "side": 1,
+      "message": "Issue: EVSSIM_KERNEL_DIST\u003d${EVSSIM_KERNEL_BRANCH}+ becomes master+ for configs 1–4. The kernel on master is 5.0.0, so\n  the boot files are vmlinuz-5.0.0+, not vmlinuz-master+.\n  Suggestion: Get it from the kernel itself (make -s kernelrelease), or add a version field to configs.json.",
+      "revId": "4171ce9a61080abf33a123ff1ecc08f999f1ab7c",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "067cf890_a3d555d4",
+        "filename": "infra/builder/versions/nvme-cli/ubuntu-14.04.sh",
+        "patchSetId": 14
+      },
+      "lineNbr": 5,
+      "author": {
+        "id": 1007990
+      },
+      "writtenOn": "2026-10-30T06:49:25Z",
+      "side": 1,
+      "message": "Issue: The branch is hardcoded (master ), and the script is chosen by the compile container name.\n  configs.json\u0027s nvme-cli.branch (EVSSIM_NVME_CLI_BRANCH) is ignored.\n  Suggestion: Use $EVSSIM_NVME_CLI_BRANCH, and choose the build script by branch, not by container.",
+      "revId": "4171ce9a61080abf33a123ff1ecc08f999f1ab7c",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "586f368f_05c58378",
+        "filename": "infra/builder/versions/nvme-cli/ubuntu-26.04.sh",
+        "patchSetId": 14
+      },
+      "lineNbr": 5,
+      "author": {
+        "id": 1007990
+      },
+      "writtenOn": "2026-10-30T06:49:25Z",
+      "side": 1,
+      "message": "Issue: The branch is hardcoded (3.0-a.5), and the script is chosen by the compile container name.\n  configs.json\u0027s nvme-cli.branch (EVSSIM_NVME_CLI_BRANCH) is ignored.\n  Suggestion: Use $EVSSIM_NVME_CLI_BRANCH, and choose the build script by branch, not by container.",
+      "revId": "4171ce9a61080abf33a123ff1ecc08f999f1ab7c",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
     }
   ]
 }
