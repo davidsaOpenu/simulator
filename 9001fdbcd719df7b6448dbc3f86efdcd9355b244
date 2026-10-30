@@ -33,6 +33,24 @@
       "message": "You added a check that the calloc of filelist succeeded, but the calloc of size on line 503 isn’t checked. If it returns NULL, the code will crash on the write size[i]\u003doffset in extract_log_size(). Please add a NULL check for it as well, and in that case free filelist before the return.",
       "revId": "9001fdbcd719df7b6448dbc3f86efdcd9355b244",
       "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "a3d6cc71_252c3827",
+        "filename": "eVSSIM/LOG_MGR/logging_offline_analyzer.c",
+        "patchSetId": 13
+      },
+      "lineNbr": 503,
+      "author": {
+        "id": 1039517
+      },
+      "writtenOn": "2026-10-30T08:28:33Z",
+      "side": 1,
+      "message": "fixed, thank you!",
+      "parentUuid": "70641988_96d5397e",
+      "revId": "9001fdbcd719df7b6448dbc3f86efdcd9355b244",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
     }
   ]
 }
