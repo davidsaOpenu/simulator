@@ -310,6 +310,9 @@ evssim_run_at_folder() { printf 'run: %s\\n' "$*" >> "$S2B_TEST_CALL_LOG"; }
         prepare.parent.mkdir(parents=True)
         prepare.write_text('#!/bin/bash\nprintf "prepare: %s\\n" "$*" >> "$S2B_TEST_CALL_LOG"\n')
         prepare.chmod(0o755)
+        exofs = target / "compile-exofs-tools.sh"
+        exofs.write_text('#!/bin/bash\nprintf "exofs: %s\\n" "$*" >> "$S2B_TEST_CALL_LOG"\n')
+        exofs.chmod(0o755)
         log = self.root / "compile-calls.log"
         future = copy.deepcopy(self.profile(4))
         future["qemu"]["branch"] = "future-target"
@@ -320,6 +323,8 @@ evssim_run_at_folder() { printf 'run: %s\\n' "$*" >> "$S2B_TEST_CALL_LOG"; }
                     EVSSIM_QEMU_FOLDER="qemu", EVSSIM_DOCKER_ROOT_PATH="/code", EVSSIM_DIST_FOLDER="dist",
                     EVSSIM_KERNEL_FOLDER="kernel", EVSSIM_QEMU_BRANCH=profile["qemu"]["branch"],
                     EVSSIM_QEMU_COMPILE_CONTAINER=profile["qemu"]["compileContainer"],
+                    EVSSIM_BUILDER_FOLDER=target.name,
+                    EVSSIM_GUEST_TESTS_COMPILE_CONTAINER=profile["guestTests"]["compileContainer"],
                     EVSSIM_VERSIONS_CONFIGURATION_ID=str(profile["id"]), S2B_TEST_CALL_LOG=str(log))
                 env.pop("EVSSIM_QEMU_INPUT_RECORD", None)
                 process = subprocess.run(["bash", str(target / "compile-qemu.sh"),
@@ -329,10 +334,17 @@ evssim_run_at_folder() { printf 'run: %s\\n' "$*" >> "$S2B_TEST_CALL_LOG"; }
                 calls = log.read_text()
                 self.assertIn("checkout " + profile["qemu"]["branch"], calls)
                 self.assertIn("--target-list=x86_64-softmmu", calls)
+                if profile["qemu"]["compileContainer"] == "ubuntu-14.04":
+                    self.assertIn("exofs: ubuntu-14.04", calls)
+                else:
+                    self.assertNotIn("exofs:", calls)
 
     def test_legacy_wrapper_refreshes_submodule_tracking_after_clean(self):
         target = self.root / "legacy-compiler"
         target.mkdir()
+        exofs = target / "compile-exofs-tools.sh"
+        exofs.write_text('#!/bin/bash\nprintf "exofs: %s\\n" "$*" >> "$S2B_TEST_CALL_LOG"\n')
+        exofs.chmod(0o755)
         for name in ("compile-qemu.sh", "qemu-artifact.py", "versions/qemu-build-policy.json"):
             destination = target / name
             destination.parent.mkdir(exist_ok=True)
@@ -387,6 +399,8 @@ exec "$@"
                    EVSSIM_QEMU_FOLDER="qemu", EVSSIM_DOCKER_ROOT_PATH="/code", EVSSIM_DIST_FOLDER="dist",
                    EVSSIM_KERNEL_FOLDER="kernel", EVSSIM_QEMU_BRANCH=profile["qemu"]["branch"],
                    EVSSIM_QEMU_COMPILE_CONTAINER=profile["qemu"]["compileContainer"],
+                   EVSSIM_BUILDER_FOLDER=target.name,
+                   EVSSIM_GUEST_TESTS_COMPILE_CONTAINER=profile["guestTests"]["compileContainer"],
                    EVSSIM_VERSIONS_CONFIGURATION_ID=str(profile["id"]), S2B_TEST_CALL_LOG=str(log))
         env.pop("EVSSIM_QEMU_INPUT_RECORD", None)
         for fail in (False, True):
@@ -398,7 +412,8 @@ exec "$@"
                     capture_output=True, text=True, timeout=15)
                 self.assertEqual(7 if fail else 0, process.returncode, process.stdout + process.stderr)
                 expected = ["clean", "refresh update fixture/second fixture/first"]
-                self.assertEqual(expected if fail else expected + ["compile"], log.read_text().splitlines())
+                self.assertEqual(expected if fail else expected + ["compile", "exofs: ubuntu-14.04"],
+                                 log.read_text().splitlines())
                 status = self.qemu / ".git-submodule-status"
                 if fail:
                     self.assertFalse(status.exists())
