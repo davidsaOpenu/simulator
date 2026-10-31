@@ -1,0 +1,238 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "bd5da971_95a8b81a",
+        "filename": "/COMMIT_MSG",
+        "patchSetId": 15
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 1039387
+      },
+      "writtenOn": "2026-10-31T16:46:55Z",
+      "side": 1,
+      "message": "This bundles at least three independent changes: profile selection + run-ci restructure, a full rewrite of the dependency handler (handle-depend-on-instructions.sh), and a new ~1068-line artifact helper (qemu-artifact.py). Please split these into separate changes so each can be reviewed and reverted independently - the dependency-handler rewrite in particular changes pipeline-wide behavior and shouldn\u0027t ride along in an S2/QEMU-scoped change.",
+      "tag": "review",
+      "revId": "e0d798540a49ab5013a325a8d30d436e66022b11",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "6482fa23_0fc1f29a",
+        "filename": "infra/builder/compile-qemu.sh",
+        "patchSetId": 15
+      },
+      "lineNbr": 87,
+      "author": {
+        "id": 1039387
+      },
+      "writtenOn": "2026-10-31T16:46:55Z",
+      "side": 1,
+      "message": "There are two sources of truth for the QEMU 11 configure flags: qemu-build-policy.json lists --disable-download and omits --target-list, while compile-qemu.sh\u0027s live 26.04 path hardcodes a different flag set without --disable-download - and that\u0027s what CI actually builds with. validate_build() in qemu-artifact.py even requires --disable-download for ninja builds, so an artifact identity computed from the policy wouldn\u0027t match what compile-qemu.sh actually compiles. This is latent today since reuse isn\u0027t wired into the live pipeline, but once S3/S7 turns it on, reuse could substitute a binary built with different flags. Please unify the policy and compile-qemu.sh (ideally have compile-qemu.sh consume the policy), or explicitly document this as a known gap.",
+      "tag": "review",
+      "revId": "e0d798540a49ab5013a325a8d30d436e66022b11",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "d85bd984_f8b1ddda",
+        "filename": "infra/builder/env.sh",
+        "patchSetId": 15
+      },
+      "lineNbr": 18,
+      "author": {
+        "id": 1039387
+      },
+      "writtenOn": "2026-10-31T16:46:55Z",
+      "side": 1,
+      "message": "This uses `-` not `:-` - if a caller exports the variable but empty, it stays empty instead of defaulting to 5, and load_config.sh will then fail to find the profile. If an empty value should also mean \u0027use default,\u0027 switch to `:-`.",
+      "tag": "review",
+      "revId": "e0d798540a49ab5013a325a8d30d436e66022b11",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "93f9e093_e8437bf8",
+        "filename": "infra/builder/handle-depend-on-instructions.sh",
+        "patchSetId": 15
+      },
+      "lineNbr": 755,
+      "author": {
+        "id": 1039387
+      },
+      "writtenOn": "2026-10-31T16:46:55Z",
+      "side": 1,
+      "message": "This now hard-fails the build on dependency problems (abandoned dependencies, malformed Depends-on trailers, unsupported Gerrit statuses, SSH metadata failures), where the prior behavior could print the failure and still exit 0. This handler runs for every change\u0027s CI, not just QEMU work, so this is a pipeline-wide behavior change that deserves its own change and justification - please confirm no currently-open change relies on the old soft-fail behavior.",
+      "tag": "review",
+      "revId": "e0d798540a49ab5013a325a8d30d436e66022b11",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "438c7319_a7a99edd",
+        "filename": "infra/builder/prepare-qemu-vssim.sh",
+        "patchSetId": 15
+      },
+      "lineNbr": 42,
+      "author": {
+        "id": 1039387
+      },
+      "writtenOn": "2026-10-31T16:46:55Z",
+      "side": 1,
+      "message": "This assumes hw/vssim already exists; the prior code did mkdir -p $VSSIM_TARGET first. Fine for QEMU 11 where hw/vssim is tracked, but a one-line mkdir -p \"$VSSIM_DIR\" before mktemp would preserve the old robustness for other invocations.",
+      "tag": "review",
+      "revId": "e0d798540a49ab5013a325a8d30d436e66022b11",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "a7195ad6_663cc2b4",
+        "filename": "infra/builder/prepare-qemu-vssim.sh",
+        "patchSetId": 15
+      },
+      "lineNbr": 74,
+      "author": {
+        "id": 1039387
+      },
+      "writtenOn": "2026-10-31T16:46:55Z",
+      "side": 1,
+      "message": "These hardcoded file lists (osc-osd/www) need to be kept in sync by hand with hw/vssim/meson.build and the osc-osd tree - a new source file added upstream will fail silently at link/compile time. Consider a comment pointing at meson.build as the source of truth, or deriving the list from it.",
+      "tag": "review",
+      "revId": "e0d798540a49ab5013a325a8d30d436e66022b11",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "e602d56c_5dd30670",
+        "filename": "infra/builder/qemu-artifact.py",
+        "patchSetId": 15
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 1039387
+      },
+      "writtenOn": "2026-10-31T16:46:55Z",
+      "side": 1,
+      "message": "This ~1068-line module has no in-tree tests - the commit message references an external validation harness, but nothing here runs under this repo\u0027s test suite/CI. For this to land, the checks need to live in-tree and run against real fixtures (e.g. the actual configs.json, a real ssd.conf.template-style input), not an out-of-tree harness.",
+      "tag": "review",
+      "revId": "e0d798540a49ab5013a325a8d30d436e66022b11",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "27eacb4c_5896aa94",
+        "filename": "infra/builder/qemu-artifact.py",
+        "patchSetId": 15
+      },
+      "lineNbr": 160,
+      "author": {
+        "id": 1039387
+      },
+      "writtenOn": "2026-10-31T16:46:55Z",
+      "side": 1,
+      "message": "The allowlist here accepts kernel, dnvme, nvme-cli, tnvme, open-osd as valid dependency sources, but only qemu/simulator are folded into branches/dependencies for the artifact identity - so two builds differing only in, say, a kernel or open-osd dependency would produce the same artifact key and be treated as reusable. If the QEMU binary genuinely can\u0027t depend on those, please assert/comment that explicitly; otherwise this should be rejected rather than silently accepted and dropped.",
+      "tag": "review",
+      "revId": "e0d798540a49ab5013a325a8d30d436e66022b11",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "197bcf7f_d54a4acf",
+        "filename": "infra/builder/qemu-artifact.py",
+        "patchSetId": 15
+      },
+      "lineNbr": 546,
+      "author": {
+        "id": 1039387
+      },
+      "writtenOn": "2026-10-31T16:46:55Z",
+      "side": 1,
+      "message": "See my related comment on compile-qemu.sh (the live 26.04 ./configure block): the QEMU 11 configure flags here are a second source of truth and already disagree with what CI actually builds, notably --disable-download. The policy and compile-qemu.sh should be unified or the gap documented.",
+      "tag": "review",
+      "revId": "e0d798540a49ab5013a325a8d30d436e66022b11",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "c368a2ec_595e4424",
+        "filename": "infra/builder/run-ci.sh",
+        "patchSetId": 15
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 1039387
+      },
+      "writtenOn": "2026-10-31T16:46:55Z",
+      "side": 1,
+      "message": "The subject says \u0027reuse build artifacts,\u0027 but the live pipeline doesn\u0027t reuse anything yet - compile-qemu.sh\u0027s 26.04 path builds QEMU 11 purely as a check and discards it, run-ci.sh never invokes select_artifact/publish and explicitly rejects EVSSIM_QEMU_INPUT_RECORD, and nothing in-tree sets EVSSIM_DEPENDENCY_RECORD. That\u0027s fine if integration is deferred to S3/S7, but worth saying explicitly in the commit message that this half ships unexercised.",
+      "tag": "review",
+      "revId": "e0d798540a49ab5013a325a8d30d436e66022b11",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "e189e5eb_e9c7b80f",
+        "filename": "infra/builder/run-ci.sh",
+        "patchSetId": 15
+      },
+      "lineNbr": 54,
+      "author": {
+        "id": 1039387
+      },
+      "writtenOn": "2026-10-31T16:46:55Z",
+      "side": 1,
+      "message": "If this jq lookup fails, the extracted id ends up empty and behavior then depends on load_config.sh erroring out downstream, since this script has no set -e (only an ERR trap). A [[ -n ... ]] guard right after extraction would make the failure explicit.",
+      "tag": "review",
+      "revId": "e0d798540a49ab5013a325a8d30d436e66022b11",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "afd30c07_b1770dfe",
+        "filename": "infra/builder/versions/configs.json",
+        "patchSetId": 15
+      },
+      "lineNbr": 111,
+      "author": {
+        "id": 1039387
+      },
+      "writtenOn": "2026-10-31T16:46:55Z",
+      "side": 1,
+      "message": "This flips nvme-cli\u0027s container from 26.04 to 14.04 for profile 5. The commit message only justifies moving the guest-test 14.04 settings out of run-ci.sh (which only touched EVSSIM_GUEST_TESTS_* before) - this nvme-cli container change looks like a separate, undocumented functional change. Please confirm it\u0027s intended and document why, or drop it.",
+      "tag": "review",
+      "revId": "e0d798540a49ab5013a325a8d30d436e66022b11",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "d2d1f2ca_0b9cd1c7",
+        "filename": "infra/builder/versions/qemu-build-policy.json",
+        "patchSetId": 15
+      },
+      "lineNbr": 28,
+      "author": {
+        "id": 1039387
+      },
+      "writtenOn": "2026-10-31T16:46:55Z",
+      "side": 1,
+      "message": "See my related comment on compile-qemu.sh (the live 26.04 ./configure block): the QEMU 11 configure flags here are a second source of truth and already disagree with what CI actually builds, notably --disable-download. The policy and compile-qemu.sh should be unified or the gap documented.",
+      "tag": "review",
+      "revId": "e0d798540a49ab5013a325a8d30d436e66022b11",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
+    }
+  ]
+}
