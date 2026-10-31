@@ -120,6 +120,24 @@
       "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "4e27fa96_e7519563",
+        "filename": "eVSSIM/tests/guest/basic_disk_tests/test_nvme_disk.py",
+        "patchSetId": 14
+      },
+      "lineNbr": 15,
+      "author": {
+        "id": 1039371
+      },
+      "writtenOn": "2026-10-31T01:29:15Z",
+      "side": 1,
+      "message": "stdout\u003dPIPE is incompatible with `capture_output\u003dtrue`. `capture_output` does all that\u0027s needed (and more).\n\nUsing `stdout\u003dPIPE` will crash the test.",
+      "parentUuid": "69a44efb_c3b6ea62",
+      "revId": "4171ce9a61080abf33a123ff1ecc08f999f1ab7c",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "d7cbc35e_21593016",
@@ -145,6 +163,30 @@
     {
       "unresolved": true,
       "key": {
+        "uuid": "2221b1f8_49721ccf",
+        "filename": "infra/builder/builder.sh",
+        "patchSetId": 14
+      },
+      "lineNbr": 455,
+      "author": {
+        "id": 1039371
+      },
+      "writtenOn": "2026-10-31T01:29:15Z",
+      "side": 1,
+      "message": "It was never getting cleaned even before I switched it to dist/tools...\n\nBut if it gets cleaned in each build it will always be missing files, if `compile-guest-tests.sh` cleans the `dist/tools` folder it would delete all the kernel files that were put there at `compile-kernel.sh`\n\nEven if every build step only cleans it\u0027s own files, then switching versions still leaves artifacts because the build files are also different.\nIt\u0027s also infeasible because if one step puts like 20 files into `tools/usr/lib` and another step puts 30 files into `tools/usr/lib`, then... What? Each tool needs to know manually delete every single file by name? And what if the names slightly change, or the amount of of files (new files/files removed)? Obviously the entire `tools/usr/lib`(just an example) can\u0027t be deleted because that will break the earlier tool\u0027s compilation.\n\nThe only valid solution I can see is for each tool to have it\u0027s own subdirectory under `tools/\u003ctoolname\u003e/root-fs-tree/` (i.e. you\u0027d have `tools/kernel/\u003croot-tree\u003e`, and separately `tools/nvme-cli/\u003croot-tree\u003e`, and etc\u0027) and that\u0027s just messy and seems like a solution to something that sounds like a non-issue (and something that has already been like that for years, just under other `dist/` folders). If there\u0027s an issue/artifacts, a dev can simply delete the entire `dist/` directory because it never gets cleaned anyways.\n(Can do if you insist).\n\n`run-ci` is the only place where cleaning the tools folder doesn\u0027t break anything because everything will be recompiled and copied again into tools while CI-ing",
+      "parentUuid": "d7cbc35e_21593016",
+      "range": {
+        "startLine": 453,
+        "startChar": 1,
+        "endLine": 455,
+        "endChar": 33
+      },
+      "revId": "4171ce9a61080abf33a123ff1ecc08f999f1ab7c",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
+    },
+    {
+      "unresolved": true,
+      "key": {
         "uuid": "50593a2c_c5a6012b",
         "filename": "infra/builder/compile-guest-tests.sh",
         "patchSetId": 14
@@ -156,6 +198,24 @@
       "writtenOn": "2026-10-30T06:49:25Z",
       "side": 1,
       "message": "Issue: source \"$EVSSIM_VERSIONS_FOLDER/...\" uses a path relative to the eVSSIM root (simulator/infra/...), but the\n  script runs from builder/, so the file isn\u0027t found.\n  Suggestion: Put $EVSSIM_ROOT_PATH/ in front. Line 25 has the same problem from before this commit.",
+      "revId": "4171ce9a61080abf33a123ff1ecc08f999f1ab7c",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "3acc1bb8_437c04b1",
+        "filename": "infra/builder/compile-guest-tests.sh",
+        "patchSetId": 14
+      },
+      "lineNbr": 38,
+      "author": {
+        "id": 1039371
+      },
+      "writtenOn": "2026-10-31T01:29:15Z",
+      "side": 1,
+      "message": "Actually the script doesn\u0027t run from `builder/`. All scripts source `builder.sh` which moves the working directory to the evssim root path.\nThe fact that this runs and that it runs correctly supports that.\nNo bugs here.",
+      "parentUuid": "50593a2c_c5a6012b",
       "revId": "4171ce9a61080abf33a123ff1ecc08f999f1ab7c",
       "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
     },
@@ -185,6 +245,30 @@
     {
       "unresolved": true,
       "key": {
+        "uuid": "ac4689be_ba0bffc0",
+        "filename": "infra/builder/compile-kernel.sh",
+        "patchSetId": 14
+      },
+      "lineNbr": 17,
+      "author": {
+        "id": 1039371
+      },
+      "writtenOn": "2026-10-31T01:29:15Z",
+      "side": 1,
+      "message": "This has been answered in the google doc.\nNo.\n\nSilently overwriting someone\u0027s changes is absolutely a no go.\nThis only copies the .config when switching branches, or if there are changes, refuse to switch branches until the changes are saved.\nWhen **NOT** switching branches we should absolutely not just delete someone\u0027s unsaved changes(obviously including changes to `.config`).",
+      "parentUuid": "8f50b960_369913d6",
+      "range": {
+        "startLine": 9,
+        "startChar": 0,
+        "endLine": 17,
+        "endChar": 116
+      },
+      "revId": "4171ce9a61080abf33a123ff1ecc08f999f1ab7c",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
+    },
+    {
+      "unresolved": true,
+      "key": {
         "uuid": "36c31d69_fb7f6d6a",
         "filename": "infra/builder/compile-osd-exofs.sh",
         "patchSetId": 14
@@ -196,6 +280,24 @@
       "writtenOn": "2026-10-30T06:49:25Z",
       "side": 1,
       "message": "Use \"$0\" \"${1:-}\" \"$#\", as the other scripts do.",
+      "revId": "4171ce9a61080abf33a123ff1ecc08f999f1ab7c",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "b9990375_27e91a8d",
+        "filename": "infra/builder/compile-osd-exofs.sh",
+        "patchSetId": 14
+      },
+      "lineNbr": 4,
+      "author": {
+        "id": 1039371
+      },
+      "writtenOn": "2026-10-31T01:29:15Z",
+      "side": 1,
+      "message": "Good point",
+      "parentUuid": "36c31d69_fb7f6d6a",
       "revId": "4171ce9a61080abf33a123ff1ecc08f999f1ab7c",
       "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
     },
@@ -223,6 +325,30 @@
       "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "432ea647_10dfba22",
+        "filename": "infra/builder/compile-osd-exofs.sh",
+        "patchSetId": 14
+      },
+      "lineNbr": 37,
+      "author": {
+        "id": 1039371
+      },
+      "writtenOn": "2026-10-31T01:29:15Z",
+      "side": 1,
+      "message": "Ah, it was supposed to be TOOL_PATH",
+      "parentUuid": "35cb071f_f5a324da",
+      "range": {
+        "startLine": 37,
+        "startChar": 19,
+        "endLine": 37,
+        "endChar": 24
+      },
+      "revId": "4171ce9a61080abf33a123ff1ecc08f999f1ab7c",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "49e026ed_13d6ea03",
@@ -236,6 +362,24 @@
       "writtenOn": "2026-10-30T06:49:25Z",
       "side": 1,
       "message": "Issue: It now calls nosetests3, and the tests are Python 3 only. The 14.04 guest image installs only python\n  python-nose\n  (ubuntu-14.04.sh:79), so guest tests break for configs 1–4.\n  Suggestion: Choose the runner per guest image, or install python3-nose in the 14.04 image.",
+      "revId": "4171ce9a61080abf33a123ff1ecc08f999f1ab7c",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "bfc6ab1a_b4285a27",
+        "filename": "infra/builder/docker-test-guest.sh",
+        "patchSetId": 14
+      },
+      "lineNbr": 29,
+      "author": {
+        "id": 1039371
+      },
+      "writtenOn": "2026-10-31T01:29:15Z",
+      "side": 1,
+      "message": "Huh, I wasn\u0027t aware `python3-nose` already existed in Ubuntu 14.04, I\u0027ll add it to the `ubutnu-14.04` `Dockerfile`.",
+      "parentUuid": "49e026ed_13d6ea03",
       "revId": "4171ce9a61080abf33a123ff1ecc08f999f1ab7c",
       "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
     },
@@ -265,6 +409,30 @@
     {
       "unresolved": true,
       "key": {
+        "uuid": "f35a5891_f7bf19d3",
+        "filename": "infra/builder/docker-test-guest.sh",
+        "patchSetId": 14
+      },
+      "lineNbr": 71,
+      "author": {
+        "id": 1039371
+      },
+      "writtenOn": "2026-10-31T01:29:15Z",
+      "side": 1,
+      "message": "I was unsure how to make them run only on configs that can actually run them.\nBecause techincally they depend on tnvme and on nvme-cli custom commands, so checks like \"if ubuntu-14.04 run, if ubuntu-26.04\" aren\u0027t accurate as this is supposed to also work with with 26.04 in the future.\n\nUpdate:\nThought about it, since it is only temporary, I don\u0027t mind doing the `if 14.04/if 26.04\" check even if it\u0027s not technically accurate and even though it\u0027s ugly, just because it\u0027s temporary until the tests are ported/dropped. Temporary ugly is acceptable.\n\nUpdate 2:\nRemembered that the version in this script refers to which docker image to run the tests from (i.e. which docker image to use to launch **QEMU**, which is still launched from 14.04), so even in the configurations that run the 7.0.2 kernel the version can still be 14.04 (and 5.0.0 can be run from 26.04 docker), so $version can\u0027t tell if the tests should run or not.\nI ended up doing an \"If kernel is on branch master, run tests\". More elegant than by \"If docker image version is ubuntu 14.04\".",
+      "parentUuid": "8a585449_29d843ce",
+      "range": {
+        "startLine": 65,
+        "startChar": 0,
+        "endLine": 71,
+        "endChar": 59
+      },
+      "revId": "4171ce9a61080abf33a123ff1ecc08f999f1ab7c",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
+    },
+    {
+      "unresolved": true,
+      "key": {
         "uuid": "78b93ae7_1fe6066b",
         "filename": "infra/builder/env.sh",
         "patchSetId": 14
@@ -276,6 +444,24 @@
       "writtenOn": "2026-10-30T06:49:25Z",
       "side": 1,
       "message": "Issue: EVSSIM_KERNEL_DIST\u003d${EVSSIM_KERNEL_BRANCH}+ becomes master+ for configs 1–4. The kernel on master is 5.0.0, so\n  the boot files are vmlinuz-5.0.0+, not vmlinuz-master+.\n  Suggestion: Get it from the kernel itself (make -s kernelrelease), or add a version field to configs.json.",
+      "revId": "4171ce9a61080abf33a123ff1ecc08f999f1ab7c",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "de25e469_99a6ff98",
+        "filename": "infra/builder/env.sh",
+        "patchSetId": 14
+      },
+      "lineNbr": 50,
+      "author": {
+        "id": 1039371
+      },
+      "writtenOn": "2026-10-31T01:29:15Z",
+      "side": 1,
+      "message": "sourcing env.sh happens before any of the infrastructure runs so doing `make -s kernelrelease` would always be the 5.0.0 (or whatever is in the master branch), so it\u0027s kinda like a chicken and egg problem, this should either be moved to a variable in `configs.json`, or stop using it as a predefined variable and calculate the dist by running `make -s kernelrelease` in the scripts that require that variable.\nSecond option sounds more robust to me.",
+      "parentUuid": "78b93ae7_1fe6066b",
       "revId": "4171ce9a61080abf33a123ff1ecc08f999f1ab7c",
       "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
     },
@@ -299,6 +485,24 @@
     {
       "unresolved": true,
       "key": {
+        "uuid": "1a1fdab6_ee7d9f4b",
+        "filename": "infra/builder/versions/nvme-cli/ubuntu-14.04.sh",
+        "patchSetId": 14
+      },
+      "lineNbr": 5,
+      "author": {
+        "id": 1039371
+      },
+      "writtenOn": "2026-10-31T01:29:15Z",
+      "side": 1,
+      "message": "Partially answered in the google doc:\n\u003e Variables from `configs.json` are only used from `run-ci.sh`. When running the scripts manually it is intended for the dev to be able to run the scripts using different versions for testing and development, the scripts under `versions/` subfolder furthermore can\u0027t use the `configs.json` values because they are chosen based on the configurations, and not vice versa.\n\nThis file is for compiling the `master` branch, it would be weird if \"Compiling the master branch nvme-cli\" would compile the `3.0-a.5` branch because the `EVSSIM_NVME_CLI_BRANCH` holds that, or vice versa, if \"Compiling the 3.0-a.5 branch nvme-cli\" would compile the `master` branch because the `EVSSIM_NVME_CLI_BRANCH` holds that. These scripts themeselves shouldn\u0027t be affected by EVSSIM_NVME_CLI_BRANCH.\n\nIf anything, the valid issue/suggestion would be that these scripts should be called `versions/nvme-cli/master.sh` and `versions/nvme-cli/3.0-a.5.sh` instead, and then you could call `versions/nvme-cli/EVSSIM_NVME_CLI_BRANCH.sh`, but that creates a different problem where `./compile-guest-tests \u003cubuntu-14.04\u003e/\u003cubuntu-26.04\u003e` no longer tells you which nvme-cli to compile.\n\nUpdate:\nI realize this can be solved by just moving it to a separate `./compile-nvme-cli` step which could then take `master` or `3.0-a.5` as arguments and that solves all three of the problems.\n\n(Leaving this as unresolved in case you dislike this solution)",
+      "parentUuid": "067cf890_a3d555d4",
+      "revId": "4171ce9a61080abf33a123ff1ecc08f999f1ab7c",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
+    },
+    {
+      "unresolved": true,
+      "key": {
         "uuid": "586f368f_05c58378",
         "filename": "infra/builder/versions/nvme-cli/ubuntu-26.04.sh",
         "patchSetId": 14
@@ -310,6 +514,24 @@
       "writtenOn": "2026-10-30T06:49:25Z",
       "side": 1,
       "message": "Issue: The branch is hardcoded (3.0-a.5), and the script is chosen by the compile container name.\n  configs.json\u0027s nvme-cli.branch (EVSSIM_NVME_CLI_BRANCH) is ignored.\n  Suggestion: Use $EVSSIM_NVME_CLI_BRANCH, and choose the build script by branch, not by container.",
+      "revId": "4171ce9a61080abf33a123ff1ecc08f999f1ab7c",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "e3809c5c_2a52e81b",
+        "filename": "infra/builder/versions/nvme-cli/ubuntu-26.04.sh",
+        "patchSetId": 14
+      },
+      "lineNbr": 5,
+      "author": {
+        "id": 1039371
+      },
+      "writtenOn": "2026-10-31T01:29:15Z",
+      "side": 1,
+      "message": "See aforementioned reply.",
+      "parentUuid": "586f368f_05c58378",
       "revId": "4171ce9a61080abf33a123ff1ecc08f999f1ab7c",
       "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
     }
