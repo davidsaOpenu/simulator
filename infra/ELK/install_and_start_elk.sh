@@ -679,7 +679,9 @@ if [[ -f "tls/certs/ca/ca.crt" ]]; then
     echo "TLS certificates already exist, skipping generation..."
 else
     echo "Generating TLS certificates..."
-    $COMPOSE_CMD up tls
+    # tls is in the compose file's setup profile: podman-compose won't start a
+    # service of an inactive profile, even by name, and only warns about it
+    $COMPOSE_CMD --profile=setup up tls
 fi
 
 # Check if Elasticsearch setup has been completed
