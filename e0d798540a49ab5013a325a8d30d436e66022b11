@@ -199,6 +199,24 @@
       "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
     },
     {
+      "unresolved": true,
+      "key": {
+        "uuid": "858fc9d3_8829cd3a",
+        "filename": "infra/builder/run-ci.sh",
+        "patchSetId": 15
+      },
+      "lineNbr": 54,
+      "author": {
+        "id": 1039517
+      },
+      "writtenOn": "2026-11-02T09:15:04Z",
+      "side": 1,
+      "message": "run-ci.sh already enables errexit through set -Eeo pipefail on line 2. I checked missing-policy mappings and malformed JSON; both stop before the following command. An additional guard is unnecessary for those failure cases.",
+      "parentUuid": "e189e5eb_e9c7b80f",
+      "revId": "e0d798540a49ab5013a325a8d30d436e66022b11",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
+    },
+    {
       "unresolved": false,
       "key": {
         "uuid": "afd30c07_b1770dfe",
