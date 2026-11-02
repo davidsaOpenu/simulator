@@ -233,6 +233,24 @@
       "tag": "review",
       "revId": "e0d798540a49ab5013a325a8d30d436e66022b11",
       "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "f224ec5b_256fe870",
+        "filename": "infra/builder/versions/qemu-build-policy.json",
+        "patchSetId": 15
+      },
+      "lineNbr": 28,
+      "author": {
+        "id": 1039517
+      },
+      "writtenOn": "2026-11-02T09:07:13Z",
+      "side": 1,
+      "message": "Agreed that the ordinary configure path and artifact recipe should use one policy. The artifact helper already supplies --target-list from the recipe\u0027s separate target field and rejects duplicate --target-list entries in configure_args; that target is not missing. The actual mismatch is --disable-download. My proposed correction is to retain it and have both build paths consume the same explicit target/configure arguments. Patch set 16 clarifies that the ordinary Jenkins workflow does not yet exercise artifact reuse; configure-flag unification is still pending.",
+      "parentUuid": "d2d1f2ca_0b9cd1c7",
+      "revId": "e0d798540a49ab5013a325a8d30d436e66022b11",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
     }
   ]
 }
