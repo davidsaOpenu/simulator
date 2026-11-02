@@ -73,6 +73,24 @@
       "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
     },
     {
+      "unresolved": true,
+      "key": {
+        "uuid": "aee052fe_43376d10",
+        "filename": "infra/builder/handle-depend-on-instructions.sh",
+        "patchSetId": 15
+      },
+      "lineNbr": 755,
+      "author": {
+        "id": 1039517
+      },
+      "writtenOn": "2026-11-02T09:17:00Z",
+      "side": 1,
+      "message": "I audited 53 currently open simulator reviews. Nine declare dependencies, referencing six unique reviews. All dependency URLs and current metadata were valid, none was abandoned, and all six patches passed isolated application checks against their current target branches. I found no concrete reliance on soft-failing dependency application. This was not a full CI rerun of every review, so it does not establish compatibility under transient retrieval failures.",
+      "parentUuid": "93f9e093_e8437bf8",
+      "revId": "e0d798540a49ab5013a325a8d30d436e66022b11",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
+    },
+    {
       "unresolved": false,
       "key": {
         "uuid": "438c7319_a7a99edd",
