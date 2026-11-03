@@ -5,6 +5,11 @@ set -e
 if [ "${1:-}" = "--resolve-dependencies" ]; then
     exec python3 "$(dirname "$(realpath "$0")")/qemu-inputs.py" "$@"
 fi
+# Artifact calls consume explicit inputs before builder.sh can mutate sources.
+# Keep the selection-only entry point above unchanged; S2c adds its consumer.
+if [ "${1:-}" = "--request" ] || [ "${1:-}" = "--resolved-inputs" ]; then
+    exec python3 "$(dirname "$(realpath "$0")")/qemu-artifact.py" "$@"
+fi
 
 # A container is a build environment, not a source-branch selector. Reject
 # conflicting callers before builder.sh or any checkout/cleanup side effects.
@@ -26,12 +31,28 @@ if [[ "$version" != ubuntu-14.04 && "$version" != ubuntu-26.04 ]]; then
     exit 1
 fi
 git check-ref-format --branch "$EVSSIM_QEMU_BRANCH" >/dev/null
-# Compiling a frozen artifact record is S2c work. Reject it here rather than
-# silently building from different inputs through the existing version path.
 if [[ -n "${EVSSIM_QEMU_INPUT_RECORD:-}" ]]; then
-    echo "ERROR: Saved-input compilation belongs to S2c; no build was started" >&2
-    exit 1
+    if [[ "$version" == ubuntu-14.04 ]]; then
+        echo "ERROR: Saved-input legacy artifact selection is QEMU-only. Use qemu-artifact.py explicitly; this version wrapper must also build exofs tools. Independent tool integration belongs to S4/S7." >&2
+        exit 1
+    fi
+    # Use the saved record's immutable image and recipe in a disposable source
+    # workspace. A cache hit must never bypass the legacy tool-building tail.
+    saved_job_id=$(python3 -c 'import uuid; print(uuid.uuid4().hex)')
+    exec python3 "$(dirname "$(realpath "$0")")/qemu-artifact.py" \
+        --saved-inputs "$EVSSIM_QEMU_INPUT_RECORD" --check-environment \
+        --qemu-dir "$EVSSIM_ROOT_PATH/$EVSSIM_QEMU_FOLDER" \
+        --simulator-dir "$EVSSIM_ROOT_PATH/$EVSSIM_SIMULATOR_FOLDER" \
+        --build-dir "$EVSSIM_ROOT_PATH/$EVSSIM_LOGS_FOLDER/qemu-$saved_job_id" \
+        --jobs "$(nproc)" \
+        --artifact-root "$EVSSIM_ROOT_PATH/artifacts" \
+        --dist-root "$EVSSIM_ROOT_PATH/$EVSSIM_DIST_FOLDER"
 fi
+
+# Read the same recipe used by artifact builds before ordinary build setup.
+# Shell quoting preserves each configure argument through builder.sh's bash -c.
+qemu_artifact_helper="$(dirname "$(realpath "$0")")/qemu-artifact.py"
+qemu_configure_command=$(python3 "$qemu_artifact_helper" --configure-command "$version")
 
 source ./builder.sh
 
@@ -43,19 +64,6 @@ evssim_run_at_folder "$version" "$EVSSIM_SIMULATOR_FOLDER/eVSSIM/osc-osd" "make 
 git -C "$EVSSIM_ROOT_PATH/$EVSSIM_QEMU_FOLDER" fetch --all --prune
 echo "INFO building QEMU branch $EVSSIM_QEMU_BRANCH, profile $EVSSIM_VERSIONS_CONFIGURATION_ID, container $version"
 git -C "$EVSSIM_ROOT_PATH/$EVSSIM_QEMU_FOLDER" checkout "$EVSSIM_QEMU_BRANCH"
-case "$version" in
-	"ubuntu-14.04")
-		VSSIM_CONFIGURE_ARGS="--enable-vssim --extra-cflags='-Wno-error=unused-but-set-variable -Wno-error=deprecated-declarations -Wno-error=cpp'"
-		;;
-	"ubuntu-26.04")
-		VSSIM_CONFIGURE_ARGS="--enable-werror"
-		;;
-	*)
-        	echo "ERROR unsupported qemu compile version: $version"
-        	echo "Usage: $0 <ubuntu-14.04|ubuntu-26.04>"
-        	exit 1
-        ;;
-esac
 
 # Necessary since builds interfere with each other due to artifacts
 git -C "$EVSSIM_ROOT_PATH/$EVSSIM_QEMU_FOLDER" pull --ff-only
@@ -64,19 +72,18 @@ git -C "$EVSSIM_ROOT_PATH/$EVSSIM_QEMU_FOLDER" clean -fdx
 git -C "$EVSSIM_ROOT_PATH/$EVSSIM_QEMU_FOLDER" submodule update --init --recursive
 
 if [ "$version" = "ubuntu-26.04" ]; then
+    # Prepare exact wrap revisions before the shared --disable-download flag.
+    # Artifact builds use the same helper with their local source-object cache.
+    evssim_run_at_folder "$version" "$EVSSIM_QEMU_FOLDER" \
+        python3 "$EVSSIM_DOCKER_ROOT_PATH/$EVSSIM_SIMULATOR_FOLDER/infra/builder/qemu-artifact.py" \
+        --prepare-subprojects .
     "$EVSSIM_ROOT_PATH/$EVSSIM_SIMULATOR_FOLDER/infra/builder/prepare-qemu-vssim.sh" \
         "$EVSSIM_ROOT_PATH/$EVSSIM_QEMU_FOLDER" \
         "$EVSSIM_ROOT_PATH/$EVSSIM_SIMULATOR_FOLDER/eVSSIM"
 fi
 
-# Configure qemu
-evssim_run_at_folder "$version" $EVSSIM_QEMU_FOLDER ./configure \
-    --enable-trace-backends=log \
-    --disable-docs --enable-tools \
-    --enable-linux-aio \
-    --disable-sdl --disable-gtk \
-    --enable-kvm --target-list=x86_64-softmmu \
-    $VSSIM_CONFIGURE_ARGS
+# Configure with the policy's explicit target and ordered argument list.
+evssim_run_at_folder "$version" "$EVSSIM_QEMU_FOLDER" "$qemu_configure_command"
 
 # Make
 if [ "$version" = "ubuntu-26.04" ]; then

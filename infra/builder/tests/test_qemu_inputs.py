@@ -201,6 +201,17 @@ class InputSelectionTests(unittest.TestCase):
                 self.policy = dict(original, **changes)
                 self.resolve()
 
+    def test_shared_build_recipes_do_not_change_selection(self):
+        expected = self.resolve()
+        self.policy.pop("builds")
+        self.assertEqual(expected, self.resolve())
+        # B selects the profile; C validates and executes the selected recipe.
+        self.policy["builds"] = {"unused-container": {"not-a-build-recipe": True}}
+        self.assertEqual(expected, self.resolve())
+        self.policy["unknown-section"] = {}
+        with self.assertRaises(inputs.InputError):
+            self.resolve()
+
     def test_missing_checkout_cannot_produce_a_resolved_record(self):
         self.qemu = self.root / "missing"
         with self.assertRaisesRegex(inputs.InputError, "cannot read source HEAD"):
@@ -264,12 +275,15 @@ class InputSelectionTests(unittest.TestCase):
         self.assertEqual({"guestVmImage": "ubuntu-14.04", "guestVmBuildContainer": "ubuntu-14.04",
                           "compileContainer": "ubuntu-14.04"}, profile["guestTests"])
 
-    def test_compile_preflight_rejects_mismatched_containers_and_saved_records(self):
+    def test_compile_preflight_rejects_mismatched_containers_and_invalid_saved_records(self):
         env = dict(os.environ, EVSSIM_QEMU_BRANCH="11.0", EVSSIM_QEMU_COMPILE_CONTAINER="ubuntu-26.04",
                    EVSSIM_VERSIONS_CONFIGURATION_ID="4")
         env.pop("EVSSIM_QEMU_INPUT_RECORD", None)
+        # S2c accepts saved inputs; a missing record must still fail before
+        # builder.sh can start an ordinary build with different inputs.
+        missing_record = str(self.root / "missing-input-record.json")
         for version, record, message in (("ubuntu-14.04", None, "conflicts"),
-                                         ("ubuntu-26.04", "saved-record", "belongs to S2c")):
+                                         ("ubuntu-26.04", missing_record, "missing-input-record.json")):
             with self.subTest(version=version):
                 if record:
                     env["EVSSIM_QEMU_INPUT_RECORD"] = record
@@ -277,11 +291,17 @@ class InputSelectionTests(unittest.TestCase):
                     cwd=self.root, env=env, capture_output=True, text=True, timeout=15)
                 self.assertNotEqual(0, process.returncode)
                 self.assertIn(message, process.stderr)
+                self.assertNotIn("builder.sh", process.stderr)
 
     def test_version_wrapper_uses_selected_branch_instead_of_container_inference(self):
         target = self.root / "compiler"
         target.mkdir()
         shutil.copy2(BUILDER / "compile-qemu.sh", target / "compile-qemu.sh")
+        # The wrapper now obtains its configure command from the real shared
+        # recipe helper. Keep build/Git operations stubbed as before.
+        shutil.copy2(BUILDER / "qemu-artifact.py", target / "qemu-artifact.py")
+        (target / "versions").mkdir()
+        shutil.copy2(BUILDER / "versions/qemu-build-policy.json", target / "versions/qemu-build-policy.json")
         (target / "builder.sh").write_text('''evssim_validate_version_arguments() { return 0; }
 git() { printf 'git: %s\\n' "$*" >> "$S2B_TEST_CALL_LOG"; }
 evssim_run_at_folder() { printf 'run: %s\\n' "$*" >> "$S2B_TEST_CALL_LOG"; }
