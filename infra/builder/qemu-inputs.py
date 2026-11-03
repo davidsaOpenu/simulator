@@ -69,8 +69,12 @@ def resolve_inputs(report, profiles, policy, qemu_dir, simulator_dir,
                 or profile["id"] <= 0 or profile["id"] in configs):
             raise InputError("profile IDs must be unique positive integers")
         configs[profile["id"]] = profile
-    # Selection policy contains only mappings. Build recipes belong to S2c.
-    require_fields(policy, ("default_profile", "qemu_branches"), "selection policy")
+    # The shared policy may include S2c's build recipes. Selection reads only
+    # the mappings; the artifact/build consumer validates its selected recipe.
+    fields = ("default_profile", "qemu_branches")
+    if isinstance(policy, dict) and "builds" in policy:
+        fields += ("builds",)
+    require_fields(policy, fields, "selection policy")
     if (type(policy["default_profile"]) is not int or policy["default_profile"] <= 0
             or not isinstance(policy["qemu_branches"], dict)):
         raise InputError("selection policy needs a default profile and branch map")
