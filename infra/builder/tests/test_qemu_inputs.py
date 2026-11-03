@@ -201,6 +201,17 @@ class InputSelectionTests(unittest.TestCase):
                 self.policy = dict(original, **changes)
                 self.resolve()
 
+    def test_shared_build_recipes_do_not_change_selection(self):
+        expected = self.resolve()
+        self.policy.pop("builds")
+        self.assertEqual(expected, self.resolve())
+        # B selects the profile; C validates and executes the selected recipe.
+        self.policy["builds"] = {"unused-container": {"not-a-build-recipe": True}}
+        self.assertEqual(expected, self.resolve())
+        self.policy["unknown-section"] = {}
+        with self.assertRaises(inputs.InputError):
+            self.resolve()
+
     def test_missing_checkout_cannot_produce_a_resolved_record(self):
         self.qemu = self.root / "missing"
         with self.assertRaisesRegex(inputs.InputError, "cannot read source HEAD"):
@@ -264,12 +275,15 @@ class InputSelectionTests(unittest.TestCase):
         self.assertEqual({"guestVmImage": "ubuntu-14.04", "guestVmBuildContainer": "ubuntu-14.04",
                           "compileContainer": "ubuntu-14.04"}, profile["guestTests"])
 
-    def test_compile_preflight_rejects_mismatched_containers_and_saved_records(self):
+    def test_compile_preflight_rejects_mismatched_containers_and_invalid_saved_records(self):
         env = dict(os.environ, EVSSIM_QEMU_BRANCH="11.0", EVSSIM_QEMU_COMPILE_CONTAINER="ubuntu-26.04",
                    EVSSIM_VERSIONS_CONFIGURATION_ID="4")
         env.pop("EVSSIM_QEMU_INPUT_RECORD", None)
+        # S2c accepts saved inputs; a missing record must still fail before
+        # builder.sh can start an ordinary build with different inputs.
+        missing_record = str(self.root / "missing-input-record.json")
         for version, record, message in (("ubuntu-14.04", None, "conflicts"),
-                                         ("ubuntu-26.04", "saved-record", "belongs to S2c")):
+                                         ("ubuntu-26.04", missing_record, "missing-input-record.json")):
             with self.subTest(version=version):
                 if record:
                     env["EVSSIM_QEMU_INPUT_RECORD"] = record
@@ -277,11 +291,17 @@ class InputSelectionTests(unittest.TestCase):
                     cwd=self.root, env=env, capture_output=True, text=True, timeout=15)
                 self.assertNotEqual(0, process.returncode)
                 self.assertIn(message, process.stderr)
+                self.assertNotIn("builder.sh", process.stderr)
 
     def test_version_wrapper_uses_selected_branch_instead_of_container_inference(self):
         target = self.root / "compiler"
         target.mkdir()
         shutil.copy2(BUILDER / "compile-qemu.sh", target / "compile-qemu.sh")
+        # The wrapper now obtains its configure command from the real shared
+        # recipe helper. Keep build/Git operations stubbed as before.
+        shutil.copy2(BUILDER / "qemu-artifact.py", target / "qemu-artifact.py")
+        (target / "versions").mkdir()
+        shutil.copy2(BUILDER / "versions/qemu-build-policy.json", target / "versions/qemu-build-policy.json")
         (target / "builder.sh").write_text('''evssim_validate_version_arguments() { return 0; }
 git() { printf 'git: %s\\n' "$*" >> "$S2B_TEST_CALL_LOG"; }
 evssim_run_at_folder() { printf 'run: %s\\n' "$*" >> "$S2B_TEST_CALL_LOG"; }
@@ -309,6 +329,81 @@ evssim_run_at_folder() { printf 'run: %s\\n' "$*" >> "$S2B_TEST_CALL_LOG"; }
                 calls = log.read_text()
                 self.assertIn("checkout " + profile["qemu"]["branch"], calls)
                 self.assertIn("--target-list=x86_64-softmmu", calls)
+
+    def test_legacy_wrapper_refreshes_submodule_tracking_after_clean(self):
+        target = self.root / "legacy-compiler"
+        target.mkdir()
+        for name in ("compile-qemu.sh", "qemu-artifact.py", "versions/qemu-build-policy.json"):
+            destination = target / name
+            destination.parent.mkdir(exist_ok=True)
+            shutil.copy2(BUILDER / name, destination)
+        # Execute the wrapper's actual shell command in a disposable directory.
+        # Substitute Git/container/compiler boundaries; model legacy QEMU's
+        # clean removing its status file and make requiring that file afterward.
+        (target / "builder.sh").write_text('''evssim_validate_version_arguments() { return 0; }
+git() { return 0; }
+evssim_run_at_folder() {
+    if [ "$2" = "$EVSSIM_QEMU_FOLDER" ]; then
+        (cd "$EVSSIM_ROOT_PATH/$2" && bash -c "${*:3}")
+    fi
+}
+''')
+        tools = self.root / "bin"
+        tools.mkdir()
+        scripts = {
+            self.qemu / "configure": '''#!/bin/bash
+printf 'GIT_SUBMODULES=fixture/second fixture/first\\n' > config-host.mak
+printf 'old status\\n' > .git-submodule-status
+''',
+            self.qemu / "scripts/git-submodule.sh": '''#!/bin/bash
+printf 'refresh %s\\n' "$*" >> "$S2B_TEST_CALL_LOG"
+[ "$1" = update ] || exit 8
+[ "$S2C_TEST_REFRESH_FAIL" = 0 ] || exit 7
+shift
+printf '%s\\n' "$@" > .git-submodule-status
+''',
+            tools / "make": '''#!/bin/bash
+if [ "$1" = clean ]; then
+    printf 'clean\\n' >> "$S2B_TEST_CALL_LOG"
+    rm -f .git-submodule-status
+else
+    [ -f .git-submodule-status ] || exit 9
+    printf 'compile\\n' >> "$S2B_TEST_CALL_LOG"
+fi
+''',
+            tools / "bear": '''#!/bin/bash
+[ "$1" = -- ] && shift
+exec "$@"
+''',
+        }
+        for path, contents in scripts.items():
+            path.parent.mkdir(exist_ok=True)
+            path.write_text(contents)
+            path.chmod(0o755)
+        log = self.root / "legacy-calls.log"
+        profile = self.profile(5)
+        env = dict(os.environ, PATH=str(tools) + os.pathsep + os.environ["PATH"],
+                   EVSSIM_ROOT_PATH=str(self.root), EVSSIM_SIMULATOR_FOLDER="simulator",
+                   EVSSIM_QEMU_FOLDER="qemu", EVSSIM_DOCKER_ROOT_PATH="/code", EVSSIM_DIST_FOLDER="dist",
+                   EVSSIM_KERNEL_FOLDER="kernel", EVSSIM_QEMU_BRANCH=profile["qemu"]["branch"],
+                   EVSSIM_QEMU_COMPILE_CONTAINER=profile["qemu"]["compileContainer"],
+                   EVSSIM_VERSIONS_CONFIGURATION_ID=str(profile["id"]), S2B_TEST_CALL_LOG=str(log))
+        env.pop("EVSSIM_QEMU_INPUT_RECORD", None)
+        for fail in (False, True):
+            with self.subTest(refresh_failure=fail):
+                log.write_text("")
+                env["S2C_TEST_REFRESH_FAIL"] = str(int(fail))
+                process = subprocess.run(["bash", str(target / "compile-qemu.sh"),
+                    profile["qemu"]["compileContainer"]], cwd=target, env=env,
+                    capture_output=True, text=True, timeout=15)
+                self.assertEqual(7 if fail else 0, process.returncode, process.stdout + process.stderr)
+                expected = ["clean", "refresh update fixture/second fixture/first"]
+                self.assertEqual(expected if fail else expected + ["compile"], log.read_text().splitlines())
+                status = self.qemu / ".git-submodule-status"
+                if fail:
+                    self.assertFalse(status.exists())
+                else:
+                    self.assertEqual(["fixture/second", "fixture/first"], status.read_text().splitlines())
 
     def workflow_fixture(self):
         target = self.root / "workflow/simulator/infra/builder"
