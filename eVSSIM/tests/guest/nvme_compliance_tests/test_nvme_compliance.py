@@ -20,31 +20,36 @@ NVME_PCI_CLASS = "0x010802"  # mass storage / non-volatile memory / NVMe
 DEBUG = False
 
 
+def prepare_nvme_compliance():
+    """Share the existing driver/skip-file setup with diagnostic collection."""
+    if 0 != subprocess.call("lsmod | grep dnvme",
+                            shell=True, stdout=None, stderr=subprocess.STDOUT):
+        # Hold udev so dnvme's bind uevents can't autoload nvme mid-swap.
+        subprocess.check_call(["udevadm", "control", "--stop-exec-queue"])
+        try:
+            os.system("rmmod nvme")
+            subprocess.check_call(["insmod", "dnvme.ko"])
+        finally:
+            subprocess.check_call(["udevadm", "control", "--start-exec-queue"])
+        subprocess.check_call(["udevadm", "settle"])
+        for dev in sorted(glob.glob("/sys/bus/pci/devices/*")):
+            with open(os.path.join(dev, "class")) as f:
+                if f.read().strip() != NVME_PCI_CLASS:
+                    continue
+            driver = os.path.join(dev, "driver")
+            owner = os.path.basename(os.readlink(driver)) if os.path.exists(driver) else None
+            print("%s %s" % (os.path.basename(dev), owner))
+            assert owner == "dnvme", "%s is bound to %s, not dnvme" % (dev, owner)
+
+    skip_single_tests = []
+    with open("skipTests", "w+") as f:
+        for test in skip_single_tests:
+            f.write("%s\n" % test)
+
+
 class TestNVMeCompliance:
     def test_NVMeCompliance(self):
-        if 0 != subprocess.call("lsmod | grep dnvme",
-                                shell=True, stdout=None, stderr=subprocess.STDOUT):
-            # Hold udev so dnvme's bind uevents can't autoload nvme mid-swap.
-            subprocess.check_call(["udevadm", "control", "--stop-exec-queue"])
-            try:
-                os.system("rmmod nvme")
-                subprocess.check_call(["insmod", "dnvme.ko"])
-            finally:
-                subprocess.check_call(["udevadm", "control", "--start-exec-queue"])
-            subprocess.check_call(["udevadm", "settle"])
-            for dev in sorted(glob.glob("/sys/bus/pci/devices/*")):
-                with open(os.path.join(dev, "class")) as f:
-                    if f.read().strip() != NVME_PCI_CLASS:
-                        continue
-                driver = os.path.join(dev, "driver")
-                owner = os.path.basename(os.readlink(driver)) if os.path.exists(driver) else None
-                print("%s %s" % (os.path.basename(dev), owner))
-                assert owner == "dnvme", "%s is bound to %s, not dnvme" % (dev, owner)
-
-        skip_single_tests = []
-        with open("skipTests", "w+") as f:
-            for test in skip_single_tests:
-                f.write("%s\n" % test)
+        prepare_nvme_compliance()
 
         skip_suits = {}
         if DEBUG:
@@ -76,3 +81,11 @@ class TestNVMeCompliance:
                 res = os.system(cmd)
                 print("STOP %d" % int(time.time()))
                 assert 0 == res, "Failed running suit %s" % suiteNum
+
+
+if __name__ == "__main__":
+    # The diagnostic collector needs setup without entering the fail-fast loop.
+    import sys
+    if sys.argv[1:] != ["--prepare-only"]:
+        sys.exit("usage: test_nvme_compliance.py --prepare-only")
+    prepare_nvme_compliance()
