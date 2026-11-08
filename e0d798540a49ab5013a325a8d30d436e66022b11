@@ -201,6 +201,24 @@
     {
       "unresolved": false,
       "key": {
+        "uuid": "3fae4b15_7b3ace38",
+        "filename": "infra/builder/prepare-qemu-vssim.sh",
+        "patchSetId": 15
+      },
+      "lineNbr": 42,
+      "author": {
+        "id": 1039517
+      },
+      "writtenOn": "2026-11-08T17:48:00Z",
+      "side": 1,
+      "message": "The missing-directory check already existed before this change; the previous mkdir created the generated simulator directory only after that check passed. I retained the existing requirement that hw/vssim comes from the selected QEMU checkout. Adding mkdir before mktemp would therefore be redundant unless we also changed that requirement.\n\nBy “other invocations,” do you mean a specific caller or QEMU checkout where hw/vssim is absent? The existing helper already rejected that case before this change.",
+      "parentUuid": "7eb09ce5_ca19fb02",
+      "revId": "e0d798540a49ab5013a325a8d30d436e66022b11",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
+    },
+    {
+      "unresolved": false,
+      "key": {
         "uuid": "a7195ad6_663cc2b4",
         "filename": "infra/builder/prepare-qemu-vssim.sh",
         "patchSetId": 15
