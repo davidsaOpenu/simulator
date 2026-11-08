@@ -21,6 +21,24 @@
     {
       "unresolved": false,
       "key": {
+        "uuid": "961c1674_94febd6c",
+        "filename": "/COMMIT_MSG",
+        "patchSetId": 15
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 1039517
+      },
+      "writtenOn": "2026-11-08T17:38:55Z",
+      "side": 1,
+      "message": "Thank you for the heads up with this.\nI agree in separating to different sub-changes, the story\u0027s scope itself was agreed upon in maman 14.\nI\u0027ve separated into 3 stories, this one being S2b.\nhttps://review.gerrithub.io/c/davidsaOpenu/simulator/+/1257662 - S2a\nhttps://review.gerrithub.io/c/davidsaOpenu/simulator/+/1256017 - S2b\nhttps://review.gerrithub.io/c/davidsaOpenu/simulator/+/1257923 - S3c",
+      "parentUuid": "bd5da971_95a8b81a",
+      "revId": "e0d798540a49ab5013a325a8d30d436e66022b11",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
+    },
+    {
+      "unresolved": false,
+      "key": {
         "uuid": "6482fa23_0fc1f29a",
         "filename": "infra/builder/compile-qemu.sh",
         "patchSetId": 15
@@ -39,6 +57,24 @@
     {
       "unresolved": false,
       "key": {
+        "uuid": "e418dd62_fdd5815e",
+        "filename": "infra/builder/compile-qemu.sh",
+        "patchSetId": 15
+      },
+      "lineNbr": 87,
+      "author": {
+        "id": 1039517
+      },
+      "writtenOn": "2026-11-08T17:38:55Z",
+      "side": 1,
+      "message": "Fixed in S2c. Both paths now consume the same policy and configure-argument renderer. --target-list comes from the explicit target field and is emitted once. --disable-download is retained, with pinned subprojects prepared before configure.",
+      "parentUuid": "6482fa23_0fc1f29a",
+      "revId": "e0d798540a49ab5013a325a8d30d436e66022b11",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
+    },
+    {
+      "unresolved": false,
+      "key": {
         "uuid": "d85bd984_f8b1ddda",
         "filename": "infra/builder/env.sh",
         "patchSetId": 15
@@ -51,6 +87,24 @@
       "side": 1,
       "message": "This uses `-` not `:-` - if a caller exports the variable but empty, it stays empty instead of defaulting to 5, and load_config.sh will then fail to find the profile. If an empty value should also mean \u0027use default,\u0027 switch to `:-`.",
       "tag": "review",
+      "revId": "e0d798540a49ab5013a325a8d30d436e66022b11",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "a8094b99_63561a16",
+        "filename": "infra/builder/env.sh",
+        "patchSetId": 15
+      },
+      "lineNbr": 18,
+      "author": {
+        "id": 1039517
+      },
+      "writtenOn": "2026-11-08T17:38:55Z",
+      "side": 1,
+      "message": "Fixed in S2b using ${EVSSIM_VERSIONS_CONFIGURATION_ID:-5}. Both unset and empty values select 5; explicit selections are preserved. This is covered by an in-tree test.",
+      "parentUuid": "d85bd984_f8b1ddda",
       "revId": "e0d798540a49ab5013a325a8d30d436e66022b11",
       "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
     },
@@ -93,6 +147,24 @@
     {
       "unresolved": false,
       "key": {
+        "uuid": "0c814333_7158d6ae",
+        "filename": "infra/builder/handle-depend-on-instructions.sh",
+        "patchSetId": 15
+      },
+      "lineNbr": 755,
+      "author": {
+        "id": 1039517
+      },
+      "writtenOn": "2026-11-08T17:38:55Z",
+      "side": 1,
+      "message": "This behavior is now isolated in S2a. Required dependency failures return nonzero, including when JSON reporting is disabled. The commit message documents the behavior change, and the tests cover failure propagation.",
+      "parentUuid": "aee052fe_43376d10",
+      "revId": "e0d798540a49ab5013a325a8d30d436e66022b11",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
+    },
+    {
+      "unresolved": false,
+      "key": {
         "uuid": "438c7319_a7a99edd",
         "filename": "infra/builder/prepare-qemu-vssim.sh",
         "patchSetId": 15
@@ -105,6 +177,24 @@
       "side": 1,
       "message": "This assumes hw/vssim already exists; the prior code did mkdir -p $VSSIM_TARGET first. Fine for QEMU 11 where hw/vssim is tracked, but a one-line mkdir -p \"$VSSIM_DIR\" before mktemp would preserve the old robustness for other invocations.",
       "tag": "review",
+      "revId": "e0d798540a49ab5013a325a8d30d436e66022b11",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "7eb09ce5_ca19fb02",
+        "filename": "infra/builder/prepare-qemu-vssim.sh",
+        "patchSetId": 15
+      },
+      "lineNbr": 42,
+      "author": {
+        "id": 1039517
+      },
+      "writtenOn": "2026-11-08T17:38:55Z",
+      "side": 1,
+      "message": "I kept the explicit failure here. The supported ported QEMU revisions already contain hw/vssim and its build integration. Creating an empty directory would not restore that integration and would delay detecting an incorrect or incomplete checkout.",
+      "parentUuid": "438c7319_a7a99edd",
       "revId": "e0d798540a49ab5013a325a8d30d436e66022b11",
       "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
     },
@@ -129,6 +219,24 @@
     {
       "unresolved": false,
       "key": {
+        "uuid": "b75035fc_5dde783f",
+        "filename": "infra/builder/prepare-qemu-vssim.sh",
+        "patchSetId": 15
+      },
+      "lineNbr": 74,
+      "author": {
+        "id": 1039517
+      },
+      "writtenOn": "2026-11-08T17:38:55Z",
+      "side": 1,
+      "message": "Added a comment pointing to hw/vssim/meson.build, the required OSD headers/schema, and the monitor assets. The lists remain explicit, and missing required inputs fail preparation.",
+      "parentUuid": "a7195ad6_663cc2b4",
+      "revId": "e0d798540a49ab5013a325a8d30d436e66022b11",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
+    },
+    {
+      "unresolved": false,
+      "key": {
         "uuid": "e602d56c_5dd30670",
         "filename": "infra/builder/qemu-artifact.py",
         "patchSetId": 15
@@ -141,6 +249,24 @@
       "side": 1,
       "message": "This ~1068-line module has no in-tree tests - the commit message references an external validation harness, but nothing here runs under this repo\u0027s test suite/CI. For this to land, the checks need to live in-tree and run against real fixtures (e.g. the actual configs.json, a real ssd.conf.template-style input), not an out-of-tree harness.",
       "tag": "review",
+      "revId": "e0d798540a49ab5013a325a8d30d436e66022b11",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "1d6342fa_25f37dc8",
+        "filename": "infra/builder/qemu-artifact.py",
+        "patchSetId": 15
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 1039517
+      },
+      "writtenOn": "2026-11-08T17:38:55Z",
+      "side": 1,
+      "message": "I agree, it is something I un-tracked the file for some reason.\nAdded tests under the default tox builder environment: 37 dependency-handler tests in S2a, 31 selection/caller tests in S2b, and 33 artifact tests in S2c. S2c also extends the selection/caller tests to 33. They use the checked-in configs/policy, actual tracked eVSSIM sources, and disposable Git repositories. Docker/compiler boundaries are mocked in unit tests; separate clean legacy and QEMU 11 builds and artifact-reuse checks also passed.",
+      "parentUuid": "e602d56c_5dd30670",
       "revId": "e0d798540a49ab5013a325a8d30d436e66022b11",
       "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
     },
@@ -165,6 +291,24 @@
     {
       "unresolved": false,
       "key": {
+        "uuid": "42c41f65_45cafca5",
+        "filename": "infra/builder/qemu-artifact.py",
+        "patchSetId": 15
+      },
+      "lineNbr": 160,
+      "author": {
+        "id": 1039517
+      },
+      "writtenOn": "2026-11-08T17:38:55Z",
+      "side": 1,
+      "message": "Added an explicit explanation and tests. This bundle builds only QEMU and simulator sources. The embedded OSD sources come from simulator/eVSSIM and are covered by its revision; the separate open-osd checkout and other tool/kernel repositories are not compiled into this bundle. Their complete dependency records are retained with each selection, outside the QEMU artifact key. Reusing QEMU does not satisfy their build or test obligations.",
+      "parentUuid": "27eacb4c_5896aa94",
+      "revId": "e0d798540a49ab5013a325a8d30d436e66022b11",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
+    },
+    {
+      "unresolved": false,
+      "key": {
         "uuid": "197bcf7f_d54a4acf",
         "filename": "infra/builder/qemu-artifact.py",
         "patchSetId": 15
@@ -183,6 +327,24 @@
     {
       "unresolved": false,
       "key": {
+        "uuid": "c16a2db0_923338d6",
+        "filename": "infra/builder/qemu-artifact.py",
+        "patchSetId": 15
+      },
+      "lineNbr": 546,
+      "author": {
+        "id": 1039517
+      },
+      "writtenOn": "2026-11-08T17:38:55Z",
+      "side": 1,
+      "message": "Fixed in S2c through the shared policy and configure-argument renderer, as described on the compile-qemu.sh thread.",
+      "parentUuid": "197bcf7f_d54a4acf",
+      "revId": "e0d798540a49ab5013a325a8d30d436e66022b11",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
+    },
+    {
+      "unresolved": false,
+      "key": {
         "uuid": "c368a2ec_595e4424",
         "filename": "infra/builder/run-ci.sh",
         "patchSetId": 15
@@ -195,6 +357,24 @@
       "side": 1,
       "message": "The subject says \u0027reuse build artifacts,\u0027 but the live pipeline doesn\u0027t reuse anything yet - compile-qemu.sh\u0027s 26.04 path builds QEMU 11 purely as a check and discards it, run-ci.sh never invokes select_artifact/publish and explicitly rejects EVSSIM_QEMU_INPUT_RECORD, and nothing in-tree sets EVSSIM_DEPENDENCY_RECORD. That\u0027s fine if integration is deferred to S3/S7, but worth saying explicitly in the commit message that this half ships unexercised.",
       "tag": "review",
+      "revId": "e0d798540a49ab5013a325a8d30d436e66022b11",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "b4a14cd0_b1464f4f",
+        "filename": "infra/builder/run-ci.sh",
+        "patchSetId": 15
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 1039517
+      },
+      "writtenOn": "2026-11-08T17:38:55Z",
+      "side": 1,
+      "message": "Updated the commit messages to state the boundary explicitly. S2b resolves inputs, and S2c provides explicitly invoked artifact build/reuse. Ordinary run-ci.sh integration remains S7; the current CI success is not a claim that the full workflow already uses cached artifacts.",
+      "parentUuid": "c368a2ec_595e4424",
       "revId": "e0d798540a49ab5013a325a8d30d436e66022b11",
       "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
     },
@@ -255,6 +435,24 @@
     {
       "unresolved": false,
       "key": {
+        "uuid": "d6166f45_41694a7b",
+        "filename": "infra/builder/versions/configs.json",
+        "patchSetId": 15
+      },
+      "lineNbr": 111,
+      "author": {
+        "id": 1039517
+      },
+      "writtenOn": "2026-11-08T17:38:55Z",
+      "side": 1,
+      "message": "Reverted that change. Profile 5 retains its original ubuntu-26.04 nvme-cli container. Only its existing guest settings were moved from run-ci.sh into the configuration.",
+      "parentUuid": "afd30c07_b1770dfe",
+      "revId": "e0d798540a49ab5013a325a8d30d436e66022b11",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
+    },
+    {
+      "unresolved": false,
+      "key": {
         "uuid": "d2d1f2ca_0b9cd1c7",
         "filename": "infra/builder/versions/qemu-build-policy.json",
         "patchSetId": 15
@@ -285,6 +483,24 @@
       "side": 1,
       "message": "Agreed that the ordinary configure path and artifact recipe should use one policy. The artifact helper already supplies --target-list from the recipe\u0027s separate target field and rejects duplicate --target-list entries in configure_args; that target is not missing. The actual mismatch is --disable-download. My proposed correction is to retain it and have both build paths consume the same explicit target/configure arguments. Patch set 16 clarifies that the ordinary Jenkins workflow does not yet exercise artifact reuse; configure-flag unification is still pending.",
       "parentUuid": "d2d1f2ca_0b9cd1c7",
+      "revId": "e0d798540a49ab5013a325a8d30d436e66022b11",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "1cb4ff54_9313b67e",
+        "filename": "infra/builder/versions/qemu-build-policy.json",
+        "patchSetId": 15
+      },
+      "lineNbr": 28,
+      "author": {
+        "id": 1039517
+      },
+      "writtenOn": "2026-11-08T17:38:55Z",
+      "side": 1,
+      "message": "This is now implemented in S2c. Both build paths use the shared target/configure recipe, including --disable-download, with pinned sources prepared first.",
+      "parentUuid": "f224ec5b_256fe870",
       "revId": "e0d798540a49ab5013a325a8d30d436e66022b11",
       "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
     }
