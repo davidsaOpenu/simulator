@@ -234,13 +234,13 @@ ftl_ret_val SSD_PAGE_WRITE(uint8_t device_index, unsigned int flash_nb, unsigned
 
     if (type == WRITE_COMMIT) {
         LOG_PHYSICAL_CELL_PROGRAM_COMPATIBLE(GET_LOGGER(device_index, flash_nb), (PhysicalCellProgramCompatibleLog) {
-            .channel = channel, .block = block_nb, .page = page_nb,
+            .channel = channel, .die = flash_nb, .block = block_nb, .page = page_nb,
             .metadata = LOG_META(device_index, start, end)
         });
     }
     else {
         LOG_PHYSICAL_CELL_PROGRAM(GET_LOGGER(device_index, flash_nb), (PhysicalCellProgramLog) {
-            .channel = channel, .block = block_nb, .page = page_nb,
+            .channel = channel, .die = flash_nb, .block = block_nb, .page = page_nb,
             .metadata = LOG_META(device_index, start, end),
             .background = (type == GC_WRITE_BACKGROUND),
         });
@@ -251,7 +251,7 @@ ftl_ret_val SSD_PAGE_WRITE(uint8_t device_index, unsigned int flash_nb, unsigned
         __atomic_fetch_add(&ssds_manager[device_index].ssd.logical_page_writes, 1, __ATOMIC_RELAXED);
 
         LOG_LOGICAL_CELL_PROGRAM(GET_LOGGER(device_index, flash_nb),(LogicalCellProgramLog) {
-            .channel = channel, .block = block_nb, .page = page_nb,
+            .channel = channel, .die = flash_nb, .block = block_nb, .page = page_nb,
             .metadata = LOG_META(device_index, start, end)
         });
     }
@@ -300,7 +300,7 @@ ftl_ret_val SSD_PAGE_READ(uint8_t device_index, unsigned int flash_nb, unsigned 
     __atomic_store_n(&ssds_manager[device_index].old_channel_nb, channel, __ATOMIC_RELEASE);
 
     LOG_PHYSICAL_CELL_READ(GET_LOGGER(device_index, flash_nb), (PhysicalCellReadLog) {
-        .channel = channel, .block = block_nb, .page = page_nb,
+        .channel = channel, .die = flash_nb, .block = block_nb, .page = page_nb,
         .metadata = LOG_META(device_index, start, end),
         .background = (type == GC_READ_BACKGROUND),
     });
