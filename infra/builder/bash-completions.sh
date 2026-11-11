@@ -41,3 +41,4 @@ done
 
 complete -F _evssim_build_qemu_image_complete ./build-qemu-image.sh
 complete -F _evssim_docker_enter_complete ./docker-enter.sh
+eval "$(./clean-all.sh --bash-completion)"
