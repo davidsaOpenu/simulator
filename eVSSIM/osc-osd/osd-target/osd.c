@@ -686,10 +686,12 @@ static int set_uiap(struct osd_device *osd, uint64_t pid, uint64_t oid,
 					UIAP_USERNAME, val, len);
 	case UIAP_LOGICAL_LEN: {
 		char path[MAXNAMELEN];
-		uint64_t len = get_ntohll((const uint8_t *)val);
+		uint64_t logical_len = get_ntohll((const uint8_t *)val);
+
 		get_dfile_name(path, osd->root, pid, oid);
-		osd_debug("%s: %s %llu\n", __func__, path, llu(len));
-		ret = truncate(path, len);
+		osd_debug("%s: %s %llu\n", __func__, path, llu(logical_len));
+
+		ret = truncate(path, logical_len);
 		if (ret < 0)
 			return OSD_ERROR;
 		else
@@ -3595,7 +3597,7 @@ out_hw_err:
 
 
 int osd_set_key(struct osd_device *osd, int key_to_set, uint64_t pid,
-		uint64_t key, uint8_t seed[20], uint8_t *sense)
+		uint64_t key, uint8_t seed[OSD_KEY_SEED_SIZE], uint8_t *sense)
 {
 	osd_debug(__func__);
 	return osd_error_unimplemented(0, sense);
