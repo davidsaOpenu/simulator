@@ -1,0 +1,25 @@
+<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 760 190' width='760' height='190' role='img' aria-label='A 132 us qemu_co_sleep_ns() driven by QEMU&#39;s main loop'>
+<rect width='760' height='190' fill='#fcfcfb'/>
+<text x='16' y='26' font-family='Inter,Segoe UI,Helvetica,Arial,sans-serif' font-size='15' font-weight='600' fill='#0b0b0b'>A 132 us qemu_co_sleep_ns() driven by QEMU&#39;s main loop</text>
+<text x='16' y='44' font-family='Inter,Segoe UI,Helvetica,Arial,sans-serif' font-size='11.5' fill='#52514e'>median actual duration, us, 150,000 sleeps each - dashed line = requested</text>
+<line x1='250.0' y1='62' x2='250.0' y2='140' stroke='#e4e3df' stroke-width='1'/>
+<text x='250.0' y='155' font-family='Inter,Segoe UI,Helvetica,Arial,sans-serif' font-size='10.5' fill='#52514e' text-anchor='middle'>0</text>
+<line x1='337.3' y1='62' x2='337.3' y2='140' stroke='#e4e3df' stroke-width='1'/>
+<text x='337.3' y='155' font-family='Inter,Segoe UI,Helvetica,Arial,sans-serif' font-size='10.5' fill='#52514e' text-anchor='middle'>200</text>
+<line x1='424.5' y1='62' x2='424.5' y2='140' stroke='#e4e3df' stroke-width='1'/>
+<text x='424.5' y='155' font-family='Inter,Segoe UI,Helvetica,Arial,sans-serif' font-size='10.5' fill='#52514e' text-anchor='middle'>400</text>
+<line x1='511.8' y1='62' x2='511.8' y2='140' stroke='#e4e3df' stroke-width='1'/>
+<text x='511.8' y='155' font-family='Inter,Segoe UI,Helvetica,Arial,sans-serif' font-size='10.5' fill='#52514e' text-anchor='middle'>600</text>
+<line x1='599.1' y1='62' x2='599.1' y2='140' stroke='#e4e3df' stroke-width='1'/>
+<text x='599.1' y='155' font-family='Inter,Segoe UI,Helvetica,Arial,sans-serif' font-size='10.5' fill='#52514e' text-anchor='middle'>800</text>
+<line x1='686.4' y1='62' x2='686.4' y2='140' stroke='#e4e3df' stroke-width='1'/>
+<text x='686.4' y='155' font-family='Inter,Segoe UI,Helvetica,Arial,sans-serif' font-size='10.5' fill='#52514e' text-anchor='middle'>1000</text>
+<text x='240' y='86' font-family='Inter,Segoe UI,Helvetica,Arial,sans-serif' font-size='12' fill='#0b0b0b' text-anchor='end'>stock util/main-loop.c</text>
+<path d='M250.0,72.0h434.9a4,4 0 0 1 4,4v12.0a4,4 0 0 1 -4,4h-434.9z' fill='#2a78d6'><title>stock util/main-loop.c: 1005.9 us</title></path>
+<text x='694.9' y='86' font-family='Inter,Segoe UI,Helvetica,Arial,sans-serif' font-size='12' font-weight='600' fill='#0b0b0b'>1005.9 us</text>
+<text x='240' y='120' font-family='Inter,Segoe UI,Helvetica,Arial,sans-serif' font-size='12' fill='#0b0b0b' text-anchor='end'>with the 9-line fix</text>
+<path d='M250.0,106.0h55.5a4,4 0 0 1 4,4v12.0a4,4 0 0 1 -4,4h-55.5z' fill='#2a78d6'><title>with the 9-line fix: 136.3 us</title></path>
+<text x='315.5' y='120' font-family='Inter,Segoe UI,Helvetica,Arial,sans-serif' font-size='12' font-weight='600' fill='#0b0b0b'>136.3 us</text>
+<line x1='307.6' y1='58' x2='307.6' y2='140' stroke='#0b0b0b' stroke-width='1.5' stroke-dasharray='4 3'/>
+<text x='312.6' y='68' font-family='Inter,Segoe UI,Helvetica,Arial,sans-serif' font-size='10.5' fill='#52514e'>requested 132</text>
+</svg>
