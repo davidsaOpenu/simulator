@@ -505,6 +505,30 @@
     {
       "unresolved": true,
       "key": {
+        "uuid": "c2de2bb0_c5e5c0ff",
+        "filename": "infra/builder/docker-test-guest.sh",
+        "patchSetId": 14
+      },
+      "lineNbr": 71,
+      "author": {
+        "id": 1039371
+      },
+      "writtenOn": "2026-11-12T18:13:24Z",
+      "side": 1,
+      "message": "I\u0027m not sure which YAML file you\u0027re referring to, but:\n1. The tests depend on the kernel version, not ubuntu version. (As explained in the previous message). There are multiple 14.04 configurations, and multiple 26.04 configurations, for some the `basic_disk_tests` won\u0027t run, and for some `nvme_compliance_tests` won\u0027t run, the deciding factor is kernel 5.0.0 or 7.0.2, and not ubuntu.\n2. The version variable here refers to the docker image, not QEMU image(there is only one qemu image), the docker image does not play any role in the running of the guest tests.",
+      "parentUuid": "6bbc1f37_ff84f235",
+      "range": {
+        "startLine": 65,
+        "startChar": 0,
+        "endLine": 71,
+        "endChar": 59
+      },
+      "revId": "4171ce9a61080abf33a123ff1ecc08f999f1ab7c",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
+    },
+    {
+      "unresolved": true,
+      "key": {
         "uuid": "78b93ae7_1fe6066b",
         "filename": "infra/builder/env.sh",
         "patchSetId": 14
