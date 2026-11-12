@@ -185,6 +185,30 @@
       "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "06ef95bd_ce76a546",
+        "filename": "infra/builder/builder.sh",
+        "patchSetId": 14
+      },
+      "lineNbr": 455,
+      "author": {
+        "id": 1007990
+      },
+      "writtenOn": "2026-11-12T08:40:31Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "2221b1f8_49721ccf",
+      "range": {
+        "startLine": 453,
+        "startChar": 1,
+        "endLine": 455,
+        "endChar": 33
+      },
+      "revId": "4171ce9a61080abf33a123ff1ecc08f999f1ab7c",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "50593a2c_c5a6012b",
@@ -257,6 +281,30 @@
       "side": 1,
       "message": "This has been answered in the google doc.\nNo.\n\nSilently overwriting someone\u0027s changes is absolutely a no go.\nThis only copies the .config when switching branches, or if there are changes, refuse to switch branches until the changes are saved.\nWhen **NOT** switching branches we should absolutely not just delete someone\u0027s unsaved changes(obviously including changes to `.config`).",
       "parentUuid": "8f50b960_369913d6",
+      "range": {
+        "startLine": 9,
+        "startChar": 0,
+        "endLine": 17,
+        "endChar": 116
+      },
+      "revId": "4171ce9a61080abf33a123ff1ecc08f999f1ab7c",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "d231421d_19250a31",
+        "filename": "infra/builder/compile-kernel.sh",
+        "patchSetId": 14
+      },
+      "lineNbr": 17,
+      "author": {
+        "id": 1007990
+      },
+      "writtenOn": "2026-11-12T08:40:31Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "ac4689be_ba0bffc0",
       "range": {
         "startLine": 9,
         "startChar": 0,
@@ -433,6 +481,30 @@
     {
       "unresolved": true,
       "key": {
+        "uuid": "6bbc1f37_ff84f235",
+        "filename": "infra/builder/docker-test-guest.sh",
+        "patchSetId": 14
+      },
+      "lineNbr": 71,
+      "author": {
+        "id": 1007990
+      },
+      "writtenOn": "2026-11-12T08:40:31Z",
+      "side": 1,
+      "message": "Let’s run this test for the 14.04 configuration, and let’s run the NVMe basic test for the 26.04 configuration. (That is, read from the YAML file and, based on the default configuration number, run the appropriate test for that configuration.)",
+      "parentUuid": "f35a5891_f7bf19d3",
+      "range": {
+        "startLine": 65,
+        "startChar": 0,
+        "endLine": 71,
+        "endChar": 59
+      },
+      "revId": "4171ce9a61080abf33a123ff1ecc08f999f1ab7c",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
+    },
+    {
+      "unresolved": true,
+      "key": {
         "uuid": "78b93ae7_1fe6066b",
         "filename": "infra/builder/env.sh",
         "patchSetId": 14
@@ -501,6 +573,24 @@
       "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "0121de69_5aa63620",
+        "filename": "infra/builder/versions/nvme-cli/ubuntu-14.04.sh",
+        "patchSetId": 14
+      },
+      "lineNbr": 5,
+      "author": {
+        "id": 1007990
+      },
+      "writtenOn": "2026-11-12T08:40:31Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "1a1fdab6_ee7d9f4b",
+      "revId": "4171ce9a61080abf33a123ff1ecc08f999f1ab7c",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "586f368f_05c58378",
@@ -532,6 +622,24 @@
       "side": 1,
       "message": "See aforementioned reply.",
       "parentUuid": "586f368f_05c58378",
+      "revId": "4171ce9a61080abf33a123ff1ecc08f999f1ab7c",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "f00940f5_808bbe0d",
+        "filename": "infra/builder/versions/nvme-cli/ubuntu-26.04.sh",
+        "patchSetId": 14
+      },
+      "lineNbr": 5,
+      "author": {
+        "id": 1007990
+      },
+      "writtenOn": "2026-11-12T08:40:31Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "e3809c5c_2a52e81b",
       "revId": "4171ce9a61080abf33a123ff1ecc08f999f1ab7c",
       "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
     }

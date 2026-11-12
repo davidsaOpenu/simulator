@@ -1,0 +1,55 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "bd367a29_fca40151",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 19
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 1007990
+      },
+      "writtenOn": "2026-11-12T08:40:31Z",
+      "side": 1,
+      "message": "Let’s fix this change and run it twice. First, with the default configuration that builds on Ubuntu 26.04 and runs the tests that are supposed to pass (including a simple call to nvme-cli that detects all disks). Then we’ll change the default configuration to the current one. That way, we will be able to see all the tests that run on 26.04 and make sure that all tests for 14.04 are running for the current default configuration.",
+      "revId": "a1be342154899966f38a4194964aa49c32328c3b",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "fa67c141_b2cc6d18",
+        "filename": "infra/builder/docker-test-guest.sh",
+        "patchSetId": 19
+      },
+      "lineNbr": 70,
+      "author": {
+        "id": 1007990
+      },
+      "writtenOn": "2026-11-12T08:40:31Z",
+      "side": 1,
+      "message": "- Issue: [ \"$kernel_branch\" -ne \"master\" ] compares numbers, so bash prints \"integer expression expected\" and the condition is\n    false. Because it sits inside an if, set -e doesn\u0027t stop the script. On 7.0.x configs, the replacement tests are silently skipped\n    and CI stays green.\n  - Fix: use !\u003d. Better still, use a single if … else … fi instead of two opposite ifs.",
+      "revId": "a1be342154899966f38a4194964aa49c32328c3b",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "1b4791f5_14b521be",
+        "filename": "infra/builder/versions/image-maker/ubuntu-14.04.sh",
+        "patchSetId": 19
+      },
+      "lineNbr": 70,
+      "author": {
+        "id": 1007990
+      },
+      "writtenOn": "2026-11-12T08:40:31Z",
+      "side": 1,
+      "message": "- Issue: python3-nose was added to versions/containers/ubuntu-14.04/Dockerfile:27, which is the host build container. But nosetests3    runs inside the guest VM (through evssim_guest), and the 14.04 guest image still installs only python python-nose. Every guest\n    test on configs 2, 3 and 4 fails with \"nosetests3: command not found\".\n  - Fix: add python3 python3-nose to the apt -y install line in the guest image-maker. You can drop the Dockerfile change unless the\n    host container needs it for something else.",
+      "revId": "a1be342154899966f38a4194964aa49c32328c3b",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
+    }
+  ]
+}
