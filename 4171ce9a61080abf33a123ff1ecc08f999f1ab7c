@@ -529,6 +529,30 @@
     {
       "unresolved": true,
       "key": {
+        "uuid": "f573b808_1d9ed963",
+        "filename": "infra/builder/docker-test-guest.sh",
+        "patchSetId": 14
+      },
+      "lineNbr": 71,
+      "author": {
+        "id": 1007990
+      },
+      "writtenOn": "2026-11-13T08:39:39Z",
+      "side": 1,
+      "message": "Same here\n\nThe configuration ID in the master branch is 2 (infra/builder/versions/configs.json), while you have tested this change with configuration 5. Since we are not going to change the default configuration to #5 at the moment, we need to run CI on this change twice: once with configuration #5 (already done) and then with configuration #2 (to be able to merge the change into the master branch).",
+      "parentUuid": "c2de2bb0_c5e5c0ff",
+      "range": {
+        "startLine": 65,
+        "startChar": 0,
+        "endLine": 71,
+        "endChar": 59
+      },
+      "revId": "4171ce9a61080abf33a123ff1ecc08f999f1ab7c",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
+    },
+    {
+      "unresolved": true,
+      "key": {
         "uuid": "78b93ae7_1fe6066b",
         "filename": "infra/builder/env.sh",
         "patchSetId": 14
