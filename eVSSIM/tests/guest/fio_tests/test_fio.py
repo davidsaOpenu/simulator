@@ -14,10 +14,11 @@ class TestFio:
         os.chdir(FIO_TEST_DIR)
         assert 0 == os.system("mkdir -p reference_results")
 
-    def test_run_short_mode_recording(self):
+    # Nose sorts method names; record references before comparing them.
+    def test_run_short_mode_1_recording(self):
         assert 0 == os.system("./perf_test_rec_short.sh")
 
-    def test_run_short_mode_comparison(self):
+    def test_run_short_mode_2_comparison(self):
         assert 0 == os.system("./perf_test_run_short.sh")
     '''
     def test_run_recording(self):

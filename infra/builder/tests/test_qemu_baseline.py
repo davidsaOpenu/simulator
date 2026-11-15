@@ -370,10 +370,6 @@ class FioRecordingTests(unittest.TestCase):
         self.root = Path(temporary.name)
         self.jobs = self.root / "fio_tests"
         shutil.copytree(GUEST / "fio_tests", self.jobs)
-        # Only relocate the disposable copy's fixed /tmp output: avoid touching
-        # real host files while preserving the original comparison algorithm.
-        script = self.jobs / "perf_test.sh"
-        script.write_text(script.read_text().replace('"/tmp/"', '"' + str(self.root) + '/"'))
         (self.jobs / "reference_results").mkdir()
         self.binary = self.root / "bin"
         self.binary.mkdir()
@@ -395,8 +391,9 @@ done
 exit "${FIO_STATUS:-0}"
 ''')
         fake.chmod(0o755)
+        # Isolate results through the wrapper's environment, without rewriting it.
         self.environment = dict(os.environ, PATH=str(self.binary) + ":" + os.environ["PATH"],
-                                FIO_COUNTER=str(self.root / "counter"))
+                                FIO_COUNTER=str(self.root / "counter"), TMPDIR=str(self.root))
 
     def invoke(self, name, helper, job="write", calls=1, environment=None):
         trace = self.root / name
@@ -410,7 +407,8 @@ exit "${FIO_STATUS:-0}"
         self.invoke("reference", "./perf_test_rec_results.sh")
         trace, process = self.invoke("compare", "./perf_test.sh", environment={"FIO_IOPS": "105"})
         self.assertEqual(0, process.returncode)
-        self.assertIn("ERROR", process.stdout)  # inherited inverted percentage message
+        self.assertIn("5% higher (informational)", process.stdout)
+        self.assertNotIn("ERROR", process.stdout)
         report = baseline.fio_observations(trace, "compare-write")
         self.assertTrue(report["passed"])
         self.assertEqual({"write": 100.0}, report["reference_iops"])
@@ -468,9 +466,23 @@ exit "${FIO_STATUS:-0}"
         self.assertEqual("0", (trace / "wrapper-exit-status.txt").read_text().strip())
         self.assertEqual("9", next(trace.glob("invocation-*/exit-status.txt")).read_text().strip())
 
-    def test_skipped_modern_comparison_gets_labelled_fallback_and_stays_failed(self):
+    def test_modern_comparison_runs_without_diagnostic_fallback(self):
         self.invoke("reference", "./perf_test_rec_results.sh", job="rw", environment={"FIO_FORMAT": "modern"})
         trace, process = self.invoke("compare", "./perf_test.sh", job="rw", calls=2,
+                                     environment={"FIO_FORMAT": "modern"})
+        self.assertEqual(0, process.returncode)
+        report = baseline.fio_observations(trace, "compare-rw")
+        self.assertTrue(report["passed"])
+        self.assertEqual(0, report["diagnostic_fallback_calls"])
+        self.assertEqual(2, len(report["invocations"]))
+        self.assertEqual({"write": 3500.0, "read": 3500.0}, report["reference_iops"])
+
+    def test_noop_helper_gets_labelled_fallback_and_stays_failed(self):
+        self.invoke("reference", "./perf_test_rec_results.sh", job="rw", environment={"FIO_FORMAT": "modern"})
+        wrapper = self.jobs / "noop.sh"
+        wrapper.write_text("#!/bin/bash\nexit 0\n")
+        wrapper.chmod(0o755)
+        trace, process = self.invoke("compare", "./noop.sh", job="rw", calls=2,
                                      environment={"FIO_FORMAT": "modern"})
         self.assertNotEqual(0, process.returncode)
         report = baseline.fio_observations(trace, "compare-rw")
