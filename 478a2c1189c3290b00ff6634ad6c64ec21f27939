@@ -16,6 +16,23 @@
       "message": "(since Trello doesn\u0027t work yet)\nFor reference, the error while running `docker-host-elk-tests.sh`:\n```\nFAIL sector_tests.disk_utilization\u003d0.7847343473590072 not in [0.7847343460326767, 0.7847343460326767]\nFAIL object_tests.disk_utilization\u003d0.2318887601129584 not in [0.23188876005945067, 0.23188876005945067]\nFAIL multi_device_tests.disk_utilization\u003d0.2316737615604566 not in [0.23167376147911817, 0.23167376147911817]\nFAIL ssd_program_compatible_tests.disk_utilization\u003d0.5500799931549258 not in [0.5500799919499136, 0.5500799919499136]\nFAIL ssd_write_read_tests.disk_utilization\u003d0.520058743577104 not in [0.5200587430130206, 0.5200587430130206]\nFAIL onfi_ops_tests.disk_utilization\u003d2.070370358827252e-05 not in [2.0627622251157408e-05, 2.0627622251157408e-05]\n[host_metrics] RESULT: FAIL\n```",
       "revId": "478a2c1189c3290b00ff6634ad6c64ec21f27939",
       "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "a9b5ea9e_372a3a28",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 1039371
+      },
+      "writtenOn": "2026-11-15T21:52:12Z",
+      "side": 1,
+      "message": "recheck",
+      "revId": "478a2c1189c3290b00ff6634ad6c64ec21f27939",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
     }
   ]
 }
