@@ -311,6 +311,28 @@ check_logstash_health() {
     return 1
 }
 
+# Filebeat is outside Compose. Its name alone does not identify this stack.
+remove_project_filebeat() {
+    local elk_dir="$1" names metadata container_id
+    names=$("$CONTAINER_CMD" ps -a --format '{{.Names}}') || return 1
+    if ! printf '%s\n' "$names" | grep -Fxq filebeat; then
+        return 0
+    fi
+    metadata=$("$CONTAINER_CMD" inspect filebeat) || return 1
+    if ! jq -e --arg network "${COMPOSE_PROJECT_NAME}_elk" \
+        --arg config "$elk_dir/filebeat.yml" '
+        length == 1 and
+        (.[0].NetworkSettings.Networks[$network] != null) and
+        any(.[0].Mounts[]?;
+            .Destination == "/usr/share/filebeat/filebeat.yml" and .Source == $config)
+        ' <<< "$metadata" >/dev/null; then
+        echo "ERROR: filebeat does not belong to this ELK checkout; leaving it untouched" >&2
+        return 1
+    fi
+    container_id=$(jq -er '.[0].Id' <<< "$metadata") || return 1
+    "$CONTAINER_CMD" rm -f "$container_id"
+}
+
 # Install and start filebeat
 setup_filebeat() {
     local log_dir="$1" elk_dir="$2"
@@ -361,13 +383,11 @@ setup_filebeat() {
     local data_opts=""
     [[ -n "$data_subopts" ]] && data_opts=":$data_subopts"
 
-    mkdir -p "$fb_data_dir/registry"
+    mkdir -p "$fb_data_dir/registry" || return 1
     chown -R "$host_uid:$host_gid" "$fb_data_dir" 2>/dev/null || true
     chmod -R 777 "$fb_data_dir" 2>/dev/null || true
 
-    # Pull image & remove any existing container
-    "$CONTAINER_CMD" pull "$fb_image"
-    "$CONTAINER_CMD" ps -aq -f name=filebeat | xargs -r "$CONTAINER_CMD" rm -f
+    "$CONTAINER_CMD" pull "$fb_image" || return 1
 
     # Flush the pull's disk backlog and drain the ES master's queue, or setup can 429.
     sync
@@ -404,7 +424,8 @@ setup_filebeat() {
             -v "/var/lib/docker/containers:/var/lib/docker/containers:ro" \
             -v "/var/run/docker.sock:/var/run/docker.sock:ro" \
             -v "$fb_data_dir:/usr/share/filebeat/data${data_opts}" \
-            "$fb_image" filebeat -e --strict.perms=false -c /usr/share/filebeat/filebeat.yml
+            "$fb_image" filebeat -e --strict.perms=false -c /usr/share/filebeat/filebeat.yml \
+            || return 1
     else
         "$CONTAINER_CMD" run -d --name filebeat --restart unless-stopped --network "$network_name" \
             --env-file "$env_file" \
@@ -413,7 +434,8 @@ setup_filebeat() {
             -v "$cert_ca_dir:/usr/share/filebeat/certs/ca:$ro_subopts" \
             -v "$log_dir:/logs:$ro_subopts" \
             -v "$fb_data_dir:/usr/share/filebeat/data${data_opts}" \
-            "$fb_image" filebeat -e --strict.perms=false -c /usr/share/filebeat/filebeat.yml
+            "$fb_image" filebeat -e --strict.perms=false -c /usr/share/filebeat/filebeat.yml \
+            || return 1
     fi
 
     sleep 2
@@ -422,7 +444,16 @@ setup_filebeat() {
         chmod -R 777 "$fb_data_dir" 2>/dev/null || true
     fi
 
-    echo "Filebeat ${FB_IMAGE_TAG} is up"
+    # A detached run can succeed even when the daemon immediately exits.
+    local metadata
+    metadata=$("$CONTAINER_CMD" inspect filebeat) || return 1
+    if ! jq -e '.[0].State.Running == true' <<< "$metadata" >/dev/null; then
+        echo "ERROR: Filebeat is not running" >&2
+        return 1
+    fi
+    "$CONTAINER_CMD" exec filebeat filebeat test output --strict.perms=false \
+        -c /usr/share/filebeat/filebeat.yml || return 1
+    echo "Filebeat ${FB_IMAGE_TAG} is running and its output is reachable"
 }
 
 # Add or Update Kibana runtime field from a Painless script
@@ -526,9 +557,9 @@ if [[ ! -d "$2" ]]; then
     exit 1
 fi
 
-# Set variables
-LOG_DIR="$1"
-ELK_DIR="$2"
+# Resolve before changing directory so ownership checks match engine mount paths.
+LOG_DIR=$(cd "$1" && pwd -P) || exit 1
+ELK_DIR=$(cd "$2" && pwd -P) || exit 1
 
 echo "Log directory: $LOG_DIR"
 echo "ELK directory: $ELK_DIR"
@@ -591,8 +622,8 @@ fi
 TLS_ENTRYPOINT="tls/entrypoint.sh"
 
 if [[ ! -f "$TLS_ENTRYPOINT" ]]; then
-  echo "[!] Warning: $TLS_ENTRYPOINT not found, cannot patch TLS entrypoint" >&2
-  exit 0
+  echo "ERROR: $TLS_ENTRYPOINT not found, cannot initialize TLS" >&2
+  exit 1
 fi
 
 last_line=$(tail -n 1 "$TLS_ENTRYPOINT" 2>/dev/null)
@@ -652,48 +683,73 @@ else
     echo "TLS enabled for Kibana"
 fi
 
-# Check if containers are already running
-running_containers=$($COMPOSE_CMD ps 2>/dev/null | grep -E "Up|running" | wc -l)
-total_containers=$($COMPOSE_CMD ps 2>/dev/null | awk 'NR>1' | wc -l)
+# Include stopped survivors: their bind mounts can also belong to a deleted checkout.
+project_containers=$("$CONTAINER_CMD" ps -aq \
+    --filter "label=com.docker.compose.project=$COMPOSE_PROJECT_NAME") || exit 1
+if [[ -n "$project_containers" ]]; then
+    mapfile -t project_ids <<< "$project_containers"
+    project_metadata=$("$CONTAINER_CMD" inspect "${project_ids[@]}") || exit 1
+    if ! jq -e --arg directory "$ELK_DIR/docker-elk" '
+        all(.[]; .Config.Labels["com.docker.compose.project.working_dir"] == $directory)
+        ' <<< "$project_metadata" >/dev/null; then
+        echo "ERROR: Compose project belongs to another checkout; leaving it untouched" >&2
+        exit 1
+    fi
+fi
 
-if [[ $running_containers -gt 0 ]]; then
-    echo "Found $running_containers/$total_containers containers already running"
-    echo "Current container status:"
-    $COMPOSE_CMD ps
-
+if [[ -t 0 && -n "$project_containers" ]]; then
+    echo "Found existing ELK containers"
+    $COMPOSE_CMD ps || exit 1
     read -p "Do you want to restart the ELK stack? (y/N): " -n 1 -r
     echo
-    if [[ $REPLY =~ ^[Yy]$ ]]; then
-        echo "Stopping existing containers..."
-        $COMPOSE_CMD down
-        echo "Restarting ELK stack..."
-    else
+    if [[ ! $REPLY =~ ^[Yy]$ ]]; then
         echo "Skipping container restart, checking health..."
-        check_kibana_health
+        check_kibana_health || exit 1
         exit 0
     fi
 fi
 
-# Check if TLS certificates exist
-if [[ -f "tls/certs/ca/ca.crt" ]]; then
+# Recreate mounts even when path strings are unchanged after checkout replacement.
+# Remove standalone Filebeat before Compose so it releases the network.
+remove_project_filebeat "$ELK_DIR" || exit 1
+if [[ -n "$project_containers" ]]; then
+    echo "Recreating this checkout's ELK containers; retaining volumes and images"
+    $COMPOSE_CMD down || exit 1
+fi
+
+# An interrupted TLS setup may leave only part of the certificate set.
+tls_ready=true
+for certificate in ca/ca.crt elasticsearch/elasticsearch.crt elasticsearch/elasticsearch.key \
+    kibana/kibana.crt kibana/kibana.key; do
+    [[ -s "tls/certs/$certificate" ]] || tls_ready=false
+done
+if $tls_ready; then
     echo "TLS certificates already exist, skipping generation..."
 else
     echo "Generating TLS certificates..."
+    # The TLS initializer skips existing keys, so a partial set cannot repair
+    # itself. Regenerate only this checkout's generated TLS files after restart.
+    rm -rf -- "$ELK_DIR/docker-elk/tls/certs" || exit 1
     # tls is in the compose file's setup profile: podman-compose won't start a
     # service of an inactive profile, even by name, and only warns about it
-    $COMPOSE_CMD --profile=setup up tls
+    $COMPOSE_CMD --profile=setup up --exit-code-from tls tls || exit 1
+    for certificate in ca/ca.crt elasticsearch/elasticsearch.crt elasticsearch/elasticsearch.key \
+        kibana/kibana.crt kibana/kibana.key; do
+        [[ -s "tls/certs/$certificate" ]] || { echo "ERROR: missing TLS file $certificate" >&2; exit 1; }
+    done
 fi
 
 # Check if Elasticsearch setup has been completed
-if $CONTAINER_CMD volume ls | grep -q "docker-elk_elasticsearch"; then
+volumes=$("$CONTAINER_CMD" volume ls --format '{{.Name}}') || exit 1
+if printf '%s\n' "$volumes" | grep -Fxq "${COMPOSE_PROJECT_NAME}_elasticsearch"; then
     echo "Elasticsearch volume exists, skipping setup..."
 else
     echo "Setting up Elasticsearch"
-    $COMPOSE_CMD up setup
+    $COMPOSE_CMD --profile=setup up --exit-code-from setup setup || exit 1
 fi
 
 echo "Starting ELK stack..."
-$COMPOSE_CMD up -d
+$COMPOSE_CMD up -d || exit 1
 
 check_elasticsearch_health || { echo "Elasticsearch health check failed, exiting"; exit 1; }
 activate_basic_license
