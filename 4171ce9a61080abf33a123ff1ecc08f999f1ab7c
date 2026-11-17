@@ -551,6 +551,30 @@
       "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "bf6e498c_02bf9512",
+        "filename": "infra/builder/docker-test-guest.sh",
+        "patchSetId": 14
+      },
+      "lineNbr": 71,
+      "author": {
+        "id": 1007990
+      },
+      "writtenOn": "2026-11-17T04:28:52Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "f573b808_1d9ed963",
+      "range": {
+        "startLine": 65,
+        "startChar": 0,
+        "endLine": 71,
+        "endChar": 59
+      },
+      "revId": "4171ce9a61080abf33a123ff1ecc08f999f1ab7c",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "78b93ae7_1fe6066b",
