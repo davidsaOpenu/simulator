@@ -26,27 +26,51 @@ guest_test() {
     # Run tests inside the guest
     echo "INFO Running test id=$test_index strategy=$strategy simulator=$simulator test=$test_name"
     set +e
-    evssim_guest "cd ./guest; mkdir Logs; sudo VSSIM_NEXTGEN_BUILD_SYSTEM=1 EVSSIM_PROVISIONED_DEVICE_COUNT=$EVSSIM_PROVISIONED_DEVICE_COUNT nosetests -v -s --with-xunit --xunit-file=guest_tests_results.xml $test_name"
+    # fio changes its working directory; keep the XML where the collector reads it.
+    evssim_guest "cd ./guest; mkdir Logs; sudo VSSIM_NEXTGEN_BUILD_SYSTEM=1 EVSSIM_PROVISIONED_DEVICE_COUNT=$EVSSIM_PROVISIONED_DEVICE_COUNT nosetests -v -s --with-xunit --xunit-file=$EVSSIM_GUEST_HOME_PATH/guest/guest_tests_results.xml $test_name"
     test_rc=$?
     set -e
 
-    # Stop qemu and wait
-    evssim_qemu_flush_disk
-    evssim_qemu_stop
+    local collection_rc=0 flush_rc=0 stop_rc=0
+    if [ -n "${EVSSIM_WORKFLOW_STAGE_DIR:-}" ]; then
+        # Copy JUnit and raw measurements into Logs before this image is replaced.
+        evssim_guest "cd ./guest; sudo bash ./common/collect-workflow-evidence.sh $test_name" || collection_rc=$?
+    fi
+
+    # Collect evidence and attempt shutdown even when the test failed. Preserve
+    # the test status if a later collection or shutdown command also fails.
+    evssim_qemu_flush_disk || flush_rc=$?
+    evssim_qemu_stop || stop_rc=$?
 
     # Create test directory and gather results
     test_directory=$test_directory_base/run-$test_index-strategy-$strategy-test-$test_name
-    evssim_run "$version" "mkdir -p /tmp/guest-logs \
+    if [ "$stop_rc" -eq 0 ]; then
+        # virt-copy-out preserves root-owned directories. Moving to the
+        # workspace can cross filesystems and must also remove that source tree.
+        # Give the extracted tree to the build user for the next checkout cleanup.
+        evssim_run "$version" "mkdir -p /tmp/guest-logs \
         && sudo virt-copy-out -a $internal_image_path -i $EVSSIM_GUEST_HOME_PATH/guest/Logs /tmp/guest-logs \
 	&& mkdir -p $test_directory_base \
-	&& mv /tmp/guest-logs/Logs $test_directory"
+	&& sudo mv /tmp/guest-logs/Logs $test_directory \
+        && sudo chown -R $EVSSIM_EXTERNAL_UID:$EVSSIM_EXTERNAL_GID $test_directory" || collection_rc=$?
+        if [ -n "${EVSSIM_WORKFLOW_STAGE_DIR:-}" ]; then
+            local collected="$EVSSIM_ROOT_PATH/${test_directory#"$EVSSIM_DOCKER_ROOT_PATH/"}"
+            if ! mkdir -p "$EVSSIM_WORKFLOW_STAGE_DIR/guest/$test_index" || \
+                    ! cp -a "$collected/workflow/." "$EVSSIM_WORKFLOW_STAGE_DIR/guest/$test_index/"; then
+                if [ "$collection_rc" -eq 0 ]; then collection_rc=1; fi
+            fi
+        fi
+    fi
 
     # Fail if tests fails
-    if [ $test_rc -ne 0 ]; then
-        echo "ERROR Guest test failed with strategy=$strategy, test=$test_name, error=$test_rc"
-        echo "ERROR See logs @ $test_directory"
-        exit $test_rc
-    fi
+    echo "INFO Guest results: test=$test_rc collection=$collection_rc flush=$flush_rc stop=$stop_rc"
+    local result
+    for result in "$test_rc" "$collection_rc" "$flush_rc" "$stop_rc"; do
+        if [ "$result" -ne 0 ]; then
+            echo "ERROR Guest stage failed with strategy=$strategy, test=$test_name; logs @ $test_directory"
+            return "$result"
+        fi
+    done
 }
 
 # Configure directory base
