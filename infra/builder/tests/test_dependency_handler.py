@@ -5,6 +5,7 @@ profile selection, artifact helper, Docker, or external service is needed.
 """
 
 import copy
+import hashlib
 import json
 import os
 from pathlib import Path
@@ -80,6 +81,9 @@ class DependencyHandlerTests(unittest.TestCase):
             "curl": '''import json, os, re, sys
 data = json.load(open(os.environ['DEPENDENCY_TEST_DATA']))
 url = sys.argv[-1]
+if os.environ.get('DEPENDENCY_TEST_CURL_LOG'):
+    with open(os.environ['DEPENDENCY_TEST_CURL_LOG'], 'a') as log:
+        log.write(url + '\\n')
 if url.endswith('/commit'):
     if data.get('commit_rest_failure'):
         sys.exit(22)
@@ -134,6 +138,19 @@ sys.exit(data.get('ssh_exit_status', {}).get(change, 0))
                         DEPENDENCY_TEST_DATA=str(self.response_file),
                         DEPENDENCY_TEST_ORIGIN=str(self.origin),
                         EVSSIM_DEPENDENCY_RECORD=str(self.report_file))
+        for name in ("BUILD_TAG", "GERRIT_CHANGE_NUMBER", "GERRIT_PATCHSET_REVISION"):
+            self.env.pop(name, None)
+
+    def jenkins_checkout(self):
+        simulator = self.root / "simulator"
+        new_repo(simulator)
+        write(simulator, "source", "requested simulator input\n")
+        commit(simulator, "source")
+        git(simulator, "commit", "--amend", "-m", self.responses["message"])
+        revision = git(simulator, "rev-parse", "HEAD")
+        self.env.update(BUILD_TAG="jenkins-job-12", GERRIT_CHANGE_NUMBER="99",
+                        GERRIT_PATCHSET_REVISION=revision)
+        return simulator, revision
 
     def handler(self, source="gerrit", with_record=True):
         self.response_file.write_text(json.dumps(self.responses))
@@ -172,6 +189,76 @@ sys.exit(data.get('ssh_exit_status', {}).get(change, 0))
         self.assertNotEqual(dependency["revision"], dependency["applied_revision"])
         self.assertEqual((7, self.review_ref, "11.0"),
                          (dependency["patch_set"], dependency["ref"], dependency["target_branch"]))
+
+    def test_jenkins_invocation_records_without_an_explicit_path(self):
+        _, revision = self.jenkins_checkout()
+        self.env['BUILD_TAG'] = 'jenkins-folder/job-12'
+        key = hashlib.sha256(("jenkins-folder/job-12\n99\n" + revision + "\n").encode()).hexdigest()
+        automatic = self.root / "logs/qemu11-validation" / ("dependencies-" + key + ".json")
+        process = self.handler(with_record=False)
+        self.assertEqual(0, process.returncode, process.stdout.decode() + process.stderr.decode())
+        report = json.loads(automatic.read_text())
+        self.assertEqual("complete", report["status"])
+        self.assertEqual(git(self.qemu, "rev-parse", "HEAD"), report["dependencies"][0]["applied_revision"])
+        self.assertFalse(self.report_file.exists())
+
+    def test_explicit_report_path_takes_precedence_in_jenkins(self):
+        self.jenkins_checkout()
+        process = self.handler()
+        self.assertEqual(0, process.returncode, process.stdout.decode() + process.stderr.decode())
+        self.assertEqual("complete", json.loads(self.report_file.read_text())["status"])
+        self.assertFalse((self.root / "logs").exists())
+
+    def test_jenkins_message_stays_pinned_when_remote_patch_set_changes(self):
+        self.jenkins_checkout()
+        self.responses['message'] = 'New patch set with no dependencies'
+        self.responses['ssh_changes'] = {'99': {'commitMessage': self.responses['message']}}
+        calls = self.root / 'curl-calls'
+        self.env['DEPENDENCY_TEST_CURL_LOG'] = str(calls)
+        for rest_failed in (False, True):
+            with self.subTest(rest_failed=rest_failed):
+                self.responses['commit_rest_failure'] = rest_failed
+                process = self.handler()
+                self.assertEqual(0, process.returncode, process.stdout.decode() + process.stderr.decode())
+                report = json.loads(self.report_file.read_text())
+                self.assertEqual([self.url], [d['url'] for d in report['dependencies']])
+                self.assertEqual('review content\n', (self.qemu / 'source.c').read_text())
+        self.assertFalse(any(url.endswith('/commit') for url in calls.read_text().splitlines()))
+
+    def test_jenkins_mismatched_checkout_or_change_fails_before_dependency_application(self):
+        simulator, requested = self.jenkins_checkout()
+        before = git(self.qemu, 'rev-parse', 'HEAD')
+        for change, revision in (('100', requested), ('99', 'f' * 40)):
+            with self.subTest(change=change, revision=revision):
+                self.env.update(GERRIT_CHANGE_NUMBER=change, GERRIT_PATCHSET_REVISION=revision)
+                process = self.handler()
+                self.assertNotEqual(0, process.returncode)
+                self.assertIn(b'checkout does not match', process.stdout)
+                self.assertEqual('failed', json.loads(self.report_file.read_text())['status'])
+                self.assertEqual(before, git(self.qemu, 'rev-parse', 'HEAD'))
+        self.env.update(GERRIT_CHANGE_NUMBER='99', GERRIT_PATCHSET_REVISION=requested)
+        write(simulator, 'source', 'another patch set\n'); commit(simulator, 'source')
+        self.assertNotEqual(0, self.handler().returncode)
+        self.assertEqual(before, git(self.qemu, 'rev-parse', 'HEAD'))
+
+    def test_local_handler_without_explicit_path_does_not_create_report(self):
+        self.env.pop("BUILD_TAG", None)
+        process = self.handler(with_record=False)
+        self.assertEqual(0, process.returncode, process.stdout.decode() + process.stderr.decode())
+        self.assertFalse(self.report_file.exists())
+        self.assertFalse((self.root / "logs").exists())
+
+    def test_report_refresh_failure_cannot_leave_previous_success_readable(self):
+        self.assertEqual(0, self.handler().returncode)
+        self.assertEqual("complete", json.loads(self.report_file.read_text())["status"])
+        # A later invocation in the same build can fail before publishing its
+        # replacement. Jenkins still calls run-ci.sh after handler failure.
+        broken_jq = self.bin / "jq"
+        broken_jq.write_text("#!/bin/sh\nexit 9\n")
+        broken_jq.chmod(0o755)
+        process = self.handler()
+        self.assertNotEqual(0, process.returncode)
+        self.assertEqual("", self.report_file.read_text())
 
     def test_existing_ancestor_records_its_original_revision(self):
         git(self.origin, "update-ref", "refs/heads/11.0", self.review_revision)

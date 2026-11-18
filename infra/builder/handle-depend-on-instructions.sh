@@ -14,6 +14,8 @@ set -e
 # calls this handler separately; run-ci.sh does not call or enable it itself.
 # S2's help addition documents the optional record path. Existing callers
 # still supply the same four arguments and need not enable JSON output.
+# S7 also records the unchanged Jenkins invocation automatically; the build,
+# change and requested revision identify the report read by run-ci.sh.
 show_help() {
     cat << EOF
 
@@ -30,6 +32,7 @@ Examples:
 
 Optional: set EVSSIM_DEPENDENCY_RECORD to an output JSON path for S2 input
 resolution. Required dependency failures return nonzero with or without it.
+Jenkins Gerrit builds record automatically when no explicit path is supplied.
 
 EOF
     exit 0
@@ -45,6 +48,18 @@ GERRIT_USER="$3"
 BUILD_SOURCE="$4"
 GERRIT_HOST="review.gerrithub.io"
 PROJECT="simulator"
+
+# Jenkins runs this handler and run-ci.sh in separate shells. Derive the same
+# file in both rather than requiring the caller to export a new variable.
+# Hash the context so Jenkins job names cannot introduce path separators.
+if [[ -z "${EVSSIM_DEPENDENCY_RECORD:-}" && "$BUILD_SOURCE" == gerrit &&
+      -n "${BUILD_TAG:-}" && "${GERRIT_CHANGE_NUMBER:-}" == "$CHANGE_ID" &&
+      -n "${GERRIT_PATCHSET_REVISION:-}" ]]; then
+    report_key=$(printf '%s\n' "$BUILD_TAG" "$CHANGE_ID" "$GERRIT_PATCHSET_REVISION" | sha256sum)
+    report_directory="$WORKSPACE/logs/qemu11-validation"
+    mkdir -p "$report_directory"
+    EVSSIM_DEPENDENCY_RECORD="$report_directory/dependencies-${report_key%% *}.json"
+fi
 
 # input: $1 - text to clean
 # output: N/A
@@ -78,7 +93,7 @@ print_dependency_summary() {
 }
 
 
-# The record is opt-in until the workflow uses S2's resolved-input path.
+# Record when explicitly requested or enabled for this Jenkins invocation.
 # A partial scan must never look like a successful no-dependency selection.
 write_dependency_record() {
     # Leave existing callers without an output file; failure tracking still
@@ -393,6 +408,9 @@ declare -a dependency_records=()
 dependency_scan_complete=0
 dependency_failed=0
 if [[ -n "${EVSSIM_DEPENDENCY_RECORD:-}" ]]; then
+    # The existing Jenkins caller can continue after this handler fails.
+    # Invalidate an earlier success even if jq cannot write its replacement.
+    : > "$EVSSIM_DEPENDENCY_RECORD"
     # JSON output is optional, but when requested it must be writable JSON.
     # Missing jq or failure to publish a record must fail this invocation.
     command -v jq >/dev/null || { echo "ERROR: jq is required for the dependency record" >&2; exit 1; }
@@ -405,7 +423,17 @@ if [[ -n "${EVSSIM_DEPENDENCY_RECORD:-}" ]]; then
 fi
 
 # Get commit message if triggered from Gerrit
-if [[ "$BUILD_SOURCE" == "gerrit" ]]; then
+if [[ "$BUILD_SOURCE" == "gerrit" && -n "${GERRIT_PATCHSET_REVISION:-}" ]]; then
+    # Jenkins has already checked out this patch set. A newer upload may change
+    # Gerrit's current message while this build is running, so read the commit
+    # being built instead. Neither network fallback may substitute another one.
+    if [[ "${GERRIT_CHANGE_NUMBER:-}" != "$CHANGE_ID" ||
+          "$(git -C "$WORKSPACE/simulator" rev-parse HEAD)" != "$GERRIT_PATCHSET_REVISION" ]]; then
+        echo "ERROR: Simulator checkout does not match the requested Gerrit build"
+        exit 1
+    fi
+    commit_message=$(git -C "$WORKSPACE/simulator" show --no-patch --format=%B "$GERRIT_PATCHSET_REVISION")
+elif [[ "$BUILD_SOURCE" == "gerrit" ]]; then
     echo "Fetching commit message from Gerrit REST API..."
     # Check transport/HTTP success separately from JSON parsing so a failed
     # request cannot supply a commit message, even if it returned valid JSON.
