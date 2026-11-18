@@ -533,6 +533,17 @@ evssim_qemu_detached () {
                 --runtime-selection /dev/stdin --running-container "$EVSSIM_DOCKER_UUID" \
                 --profiles "$EVSSIM_ROOT_PATH/$EVSSIM_VERSIONS_FOLDER/configs.json" >/dev/null
     } && evssim_wait_for_devices; then
+        # Retain the frozen identity only after the process and devices passed
+        # the existing launch checks. Ordinary callers need no workflow record.
+        if [ -n "${EVSSIM_WORKFLOW_STAGE_DIR:-}" ]; then
+            if ! python3 "$EVSSIM_ROOT_PATH/$EVSSIM_BUILDER_FOLDER/qemu-workflow.py" \
+                --directory "$EVSSIM_WORKFLOW_STAGE_DIR" launch \
+                --runtime "$EVSSIM_QEMU_LAUNCH_SELECTION" --container "$EVSSIM_DOCKER_UUID" \
+                --devices "$EVSSIM_PROVISIONED_DEVICE_COUNT" --strategy "$EVSSIM_RUNTIME_STORAGE_STRATEGY" \
+                --simulator "$EVSSIM_QEMU_SIMULATOR_ENABLED" --config "$EVSSIM_ROOT_PATH/$EVSSIM_DATA_FOLDER/ssd.conf"; then
+                return 1
+            fi
+        fi
         return 0
     fi
 

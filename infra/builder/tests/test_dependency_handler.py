@@ -5,6 +5,7 @@ profile selection, artifact helper, Docker, or external service is needed.
 """
 
 import copy
+import hashlib
 import json
 import os
 from pathlib import Path
@@ -172,6 +173,45 @@ sys.exit(data.get('ssh_exit_status', {}).get(change, 0))
         self.assertNotEqual(dependency["revision"], dependency["applied_revision"])
         self.assertEqual((7, self.review_ref, "11.0"),
                          (dependency["patch_set"], dependency["ref"], dependency["target_branch"]))
+
+    def test_jenkins_invocation_records_without_an_explicit_path(self):
+        self.env.update(BUILD_TAG="jenkins-folder/job-12", GERRIT_CHANGE_NUMBER="99",
+                        GERRIT_PATCHSET_REVISION="a" * 40)
+        key = hashlib.sha256(("jenkins-folder/job-12\n99\n" + "a" * 40 + "\n").encode()).hexdigest()
+        automatic = self.root / "logs/qemu11-validation" / ("dependencies-" + key + ".json")
+        process = self.handler(with_record=False)
+        self.assertEqual(0, process.returncode, process.stdout.decode() + process.stderr.decode())
+        report = json.loads(automatic.read_text())
+        self.assertEqual("complete", report["status"])
+        self.assertEqual(git(self.qemu, "rev-parse", "HEAD"), report["dependencies"][0]["applied_revision"])
+        self.assertFalse(self.report_file.exists())
+
+    def test_explicit_report_path_takes_precedence_in_jenkins(self):
+        self.env.update(BUILD_TAG="jenkins-job-12", GERRIT_CHANGE_NUMBER="99",
+                        GERRIT_PATCHSET_REVISION="a" * 40)
+        process = self.handler()
+        self.assertEqual(0, process.returncode, process.stdout.decode() + process.stderr.decode())
+        self.assertEqual("complete", json.loads(self.report_file.read_text())["status"])
+        self.assertFalse((self.root / "logs").exists())
+
+    def test_local_handler_without_explicit_path_does_not_create_report(self):
+        self.env.pop("BUILD_TAG", None)
+        process = self.handler(with_record=False)
+        self.assertEqual(0, process.returncode, process.stdout.decode() + process.stderr.decode())
+        self.assertFalse(self.report_file.exists())
+        self.assertFalse((self.root / "logs").exists())
+
+    def test_report_refresh_failure_cannot_leave_previous_success_readable(self):
+        self.assertEqual(0, self.handler().returncode)
+        self.assertEqual("complete", json.loads(self.report_file.read_text())["status"])
+        # A later invocation in the same build can fail before publishing its
+        # replacement. Jenkins still calls run-ci.sh after handler failure.
+        broken_jq = self.bin / "jq"
+        broken_jq.write_text("#!/bin/sh\nexit 9\n")
+        broken_jq.chmod(0o755)
+        process = self.handler()
+        self.assertNotEqual(0, process.returncode)
+        self.assertEqual("", self.report_file.read_text())
 
     def test_existing_ancestor_records_its_original_revision(self):
         git(self.origin, "update-ref", "refs/heads/11.0", self.review_revision)

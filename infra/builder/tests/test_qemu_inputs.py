@@ -11,6 +11,7 @@ import tempfile
 import unittest
 
 import test_dependency_handler as dependency_tests
+import test_qemu_workflow as workflow_tests
 
 
 BUILDER = Path(__file__).resolve().parents[1]
@@ -421,70 +422,111 @@ exec "$@"
                     self.assertEqual(["fixture/second", "fixture/first"], status.read_text().splitlines())
 
     def workflow_fixture(self):
-        target = self.root / "workflow/simulator/infra/builder"
-        target.mkdir(parents=True, exist_ok=True)
-        for name in ("run-ci.sh", "env.sh", "load_config.sh"):
-            shutil.copy2(BUILDER / name, target / name)
-        (target / "versions").mkdir(exist_ok=True)
-        for name in ("configs.json", "qemu-build-policy.json"):
-            shutil.copy2(BUILDER / "versions" / name, target / "versions" / name)
-        stub = '''#!/bin/bash
-printf '%s|%s|%s|%s|%s|%s\\n' "$(basename "$0")" "$EVSSIM_VERSIONS_CONFIGURATION_ID" "$EVSSIM_QEMU_BRANCH" "$EVSSIM_QEMU_COMPILE_CONTAINER" "$EVSSIM_GUEST_TESTS_COMPILE_CONTAINER" "$*" >> "$S2B_TEST_CALL_LOG"
-'''
-        scripts = ("check_tools.sh", "build-docker-image.sh", "build-qemu-image.sh", "compile-kernel.sh",
-                   "compile-qemu.sh", "compile-host-tests.sh", "compile-guest-tests.sh", "docker-run-sanity.sh",
-                   "docker-test-host.sh", "docker-test-host-elk.sh", "docker-test-guest.sh", "docker-test-exofs.sh")
-        elk = target.parent / "ELK"
-        elk.mkdir(exist_ok=True)
-        tools = self.root / "bin"
-        tools.mkdir(exist_ok=True)
-        for path in ([target / name for name in scripts] + [tools / "tox"] +
-                     [elk / name for name in ("install_and_start_elk.sh", "elk_cleanup.sh")]):
-            path.write_text(stub)
-            path.chmod(0o755)
-        log = self.root / "calls.log"
-        log.write_text("")
-        env = dict(os.environ, PATH=str(tools) + os.pathsep + os.environ["PATH"], S2B_TEST_CALL_LOG=str(log))
-        for name in ("EVSSIM_VERSIONS_CONFIGURATION_ID", "EVSSIM_QEMU_INPUT_RECORD"):
-            env.pop(name, None)
-        return target, env, log
+        return workflow_tests.workflow_fixture(self.root)
 
-    def test_workflow_keeps_modern_compile_child_and_legacy_runtime(self):
-        target, env, log = self.workflow_fixture()
-        process = subprocess.run(["bash", str(target / "run-ci.sh")], env=env,
-                                 capture_output=True, text=True, timeout=15)
+    def run_workflow(self, target, env):
+        return subprocess.run(["bash", str(target / "run-ci.sh")], cwd=self.root,
+                              env=env, capture_output=True, text=True, timeout=30)
+
+    def assert_selected_workflow(self, target, env, log, profile_id):
+        process = self.run_workflow(target, env)
         self.assertEqual(0, process.returncode, process.stdout + process.stderr)
         calls = [line.split("|") for line in log.read_text().splitlines()]
-        builds = [c for c in calls if c[0] == "compile-qemu.sh"]
-        self.assertEqual([("4", "11.0", "ubuntu-26.04", "ubuntu-26.04"),
-                          ("5", "master", "ubuntu-14.04", "ubuntu-14.04")],
-                         [(c[1], c[2], c[3], c[5]) for c in builds])
-        self.assertEqual(["docker-run-sanity.sh", "docker-test-host.sh", "docker-test-host-elk.sh",
-                          "docker-test-guest.sh", "docker-test-exofs.sh"],
-                         [c[0] for c in calls if c[0].startswith("docker-")])
-        self.assertTrue(all(c[1:4] == ["5", "master", "ubuntu-14.04"]
-                            for c in calls if c[0].startswith("docker-")))
-        self.assertEqual("ubuntu-14.04", next(c for c in calls if c[0] == "compile-guest-tests.sh")[5])
-        self.assertEqual("ubuntu-26.04", next(c for c in calls if c[0] == "compile-host-tests.sh")[5])
+        self.assertEqual(["check_tools.sh", "tox", "build-docker-image.sh", "prepare-qemu-sources.sh", "build-qemu-image.sh",
+                          "compile-kernel.sh", "qemu-artifact.py", "compile-host-tests.sh",
+                          "compile-guest-tests.sh", "compile-exofs-tools.sh", "docker-run-sanity.sh",
+                          "install_and_start_elk.sh", "docker-test-host.sh", "docker-test-host-elk.sh",
+                          "docker-test-guest.sh", "docker-test-exofs.sh", "elk_cleanup.sh"],
+                         [c[0] for c in calls])
+        profile = self.profile(profile_id)
+        self.assertTrue(all(c[1:4] == [str(profile_id), profile["qemu"]["branch"],
+                            profile["qemu"]["compileContainer"]] for c in calls))
+        for script, expected in [("compile-kernel.sh", profile["kernel"]["compileContainer"]),
+                                 ("compile-host-tests.sh", profile["hostTests"]["compileContainer"]),
+                                 ("compile-guest-tests.sh", profile["guestTests"]["compileContainer"]),
+                                 ("compile-exofs-tools.sh", profile["guestTests"]["compileContainer"])]:
+            self.assertEqual(expected, next(c for c in calls if c[0] == script)[5])
+        launches = [c for c in calls if c[0] in
+                    ("docker-run-sanity.sh", "docker-test-guest.sh", "docker-test-exofs.sh")]
+        self.assertTrue(all(c[5] == profile["qemu"]["compileContainer"] for c in launches))
+        selections = {c[6] for c in launches}
+        self.assertEqual(1, len(selections))
+        selection_path = Path(selections.pop())
+        self.assertEqual(profile_id, json.loads(selection_path.read_text())["profile_id"])
+        self.assertRegex(json.loads(selection_path.read_text())["key"], r"^[0-9a-f]{64}$")
+        return calls, selection_path
 
-    def test_workflow_rejects_modern_runtime_before_any_build(self):
+    def test_workflow_without_report_preserves_shell_default_five(self):
+        self.assert_selected_workflow(*self.workflow_fixture(), 5)
+
+    def test_workflow_uses_selected_legacy_and_modern_artifacts(self):
+        for profile_id in (2, 4):
+            with self.subTest(profile=profile_id):
+                target, env, log = self.workflow_fixture()
+                env["EVSSIM_VERSIONS_CONFIGURATION_ID"] = str(profile_id)
+                calls, selection = self.assert_selected_workflow(target, env, log, profile_id)
+                self.assertIn("--resolved-inputs", next(c for c in calls if c[0] == "qemu-artifact.py")[5])
+                inputs = json.loads((selection.parent / "resolved-inputs.json").read_text())
+                self.assertEqual(self.profile(profile_id), inputs["profile"])
+                self.assertEqual(dependency_tests.git(target.parents[1], "rev-parse", "HEAD"),
+                                 inputs["sources"]["simulator"]["revision"])
+
+    def test_workflow_resolves_report_without_shell_default_overriding_policy(self):
         target, env, log = self.workflow_fixture()
-        env["EVSSIM_VERSIONS_CONFIGURATION_ID"] = "4"
-        process = subprocess.run(["bash", str(target / "run-ci.sh")], env=env,
-                                 capture_output=True, text=True, timeout=15)
+        self.modern_dependency()
+        self.report["dependencies"][0]["applied_revision"] = dependency_tests.git(target.parents[2] / "qemu", "rev-parse", "HEAD")
+        report = self.root / "dependencies.json"
+        report.write_text(json.dumps(self.report))
+        # Relative to the caller, not run-ci.sh's internal directory.
+        env["EVSSIM_DEPENDENCY_RECORD"] = report.name
+        _, selection = self.assert_selected_workflow(target, env, log, 4)
+        self.assertEqual(self.report, json.loads((selection.parent / "dependencies.json").read_text()))
+
+    def test_workflow_cache_hit_still_builds_tools_and_runs_all_tests(self):
+        target, env, log = self.workflow_fixture()
+        env.update(EVSSIM_VERSIONS_CONFIGURATION_ID="4", S7_TEST_CACHE="hit")
+        _, selection = self.assert_selected_workflow(target, env, log, 4)
+        self.assertEqual("hit", json.loads(selection.read_text())["cache"])
+
+    def test_workflow_consumes_saved_profile_and_rejects_conflicting_request(self):
+        target, env, log = self.workflow_fixture()
+        record = self.root / "saved-inputs.json"
+        record.write_text(json.dumps({"inputs": {"profile": self.profile(4)}}))
+        env["EVSSIM_QEMU_INPUT_RECORD"] = str(record)
+        calls, _ = self.assert_selected_workflow(target, env, log, 4)
+        arguments = next(c for c in calls if c[0] == "qemu-artifact.py")[5]
+        self.assertIn("--saved-inputs", arguments)
+        self.assertIn("--check-environment", arguments)
+        log.write_text("")
+        env["EVSSIM_VERSIONS_CONFIGURATION_ID"] = "2"
+        process = self.run_workflow(target, env)
         self.assertNotEqual(0, process.returncode)
-        self.assertIn("currently tests legacy QEMU", process.stderr)
-        self.assertEqual("", log.read_text())
+        self.assertIn("conflicts with the saved QEMU inputs", process.stderr)
+        self.assertTrue(all(line.startswith("elk_cleanup.sh|") for line in log.read_text().splitlines()))
+
+    def test_workflow_does_not_treat_missing_or_failed_gerrit_report_as_no_dependencies(self):
+        target, env, log = self.workflow_fixture()
+        env["GERRIT_CHANGE_NUMBER"] = "1"
+        process = self.run_workflow(target, env)
+        self.assertNotEqual(0, process.returncode)
+        self.assertIn("requires a dependency report", process.stderr)
+        self.assertTrue(all(line.startswith("elk_cleanup.sh|") for line in log.read_text().splitlines()))
+        report = self.root / "dependencies.json"
+        report.write_text(json.dumps(dict(self.report, status="failed")))
+        env["EVSSIM_DEPENDENCY_RECORD"] = str(report)
+        process = self.run_workflow(target, env)
+        self.assertNotEqual(0, process.returncode)
+        self.assertIn("incomplete or failed", process.stdout + process.stderr)
+        self.assertTrue(all(line.startswith("elk_cleanup.sh|") for line in log.read_text().splitlines()))
 
     def test_failed_policy_lookup_stops_before_qemu_compilation(self):
         for contents in ('{"default_profile":2,"qemu_branches":{}}', "not JSON"):
             with self.subTest(policy=contents):
                 target, env, log = self.workflow_fixture()
                 (target / "versions/qemu-build-policy.json").write_text(contents)
-                process = subprocess.run(["bash", str(target / "run-ci.sh")], env=env,
-                                         capture_output=True, text=True, timeout=15)
+                process = self.run_workflow(target, env)
                 self.assertNotEqual(0, process.returncode)
-                self.assertNotIn("compile-qemu.sh|", log.read_text())
+                self.assertTrue(all(line.startswith("elk_cleanup.sh|") for line in log.read_text().splitlines()))
 
 
 if __name__ == "__main__":
