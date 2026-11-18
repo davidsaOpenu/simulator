@@ -83,7 +83,11 @@ exofs_test() {
     evssim_guest "sudo OUTPUT_DIR=$output_dir ./exofs/run_osd_emulator_and_mount_exofs.sh" || test_rc=$?
 
     # When debugging you can find trace logs at OUTPUT_DIR
-    evssim_copy_from_guest "$output_dir" "$output_dir" || collection_rc=$?
+    local collection_output="$output_dir"
+    if [ -n "${EVSSIM_WORKFLOW_STAGE_DIR:-}" ]; then
+        collection_output="$EVSSIM_WORKFLOW_STAGE_DIR/guest-output"
+    fi
+    evssim_copy_from_guest "$output_dir" "$collection_output" || collection_rc=$?
     # Stop qemu and wait
     evssim_qemu_flush_disk || flush_rc=$?
     evssim_qemu_stop || stop_rc=$?
