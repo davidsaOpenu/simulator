@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "ca64c8d8_598053c4",
+        "filename": "/COMMIT_MSG",
+        "patchSetId": 15
+      },
+      "lineNbr": 143,
+      "author": {
+        "id": 1007990
+      },
+      "writtenOn": "2026-11-20T14:14:23Z",
+      "side": 1,
+      "message": "Use Depends-on to apply changes.",
+      "range": {
+        "startLine": 141,
+        "startChar": 0,
+        "endLine": 143,
+        "endChar": 70
+      },
+      "revId": "3912ee4aa3acf456d54522d20ffdf0834a7aeda0",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
+    }
+  ]
+}
