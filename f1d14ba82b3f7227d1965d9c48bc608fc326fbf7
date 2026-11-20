@@ -16,6 +16,120 @@
       "message": "recheck",
       "revId": "f1d14ba82b3f7227d1965d9c48bc608fc326fbf7",
       "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "0e0f2fe3_0978f616",
+        "filename": "eVSSIM/FTL_SOURCE/PAGE_MAP/ftl_gc_manager.c",
+        "patchSetId": 6
+      },
+      "lineNbr": 32,
+      "author": {
+        "id": 1007990
+      },
+      "writtenOn": "2026-11-20T13:54:53Z",
+      "side": 1,
+      "message": "- Issue: The GC thread sleeps while holding the device lock, and the device has one shared delay slot. rtd_pause takes everything queued, including flash time that I/O commands added. So the GC thread can end up sleeping off I/O time while holding the lock. Meanwhile, the next FTL call from a coroutine waits on LOCK_DEVICE, a pthread mutex, which freezes QEMU\u0027s whole main loop, including vCPU MMIO and other devices. Also, the I/O command whose time GC took finishes with no delay, so per-command latency becomes unpredictable.\n  - Fix: Give GC its own slot (rtd_init(2, …), with slot 1 for GC) so its pause only waits out GC flash time. Or have GC pause after UNLOCK_DEVICE.",
+      "revId": "f1d14ba82b3f7227d1965d9c48bc608fc326fbf7",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "0e6af99f_1b618451",
+        "filename": "eVSSIM/SSD_MODULE/ssd_io_manager.c",
+        "patchSetId": 6
+      },
+      "lineNbr": 116,
+      "author": {
+        "id": 1007990
+      },
+      "writtenOn": "2026-11-20T13:54:53Z",
+      "side": 1,
+      "message": "Issue: For QEMU 11, vssim_co_sleep copies the private QemuCoSleep struct layout and calls qemu_co_sleep_ns_wakeable through a hand-written extern. It will silently break (stack corruption) if QEMU changes that struct.",
+      "revId": "f1d14ba82b3f7227d1965d9c48bc608fc326fbf7",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "4aea62a8_bc8a3fa3",
+        "filename": "eVSSIM/SSD_MODULE/ssd_io_manager.c",
+        "patchSetId": 6
+      },
+      "lineNbr": 175,
+      "author": {
+        "id": 1007990
+      },
+      "writtenOn": "2026-11-20T13:54:53Z",
+      "side": 1,
+      "message": "- Issue: PINFO(\"realtime delay: …\") doesn\u0027t print the device index. The CI check (docker-test-guest.sh:44) also never checks that the number of lines equals the device count, so a device that never printed would go unnoticed.\n  - Fix: Use DEV_PINFO(device_index, …) and check the line count against EVSSIM_PROVISIONED_DEVICE_COUNT.",
+      "revId": "f1d14ba82b3f7227d1965d9c48bc608fc326fbf7",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "da8279bc_6df076ba",
+        "filename": "eVSSIM/SSD_MODULE/ssd_io_manager.c",
+        "patchSetId": 6
+      },
+      "lineNbr": 196,
+      "author": {
+        "id": 1007990
+      },
+      "writtenOn": "2026-11-20T13:54:53Z",
+      "side": 1,
+      "message": "- Issue: realtime_term clears the pointer and then calls rtd_destroy. A coroutine still sleeping inside rtd_pause (an I/O coroutine that yielded after UNLOCK_DEVICE) would wake up on freed memory. GC is stopped before this, but in-flight I/O coroutines aren\u0027t.\n  - Fix: At shutdown, wait until no pauses are in flight (for example an in-flight counter incremented around rtd_pause), or make sure the block layer and nvme_exit drain before FTL_TERM.",
+      "range": {
+        "startLine": 178,
+        "startChar": 0,
+        "endLine": 196,
+        "endChar": 1
+      },
+      "revId": "f1d14ba82b3f7227d1965d9c48bc608fc326fbf7",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "5d97c340_63939ffb",
+        "filename": "eVSSIM/tests/guest/realtime_delay_tests/test_realtime_delay.py",
+        "patchSetId": 6
+      },
+      "lineNbr": 19,
+      "author": {
+        "id": 1007990
+      },
+      "writtenOn": "2026-11-20T13:54:53Z",
+      "side": 1,
+      "message": "Issue: READ_UPPER_US \u003d 500 allows only about 370 µs of guest + QEMU overhead per 4 KiB direct read, on a shared CI host. One noisy neighbour is enough to fail it.\nFix: Let\u0027s assert on the median latency from fio\u0027s JSON clat instead of total wall time.",
+      "revId": "f1d14ba82b3f7227d1965d9c48bc608fc326fbf7",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "7d7c0334_025fc9c8",
+        "filename": "infra/builder/docker-test-guest.sh",
+        "patchSetId": 6
+      },
+      "lineNbr": 36,
+      "author": {
+        "id": 1007990
+      },
+      "writtenOn": "2026-11-20T13:54:53Z",
+      "side": 1,
+      "message": "- Issue: If evssim_wait_for_device fails, set -e exits right away, which leaves docker logs -f running in the background and the temp file in place.\n  - Fix: Add a trap \u0027kill $log_pid 2\u003e/dev/null; rm -f \"$qemu_log\"\u0027 RETURN (or EXIT) right after starting it.",
+      "range": {
+        "startLine": 32,
+        "startChar": 0,
+        "endLine": 36,
+        "endChar": 39
+      },
+      "revId": "f1d14ba82b3f7227d1965d9c48bc608fc326fbf7",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
     }
   ]
 }
