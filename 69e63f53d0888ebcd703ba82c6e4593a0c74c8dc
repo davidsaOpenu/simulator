@@ -1,0 +1,61 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "28d4cabb_ecfd7edb",
+        "filename": "eVSSIM/scripts/exofs/exofs_lib.sh",
+        "patchSetId": 7
+      },
+      "lineNbr": 12,
+      "author": {
+        "id": 1007990
+      },
+      "writtenOn": "2026-11-20T09:07:40Z",
+      "side": 1,
+      "message": "Issue: EXOFS_TARGET\u003d\"$(hostname)-...\" depends on the guest hostname matching the name osc-osd\u0027s ./up builds. The old code hardcoded esd-. If the two ever disagree, the login fails with an unclear iSCSI error.\n Fix: Read the target name from iscsiadm -m discovery output instead of rebuilding it.",
+      "revId": "69e63f53d0888ebcd703ba82c6e4593a0c74c8dc",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "41cdbef0_031405a6",
+        "filename": "eVSSIM/scripts/exofs/run_osd_emulator_and_mount_exofs.sh",
+        "patchSetId": 7
+      },
+      "lineNbr": 36,
+      "author": {
+        "id": 1007990
+      },
+      "writtenOn": "2026-11-20T09:07:40Z",
+      "side": 1,
+      "message": "Issue: The script never calls teardown_exofs, so the iSCSI session and the target daemon stay up after the traced suite finishes.\n Fix: Add trap teardown_exofs EXIT after source.",
+      "range": {
+        "startLine": 20,
+        "startChar": 0,
+        "endLine": 36,
+        "endChar": 2
+      },
+      "revId": "69e63f53d0888ebcd703ba82c6e4593a0c74c8dc",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "484261b6_a5fdee58",
+        "filename": "infra/builder/docker-test-filesystems.sh",
+        "patchSetId": 7
+      },
+      "lineNbr": 23,
+      "author": {
+        "id": 1007990
+      },
+      "writtenOn": "2026-11-20T09:07:40Z",
+      "side": 1,
+      "message": "Use 2G, or explain in a comment why 512M is safe",
+      "revId": "69e63f53d0888ebcd703ba82c6e4593a0c74c8dc",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
+    }
+  ]
+}
