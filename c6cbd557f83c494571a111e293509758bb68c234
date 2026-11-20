@@ -18,6 +18,23 @@
       "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
     },
     {
+      "unresolved": true,
+      "key": {
+        "uuid": "7b170091_de6a2048",
+        "filename": "/COMMIT_MSG",
+        "patchSetId": 19
+      },
+      "lineNbr": 27,
+      "author": {
+        "id": 1007990
+      },
+      "writtenOn": "2026-11-20T14:16:18Z",
+      "side": 1,
+      "message": "works only from the simulator project change requests",
+      "revId": "c6cbd557f83c494571a111e293509758bb68c234",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
+    },
+    {
       "unresolved": false,
       "key": {
         "uuid": "231d9ac9_6bfa1ec9",
