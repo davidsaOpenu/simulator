@@ -1,0 +1,113 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "b98b3c6a_4cbe7791",
+        "filename": "eVSSIM/tests/guest/objects_queue_reset/test_obj_queue_reset.py",
+        "patchSetId": 2
+      },
+      "lineNbr": 45,
+      "author": {
+        "id": 1007990
+      },
+      "writtenOn": "2026-11-20T11:01:49Z",
+      "side": 1,
+      "message": "See comment at LL 85 - 86",
+      "range": {
+        "startLine": 41,
+        "startChar": 0,
+        "endLine": 45,
+        "endChar": 23
+      },
+      "revId": "bd1d6c03dee52170e5eb68237651bc52ee8df5e6",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "acaee7f7_0a3366bb",
+        "filename": "eVSSIM/tests/guest/objects_queue_reset/test_obj_queue_reset.py",
+        "patchSetId": 2
+      },
+      "lineNbr": 68,
+      "author": {
+        "id": 1007990
+      },
+      "writtenOn": "2026-11-20T11:01:49Z",
+      "side": 1,
+      "message": "- Issue: The test never checks that writers made progress. If every objw fails, it still passes, as long as the final check passes.\n  - Fix: Have each writer report its success count, for example through its exit code or a file, and assert that it\u0027s above 0.",
+      "range": {
+        "startLine": 63,
+        "startChar": 1,
+        "endLine": 68,
+        "endChar": 31
+      },
+      "revId": "bd1d6c03dee52170e5eb68237651bc52ee8df5e6",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "a88566f3_54f4e53f",
+        "filename": "eVSSIM/tests/guest/objects_queue_reset/test_obj_queue_reset.py",
+        "patchSetId": 2
+      },
+      "lineNbr": 86,
+      "author": {
+        "id": 1007990
+      },
+      "writtenOn": "2026-11-20T11:01:49Z",
+      "side": 1,
+      "message": "- Issue: A controller reset doesn\u0027t remove /dev/nvme0n1, so wait_for_device() returns at once, even while the controller is still resetting. The next reset, or check_write_read() at line 117, can then hit a controller that isn\u0027t ready, which makes the test flaky.\n  - Fix: After writing 1, poll /sys/class/nvme/nvme0/state until it reads live, with a timeout.",
+      "range": {
+        "startLine": 84,
+        "startChar": 0,
+        "endLine": 86,
+        "endChar": 25
+      },
+      "revId": "bd1d6c03dee52170e5eb68237651bc52ee8df5e6",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "086dd8a9_f9ab9dc0",
+        "filename": "eVSSIM/tests/guest/objects_queue_reset/test_obj_queue_reset.py",
+        "patchSetId": 2
+      },
+      "lineNbr": 122,
+      "author": {
+        "id": 1007990
+      },
+      "writtenOn": "2026-11-20T11:01:49Z",
+      "side": 1,
+      "message": "- Issue: set_obj_feature(0) and the objd cleanup don\u0027t run if an assertion in check_write_read fails.\n  - Fix: Move them into finally.",
+      "range": {
+        "startLine": 122,
+        "startChar": 0,
+        "endLine": 122,
+        "endChar": 8
+      },
+      "revId": "bd1d6c03dee52170e5eb68237651bc52ee8df5e6",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "7c691fa9_4feafcad",
+        "filename": "infra/builder/builder.sh",
+        "patchSetId": 2
+      },
+      "lineNbr": 281,
+      "author": {
+        "id": 1007990
+      },
+      "writtenOn": "2026-11-20T11:01:49Z",
+      "side": 1,
+      "message": "- Issue: for event in $EVSSIM_QEMU_TRACE_EVENTS is unquoted, so a pattern like nvme_* gets expanded against files in the current directory.\n  - Fix: Run set -f around the loop, or use read -ra events \u003c\u003c\u003c \"$EVSSIM_QEMU_TRACE_EVENTS\".",
+      "revId": "bd1d6c03dee52170e5eb68237651bc52ee8df5e6",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
+    }
+  ]
+}
