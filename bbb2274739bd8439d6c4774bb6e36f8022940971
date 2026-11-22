@@ -1,0 +1,38 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "a1929a84_642b920a",
+        "filename": "/COMMIT_MSG",
+        "patchSetId": 2
+      },
+      "lineNbr": 9,
+      "author": {
+        "id": 1007990
+      },
+      "writtenOn": "2026-11-22T17:47:22Z",
+      "side": 1,
+      "message": "\"s/Maman 12/\"\nQEMU is about to parse an ssd.conf...",
+      "revId": "bbb2274739bd8439d6c4774bb6e36f8022940971",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "eef7afd1_23182574",
+        "filename": "/COMMIT_MSG",
+        "patchSetId": 2
+      },
+      "lineNbr": 13,
+      "author": {
+        "id": 1007990
+      },
+      "writtenOn": "2026-11-22T17:47:22Z",
+      "side": 1,
+      "message": "If this change is part of Maman 12, it is better to squash it with the related change. This change is too small to have a dedicated Trello card.",
+      "revId": "bbb2274739bd8439d6c4774bb6e36f8022940971",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
+    }
+  ]
+}
