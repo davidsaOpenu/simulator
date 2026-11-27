@@ -20,6 +20,24 @@
     {
       "unresolved": true,
       "key": {
+        "uuid": "41dd9c2a_1c508505",
+        "filename": "eVSSIM/RT_DELAY/rt_delay.c",
+        "patchSetId": 2
+      },
+      "lineNbr": 123,
+      "author": {
+        "id": 1039522
+      },
+      "writtenOn": "2026-11-27T07:41:05Z",
+      "side": 1,
+      "message": "fixed",
+      "parentUuid": "7c3cf590_12241b62",
+      "revId": "943698fa38c045080f51df3511082aa15e43f896",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
+    },
+    {
+      "unresolved": true,
+      "key": {
         "uuid": "05a72fe1_0d39c713",
         "filename": "eVSSIM/RT_DELAY/rt_delay.c",
         "patchSetId": 2
@@ -37,6 +55,24 @@
     {
       "unresolved": true,
       "key": {
+        "uuid": "cc0f15be_e95b419c",
+        "filename": "eVSSIM/RT_DELAY/rt_delay.c",
+        "patchSetId": 2
+      },
+      "lineNbr": 287,
+      "author": {
+        "id": 1039522
+      },
+      "writtenOn": "2026-11-27T07:41:05Z",
+      "side": 1,
+      "message": "fixed",
+      "parentUuid": "05a72fe1_0d39c713",
+      "revId": "943698fa38c045080f51df3511082aa15e43f896",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
+    },
+    {
+      "unresolved": true,
+      "key": {
         "uuid": "21496711_dd70c381",
         "filename": "infra/builder/docker-test-host.sh",
         "patchSetId": 2
@@ -48,6 +84,24 @@
       "writtenOn": "2026-11-20T11:18:56Z",
       "side": 1,
       "message": "- Issue: make test runs inside the container, probably as root, so eVSSIM/RT_DELAY/build/ in the source tree may end up root-owned, and a later non-root make clean would fail.\n  - Fix: Build out of tree (for example make BUILD\u003d/tmp/rtd_build test), or run the build as the host UID.",
+      "revId": "943698fa38c045080f51df3511082aa15e43f896",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "31fb5a35_8108b85c",
+        "filename": "infra/builder/docker-test-host.sh",
+        "patchSetId": 2
+      },
+      "lineNbr": 17,
+      "author": {
+        "id": 1039522
+      },
+      "writtenOn": "2026-11-27T07:41:05Z",
+      "side": 1,
+      "message": "fixed",
+      "parentUuid": "21496711_dd70c381",
       "revId": "943698fa38c045080f51df3511082aa15e43f896",
       "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
     }
