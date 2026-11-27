@@ -26,6 +26,30 @@
     {
       "unresolved": true,
       "key": {
+        "uuid": "8fcea61c_630045c5",
+        "filename": "eVSSIM/tests/guest/objects_queue_reset/test_obj_queue_reset.py",
+        "patchSetId": 2
+      },
+      "lineNbr": 45,
+      "author": {
+        "id": 1039522
+      },
+      "writtenOn": "2026-11-27T07:41:14Z",
+      "side": 1,
+      "message": "fixed",
+      "parentUuid": "b98b3c6a_4cbe7791",
+      "range": {
+        "startLine": 41,
+        "startChar": 0,
+        "endLine": 45,
+        "endChar": 23
+      },
+      "revId": "bd1d6c03dee52170e5eb68237651bc52ee8df5e6",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
+    },
+    {
+      "unresolved": true,
+      "key": {
         "uuid": "acaee7f7_0a3366bb",
         "filename": "eVSSIM/tests/guest/objects_queue_reset/test_obj_queue_reset.py",
         "patchSetId": 2
@@ -37,6 +61,30 @@
       "writtenOn": "2026-11-20T11:01:49Z",
       "side": 1,
       "message": "- Issue: The test never checks that writers made progress. If every objw fails, it still passes, as long as the final check passes.\n  - Fix: Have each writer report its success count, for example through its exit code or a file, and assert that it\u0027s above 0.",
+      "range": {
+        "startLine": 63,
+        "startChar": 1,
+        "endLine": 68,
+        "endChar": 31
+      },
+      "revId": "bd1d6c03dee52170e5eb68237651bc52ee8df5e6",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "e4e53e12_13a496fb",
+        "filename": "eVSSIM/tests/guest/objects_queue_reset/test_obj_queue_reset.py",
+        "patchSetId": 2
+      },
+      "lineNbr": 68,
+      "author": {
+        "id": 1039522
+      },
+      "writtenOn": "2026-11-27T07:41:14Z",
+      "side": 1,
+      "message": "fixed",
+      "parentUuid": "acaee7f7_0a3366bb",
       "range": {
         "startLine": 63,
         "startChar": 1,
@@ -72,6 +120,30 @@
     {
       "unresolved": true,
       "key": {
+        "uuid": "c033afb8_08e9af75",
+        "filename": "eVSSIM/tests/guest/objects_queue_reset/test_obj_queue_reset.py",
+        "patchSetId": 2
+      },
+      "lineNbr": 86,
+      "author": {
+        "id": 1039522
+      },
+      "writtenOn": "2026-11-27T07:41:14Z",
+      "side": 1,
+      "message": "fixed",
+      "parentUuid": "a88566f3_54f4e53f",
+      "range": {
+        "startLine": 84,
+        "startChar": 0,
+        "endLine": 86,
+        "endChar": 25
+      },
+      "revId": "bd1d6c03dee52170e5eb68237651bc52ee8df5e6",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
+    },
+    {
+      "unresolved": true,
+      "key": {
         "uuid": "086dd8a9_f9ab9dc0",
         "filename": "eVSSIM/tests/guest/objects_queue_reset/test_obj_queue_reset.py",
         "patchSetId": 2
@@ -95,6 +167,30 @@
     {
       "unresolved": true,
       "key": {
+        "uuid": "e2d93bde_0aaf3bae",
+        "filename": "eVSSIM/tests/guest/objects_queue_reset/test_obj_queue_reset.py",
+        "patchSetId": 2
+      },
+      "lineNbr": 122,
+      "author": {
+        "id": 1039522
+      },
+      "writtenOn": "2026-11-27T07:41:14Z",
+      "side": 1,
+      "message": "fixed",
+      "parentUuid": "086dd8a9_f9ab9dc0",
+      "range": {
+        "startLine": 122,
+        "startChar": 0,
+        "endLine": 122,
+        "endChar": 8
+      },
+      "revId": "bd1d6c03dee52170e5eb68237651bc52ee8df5e6",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
+    },
+    {
+      "unresolved": true,
+      "key": {
         "uuid": "7c691fa9_4feafcad",
         "filename": "infra/builder/builder.sh",
         "patchSetId": 2
@@ -106,6 +202,24 @@
       "writtenOn": "2026-11-20T11:01:49Z",
       "side": 1,
       "message": "- Issue: for event in $EVSSIM_QEMU_TRACE_EVENTS is unquoted, so a pattern like nvme_* gets expanded against files in the current directory.\n  - Fix: Run set -f around the loop, or use read -ra events \u003c\u003c\u003c \"$EVSSIM_QEMU_TRACE_EVENTS\".",
+      "revId": "bd1d6c03dee52170e5eb68237651bc52ee8df5e6",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "203db7de_0fd3830b",
+        "filename": "infra/builder/builder.sh",
+        "patchSetId": 2
+      },
+      "lineNbr": 281,
+      "author": {
+        "id": 1039522
+      },
+      "writtenOn": "2026-11-27T07:41:14Z",
+      "side": 1,
+      "message": "fixed",
+      "parentUuid": "7c691fa9_4feafcad",
       "revId": "bd1d6c03dee52170e5eb68237651bc52ee8df5e6",
       "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
     }
