@@ -26,6 +26,30 @@
     {
       "unresolved": true,
       "key": {
+        "uuid": "0b35edcd_6b1785b5",
+        "filename": "eVSSIM/tests/guest/filesystems/fs_benchmark.fio",
+        "patchSetId": 3
+      },
+      "lineNbr": 7,
+      "author": {
+        "id": 1039522
+      },
+      "writtenOn": "2026-11-27T11:36:53Z",
+      "side": 1,
+      "message": "But we also want to test caching effects on performance, changed fio so not all files will be able to fit in cache",
+      "parentUuid": "cf65f471_54fdc933",
+      "range": {
+        "startLine": 1,
+        "startChar": 0,
+        "endLine": 7,
+        "endChar": 9
+      },
+      "revId": "a9058d1583b9aa18745fe3626ae5ec700a2d73b6",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
+    },
+    {
+      "unresolved": true,
+      "key": {
         "uuid": "2d6a08cb_95c16b6e",
         "filename": "eVSSIM/tests/guest/filesystems/test_mount.py",
         "patchSetId": 3
@@ -49,6 +73,30 @@
     {
       "unresolved": true,
       "key": {
+        "uuid": "a65a0057_f45c92d0",
+        "filename": "eVSSIM/tests/guest/filesystems/test_mount.py",
+        "patchSetId": 3
+      },
+      "lineNbr": 58,
+      "author": {
+        "id": 1039522
+      },
+      "writtenOn": "2026-11-27T11:36:53Z",
+      "side": 1,
+      "message": "fixed",
+      "parentUuid": "2d6a08cb_95c16b6e",
+      "range": {
+        "startLine": 50,
+        "startChar": 0,
+        "endLine": 58,
+        "endChar": 23
+      },
+      "revId": "a9058d1583b9aa18745fe3626ae5ec700a2d73b6",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
+    },
+    {
+      "unresolved": true,
+      "key": {
         "uuid": "2361e4a8_90bb880b",
         "filename": "infra/builder/docker-test-filesystems.sh",
         "patchSetId": 3
@@ -60,6 +108,30 @@
       "writtenOn": "2026-11-20T09:55:19Z",
       "side": 1,
       "message": "- Issue: || true hides a failed copy of the results. The script then prints \"fio results @ …\" for an empty directory, and the later ELK step fails with an unclear \"cannot read fio JSON\" error.\n  - Fix: If the copy fails or the directory is empty, log an ERROR and exit.",
+      "range": {
+        "startLine": 37,
+        "startChar": 0,
+        "endLine": 39,
+        "endChar": 42
+      },
+      "revId": "a9058d1583b9aa18745fe3626ae5ec700a2d73b6",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "c5b90be2_cd83260f",
+        "filename": "infra/builder/docker-test-filesystems.sh",
+        "patchSetId": 3
+      },
+      "lineNbr": 39,
+      "author": {
+        "id": 1039522
+      },
+      "writtenOn": "2026-11-27T11:36:53Z",
+      "side": 1,
+      "message": "fixed",
+      "parentUuid": "2361e4a8_90bb880b",
       "range": {
         "startLine": 37,
         "startChar": 0,
