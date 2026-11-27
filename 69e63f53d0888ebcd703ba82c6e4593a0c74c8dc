@@ -20,6 +20,24 @@
     {
       "unresolved": true,
       "key": {
+        "uuid": "97cfa5a8_b85680c4",
+        "filename": "eVSSIM/scripts/exofs/exofs_lib.sh",
+        "patchSetId": 7
+      },
+      "lineNbr": 12,
+      "author": {
+        "id": 1039522
+      },
+      "writtenOn": "2026-11-27T11:37:22Z",
+      "side": 1,
+      "message": "fixed",
+      "parentUuid": "28d4cabb_ecfd7edb",
+      "revId": "69e63f53d0888ebcd703ba82c6e4593a0c74c8dc",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
+    },
+    {
+      "unresolved": true,
+      "key": {
         "uuid": "41cdbef0_031405a6",
         "filename": "eVSSIM/scripts/exofs/run_osd_emulator_and_mount_exofs.sh",
         "patchSetId": 7
@@ -43,6 +61,30 @@
     {
       "unresolved": true,
       "key": {
+        "uuid": "9b277c7b_dd7bd1ae",
+        "filename": "eVSSIM/scripts/exofs/run_osd_emulator_and_mount_exofs.sh",
+        "patchSetId": 7
+      },
+      "lineNbr": 36,
+      "author": {
+        "id": 1039522
+      },
+      "writtenOn": "2026-11-27T11:37:22Z",
+      "side": 1,
+      "message": "fixed",
+      "parentUuid": "41cdbef0_031405a6",
+      "range": {
+        "startLine": 20,
+        "startChar": 0,
+        "endLine": 36,
+        "endChar": 2
+      },
+      "revId": "69e63f53d0888ebcd703ba82c6e4593a0c74c8dc",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
+    },
+    {
+      "unresolved": true,
+      "key": {
         "uuid": "484261b6_a5fdee58",
         "filename": "infra/builder/docker-test-filesystems.sh",
         "patchSetId": 7
@@ -54,6 +96,24 @@
       "writtenOn": "2026-11-20T09:07:40Z",
       "side": 1,
       "message": "Use 2G, or explain in a comment why 512M is safe",
+      "revId": "69e63f53d0888ebcd703ba82c6e4593a0c74c8dc",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "5e9be528_e4398df9",
+        "filename": "infra/builder/docker-test-filesystems.sh",
+        "patchSetId": 7
+      },
+      "lineNbr": 23,
+      "author": {
+        "id": 1039522
+      },
+      "writtenOn": "2026-11-27T11:37:22Z",
+      "side": 1,
+      "message": "commented",
+      "parentUuid": "484261b6_a5fdee58",
       "revId": "69e63f53d0888ebcd703ba82c6e4593a0c74c8dc",
       "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
     }
